@@ -1,0 +1,11 @@
+name: validate-terraform
+on: [pull-request, workflow_dispatch]
+jobs:
+  init-terraform:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - shell: bash
+      name: validate and lint terraform
+      run: |
+        build/validate_tf.sh
