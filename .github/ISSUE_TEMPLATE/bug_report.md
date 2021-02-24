@@ -25,4 +25,6 @@ Steps to reproduce the behavior:
 
 
 **Additional context**
-Add any other context about the problem here.
+Operating System:
+Terraform Version:
+Cloud (public, Azure Government, etc.):
