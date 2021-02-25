@@ -3,8 +3,18 @@ on: [pull-request, workflow_dispatch]
 jobs:
   init-terraform:
     runs-on: ubuntu-latest
+    container:
+      image: acrmlzcicd.azurecr.io/missionlzdev
+      credentials:
+        username: ${{ secrets.acr_username }}
+        password: ${{ secrets.acr_password }}
     steps:
     - uses: actions/checkout@v2
+    - shell: bash
+      name: check tooling versions
+      run: |
+        az version
+        terraform -version
     - shell: bash
       name: validate and lint terraform
       run: |

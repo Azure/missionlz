@@ -3,11 +3,11 @@
 # Validates and lints terraform, exiting if any errors are produced
 
 program_log () {
-  echo "$(tput bold)${0}: $(tput sgr 0)$1"
+  echo "${0}: $1"
 }
 
 error_log () {
-  echo "$(tput bold && tput setaf 1)Error: $(tput sgr 0)$1"
+  echo "Error: $1"
 }
 
 # Check for Terraform
@@ -23,7 +23,7 @@ rootdir=$(pwd)
 
 # Validate all .tf files
 program_log "Validating all terraform"
-for i in $(find . -name '*.tf' -printf '%h\n' | sort --unique)
+for i in $(find . -name "*.tf" -printf "%h\n" | sort --unique)
 do
   cd "${i}" || exit
   echo "validating ${i}..."
