@@ -6,11 +6,11 @@
 # Validates and lints terraform, exiting if any errors are produced
 
 program_log () {
-  echo "${0}: $1"
+  echo "${0}: ${1}"
 }
 
 error_log () {
-  echo "Error: $1"
+  echo "Error: ${1}"
 }
 
 # Check for Terraform
