@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 resource "azurerm_resource_group" "networkwatcher" {
   name     = "${var.name_prefix}-networkwatcher-rg"
   location = var.location

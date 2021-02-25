@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 resource "azurerm_virtual_network_peering" "src-to-dest" {
   name                         = "${var.source_vnet_name}-to-${var.destination_vnet_name}"
   resource_group_name          = var.source_rg_name

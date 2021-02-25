@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 variable name_prefix {
   description = "A prefix for naming network watcher resources"
   type        = string

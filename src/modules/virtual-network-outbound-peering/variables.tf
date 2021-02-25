@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 variable "source_rg_name" {
   description = "Resource Group name for the source end of the network peer"
 }

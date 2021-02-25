@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 output "resource_group_name" {
   description = "The name of the resource group in which resources are created"
   value       = data.azurerm_resource_group.rg.name

@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 variable "resource_group_name" {
   description = "A container that holds related resources for an Azure solution"
 }

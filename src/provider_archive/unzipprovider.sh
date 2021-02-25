@@ -1,5 +1,8 @@
 #!/bin/bash
 #
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+#
 # Unzips the azurerm 2.45.1 terraform provider into the provider_cache directory
 # then sets it to executable
 

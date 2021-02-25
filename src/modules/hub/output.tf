@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 output "resource_group_name" {
   description = "The name of the resource group in which resources are created"
   value       = module.hub-network.resource_group_name
