@@ -1,0 +1,62 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+#################################
+# Tier 0 Configuration
+#################################
+
+deploymentname = "{TIER0_DEPLOYMENTNAME}"
+saca_subid     = "{SACA_SUBID}"
+saca_rgname    = "{SACA_RGNAME}"
+saca_vnetname  = "{SACA_VNETNAME}"
+saca_fwname    = "{SACA_FWNAME}"
+saca_lawsname  = "{SACA_LAWSNAME}"
+tier0_subid    = "{TIER0_SUBID}"
+tier0_rgname   = "{TIER0_RGNAME}"
+tier0_vnetname = "{TIER0_VNETNAME}"
+
+#################################
+# Network configuration section
+#################################
+
+vnet_address_space = ["{TIER0_VNETSPACE}"]
+
+subnets = {
+  "{TIER0_SUBNETVM_NAME}" = {
+    name              = "{TIER0_SUBNETVM_NAME}"
+    address_prefixes  = ["{TIER0_SUBNETVM_ADDRESSPREFIXLIST}"]
+    service_endpoints = ["{TIER0_SUBNETVM_SERVICEENDPOINTLIST}"]
+
+    enforce_private_link_endpoint_network_policies = {TIER0_SUBNETVM_ENABLEPRIVATELINKENDPOINT}
+    enforce_private_link_service_network_policies = {TIER0_SUBNETVM_ENABLEPRIVATELINKSERVICE}
+
+    nsg_name = "{TIER0_SUBNETVM_NSGNAME}"
+    nsg_rules = {
+      "allow_ssh" = {
+        name                       = "allow_ssh"
+        priority                   = "100"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = ""
+        destination_port_range     = "22"
+        source_address_prefix      = "*"
+        destination_address_prefix = ""
+      }
+      "allow_rdp" = {
+        name                       = "allow_rdp"
+        priority                   = "200"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = ""
+        destination_port_range     = "3389"
+        source_address_prefix      = "*"
+        destination_address_prefix = ""
+      }
+    }
+
+    routetable_name = "{TIER0_SUBNETVM_RTNAME}"
+  }
+}
+
+create_network_watcher = false

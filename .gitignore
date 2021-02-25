@@ -1,0 +1,40 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# Terraform artifacts
+*.tfvars
+*.terraform
+*.tfstate
+*.tfstate.backup
+terraform-provider-azurerm_v*
+terraform-provider-random_v*
+
+# Setup config variables file
+mlz_tf_cfg.var
+
+# Bash artifacts
+*.vars
+
+# Mac files
+.DS_Store
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/Properties/launchSettings.json
+
+# NuGet Packages
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/[Pp]ackages/*
+# except build/, which is used as an MSBuild target.
+!**/[Pp]ackages/build/
+# Uncomment if necessary however generally it will be regenerated when needed
+#!**/[Pp]ackages/repositories.config
+# NuGet v3's project.json files produces more ignorable files
+*.nuget.props
+*.nuget.targets
+
+# Python Tools for Visual Studio (PTVS)
+__pycache__/
+*.pyc
