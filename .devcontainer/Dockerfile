@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 FROM ubuntu:20.04
 
 # Instructs apt-get to run without a terminal
@@ -19,7 +21,8 @@ RUN add-apt-repository ppa:git-core/ppa \
         curl \
         lsb-release \
         gnupg \
-        sudo
+        sudo \
+        shellcheck
 
 # Install Python 3
 RUN apt-get update \
@@ -52,9 +55,6 @@ RUN AZ_REPO=$(lsb_release -cs) \
 # Install AZ CLI
 RUN apt-get update && apt-get install -y azure-cli
 
-# Install shellcheck for linting shell scripts
-RUN apt-get install -y shellcheck
-
 # Add the vscode user
 ARG USERNAME=vscode
 ARG USER_UID=1000
@@ -63,5 +63,6 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && useradd -s /bin/bash --uid $USER_UID --gid $USERNAME -m $USERNAME \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
+
 # Reset to the default value
 ENV DEBIAN_FRONTEND=dialog

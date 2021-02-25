@@ -1,4 +1,4 @@
-# terraform-lz-core
+# Mission LZ
 
 Terraform resources to deploy Tier 0, 1, and 2, and the components of a [SACA](https://docs.microsoft.com/en-us/azure/azure-government/compliance/secure-azure-computing-architecture).
 

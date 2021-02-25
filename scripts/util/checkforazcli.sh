@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
 # Check for Azure CLI
 if ! command -v az &> /dev/null; then

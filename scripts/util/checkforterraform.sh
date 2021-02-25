@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
 # Check for Terraform
 if ! command -v terraform &> /dev/null; then

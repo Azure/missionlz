@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+#
 # shellcheck disable=SC1090,SC1091,SC2143,SC2154
 # SC1090: Can't follow non-constant source. Use a directive to specify location.
 # SC1091: Not following. Shellcheck can't follow non-constant source.
