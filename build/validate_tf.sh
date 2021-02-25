@@ -1,5 +1,8 @@
 #!/bin/bash
 #
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+#
 # Validates and lints terraform, exiting if any errors are produced
 
 program_log () {

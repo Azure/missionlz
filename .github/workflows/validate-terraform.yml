@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 name: validate-terraform
 on: [pull_request, workflow_dispatch]
 jobs:
