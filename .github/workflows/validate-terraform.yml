@@ -1,7 +1,7 @@
 name: validate-terraform
-on: [push]
+on: [pull_request, workflow_dispatch]
 jobs:
-  init-terraform:
+  validate-terraform:
     runs-on: ubuntu-latest
     container:
       image: acrmlzcicd.azurecr.io/missionlzdev
