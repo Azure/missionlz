@@ -8,7 +8,6 @@
 # SC1091: Not following. Shellcheck can't follow non-constant source.
 #
 # A script to configure a resource group that contains Terraform state and a secret store.
-# 20210127 @byboudre @gmusa
 
 PGM=$(basename "${0}")
 

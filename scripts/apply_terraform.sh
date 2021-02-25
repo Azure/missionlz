@@ -10,7 +10,6 @@
 # SC2143: Use grep -q instead of comparing output. Ignored for legibility.
 #
 # Applies a Terraform configuration given a backend configuration, a global variables file, and a terraform configurationd directory
-# 20210129 @gmusa
 
 PGM=$(basename "${0}")
 

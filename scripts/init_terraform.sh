@@ -10,7 +10,6 @@
 # SC2143: Use grep -q instead of comparing output. Ignored for legibility.
 #
 # Initializes Terraform for a given directory using given a .env file for backend configuration
-# 20210128 @byboudre @gmusa
 
 PGM=$(basename "${0}")
 

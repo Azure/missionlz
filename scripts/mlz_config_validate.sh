@@ -9,7 +9,6 @@
 # SC2154: "var is referenced but not assigned". These values come from an external file.
 #
 # Validates the existence of resources required to run Terraform init and apply scripts
-# 20210208 @byboudre
 
 PGM=$(basename "${0}")
 
