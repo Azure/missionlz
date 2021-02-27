@@ -3,7 +3,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# Unzips the azurerm 2.45.1 terraform provider into the provider_cache directory
+# Unzips the terraform providers into the provider_cache directory
 # then sets it to executable
 
 parentdir="$(dirname "$(realpath "${BASH_SOURCE%/*}")")"
