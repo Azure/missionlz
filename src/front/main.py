@@ -156,7 +156,7 @@ async def display_creds(request: Request):
 @app.get("/logout")
 async def process_logout():
     # Simply destroy the cookies in this session and get rid of the creds, redirect to landing
-    response = JSONResponse({"result": "Session Destroyed"})  # Process the destruction from main app/test result
+    response =RedirectResponse("/")  # Process the destruction from main app/test result
     #response = RedirectResponse("/")   # Optional method to link and redirect to app
     response.delete_cookie("user")
     response.delete_cookie("flow")
