@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 # Login Code from Examples at: https://github.com/Azure-Samples/ms-identity-python-webapp
 import msal
 import os
