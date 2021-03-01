@@ -1,10 +1,11 @@
 # Login Code from Examples at: https://github.com/Azure-Samples/ms-identity-python-webapp
 import msal
+import os
 from starlette.requests import Request
 
-CLIENT_ID = "0f8a740a-7333-40d8-ba5b-ba890d99fec5" # Application (client) ID of app registration
+CLIENT_ID = os.getenv("CLIENT_ID") # Application (client) ID of app registration
 
-CLIENT_SECRET = "" # Placeholder - for use ONLY during testing.
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 # In a production app, we recommend you use a more secure method of storing your secret,
 # like Azure Key Vault. Or, use an environment variable as described in Flask's documentation:
 # https://flask.palletsprojects.com/en/1.1.x/config/#configuring-from-environment-variables
@@ -35,7 +36,7 @@ def build_msal_app(cache=None, client_id=CLIENT_ID, authority=None, secret=None)
 
 
 def build_auth_code_flow(authority=None, scopes=None, redirect_uri=None):
-    return build_msal_app(authority=authority).initiate_auth_code_flow(
+    return build_msal_app(authority=authority, secret=CLIENT_SECRET).initiate_auth_code_flow(
         scopes or [],
         redirect_uri=redirect_uri)
 

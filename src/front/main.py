@@ -22,10 +22,13 @@ async def home(request: Request):
 
     # Handle the rendering of the login url
     login_url = ""
+    user = ""
     flow = request.cookies.get("flow")
     if not request.cookies.get("user"):
         flow = auth.build_auth_code_flow(scopes=auth.SCOPE)
         login_url = flow["auth_uri"]
+    else:
+        user = json.loads(request.cookies.get("user"))
 
     # Modal Templates
     tenant_input_html = "Please enter the Tenant ID for the Azure Instance you are using.  This is needed to set up" \
@@ -71,7 +74,9 @@ async def home(request: Request):
                 a("Mission LZ", cls="navbar-brand", href="#")
                 with div(cls='collapse navbar-collapse'):
                     ul((li(a(x, href="#", cls="nav-link"), cls="nav-item") for x in sections), cls="navbar-nav mr-auto")
-                    button("Change Tenant ID", type="button", id="showTenant", cls="btn btn-outline-secondary")
+                    if user:
+                        a("Logout " + user["name"], href="/logout", cls="btn btn-outline-secondary")
+
         with div(cls="container"):
             with div(cls="page-header"):
                 with div(cls="row"):
@@ -119,7 +124,7 @@ async def home(request: Request):
                 promptTenant()
             })
                
-            logged_in = readCookie("logged_in")
+            logged_in = readCookie("user")
         
             if(!logged_in || $.trim(logged_in) == ""){
               promptLogin()
@@ -127,13 +132,15 @@ async def home(request: Request):
         })""")
 
     response = HTMLResponse(content=str(doc), status_code=200)
-    response.set_cookie("flow", flow, expires=3600)
+    response.set_cookie("flow", json.dumps(flow), expires=3600)
     return response
 
 # Display currently cached creds
 @app.get("/creds")
 async def display_creds(request: Request):
-    return JSONResponse({"creds": auth.load_cache(request)})
+    result = request.cookies.get("flow")
+    user = request.cookies.get("user")
+    return JSONResponse({"creds": user, "flow": result})
 
 # Process Logout
 @app.get("/logout")
@@ -150,15 +157,16 @@ async def process_logout():
 async def capture_redirect(request: Request):
     try:
         cache = auth.load_cache(request)
-        result = auth.build_msal_app(cache).acquire_token_by_auth_code_flow(
-            request.cookies.get("flow"), request.query_params)
+        result = auth.build_msal_app(cache, secret=auth.CLIENT_SECRET).acquire_token_by_auth_code_flow(
+            dict(json.loads(request.cookies.get("flow"))), dict(request.query_params))
         if "error" in result:
             response = JSONResponse({"status": "error", "result": result})
         else:
-            response = JSONResponse({"status": "success", "result": result})
-            response.set_cookie("user", result.get("id_token_claims"), expires=3600)
-    except ValueError:
-        response = JSONResponse({"status": "error", "result": "Possible CSRF related error"})
+            #response = JSONResponse({"status": "success", "result": result})
+            response = RedirectResponse("/")
+            response.set_cookie("user", json.dumps(result.get("id_token_claims")), expires=3600)
+    except ValueError as e:
+        response = JSONResponse({"status": "error", "result": "Possible CSRF related error"+str(e)})
     return response
 
 
