@@ -10,16 +10,26 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from lib import auth
+import os
 
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Setup keyvault accesses to gather keys
+keyVaultName = os.getenv("keyvault_name")
+keyVaultUrl = "https://{}.vault.azure.net/".format(my_vault_name)
+
+# This will use your Azure Managed Identity
+credential = DefaultAzureCredential()
+secret_client = SecretClient(
+    vault_url=keyVaultUrl,
+    credential=credential)
+
+static_location = '/static/'
 
 @app.get("/")
 async def home(request: Request):
-    static_location = '/static/'
-
     # Handle the rendering of the login url
     login_url = ""
     user = ""
@@ -157,7 +167,7 @@ async def process_logout():
 async def capture_redirect(request: Request):
     try:
         cache = auth.load_cache(request)
-        result = auth.build_msal_app(cache, secret=auth.CLIENT_SECRET).acquire_token_by_auth_code_flow(
+        result = auth.build_msal_app(cache, secret=secret_client.get_secret("app_client_secret")).acquire_token_by_auth_code_flow(
             dict(json.loads(request.cookies.get("flow"))), dict(request.query_params))
         if "error" in result:
             response = JSONResponse({"status": "error", "result": result})
@@ -192,38 +202,6 @@ async def poll_results(job_num: int):
             return JSONResponse({"results": res.read()}, status_code=200)
     except:
         return JSONResponse({"results": "No content for that job_num"}, status_code=200)
-
-
-# ####   PYTHON TEST ENDPOINTS   ##### #
-# Test code for testing keyvault access using system creds
-@app.get("/testaccess")
-async def access_test():
-    my_vault_name = "tfkv-62d1e9791981"
-    my_vault_url = "https://{}.vault.azure.net/".format(my_vault_name)
-    my_secret_name = "testkey"
-
-    # This will use your Azure Managed Identity
-    credential = DefaultAzureCredential()
-    secret_client = SecretClient(
-        vault_url=my_vault_url,
-        credential=credential)
-    secret = secret_client.get_secret(my_secret_name)
-    return JSONResponse({"Test-Key Result": secret.value}, status_code=200)
-
-
-# Test harness for cookie read (Use this for debugging)
-@app.get("/readcookies")
-async def cookies_read_test(request: Request):
-    return JSONResponse({"CookieVal": request.cookies.get("testcookies")})
-
-
-# Test harness for cookie write (Use this for debugging)
-@app.get("/testcookies")
-async def cookies_write_test():
-    response = JSONResponse({"result": "Setting a Cookie Value for Testing"})
-    response.set_cookie(key="testcookies", value="TestValue", expires=3600)
-    return response
-# ####  END TESTS  #### #
 
 
 # Primary entry for unvicorn
