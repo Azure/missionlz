@@ -3,18 +3,13 @@ import msal
 import os
 from starlette.requests import Request
 
+# TODO: Change all below items to keyvault reads
+
 CLIENT_ID = os.getenv("CLIENT_ID") # Application (client) ID of app registration
 
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-# In a production app, we recommend you use a more secure method of storing your secret,
-# like Azure Key Vault. Or, use an environment variable as described in Flask's documentation:
-# https://flask.palletsprojects.com/en/1.1.x/config/#configuring-from-environment-variables
-# CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-# if not CLIENT_SECRET:
-#     raise ValueError("Need to define CLIENT_SECRET environment variable")
 
-AUTHORITY = "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47"  # For multi-tenant app
-# AUTHORITY = "https://login.microsoftonline.com/Enter_the_Tenant_Name_Here"
+AUTHORITY = "https://login.microsoftonline.com/" + os.getenv("TENANT_ID")
 
 # You can find the proper permission names from this document
 # https://docs.microsoft.com/en-us/graph/permissions-reference
