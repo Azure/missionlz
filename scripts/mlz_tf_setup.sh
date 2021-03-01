@@ -1,13 +1,10 @@
 #!/bin/bash
-#
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
-#
 # shellcheck disable=SC1090,SC1091
 # SC1090: Can't follow non-constant source. Use a directive to specify location.
 # SC1091: Not following. Shellcheck can't follow non-constant source.
 #
 # A script to configure a resource group that contains Terraform state and a secret store.
+# 20210127 @byboudre @gmusa
 
 PGM=$(basename "${0}")
 
@@ -25,6 +22,20 @@ tf_environment=$3
 
 # Source variables
 source "$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/mlz_tf_cfg.var
+
+# Create array of subscription IDs
+subs+=("${tf_config_subid}")
+
+for tier in ${!mlz_tier*}
+do
+    if [[ ! "${subs[*]}" =~ ${!tier} ]]; then
+        subs+=("${!tier}")
+    fi
+done
+
+if [[ ! "${subs[*]}" =~ ${mlz_saca_subid} ]]; then
+        subs+=("${mlz_saca_subid}")
+fi
 
 ##################################################
 #
@@ -49,6 +60,9 @@ containerName=tfstate
 
 kvNameByConvention=kvmlz${safeEnclave}${tfCfgSubId}
 kvName=${kvNameByConvention:0:24} # take the 24 characters of the key vault name
+
+# Enable Azure Security Center on the MLZ subscriptions
+. "${BASH_SOURCE%/*}"/configure_asc.sh "${subs}" "${location}"
 
 # Create Azure AD application registration and Service Principal
 echo "Verifying Service Principal is unique (${spName})"
