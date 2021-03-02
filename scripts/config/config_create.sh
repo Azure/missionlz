@@ -40,7 +40,7 @@ if [[ -z $(az group show --name "${tf_rg_name}" --subscription "${tf_sub_id}" --
         --location "${location}" \
         --name "${tf_rg_name}"
 else
-    echo "Resource Group already exsits...getting resource group"
+    echo "Resource Group already exists...getting resource group"
 fi
 
 echo "Validating Storage Account for Terraform state..."
@@ -70,24 +70,8 @@ if [[ -z $(az storage account show --name "${tf_sa_name}" --subscription "${tf_s
         --output none
     echo "Storage account and container for Terraform state created!"
 else
-    echo "Storage Account already exsits"
+    echo "Storage Account already exists"
 fi
 
-# Create a config.vars file
-config_vars="${tf_dir}/config.vars"
-rm -f "$config_vars"
-touch "$config_vars"
-{
-    echo "tenant_id=${mlz_tenantid}"
-    echo "mlz_cfg_sub_id=${tf_config_subid}"
-    echo "mlz_cfg_kv_name=${mlz_kv_name}"
-    echo "sub_id=${tf_sub_id}"
-    echo "enclave=${mlz_enclave_name}"
-    echo "location=${location}"
-    echo "tf_be_tf_rg_name=${tf_rg_name}"
-    echo "tf_be_sa_name=${tf_sa_name}"
-    echo "sp_client_id_secret_name=${mlz_sp_kv_name}"
-    echo "sp_client_pwd_secret_name=${mlz_sp_kv_password}"
-    echo "environment=${tf_environment}"
-    echo "container_name=${container_name}"
-} >> "$config_vars"
+# generate a config.vars file
+. "${BASH_SOURCE%/*}"/generate_vars.sh "${tf_config_subid}" "${enclave_name}" "${tf_sub_id}" "${tf_name}" "${tf_dir}"

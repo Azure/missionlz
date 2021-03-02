@@ -24,7 +24,7 @@ location=$3
 . "${mlz_tf_cfg}"
 
 # generate MLZ configuration names
-. "${BASH_SOURCE%/*}"/config/generate_names.sh $tf_config_subid $enclave_name
+. "${BASH_SOURCE%/*}"/generate_names.sh $tf_config_subid $enclave_name
 
 # Create Azure AD application registration and Service Principal
 echo "Verifying Service Principal is unique (${mlz_sp_name})"
@@ -61,7 +61,7 @@ if [[ -z $(az group show --name "${mlz_rg_name}" --subscription "${tf_config_sub
         --location "${location}" \
         --name "${mlz_rg_name}"
 else
-    echo "Resource Group already exsits...getting resource group"
+    echo "Resource Group already exists...getting resource group"
 fi
 
 # Create Key Vault
