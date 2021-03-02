@@ -1,13 +1,20 @@
 #!/bin/bash
 #
-# Create MLZ Terraform config resources
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+#
+# shellcheck disable=SC1090,SC1091,SC2154
+# SC1090: Can't follow non-constant source. Use a directive to specify location.
+# SC2154: "var is referenced but not assigned". These values come from an external file.
+#
+# Create MLZ backend config resources
 
 error_log() {
   echo "${1}" 1>&2;
 }
 
 usage() {
-  echo "${0}: Create MLZ Terraform config resources"
+  echo "${0}: Create MLZ config resources"
   error_log "usage: ${0} <mlz tf config vars> <enclave name> <location>"
 }
 
@@ -24,7 +31,7 @@ location=$3
 . "${mlz_tf_cfg}"
 
 # generate MLZ configuration names
-. "${BASH_SOURCE%/*}"/generate_names.sh $tf_config_subid $enclave_name
+. "${BASH_SOURCE%/*}"/generate_names.sh "${tf_config_subid}" "${enclave_name}"
 
 # Create Azure AD application registration and Service Principal
 echo "Verifying Service Principal is unique (${mlz_sp_name})"

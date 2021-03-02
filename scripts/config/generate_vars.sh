@@ -1,5 +1,12 @@
 #!/bin/bash
 #
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+#
+# shellcheck disable=SC1090,SC1091,SC2154
+# SC1090: Can't follow non-constant source. Use a directive to specify location.
+# SC2154: "var is referenced but not assigned". These values come from an external file.
+#
 # Generate a config.vars file at a given Terraform directory
 
 error_log() {
@@ -20,7 +27,7 @@ mlz_enclave_name=$2
 
 tf_sub_id=${3}
 tf_name=${4}
-tf_dir=$(realpath ${5})
+tf_dir=$(realpath "${5}")
 
 # generate names
 . "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_sub_id}" "${mlz_enclave_name}" "${tf_sub_id}" "${tf_name}"
