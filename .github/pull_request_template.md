@@ -14,3 +14,5 @@ Please make sure you've  completed the relevant tasks for this PR, out of the fo
 * [ ] BASH scripts have been validated using `shellcheck`
 * [ ] All tests pass (manual and automated)
 * [ ] The documentation is updated to cover any new or changed features
+* [ ] Markdown files have been linted using the recommended linter. (See `.vscode/extensions.json`.)
+* [ ] Relevant issues are linked to this PR
