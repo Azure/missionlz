@@ -14,6 +14,7 @@ error_log() {
 }
 
 usage() {
+  echo "${0}: Generate a config.vars file at a given Terraform directory"
   error_log "usage: ${0} <mlz config subscription ID> <enclave name> <tf sub id> <tf name> <tf dir>"
 }
 

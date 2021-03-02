@@ -3,13 +3,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# Generate MLZ resource names
+#
 
 error_log() {
   echo "${1}" 1>&2;
 }
 
 usage() {
+  echo "${0}: Generate MLZ resource names"
   error_log "usage: ${0} <mlz config subscription ID> <enclave name> <optional tf sub id> <optional tf name>"
 }
 
