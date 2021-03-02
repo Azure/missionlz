@@ -3,9 +3,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# shellcheck disable=SC1090,SC1091
+# shellcheck disable=SC1090,SC1091,SC2154
 # SC1090: Can't follow non-constant source. Use a directive to specify location.
 # SC1091: Not following. Shellcheck can't follow non-constant source.
+# SC2154: Referenced but not assigned. These arguments come sourced from other scripts.
 #
 # A script to configure a resource group that contains Terraform state and a secret store.
 
@@ -33,7 +34,7 @@ location=$3
 ##################################################
 
 # generate MLZ configuration resources
-. "${BASH_SOURCE%/*}"/config/mlz_config_create.sh $mlz_tf_cfg $enclave $location
+. "${BASH_SOURCE%/*}"/config/mlz_config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}"
 
 ##################################################
 #
@@ -42,7 +43,7 @@ location=$3
 ##################################################
 
 saca_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/saca-hub
-. "${BASH_SOURCE%/*}"/config/config_create.sh $mlz_tf_cfg $enclave $location $mlz_saca_subid $saca_tf_path
+. "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_saca_subid}" "${saca_path}"
 
 ##################################################
 #
@@ -51,7 +52,7 @@ saca_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/s
 ##################################################
 
 tier0_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/tier-0
-. "${BASH_SOURCE%/*}"/config/config_create.sh $mlz_tf_cfg $enclave $location $mlz_tier0_subid $saca_tf_path
+. "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_tier0_subid}" "${tier0_path}"
 
 ##################################################
 #
@@ -60,7 +61,7 @@ tier0_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/
 ##################################################
 
 tier1_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/tier-1
-. "${BASH_SOURCE%/*}"/config/config_create.sh $mlz_tf_cfg $enclave $location $mlz_tier1_subid $saca_tf_path
+. "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_tier1_subid}" "${tier1_path}"
 
 ##################################################
 #
@@ -69,4 +70,4 @@ tier1_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/
 ##################################################
 
 tier2_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/tier-2
-. "${BASH_SOURCE%/*}"/config/config_create.sh $mlz_tf_cfg $enclave $location $mlz_tier2_subid $saca_tf_path
+. "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_tier2_subid}" "${tier2_path}"
