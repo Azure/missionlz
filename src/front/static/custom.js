@@ -1,4 +1,6 @@
-/* Custom JS for ezdeploy */
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/* EzDeploy Cookie Management */
 
 function createCookie(name,value,days) {
     if (days) {
@@ -19,8 +21,4 @@ function readCookie(name) {
         if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
     }
     return null;
-}
-
-function eraseCookie(name) {
-    createCookie(name,"",-1);
 }
