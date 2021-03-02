@@ -54,7 +54,7 @@ if [[ $tf_name_raw != "notset" ]]; then
 
   # TF naming patterns
   tf_prefix="tf-${tf_name}"
-  tf_sa_name_full="tfsa${tf_name}${tf_sub_id_clean}"
+  tf_sa_name_full="tfsa${tf_name}${mlz_enclave_name}${tf_sub_id_clean}"
 
   # Name TF config resources
   export tf_rg_name="rg-${tf_prefix}-${mlz_enclave_name}"
