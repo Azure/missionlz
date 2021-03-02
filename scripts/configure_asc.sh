@@ -102,8 +102,11 @@ do
             do
                 echo Waiting for ASC work space setting to finish provisioning
                 sleep 30
-                count=$((count+1))
-                echo Loop count = "${count}" 
+                ((count++))
+                if [[ ${count} -eq 60 ]];then
+                    echo Provisioning the workspace setting has exceeded 30 minutes. Investigate and re-run script
+                    exit 1
+                fi 
             done
         else
             echo ASC already has a \"default\" Log Analytics workspace configuration. Verify desired ASC configuration and re-run script
