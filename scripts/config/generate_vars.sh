@@ -14,11 +14,11 @@ error_log() {
 }
 
 usage() {
-  echo "${0}: Generate a config.vars file at a given Terraform directory"
-  error_log "usage: ${0} <mlz config vars> <tf sub id> <tf name> <tf dir>"
+  echo "generate_vars.sh: Generate a config.vars file at a given Terraform directory"
+  error_log "usage: generate_vars.sh <mlz config> <tf sub id> <tf name> <tf dir>"
 }
 
-if [[ "$#" -lt 5 ]]; then
+if [[ "$#" -lt 4 ]]; then
    usage
    exit 1
 fi

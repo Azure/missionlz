@@ -14,8 +14,8 @@ error_log() {
 }
 
 usage() {
-  echo "${0}: Create Terraform module config resources"
-  error_log "usage: ${0} <mlz tf config vars> <tf subscription id> <path to terraform module>"
+  echo "config_create.sh: Create Terraform module config resources"
+  error_log "usage: config_create.sh <mlz config> <tf subscription id> <path to terraform module>"
 }
 
 if [[ "$#" -lt 3 ]]; then

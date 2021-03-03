@@ -14,8 +14,8 @@ error_log() {
 }
 
 usage() {
-  echo "${0}: Create MLZ config resources"
-  error_log "usage: ${0} <mlz tf config vars>"
+  echo "mlz_config_create.sh: Create MLZ config resources"
+  error_log "usage: mlz_config_create.sh <mlz config>"
 }
 
 if [[ "$#" -lt 3 ]]; then
@@ -63,7 +63,7 @@ if [[ -z $(az group show --name "${mlz_rg_name}" --subscription "${mlz_config_su
     echo "Resource Group does not exist...creating resource group ${mlz_rg_name}"
     az group create \
         --subscription "${mlz_config_subid}" \
-        --location "${location}" \
+        --location "${mlz_config_location}" \
         --name "${mlz_rg_name}"
 else
     echo "Resource Group already exists...getting resource group"
@@ -76,7 +76,7 @@ if [[ -z $(az keyvault show --name "${mlz_kv_name}" --subscription "${mlz_config
         --name "${mlz_kv_name}" \
         --subscription "${mlz_config_subid}" \
         --resource-group "${mlz_rg_name}" \
-        --location "${location}" \
+        --location "${mlz_config_location}" \
         --output none
     echo "Key Vault ${mlz_kv_name} created!"
 fi

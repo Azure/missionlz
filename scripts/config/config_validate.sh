@@ -10,11 +10,17 @@
 #
 # Validates the existence of resources required to run Terraform init and apply scripts
 
-PGM=$(basename "${0}")
+error_log() {
+  echo "${1}" 1>&2;
+}
+
+usage() {
+  echo "config_validate.sh : Validates the existence of resources required to run Terraform init and apply scripts"
+  error_log "usage: config_validate.sh <terraform configuration directory>"
+}
 
 if [[ "$#" -lt 1 ]]; then
-   echo "${0}: Validates the existence of resources required to run Terraform init and apply scripts using a variables file for input"
-   echo "usage: ${PGM} <terraform configuration directory>"
+   usage
    exit 1
 fi
 

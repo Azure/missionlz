@@ -10,8 +10,8 @@ error_log() {
 }
 
 usage() {
-  echo "${0}: Generate MLZ resource names"
-  error_log "usage: ${0} <mlz config> <tf sub id> <tf name>"
+  echo "generate_names.sh: Generate MLZ resource names"
+  error_log "usage: generate_names.sh <mlz config> <tf sub id> <tf name>"
 }
 
 if [[ "$#" -lt 1 ]]; then
