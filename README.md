@@ -39,14 +39,12 @@ Create the `mlz_tf_cfg.var` file using the `mlz_tf_cfg.var.sample` as the templa
 - A Storage Account and Container for each tier to store tier Terraform state files
 - Tier specific Terraform backend config files
 
-Usage: ./mlz_tf_setup.sh <enclave name> <location> <terraform environment>
-
-NOTE: While the field <terraform environment> is analogous to the "--name" parameter in Azure CLI (az cloud set --name), the values aren't always the same. As an example, For Azure Commercial the `--name` value is AzureCloud while the Terraform value would be public
-
 ```bash
-cd scripts
-chmod u+x mlz_tf_setup.sh
-./mlz_tf_setup.sh dev eastus public
+# usage mlz_tf_setup.sh: <mlz_tf_cfg.var path> <enclave name> <location>
+
+chmod u+x scripts/mlz_tf_setup.sh
+
+scripts/mlz_tf_setup.sh src/core/mlz_tf_cfg.var eastus public
 ```
 
 ### Set Terraform Configuration Variables
@@ -126,8 +124,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.

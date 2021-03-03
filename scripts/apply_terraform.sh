@@ -30,7 +30,7 @@ plugin_dir="$(dirname "$(dirname "$(realpath "$0")")")/src/provider_cache"
 . "${BASH_SOURCE%/*}"/util/checkforterraform.sh
 
 # Validate necessary Azure resources exist
-. "${BASH_SOURCE%/*}"/mlz_config_validate.sh "${tf_dir}"
+. "${BASH_SOURCE%/*}"/config/config_validate.sh "${tf_dir}"
 
 # Get the .tfvars file matching the terraform directory name
 if [[ ! -f "${tfvars}" ]]
