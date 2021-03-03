@@ -42,36 +42,10 @@ create_tf_config() {
 ##################################################
 
 # generate MLZ configuration resources
+
 . "${BASH_SOURCE%/*}"/config/mlz_config_create.sh "${mlz_tf_cfg}" "${mlz_env_name}" "${location}"
 
-##################################################
-#
-#   SACA-hub Deployment Setup
-#
-##################################################
-
 create_tf_config "${mlz_saca_subid}" "${core_path}/saca-hub"
-
-##################################################
-#
-#   Tier-0 Deployment Setup
-#
-##################################################
-
 create_tf_config "${mlz_tier0_subid}" "${core_path}/tier-0"
-
-##################################################
-#
-#   Tier-1 Deployment Setup
-#
-##################################################
-
 create_tf_config "${mlz_tier1_subid}" "${core_path}/tier-1"
-
-##################################################
-#
-#   Tier-2 Deployment Setup
-#
-##################################################
-
 create_tf_config "${mlz_tier2_subid}" "${core_path}/tier-2"
