@@ -39,9 +39,6 @@ Before you file an issue, please check the following:
     - Have as much data as possible, including any logs or stack traces, environment, and versions.
     - Steps to reproduce are essential for understanding how to duplicate the problem.
     - Provide clarity on the expected result vs. the actual result.
-1. For proposals
-    - Many changes to the Dapr runtime may require changes to the API. In that case, the best place to discuss the potential feature is the main [Dapr repo](https://github.com/dapr/dapr).
-    - Other examples could include bindings, state stores or entirely new components.
 
 ### Pull Requests
 
