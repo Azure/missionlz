@@ -4,12 +4,16 @@ Terraform resources to deploy Tier 0, 1, and 2, and the components of a [SACA](h
 
 ## Getting Started
 
-To get started, you'll need to do 4 things:
+1. Log in using the Azure CLI
+
+    ```BASH
+    az login
+    ```
 
 1. [Prepare the Terraform provider cache](#Prepare-the-Terraform-provider-cache)
-2. [Configure the Terraform Backend](#Configure-the-Terraform-Backend)
-3. [Set Terraform Configuration Variables](#Set-Terraform-Configuration-Variables)
-4. [Deploy Terraform Configuration](#Deploy-Terraform-Configuration)
+1. [Configure the Terraform Backend](#Configure-the-Terraform-Backend)
+1. [Set Terraform Configuration Variables](#Set-Terraform-Configuration-Variables)
+1. [Deploy Terraform Configuration](#Deploy-Terraform-Configuration)
 
 ### Prepare the Terraform provider cache
 
