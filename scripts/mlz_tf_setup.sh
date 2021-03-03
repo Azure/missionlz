@@ -13,12 +13,12 @@
 PGM=$(basename "${0}")
 
 if [[ "$#" -lt 3 ]]; then
-    echo "usage: ${PGM} <mlz tf config vars> <enclave name> <location>"
+    echo "usage: ${PGM} <mlz tf config vars>"
     exit 1
 fi
 
 mlz_tf_cfg=$(realpath "${1}")
-enclave=$2
+mlz_env_name=$2
 location=$3
 
 # Check for dependencies
@@ -27,6 +27,14 @@ location=$3
 # Source variables
 . "${mlz_tf_cfg}"
 
+# Core terraform modules path
+core_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core
+
+# Create config resources given a subscription ID and terraform configuration folder path
+create_tf_config() {
+    . "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${1}" "${2}"
+}
+
 ##################################################
 #
 #   MLZ Deployment Setup
@@ -34,7 +42,7 @@ location=$3
 ##################################################
 
 # generate MLZ configuration resources
-. "${BASH_SOURCE%/*}"/config/mlz_config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}"
+. "${BASH_SOURCE%/*}"/config/mlz_config_create.sh "${mlz_tf_cfg}" "${mlz_env_name}" "${location}"
 
 ##################################################
 #
@@ -42,8 +50,7 @@ location=$3
 #
 ##################################################
 
-saca_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/saca-hub
-. "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_saca_subid}" "${saca_path}"
+create_tf_config "${mlz_saca_subid}" "${core_path}/saca-hub"
 
 ##################################################
 #
@@ -51,8 +58,7 @@ saca_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/s
 #
 ##################################################
 
-tier0_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/tier-0
-. "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_tier0_subid}" "${tier0_path}"
+create_tf_config "${mlz_tier0_subid}" "${core_path}/tier-0"
 
 ##################################################
 #
@@ -60,8 +66,7 @@ tier0_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/
 #
 ##################################################
 
-tier1_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/tier-1
-. "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_tier1_subid}" "${tier1_path}"
+create_tf_config "${mlz_tier1_subid}" "${core_path}/tier-1"
 
 ##################################################
 #
@@ -69,5 +74,4 @@ tier1_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/
 #
 ##################################################
 
-tier2_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/tier-2
-. "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_tier2_subid}" "${tier2_path}"
+create_tf_config "${mlz_tier2_subid}" "${core_path}/tier-2"

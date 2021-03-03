@@ -40,11 +40,11 @@ Create the `mlz_tf_cfg.var` file using the `mlz_tf_cfg.var.sample` as the templa
 - Tier specific Terraform backend config files
 
 ```bash
-# usage mlz_tf_setup.sh: <mlz_tf_cfg.var path> <enclave name> <location>
+# usage mlz_tf_setup.sh: <mlz_tf_cfg.var path>
 
 chmod u+x scripts/mlz_tf_setup.sh
 
-scripts/mlz_tf_setup.sh src/core/mlz_tf_cfg.var eastus public
+scripts/mlz_tf_setup.sh src/core/mlz_tf_cfg.var
 ```
 
 ### Set Terraform Configuration Variables
