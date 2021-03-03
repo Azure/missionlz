@@ -3,7 +3,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-#
+# Generate MLZ resource names
 
 error_log() {
   echo "${1}" 1>&2;
