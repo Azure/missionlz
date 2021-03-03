@@ -40,8 +40,18 @@ All configuration related to the development container is in the `.devcontainer`
 
     The container will build on your machine. The first build may take some time; the `Reopen in Container` command will be much faster after the initial container build, and VS Code will prompt you if the container needs to be rebuilt when the `Dockerfile` or container configuration settings have changed.
 
-1. (Optional) if you'd like to interact with the devcontainer's terminal from another terminal other than VS Code's built in terminal, you can docker's `exec` command:
+1. (Optional) if you'd like to interact with the devcontainer's terminal from another terminal other than VS Code's built in terminal, you can docker's `exec` command.
+
+    > NOTE: VS Code attaches to the container as the user named "vscode", so you have to do the same thing when attaching to a BASH session in the container by specifying the user as an argument to the `docker exec` command. If you do not specify the user then you will be connected as root, which will cause permissions issues in git (if you are launching VS Code from WSL).
 
     ```BASH
-    docker exec -it missionlz-dev /bin/bash
+    docker exec --interactive --tty --user vscode missionlz-dev /bin/bash
     ```
+
+    Or, the equivalent short form below:
+
+    ```BASH
+    docker exec -it -u vscode missionlz-dev /bin/bash
+    ```
+
+    When you are logged into the devcontainer's terminal, you will find the working directory

@@ -12,7 +12,7 @@
 
 PGM=$(basename "${0}")
 
-if [[ "${PGM}" == "mlz_config_validate" && "$#" -lt 1 ]]; then
+if [[ "$#" -lt 1 ]]; then
    echo "${0}: Validates the existence of resources required to run Terraform init and apply scripts using a variables file for input"
    echo "usage: ${PGM} <terraform configuration directory>"
    exit 1
