@@ -42,15 +42,17 @@ Before you file an issue, please check the following:
 
 ### Pull Requests
 
-All contributions come through pull requests. To submit a proposed change, we recommend following this workflow:
+All contributions come through pull requests (PRs). To submit a proposed change, we recommend following this workflow:
 
 1. Make sure there's an issue (issue, bug, feature request) raised, which sets the expectations for the contribution you are about to make.
 1. Fork the relevant repo and create a new branch
 1. Create your change
-1. Update relevant documentation for the change
-1. Commit and open a PR
+1. Update documentation where needed
+1. Commit the code to your branch
+1. Merge any additional changes from main into your branch and resolve any conflicts
+1. Create the PR and associate it with the relevent issue
 1. Wait for the CI process to finish and make sure all checks are green
-1. A maintainer of the project will be assigned, and you can expect a review within a few days
+1. A maintainer of the project will be assigned and you can expect a review within a few days
 
 #### Use work-in-progress PRs for early feedback
 
