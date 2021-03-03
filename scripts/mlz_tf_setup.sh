@@ -10,16 +10,21 @@
 #
 # A script to configure a resource group that contains Terraform state and a secret store.
 
-PGM=$(basename "${0}")
+error_log() {
+  echo "${1}" 1>&2;
+}
 
-if [[ "$#" -lt 3 ]]; then
-    echo "usage: ${PGM} <mlz tf config vars>"
+usage() {
+  echo "${0}: configure a resource group that contains Terraform state and a secret store"
+  error_log "usage: ${0} <mlz tf config vars>"
+}
+
+if [[ "$#" -lt 1 ]]; then
+    usage
     exit 1
 fi
 
 mlz_tf_cfg=$(realpath "${1}")
-mlz_env_name=$2
-location=$3
 
 # Check for dependencies
 . "${BASH_SOURCE%/*}"/util/checkforazcli.sh
@@ -43,7 +48,7 @@ create_tf_config() {
 
 # generate MLZ configuration resources
 
-. "${BASH_SOURCE%/*}"/config/mlz_config_create.sh "${mlz_tf_cfg}" "${mlz_env_name}" "${location}"
+. "${BASH_SOURCE%/*}"/config/mlz_config_create.sh "${mlz_tf_cfg}" "${mlz_env_name}" "${mlz_config_location}"
 
 create_tf_config "${mlz_saca_subid}" "${core_path}/saca-hub"
 create_tf_config "${mlz_tier0_subid}" "${core_path}/tier-0"
