@@ -37,7 +37,7 @@ apply() {
 }
 
 # apply terraform
-apply "tier-2" "${core_path}/tier-2"
-apply "tier-1" "${core_path}/tier-1"
-apply "tier-0" "${core_path}/tier-0"
 apply "saca-hub" "${core_path}/saca-hub"
+apply "tier-0" "${core_path}/tier-0"
+apply "tier-1" "${core_path}/tier-1"
+apply "tier-2" "${core_path}/tier-2"
