@@ -14,20 +14,18 @@ error_log() {
 }
 
 usage() {
-  echo "${0}: Create Terraform module config resources"
-  error_log "usage: ${0} <mlz tf config vars> <enclave name> <location> <tf subscription id> <path to terraform module>"
+  echo "config_create.sh: Create Terraform module config resources"
+  error_log "usage: config_create.sh <mlz config> <tf subscription id> <path to terraform module>"
 }
 
-if [[ "$#" -lt 4 ]]; then
+if [[ "$#" -lt 3 ]]; then
    usage
    exit 1
 fi
 
 mlz_tf_cfg=$(realpath "${1}")
-enclave_name=$2
-location=$3
-tf_sub_id=$4
-tf_dir=$(realpath "${5}")
+tf_sub_id=$2
+tf_dir=$(realpath "${3}")
 
 # source MLZ config vars
 . "${mlz_tf_cfg}"
@@ -36,7 +34,7 @@ tf_dir=$(realpath "${5}")
 tf_name=$(basename "${tf_dir}")
 
 # generate names
-. "${BASH_SOURCE%/*}"/generate_names.sh "${tf_config_subid}" "${enclave_name}" "${tf_sub_id}" "${tf_name}"
+. "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}"
 
 # create TF Resource Group and Storage Account for Terraform State files
 echo "Validating Resource Group for Terraform state..."
@@ -44,7 +42,7 @@ if [[ -z $(az group show --name "${tf_rg_name}" --subscription "${tf_sub_id}" --
     echo "Resource Group does not exist...creating resource group ${tf_rg_name}"
     az group create \
         --subscription "${tf_sub_id}" \
-        --location "${location}" \
+        --location "${mlz_config_location}" \
         --name "${tf_rg_name}"
 else
     echo "Resource Group already exists...getting resource group"
@@ -57,7 +55,7 @@ if [[ -z $(az storage account show --name "${tf_sa_name}" --subscription "${tf_s
         --name "${tf_sa_name}" \
         --subscription "${tf_sub_id}" \
         --resource-group "${tf_rg_name}" \
-        --location "${location}" \
+        --location "${mlz_config_location}" \
         --sku Standard_LRS \
         --output none
 
@@ -81,4 +79,4 @@ else
 fi
 
 # generate a config.vars file
-. "${BASH_SOURCE%/*}"/generate_vars.sh "${tf_config_subid}" "${enclave_name}" "${tf_sub_id}" "${tf_name}" "${tf_dir}"
+. "${BASH_SOURCE%/*}"/generate_vars.sh "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}" "${tf_dir}"

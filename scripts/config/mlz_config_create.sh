@@ -14,8 +14,8 @@ error_log() {
 }
 
 usage() {
-  echo "${0}: Create MLZ config resources"
-  error_log "usage: ${0} <mlz tf config vars> <enclave name> <location>"
+  echo "mlz_config_create.sh: Create MLZ config resources"
+  error_log "usage: mlz_config_create.sh <mlz config>"
 }
 
 if [[ "$#" -lt 3 ]]; then
@@ -24,14 +24,12 @@ if [[ "$#" -lt 3 ]]; then
 fi
 
 mlz_tf_cfg=$(realpath "${1}")
-enclave_name=$2
-location=$3
 
 # Source variables
 . "${mlz_tf_cfg}"
 
 # generate MLZ configuration names
-. "${BASH_SOURCE%/*}"/generate_names.sh "${tf_config_subid}" "${enclave_name}"
+. "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_tf_cfg}"
 
 # Create Azure AD application registration and Service Principal
 echo "Verifying Service Principal is unique (${mlz_sp_name})"
@@ -40,7 +38,7 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
     sp_pwd=$(az ad sp create-for-rbac \
         --name "http://${mlz_sp_name}" \
         --role Contributor \
-        --scopes "/subscriptions/${tf_config_subid}" "/subscriptions/${mlz_saca_subid}" "/subscriptions/${mlz_tier0_subid}" "/subscriptions/${mlz_tier1_subid}" "/subscriptions/${mlz_tier2_subid}" \
+        --scopes "/subscriptions/${mlz_config_subid}" "/subscriptions/${mlz_saca_subid}" "/subscriptions/${mlz_tier0_subid}" "/subscriptions/${mlz_tier1_subid}" "/subscriptions/${mlz_tier2_subid}" \
         --query password \
         --output tsv)
 else
@@ -61,24 +59,24 @@ sp_objid=$(az ad sp show \
     --output tsv)
 
 # Validate or create Terraform Config resource group
-if [[ -z $(az group show --name "${mlz_rg_name}" --subscription "${tf_config_subid}" --query name --output tsv) ]];then
+if [[ -z $(az group show --name "${mlz_rg_name}" --subscription "${mlz_config_subid}" --query name --output tsv) ]];then
     echo "Resource Group does not exist...creating resource group ${mlz_rg_name}"
     az group create \
-        --subscription "${tf_config_subid}" \
-        --location "${location}" \
+        --subscription "${mlz_config_subid}" \
+        --location "${mlz_config_location}" \
         --name "${mlz_rg_name}"
 else
     echo "Resource Group already exists...getting resource group"
 fi
 
 # Create Key Vault
-if [[ -z $(az keyvault show --name "${mlz_kv_name}" --subscription "${tf_config_subid}" --query name --output tsv) ]];then
+if [[ -z $(az keyvault show --name "${mlz_kv_name}" --subscription "${mlz_config_subid}" --query name --output tsv) ]];then
     echo "Key Vault ${mlz_kv_name} does not exist...creating Key Vault"
     az keyvault create \
         --name "${mlz_kv_name}" \
-        --subscription "${tf_config_subid}" \
+        --subscription "${mlz_config_subid}" \
         --resource-group "${mlz_rg_name}" \
-        --location "${location}" \
+        --location "${mlz_config_location}" \
         --output none
     echo "Key Vault ${mlz_kv_name} created!"
 fi
@@ -87,7 +85,7 @@ fi
 echo "Setting Access Policy for Service Principal..."
 az keyvault set-policy \
     --name "${mlz_kv_name}" \
-    --subscription "${tf_config_subid}" \
+    --subscription "${mlz_config_subid}" \
     --resource-group "${mlz_rg_name}" \
     --object-id "${sp_objid}" \
     --secret-permissions get list set \
@@ -98,14 +96,14 @@ echo "Access Policy for Service Principal set!"
 echo "Updating KeyVault with Service Principal secrets..."
 az keyvault secret set \
     --name "${mlz_sp_kv_password}" \
-    --subscription "${tf_config_subid}" \
+    --subscription "${mlz_config_subid}" \
     --vault-name "${mlz_kv_name}" \
     --value "${sp_pwd}" \
     --output none
 
 az keyvault secret set \
     --name "${mlz_sp_kv_name}" \
-    --subscription "${tf_config_subid}" \
+    --subscription "${mlz_config_subid}" \
     --vault-name "${mlz_kv_name}" \
     --value "${sp_clientid}" \
     --output none
