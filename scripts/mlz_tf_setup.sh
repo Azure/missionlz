@@ -22,67 +22,69 @@ mlz_tf_cfg=$(realpath "${1}")
 enclave=$2
 location=$3
 
-# Check for dependencies
-. "${BASH_SOURCE%/*}"/util/checkforazcli.sh
+echo "${mlz_tf_cfg}"
 
-# Source variables
-. "${mlz_tf_cfg}"
+# # Check for dependencies
+# . "${BASH_SOURCE%/*}"/util/checkforazcli.sh
 
-# Create array of subscription IDs
-subs+=("${tf_config_subid}")
+# # Source variables
+# . "${mlz_tf_cfg}"
 
-for tier in ${!mlz_tier*}
-do
-    if [[ ! "${subs[*]}" =~ ${!tier} ]]; then
-        subs+=("${!tier}")
-    fi
-done
+# # Create array of subscription IDs
+# subs+=("${tf_config_subid}")
 
-if [[ ! "${subs[*]}" =~ ${mlz_saca_subid} ]]; then
-        subs+=("${mlz_saca_subid}")
-fi
+# for tier in ${!mlz_tier*}
+# do
+#     if [[ ! "${subs[*]}" =~ ${!tier} ]]; then
+#         subs+=("${!tier}")
+#     fi
+# done
 
-##################################################
-#
-#   MLZ Deployment Setup
-#
-##################################################
+# if [[ ! "${subs[*]}" =~ ${mlz_saca_subid} ]]; then
+#         subs+=("${mlz_saca_subid}")
+# fi
 
-# generate MLZ configuration resources
-. "${BASH_SOURCE%/*}"/config/mlz_config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}"
+# ##################################################
+# #
+# #   MLZ Deployment Setup
+# #
+# ##################################################
 
-##################################################
-#
-#   SACA-hub Deployment Setup
-#
-##################################################
+# # generate MLZ configuration resources
+# . "${BASH_SOURCE%/*}"/config/mlz_config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}"
 
-saca_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/saca-hub
-. "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_saca_subid}" "${saca_path}"
+# ##################################################
+# #
+# #   SACA-hub Deployment Setup
+# #
+# ##################################################
 
-##################################################
-#
-#   Tier-0 Deployment Setup
-#
-##################################################
+# saca_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/saca-hub
+# . "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_saca_subid}" "${saca_path}"
 
-tier0_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/tier-0
-. "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_tier0_subid}" "${tier0_path}"
+# ##################################################
+# #
+# #   Tier-0 Deployment Setup
+# #
+# ##################################################
 
-##################################################
-#
-#   Tier-1 Deployment Setup
-#
-##################################################
+# tier0_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/tier-0
+# . "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_tier0_subid}" "${tier0_path}"
 
-tier1_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/tier-1
-. "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_tier1_subid}" "${tier1_path}"
+# ##################################################
+# #
+# #   Tier-1 Deployment Setup
+# #
+# ##################################################
 
-##################################################
-#
-#   Tier-2 Deployment Setup
-#
-##################################################
+# tier1_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/tier-1
+# . "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_tier1_subid}" "${tier1_path}"
 
-tier2_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/tier-2
-. "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_tier2_subid}" "${tier2_path}"
+# ##################################################
+# #
+# #   Tier-2 Deployment Setup
+# #
+# ##################################################
+
+# tier2_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core/tier-2
+# . "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${enclave}" "${location}" "${mlz_tier2_subid}" "${tier2_path}"
