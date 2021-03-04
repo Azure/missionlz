@@ -1,6 +1,6 @@
 # Mission LZ
 
-Terraform resources to deploy Tier 0, 1, and 2, and the components of a [SACA](https://docs.microsoft.com/en-us/azure/azure-government/compliance/secure-azure-computing-architecture).
+Terraform resources to deploy Tier 0, 1, and 2, and the components of a [SACA hub](https://docs.microsoft.com/en-us/azure/azure-government/compliance/secure-azure-computing-architecture).
 
 ## Getting Started
 
@@ -21,7 +21,7 @@ We source the terraform provider locally from this repository and circumvent the
 
 This below script will unzip the provider from the /src/provider_archive folder and place the provider in the /src/provider_cache folder and set execute permissions for the current user.
 
-1. Execute `unzipprovider.sh`
+Execute `unzipprovider.sh`
 
 ```bash
 chmod u+x src/provider_archive/unzipprovider.sh
@@ -30,59 +30,59 @@ src/provider_archive/unzipprovider.sh
 
 ### Configure the Terraform Backend
 
-The MLZ deployment architecture uses a single Service Principal whose credentials are stored in a central "config" Key Vault. Terraform state storage is distributed into a seperate storage account for each tier. When deploying the MLZ architecture, all tiers can be deployed into a single subscription or each tier can be deployed into it's on subscription.
+The MLZ deployment architecture uses a single Service Principal whose credentials are stored in a central "config" Key Vault. Terraform state storage is distributed into a separate storage account for each tier. When deploying the MLZ architecture, all tiers can be deployed into a single subscription or each tier can be deployed into its own subscription.
 
 1. Create the `mlz_tf_cfg.var` file using the `mlz_tf_cfg.var.sample` as a template.
 
-The information in the `mlz_tf_cfg.var` file, will be used by `mlz_tf_setup.sh` to create and populate a `config.vars` file for each tier and saved inside the deployment folder for each tier (example: \src\core\tier-0\config.vars).
+    The information in the `mlz_tf_cfg.var` file, will be used by `mlz_tf_setup.sh` to create and populate a `config.vars` file for each tier and saved inside the deployment folder for each tier (example: \src\core\tier-0\config.vars).
 
-For example:
+    For example:
 
-```plaintext
-mlz_env_name="{MLZ_ENV_NAME}"
-mlz_config_location="{MLZ_CONFIG_LOCATION}"
-```
+    ```plaintext
+    mlz_env_name="{MLZ_ENV_NAME}"
+    mlz_config_location="{MLZ_CONFIG_LOCATION}"
+    ```
 
-Would become:
+    Would become:
 
-```plaintext
-mlz_env_name="dev"
-mlz_config_location="eastus"
-```
+    ```plaintext
+    mlz_env_name="dev"
+    mlz_config_location="eastus"
+    ```
 
 1. Run `mlz_tf_setup.sh` at [scripts/mlz_tf_setup.sh](scripts/mlz_tf_setup.sh) to create:
 
-- A config Resource Group to store the Key Vault
-- Resource Groups for each tier to store the Terraform state Storage Account
-- A Service Principal to execute terraform commands
-- An Azure Key Vault to store the Service Principal's client ID and client secret
-- A Storage Account and Container for each tier to store tier Terraform state files
-- Tier specific Terraform backend config files
+    - A config Resource Group to store the Key Vault
+    - Resource Groups for each tier to store the Terraform state Storage Account
+    - A Service Principal to execute terraform commands
+    - An Azure Key Vault to store the Service Principal's client ID and client secret
+    - A Storage Account and Container for each tier to store tier Terraform state files
+    - Tier specific Terraform backend config files
 
-```bash
-# usage mlz_tf_setup.sh: <mlz_tf_cfg.var path>
+    ```bash
+    # usage mlz_tf_setup.sh: <mlz_tf_cfg.var path>
 
-chmod u+x scripts/mlz_tf_setup.sh
+    chmod u+x scripts/mlz_tf_setup.sh
 
-scripts/mlz_tf_setup.sh src/core/mlz_tf_cfg.var
-```
+    scripts/mlz_tf_setup.sh src/core/mlz_tf_cfg.var
+    ```
 
 ### Set Terraform Configuration Variables
 
-First, clone the *.tfvars.sample file for the global Terraform configuration (e.g. [src/globals.tfvars.sample](src/globals.tfvars.sample)) and substitute placeholders marked by curly braces "{" and "}" with the values of your choosing.
+First, clone the *.tfvars.sample file for the global Terraform configuration (e.g. [src/core/globals.tfvars.sample](src/core/globals.tfvars.sample)) and substitute placeholders marked by curly braces "{" and "}" with the values of your choosing.
 
 Then, repeat this process, cloning the *.tfvars.sample file for the Terraform configuration(s) you are deploying and substitute placeholders marked by curly braces "{" and "}" with the values of your choosing.
 
 For example:
 
 ```plaintext
-location="{MLZ_LOCATION}" # the templated value in src/globals.tfvars.sample
+location="{MLZ_LOCATION}" # the templated value in src/core/globals.tfvars.sample
 ```
 
 Would become:
 
 ```plaintext
-location="eastus" # the value used by Terraform in src/globals.tfvars
+location="eastus" # the value used by Terraform in src/core/globals.tfvars
 ```
 
 ### Deploy Terraform Configuration
