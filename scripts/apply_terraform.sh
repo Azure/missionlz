@@ -15,9 +15,9 @@ set -e
 
 PGM=$(basename "${0}")
 
-if [[ "${PGM}" == "apply_terraform.sh" && "$#" -lt 2 ]]; then
-   echo "${0}: initializes Terraform for a given directory using given a .env file for backend configuration"
-   echo "usage: ${PGM} <global variables file> <terraform configuration directory>"
+if [[ "$#" -lt 2 ]]; then
+   echo "apply_terraform.sh: initializes Terraform for a given directory using given a .env file for backend configuration"
+   echo "usage: apply_terraform.sh <global variables file> <terraform configuration directory> <auto approve (y/n)>"
    exit 1
 fi
 
@@ -29,14 +29,16 @@ tf_name=$(basename "${tf_dir}")
 config_vars="${tf_dir}/config.vars"
 tfvars="${tf_dir}/${tf_name}.tfvars"
 
+auto_approve=${3:-n}
+
 plugin_dir="$(dirname "$(dirname "$(realpath "$0")")")/src/provider_cache"
 
 # check for dependencies
-. "${BASH_SOURCE%/*}"/util/checkforazcli.sh
-. "${BASH_SOURCE%/*}"/util/checkforterraform.sh
+. "${BASH_SOURCE%/*}/util/checkforazcli.sh"
+. "${BASH_SOURCE%/*}/util/checkforterraform.sh"
 
 # Validate necessary Azure resources exist
-. "${BASH_SOURCE%/*}"/config/config_validate.sh "${tf_dir}"
+. "${BASH_SOURCE%/*}/config/config_validate.sh" "${tf_dir}"
 
 # Get the .tfvars file matching the terraform directory name
 if [[ ! -f "${tfvars}" ]]
@@ -47,7 +49,7 @@ then
 fi
 
 # Validate configuration file exists
-. "${BASH_SOURCE%/*}"/util/checkforfile.sh \
+. "${BASH_SOURCE%/*}/util/checkforfile.sh" \
    "${config_vars}" \
    "The configuration file ${config_vars} is empty or does not exist. You may need to run MLZ setup."
 
@@ -55,7 +57,7 @@ fi
 . "${config_vars}"
 
 # Verify Service Principal is valid and set client_id and client_secret environment variables
-. "${BASH_SOURCE%/*}"/util/get_sp_identity.sh "${config_vars}"
+. "${BASH_SOURCE%/*}/config/get_sp_identity.sh" "${config_vars}"
 
 # Set the terraform state key
 key="${mlz_env_name}${tf_name}"
@@ -75,13 +77,15 @@ terraform init \
    -backend-config "client_secret=${client_secret}"
 
 # apply the terraform configuration with global vars and the configuration's tfvars
+apply_command="terraform apply"
 
-# currently, this will cause a terraform prompt
-# to use this script in a pipeline, we can add an optional parameter to indicate `auto-approve`
-# https://learn.hashicorp.com/tutorials/terraform/automate-terraform#auto-approval-of-plans
+if [[ $auto_approve == "y" ]]; then
+   apply_command+=" -input=false -auto-approve"
+fi
 
-terraform apply \
-   -var-file="${globalvars}" \
-   -var-file="${tfvars}" \
-   -var "mlz_clientid=${client_id}" \
-   -var "mlz_clientsecret=${client_secret}"
+apply_command+=" -var-file=${globalvars}"
+apply_command+=" -var-file=${tfvars}"
+apply_command+=" -var mlz_clientid=${client_id}"
+apply_command+=" -var mlz_clientsecret=${client_secret}"
+
+eval "${apply_command}"

@@ -13,11 +13,9 @@
 
 set -e
 
-PGM=$(basename "${0}")
-
-if [[ "${PGM}" == "init_terraform.sh" && "$#" -lt 1 ]]; then
-   echo "${PGM}: initializes Terraform for a given directory using given a .env file for backend configuration"
-   echo "usage: ${PGM} <terraform configuration directory>"
+if [[ "$#" -lt 1 ]]; then
+   echo "init_terraform.sh: initializes Terraform for a given directory using given a .env file for backend configuration"
+   echo "usage: init_terraform.sh <terraform configuration directory>"
    exit 1
 fi
 
@@ -29,14 +27,14 @@ config_vars="${tf_dir}/config.vars"
 plugin_dir="$(dirname "$(dirname "$(realpath "$0")")")/src/provider_cache"
 
 # check for dependencies
-. "${BASH_SOURCE%/*}"/util/checkforazcli.sh
-. "${BASH_SOURCE%/*}"/util/checkforterraform.sh
+. "${BASH_SOURCE%/*}/util/checkforazcli.sh"
+. "${BASH_SOURCE%/*}/util/checkforterraform.sh"
 
 # Validate necessary Azure resources exist
-. "${BASH_SOURCE%/*}"/config/config_validate.sh "${tf_dir}"
+. "${BASH_SOURCE%/*}/config/config_validate.sh" "${tf_dir}"
 
 # Validate configuration file exists
-. "${BASH_SOURCE%/*}"/util/checkforfile.sh \
+. "${BASH_SOURCE%/*}/util/checkforfile.sh" \
    "${config_vars}" \
    "The configuration file ${config_vars} is empty or does not exist. You may need to run MLZ setup."
 
@@ -44,7 +42,7 @@ plugin_dir="$(dirname "$(dirname "$(realpath "$0")")")/src/provider_cache"
 . "${config_vars}"
 
 # Verify Service Principal is valid and set client_id and client_secret environment variables
-. "${BASH_SOURCE%/*}"/util/get_sp_identity.sh "${config_vars}"
+. "${BASH_SOURCE%/*}/config/get_sp_identity.sh" "${config_vars}"
 
 # Set the terraform state key
 key="${mlz_env_name}${tf_name}"

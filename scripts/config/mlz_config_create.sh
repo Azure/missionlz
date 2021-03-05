@@ -31,7 +31,7 @@ mlz_tf_cfg=$(realpath "${1}")
 . "${mlz_tf_cfg}"
 
 # generate MLZ configuration names
-. "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_tf_cfg}"
+. "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_tf_cfg}"
 
 # Create Azure AD application registration and Service Principal
 echo "Verifying Service Principal is unique (${mlz_sp_name})"

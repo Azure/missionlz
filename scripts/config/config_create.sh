@@ -36,7 +36,7 @@ tf_dir=$(realpath "${3}")
 tf_name=$(basename "${tf_dir}")
 
 # generate names
-. "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}"
+. "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}"
 
 # create TF Resource Group and Storage Account for Terraform State files
 echo "Validating Resource Group for Terraform state..."

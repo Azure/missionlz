@@ -1,5 +1,12 @@
 #!/bin/bash
 #
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+#
+# shellcheck disable=SC1090,SC2154
+# SC1090: Can't follow non-constant source. Use a directive to specify location.
+# SC2154: "var is referenced but not assigned". These values come from an external file.
+#
 # Automation that calls destroy terraform given a MLZ configuration and some globals.tfvars
 
 set -e
@@ -51,9 +58,9 @@ destroy() {
   # remove any tfvars and subtitute it
   tf_vars="${path}/${name}.tfvars"
   rm -rf "${tf_vars}"
-  cp "${3}" "${tf_vars}"
+  cp "${vars}" "${tf_vars}"
 
-  "${scripts_path}"/destroy_terraform.sh "${globals}" "${path}"
+  "${scripts_path}/destroy_terraform.sh" "${globals}" "${path}" "y"
 }
 
 # destroy terraform
