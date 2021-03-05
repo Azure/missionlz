@@ -10,6 +10,8 @@
 #
 # Validates the existence of resources required to run Terraform init and apply scripts
 
+set -e
+
 error_log() {
   echo "${1}" 1>&2;
 }

@@ -9,6 +9,8 @@
 #
 # Generate a config.vars file at a given Terraform directory
 
+set -e
+
 error_log() {
   echo "${1}" 1>&2;
 }
@@ -29,7 +31,7 @@ tf_name=${3}
 tf_dir=$(realpath "${4}")
 
 # generate names
-. "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}"
+. "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}"
 
 # generate a config.vars file
 config_vars="${tf_dir}/config.vars"

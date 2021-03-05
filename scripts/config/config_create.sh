@@ -9,6 +9,8 @@
 #
 # Create Terraform module backend config resources
 
+set -e
+
 error_log() {
   echo "${1}" 1>&2;
 }
@@ -34,7 +36,7 @@ tf_dir=$(realpath "${3}")
 tf_name=$(basename "${tf_dir}")
 
 # generate names
-. "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}"
+. "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}"
 
 # create TF Resource Group and Storage Account for Terraform State files
 echo "Validating Resource Group for Terraform state..."
@@ -79,4 +81,8 @@ else
 fi
 
 # generate a config.vars file
-. "${BASH_SOURCE%/*}"/generate_vars.sh "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}" "${tf_dir}"
+. "${BASH_SOURCE%/*}/generate_vars.sh" \
+    "${mlz_tf_cfg}" \
+    "${tf_sub_id}" \
+    "${tf_name}" \
+    "${tf_dir}"

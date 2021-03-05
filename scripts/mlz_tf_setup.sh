@@ -10,13 +10,15 @@
 #
 # A script to configure a resource group that contains Terraform state and a secret store.
 
+set -e
+
 error_log() {
   echo "${1}" 1>&2;
 }
 
 usage() {
-  echo "${0}: configure a resource group that contains Terraform state and a secret store"
-  error_log "usage: ${0} <mlz tf config vars>"
+  echo "mlz_tf_setup.sh: configure a resource group that contains Terraform state and a secret store"
+  error_log "usage: mlz_tf_setup.sh <mlz tf config vars>"
 }
 
 if [[ "$#" -lt 1 ]]; then
@@ -27,17 +29,17 @@ fi
 mlz_tf_cfg=$(realpath "${1}")
 
 # Check for dependencies
-. "${BASH_SOURCE%/*}"/util/checkforazcli.sh
+. "${BASH_SOURCE%/*}/util/checkforazcli.sh"
 
 # Source variables
 . "${mlz_tf_cfg}"
 
 # Core terraform modules path
-core_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"/src/core
+core_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")/src/core"
 
 # Create config resources given a subscription ID and terraform configuration folder path
 create_tf_config() {
-    . "${BASH_SOURCE%/*}"/config/config_create.sh "${mlz_tf_cfg}" "${1}" "${2}"
+    . "${BASH_SOURCE%/*}/config/config_create.sh" "${mlz_tf_cfg}" "${1}" "${2}"
 }
 
 ##################################################
@@ -48,7 +50,7 @@ create_tf_config() {
 
 # generate MLZ configuration resources
 
-. "${BASH_SOURCE%/*}"/config/mlz_config_create.sh "${mlz_tf_cfg}" "${mlz_env_name}" "${mlz_config_location}"
+. "${BASH_SOURCE%/*}/config/mlz_config_create.sh" "${mlz_tf_cfg}" "${mlz_env_name}" "${mlz_config_location}"
 
 create_tf_config "${mlz_saca_subid}" "${core_path}/saca-hub"
 create_tf_config "${mlz_tier0_subid}" "${core_path}/tier-0"
