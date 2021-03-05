@@ -29,7 +29,7 @@ tf_name=${3}
 tf_dir=$(realpath "${4}")
 
 # generate names
-. "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}"
+. "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}" || exit
 
 # generate a config.vars file
 config_vars="${tf_dir}/config.vars"

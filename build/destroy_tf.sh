@@ -37,7 +37,11 @@ destroy() {
   path=$2
   vars=$3
 
-  . "${scripts_path}/config/generate_vars.sh" "${mlz_config}" "${mlz_config_subid}" "${name}"
+  . "${scripts_path}/config/generate_vars.sh" \
+      "${mlz_config}" \
+      "${mlz_config_subid}" \
+      "${name}" "${path}" \
+      || exit
 
   # remove any existing terraform initialzation
   rm -rf "${path}/.terraform"

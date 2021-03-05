@@ -79,4 +79,9 @@ else
 fi
 
 # generate a config.vars file
-. "${BASH_SOURCE%/*}"/generate_vars.sh "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}" "${tf_dir}"
+. "${BASH_SOURCE%/*}/generate_vars.sh" \
+    "${mlz_tf_cfg}" \
+    "${tf_sub_id}" \
+    "${tf_name}" \
+    "${tf_dir}" \
+    || exit

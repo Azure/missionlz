@@ -21,7 +21,8 @@ config_vars=$1
 # Validate configuration file exists
 . "${BASH_SOURCE%/*}"/util/checkforfile.sh \
    "${config_vars}" \
-   "The configuration file ${config_vars} is empty or does not exist. You may need to run MLZ setup."
+   "The configuration file ${config_vars} is empty or does not exist. You may need to run MLZ setup." \
+   || exit
 
 # Source configuration file
 . "${config_vars}"
