@@ -46,6 +46,7 @@ apply() {
   path=$2
   vars=$3
 
+  # generate config.vars based on MLZ Config and Terraform module
   . "${scripts_path}/config/generate_vars.sh" \
       "${mlz_config}" \
       "${mlz_config_subid}" \
