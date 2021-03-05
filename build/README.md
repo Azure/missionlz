@@ -19,7 +19,7 @@ Provide an unattended way to ensure things are deployable in the repo.
 
 ## How
 
-See the root [README's "Configure the Terraform Backend"](../README.md#Configure-the-Terraform-Backend) on how to get the MLZ Config resourced deployed and a MLZ Config file.
+See the root [README's "Configure the Terraform Backend"](../README.md#Configure-the-Terraform-Backend) on how to get the MLZ Config resources deployed and a MLZ Config file.
 
 Today, the global.tfvars file and the .tfvars for saca-hub, tier0-2, are well known and stored elsewhere. Reach out to the team if you need them.
 
