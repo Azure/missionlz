@@ -2,6 +2,8 @@
 #
 # Given a MLZTF config.vars file, export a mlz_client_id and mlz_client_secret
 
+set -e
+
 error_log() {
   echo "${1}" 1>&2;
 }
@@ -21,8 +23,7 @@ config_vars=$1
 # Validate configuration file exists
 . "${BASH_SOURCE%/*}"/util/checkforfile.sh \
    "${config_vars}" \
-   "The configuration file ${config_vars} is empty or does not exist. You may need to run MLZ setup." \
-   || exit
+   "The configuration file ${config_vars} is empty or does not exist. You may need to run MLZ setup."
 
 # Source configuration file
 . "${config_vars}"

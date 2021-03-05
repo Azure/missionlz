@@ -9,6 +9,8 @@
 #
 # Create Terraform module backend config resources
 
+set -e
+
 error_log() {
   echo "${1}" 1>&2;
 }
@@ -83,5 +85,4 @@ fi
     "${mlz_tf_cfg}" \
     "${tf_sub_id}" \
     "${tf_name}" \
-    "${tf_dir}" \
-    || exit
+    "${tf_dir}"

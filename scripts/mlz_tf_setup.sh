@@ -10,6 +10,8 @@
 #
 # A script to configure a resource group that contains Terraform state and a secret store.
 
+set -e
+
 error_log() {
   echo "${1}" 1>&2;
 }

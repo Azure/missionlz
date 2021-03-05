@@ -2,6 +2,8 @@
 #
 # Check for an empty or missing file and return an error
 
+set -e
+
 error_log() {
   echo "${1}" 1>&2;
 }

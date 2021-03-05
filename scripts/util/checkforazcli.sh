@@ -3,6 +3,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+set -e
+
 # Check for Azure CLI
 if ! command -v az &> /dev/null; then
     echo "az could not be found. This script requires the Azure CLI."

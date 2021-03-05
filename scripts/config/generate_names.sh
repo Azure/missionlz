@@ -10,6 +10,8 @@
 #
 # Generate MLZ resource names
 
+set -e
+
 error_log() {
   echo "${1}" 1>&2;
 }

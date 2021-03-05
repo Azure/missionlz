@@ -11,6 +11,8 @@
 #
 # Applies a Terraform configuration given a backend configuration, a global variables file, and a terraform configurationd directory
 
+set -e
+
 PGM=$(basename "${0}")
 
 if [[ "${PGM}" == "destroy_terraform.sh" && "$#" -lt 2 ]]; then
@@ -30,11 +32,11 @@ tfvars="${tf_dir}/${tf_name}.tfvars"
 plugin_dir="$(dirname "$(dirname "$(realpath "$0")")")/src/provider_cache"
 
 # check for dependencies
-. "${BASH_SOURCE%/*}"/util/checkforazcli.sh || exit
-. "${BASH_SOURCE%/*}"/util/checkforterraform.sh || exit
+. "${BASH_SOURCE%/*}"/util/checkforazcli.sh
+. "${BASH_SOURCE%/*}"/util/checkforterraform.sh
 
 # Validate necessary Azure resources exist
-. "${BASH_SOURCE%/*}"/config/config_validate.sh "${tf_dir}" || exit
+. "${BASH_SOURCE%/*}"/config/config_validate.sh "${tf_dir}"
 
 # Get the .tfvars file matching the terraform directory name
 if [[ ! -f "${tfvars}" ]]
@@ -47,14 +49,13 @@ fi
 # Validate configuration file exists
 . "${BASH_SOURCE%/*}"/util/checkforfile.sh \
    "${config_vars}" \
-   "The configuration file ${config_vars} is empty or does not exist. You may need to run MLZ setup." \
-   || exit
+   "The configuration file ${config_vars} is empty or does not exist. You may need to run MLZ setup."
 
 # Source configuration file
 . "${config_vars}"
 
 # Verify Service Principal is valid and set client_id and client_secret environment variables
-. "${BASH_SOURCE%/*}"/util/get_sp_identity.sh "${config_vars}" || exit
+. "${BASH_SOURCE%/*}"/util/get_sp_identity.sh "${config_vars}"
 
 # Set the terraform state key
 key="${mlz_env_name}${tf_name}"

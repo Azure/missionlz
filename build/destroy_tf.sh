@@ -2,6 +2,8 @@
 #
 # Automation that calls destroy terraform given a MLZ configuration and some globals.tfvars
 
+set -e
+
 error_log() {
   echo "${1}" 1>&2;
 }
@@ -40,8 +42,8 @@ destroy() {
   . "${scripts_path}/config/generate_vars.sh" \
       "${mlz_config}" \
       "${mlz_config_subid}" \
-      "${name}" "${path}" \
-      || exit
+      "${name}" \
+      "${path}"
 
   # remove any existing terraform initialzation
   rm -rf "${path}/.terraform"
