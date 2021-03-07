@@ -4,10 +4,10 @@ The Mission LZ Front End
 ## Getting Started
 In order to run this software, you'll need to install some requirements, regardless of the path you choose to take for execution.  Follow the General Requirements,  and then follow instructions for either remote or local installation
 
-For any of the following options you will need docker on your machine. If you are pre-packaging and deploying on a target network, you will need docker locally installed on both your local internet connected machine, and your target machine.
+For any of the following options you will need docker on your machine. If you are pre-packaging and deploying on a target network, you will need docker locally installed on both your local internet connected machine, and your target machine.  The below instructions might need to be found in your target environment to replicate. 
 
 Install Docker:
-1. [Install Docker Linux](https://docs.docker.com/engine/install/ubuntu/r)
+1. [Install Docker Linux](https://docs.docker.com/engine/install/ubuntu)
 2. [Install Docker WSl2](https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers)
 
 Notes:
@@ -31,6 +31,7 @@ Install Azure CLI:
 
 
 ##Airgap-Prep
+
 
 ##Remote Installation Instructions (Recommended!)
 
@@ -59,6 +60,10 @@ Install Python 3:
 ###Running the Front End
 
 1. [Execute](#Run-Locally) (WIP, view/login only)
+
+```bash
+python
+```
 
 
 ####Install Azure CLI
@@ -106,7 +111,22 @@ source /path/to/new/virtual/environment/bin/activate
 pip install -r src/front/requirements.txt
 ```
 
-3. Execute web server
+3. Run the installation scripts to deploy app requirements
+
+```bash
+./src/setup_ezdeploy.sh
+```
+
+4. Invoke environment variables needed for login
+
+```bash
+
+$env:CLIENT_ID="<CLIENT_ID>"
+$env:CLIENT_SECRET="<CLIENT_SECRET"
+$env:TENANT_ID="<TENANT_ID>"
+```
+
+5. Execute web server
 ```bash
 python main.py
 ```
