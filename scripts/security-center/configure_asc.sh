@@ -45,19 +45,19 @@ do
 
         # Create Resource Group for Log Analytics workspace
         if [[ -z $(az group show --name "${mlz_lawsrg_name}" --subscription "${sub}" --query name --output tsv) ]]; then
-            echo Resource Group does not exist...creating resource group "${mlz_lawsrg_name}"
+            echo "Resource Group does not exist...creating resource group ${mlz_lawsrg_name}"
             az group create \
                 --subscription "${sub}" \
                 --location "${location}" \
                 --name "${mlz_lawsrg_name}"
         else
-            echo Resource Group "${mlz_lawsrg_name}" already exists. Verify desired ASC configuration and re-run script
+            echo "Resource Group ${mlz_lawsrg_name} already exists. Verify desired ASC configuration and re-run script"
             exit 1
         fi
 
         # Create Log Analytics workspace
         if [[ -z $(az monitor log-analytics workspace show --resource-group "${mlz_lawsrg_name}" --workspace-name "${mlz_laws_name}" --subscription "${sub}") ]]; then
-            echo Log Analytics workspace does not exist...creating workspace "${mlz_laws_name}"
+            echo "Log Analytics workspace does not exist...creating workspace ${mlz_laws_name}"
             lawsId=$(az monitor log-analytics workspace create \
             --resource-group "${mlz_lawsrg_name}" \
             --workspace-name "${mlz_laws_name}" \
@@ -66,13 +66,13 @@ do
             --query id \
             --output tsv)
         else
-            echo Log Analytics workspace "${mlz_laws_name}" already exists. Verify desired ASC configuration and re-run script
+            echo "Log Analytics workspace ${mlz_laws_name} already exists. Verify desired ASC configuration and re-run script"
             exit 1
         fi
 
         # Set ASC pricing tier on Virtual Machines
         if [[ $(az security pricing show --name VirtualMachines --subscription "${sub}" --only-show-errors --query pricingTier --output tsv) == "Free" ]]; then
-            echo Setting ASC pricing tier for Virtual Machines to Standard...
+            echo "Setting ASC pricing tier for Virtual Machines to Standard..."
             az security pricing create \
             --name VirtualMachines \
             --subscription "${sub}" \
@@ -81,7 +81,7 @@ do
 
         # Set ASC pricing tier on Storage Accounts
         if [[ $(az security pricing show --name StorageAccounts --subscription "${sub}" --only-show-errors --query pricingTier --output tsv --only-show-errors) == "Free" ]]; then
-            echo Setting ASC pricing tier for Storage Accounts to Standard...
+            echo "Setting ASC pricing tier for Storage Accounts to Standard..."
             az security pricing create \
             --name StorageAccounts \
             --subscription "${sub}" \
@@ -99,7 +99,7 @@ do
             echo "Maximum time to wait in seconds = ${max_wait_in_seconds}"
             echo "Maximum number of retries = ${max_retries}"
 
-            echo ASC Log Analytics workspace setting does not exist...creating default setting
+            echo "ASC Log Analytics workspace setting does not exist...creating default setting"
             echo "This script will attempt to create the setting for ${max_wait_in_minutes} minutes and then timeout if the setting has not been created"
 
             az security workspace-setting create \
@@ -112,12 +112,8 @@ do
             while [ -z "$(az security workspace-setting show --name default --subscription  "${sub}" --query workspaceId --output tsv --only-show-errors)" ]
             do
                 ((count++))
-                echo Waiting for ASC work space setting to finish provisioning
+                echo "Waiting for ASC work space setting to finish provisioning"
                 echo "Trying again in ${sleep_time_in_seconds} seconds"
-                if [[ $((count*sleep_time_in_seconds%60)) -eq 0 ]];then
-                    echo Elapsed time = $((count*sleep_time_in_seconds/60)) minutes
-                fi
-
                 sleep "${sleep_time_in_seconds}"
 
                 if [[ ${count} -eq max_retries ]];then
@@ -126,7 +122,7 @@ do
                 fi 
             done
         else
-            echo ASC already has a \"default\" Log Analytics workspace configuration. Verify desired ASC configuration and re-run script
+            echo "ASC already has a \"default\" Log Analytics workspace configuration. Verify desired ASC configuration and re-run script"
             exit 1
         fi
 
@@ -137,7 +133,7 @@ do
             --name "default" \
             --only-show-errors
     else
-        echo ASC auto-provisioning is already set to \"On\". Verify desired ASC configuration and re-run script
+        echo "ASC auto-provisioning is already set to \"On\". Verify desired ASC configuration and re-run script"
         exit 1
     fi
 done
