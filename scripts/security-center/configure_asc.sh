@@ -1,20 +1,29 @@
 #!/bin/bash
+
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 # shellcheck disable=SC1090,SC2154
 # SC1090: Can't follow non-constant source. Use a directive to specify location.
 # SC2154: "var is referenced but not assigned". These values come from an external file.
 
 # Configures the landing zone subscriptions for Azure Security Center
-# 20210228 @byboudre
+
+set -e
 
 PGM=$(basename "${0}")
 
-if [[ "${PGM}" == "configure_asc.sh" && "$#" -lt 3 ]]; then
+if [[ "${PGM}" == "configure_asc.sh" && "$#" -lt 1 ]]; then
     echo "${PGM}: Initializes Azure Security Center Standard tier for Storage Accounts and Virtual Machines"
-    echo "usage: ${PGM} <mlz tf config vars> <enclave name> <location>"
+    echo "usage: ${PGM} <mlz tf config vars>"
     exit 1
 elif [[ ! "${PGM}" == "mlz_tf_setup.sh" ]];then
-    enclave_name=$2
-    location=$3
+    
+    mlz_tf_cfg=$(realpath "${1}")
+
+    # Source variables
+    . "${mlz_tf_cfg}"
+
     mlz_sub_pattern="mlz_.*._subid"
     mlz_subs=$(< "$(realpath "${1}")" sed 's:#.*$::g' | grep -w "${mlz_sub_pattern}")
     subs=()
@@ -41,14 +50,14 @@ do
     if [[ ${ascAutoProv} == "Off" ]]; then
 
         # generate names
-        . "${BASH_SOURCE%/*}"/generate_names.sh "${enclave_name}" "${sub}"
+        . "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_env_name}" "${sub}"
 
         # Create Resource Group for Log Analytics workspace
         if [[ -z $(az group show --name "${mlz_lawsrg_name}" --subscription "${sub}" --query name --output tsv) ]]; then
             echo "Resource Group does not exist...creating resource group ${mlz_lawsrg_name}"
             az group create \
                 --subscription "${sub}" \
-                --location "${location}" \
+                --location "${mlz_config_location}" \
                 --name "${mlz_lawsrg_name}"
         else
             echo "Resource Group ${mlz_lawsrg_name} already exists. Verify desired ASC configuration and re-run script"
@@ -61,7 +70,7 @@ do
             lawsId=$(az monitor log-analytics workspace create \
             --resource-group "${mlz_lawsrg_name}" \
             --workspace-name "${mlz_laws_name}" \
-            --location "${location}" \
+            --location "${mlz_config_location}" \
             --subscription "${sub}" \
             --query id \
             --output tsv)

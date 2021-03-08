@@ -3,7 +3,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-#
+# Generate Azure Security Center resource names
+
+set -e
 
 error_log() {
   echo "${1}" 1>&2;
