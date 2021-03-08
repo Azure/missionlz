@@ -3,6 +3,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+set -e
+
 # Check for Terraform
 if ! command -v terraform &> /dev/null; then
     echo "terraform could not be found. This script requires the Terraform CLI."
