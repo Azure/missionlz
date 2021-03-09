@@ -18,7 +18,7 @@ if [[ "${PGM}" == "configure_asc.sh" && "$#" -lt 1 ]]; then
     echo "usage: ${PGM} <mlz tf config vars>"
     exit 1
 elif [[ ! "${PGM}" == "mlz_tf_setup.sh" ]];then
-    
+
     mlz_tf_cfg=$(realpath "${1}")
 
     # Source variables
@@ -115,18 +115,18 @@ do
                 --name "default" \
                 --target-workspace "${lawsId}" \
                 --subscription "${sub}"
-            
-            count=0
-            
+
+            count=1
+
             while [ -z "$(az security workspace-setting show --name default --subscription  "${sub}" --query workspaceId --output tsv --only-show-errors)" ]
             do
 
-                echo "Waiting for ASC workspace setting to finish provisioning"
-                echo "Trying again in ${sleep_time_in_seconds} seconds"
+                echo "Waiting for ASC workspace setting to finish provisioning (${count}/${max_retries})"
+                echo "Trying again in ${sleep_time_in_seconds} seconds..."
                 sleep "${sleep_time_in_seconds}"
 
                 if [[ ${count} -eq max_retries ]];then
-                    echo "Provisioning the workspace setting has exceeded ${max_wait_in_minutes} minutes. Investigate and re-run script"
+                    echo "Provisioning the workspace setting has exceeded ${max_wait_in_minutes} minutes. Investigate and re-run script."
                     exit 1
                 fi
 
