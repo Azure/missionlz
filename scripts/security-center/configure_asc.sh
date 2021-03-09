@@ -118,6 +118,8 @@ do
 
             count=1
 
+            # TODO (20210309): this could take an usually long time and even fail altogether.
+            # This is under investigation by the `az security` team.
             while [ -z "$(az security workspace-setting show --name default --subscription  "${sub}" --query workspaceId --output tsv --only-show-errors)" ]
             do
 
