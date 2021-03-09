@@ -9,7 +9,6 @@
 # SC2154: Referenced but not assigned. These arguments come sourced from other scripts.
 #
 # A script to configure a resource group that contains Terraform state and a secret store.
-# 20210127 @byboudre @gmusa
 
 set -e
 
