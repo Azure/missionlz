@@ -12,7 +12,7 @@ error_log() {
 }
 
 usage() {
-  echo "${0}: Generate MLZ resource names"
+  echo "${0}: Generate Security Center resource names"
   error_log "usage: ${0} <enclave name> <sub ID>"
 }
 

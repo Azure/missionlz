@@ -49,8 +49,8 @@ do
         --only-show-errors)
     if [[ ${ascAutoProv} == "Off" ]]; then
 
-        # generate names
-        . "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_env_name}" "${sub}"
+    # generate names
+    . "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_env_name}" "${sub}"
 
         # Create Resource Group for Log Analytics workspace
         if [[ -z $(az group show --name "${mlz_lawsrg_name}" --subscription "${sub}" --query name --output tsv) ]]; then
@@ -98,7 +98,7 @@ do
         fi
 
         # Create default setting for ASC Log Analytics workspace
-        if [[ -z $(az security workspace-setting show --name default --subscription "${sub}" --only-show-errors) ]]; then
+        if [[ -z $(az security workspace-setting show --name default --subscription "${sub}" --only-show-errors) ]];then
 
             sleep_time_in_seconds=30
             max_wait_in_minutes=30
@@ -120,15 +120,18 @@ do
             
             while [ -z "$(az security workspace-setting show --name default --subscription  "${sub}" --query workspaceId --output tsv --only-show-errors)" ]
             do
-                ((count++))
-                echo "Waiting for ASC work space setting to finish provisioning"
+
+                echo "Waiting for ASC workspace setting to finish provisioning"
                 echo "Trying again in ${sleep_time_in_seconds} seconds"
                 sleep "${sleep_time_in_seconds}"
 
                 if [[ ${count} -eq max_retries ]];then
                     echo "Provisioning the workspace setting has exceeded ${max_wait_in_minutes} minutes. Investigate and re-run script"
                     exit 1
-                fi 
+                fi
+
+                count=$((count + 1))
+
             done
         else
             echo "ASC already has a \"default\" Log Analytics workspace configuration. Verify desired ASC configuration and re-run script"
