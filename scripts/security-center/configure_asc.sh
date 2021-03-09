@@ -1,12 +1,12 @@
 #!/bin/bash
-
+#
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-
+#
 # shellcheck disable=SC1090,SC2154
 # SC1090: Can't follow non-constant source. Use a directive to specify location.
 # SC2154: "var is referenced but not assigned". These values come from an external file.
-
+#
 # Configures the landing zone subscriptions for Azure Security Center
 
 set -e
@@ -118,7 +118,7 @@ do
 
             count=1
 
-            # TODO (20210309): this could take an usually long time and even fail altogether.
+            # TODO (20210309): this could take an unusually long time and even fail altogether.
             # This is under investigation by the `az security` team.
             while [ -z "$(az security workspace-setting show --name default --subscription  "${sub}" --query workspaceId --output tsv --only-show-errors)" ]
             do
