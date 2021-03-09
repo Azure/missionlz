@@ -1,39 +1,75 @@
 #!/bin/bash
+#
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+#
+# shellcheck disable=SC1090,SC1091
+# SC1090: Can't follow non-constant source. Use a directive to specify location.
+# SC1091: Not following. Shellcheck can't follow non-constant source.
+#
+# This script deploys container registries, app registrations, and a container instance to run the MLZ front end
 
-# This script deploys the following items to the subscription (Likely to be merged with setupTerraformStorage)
-# - vnet
-# - image registry
-# - docker instance
+set -e
 
-# Additionally this script builds the docker image prior to deploying the instance and pushes it to the 
+error_log() {
+  echo "${1}" 1>&2;
+}
 
-resource_group_name=rg-terraform
-region=eastus
-acr_name $(echo "mlzregistry${subscription_id: -12}")
-instance_name $(echo "mlz${subscription_id: -12}")
-keyvault_name $(echo "tfkv${subscription_id: -13}")
-tf_service_principal_name $(echo "http://tfsp.$subscription_id")
-metadata="missionlztype=deploy"
-single_tag="missionlz"
-tags="$single_tag $metadata" # All other objects allow tags with and without values.
+usage() {
+  echo "setup_ezdeploy.sh: Setup the Front End for MLZ"
+  error_log "usage: setup_ezdeploy.sh subscription_id tenant_id <tf_env_name {{default=public}}> <mlz_env_name {{default=mlzdeployment}}> 
+
+  "
+}
+
+if [[ "$#" -lt 2 ]]; then
+   usage
+   exit 1
+fi
+
+# FrontEnd ByPasses
+# Note: We use this to provide the variables required to execute name generation to be used here.  Otherwise we would need to source a config that might not be setup yet.
+docker_strategy=${1}
+export mlz_config_subid=${2}
+export mlz_tenantid=${3}
+export tf_environment=${4:-public}
+export mlz_env_name=${5:-mlzdeployment}
+# Needed for the creation script
+export mlz_tier0_subid=${2}
+export mlz_tier1_subid=${2}
+export mlz_tier2_subid=${2}
+export mlz_saca_subid=${2}
+
+# generate MLZ configuration names
+. "${BASH_SOURCE%/*}/generate_names.sh bypass"
+
 
 echo "INFO: Setting current az cli subscription to '$subscription_id'"
 az account set --subscription $subscription_id
 
-echo "INFO: creating registry"
-az acr create \
- --resource-group $resource_group_name \
- --name $acr_name \
- --sku Basic \
- --tags $tags
+## Handle Docker Building ACR resources first
+if [[ $docker_strategy != "local" ]]; then
+  echo "Creating ACR"
+  az acr create \
+  --resource-group ${mlz_rg_name} \
+  --name ${mlz_acr_name} \
+  --sku Basic 
 
-az acr update --name $acr_name --admin-enabled true
+  echo "Running post process to enable admin on ACR"
+  az acr update --name "${mlz_acr_name}" --admin-enabled true
 
-#echo "Adding service principal to ACR permissions"
-ACR_REGISTRY_ID=$(az acr show --name $acr_name --query id --output tsv)
+  . "${BASH_SOURCE%/*}/ezdeploy_docker.sh $docker_strategy"
 
-echo "INFO: building docker container"
-docker build -t lzfront ./../
+  docker tag lzfront:latest "${mlz_acr_name}.azurecr.io/lzfront:latest"
+
+fi
+
+
+
+
+
+
+
 
 echo "INFO: Logging into Container Registry"
 az acr login --name $acr_name

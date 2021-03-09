@@ -38,7 +38,7 @@ Install Azure CLI:
 
 ###Running the Front End
 
-1. [Execute](#Run-Remotely) _(! Recommended !)_
+1. [Execute](#Run-Remotely)
 
 ##Local Installation/Execution Instructions (WIP, View/Login Only)
 
@@ -113,8 +113,18 @@ pip install -r src/front/requirements.txt
 
 3. Run the installation scripts to deploy app requirements
 
+You will need the following variables for the script: 
+
+subscription_id: is the subscription that will house all deployment artifacts: kv, storage, fe instance
+
+tenant_id:  the tenant_id where all of your subscriptions are located
+
+tf_env_name: Please refer to https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment for more information.   (Defaults to Public)
+
+mlz_env_name: Can be anything unique to your deployment/environment it is used to ensure unique entries for resources.  (Defaults to mlzdeployment)
+
 ```bash
-./src/setup_ezdeploy.sh
+./script/setup_ezdeploy.sh local <subscription_id> <tenant_id> <tf_env_name> <mlz_env_name>
 ```
 
 4. Invoke environment variables needed for login

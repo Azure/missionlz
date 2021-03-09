@@ -9,13 +9,37 @@
 #
 # This script builds and tags the docker image
 
-# Check for Azure CLI
+set -e
+
+error_log() {
+  echo "${1}" 1>&2;
+}
+
+# Check for Docker CLI
 if ! command -v docker &> /dev/null; then
     echo "Docker could not be found.  Docker is required to build docker images."
     echo "see https://docs.docker.com/engine/install/ubuntu for installation instructions."
     exit 1
 fi
 
+usage() {
+  echo "ezdeploy_docker.sh: If using 'load' will load from a specified zip file, if using 'build' will build the docker image from the dockerfile."
+  error_log "usage: ezdeploy_docker.sh <load|build> {{default=build}}"
+}
+
+if [[ "$#" -lt 1 ]]; then
+   usage
+   exit 1
+fi
+
 echo "INFO: building docker container"
-docker build -t lzfront ./../
-docker tag lzfront:latest $acr_name.azurecr.io/lzfront:latest
+    if [[ "${1}" == "build" ]]; then
+        docker build -t lzfront ./../
+    elif [[ "${1}" == "load" ]]; then
+        #TODO: Change this to a file pointer
+        unzip mlz.zip .
+        docker load -i mlz.tar
+    else
+        echo "Unrecognized docker strategy detected. Must be build or load"
+    fi
+

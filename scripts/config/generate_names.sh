@@ -26,12 +26,15 @@ if [[ "$#" -lt 1 ]]; then
    exit 1
 fi
 
-mlz_config=$(realpath "${1}")
-tf_sub_id_raw=${2:-notset}
-tf_name_raw=${3:-notset}
+# Front End By Pass Check
+if [[ ${1} != "bypass" ]]; then
+  mlz_config=$(realpath "${1}")
+  tf_sub_id_raw=${2:-notset}
+  tf_name_raw=${3:-notset}
 
-# source variables from MLZ config
-. "${mlz_config}"
+  # source variables from MLZ config
+  . "${mlz_config}"
+fi
 
 # remove hyphens for resource naming restrictions
 # in the future, do more cleansing
@@ -46,6 +49,8 @@ mlz_prefix="mlz-tf"
 mlz_sp_name_full="sp-${mlz_prefix}-${mlz_env_name_clean}"
 mlz_sa_name_full="mlztfsa${mlz_env_name_clean}${mlz_sub_id_clean}"
 mlz_kv_name_full="mlzkv${mlz_env_name_clean}${mlz_sub_id_clean}"
+mlz_acr_name_full="mlzacr${mlz_env_name_clean}${mlz_sub_id_clean}"
+mlz_fe_app_name_full="mlzfeapp${mlz_env_name_clean}${mlz_sub_id_clean}"
 
 # Name MLZ config resources
 export mlz_rg_name="rg-${mlz_prefix}-${mlz_env_name_clean}"
@@ -54,6 +59,10 @@ export mlz_sp_kv_name="${mlz_sp_name_full}-clientid"
 export mlz_sp_kv_password="${mlz_sp_name_full}-pwd"
 export mlz_sa_name="${mlz_sa_name_full:0:24}" # take the 24 characters of the storage account name
 export mlz_kv_name="${mlz_kv_name_full:0:24}" # take the 24 characters of the key vault name
+export mlz_acr_name="${mlz_acr_name_full:0:24}"
+export mlz_fe_app_name="${mlz_fe_app_name_full:0:24}"
+
+# FE Resources
 
 if [[ $tf_name_raw != "notset" ]]; then
   # remove hyphens for resource naming restrictions
