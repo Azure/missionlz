@@ -6,6 +6,7 @@
 # shellcheck disable=SC1090,SC1091
 # SC1090: Can't follow non-constant source. Use a directive to specify location.
 # SC1091: Not following. Shellcheck can't follow non-constant source.
+# SC2154: "var is referenced but not assigned". These values come from an external file.
 #
 # This script deploys container registries, app registrations, and a container instance to run the MLZ front end
 
@@ -17,9 +18,7 @@ error_log() {
 
 usage() {
   echo "setup_ezdeploy.sh: Setup the Front End for MLZ"
-  error_log "usage: setup_ezdeploy.sh subscription_id tenant_id <tf_env_name {{default=public}}> <mlz_env_name {{default=mlzdeployment}}> 
-
-  "
+  error_log "usage: setup_ezdeploy.sh subscription_id tenant_id <tf_env_name {{default=public}}> <mlz_env_name {{default=mlzdeployment}}> "
 }
 
 if [[ "$#" -lt 2 ]]; then
@@ -44,15 +43,17 @@ export mlz_saca_subid=${2}
 . "${BASH_SOURCE%/*}/generate_names.sh bypass"
 
 
-echo "INFO: Setting current az cli subscription to '$subscription_id'"
-az account set --subscription $subscription_id
+echo "INFO: Setting current az cli subscription to ${mlz_config_subid}"
+az account set --subscription "${mlz_config_subid}"
 
-## Handle Docker Building ACR resources first
+# Handle Deployment of Login Services
+
+# Handle Remote Deploy to a Container Instance
 if [[ $docker_strategy != "local" ]]; then
   echo "Creating ACR"
   az acr create \
-  --resource-group ${mlz_rg_name} \
-  --name ${mlz_acr_name} \
+  --resource-group "${mlz_rg_name}" \
+  --name "${mlz_acr_name}" \
   --sku Basic 
 
   echo "Running post process to enable admin on ACR"
@@ -62,42 +63,37 @@ if [[ $docker_strategy != "local" ]]; then
 
   docker tag lzfront:latest "${mlz_acr_name}.azurecr.io/lzfront:latest"
 
+    echo "INFO: Logging into Container Registry"
+    az acr login --name "${mlz_acr_name}"
+
+    echo "INFO: pushing docker container"
+    docker tag lzfront:latest "${mlz_acr_name}".azurecr.io/lzfront:latest
+    docker push "${mlz_acr_name}".azurecr.io/lzfront:latest
+    ACR_LOGIN_SERVER=$(az acr show --name "${mlz_acr_name}" --resource-group "${mlz_rg_name}"--query "loginServer" --output tsv)
+
+    echo "INFO: creating instance"
+    cont_ip=$(az container create \
+    --resource-group "${mlz_rg_name}"\
+    --name "${mlz_instance_name}" \
+    --image "$ACR_LOGIN_SERVER"/lzfront:latest \
+    --dns-name-label mlz-deployment-"${mlz_config_subid}" \
+    --registry-login-server "$ACR_LOGIN_SERVER" \
+    --registry-username "$(az keyvault secret show --name "mlz-spn-uid" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
+    --registry-password "$(az keyvault secret show --name "mlz-spn-pword" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
+    --ports 80 \
+    --query ipAddress.fqdn \
+    --assign-identity
+    --output tsv)
+
+    echo "INFO: Giving Instance the necessary permissions"
+    az keyvault set-policy \
+    -n "${mlz_kv_name}" \
+      --key-permissions get list \
+      --secret-permissions get list \
+      --object-id "$(az container show --resource-group "${mlz_rg_name}" --name "${mlz_instance_name}" --query identity.principalId --output tsv)"
+
+    echo "INFO: done, configuration options available at $cont_ip"
+
 fi
 
 
-
-
-
-
-
-
-echo "INFO: Logging into Container Registry"
-az acr login --name $acr_name
-
-echo "INFO: pushing docker container"
-docker tag lzfront:latest $acr_name.azurecr.io/lzfront:latest
-docker push $acr_name.azurecr.io/lzfront:latest
-ACR_LOGIN_SERVER=$(az acr show --name $acr_name --resource-group $resource_group_name --query "loginServer" --output tsv)
-
-echo "INFO: creating instance"
-cont_ip=$(az container create \
- --resource-group $resource_group_name \
- --name $instance_name \
- --image $ACR_LOGIN_SERVER/lzfront:latest \
- --dns-name-label mlz-deployment-${subscription_id: -13} \
- --registry-login-server $ACR_LOGIN_SERVER \
- --registry-username $(az keyvault secret show --name "mlz-spn-uid" --vault-name $keyvault_name --query value --output tsv) \
- --registry-password $(az keyvault secret show --name "mlz-spn-pword" --vault-name $keyvault_name --query value --output tsv) \
- --ports 80 \
- --query ipAddress.fqdn \
- --assign-identity
- --output tsv)
-
-echo "INFO: Giving Instance the necessary permissions"
-az keyvault set-policy \
- -n $keyvault_name \
-  --key-permissions get list \
-  --secret-permissions get list \
-  --object-id $(az container show --resource-group $resource_group_name --name $instance_name --query identity.principalId --output tsv)
-
-echo "INFO: done, configuration options available at $cont_ip"

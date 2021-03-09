@@ -51,6 +51,7 @@ mlz_sa_name_full="mlztfsa${mlz_env_name_clean}${mlz_sub_id_clean}"
 mlz_kv_name_full="mlzkv${mlz_env_name_clean}${mlz_sub_id_clean}"
 mlz_acr_name_full="mlzacr${mlz_env_name_clean}${mlz_sub_id_clean}"
 mlz_fe_app_name_full="mlzfeapp${mlz_env_name_clean}${mlz_sub_id_clean}"
+mlz_instance_name_full="mlzfeinstance${mlz_env_name_clean}${mlz_sub_id_clean}"
 
 # Name MLZ config resources
 export mlz_rg_name="rg-${mlz_prefix}-${mlz_env_name_clean}"
@@ -61,6 +62,7 @@ export mlz_sa_name="${mlz_sa_name_full:0:24}" # take the 24 characters of the st
 export mlz_kv_name="${mlz_kv_name_full:0:24}" # take the 24 characters of the key vault name
 export mlz_acr_name="${mlz_acr_name_full:0:24}"
 export mlz_fe_app_name="${mlz_fe_app_name_full:0:24}"
+export mlz_instance_name="${mlz_instance_name_full:0:24}"
 
 # FE Resources
 
