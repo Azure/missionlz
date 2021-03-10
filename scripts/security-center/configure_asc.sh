@@ -58,7 +58,6 @@ do
             --subscription ${sub}"
 
         if ! $rg_exists &> /dev/null; then
-        # if [[ -z $(az group show --name "${mlz_lawsrg_name}" --subscription "${sub}" --query name --output tsv) ]]; then
             echo "Resource Group does not exist...creating resource group ${mlz_lawsrg_name}"
             az group create \
                 --subscription "${sub}" \
@@ -77,7 +76,6 @@ do
             --subscription ${sub}"
         
         if ! $laws_exists &> /dev/null; then
-        # if [[ -z $(az monitor log-analytics workspace show --resource-group "${mlz_lawsrg_name}" --workspace-name "${mlz_laws_name}" --subscription "${sub}") ]]; then
             echo "Log Analytics workspace does not exist...creating workspace ${mlz_laws_name}"
             lawsId=$(az monitor log-analytics workspace create \
             --resource-group "${mlz_lawsrg_name}" \
@@ -118,7 +116,6 @@ do
             --only-show-errors"
 
         if ! $ascwss_exists &> /dev/null; then
-        # if [[ -z $(az security workspace-setting show --name default --subscription "${sub}" --only-show-errors) ]];then
 
             sleep_time_in_seconds=30
             max_wait_in_minutes=30
