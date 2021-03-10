@@ -28,21 +28,21 @@ Then, to apply and destroy pass those six arguments to the relevant script:
 ```shell
 # applies terraform in the repo
 ./apply_tf.sh \
-  ../src/core/mlz_tf_cfg.var \
-  ./path_to_vars/globals.tfvars \
-  ./path_to_vars/saca-hub.tfvars \
-  ./path_to_vars/tier-0.tfvars \
-  ./path_to_vars/tier-1.tfvars \
-  ./path_to_vars/tier-2.tfvars
+  ./path-to/mlz_tf_cfg.var \
+  ./path-to/globals.tfvars \
+  ./path-to/saca-hub.tfvars \
+  ./path-to/tier-0.tfvars \
+  ./path-to/tier-1.tfvars \
+  ./path-to/tier-2.tfvars
 ```
 
 ```shell
 # destroys terraform in the repo
 ./destroy_tf.sh \
-  ../src/core/mlz_tf_cfg.var \
-  ./path_to_vars/globals.tfvars \
-  ./path_to_vars/saca-hub.tfvars \
-  ./path_to_vars/tier-0.tfvars \
-  ./path_to_vars/tier-1.tfvars \
-  ./path_to_vars/tier-2.tfvars
+  ./path-to/mlz_tf_cfg.var \
+  ./path-to/globals.tfvars \
+  ./path-to/saca-hub.tfvars \
+  ./path-to/tier-0.tfvars \
+  ./path-to/tier-1.tfvars \
+  ./path-to/tier-2.tfvars
 ```

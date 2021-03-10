@@ -1,0 +1,54 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+name: apply-and-destroy-terraform
+on: [workflow_dispatch]
+jobs:
+  apply-terraform:
+    runs-on: ubuntu-latest
+
+    container:
+      image: acrmlzcicd.azurecr.io/missionlzdev
+      credentials:
+        username: ${{ secrets.acr_username }}
+        password: ${{ secrets.acr_password }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - uses: Azure/get-keyvault-secrets@v1
+      with:
+        keyvault: ${{ secrets.KEY_VAULT_NAME }}
+        secrets: '*'
+
+    - name: change dir
+      run: |
+        cd build
+
+    - name: get vars
+      run : |
+        ./get_vars.sh
+
+    - name: destroy terraform
+      run : |
+        ./destroy_tf.sh \
+          ./mlz_tf_cfg.var \
+          ./globals.tfvars \
+          ./saca-hub.tfvars \
+          ./tier-0.tfvars \
+          ./tier-1.tfvars \
+          ./tier-2.tfvars
+
+    - name: apply terraform
+      run : |
+        ./apply_tf.sh \
+          ./mlz_tf_cfg.var \
+          ./globals.tfvars \
+          ./saca-hub.tfvars \
+          ./tier-0.tfvars \
+          ./tier-1.tfvars \
+          ./tier-2.tfvars
