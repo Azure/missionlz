@@ -38,13 +38,21 @@ else
 fi
 
 # Validate Terraform Backend resource group
-if [[ -z $(az group exists --name "${tf_be_rg_name}" --subscription "${sub_id}") ]]; then
+rg_exists="az group show \
+    --name ${tf_be_rg_name} \
+    --subscription ${sub_id}"
+
+if ! $rg_exists &> /dev/null; then
    echo Config Resource Group "${tf_be_rg_name}" does not exist...validate config.vars file and re-run script
    exit 1
 fi
 
 # Validate config key vault
-if [[ -z $(az keyvault show --name "${mlz_cfg_kv_name}" --subscription "${mlz_cfg_sub_id}") ]]; then
+kv_exists="az keyvault show \
+    --name ${mlz_cfg_kv_name} \
+    --subscription ${mlz_cfg_sub_id}"
+
+if ! $kv_exists &> /dev/null; then
    echo Config Key Vault "${mlz_cfg_kv_name}" does not exist...validate config.vars file and re-run script
    exit 1
 fi
