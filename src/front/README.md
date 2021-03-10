@@ -129,7 +129,14 @@ mlz_env_name: Can be anything unique to your deployment/environment it is used t
 
 4. Invoke environment variables needed for login
 
-```bash
+```powershell
+
+$env:CLIENT_ID="<CLIENT_ID>"
+$env:CLIENT_SECRET="<CLIENT_SECRET"
+$env:TENANT_ID="<TENANT_ID>"
+```
+
+```powershell
 
 $env:CLIENT_ID="<CLIENT_ID>"
 $env:CLIENT_SECRET="<CLIENT_SECRET"

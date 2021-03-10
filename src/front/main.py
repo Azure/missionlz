@@ -18,15 +18,18 @@ app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+"""
 # Setup keyvault accesses to gather keys
 keyVaultName = os.getenv("keyvault_name")
-keyVaultUrl = "https://{}.vault.azure.net/".format(my_vault_name)
+keyVaultUrl = "https://{}.vault.azure.net/".format(keyVaultName)
 
 # This will use your Azure Managed Identity
 credential = DefaultAzureCredential()
 secret_client = SecretClient(
     vault_url=keyVaultUrl,
     credential=credential)
+
+"""
 
 static_location = '/static/'
 
@@ -169,8 +172,9 @@ async def process_logout():
 async def capture_redirect(request: Request):
     try:
         cache = auth.load_cache(request)
-        result = auth.build_msal_app(cache, secret=secret_client.get_secret("app_client_secret")).acquire_token_by_auth_code_flow(
-            dict(json.loads(request.cookies.get("flow"))), dict(request.query_params))
+        # result = auth.build_msal_app(cache, secret=secret_client.get_secret("app_client_secret")).acquire_token_by_auth_code_flow(
+        result = auth.build_msal_app(cache, secret=auth.CLIENT_SECRET).acquire_token_by_auth_code_flow(
+                dict(json.loads(request.cookies.get("flow"))), dict(request.query_params))
         if "error" in result:
             response = JSONResponse({"status": "error", "result": result})
         else:

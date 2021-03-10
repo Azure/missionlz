@@ -91,9 +91,18 @@ if [[ $docker_strategy != "local" ]]; then
       --key-permissions get list \
       --secret-permissions get list \
       --object-id "$(az container show --resource-group "${mlz_rg_name}" --name "${mlz_instance_name}" --query identity.principalId --output tsv)"
-
+    #TODO we need the unique domain name instead!
     echo "INFO: done, configuration options available at $cont_ip"
 
 fi
+
+# Generate the Login EndPoint for Security Purposes
+az ad app create 
+	--display-name "${mlz_fe_app_name}"
+	--homepage 'https://blah.test.com' 
+	--reply-urls 'https://blah.test.com/.auth/login/add/callback' 
+	--identifier-uris 'https://mytestapp.websites.net' 
+	--required-resource-accesses  ./config/mlz_login_app_resources.json
+
 
 
