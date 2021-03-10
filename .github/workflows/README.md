@@ -58,9 +58,14 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
 
 1. Secret store and minimally scoped Service Principal
 
-    Some of the automation in these workflows also rely on Azure Key Vault as a provider to populate sensitive environment variables.
-
     See [glennmusa/keyvault-for-actions](https://github.com/glennmusa/keyvault-for-actions) to create a minimally scoped Service Principal to pull sensitive values from an Azure Key Vault.
+
+    You'll need to grant the Service Principal from [glennmusa/keyvault-for-actions](https://github.com/glennmusa/keyvault-for-actions) 'Reader' RBAC permissions and 'get list' secret policies from the KeyVault that comes out of [Configure the Terraform Backend](#../..//README.md/#Configure-the-Terraform-Backend):
+
+      - "Reader" RBAC permissions from the Key Vault's "Access control (IAM)" blade
+      - "get list" policies from the Key Vault's "Access policies" blade
+
+    Some of the automation in these workflows also rely on Azure Key Vault as a provider to populate sensitive environment variables.
 
     We use this Azure Key Vault to:
 
@@ -70,8 +75,3 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
 
       - get and list secrets from the Key Vault created above
       - get and list secrets from the Key Vault created by [Configure the Terraform Backend](#../..//README.md/#Configure-the-Terraform-Backend)
-
-    So, after you've set up the Service Principal from [glennmusa/keyvault-for-actions](https://github.com/glennmusa/keyvault-for-actions) add it to the KeyVault that comes out of [Configure the Terraform Backend](#../..//README.md/#Configure-the-Terraform-Backend) with:
-
-      - "Reader" RBAC permissions from the Key Vault's "Access control (IAM)" blade
-      - "get list" policies from the Key Vault's "Access policies" blade
