@@ -33,7 +33,7 @@ config_vars="${tf_dir}/config.vars"
 if [[ -s "${config_vars}" ]]; then
    source "${tf_dir}/config.vars"
 else
-   echo The variable file "${config_vars}" is either empty or does not exist. Please verify file and re-run script
+   echo "The variable file ${config_vars} is either empty or does not exist. Please verify file and re-run script"
    exit 1
 fi
 
@@ -43,7 +43,7 @@ rg_exists="az group show \
     --subscription ${sub_id}"
 
 if ! $rg_exists &> /dev/null; then
-   echo Config Resource Group "${tf_be_rg_name}" does not exist...validate config.vars file and re-run script
+   echo "Config Resource Group ${tf_be_rg_name} does not exist...validate config.vars file and re-run script"
    exit 1
 fi
 
@@ -53,6 +53,6 @@ kv_exists="az keyvault show \
     --subscription ${mlz_cfg_sub_id}"
 
 if ! $kv_exists &> /dev/null; then
-   echo Config Key Vault "${mlz_cfg_kv_name}" does not exist...validate config.vars file and re-run script
+   echo "Config Key Vault ${mlz_cfg_kv_name} does not exist...validate config.vars file and re-run script"
    exit 1
 fi

@@ -41,7 +41,7 @@ kv_id_exists="az keyvault secret show \
     --subscription ${mlz_cfg_sub_id}"
 
 if ! $kv_id_exists &> /dev/null; then
-   echo The Key Vault secret "${sp_client_id_secret_name}" does not exist...validate config.vars file and re-run script
+   echo "The Key Vault secret ${sp_client_id_secret_name} does not exist...validate config.vars file and re-run script"
    exit 1
 else
    client_id=$(az keyvault secret show \
@@ -60,7 +60,7 @@ kv_pwd_exists="az keyvault secret show \
     --subscription ${mlz_cfg_sub_id}"
 
 if ! $kv_pwd_exists &> /dev/null; then
-   echo The Key Vault secret "${sp_client_pwd_secret_name}" does not exist...validate config.vars file and re-run script
+   echo "The Key Vault secret ${sp_client_pwd_secret_name} does not exist...validate config.vars file and re-run script"
    exit 1
 else
    client_secret=$(az keyvault secret show \
@@ -73,11 +73,10 @@ else
 fi
 
 # Validate Service Principal exists
-echo Verifying Service Principal with Client ID: "${client_id}"
 sp_exists="az ad sp show \
    --id ${client_id}"
 
 if ! $sp_exists &> /dev/null; then
-   echo Service Principal with Client ID "${client_id}" could not be found...validate config.vars file and re-run script
+   echo "Service Principal with Client ID ${client_id} could not be found...validate config.vars file and re-run script"
    exit 1
 fi
