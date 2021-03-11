@@ -39,6 +39,8 @@ export mlz_tier1_subid=${2}
 export mlz_tier2_subid=${2}
 export mlz_saca_subid=${2}
 
+fqdn="localhost"
+
 # generate MLZ configuration names
 . "${BASH_SOURCE%/*}/generate_names.sh bypass"
 
@@ -72,7 +74,7 @@ if [[ $docker_strategy != "local" ]]; then
     ACR_LOGIN_SERVER=$(az acr show --name "${mlz_acr_name}" --resource-group "${mlz_rg_name}"--query "loginServer" --output tsv)
 
     echo "INFO: creating instance"
-    cont_ip=$(az container create \
+    fqdn=$(az container create \
     --resource-group "${mlz_rg_name}"\
     --name "${mlz_instance_name}" \
     --image "$ACR_LOGIN_SERVER"/lzfront:latest \
@@ -92,17 +94,30 @@ if [[ $docker_strategy != "local" ]]; then
       --secret-permissions get list \
       --object-id "$(az container show --resource-group "${mlz_rg_name}" --name "${mlz_instance_name}" --query identity.principalId --output tsv)"
     #TODO we need the unique domain name instead!
-    echo "INFO: done, configuration options available at $cont_ip"
+    echo "INFO: Front End is deployed at $fqdn"
 
 fi
 
 # Generate the Login EndPoint for Security Purposes
-az ad app create 
-	--display-name "${mlz_fe_app_name}"
-	--homepage 'https://blah.test.com' 
-	--reply-urls 'https://blah.test.com/.auth/login/add/callback' 
-	--identifier-uris 'https://mytestapp.websites.net' 
-	--required-resource-accesses  ./config/mlz_login_app_resources.json
+echo "Creating App Registration to facilitate login capabilities"
+client_password=$(az ad app credential reset \
+      --id "$(az ad app create \
+        --display-name "${mlz_fe_app_name}" \
+        --reply-urls "http://$fqdn/redirect" \
+        --required-resource-accesses  ./config/mlz_login_app_resources.json \
+        --query appId \
+        --output tsv)" \
+        --query password \
+        --output tsv)
+
+az keyvault secret set \
+    --name "${mlz_login_app_kv_password}" \
+    --subscription "${mlz_config_subid}" \
+    --vault-name "${mlz_kv_name}" \
+    --value "$client_password" \
+    --output none
+echo "KeyVault updated with Login App Registration secret!"
+
 
 
 

@@ -56,8 +56,11 @@ mlz_instance_name_full="mlzfeinstance${mlz_env_name_clean}${mlz_sub_id_clean}"
 # Name MLZ config resources
 export mlz_rg_name="rg-${mlz_prefix}-${mlz_env_name_clean}"
 export mlz_sp_name="${mlz_sp_name_full}"
-export mlz_sp_kv_name="${mlz_sp_name_full}-clientid"
-export mlz_sp_kv_password="${mlz_sp_name_full}-pwd"
+export mlz_sp_kv_name="serviceprincipal-clientid"
+export mlz_sp_kv_password="serviceprincipal-pwd"
+export mlz_login_app_kv_password="login-app-pwd"
+#export mlz_sp_kv_name="${mlz_sp_name_full}-clientid"
+#export mlz_sp_kv_password="${mlz_sp_name_full}-pwd"
 export mlz_sa_name="${mlz_sa_name_full:0:24}" # take the 24 characters of the storage account name
 export mlz_kv_name="${mlz_kv_name_full:0:24}" # take the 24 characters of the key vault name
 export mlz_acr_name="${mlz_acr_name_full:0:24}"
