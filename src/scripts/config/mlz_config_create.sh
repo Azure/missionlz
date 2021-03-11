@@ -20,20 +20,27 @@ usage() {
   error_log "usage: mlz_config_create.sh <mlz config>"
 }
 
-if [[ "$#" -lt 3 ]]; then
+if [[ "$#" -lt 1 ]]; then
    usage
    exit 1
 fi
 
-mlz_tf_cfg=$(realpath "${1}")
+# Front End By Pass Check
+if [[ ${1} != "bypass" ]]; then
 
-# Source variables
-. "${mlz_tf_cfg}"
+    mlz_tf_cfg=$(realpath "${1}")
+
+    # Source variables
+    . "${mlz_tf_cfg}"
+else
+    mlz_tf_cfg="bypass"
+fi
 
 # generate MLZ configuration names
 . "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_tf_cfg}"
 
 # Create Azure AD application registration and Service Principal
+# TODO: Lift the subscription scoping out of here and move into conditional
 echo "Verifying Service Principal is unique (${mlz_sp_name})"
 if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].displayName" -o tsv) ]];then
     echo "Service Principal does not exist...creating"

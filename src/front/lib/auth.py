@@ -7,9 +7,9 @@ from starlette.requests import Request
 
 # TODO: Change all below items to keyvault reads
 
-CLIENT_ID = os.getenv("CLIENT_ID") # Application (client) ID of app registration
+CLIENT_ID = os.getenv("CLIENT_ID", "None")
 
-CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET", "None")
 
 AUTHORITY = "https://login.microsoftonline.com/" + os.getenv("TENANT_ID")
 
@@ -26,14 +26,14 @@ def load_cache(request: Request):
     return cache
 
 
-def build_msal_app(cache=None, client_id=CLIENT_ID, authority=None, secret=None):
+def build_msal_app(cache=None, client_id=CLIENT_ID, authority=None, secret=CLIENT_SECRET):
     return msal.ConfidentialClientApplication(
         client_id, authority=authority or AUTHORITY,
         client_credential=secret, token_cache=cache)
 
 
-def build_auth_code_flow(authority=None, scopes=None, redirect_uri=None):
-    return build_msal_app(authority=authority, secret=CLIENT_SECRET).initiate_auth_code_flow(
+def build_auth_code_flow(authority=None, scopes=None, redirect_uri=None, secret=CLIENT_SECRET):
+    return build_msal_app(authority=authority, secret=secret).initiate_auth_code_flow(
         scopes or [],
         redirect_uri=redirect_uri)
 

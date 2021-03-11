@@ -18,10 +18,10 @@ error_log() {
 
 usage() {
   echo "setup_ezdeploy.sh: Setup the Front End for MLZ"
-  error_log "usage: setup_ezdeploy.sh subscription_id tenant_id <tf_env_name {{default=public}}> <mlz_env_name {{default=mlzdeployment}}> "
+  error_log "usage: setup_ezdeploy.sh <local|build|load> subscription_id tenant_id <tf_env_name {{default=public}}> <mlz_env_name {{default=mlzdeployment}}> "
 }
 
-if [[ "$#" -lt 2 ]]; then
+if [[ "$#" -lt 3 ]]; then
    usage
    exit 1
 fi
@@ -42,7 +42,10 @@ export mlz_saca_subid=${2}
 fqdn="localhost"
 
 # generate MLZ configuration names
-. "${BASH_SOURCE%/*}/generate_names.sh bypass"
+. "${BASH_SOURCE%/*}/config/generate_names.sh bypass"
+
+# create the subscription resources
+. "${BASH_SOURCE%/*}/config/mlz_config_create.sh bypass"
 
 
 echo "INFO: Setting current az cli subscription to ${mlz_config_subid}"
@@ -80,11 +83,12 @@ if [[ $docker_strategy != "local" ]]; then
     --image "$ACR_LOGIN_SERVER"/lzfront:latest \
     --dns-name-label mlz-deployment-"${mlz_config_subid}" \
     --registry-login-server "$ACR_LOGIN_SERVER" \
-    --registry-username "$(az keyvault secret show --name "mlz-spn-uid" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
-    --registry-password "$(az keyvault secret show --name "mlz-spn-pword" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
+    --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" \
+    --registry-username "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
+    --registry-password "$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
     --ports 80 \
     --query ipAddress.fqdn \
-    --assign-identity
+    --assign-identity \
     --output tsv)
 
     echo "INFO: Giving Instance the necessary permissions"
@@ -100,15 +104,24 @@ fi
 
 # Generate the Login EndPoint for Security Purposes
 echo "Creating App Registration to facilitate login capabilities"
-client_password=$(az ad app credential reset \
-      --id "$(az ad app create \
+client_id=$(az ad app create \
         --display-name "${mlz_fe_app_name}" \
         --reply-urls "http://$fqdn/redirect" \
         --required-resource-accesses  ./config/mlz_login_app_resources.json \
         --query appId \
-        --output tsv)" \
+        --output tsv)
+
+client_password=$(az ad app credential reset \
+      --id "$client_id" \
         --query password \
         --output tsv)
+
+az keyvault secret set \
+    --name "${mlz_login_app_kv_name}" \
+    --subscription "${mlz_config_subid}" \
+    --vault-name "${mlz_kv_name}" \
+    --value "$client_id" \
+    --output none
 
 az keyvault secret set \
     --name "${mlz_login_app_kv_password}" \
@@ -116,6 +129,7 @@ az keyvault secret set \
     --vault-name "${mlz_kv_name}" \
     --value "$client_password" \
     --output none
+
 echo "KeyVault updated with Login App Registration secret!"
 
 

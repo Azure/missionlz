@@ -4,6 +4,9 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 ADD ./front* /app/
+ADD ./scripts* /app/deployment/scripts/
+ADD ./core* /app/deployment/core/
+ADD ./modules* /app/deployment/modules/
 
 # Update distro (software-properties-common installs the add-apt-repository command)
 RUN apt-get update \
