@@ -7,7 +7,7 @@
 	},
 
 	// Set *default* container specific settings.json values on container create.
-	"settings": { 
+	"settings": {
 		"terminal.integrated.shell.linux": "/bin/bash"
 	},
 
@@ -16,7 +16,8 @@
 		"hashicorp.terraform",
 		"ms-vscode-remote.vscode-remote-extensionpack",
 		"davidanson.vscode-markdownlint",
-		"github.vscode-pull-request-github"
+		"github.vscode-pull-request-github",
+		"timonwong.shellcheck"
 	],
 
 	// Additional args to pass to the 'docker run' command
