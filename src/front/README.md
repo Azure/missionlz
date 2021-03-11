@@ -136,7 +136,7 @@ $env:CLIENT_SECRET="<CLIENT_SECRET"
 $env:TENANT_ID="<TENANT_ID>"
 ```
 
-```powershell
+```bash
 
 $env:CLIENT_ID="<CLIENT_ID>"
 $env:CLIENT_SECRET="<CLIENT_SECRET"

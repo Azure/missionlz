@@ -18,10 +18,10 @@ error_log() {
 
 usage() {
   echo "setup_ezdeploy.sh: Setup the Front End for MLZ"
-  error_log "usage: setup_ezdeploy.sh <local|build|load> subscription_id tenant_id <tf_env_name {{default=public}}> <mlz_env_name {{default=mlzdeployment}}> "
+  error_log "usage: setup_ezdeploy.sh <local|build|load> <subscription_id> <tenant_id> <location> <tf_env_name {{default=public}}> <mlz_env_name {{default=mlzdeployment}}> "
 }
 
-if [[ "$#" -lt 3 ]]; then
+if [[ "$#" -lt 4 ]]; then
    usage
    exit 1
 fi
@@ -31,8 +31,9 @@ fi
 docker_strategy=${1}
 export mlz_config_subid=${2}
 export mlz_tenantid=${3}
-export tf_environment=${4:-public}
-export mlz_env_name=${5:-mlzdeployment}
+export mlz_config_location=${4}
+export tf_environment=${5:-public}
+export mlz_env_name=${6:-mlzdeployment}
 # Needed for the creation script
 export mlz_tier0_subid=${2}
 export mlz_tier1_subid=${2}
@@ -42,10 +43,10 @@ export mlz_saca_subid=${2}
 fqdn="localhost"
 
 # generate MLZ configuration names
-. "${BASH_SOURCE%/*}/config/generate_names.sh bypass"
+. "${BASH_SOURCE%/*}/config/generate_names.sh"  "bypass"
 
 # create the subscription resources
-. "${BASH_SOURCE%/*}/config/mlz_config_create.sh bypass"
+#. "${BASH_SOURCE%/*}/config/mlz_config_create.sh"  "bypass"
 
 
 echo "INFO: Setting current az cli subscription to ${mlz_config_subid}"
@@ -64,7 +65,7 @@ if [[ $docker_strategy != "local" ]]; then
   echo "Running post process to enable admin on ACR"
   az acr update --name "${mlz_acr_name}" --admin-enabled true
 
-  . "${BASH_SOURCE%/*}/ezdeploy_docker.sh $docker_strategy"
+  . "${BASH_SOURCE%/*}/ezdeploy_docker.sh" "$docker_strategy"
 
   docker tag lzfront:latest "${mlz_acr_name}.azurecr.io/lzfront:latest"
 
@@ -74,7 +75,7 @@ if [[ $docker_strategy != "local" ]]; then
     echo "INFO: pushing docker container"
     docker tag lzfront:latest "${mlz_acr_name}".azurecr.io/lzfront:latest
     docker push "${mlz_acr_name}".azurecr.io/lzfront:latest
-    ACR_LOGIN_SERVER=$(az acr show --name "${mlz_acr_name}" --resource-group "${mlz_rg_name}"--query "loginServer" --output tsv)
+    ACR_LOGIN_SERVER=$(az acr show --name "${mlz_acr_name}" --resource-group "${mlz_rg_name}" --query "loginServer" --output tsv)
 
     echo "INFO: creating instance"
     fqdn=$(az container create \
@@ -82,7 +83,6 @@ if [[ $docker_strategy != "local" ]]; then
     --name "${mlz_instance_name}" \
     --image "$ACR_LOGIN_SERVER"/lzfront:latest \
     --dns-name-label mlz-deployment-"${mlz_config_subid}" \
-    --registry-login-server "$ACR_LOGIN_SERVER" \
     --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" \
     --registry-username "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
     --registry-password "$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
@@ -116,6 +116,7 @@ client_password=$(az ad app credential reset \
         --query password \
         --output tsv)
 
+echo "Storing client id at ${mlz_login_app_kv_name}"
 az keyvault secret set \
     --name "${mlz_login_app_kv_name}" \
     --subscription "${mlz_config_subid}" \
@@ -123,6 +124,7 @@ az keyvault secret set \
     --value "$client_id" \
     --output none
 
+echo "Storing client secret at ${mlz_login_app_kv_password}"
 az keyvault secret set \
     --name "${mlz_login_app_kv_password}" \
     --subscription "${mlz_config_subid}" \

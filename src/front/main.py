@@ -19,17 +19,16 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Setup keyvault accesses to gather keys
-keyVaultName = os.getenv("KEYVAULT_ID")
-keyVaultUrl = "https://{}.vault.azure.net/".format(keyVaultName)
+keyVaultName = os.getenv("KEYVAULT_ID", None)
 
-# This will use your Azure Managed Identity
-credential = DefaultAzureCredential()
-secret_client = SecretClient(
-    vault_url=keyVaultUrl,
-    credential=credential)
+if keyVaultName:
+    keyVaultUrl = "https://{}.vault.azure.net/".format(keyVaultName)
 
-CLIENT_ID = secret_client.get_secret("login-app-clientid")
-CLIENT_SECRET = secret_client.get_secret("login-app-pwd")
+    # This will use your Azure Managed Identity
+    credential = DefaultAzureCredential()
+    secret_client = SecretClient(
+        vault_url=keyVaultUrl,
+        credential=credential)
 
 static_location = '/static/'
 
@@ -155,7 +154,7 @@ async def home(request: Request):
 async def display_creds(request: Request):
     result = request.cookies.get("flow")
     user = request.cookies.get("user")
-    return JSONResponse({"creds": user, "flow": result})
+    return JSONResponse({"creds": user, "flow": result, "app":secret_client.get_secret("login-app-clientid")})
 
 # Process Logout
 @app.get("/logout")
@@ -171,7 +170,11 @@ async def process_logout():
 async def capture_redirect(request: Request):
     try:
         cache = auth.load_cache(request)
-        result = auth.build_msal_app(cache, secret=CLIENT_SECRET).acquire_token_by_auth_code_flow(
+        if keyVaultName:
+            result = auth.build_msal_app(cache, client_id=secret_client.get_secret("login-app-clientid"), secret=secret_client.get_secret("login-app-pwd")).acquire_token_by_auth_code_flow(
+                    dict(json.loads(request.cookies.get("flow"))), dict(request.query_params))
+        else:
+            result = auth.build_msal_app(cache).acquire_token_by_auth_code_flow(
                 dict(json.loads(request.cookies.get("flow"))), dict(request.query_params))
         if "error" in result:
             response = JSONResponse({"status": "error", "result": result})
