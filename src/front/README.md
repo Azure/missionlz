@@ -93,7 +93,13 @@ apt-get update \
 ```
 
 #### Run-Remotely
+In order to run all of ezdeploy remotely, you'll need to have docker installed locally, as well as the Azure Bash CLI
 
+```bash
+./script/setup_ezdeploy.sh build <subscription_id> <tenant_id> <location> <tf_env_name> <mlz_env_name>
+```
+
+The final results will include a URI that you can use to access the front end running in a remote azure container instance
 
 #### Run Locally - No Docker
 
@@ -124,23 +130,21 @@ tf_env_name: Please refer to https://www.terraform.io/docs/language/settings/bac
 mlz_env_name: Can be anything unique to your deployment/environment it is used to ensure unique entries for resources.  (Defaults to mlzdeployment)
 
 ```bash
-./script/setup_ezdeploy.sh local <subscription_id> <tenant_id> <tf_env_name> <mlz_env_name>
+./script/setup_ezdeploy.sh local <subscription_id> <tenant_id> <location> <tf_env_name> <mlz_env_name>
 ```
 
 4. Invoke environment variables needed for login
 
 ```powershell
-
 $env:CLIENT_ID="<CLIENT_ID>"
 $env:CLIENT_SECRET="<CLIENT_SECRET"
 $env:TENANT_ID="<TENANT_ID>"
 ```
 
 ```bash
-
-$env:CLIENT_ID="<CLIENT_ID>"
-$env:CLIENT_SECRET="<CLIENT_SECRET"
-$env:TENANT_ID="<TENANT_ID>"
+export CLIENT_ID="<CLIENT_ID>"
+export CLIENT_SECRET="<CLIENT_SECRET"
+export TENANT_ID="<TENANT_ID>"
 ```
 
 5. Execute web server

@@ -32,8 +32,8 @@ def build_msal_app(cache=None, client_id=CLIENT_ENV_ID, authority=None, secret=C
         client_credential=secret, token_cache=cache)
 
 
-def build_auth_code_flow(authority=None, scopes=None, redirect_uri=None, secret=CLIENT_ENV_SECRET):
-    return build_msal_app(authority=authority, secret=secret).initiate_auth_code_flow(
+def build_auth_code_flow(authority=None, scopes=None, redirect_uri=None, client_id=CLIENT_ENV_ID, secret=CLIENT_ENV_SECRET):
+    return build_msal_app(client_id=client_id, authority=authority, secret=secret).initiate_auth_code_flow(
         scopes or [],
         redirect_uri=redirect_uri)
 

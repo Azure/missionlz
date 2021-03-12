@@ -97,9 +97,6 @@ if [[ $docker_strategy != "local" ]]; then
       --key-permissions get list \
       --secret-permissions get list \
       --object-id "$(az container show --resource-group "${mlz_rg_name}" --name "${mlz_instance_name}" --query identity.principalId --output tsv)"
-    #TODO we need the unique domain name instead!
-    echo "INFO: Front End is deployed at $fqdn"
-
 fi
 
 # Generate the Login EndPoint for Security Purposes
@@ -133,7 +130,11 @@ az keyvault secret set \
     --output none
 
 echo "KeyVault updated with Login App Registration secret!"
-
-
-
-
+echo "All steps have been completed you will need the following to access the configuration utility:"
+if [[ $docker_strategy == "local" ]]; then
+  echo "Your environment variables for local execution are:"
+  echo "CLIENT_ID=$client_id"
+  echo "CLIENT_SECRET=$client_password"
+else
+  echo "You can access the front end at http://$fqdn"
+fi

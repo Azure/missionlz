@@ -39,7 +39,11 @@ async def home(request: Request):
     user = ""
     flow = request.cookies.get("flow")
     if not request.cookies.get("user"):
-        flow = auth.build_auth_code_flow(scopes=auth.SCOPE)
+        if keyVaultName:
+            flow = auth.build_auth_code_flow(client_id=secret_client.get_secret("login-app-clientid").value,
+                                             secret=secret_client.get_secret("login-app-pwd").value, scopes=auth.SCOPE)
+        else:
+            flow = auth.build_auth_code_flow(scopes=auth.SCOPE)
         login_url = flow["auth_uri"]
     else:
         user = json.loads(request.cookies.get("user"))
@@ -154,7 +158,9 @@ async def home(request: Request):
 async def display_creds(request: Request):
     result = request.cookies.get("flow")
     user = request.cookies.get("user")
-    return JSONResponse({"creds": user, "flow": result, "app":secret_client.get_secret("login-app-clientid")})
+    if keyVaultName:
+        test_value = secret_client.get_secret("login-app-clientid")
+    return JSONResponse({"creds": user, "flow": result, "test_val":test_value.value})
 
 # Process Logout
 @app.get("/logout")
@@ -171,7 +177,7 @@ async def capture_redirect(request: Request):
     try:
         cache = auth.load_cache(request)
         if keyVaultName:
-            result = auth.build_msal_app(cache, client_id=secret_client.get_secret("login-app-clientid"), secret=secret_client.get_secret("login-app-pwd")).acquire_token_by_auth_code_flow(
+            result = auth.build_msal_app(cache, client_id=secret_client.get_secret("login-app-clientid").value, secret=secret_client.get_secret("login-app-pwd").value).acquire_token_by_auth_code_flow(
                     dict(json.loads(request.cookies.get("flow"))), dict(request.query_params))
         else:
             result = auth.build_msal_app(cache).acquire_token_by_auth_code_flow(
