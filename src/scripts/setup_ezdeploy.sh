@@ -46,7 +46,7 @@ fqdn="localhost"
 . "${BASH_SOURCE%/*}/config/generate_names.sh"  "bypass"
 
 # create the subscription resources
-#. "${BASH_SOURCE%/*}/config/mlz_config_create.sh"  "bypass"
+. "${BASH_SOURCE%/*}/config/mlz_config_create.sh"  "bypass"
 
 
 echo "INFO: Setting current az cli subscription to ${mlz_config_subid}"
