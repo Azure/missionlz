@@ -82,4 +82,3 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
     STORAGETOKEN | A token to access the storage account (we used a Container SAS)
 
     For more on creating a minimally scoped token to access storage see: <https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview/>
-
