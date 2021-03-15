@@ -61,18 +61,27 @@ sp_objid=$(az ad sp show \
     --output tsv)
 
 # Validate or create Terraform Config resource group
-if [[ -z $(az group show --name "${mlz_rg_name}" --subscription "${mlz_config_subid}" --query name --output tsv) ]];then
+rg_exists="az group show \
+    --name ${mlz_rg_name} \
+    --subscription ${mlz_config_subid}"
+
+if ! $rg_exists &> /dev/null; then
     echo "Resource Group does not exist...creating resource group ${mlz_rg_name}"
     az group create \
         --subscription "${mlz_config_subid}" \
         --location "${mlz_config_location}" \
-        --name "${mlz_rg_name}"
+        --name "${mlz_rg_name}" \
+        --output none
 else
     echo "Resource Group already exists...getting resource group"
 fi
 
 # Create Key Vault
-if [[ -z $(az keyvault show --name "${mlz_kv_name}" --subscription "${mlz_config_subid}" --query name --output tsv) ]];then
+kv_exists="az keyvault show \
+    --name ${mlz_kv_name} \
+    --subscription ${mlz_config_subid}"
+
+if ! $kv_exists &> /dev/null; then
     echo "Key Vault ${mlz_kv_name} does not exist...creating Key Vault"
     az keyvault create \
         --name "${mlz_kv_name}" \

@@ -35,8 +35,13 @@ config_vars=$1
 # Source configuration file
 . "${config_vars}"
 
-if [[ -z $(az keyvault secret show --name "${sp_client_id_secret_name}" --vault-name "${mlz_cfg_kv_name}" --subscription "${mlz_cfg_sub_id}") ]]; then
-   echo The Key Vault secret "${sp_client_id_secret_name}" does not exist...validate config.vars file and re-run script
+kv_id_exists="az keyvault secret show \
+    --name ${sp_client_id_secret_name} \
+    --vault-name ${mlz_cfg_kv_name} \
+    --subscription ${mlz_cfg_sub_id}"
+
+if ! $kv_id_exists &> /dev/null; then
+   echo "The Key Vault secret ${sp_client_id_secret_name} does not exist...validate config.vars file and re-run script"
    exit 1
 else
    client_id=$(az keyvault secret show \
@@ -49,8 +54,13 @@ else
 fi
 
 # Query Key Vault for Service Principal Password
-if [[ -z $(az keyvault secret show --name "${sp_client_pwd_secret_name}" --vault-name "${mlz_cfg_kv_name}" --subscription "${mlz_cfg_sub_id}") ]]; then
-   echo The Key Vault secret "${sp_client_pwd_secret_name}" does not exist...validate config.vars file and re-run script
+kv_pwd_exists="az keyvault secret show \
+    --name ${sp_client_pwd_secret_name} \
+    --vault-name ${mlz_cfg_kv_name} \
+    --subscription ${mlz_cfg_sub_id}"
+
+if ! $kv_pwd_exists &> /dev/null; then
+   echo "The Key Vault secret ${sp_client_pwd_secret_name} does not exist...validate config.vars file and re-run script"
    exit 1
 else
    client_secret=$(az keyvault secret show \
@@ -63,8 +73,10 @@ else
 fi
 
 # Validate Service Principal exists
-echo Verifying Service Principal with Client ID: "${client_id}"
-if [[ -z $(az ad sp list --filter "appId eq '${client_id}'") ]]; then
-    echo Service Principal with Client ID "${client_id}" could not be found...validate config.vars file and re-run script
-    exit 1
+sp_exists="az ad sp show \
+   --id ${client_id}"
+
+if ! $sp_exists &> /dev/null; then
+   echo "Service Principal with Client ID ${client_id} could not be found...validate config.vars file and re-run script"
+   exit 1
 fi
