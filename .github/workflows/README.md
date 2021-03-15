@@ -42,36 +42,44 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
 
     When applying terraform locally or from this automation, an MLZ Configuration file (commonly mlz_tf_cfg.var) and Terraform-specific variables files (commonly *.tfvars) are required.
 
+    You should end up with a container with these files:
+
+    File Name | Value
+    ------------ | -------------
+    mlz_tf_cfg.var | An MLZ Configuration file that comes from mlz_tf_setup.sh
+    globals.tfvars | Global MLZ terraform values
+    saca-hub.tfvars | SACA Hub MLZ terraform values
+    tier-0.tfvars | Tier 0 MLZ terraform values
+    tier-1.tfvars | Tier 1 MLZ terraform values
+    tier-2.tfvars | Tier 2 MLZ terraform values
+
     Running this from your local machine, you can provide these files yourself, but, today, for automation these files are stored in an Azure Storage Account and retrieved at workflow execution time. See [build/get_vars.sh](../../build/get_vars.sh) to see how we retrieve
 
     ```plaintext
     ./build/get_vars.sh
 
     # pulls down these files:
-    mlz_tf_cfg.var
-    globals.tfvars
-    saca-hub.tfvars
-    tier-0.tfvars
-    tier-1.tfvars
-    tier-2.tfvars
+    vars/mlz_tf_cfg.var
+    vars/globals.tfvars
+    vars/saca-hub.tfvars
+    vars/tier-0.tfvars
+    vars/tier-1.tfvars
+    vars/tier-2.tfvars
     ```
 
 1. Secret store and minimally scoped Service Principal
 
     See [glennmusa/keyvault-for-actions](https://github.com/glennmusa/keyvault-for-actions) to create a minimally scoped Service Principal to pull sensitive values from an Azure Key Vault.
 
-    You'll need to grant the Service Principal from [glennmusa/keyvault-for-actions](https://github.com/glennmusa/keyvault-for-actions) 'Reader' RBAC permissions and 'get list' secret policies from the KeyVault that comes out of [Configure the Terraform Backend](#../..//README.md/#Configure-the-Terraform-Backend):
+    Supply that Key Vault the values for:
 
-      - "Reader" RBAC permissions from the Key Vault's "Access control (IAM)" blade
-      - "get list" policies from the Key Vault's "Access policies" blade
+    Secret Name | Value
+    ------------ | -------------
+    MLZCLIENTID | The Service Principal Authorized to deploy resources into MLZ Terraform Subscriptions
+    MLZCLIENTSECRET | The credential for the Service Principal above
+    STORAGEACCOUNT | The Azure Storage Account for the files in the previous step
+    STORAGECONTAINER | The container contianing the files in the previous step
+    STORAGETOKEN | A token to access the storage account (we used a Container SAS)
 
-    Some of the automation in these workflows also rely on Azure Key Vault as a provider to populate sensitive environment variables.
+    For more on creating a minimally scoped token to access storage see: <https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview/>
 
-    We use this Azure Key Vault to:
-
-      - retireve the Storage account, container, and minimally privileged SAS token to retrieve configuration files
-
-    We use the Service Principal generated to:
-
-      - get and list secrets from the Key Vault created above
-      - get and list secrets from the Key Vault created by [Configure the Terraform Backend](#../..//README.md/#Configure-the-Terraform-Backend)
