@@ -25,30 +25,40 @@ jobs:
         keyvault: ${{ secrets.KEY_VAULT_NAME }}
         secrets: '*'
 
-    - name: change dir
+    - name: unzip providers
       run: |
-        cd build
+        src/provider_archive/unzipprovider.sh
 
     - name: get vars
       run : |
+        cd build
         ./get_vars.sh
+
+    - name: login
+      run : |
+        cd build
+        ./login_azcli.sh vars/mlz_tf_cfg.var
 
     - name: destroy terraform
       run : |
+        cd build
         ./destroy_tf.sh \
-          ./mlz_tf_cfg.var \
-          ./globals.tfvars \
-          ./saca-hub.tfvars \
-          ./tier-0.tfvars \
-          ./tier-1.tfvars \
-          ./tier-2.tfvars
+          vars/mlz_tf_cfg.var \
+          vars/globals.tfvars \
+          vars/saca-hub.tfvars \
+          vars/tier-0.tfvars \
+          vars/tier-1.tfvars \
+          vars/tier-2.tfvars \
+          y
 
     - name: apply terraform
       run : |
+        cd build
         ./apply_tf.sh \
-          ./mlz_tf_cfg.var \
-          ./globals.tfvars \
-          ./saca-hub.tfvars \
-          ./tier-0.tfvars \
-          ./tier-1.tfvars \
-          ./tier-2.tfvars
+          vars/mlz_tf_cfg.var \
+          vars/globals.tfvars \
+          vars/saca-hub.tfvars \
+          vars/tier-0.tfvars \
+          vars/tier-1.tfvars \
+          vars/tier-2.tfvars \
+          y
