@@ -1,0 +1,124 @@
+{
+	"saca-hub": {
+		"form": [{
+				"varname": "deploymentname",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "saca_subid",
+				"type": "text",
+				"default_val": "",
+				"description": "The subscription id where the SACA hub lives",
+				"options": []
+			},
+			{
+				"varname": "saca_rgname",
+				"type": "text",
+				"default_val": "",
+				"description": "Resource group name",
+				"options": []
+			},
+			{
+				"varname": "saca_vnetname",
+				"type": "text",
+				"default_val": "",
+				"description": "Virtual Network Name",
+				"options": []
+			},
+			{
+				"varname": "saca_lawsname",
+				"type": "text",
+				"default_val": "",
+				"description": "Name for log analytic workspace",
+				"options": []
+			},
+			{
+				"varname": "vnet_address_space",
+				"type": "text",
+				"default_val": "",
+				"description": "Virtual Network Address Space",
+				"options": []
+			},
+			{
+				"varname": "tier0_rgname",
+				"type": "text",
+				"default_val": "",
+				"description": "Tier 0 resource group name",
+				"options": []
+			},
+			{
+				"varname": "tier0_vnetname",
+				"type": "text",
+				"default_val": "",
+				"description": "Tier 0 virtual network name",
+				"options": []
+			},
+			{
+				"varname": "tier1_rgname",
+				"type": "text",
+				"default_val": "",
+				"description": "Tier 1 resource group name",
+				"options": []
+			},
+			{
+				"varname": "tier1_vnetname",
+				"type": "text",
+				"default_val": "",
+				"description": "Tier one virtual network name",
+				"options": []
+			},
+			{
+				"varname": "tier2_rgname",
+				"type": "text",
+				"default_val": "",
+				"description": "Tier 2 resource group name",
+				"options": []
+			},
+			{
+				"varname": "tier2_vnetname",
+				"type": "text",
+				"default_val": "",
+				"description": "Tier 2 virtual network name",
+				"options": []
+			},
+			{
+				"varname": "firewall_address_space",
+				"type": "text",
+				"default_val": "",
+				"description": "Address space for the firewall",
+				"options": []
+			},
+			{
+				"varname": "saca_fwname",
+				"type": "text",
+				"default_val": "",
+				"description": "Firewall name for the saca hub",
+				"options": []
+			},
+			{
+				"varname": "firewall_ipconfig_name",
+				"type": "text",
+				"default_val": "",
+				"description": "Name for the firewall ipconfig",
+				"options": []
+			},
+			{
+				"varname": "public_ip_name",
+				"type": "text",
+				"default_val": "",
+				"description": "Name for the Public IP",
+				"options": []
+			},
+			{
+				"varname": "create_network_watcher",
+				"type": "boolean",
+				"default_val": "",
+				"description": "Do you need to create a network watcher here?",
+				"options": []
+			}
+		]
+	}
+}
