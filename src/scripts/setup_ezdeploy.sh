@@ -40,8 +40,6 @@ export mlz_tier1_subid=${2}
 export mlz_tier2_subid=${2}
 export mlz_saca_subid=${2}
 
-fqdn="localhost"
-
 # generate MLZ configuration names
 . "${BASH_SOURCE%/*}/config/generate_names.sh"  "bypass"
 
@@ -97,6 +95,9 @@ if [[ $docker_strategy != "local" ]]; then
       --key-permissions get list \
       --secret-permissions get list \
       --object-id "$(az container show --resource-group "${mlz_rg_name}" --name "${mlz_instance_name}" --query identity.principalId --output tsv)"
+else
+  fqdn="localhost"
+
 fi
 
 # Generate the Login EndPoint for Security Purposes
@@ -104,7 +105,7 @@ echo "Creating App Registration to facilitate login capabilities"
 client_id=$(az ad app create \
         --display-name "${mlz_fe_app_name}" \
         --reply-urls "http://$fqdn/redirect" \
-        --required-resource-accesses  ./config/mlz_login_app_resources.json \
+        --required-resource-accesses  "${BASH_SOURCE%/*}"/config/mlz_login_app_resources.json \
         --query appId \
         --output tsv)
 
