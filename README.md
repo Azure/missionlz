@@ -10,10 +10,10 @@ Terraform resources to deploy Tier 0, 1, and 2, and the components of a [SACA hu
     az login
     ```
 
-2. [Prepare the Terraform provider cache](#Prepare-the-Terraform-provider-cache)
-3. [Configure the Terraform Backend](#Configure-the-Terraform-Backend)
-4. [Set Terraform Configuration Variables](#Set-Terraform-Configuration-Variables)
-5. [Deploy Terraform Configuration](#Deploy-Terraform-Configuration)
+1. [Prepare the Terraform provider cache](#Prepare-the-Terraform-provider-cache)
+1. [Configure the Terraform Backend](#Configure-the-Terraform-Backend)
+1. [Set Terraform Configuration Variables](#Set-Terraform-Configuration-Variables)
+1. [Deploy Terraform Configuration](#Deploy-Terraform-Configuration)
 
 ### Prepare the Terraform provider cache
 
@@ -50,7 +50,7 @@ The MLZ deployment architecture uses a single Service Principal whose credential
     mlz_config_location="eastus"
     ```
 
-2. Run `mlz_tf_setup.sh` at [scripts/mlz_tf_setup.sh](scripts/mlz_tf_setup.sh) to create:
+1. Run `mlz_tf_setup.sh` at [scripts/mlz_tf_setup.sh](scripts/mlz_tf_setup.sh) to create:
 
     - A config Resource Group to store the Key Vault
     - Resource Groups for each tier to store the Terraform state Storage Account
@@ -95,7 +95,7 @@ The script `destroy_terraform.sh` at [scripts/destroy_terraform.sh](scripts/dest
 `apply_terraform.sh` and `destroy_terraform.sh` take two arguments:
 
   1. The Global variables file
-  2. The directory that contains the main.tf and *.tfvars variables file of the configuration to apply
+  1. The directory that contains the main.tf and *.tfvars variables file of the configuration to apply
 
 For example, from the root of this repository, you could apply Tier 0 with a command like:
 
