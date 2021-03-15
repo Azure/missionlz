@@ -33,7 +33,11 @@ mlz_tf_cfg=$(realpath "${1}")
 # generate MLZ configuration names
 . "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_tf_cfg}"
 
-# Create array of unique subscription IDs
+# Create array of unique subscription IDs. The 'sed' command below search thru the source
+# variables file looking for all lines that do not have a '#' in the line. If a line with
+# a '#' is found, the '#' and ever character after it in the line is ignored. The output
+# of what remains from the sed command is then piped to grep to find the words that match
+# the pattern. These words are what make up the 'mlz_subs' array.
 mlz_sub_pattern="mlz_.*._subid"
 mlz_subs=$(< "${mlz_tf_cfg}" sed 's:#.*$::g' | grep -w "${mlz_sub_pattern}")
 subs=()
