@@ -97,7 +97,6 @@ if [[ $docker_strategy != "local" ]]; then
       --object-id "$(az container show --resource-group "${mlz_rg_name}" --name "${mlz_instance_name}" --query identity.principalId --output tsv)"
 else
   fqdn="localhost"
-
 fi
 
 # Generate the Login EndPoint for Security Purposes
@@ -134,8 +133,13 @@ echo "KeyVault updated with Login App Registration secret!"
 echo "All steps have been completed you will need the following to access the configuration utility:"
 if [[ $docker_strategy == "local" ]]; then
   echo "Your environment variables for local execution are:"
-  echo "CLIENT_ID=$client_id"
-  echo "CLIENT_SECRET=$client_password"
+  echo "Copy-Paste (These have already been exported in your environment as well!):"
+  echo "export CLIENT_ID=$client_id"
+  echo "export CLIENT_SECRET=$client_password"
+  echo "export TENANT_ID=$mlz_tenantid"
+  export CLIENT_ID=$client_id
+  export CLIENT_SECRET=$client_password
+  export TENANT_ID=$mlz_tenantid
 else
   echo "You can access the front end at http://$fqdn"
 fi
