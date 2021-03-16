@@ -103,6 +103,9 @@ module "t0-subnets" {
   log_analytics_storage_id   = module.t0-network.log_analytics_storage_id
   log_analytics_workspace_id = data.azurerm_log_analytics_workspace.hub.id
 
+  nw_rg_name = module.t0-networkwatcher.nw_rg_name
+  nw_name    = module.t0-networkwatcher.nw_name
+
   tags = {
     DeploymentName = var.deploymentname
   }

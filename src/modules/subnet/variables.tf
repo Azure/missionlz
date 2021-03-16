@@ -70,3 +70,11 @@ variable "log_analytics_storage_id" {
 variable "log_analytics_workspace_id" {
   description = "The id of the log analytics workspace"
 }
+
+variable "nw_name" {
+  description = "The name of the Network Watcher deployed"
+}
+
+variable "nw_rg_name" {
+  description = "Name of Resource Group the Networ Watcher is deployed into"
+}
