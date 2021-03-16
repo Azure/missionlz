@@ -38,34 +38,6 @@ silent_tf=${7:-n}
 core_path=$(realpath ../src/core/)
 scripts_path=$(realpath ../scripts/)
 
-# TODO (20210315):
-# 1. there's a race condition in either our Terraform, or in the azurerm provider we're using
-#    where diagnostic log settings are deleted before they're purged from state or vice/versa
-# 2. this method scans a Terraform apply log file for instances of these failures and deletes them
-# 3. see: https://github.com/terraform-providers/terraform-provider-azurerm/issues/8109
-delete_diagnostic_conflicts() {
-  apply_log_file=$1
-  sleep_time_in_seconds=$2
-
-  # inspect the apply log for a diagnostic setting conflict, delete it manually
-  while read -r line
-  do
-      diagnostic_target=$(echo "${line}" | sed -nE 's|.*ID "(.*)/providers/microsoft.insights/diagnosticSettings.* already.*azurerm_monitor_diagnostic_setting.*$|\1|p')
-      diagnostic_name=$(echo "${line}" | sed -nE 's|.*ID ".*/diagnosticSettings/(.*)" already.*azurerm_monitor_diagnostic_setting.*$|\1|p')
-
-      if [[ -n "$diagnostic_target" ]]; then
-          az monitor diagnostic-settings delete \
-            --name "${diagnostic_name}" \
-            --resource "${diagnostic_target}" \
-            --output none \
-            --only-show-errors
-
-          echo "Waiting $sleep_time_in_seconds seconds for deletion of ${diagnostic_name} to propogate..."
-          sleep "${sleep_time_in_seconds}"
-      fi
-  done < $apply_log_file
-}
-
 # apply function
 apply() {
   name=$1
@@ -83,50 +55,50 @@ apply() {
   # remove any existing terraform initialzation
   rm -rf "${path}/.terraform"
 
-  # remove any tfvars and subtitute it
+  # remove any tfvars and subtitute it with our known values
   tf_vars="${path}/${name}.tfvars"
   rm -rf "${tf_vars}"
   cp "${vars}" "${tf_vars}"
 
   # set the target subscription
   az account set \
-    -s "${tier_sub}" \
-    -o none
+    --subscription "${tier_sub}" \
+    --output none
 
-  # apply terraform
-  apply_log="mlz_tf_apply.log"
-  apply_command="${scripts_path}/apply_terraform.sh ${globals} ${path} y"
-
-  # if silent, output to /dev/null
-  if [[ "$silent_tf" == "y" ]]; then
-    apply_command+=" 1> /dev/null"
-  fi
-
-  # attempt to apply $max_attempts times before giving up waiting $sleep_seconds between attempts
+  # attempt to apply $max_attempts times before giving up waiting between attempts
   # (race conditions, transient errors etc.)
+  apply_success="false"
   attempts=1
   max_attempts=5
-  sleep_seconds=60
 
-  while [ $attempts -le $max_attempts ]
+  apply_command="${scripts_path}/apply_terraform.sh ${globals} ${path} y"
+  destroy_command="${scripts_path}/destroy_terraform.sh ${globals} ${path} y"
+
+  if [[ $silent_tf == "y" ]]; then
+    apply_command+=" &>/dev/null"
+    destroy_command+=" &>/dev/null"
+  fi
+
+  while [ $apply_success == "false" ]
   do
-    rm -f "${apply_log}"
-    touch "${apply_log}"
+    echo "Applying ${name} (${attempts}/${max_attempts})..."
 
-    # if we fail somehow, try to delete the diagnostic logs
-    if ! $apply_command 2> $apply_log; then
-
-      error_log "Failed to apply ${name} (${attempts}/${max_attempts}). Trying some manual clean-up..."
-      delete_diagnostic_conflicts $apply_log $sleep_seconds
+    if ! eval "$apply_command";
+    then
+      # if we fail, run terraform destroy and try again
+      error_log "Failed to apply ${name} (${attempts}/${max_attempts}). Trying some manual clean-up and Terraform destroy..."
+      eval "$destroy_command"
 
       ((attempts++))
 
-      # if we failed $max_attempts times, give up
       if [[ $attempts -gt $max_attempts ]]; then
         error_log "Failed ${max_attempts} times to apply ${name}. Exiting."
         exit 1
       fi
-
+    else
+      # if we succeed meet the base case
+      apply_success="true"
+      echo "Finished applying ${name}!"
     fi
   done
 }

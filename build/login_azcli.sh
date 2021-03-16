@@ -3,6 +3,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+# shellcheck disable=SC1090,SC2154
+# SC1090: Can't follow non-constant source. These values come from an external file.
+# SC2154: "var is referenced but not assigned". These values come from an external file.
+#
 # Get the tenant ID from some MLZ configuration file and login using known Service Principal credentials
 
 set -e

@@ -4,7 +4,7 @@
 # Licensed under the MIT License.
 #
 # shellcheck disable=SC1090,SC2154
-# SC1090: Can't follow non-constant source. Use a directive to specify location.
+# SC1090: Can't follow non-constant source. These values come from an external file.
 # SC2154: "var is referenced but not assigned". These values come from an external file.
 #
 # Automation that calls destroy terraform given a MLZ configuration and some globals.tfvars
@@ -55,47 +55,46 @@ destroy() {
   # remove any existing terraform initialzation
   rm -rf "${path}/.terraform"
 
-  # remove any tfvars and subtitute it
+  # remove any tfvars and subtitute it with our known values
   tf_vars="${path}/${name}.tfvars"
   rm -rf "${tf_vars}"
   cp "${vars}" "${tf_vars}"
 
   # set the target subscription
   az account set \
-    -s "${tier_sub}" \
-    -o none
+    --subscription "${tier_sub}" \
+    --output none
 
-  # destroy terraform
-  destroy_log="mlz_tf_apply.log"
-  destroy_command="${scripts_path}/destroy_terraform.sh ${globals} ${path} y"
-
-  # if silent, output to /dev/null
-  if [[ "$silent_tf" == "y" ]]; then
-    destroy_command+=" 1> /dev/null"
-  fi
-
-  # attempt to apply $max_attempts times before giving up
+  # attempt to destroy $max_attempts times before giving up waiting $sleep_seconds between attempts
   # (race conditions, transient errors etc.)
+  destroy_success="false"
   attempts=1
   max_attempts=5
 
-  while [ $attempts -le $max_attempts ]
+  destroy_command="${scripts_path}/destroy_terraform.sh ${globals} ${path} y"
+
+  if [[ "$silent_tf" == "y" ]]; then
+    destroy_command+=" &>/dev/null"
+  fi
+
+  while [ $destroy_success == "false" ]
   do
-    rm -f "${destroy_log}"
-    touch "${destroy_log}"
+    echo "Destroying ${name} (${attempts}/${max_attempts})..."
 
-    # if we fail somehow, try to delete the diagnostic logs
-    if ! $destroy_command 2> $destroy_log; then
+    if ! eval "$destroy_command";
+    then
+      # if we fail, run terraform destroy again until $max_attempts
+      error_log "Failed to destroy ${name} (${attempts}/${max_attempts})"
 
-      error_log "Failed to destroy ${name} (${attempts}/${max_attempts}). Trying again..."
       ((attempts++))
 
-      # if we failed $max_attempts times, give up
       if [[ $attempts -gt $max_attempts ]]; then
-        error_log "Failed ${max_attempts} times to apply ${name}. Exiting."
+        error_log "Failed ${max_attempts} times to destroy ${name}. Exiting."
         exit 1
       fi
-
+    else
+      destroy_success="true"
+      echo "Finished destroying ${name}!"
     fi
   done
 }
