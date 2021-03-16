@@ -24,8 +24,6 @@ tf_name=$(basename "${tf_dir}")
 
 config_vars="${tf_dir}/config.vars"
 
-plugin_dir="$(dirname "$(dirname "$(realpath "$0")")")/src/provider_cache"
-
 # check for dependencies
 . "${BASH_SOURCE%/*}/util/checkforazcli.sh"
 . "${BASH_SOURCE%/*}/util/checkforterraform.sh"
@@ -50,7 +48,6 @@ key="${mlz_env_name}${tf_name}"
 # Initialize terraform in the configuration directory
 cd "${tf_dir}" || exit
 terraform init \
-   -plugin-dir="${plugin_dir}" \
    -backend-config "key=${key}" \
    -backend-config "resource_group_name=${tf_be_rg_name}" \
    -backend-config "storage_account_name=${tf_be_sa_name}" \
