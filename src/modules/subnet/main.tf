@@ -67,7 +67,7 @@ locals {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "nsg" {
-  name                       = "${azurerm_network_security_group.nsg.name}-diagnostics"
+  name                       = "${azurerm_network_security_group.nsg.name}-nsg-diagnostics"
   target_resource_id         = azurerm_network_security_group.nsg.id
   storage_account_id         = var.log_analytics_storage_id
   log_analytics_workspace_id = var.log_analytics_workspace_id
