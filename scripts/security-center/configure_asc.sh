@@ -53,19 +53,29 @@ do
     . "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_env_name}" "${sub}"
 
         # Create Resource Group for Log Analytics workspace
-        if [[ -z $(az group show --name "${mlz_lawsrg_name}" --subscription "${sub}" --query name --output tsv) ]]; then
+        rg_exists="az group show \
+            --name ${mlz_lawsrg_name} \
+            --subscription ${sub}"
+
+        if ! $rg_exists &> /dev/null; then
             echo "Resource Group does not exist...creating resource group ${mlz_lawsrg_name}"
             az group create \
                 --subscription "${sub}" \
                 --location "${mlz_config_location}" \
-                --name "${mlz_lawsrg_name}"
+                --name "${mlz_lawsrg_name}" \
+                --output none
         else
             echo "Resource Group ${mlz_lawsrg_name} already exists. Verify desired ASC configuration and re-run script"
             exit 1
         fi
 
         # Create Log Analytics workspace
-        if [[ -z $(az monitor log-analytics workspace show --resource-group "${mlz_lawsrg_name}" --workspace-name "${mlz_laws_name}" --subscription "${sub}") ]]; then
+        laws_exists="az monitor log-analytics workspace show \
+            --resource-group ${mlz_lawsrg_name} \
+            --workspace-name ${mlz_laws_name}
+            --subscription ${sub}"
+        
+        if ! $laws_exists &> /dev/null; then
             echo "Log Analytics workspace does not exist...creating workspace ${mlz_laws_name}"
             lawsId=$(az monitor log-analytics workspace create \
             --resource-group "${mlz_lawsrg_name}" \
@@ -85,7 +95,8 @@ do
             az security pricing create \
             --name VirtualMachines \
             --subscription "${sub}" \
-            --tier "Standard"
+            --tier "Standard" \
+            --output none
         fi
 
         # Set ASC pricing tier on Storage Accounts
@@ -94,11 +105,17 @@ do
             az security pricing create \
             --name StorageAccounts \
             --subscription "${sub}" \
-            --tier "Standard"
+            --tier "Standard" \
+            --output none
         fi
 
         # Create default setting for ASC Log Analytics workspace
-        if [[ -z $(az security workspace-setting show --name default --subscription "${sub}" --only-show-errors) ]];then
+        ascwss_exists="az security workspace-setting show \
+            --name default \
+            --subscription ${sub} \
+            --only-show-errors"
+
+        if ! $ascwss_exists &> /dev/null; then
 
             sleep_time_in_seconds=30
             max_wait_in_minutes=30
@@ -114,7 +131,8 @@ do
             az security workspace-setting create \
                 --name "default" \
                 --target-workspace "${lawsId}" \
-                --subscription "${sub}"
+                --subscription "${sub}" \
+                --output none
 
             count=1
 
@@ -145,7 +163,8 @@ do
             --auto-provision "On" \
             --subscription  "${sub}" \
             --name "default" \
-            --only-show-errors
+            --only-show-errors \
+            --output none
     else
         echo "ASC auto-provisioning is already set to \"On\". Verify desired ASC configuration and re-run script"
         exit 1

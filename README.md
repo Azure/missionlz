@@ -95,7 +95,7 @@ The script `destroy_terraform.sh` at [scripts/destroy_terraform.sh](scripts/dest
 `apply_terraform.sh` and `destroy_terraform.sh` take two arguments:
 
   1. The Global variables file
-  2. The directory that contains the main.tf and *.tfvars variables file of the configuration to apply
+  1. The directory that contains the main.tf and *.tfvars variables file of the configuration to apply
 
 For example, from the root of this repository, you could apply Tier 0 with a command like:
 
