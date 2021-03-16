@@ -59,6 +59,7 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
         --name "http://${mlz_sp_name}" \
         --skip-assignment true \
         --query password \
+        --only-show-errors \
         --output tsv)
 
     # Get Service Principal AppId
