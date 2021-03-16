@@ -1,0 +1,250 @@
+{
+	"saca-hub": {
+		"form": [{
+				"varname": "saca_subid",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "saca_rgname",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "saca_vnetname",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "saca_fwname",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "saca_lawsname",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "tier0_subid",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "tier0_rgname",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "tier0_vnetname",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "vnet_address_space",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "create_network_watcher",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.name",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.address_prefixes",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.service_endpoints",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.enforce_private_link_endpoint_network_policies",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.enforce_private_link_service_network_policies",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_name",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_ssh.name",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_ssh.priority",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_ssh.direction",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_ssh.access",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_ssh.protocol",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_ssh.source_port_range",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_ssh.destination_port_range",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_ssh.source_address_prefix",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_ssh.destination_address_prefix",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_rdp.name",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_rdp.priority",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_rdp.direction",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_rdp.access",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_rdp.protocol",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_rdp.source_port_range",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_rdp.destination_port_range",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_rdp.source_address_prefix",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_rules.allow_rdp.destination_address_prefix",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.routetable_name",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			}
+		]
+	}
+}
