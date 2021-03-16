@@ -20,7 +20,7 @@ usage() {
   error_log "usage: mlz_config_create.sh <mlz config>"
 }
 
-if [[ "$#" -lt 3 ]]; then
+if [[ "$#" -lt 1 ]]; then
    usage
    exit 1
 fi
@@ -33,32 +33,62 @@ mlz_tf_cfg=$(realpath "${1}")
 # generate MLZ configuration names
 . "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_tf_cfg}"
 
+# Create array of unique subscription IDs. The 'sed' command below search thru the source
+# variables file looking for all lines that do not have a '#' in the line. If a line with
+# a '#' is found, the '#' and ever character after it in the line is ignored. The output
+# of what remains from the sed command is then piped to grep to find the words that match
+# the pattern. These words are what make up the 'mlz_subs' array.
+mlz_sub_pattern="mlz_.*._subid"
+mlz_subs=$(< "${mlz_tf_cfg}" sed 's:#.*$::g' | grep -w "${mlz_sub_pattern}")
+subs=()
+
+for mlz_sub in $mlz_subs
+do
+    # Grab value of variable
+    mlz_sub_id=$(echo "${mlz_sub#*=}" | tr -d '"')
+    if [[ ! "${subs[*]}" =~ ${mlz_sub_id} ]];then
+        subs+=("${mlz_sub_id}")
+    fi
+done
+
 # Create Azure AD application registration and Service Principal
 echo "Verifying Service Principal is unique (${mlz_sp_name})"
 if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].displayName" -o tsv) ]];then
     echo "Service Principal does not exist...creating"
     sp_pwd=$(az ad sp create-for-rbac \
         --name "http://${mlz_sp_name}" \
-        --role Contributor \
-        --scopes "/subscriptions/${mlz_config_subid}" "/subscriptions/${mlz_saca_subid}" "/subscriptions/${mlz_tier0_subid}" "/subscriptions/${mlz_tier1_subid}" "/subscriptions/${mlz_tier2_subid}" \
+        --skip-assignment true \
         --query password \
+        --only-show-errors \
         --output tsv)
+
+    # Get Service Principal AppId
+    sp_clientid=$(az ad sp show \
+        --id "http://${mlz_sp_name}" \
+        --query appId \
+        --output tsv)
+
+    # Get Service Principal ObjectId
+    sp_objid=$(az ad sp show \
+        --id "http://${mlz_sp_name}" \
+        --query objectId \
+        --output tsv)
+
+    # Assign Contributor role to Service Principal
+    for sub in "${subs[@]}"
+    do
+    echo "Setting Contributor role assignment for ${mlz_sp_name} on subscription ID: ${sub}"
+    az role assignment create \
+        --role Contributor \
+        --assignee-object-id "${sp_objid}" \
+        --scope "/subscriptions/${sub}" \
+        --assignee-principal-type ServicePrincipal \
+        --output none
+    done
 else
     error_log "Service Principal named ${mlz_sp_name} already exists. This must be a unique Service Principal for your use only. Try again with a new enclave name. Exiting script."
     exit 1
 fi
-
-# Get Service Principal AppId
-sp_clientid=$(az ad sp show \
-    --id "http://${mlz_sp_name}" \
-    --query appId \
-    --output tsv)
-
-# Get Service Principal ObjectId
-sp_objid=$(az ad sp show \
-    --id "http://${mlz_sp_name}" \
-    --query objectId \
-    --output tsv)
 
 # Validate or create Terraform Config resource group
 rg_exists="az group show \
