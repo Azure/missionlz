@@ -37,6 +37,18 @@ RUN wget -O terraform.zip https://releases.hashicorp.com/terraform/0.13.4/terraf
     && unzip ./terraform.zip -d /usr/local/bin/ \
     && rm terraform.zip
 
+# Download Terraform providers (plugins)
+ENV TF_PLUGIN_CACHE_DIR=/usr/lib/tf-plugins
+ARG AZURERM_PROVIDER=https://releases.hashicorp.com/terraform-provider-azurerm/2.45.1/terraform-provider-azurerm_2.45.1_linux_amd64.zip
+ARG RANDOM_PROVIDER=https://releases.hashicorp.com/terraform-provider-random/3.1.0/terraform-provider-random_3.1.0_linux_amd64.zip
+RUN mkdir ${TF_PLUGIN_CACHE_DIR} \
+    && wget -O azurerm.zip ${AZURERM_PROVIDER} \
+    && wget -O random.zip ${RANDOM_PROVIDER} \
+    && unzip azurerm.zip -d ${TF_PLUGIN_CACHE_DIR} \
+    && unzip random.zip -d ${TF_PLUGIN_CACHE_DIR} \
+    && rm azurerm.zip \
+    && rm random.zip
+
 # Install the Microsoft package key
 RUN wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
     && dpkg -i packages-microsoft-prod.deb \
