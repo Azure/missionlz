@@ -96,7 +96,7 @@ apt-get update \
 In order to run all of ezdeploy remotely, you'll need to have docker installed locally, as well as the Azure Bash CLI
 
 ```bash
-./script/setup_ezdeploy.sh build <subscription_id> <tenant_id> <location> <tf_env_name> <mlz_env_name>
+./script/setup_ezdeploy.sh build <subscription_id> <tenant_id> <location> -t <tf_env_name> -m <mlz_env_name> -p <port>
 ```
 
 The final results will include a URI that you can use to access the front end running in a remote azure container instance
@@ -129,8 +129,10 @@ tf_env_name: Please refer to https://www.terraform.io/docs/language/settings/bac
 
 mlz_env_name: Can be anything unique to your deployment/environment it is used to ensure unique entries for resources.  (Defaults to mlzdeployment)
 
+port:  Default is 80, if you are running in WSL or otherwise can't bind to 80, use this flag to enter a port
+
 ```bash
-./script/setup_ezdeploy.sh local <subscription_id> <tenant_id> <location> <tf_env_name> <mlz_env_name>
+./script/setup_ezdeploy.sh local <subscription_id> <tenant_id> <location> -t <tf_env_name> -m <mlz_env_name> -p port
 ```
 
 4. Invoke environment variables needed for login
@@ -149,7 +151,7 @@ export TENANT_ID="<TENANT_ID>"
 
 5. Execute web server
 ```bash
-python main.py
+python main.py <port_if_not_80>
 ```
 
 You can then access the application by pointing your browser at "localhost"

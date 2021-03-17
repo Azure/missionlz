@@ -112,6 +112,11 @@ else
   fqdn="localhost"
 fi
 
+if [[ $web_port != 80 ]]; then
+  fqdn+=":$web_port"
+fi
+
+
 # Generate the Login EndPoint for Security Purposes
 echo "Creating App Registration to facilitate login capabilities"
 client_id=$(az ad app create \
