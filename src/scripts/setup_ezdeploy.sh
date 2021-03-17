@@ -18,7 +18,7 @@ error_log() {
 
 usage() {
   echo "setup_ezdeploy.sh: Setup the Front End for MLZ"
-  error_log "usage: setup_ezdeploy.sh <local|build|load> <subscription_id> <tenant_id> <location> <tf_env_name {{default=public}}> <mlz_env_name {{default=mlzdeployment}}> "
+  error_log "usage: setup_ezdeploy.sh <local|build|load> <subscription_id> <tenant_id> <location> -t <tf_env_name {{default=public}}> -m <mlz_env_name {{default=mlzdeployment}}> -p <web_port {{default=80}}>"
 }
 
 if [[ "$#" -lt 4 ]]; then
@@ -32,13 +32,26 @@ docker_strategy=${1}
 export mlz_config_subid=${2}
 export mlz_tenantid=${3}
 export mlz_config_location=${4}
-export tf_environment=${5:-public}
-export mlz_env_name=${6:-mlzdeployment}
+export web_port=80
+export tf_environment=public
+export mlz_env_name=mlzdeployment
 # Needed for the creation script
 export mlz_tier0_subid=${2}
 export mlz_tier1_subid=${2}
 export mlz_tier2_subid=${2}
 export mlz_saca_subid=${2}
+
+while getopts tmp option
+do
+case "${option}"
+in
+t) tf_environment=${OPTARG};;
+m) mlz_env_name=${OPTARG};;
+p) web_port=${OPTARG};;
+*) ;;
+esac
+done
+
 
 # generate MLZ configuration names
 . "${BASH_SOURCE%/*}/config/generate_names.sh"  "bypass"
