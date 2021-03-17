@@ -1,5 +1,5 @@
 {
-	"tier-": {
+	"tier-2": {
     "str_maps":{
       "TIER2_SUBNETVM_NAME": "subnets.{TIER2_SUBNETVM_NAME}.name"
     },
@@ -119,7 +119,7 @@
 				"varname": "subnets.{TIER2_SUBNETVM_NAME}.routetable_name",
 				"type": "text",
 				"default_val": "",
-				"description": "A unique name for your terraform deployment",
+				"description": "Tier 2 Routeable Subnet Name",
 				"options": []
 			}
 		]
