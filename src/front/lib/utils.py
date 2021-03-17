@@ -20,19 +20,20 @@ def dotted_write(prop_name, val, target_dict):
     if prop_name.contains("."):
         pass
 
-def find_config(dir_scan=['core', 'modules']):
+def find_config(dir_scan=['core', 'modules'], extension=".front.json"):
     """
     Purpose: Function takes a list of directory names.  Performs an os.walk to find *.front.json files and returns a
     dictionary of file names and their contents.
 
     dir_scan: the list of directories to be scanned.
+    extension: the extension to look for and return in the scan
     """
     config_files = {}
     for config_dir in dir_scan:
         walk = os.walk(os.join(os.getcwd(), config_dir))
         for root, _, files in walk:
             for f_name in files:
-                if ".front.json" in f_name:
+                if extension in f_name:
                     cur_file = os.join(root, name)
                     config_files["cur_file"] = json.load(cur_file)
 

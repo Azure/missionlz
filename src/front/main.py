@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from lib import auth
 import os
+import sys
 
 app = FastAPI()
 
@@ -34,6 +35,12 @@ static_location = '/static/'
 
 @app.get("/")
 async def home(request: Request):
+    """
+     Primary landing section for the app
+
+    :param request: request object sent in the post body when accessing this API
+    :return: Will return a rendered HTML page
+    """
     # Handle the rendering of the login url
     login_url = ""
     user = ""
@@ -147,7 +154,11 @@ async def home(request: Request):
             if(!logged_in || $.trim(logged_in) == ""){
               promptLogin()
             }
-        })""")
+        })
+        $("input").change(function(){
+	        $("input[name="+ this.name +"]").val(this.value)
+        })
+        """)
 
     response = HTMLResponse(content=str(doc), status_code=200)
     response.set_cookie("flow", json.dumps(flow), expires=3600)
@@ -156,6 +167,12 @@ async def home(request: Request):
 # Display currently cached creds
 @app.get("/creds")
 async def display_creds(request: Request):
+    """
+     Process the body request for debugging purposes if there's a user issue with Azure
+
+    :param request: request object sent in the post body when accessing this API
+    :return: Will return a json block with relevant debugging data for the user session
+    """
     result = request.cookies.get("flow")
     user = request.cookies.get("user")
     if keyVaultName:
@@ -165,6 +182,11 @@ async def display_creds(request: Request):
 # Process Logout
 @app.get("/logout")
 async def process_logout():
+    """
+     Purge the login information from the users session/cookie data
+
+    :return: Redirect to main body
+    """
     # Simply destroy the cookies in this session and get rid of the creds, redirect to landing
     response=RedirectResponse("/")  # Process the destruction from main app/test result
     response.delete_cookie("user")
@@ -174,6 +196,12 @@ async def process_logout():
 # API To Capture the redirect from Azure
 @app.get("/redirect")
 async def capture_redirect(request: Request):
+    """
+     Process the request body that's returned from AAD.  This will process the login items to acquire user in info
+
+    :param request: request object sent in the post body when accessing this API
+    :return: Will either redirect the user back to the main page, or display an error
+    """
     try:
         cache = auth.load_cache(request)
         if keyVaultName:
@@ -189,15 +217,35 @@ async def capture_redirect(request: Request):
             response = RedirectResponse("/")
             response.set_cookie("user", json.dumps(result.get("id_token_claims")), expires=3600)
     except ValueError as e:
+        #TODO: Add some more prettiness to the UI to allow for the CSRF errors to display
         response = JSONResponse({"status": "error", "result": "Possible CSRF related error"+str(e)})
     return response
 
 
 # Execute processes the form values entered by the user and generates the TF JSON file
-@app.get("/execute")
-async def process_terraform():
+@app.post("/execute")
+async def process_input(request: Request):
+    """
+     Process the dynamic form that's posted to this API and perform the required processing
+     Initiate an async job for executing terraform
 
-    return JSONResponse(content={"status": "Test in Place, no processing done"}, status_code=200)
+    :param request: request object sent in the post body when accessing this API
+    :return: Will return success if all items are completed
+    """
+    dynamic_form = await request.form()
+
+    #TODO: Load both front.json and tfvars.json configs nad pair them off
+
+    #TODO: Remap the values in the form return based on the map block in front.json
+
+    #TODO: Write the values in the mapped out form to the correct places in the tfvars.json
+
+    #TODO: Write the tfvars.json out
+
+    #TODO: Execute Terraform
+
+    return JSONResponse(content={"form_data": json.dumps(dynamic_form)}, status_code=200)
+    #return JSONResponse(content={"status": "success"}, status_code=200)
 
 
 # Execute a poll for the contents of a specific job,  logs from terraform execution will be stored as text with
@@ -220,4 +268,5 @@ async def poll_results(job_num: int):
 # Primary entry for unvicorn
 # TODO: Replace with docker FlaskAPI Base image later
 if __name__ == "__main__":
-    uvicorn.run(app, host='0.0.0.0', port=80, debug=True)
+    port = int(sys.argv[1]) or 80
+    uvicorn.run(app, host='0.0.0.0', port=port, debug=True)
