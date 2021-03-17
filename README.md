@@ -10,23 +10,9 @@ Terraform resources to deploy Tier 0, 1, and 2, and the components of a [SACA hu
     az login
     ```
 
-1. [Prepare the Terraform provider cache](#Prepare-the-Terraform-provider-cache)
 1. [Configure the Terraform Backend](#Configure-the-Terraform-Backend)
 1. [Set Terraform Configuration Variables](#Set-Terraform-Configuration-Variables)
 1. [Deploy Terraform Configuration](#Deploy-Terraform-Configuration)
-
-### Prepare the Terraform provider cache
-
-We source the terraform provider locally from this repository and circumvent the need to fetch it from the internet.
-
-This below script will unzip the provider from the /src/provider_archive folder and place the provider in the /src/provider_cache folder and set execute permissions for the current user.
-
-Execute `unzipprovider.sh`
-
-```bash
-chmod u+x src/provider_archive/unzipprovider.sh
-src/provider_archive/unzipprovider.sh
-```
 
 ### Configure the Terraform Backend
 
@@ -123,6 +109,12 @@ To initialize Terraform for Tier 1, you could then change the target directory:
 scripts/init_terraform.sh \
   src/core/tier-1
 ```
+
+### Terraform Providers
+
+The development container definition downloads the required Terraform plugin providers during the container build so that the container can be transported to an air-gapped network for use. The container also sets the `TF_PLUGIN_CACHE_DIR` environment variable, which Terraform uses as the search location for locally installed providers. If you are not using the container to deploy or if the `TF_PLUGIN_CACHE_DIR` environment variable is not set, Terraform will automatically attempt to download the provider from the internet when you execute the `terraform init` command.
+
+See the development container [README](.devcontainer/README.md) for more details on building and running the container.
 
 ## Helpful Links
 
