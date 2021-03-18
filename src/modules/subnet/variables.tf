@@ -71,10 +71,7 @@ variable "log_analytics_workspace_id" {
   description = "The id of the log analytics workspace"
 }
 
-variable "nw_name" {
-  description = "The name of the Network Watcher deployed"
-}
-
-variable "nw_rg_name" {
-  description = "Name of Resource Group the Networ Watcher is deployed into"
+variable "flow_log_retention_in_days" {
+  description = "The number of days to retain flow log data"
+  default     = "7"
 }

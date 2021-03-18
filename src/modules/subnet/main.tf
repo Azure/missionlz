@@ -86,8 +86,8 @@ resource "azurerm_monitor_diagnostic_setting" "nsg" {
 }
 
 resource "azurerm_network_watcher_flow_log" "nsgfl" {
-  network_watcher_name = var.nw_name
-  resource_group_name  = var.nw_rg_name
+  network_watcher_name = "NetworkWatcher_${var.location}"
+  resource_group_name  = "NetworkWatcherRG"
 
   network_security_group_id = azurerm_network_security_group.nsg.id
   storage_account_id        = var.log_analytics_storage_id
