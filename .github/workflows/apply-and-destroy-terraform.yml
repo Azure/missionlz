@@ -2,12 +2,7 @@
 # Licensed under the MIT License.
 
 name: apply-and-destroy-terraform
-on:
-  workflow_dispatch:
-    inputs:
-      displayTerraformOutput:
-        description: 'Display terraform output that could include sensitive values (y/n)'
-        default: 'n'
+on: [workflow_dispatch]
 jobs:
   apply-and-destroy-terraform:
     runs-on: ubuntu-latest
@@ -50,7 +45,7 @@ jobs:
           vars/tier-0.tfvars \
           vars/tier-1.tfvars \
           vars/tier-2.tfvars \
-          ${{ github.event.inputs.displayTerraformOutput }}
+          n
 
     - name: destroy terraform
       run : |
@@ -62,4 +57,4 @@ jobs:
           vars/tier-0.tfvars \
           vars/tier-1.tfvars \
           vars/tier-2.tfvars \
-          ${{ github.event.inputs.displayTerraformOutput }}
+          n
