@@ -36,7 +36,7 @@ The MLZ deployment architecture uses a single Service Principal whose credential
     mlz_config_location="eastus"
     ```
 
-1. Run `mlz_tf_setup.sh` at [scripts/mlz_tf_setup.sh](scripts/mlz_tf_setup.sh) to create:
+1. Run `mlz_tf_setup.sh` at [src/scripts/mlz_tf_setup.sh](src/scripts/mlz_tf_setup.sh) to create:
 
     - A config Resource Group to store the Key Vault
     - Resource Groups for each tier to store the Terraform state Storage Account
@@ -48,9 +48,9 @@ The MLZ deployment architecture uses a single Service Principal whose credential
     ```bash
     # usage mlz_tf_setup.sh: <mlz_tf_cfg.var path>
 
-    chmod u+x scripts/mlz_tf_setup.sh
+    chmod u+x src/scripts/mlz_tf_setup.sh
 
-    scripts/mlz_tf_setup.sh src/core/mlz_tf_cfg.var
+    src/scripts/mlz_tf_setup.sh src/core/mlz_tf_cfg.var
     ```
 
 ### Set Terraform Configuration Variables
@@ -73,9 +73,9 @@ location="eastus" # the value used by Terraform in src/core/globals.tfvars
 
 ### Deploy Terraform Configuration
 
-You can use `apply_terraform.sh` at [scripts/apply_terraform.sh](scripts/apply_terraform.sh) to both initialize Terraform and apply a Terraform configuration based on the backend environment variables and Terraform variables you've setup in previous steps.
+You can use `apply_terraform.sh` at [src/scripts/apply_terraform.sh](src/scripts/apply_terraform.sh) to both initialize Terraform and apply a Terraform configuration based on the backend environment variables and Terraform variables you've setup in previous steps.
 
-The script `destroy_terraform.sh` at [scripts/destroy_terraform.sh](scripts/destroy_terraform.sh) is helpful during testing. This script is exactly like the
+The script `destroy_terraform.sh` at [src/scripts/destroy_terraform.sh](src/scripts/destroy_terraform.sh) is helpful during testing. This script is exactly like the
 `apply_terraform.sh` except it destroys resources defined in the target state file
 
 `apply_terraform.sh` and `destroy_terraform.sh` take two arguments:
@@ -86,7 +86,7 @@ The script `destroy_terraform.sh` at [scripts/destroy_terraform.sh](scripts/dest
 For example, from the root of this repository, you could apply Tier 0 with a command like:
 
 ```bash
-scripts/apply_terraform.sh \
+src/scripts/apply_terraform.sh \
   src/core/globals.tfvars \
   src/core/tier-0
 ```
@@ -94,19 +94,19 @@ scripts/apply_terraform.sh \
 To apply Tier 1, you could then change the target directory:
 
 ```bash
-scripts/apply_terraform.sh \
+src/scripts/apply_terraform.sh \
   src/core/globals.tfvars \
   src/core/tier-1
 ```
 
 Repeating this same pattern, for whatever configuration you wanted to apply and reuse in some automated pipeline.
 
-Use `init_terraform.sh` at [scripts/init_terraform.sh](scripts/init_terraform.sh) to perform just an initialization of the Terraform environment
+Use `init_terraform.sh` at [src/scripts/init_terraform.sh](src/scripts/init_terraform.sh) to perform just an initialization of the Terraform environment
 
 To initialize Terraform for Tier 1, you could then change the target directory:
 
 ```bash
-scripts/init_terraform.sh \
+src/scripts/init_terraform.sh \
   src/core/tier-1
 ```
 
