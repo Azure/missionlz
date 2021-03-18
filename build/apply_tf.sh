@@ -35,7 +35,7 @@ tier2_vars=$6
 
 # reference paths
 core_path=$(realpath ../src/core/)
-scripts_path=$(realpath ../scripts/)
+scripts_path=$(realpath ../src/scripts/)
 
 # source vars from mlz_config
 . "${mlz_config}"
