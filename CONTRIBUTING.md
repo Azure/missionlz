@@ -21,9 +21,14 @@ This section describes the guidelines for submitting issues.
 
 ### Issue Types
 
+- Issue: Describe work that the team will do to enhance the product. Issues contain the elements of a user story:
+  - The title summarizes the work to be done.
+  - A benefit, reason, or outcome is entered as a single statement to describe why completing this issue adds value, and which role/persona will benefit.
+  - A label for the persona describing the person who will receive the benefit or outcome.
+  - A general description adds more context and details.
+  - Acceptance criteria describe specific details which tell us when the issue has been completed.
 - Question: Ask a question about how the system works, ask for feedback on an idea about how the system could work, or you ran into something unexpected and you want guidance.
 - Feature Request: Suggest a new idea for the project.
-- Issue: Describe work that the team will do to enhance the product.
 - Bug: Report a defect.
 
 ### Before You File

@@ -36,7 +36,7 @@ display_tf_output=${7:-n}
 
 # reference paths
 core_path=$(realpath ../src/core/)
-scripts_path=$(realpath ../scripts/)
+scripts_path=$(realpath ../src/scripts/)
 
 # apply function
 apply() {
