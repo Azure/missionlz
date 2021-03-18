@@ -117,15 +117,3 @@ module "t2-outbound-peering" {
     DeploymentName = var.deploymentname
   }
 }
-
-module "t2-networkwatcher" {
-  count  = var.create_network_watcher == true ? 1 : 0
-  source = "../../modules/networkwatcher"
-
-  name_prefix = module.t2-network.resource_group_name
-  location    = module.t2-network.resource_group_location
-
-  tags = {
-    DeploymentName = var.deploymentname
-  }
-}
