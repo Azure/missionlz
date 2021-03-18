@@ -55,10 +55,19 @@ apply() {
   # remove any existing terraform initialzation
   rm -rf "${path}/.terraform"
 
-  # remove any tfvars and subtitute it with our known values
+  # copy input vars to temporary file
+  input_vars=$(realpath "${vars}")
+  temp_vars="temp_vars.tfvars"
+  rm -f "${temp_vars}"
+  touch "${temp_vars}"
+  cp "${input_vars}" "${temp_vars}"
+
+  # remove any configuration tfvars and subtitute it with input vars
   tf_vars="${path}/${name}.tfvars"
-  rm -rf "${tf_vars}"
-  cp "${vars}" "${tf_vars}"
+  rm -f "${tf_vars}"
+  touch "${tf_vars}"
+  cp "${temp_vars}" "${tf_vars}"
+  rm -f "${temp_vars}"
 
   # set the target subscription
   az account set \
