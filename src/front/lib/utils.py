@@ -53,11 +53,12 @@ def build_form(form_doc: dict):
     doc_panels = div(cls="tab-content")
     for file, doc in form_doc.items():
         for title, config in doc.items():
-            doc_tabs.add(li(a(title,href="#"+ title, cls="nav-link", data_toggle="tab"), cls="nav-item", role="presentation"))
+            append_str = ""
             if "saca" in title:
-                doc_panel = div(role="tabpanel", cls="tab-pane fade show active custom-pane", id=title)
-            else:
-                doc_panel = div(role="tabpanel", cls="tab-pane fade custom-pane", id=title)
+                append_str = " active"
+            doc_tabs.add(li(a(title, href="#" + title, cls="nav-link" + append_str, data_toggle="tab"), cls="nav-item",
+                            role="presentation"))
+            doc_panel = div(role="tabpanel", cls="tab-pane fade show custom-pane" + append_str, id=title)
             with doc_panel:
                 for el_item in config["form"]:
                     with div(cls="form-elements"):

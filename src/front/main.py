@@ -93,7 +93,7 @@ async def home(request: Request):
         with div(cls="navbar navbar-expand-lg fixed-top navbar-dark bg-primary"):
             with div(cls="container"):
                 a("Mission LZ", cls="navbar-brand", href="#")
-                with div(cls='collapse navbar-collapse'):
+                with div(cls='text-right'):
                     if user:
                         a("Logout " + user["name"], href="/logout", cls="btn btn-outline-secondary")
 

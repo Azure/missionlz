@@ -14,22 +14,22 @@ RUN apt-get update \
         python3 \
         python3-pip
 
-ADD ./front* /app/
+ADD ./front* /deployment/front/
 
 # Install Terraform and Python
 RUN wget -O terraform.zip https://releases.hashicorp.com/terraform/0.14.3/terraform_0.14.3_linux_amd64.zip\
     && unzip ./terraform.zip -d /usr/local/bin/ \
     && rm terraform.zip \
-    && pip3 install -r /app/requirements.txt
+    && pip3 install -r /deployment/front/requirements.txt
 
-ADD ./scripts* /app/deployment/scripts/
-ADD ./core* /app/deployment/core/
-ADD ./modules* /app/deployment/modules/
+ADD ./scripts* /deployment/scripts/
+ADD ./core* /deployment/core/
+ADD ./modules* /deployment/modules/
 
 # Reset to the default value
 ENV DEBIAN_FRONTEND=dialog
 
-WORKDIR /app
+WORKDIR /deployment/front
 
 ENTRYPOINT python3 main.py
 
