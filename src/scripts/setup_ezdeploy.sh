@@ -18,46 +18,51 @@ error_log() {
 
 usage() {
   echo "setup_ezdeploy.sh: Setup the Front End for MLZ"
-  error_log "usage: setup_ezdeploy.sh <local|build|load> <subscription_id> <tenant_id> <location> -t <tf_env_name {{default=public}}> -m <mlz_env_name {{default=mlzdeployment}}> -p <web_port {{default=80}}>"
+  error_log "usage: setup_ezdeploy.sh -d <local|build|load> -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name {{default=public}}> -m <mlz_env_name {{default=mlzdeployment}}> -p <web_port {{default=80}}>"
 }
 
-if [[ "$#" -lt 4 ]]; then
+if [[ "$#" -lt 8 ]]; then
    usage
    exit 1
 fi
 
-# FrontEnd ByPasses
-# Note: We use this to provide the variables required to execute name generation to be used here.  Otherwise we would need to source a config that might not be setup yet.
-docker_strategy=${1}
-export mlz_config_subid=${2}
-export mlz_tenantid=${3}
-export mlz_config_location=${4}
-export web_port=80
 export tf_environment=public
 export mlz_env_name=mlzdeployment
-# Needed for the creation script
-export mlz_tier0_subid=${2}
-export mlz_tier1_subid=${2}
-export mlz_tier2_subid=${2}
-export mlz_saca_subid=${2}
+export web_port=80
 
-while getopts tmp option
-do
-case "${option}"
-in
-t) tf_environment=${OPTARG};;
-m) mlz_env_name=${OPTARG};;
-p) web_port=${OPTARG};;
-*) ;;
-esac
+while getopts "d:s:t:l:e:m:p:" opts; do
+  case "${opts}" in
+    d) export docker_strategy=${OPTARG}
+      ;;
+    s) export mlz_config_subid=${OPTARG}
+      export mlz_tier0_subid=${OPTARG}
+      export mlz_tier1_subid=${OPTARG}
+      export mlz_tier2_subid=${OPTARG}
+      export mlz_saca_subid=${OPTARG}
+      ;;
+    t) export mlz_tenantid=${OPTARG} 
+      ;;
+    l) export mlz_config_location=${OPTARG}
+      ;;
+    e) export tf_environment=${OPTARG}
+      echo "Option x was used"
+      ;;
+    m) export mlz_env_name=${OPTARG}
+      ;;
+    p) export web_port=${OPTARG}
+      ;;
+    ?)
+      echo "Invalid option: -${OPTARG}."
+      exit 2
+      ;;
+  esac
 done
-
 
 # generate MLZ configuration names
 . "${BASH_SOURCE%/*}/config/generate_names.sh"  "bypass"
 
 # create the subscription resources
-. "${BASH_SOURCE%/*}/config/mlz_config_create.sh"  "bypass"
+# . "${BASH_SOURCE%/*}/config/mlz_config_create.sh"  "bypass"
 
 
 echo "INFO: Setting current az cli subscription to ${mlz_config_subid}"
@@ -151,13 +156,10 @@ echo "KeyVault updated with Login App Registration secret!"
 echo "All steps have been completed you will need the following to access the configuration utility:"
 if [[ $docker_strategy == "local" ]]; then
   echo "Your environment variables for local execution are:"
-  echo "Copy-Paste (These have already been exported in your environment as well!):"
+  echo "Copy-Paste:"
   echo "export CLIENT_ID=$client_id"
   echo "export CLIENT_SECRET=$client_password"
   echo "export TENANT_ID=$mlz_tenantid"
-  export CLIENT_ID=$client_id
-  export CLIENT_SECRET=$client_password
-  export TENANT_ID=$mlz_tenantid
 else
   echo "You can access the front end at http://$fqdn"
 fi

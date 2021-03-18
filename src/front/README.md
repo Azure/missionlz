@@ -46,8 +46,6 @@ Install Python 3:
 
 1. [Install Python](#Installing-Python)
 
-
-
 ###Install Docker-Compose (Must do after installing python):
 
 1. [Install Docker-Compose](#Install-Docker-Compose)
@@ -55,15 +53,6 @@ Install Python 3:
 ###Install Azure CLI:
 
 1. [Install Azure CLI Linux](#Installing-Azure)
-
-
-###Running the Front End
-
-1. [Execute](#Run-Locally) (WIP, view/login only)
-
-```bash
-python
-```
 
 
 ####Install Azure CLI
@@ -95,15 +84,24 @@ apt-get update \
 #### Run-Remotely
 In order to run all of ezdeploy remotely, you'll need to have docker installed locally, as well as the Azure Bash CLI
 
+From the "src" directory
+
 ```bash
-./script/setup_ezdeploy.sh build <subscription_id> <tenant_id> <location> -t <tf_env_name> -m <mlz_env_name> -p <port>
+chmod u+x ./scripts/setup_ezdeploy.sh
+./scripts/setup_ezdeploy.sh build <subscription_id> <tenant_id> <location> -t <tf_env_name> -m <mlz_env_name> -p <port>
 ```
 
 The final results will include a URI that you can use to access the front end running in a remote azure container instance
 
-#### Run Locally - No Docker
+#### Run Locally
 
-Before running locally, you must follow the instructions in the primary readme file for this repo.  You must have terraform pre-requisites installed in order to execute from a local system. Local execution will also require your credentials to have access to the service principal credentials for this system to assume. 
+Before running locally, you must follow the instructions in the primary readme file for this repo.  You must have terraform pre-requisites installed in order to execute from a local system. Local execution will also require your credentials to have access to the service principal credentials for this system to assume; meaning that you should perform:
+
+```bash
+az login
+```
+
+prior to following the following instructions
 
 1. Install and Source a Python Virtual Environment
 
@@ -132,6 +130,7 @@ mlz_env_name: Can be anything unique to your deployment/environment it is used t
 port:  Default is 80, if you are running in WSL or otherwise can't bind to 80, use this flag to enter a port
 
 ```bash
+chmod u+x ./script/setup_ezdeploy.sh
 ./script/setup_ezdeploy.sh local <subscription_id> <tenant_id> <location> -t <tf_env_name> -m <mlz_env_name> -p port
 ```
 

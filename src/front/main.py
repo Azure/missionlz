@@ -14,6 +14,7 @@ from starlette.requests import Request
 from lib import auth
 import os
 import sys
+from lib.utils import *
 
 app = FastAPI()
 
@@ -84,11 +85,7 @@ async def home(request: Request):
     # Set initial style sheet in HTML doc head
     with doc.head:
         link(rel='stylesheet', href=static_location + 'bootstrap.min.css')
-        style(""".page-header{
-                margin-top: 80px;Oh go
-                margin-bottom: 25px;
-                }
-                """)
+        link(rel='stylesheet', href=static_location + 'custom.css')
 
     # Fill in the single page app template with forms and sections
     with doc:
@@ -104,30 +101,22 @@ async def home(request: Request):
 
         with div(cls="container"):
             with div(cls="page-header"):
-                with div(cls="row"):
-                    div("Below are all of the items needed to generate your Azure Infrastructure. Items all related to "
-                             "an input variable within Terraform.  Everything has a default and can be generated as is", cls="col")
                 if config:
                     pass
                     # Parse each config element in a switch to generate a section of forms for it
                 else:
-                    tiers = ["Tier 0 - Identity, Auth Services", "Tier 1 - Infrastructure Operations", "Tier 2: DevSecOps & Shared Services", "Tier 3-N - Team Subscriptions"]
-                    with div(cls="row"):
-                        with div(cls='col-sm'):
+                    build_form(find_config())
 
-                            items = ('Action', 'Another action',
-                                     'Yet another action')
-                            select(option(x, value=x) for x in items)
 
         # Modal
-        with div(cls="modal fade", id="promptModal", tabindex="-1", role="dialog", aria_hidden="true"):
+        with div(cls="modal fade", data_backdrop="static", id="promptModal", tabindex="-1", role="dialog", aria_hidden="true"):
             with div(cls="modal-dialog modal-dialog-centered", role="document"):
                 with div(cls="modal-content"):
                     with div(cls="modal-header"):
                         h5("Modal Title", cls="modal-title")
                     div("Modal Content", cls="modal-body")
                     with div(cls="modal-footer"):
-                        button("Close", type="button", cls="btn btn-secondary", data_dismiss="modal")
+                        button("Close", id="modBtn", type="button", cls="btn btn-secondary", data_dismiss="modal")
 
         # Include the Javascript Files in the output HTML
         script(src=static_location + 'jquery-3.5.1.min.js')
@@ -140,6 +129,7 @@ async def home(request: Request):
               var modal = $(this)
               modal.find('.modal-title').text('Login')
               modal.find('.modal-body').html('""" + login_input_html + """')
+              modal.find('#modBtn').hide()
             })
             $('#promptModal').modal('show')
         }
@@ -233,6 +223,7 @@ async def process_input(request: Request):
     :return: Will return success if all items are completed
     """
     dynamic_form = await request.form()
+    #TODO: Check that the user is logged in
 
     #TODO: Load both front.json and tfvars.json configs nad pair them off
 
@@ -244,7 +235,7 @@ async def process_input(request: Request):
 
     #TODO: Execute Terraform
 
-    return JSONResponse(content={"form_data": json.dumps(dynamic_form)}, status_code=200)
+    return JSONResponse(content={"form_data": json.dumps(dict(dynamic_form))}, status_code=200)
     #return JSONResponse(content={"status": "success"}, status_code=200)
 
 
@@ -268,5 +259,7 @@ async def poll_results(job_num: int):
 # Primary entry for unvicorn
 # TODO: Replace with docker FlaskAPI Base image later
 if __name__ == "__main__":
-    port = int(sys.argv[1]) or 80
+    port = 80
+    if len(sys.argv) > 1:
+        port = int(sys.argv[1])
     uvicorn.run(app, host='0.0.0.0', port=port, debug=True)

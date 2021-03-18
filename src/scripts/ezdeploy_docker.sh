@@ -34,7 +34,7 @@ fi
 
 echo "INFO: building docker container"
     if [[ "${1}" == "build" ]]; then
-        docker build -t lzfront ./../
+        docker build -t lzfront "${BASH_SOURCE%/*}/../"
     elif [[ "${1}" == "load" ]]; then
         #TODO: Change this to a file pointer
         unzip mlz.zip .
