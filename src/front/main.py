@@ -91,11 +91,9 @@ async def home(request: Request):
     with doc:
         # Case for each variable type in JSON definition
         with div(cls="navbar navbar-expand-lg fixed-top navbar-dark bg-primary"):
-            sections = ["Subscriptions", "Tier 0", "Tier 1", "Tier 3"]
             with div(cls="container"):
                 a("Mission LZ", cls="navbar-brand", href="#")
                 with div(cls='collapse navbar-collapse'):
-                    ul((li(a(x, href="#", cls="nav-link"), cls="nav-item") for x in sections), cls="navbar-nav mr-auto")
                     if user:
                         a("Logout " + user["name"], href="/logout", cls="btn btn-outline-secondary")
 
