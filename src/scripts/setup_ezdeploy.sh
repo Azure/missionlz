@@ -62,7 +62,7 @@ done
 . "${BASH_SOURCE%/*}/config/generate_names.sh"  "bypass"
 
 # create the subscription resources
-# . "${BASH_SOURCE%/*}/config/mlz_config_create.sh"  "bypass"
+. "${BASH_SOURCE%/*}/config/mlz_config_create.sh"  "bypass"
 
 
 echo "INFO: Setting current az cli subscription to ${mlz_config_subid}"
@@ -78,7 +78,8 @@ if [[ $docker_strategy != "local" ]]; then
   --name "${mlz_acr_name}" \
   --sku Basic 
 
-  echo "Running post process to enable admin on ACR"
+  echo "Waiting for registry completion and running post process to enable admin on ACR"
+  sleep 60
   az acr update --name "${mlz_acr_name}" --admin-enabled true
 
   . "${BASH_SOURCE%/*}/ezdeploy_docker.sh" "$docker_strategy"
