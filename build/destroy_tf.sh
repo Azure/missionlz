@@ -17,7 +17,7 @@ error_log() {
 
 usage() {
   echo "destroy_tf.sh: Automation that calls destroy terraform given a MLZ configuration and some tfvars"
-  error_log "usage: destroy_tf.sh <mlz config> <globals.tfvars> <saca.tfvars> <tier0.tfvars> <tier1.tfvars> <tier2.tfvars> <silently execute terraform (y/n)>"
+  error_log "usage: destroy_tf.sh <mlz config> <globals.tfvars> <saca.tfvars> <tier0.tfvars> <tier1.tfvars> <tier2.tfvars> <display terraform output (y/n)>"
 }
 
 if [[ "$#" -lt 6 ]]; then
@@ -32,7 +32,7 @@ saca_vars=$3
 tier0_vars=$4
 tier1_vars=$5
 tier2_vars=$6
-silent_tf=${7:-n}
+display_tf_output=${7:-n}
 
 # reference paths
 core_path=$(realpath ../src/core/)
@@ -73,7 +73,7 @@ destroy() {
 
   destroy_command="${scripts_path}/destroy_terraform.sh ${globals} ${path} y"
 
-  if [[ "$silent_tf" == "y" ]]; then
+  if [[ "$display_tf_output" == "n" ]]; then
     destroy_command+=" &>/dev/null"
   fi
 
