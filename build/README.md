@@ -79,6 +79,6 @@ Finished applying tier-2!
 
 There's wonky behavior with how Log Analytics Workspaces and Azure Monitor diagnostic log settings are deleted at the Azure Resource Manager level.
 
-For example, if you deployed your environment with Terraform, then delted it with Azure CLI or the Portal, you can end up with orphan/ghost resources that will be deleted at some other unknown time.
+For example, if you deployed your environment with Terraform, then deleted it with Azure CLI or the Portal, you can end up with orphan/ghost resources that will be deleted at some other unknown time.
 
 To ensure you're able to deploy on-top of existing resources over and over again, __use Terraform to apply and destroy your environment.__

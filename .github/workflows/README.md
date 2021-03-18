@@ -20,9 +20,9 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
 
     1. Pulls known good MLZ and Terraform configuration variables from that storage account
 
-    1. Applies terraform anew from that configuration
+    1. Applies terraform anew from that configuration (see [build/README.md](../../build/README.md) for how this works)
 
-    1. Destroys terraform from that configuration
+    1. Destroys terraform from that configuration (see [build/README.md](../../build/README.md) for how this works)
 
 - validate-terraform.yml
 
