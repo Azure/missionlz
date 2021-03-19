@@ -234,19 +234,19 @@ async def process_input(request: Request):
     tf_json = find_config(extension="tfvars.json")
 
     #Create a map based on str maps in the form config files
-maps = {}
-for _, config_doc in form_config.items():
-    for _, config in config_doc.items():
-        if "str_maps" in config:
-            for strm, smap in config["str_maps"].items():
-                maps[strm] = form_values[smap]
-
-    #Evaluate maps across loaded jsons
-for f_name, doc in tf_json.items():
-    temp_dump = json.dumps(doc)
-    for strm, smap in maps.items():
-        temp_dump = temp_dump.replace("{" + strm + "}", smap)
-    tf_json[f_name] = json.loads(temp_dump)
+    maps = {}
+    for _, config_doc in form_config.items():
+        for _, config in config_doc.items():
+            if "str_maps" in config:
+                for strm, smap in config["str_maps"].items():
+                    maps[strm] = form_values[smap]
+    
+        #Evaluate maps across loaded jsons
+    for f_name, doc in tf_json.items():
+        temp_dump = json.dumps(doc)
+        for strm, smap in maps.items():
+            temp_dump = temp_dump.replace("{" + strm + "}", smap)
+        tf_json[f_name] = json.loads(temp_dump)
 
     # Process all form keys:
     form_dump = json.dumps(form_values)
