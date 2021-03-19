@@ -17,9 +17,14 @@ def dotted_write(prop_name: str, val: Union[int, str], target_dict: dict):
     :val:  the value to be written tot he target_dict
     :target_dict: the dictionary that the value will be written into
     """
-
-    if prop_name.contains("."):
-        pass
+    if "." in prop_name:
+        write_name = "target_dict"
+        keys = prop_name.split(".")
+        for loc in keys:
+            write_name += '["'+loc+'"]'
+        exec(write_name + " = val")
+    else:
+        target_dict[prop_name] = val
 
 def find_config(dir_scan=['../core', '../modules'], extension=".front.json"):
     """
@@ -51,7 +56,7 @@ def build_form(form_doc: dict):
     doc_form = form(id="terraform_config", action="/execute", method="post")
     doc_tabs = ul(cls="nav nav-tabs", id="myTab", role="tablist")
     doc_panels = div(cls="tab-content")
-    for file, doc in form_doc.items():
+    for f_name, doc in form_doc.items():
         for title, config in doc.items():
             append_str = ""
             if "saca" in title:

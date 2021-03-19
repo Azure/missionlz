@@ -99,7 +99,7 @@ if [[ $docker_strategy != "local" ]]; then
     --resource-group "${mlz_rg_name}"\
     --name "${mlz_instance_name}" \
     --image "$ACR_LOGIN_SERVER"/lzfront:latest \
-    --dns-name-label mlz-deployment-"${mlz_config_subid}" \
+    --dns-name-label "${mlz_dns_name}" \
     --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" \
     --registry-username "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
     --registry-password "$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \

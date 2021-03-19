@@ -221,15 +221,44 @@ async def process_input(request: Request):
     :return: Will return success if all items are completed
     """
     dynamic_form = await request.form()
-    #TODO: Check that the user is logged in
+    form_values = dict(dynamic_form)
+    #TODO: Possibly revisit for stronger security
+    if not request.cookies.get("user") or not request.cookies.get("flow"):
+        return JSONResponse(content={"status": "Error: User Not Logged In"}, status_code=200)
 
-    #TODO: Load both front.json and tfvars.json configs nad pair them off
+    # Reload form configs:
+    form_config = find_config()
 
-    #TODO: Remap the values in the form return based on the map block in front.json
+    # Load tfvars initial files
+    tf_json = find_config(extension="tfvars.json")
 
-    #TODO: Write the values in the mapped out form to the correct places in the tfvars.json
+    #Create a map based on str maps in the form config files
+    maps = {}
+    for _, config_doc in form_config.items():
+        for _, config in config_doc.items():
+            for strm, smap in config["str_maps"]:
+                maps[strm] = form_values[smap]
+
+    #Evaluate maps across loaded jsons
+    for f_name, doc in tf_json.items():
+        temp_dump = json.dumps(doc)
+        for strm, smap in maps:
+            temp_dump.replace("{" + str + "}", smap)
+        tf_json[f_name] = json.loads(temp_dump)
+
+    # Process all form keys:
+    form_dump = json.dumps(form_values)
+    for key, smap in maps:
+        re.sub("\{"+key+"\}", smap, form_dump)
+    form_values = json.loads(form_dump)
+
+    # Write the values to the correct locations in the memory loaded json files
+    for key, value in form_values:
+        for _, doc in tf_json.items():
+            dotted_write(key, value, doc)
 
     #TODO: Write the tfvars.json out
+    for f_name, doc in tf_json.items():
 
     #TODO: Execute Terraform
 
