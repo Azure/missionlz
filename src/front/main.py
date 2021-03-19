@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from lib import auth
 import os
+import re
 import sys
 from lib.utils import *
 
@@ -233,37 +234,39 @@ async def process_input(request: Request):
     tf_json = find_config(extension="tfvars.json")
 
     #Create a map based on str maps in the form config files
-    maps = {}
-    for _, config_doc in form_config.items():
-        for _, config in config_doc.items():
-            for strm, smap in config["str_maps"]:
+maps = {}
+for _, config_doc in form_config.items():
+    for _, config in config_doc.items():
+        if "str_maps" in config:
+            for strm, smap in config["str_maps"].items():
                 maps[strm] = form_values[smap]
 
     #Evaluate maps across loaded jsons
-    for f_name, doc in tf_json.items():
-        temp_dump = json.dumps(doc)
-        for strm, smap in maps:
-            temp_dump.replace("{" + str + "}", smap)
-        tf_json[f_name] = json.loads(temp_dump)
+for f_name, doc in tf_json.items():
+    temp_dump = json.dumps(doc)
+    for strm, smap in maps.items():
+        temp_dump = temp_dump.replace("{" + strm + "}", smap)
+    tf_json[f_name] = json.loads(temp_dump)
 
     # Process all form keys:
     form_dump = json.dumps(form_values)
-    for key, smap in maps:
-        re.sub("\{"+key+"\}", smap, form_dump)
+    for key, smap in maps.items():
+       form_dump.replace("{"+key+"}", smap)
     form_values = json.loads(form_dump)
 
     # Write the values to the correct locations in the memory loaded json files
-    for key, value in form_values:
+    for key, value in form_values.items():
         for _, doc in tf_json.items():
             dotted_write(key, value, doc)
 
     # Loop all open TF documents and write them out
     for f_name, doc in tf_json.items():
-        json.dump(open(os.path.basename(f_name)), doc)
+        json.dump(doc, open(os.path.basename(f_name), "w+"))
+
 
     #TODO: Execute Terraform
 
-    return JSONResponse(content={"form_data": json.dumps(dict(dynamic_form))}, status_code=200)
+    return JSONResponse(content=json.dumps(dict(dynamic_form)), status_code=200)
     #return JSONResponse(content={"status": "success"}, status_code=200)
 
 

@@ -158,9 +158,14 @@ echo "All steps have been completed you will need the following to access the co
 if [[ $docker_strategy == "local" ]]; then
   echo "Your environment variables for local execution are:"
   echo "Copy-Paste:"
+  echo "Bash:"
   echo "export CLIENT_ID=$client_id"
   echo "export CLIENT_SECRET=$client_password"
   echo "export TENANT_ID=$mlz_tenantid"
+  echo "Powershell:"
+  echo "\$env:CLIENT_ID='$client_id'"
+  echo "\$env:CLIENT_SECRET='$client_password'"
+  echo "\$env:TENANT_ID='$mlz_tenantid'"
 else
   echo "You can access the front end at http://$fqdn"
 fi
