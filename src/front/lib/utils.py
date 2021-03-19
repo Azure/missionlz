@@ -19,12 +19,20 @@ def dotted_write(prop_name: str, val: Union[int, str], target_dict: dict):
     """
     if "." in prop_name:
         write_name = "target_dict"
+        nest_test = json.loads(json.dumps(target_dict))
         keys = prop_name.split(".")
+        failed_test = False
         for loc in keys:
-            write_name += '["'+loc+'"]'
-        exec(write_name + " = val")
+            if loc in nest_test:
+                write_name += '["'+loc+'"]'
+                nest_test = nest_test[loc]
+            else:
+                failed_test = True
+        if not failed_test:
+            exec(write_name + " = val")
     else:
-        target_dict[prop_name] = val
+        if prop_name in target_dict:
+            target_dict[prop_name] = val
 
 def find_config(dir_scan=['../core', '../modules'], extension=".front.json"):
     """

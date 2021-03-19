@@ -257,8 +257,9 @@ async def process_input(request: Request):
         for _, doc in tf_json.items():
             dotted_write(key, value, doc)
 
-    #TODO: Write the tfvars.json out
+    # Loop all open TF documents and write them out
     for f_name, doc in tf_json.items():
+        json.dump(open(os.path.basename(f_name)), doc)
 
     #TODO: Execute Terraform
 
