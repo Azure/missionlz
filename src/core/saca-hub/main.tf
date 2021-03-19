@@ -66,15 +66,3 @@ module "saca-firewall" {
     DeploymentName = var.deploymentname
   }
 }
-
-module "saca-networkwatcher" {
-  count  = var.create_network_watcher == true ? 1 : 0
-  source = "../../modules/networkwatcher"
-
-  name_prefix = module.saca-hub-network.resource_group_name
-  location    = module.saca-hub-network.resource_group_location
-
-  tags = {
-    DeploymentName = var.deploymentname
-  }
-}
