@@ -2,19 +2,10 @@
 # Licensed under the MIT License.
 terraform {
   backend "azurerm" {}
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "2.45.1"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "3.1.0"
-    }
-  }
 }
 
 provider "azurerm" {
+  version         = "~> 2.50.0"
   environment     = var.tf_environment
   metadata_host   = var.mlz_metadatahost
   tenant_id       = var.mlz_tenantid
@@ -22,7 +13,15 @@ provider "azurerm" {
   client_id       = var.mlz_clientid
   client_secret   = var.mlz_clientsecret
 
-  features {}
+  features {
+    log_analytics_workspace {
+      permanently_delete_on_destroy = true
+    }
+  }
+}
+
+provider "random" {
+  version = "3.1.0"
 }
 
 resource "azurerm_resource_group" "hub" {
