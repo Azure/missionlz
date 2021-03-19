@@ -100,7 +100,7 @@ if [[ $docker_strategy != "local" ]]; then
     --name "${mlz_instance_name}" \
     --image "$ACR_LOGIN_SERVER"/lzfront:latest \
     --dns-name-label "${mlz_dns_name}" \
-    --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" \
+    --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" LOCATION="${mlz_config_location}" \
     --registry-username "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
     --registry-password "$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
     --ports 80 \
@@ -162,10 +162,12 @@ if [[ $docker_strategy == "local" ]]; then
   echo "export CLIENT_ID=$client_id"
   echo "export CLIENT_SECRET=$client_password"
   echo "export TENANT_ID=$mlz_tenantid"
+  echo "export LOCATION=$mlz_config_location"
   echo "Powershell:"
   echo "\$env:CLIENT_ID='$client_id'"
   echo "\$env:CLIENT_SECRET='$client_password'"
   echo "\$env:TENANT_ID='$mlz_tenantid'"
+  echo "\$env:TENANT_ID='$mlz_config_location'"
 else
   echo "You can access the front end at http://$fqdn"
 fi

@@ -240,8 +240,8 @@ async def process_input(request: Request):
             if "str_maps" in config:
                 for strm, smap in config["str_maps"].items():
                     maps[strm] = form_values[smap]
-    
-        #Evaluate maps across loaded jsons
+
+    #Evaluate maps across loaded jsons
     for f_name, doc in tf_json.items():
         temp_dump = json.dumps(doc)
         for strm, smap in maps.items():
@@ -262,7 +262,6 @@ async def process_input(request: Request):
     # Loop all open TF documents and write them out
     for f_name, doc in tf_json.items():
         json.dump(doc, open(os.path.basename(f_name), "w+"))
-
 
     #TODO: Execute Terraform
 

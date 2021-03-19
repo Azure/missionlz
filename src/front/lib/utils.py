@@ -78,6 +78,9 @@ def build_form(form_doc: dict):
                         label(el_item["description"], cls="breadcrumb", label_for=el_item["varname"])
                         with div(cls="input-group input-group-sm mb-3"):
                             with div(cls="input-group-prepend"):
+                                # Process environment options
+                                if "env:" in el_item["default_val"]:
+                                    el_item["default_val"] = os.getenv(el_item["default_val"].replace("env:", ""), "")
                                 span(el_item["varname"], cls="input-group-text")
                                 if el_item["type"] == "text":
                                     input_(id=el_item["varname"], cls="form-control", value=el_item["default_val"], name=el_item["varname"])
