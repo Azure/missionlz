@@ -1,0 +1,127 @@
+{
+	"tier-2": {
+    "str_maps":{
+      "TIER2_SUBNETVM_NAME": "subnets.{TIER2_SUBNETVM_NAME}.name"
+    },
+		"form": [{
+				"varname": "saca_subid",
+				"type": "text",
+				"default_val": "",
+				"description": "Saca Hub Subscription ID",
+				"options": []
+			},
+			{
+				"varname": "saca_rgname",
+				"type": "text",
+				"default_val": "",
+				"description": "Saca Hub Resource Group Name",
+				"options": []
+			},
+			{
+				"varname": "saca_vnetname",
+				"type": "text",
+				"default_val": "",
+				"description": "Saca Virtual Network Name",
+				"options": []
+			},
+			{
+				"varname": "saca_fwname",
+				"type": "text",
+				"default_val": "",
+				"description": "Saca Firewall Name",
+				"options": []
+			},
+			{
+				"varname": "saca_lawsname",
+				"type": "text",
+				"default_val": "",
+				"description": "Saca Log Analytic Workspace Name",
+				"options": []
+			},
+			{
+				"varname": "tier2_subid",
+				"type": "text",
+				"default_val": "",
+				"description": "TIER2 Subscription Id",
+				"options": []
+			},
+			{
+				"varname": "tier2_rgname",
+				"type": "text",
+				"default_val": "",
+				"description": "TIER2 Resource Group Name",
+				"options": []
+			},
+			{
+				"varname": "tier2_vnetname",
+				"type": "text",
+				"default_val": "",
+				"description": "TIER2 Virtual Network Name",
+				"options": []
+			},
+			{
+				"varname": "tier2_vnet_address_space",
+				"type": "list",
+				"default_val": "",
+				"description": "A list of values (NewLine Separated) for vnet address space",
+				"options": []
+			},
+			{
+				"varname": "tier2_create_network_watcher",
+				"type": "boolean",
+				"default_val": "",
+				"description": "Whether to create the network watcher in this tier vnet.",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER2_SUBNETVM_NAME}.name",
+				"type": "text",
+				"default_val": "",
+				"description": "A unique name for the Tier1 Subnet",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER2_SUBNETVM_NAME}.address_prefixes",
+				"type": "list",
+				"default_val": "",
+				"description": "A list of values (NewLine Separated) for vnet address space",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER2_SUBNETVM_NAME}.service_endpoints",
+				"type": "list",
+				"default_val": "",
+				"description": "A list of values (NewLine Separated) for service endpoints",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER2_SUBNETVM_NAME}.enforce_private_link_endpoint_network_policies",
+				"type": "boolean",
+				"default_val": "",
+				"description": "Enforce Private Link Endpoint Policies",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER2_SUBNETVM_NAME}.enforce_private_link_service_network_policies",
+				"type": "boolean",
+				"default_val": "",
+				"description": "Enforce private link service network policies",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER2_SUBNETVM_NAME}.nsg_name",
+				"type": "text",
+				"default_val": "",
+				"description": "Unique name for Network Security Group",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER2_SUBNETVM_NAME}.routetable_name",
+				"type": "text",
+				"default_val": "",
+				"description": "Tier 2 Routeable Subnet Name",
+				"options": []
+			}
+		]
+	}
+}
