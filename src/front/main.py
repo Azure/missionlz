@@ -263,6 +263,20 @@ async def process_input(request: Request):
     for f_name, doc in tf_json.items():
         json.dump(doc, open(os.path.basename(f_name), "w+"))
 
+    # Use what we know and write out the environment file:
+    with open("mlz_tf_var_front", "w+") as f:
+        f.writelines("""tf_environment="{TF_ENVIRONMENT}" # https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
+                        mlz_env_name="{MLZ_ENV_NAME}" # Unique name for MLZ environment
+                        mlz_config_subid="{MLZ_CONFIG_SUBID}" # Subscription ID for Key Vault storing Service Principal creds
+                        mlz_config_location="{MLZ_CONFIG_LOCATION}" # Azure Region for deploying Mission LZ configuration resources
+                        mlz_tenantid="{MLZ_TENANTID}"
+                        mlz_tier0_subid="{MLZ_TIER0_SUBID}"
+                        mlz_tier1_subid="{MLZ_TIER1_SUBID}"
+                        mlz_tier2_subid="{MLZ_TIER2_SUBID}"
+                        mlz_saca_subid="{MLZ_SACA_SUBID}"
+                        """)
+
+
     #TODO: Execute Terraform
 
     return JSONResponse(content=json.dumps(dict(dynamic_form)), status_code=200)
