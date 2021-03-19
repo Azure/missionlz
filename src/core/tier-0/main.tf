@@ -117,15 +117,3 @@ module "t0-outbound-peering" {
     DeploymentName = var.deploymentname
   }
 }
-
-module "t0-networkwatcher" {
-  count  = var.create_network_watcher == true ? 1 : 0
-  source = "../../modules/networkwatcher"
-
-  name_prefix = module.t0-network.resource_group_name
-  location    = module.t0-network.resource_group_location
-
-  tags = {
-    DeploymentName = var.deploymentname
-  }
-}

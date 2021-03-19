@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+
 resource "azurerm_subnet" "subnet" {
   name                 = var.name
   resource_group_name  = var.resource_group_name
@@ -82,5 +83,19 @@ resource "azurerm_monitor_diagnostic_setting" "nsg" {
         enabled = false
       }
     }
+  }
+}
+
+resource "azurerm_network_watcher_flow_log" "nsgfl" {
+  network_watcher_name = "NetworkWatcher_${var.location}"
+  resource_group_name  = "NetworkWatcherRG"
+
+  network_security_group_id = azurerm_network_security_group.nsg.id
+  storage_account_id        = var.log_analytics_storage_id
+  enabled                   = true
+
+  retention_policy {
+    enabled = true
+    days    = var.flow_log_retention_in_days
   }
 }

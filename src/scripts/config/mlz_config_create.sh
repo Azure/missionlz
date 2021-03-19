@@ -48,7 +48,6 @@ fi
 # generate MLZ configuration names
 . "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_tf_cfg}"
 
-
 for mlz_sub in $mlz_subs
 do
     # Grab value of variable

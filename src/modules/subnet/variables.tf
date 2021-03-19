@@ -70,3 +70,8 @@ variable "log_analytics_storage_id" {
 variable "log_analytics_workspace_id" {
   description = "The id of the log analytics workspace"
 }
+
+variable "flow_log_retention_in_days" {
+  description = "The number of days to retain flow log data"
+  default     = "7"
+}
