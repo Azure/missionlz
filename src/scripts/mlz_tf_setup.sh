@@ -35,7 +35,7 @@ mlz_tf_cfg=$(realpath "${1}")
 . "${mlz_tf_cfg}"
 
 # Core terraform modules path
-core_path="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")/src/core"
+core_path="$(dirname "$(realpath "${BASH_SOURCE%/*}")")/core"
 
 # Create config resources given a subscription ID and terraform configuration folder path
 create_tf_config() {

@@ -10,23 +10,9 @@ Terraform resources to deploy Tier 0, 1, and 2, and the components of a [SACA hu
     az login
     ```
 
-1. [Prepare the Terraform provider cache](#Prepare-the-Terraform-provider-cache)
 1. [Configure the Terraform Backend](#Configure-the-Terraform-Backend)
 1. [Set Terraform Configuration Variables](#Set-Terraform-Configuration-Variables)
 1. [Deploy Terraform Configuration](#Deploy-Terraform-Configuration)
-
-### Prepare the Terraform provider cache
-
-We source the terraform provider locally from this repository and circumvent the need to fetch it from the internet.
-
-This below script will unzip the provider from the /src/provider_archive folder and place the provider in the /src/provider_cache folder and set execute permissions for the current user.
-
-Execute `unzipprovider.sh`
-
-```bash
-chmod u+x src/provider_archive/unzipprovider.sh
-src/provider_archive/unzipprovider.sh
-```
 
 ### Configure the Terraform Backend
 
@@ -50,7 +36,7 @@ The MLZ deployment architecture uses a single Service Principal whose credential
     mlz_config_location="eastus"
     ```
 
-1. Run `mlz_tf_setup.sh` at [scripts/mlz_tf_setup.sh](scripts/mlz_tf_setup.sh) to create:
+1. Run `mlz_tf_setup.sh` at [src/scripts/mlz_tf_setup.sh](src/scripts/mlz_tf_setup.sh) to create:
 
     - A config Resource Group to store the Key Vault
     - Resource Groups for each tier to store the Terraform state Storage Account
@@ -62,9 +48,9 @@ The MLZ deployment architecture uses a single Service Principal whose credential
     ```bash
     # usage mlz_tf_setup.sh: <mlz_tf_cfg.var path>
 
-    chmod u+x scripts/mlz_tf_setup.sh
+    chmod u+x src/scripts/mlz_tf_setup.sh
 
-    scripts/mlz_tf_setup.sh src/core/mlz_tf_cfg.var
+    src/scripts/mlz_tf_setup.sh src/core/mlz_tf_cfg.var
     ```
 
 ### Set Terraform Configuration Variables
@@ -87,20 +73,20 @@ location="eastus" # the value used by Terraform in src/core/globals.tfvars
 
 ### Deploy Terraform Configuration
 
-You can use `apply_terraform.sh` at [scripts/apply_terraform.sh](scripts/apply_terraform.sh) to both initialize Terraform and apply a Terraform configuration based on the backend environment variables and Terraform variables you've setup in previous steps.
+You can use `apply_terraform.sh` at [src/scripts/apply_terraform.sh](src/scripts/apply_terraform.sh) to both initialize Terraform and apply a Terraform configuration based on the backend environment variables and Terraform variables you've setup in previous steps.
 
-The script `destroy_terraform.sh` at [scripts/destroy_terraform.sh](scripts/destroy_terraform.sh) is helpful during testing. This script is exactly like the
+The script `destroy_terraform.sh` at [src/scripts/destroy_terraform.sh](src/scripts/destroy_terraform.sh) is helpful during testing. This script is exactly like the
 `apply_terraform.sh` except it destroys resources defined in the target state file
 
 `apply_terraform.sh` and `destroy_terraform.sh` take two arguments:
 
   1. The Global variables file
-  2. The directory that contains the main.tf and *.tfvars variables file of the configuration to apply
+  1. The directory that contains the main.tf and *.tfvars variables file of the configuration to apply
 
 For example, from the root of this repository, you could apply Tier 0 with a command like:
 
 ```bash
-scripts/apply_terraform.sh \
+src/scripts/apply_terraform.sh \
   src/core/globals.tfvars \
   src/core/tier-0
 ```
@@ -108,21 +94,27 @@ scripts/apply_terraform.sh \
 To apply Tier 1, you could then change the target directory:
 
 ```bash
-scripts/apply_terraform.sh \
+src/scripts/apply_terraform.sh \
   src/core/globals.tfvars \
   src/core/tier-1
 ```
 
 Repeating this same pattern, for whatever configuration you wanted to apply and reuse in some automated pipeline.
 
-Use `init_terraform.sh` at [scripts/init_terraform.sh](scripts/init_terraform.sh) to perform just an initialization of the Terraform environment
+Use `init_terraform.sh` at [src/scripts/init_terraform.sh](src/scripts/init_terraform.sh) to perform just an initialization of the Terraform environment
 
 To initialize Terraform for Tier 1, you could then change the target directory:
 
 ```bash
-scripts/init_terraform.sh \
+src/scripts/init_terraform.sh \
   src/core/tier-1
 ```
+
+### Terraform Providers
+
+The development container definition downloads the required Terraform plugin providers during the container build so that the container can be transported to an air-gapped network for use. The container also sets the `TF_PLUGIN_CACHE_DIR` environment variable, which Terraform uses as the search location for locally installed providers. If you are not using the container to deploy or if the `TF_PLUGIN_CACHE_DIR` environment variable is not set, Terraform will automatically attempt to download the provider from the internet when you execute the `terraform init` command.
+
+See the development container [README](.devcontainer/README.md) for more details on building and running the container.
 
 ## Helpful Links
 

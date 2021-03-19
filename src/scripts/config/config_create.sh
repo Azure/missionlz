@@ -40,18 +40,27 @@ tf_name=$(basename "${tf_dir}")
 
 # create TF Resource Group and Storage Account for Terraform State files
 echo "Validating Resource Group for Terraform state..."
-if [[ -z $(az group show --name "${tf_rg_name}" --subscription "${tf_sub_id}" --query name --output tsv) ]];then
+rg_exists="az group show \
+    --name ${tf_rg_name} \
+    --subscription ${tf_sub_id}"
+
+if ! $rg_exists &> /dev/null; then
     echo "Resource Group does not exist...creating resource group ${tf_rg_name}"
     az group create \
         --subscription "${tf_sub_id}" \
         --location "${mlz_config_location}" \
-        --name "${tf_rg_name}"
+        --name "${tf_rg_name}" \
+        --output none
 else
     echo "Resource Group already exists...getting resource group"
 fi
 
 echo "Validating Storage Account for Terraform state..."
-if [[ -z $(az storage account show --name "${tf_sa_name}" --subscription "${tf_sub_id}" --query name --output tsv) ]];then
+sa_exists="az storage account show \
+    --name ${tf_sa_name} \
+    --subscription ${tf_sub_id}"
+
+if ! $sa_exists &> /dev/null; then
     echo "Storage Account does not exist...creating storage account ${tf_sa_name}"
     az storage account create \
         --name "${tf_sa_name}" \

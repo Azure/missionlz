@@ -1,0 +1,60 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+name: apply-and-destroy-terraform
+on: [workflow_dispatch]
+jobs:
+  apply-and-destroy-terraform:
+    runs-on: ubuntu-latest
+
+    container:
+      image: acrmlzcicd.azurecr.io/missionlzdev
+      credentials:
+        username: ${{ secrets.acr_username }}
+        password: ${{ secrets.acr_password }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - uses: Azure/get-keyvault-secrets@v1
+      with:
+        keyvault: ${{ secrets.KEY_VAULT_NAME }}
+        secrets: '*'
+
+    - name: get vars
+      run : |
+        cd build
+        ./get_vars.sh
+
+    - name: login
+      run : |
+        cd build
+        ./login_azcli.sh vars/mlz_tf_cfg.var
+
+    - name: apply terraform
+      run : |
+        cd build
+        ./apply_tf.sh \
+          vars/mlz_tf_cfg.var \
+          vars/globals.tfvars \
+          vars/saca-hub.tfvars \
+          vars/tier-0.tfvars \
+          vars/tier-1.tfvars \
+          vars/tier-2.tfvars \
+          n
+
+    - name: destroy terraform
+      run : |
+        cd build
+        ./destroy_tf.sh \
+          vars/mlz_tf_cfg.var \
+          vars/globals.tfvars \
+          vars/saca-hub.tfvars \
+          vars/tier-0.tfvars \
+          vars/tier-1.tfvars \
+          vars/tier-2.tfvars \
+          n
