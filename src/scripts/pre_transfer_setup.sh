@@ -22,6 +22,7 @@
 
 # Run Docker Setup Script
 
+docker build -t lzfront "${BASH_SOURCE%/*}/../"
 docker save -o mlz.tar lzfront:latest
 zip mlz.zip mlz.tar
 rm mlz.tar
