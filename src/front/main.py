@@ -12,6 +12,8 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from lib import auth
+from subprocess import check_call
+import asyncio
 import os
 import re
 import sys
@@ -34,6 +36,18 @@ if keyVaultName:
         credential=credential)
 
 static_location = '/static/'
+exec_output = os.path.join(os.getcwd(), "exec_output", "exec.txt")
+
+if not os.path.exists(os.path.join(os.getcwd(), "config_output")):
+    os.mkdir(os.path.join(os.getcwd(), "config_output"))
+
+if not os.path.exists(os.path.join(os.getcwd(), "exec_output")):
+    os.mkdir(os.path.join(os.getcwd(), "exec_output"))
+
+if not os.path.exists(exec_output):
+    with open(exec_output, "w+") as f:
+        f.write("")
+
 
 @app.get("/")
 async def home(request: Request):
@@ -72,8 +86,8 @@ async def home(request: Request):
                             cls="input-group input-group-sm mb-3").render(pretty=False)
 
     login_input_html = "Click the below button to initiate AAD authentication" + br().render() + div(
-                            a("Login", href=login_url),
-                            cls="input-group input-group-sm mb-3").render(pretty=False)
+        a("Login", href=login_url),
+        cls="input-group input-group-sm mb-3").render(pretty=False)
 
     try:
         config = json.load(open("form_config.json"))
@@ -106,10 +120,10 @@ async def home(request: Request):
                 else:
                     build_form(find_config())
 
-
         # Modal
-        with div(cls="modal fade", data_backdrop="static", id="promptModal", tabindex="-1", role="dialog", aria_hidden="true"):
-            with div(cls="modal-dialog modal-dialog-centered", role="document"):
+        with div(cls="modal fade", data_backdrop="static", id="promptModal", tabindex="-1", role="dialog",
+                 aria_hidden="true"):
+            with div(cls="modal-dialog modal-dialog-centered modal-lg", role="document"):
                 with div(cls="modal-content"):
                     with div(cls="modal-header"):
                         h5("Modal Title", cls="modal-title")
@@ -132,7 +146,32 @@ async def home(request: Request):
             })
             $('#promptModal').modal('show')
         }
-      
+    
+        var interval = null
+        function retrieve_results() { 
+          $.ajax({
+           type: "GET",
+           url: "/poll",
+           success: function(msg){
+             $("#terminal").text(msg);
+           }
+         });
+        }
+        
+        function submitForm(){
+            interval = setInterval(retrieve_results, 2000);
+            $('#promptModal').on('show.bs.modal', function (event) {
+              var modal = $(this)
+              modal.find('.modal-title').text('Polling execution results...')
+              modal.find('.modal-body').html('<div id="terminal"></div>')
+              modal.find('#modBtn').show()
+              modal.find('#modBtn').click(function(){
+                clearInterval(interval)
+              })
+            })
+            $('#promptModal').modal('show')
+        }
+        
         $(document).ready(function(){
             $('#showTenant').click(function(){
                 promptTenant()
@@ -144,14 +183,28 @@ async def home(request: Request):
               promptLogin()
             }
         })
+        
+        $(document).on('submit', '#terraform_config', function(e) {
+             $.ajax({
+                url: $(this).attr('action'),
+                type: $(this).attr('method'),
+                data: $(this).serialize(),
+                success: function(html) {
+                    submitForm()
+                }
+            });
+            e.preventDefault();
+        });
+
         $("input").change(function(){
-	        $("input[name="+ this.name +"]").val(this.value)
+            $("input[name="+ this.name +"]").val(this.value)
         })
         """)
 
     response = HTMLResponse(content=str(doc), status_code=200)
     response.set_cookie("flow", json.dumps(flow), expires=3600)
     return response
+
 
 # Display currently cached creds
 @app.get("/creds")
@@ -166,7 +219,8 @@ async def display_creds(request: Request):
     user = request.cookies.get("user")
     if keyVaultName:
         test_value = secret_client.get_secret("login-app-clientid")
-    return JSONResponse({"creds": user, "flow": result, "test_val":test_value.value})
+    return JSONResponse({"creds": user, "flow": result, "test_val": test_value.value})
+
 
 # Process Logout
 @app.get("/logout")
@@ -177,10 +231,11 @@ async def process_logout():
     :return: Redirect to main body
     """
     # Simply destroy the cookies in this session and get rid of the creds, redirect to landing
-    response=RedirectResponse("/")  # Process the destruction from main app/test result
+    response = RedirectResponse("/")  # Process the destruction from main app/test result
     response.delete_cookie("user")
     response.delete_cookie("flow")
     return response
+
 
 # API To Capture the redirect from Azure
 @app.get("/redirect")
@@ -194,20 +249,21 @@ async def capture_redirect(request: Request):
     try:
         cache = auth.load_cache(request)
         if keyVaultName:
-            result = auth.build_msal_app(cache, client_id=secret_client.get_secret("login-app-clientid").value, secret=secret_client.get_secret("login-app-pwd").value).acquire_token_by_auth_code_flow(
-                    dict(json.loads(request.cookies.get("flow"))), dict(request.query_params))
+            result = auth.build_msal_app(cache, client_id=secret_client.get_secret("login-app-clientid").value,
+                                         secret=secret_client.get_secret(
+                                             "login-app-pwd").value).acquire_token_by_auth_code_flow(
+                dict(json.loads(request.cookies.get("flow"))), dict(request.query_params))
         else:
             result = auth.build_msal_app(cache).acquire_token_by_auth_code_flow(
                 dict(json.loads(request.cookies.get("flow"))), dict(request.query_params))
         if "error" in result:
             response = JSONResponse({"status": "error", "result": result})
         else:
-            #response = JSONResponse({"status": "success", "result": result})
+            # response = JSONResponse({"status": "success", "result": result})
             response = RedirectResponse("/")
             response.set_cookie("user", json.dumps(result.get("id_token_claims")), expires=3600)
     except ValueError as e:
-        #TODO: Add some more prettiness to the UI to allow for the CSRF errors to display
-        response = JSONResponse({"status": "error", "result": "Possible CSRF related error"+str(e)})
+        response = JSONResponse({"status": "error", "result": "Possible CSRF related error" + str(e)})
     return response
 
 
@@ -223,7 +279,6 @@ async def process_input(request: Request):
     """
     dynamic_form = await request.form()
     form_values = dict(dynamic_form)
-    #TODO: Possibly revisit for stronger security
     if not request.cookies.get("user") or not request.cookies.get("flow"):
         return JSONResponse(content={"status": "Error: User Not Logged In"}, status_code=200)
 
@@ -233,7 +288,7 @@ async def process_input(request: Request):
     # Load tfvars initial files
     tf_json = find_config(extension="tfvars.json")
 
-    #Create a map based on str maps in the form config files
+    # Create a map based on str maps in the form config files
     maps = {}
     for _, config_doc in form_config.items():
         for _, config in config_doc.items():
@@ -241,7 +296,7 @@ async def process_input(request: Request):
                 for strm, smap in config["str_maps"].items():
                     maps[strm] = form_values[smap]
 
-    #Evaluate maps across loaded jsons
+    # Evaluate maps across loaded jsons
     for f_name, doc in tf_json.items():
         temp_dump = json.dumps(doc)
         for strm, smap in maps.items():
@@ -251,7 +306,7 @@ async def process_input(request: Request):
     # Process all form keys:
     form_dump = json.dumps(form_values)
     for key, smap in maps.items():
-       form_dump.replace("{"+key+"}", smap)
+        form_dump.replace("{" + key + "}", smap)
     form_values = json.loads(form_dump)
 
     # Write the values to the correct locations in the memory loaded json files
@@ -261,41 +316,52 @@ async def process_input(request: Request):
 
     # Loop all open TF documents and write them out
     for f_name, doc in tf_json.items():
-        json.dump(doc, open(os.path.basename(f_name), "w+"))
+        json.dump(doc, open(os.path.join(os.getcwd(), "config_output", os.path.basename(f_name)), "w+"))
 
     # Use what we know and write out the environment file:
-    with open("mlz_tf_var_front", "w+") as f:
-        f.writelines("""tf_environment="{TF_ENVIRONMENT}" # https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
-                        mlz_env_name="{MLZ_ENV_NAME}" # Unique name for MLZ environment
-                        mlz_config_subid="{MLZ_CONFIG_SUBID}" # Subscription ID for Key Vault storing Service Principal creds
-                        mlz_config_location="{MLZ_CONFIG_LOCATION}" # Azure Region for deploying Mission LZ configuration resources
-                        mlz_tenantid="{MLZ_TENANTID}"
-                        mlz_tier0_subid="{MLZ_TIER0_SUBID}"
-                        mlz_tier1_subid="{MLZ_TIER1_SUBID}"
-                        mlz_tier2_subid="{MLZ_TIER2_SUBID}"
-                        mlz_saca_subid="{MLZ_SACA_SUBID}"
-                        """)
+    with open(os.path.join(os.getcwd(), "config_output", "mlz_tf_var_front"), "w+") as f:
+        f.writelines("tf_environment=\"" + os.getenv("TF_ENV") + "\"\n" +
+                     "mlz_env_name=\"" + os.getenv("MLZ_ENV") + "\"\n" +
+                     "mlz_config_subid=\"" + os.getenv("SUBSCRIPTION_ID") + "\"\n" +
+                     "mlz_config_location=\"" + os.getenv("LOCATION") + "\"\n" +
+                     "mlz_tenantid=\"" + os.getenv("TENANT_ID") + "\"\n" +
+                     "mlz_tier0_subid=\"" + form_values["tier0_subid"] + "\"\n" +
+                     "mlz_tier1_subid=\"" + form_values["tier1_subid"] + "\"\n" +
+                     "mlz_tier2_subid=\"" + form_values["tier2_subid"] + "\"\n" +
+                     "mlz_saca_subid=\"" + form_values["saca_subid"] + "\"\n")
 
+    # Call the build script
+    # Check that it's executable:
+    executable = os.path.join(os.getcwd(), "..", "build", "apply_tf.sh")
+    os.chmod(executable, 0o755)
+    mlz_config = os.path.join(os.getcwd(), "config_output", "mlz_tf_var_front")
+    global_config = os.path.join(os.getcwd(), "config_output", "globals.tfvars.json")
+    saca = os.path.join(os.getcwd(), "config_output", "saca-hub.tfvars.json")
+    tier0 = os.path.join(os.getcwd(), "config_output", "tier-0.tfvars.json")
+    tier1 = os.path.join(os.getcwd(), "config_output", "tier-1.tfvars.json")
+    tier2 = os.path.join(os.getcwd(), "config_output", "tier-2.tfvars.json")
+    exec_str = "{} {} {} {} {} {} {} y > {} 2>&1".format(
+        executable, mlz_config, global_config, saca, tier0, tier1, tier2, exec_output)
+    with open(exec_output, "w+") as out:
+        # This capture is setting to a dead object.  If we want to do work with the process in the future
+        # we have to do it here.
+        _ = await asyncio.create_subprocess_exec(*exec_str.split(), stderr=out, stdout=out)
 
-    #TODO: Execute Terraform
-
-    return JSONResponse(content=json.dumps(dict(dynamic_form)), status_code=200)
-    #return JSONResponse(content={"status": "success"}, status_code=200)
+    return JSONResponse(content={"status": "success"}, status_code=200)
 
 
 # Execute a poll for the contents of a specific job,  logs from terraform execution will be stored as text with
 # a job key ast he file name?
 @app.get("/poll")
-async def poll_results(job_num: int):
+async def poll_results():
     """
-    Pol results is an async definition used by the /poll API query with a get query for job_num
+    Pol results is an async definition used by the /poll API query to return the results of the exec file
 
-    :param job_num: HTML GET Query parameter, the job num generated by process
-    :return: will return the current contents of the results text file retrieved from job_num
+    :return: will return the current contents of the results text file
     """
     try:
-        with open("results/" + job_num) as res:
-            return JSONResponse({"results": res.read()}, status_code=200)
+        with open(exec_output, "r") as res:
+            return JSONResponse(res.read(), status_code=200)
     except:
         return JSONResponse({"results": "No content for that job_num"}, status_code=200)
 

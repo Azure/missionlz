@@ -3,7 +3,7 @@
 		"form": [{
 				"varname": "tf_environment",
 				"type": "text",
-				"default_val": "",
+				"default_val": "env:TF_ENV",
 				"description": "Terraform deployment Environment https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment",
 				"options": []
 			},

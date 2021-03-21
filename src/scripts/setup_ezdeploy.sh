@@ -45,7 +45,6 @@ while getopts "d:s:t:l:e:m:p:" opts; do
     l) export mlz_config_location=${OPTARG}
       ;;
     e) export tf_environment=${OPTARG}
-      echo "Option x was used"
       ;;
     m) export mlz_env_name=${OPTARG}
       ;;
@@ -100,7 +99,12 @@ if [[ $docker_strategy != "local" ]]; then
     --name "${mlz_instance_name}" \
     --image "$ACR_LOGIN_SERVER"/lzfront:latest \
     --dns-name-label "${mlz_dns_name}" \
-    --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" LOCATION="${mlz_config_location}" \
+    --environment-variables KEYVAULT_ID="${mlz_kv_name}" \
+                            TENANT_ID="${mlz_tenantid}" \
+                            LOCATION="${mlz_config_location}" \
+                            SUBSCRIPTION_ID="${mlz_config_subid}" \
+                            TF_ENV="${tf_environment}" \
+                            MLZ_ENV="${mlz_env_name}" \
     --registry-username "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
     --registry-password "$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
     --ports 80 \
@@ -163,11 +167,17 @@ if [[ $docker_strategy == "local" ]]; then
   echo "export CLIENT_SECRET=$client_password"
   echo "export TENANT_ID=$mlz_tenantid"
   echo "export LOCATION=$mlz_config_location"
+  echo "export SUBSCRIPTION_ID=$mlz_config_subid"
+  echo "export TF_ENV=$tf_environment"
+  echo "export MLZ_ENV=$mlz_env_name"
   echo "Powershell:"
   echo "\$env:CLIENT_ID='$client_id'"
   echo "\$env:CLIENT_SECRET='$client_password'"
   echo "\$env:TENANT_ID='$mlz_tenantid'"
-  echo "\$env:TENANT_ID='$mlz_config_location'"
+  echo "\$env:LOCATION='$mlz_config_location'"
+  echo "\$env:SUBSCRIPTION_ID='$mlz_config_subid'"
+  echo "\$env:TF_ENV='$tf_environment'"
+  echo "\$env:MLZ_ENV='$mlz_env_name'"
 else
   echo "You can access the front end at http://$fqdn"
 fi
