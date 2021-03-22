@@ -85,7 +85,7 @@ def build_form(form_doc: dict):
                                 if el_item["type"] == "text":
                                     input_(id=el_item["varname"], cls="form-control", value=el_item["default_val"], name=el_item["varname"])
                                 elif el_item["type"] == "list":
-                                    textarea(id=el_item["varname"], cls="form-control", value=el_item["default_val"], name=el_item["varname"], rows="4", columns="25")
+                                    textarea(id=el_item["varname"], cls="form-control", value=el_item["default_val"].join("\n"), name=el_item["varname"], rows="4", columns="25")
                                 elif el_item["type"] == "select":
                                     select((option(x, value=x) for x in el_item["options"]), cls="form-control",
                                                default=el_item["default_val"], name=el_item["varname"], id=el_item["varname"])

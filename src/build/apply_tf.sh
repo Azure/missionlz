@@ -63,7 +63,7 @@ apply() {
   cp "${input_vars}" "${temp_vars}"
 
   # remove any configuration tfvars and subtitute it with input vars
-  tf_vars="${path}/${name}.tfvars"
+  tf_vars="${path}/$(basename "$vars")"
   rm -f "${tf_vars}"
   touch "${tf_vars}"
   cp "${temp_vars}" "${tf_vars}"

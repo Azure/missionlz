@@ -312,6 +312,9 @@ async def process_input(request: Request):
     # Write the values to the correct locations in the memory loaded json files
     for key, value in form_values.items():
         for _, doc in tf_json.items():
+            # Process a list type value
+            if "\n" in value:
+                value = value.split("\n")
             dotted_write(key, value, doc)
 
     # Loop all open TF documents and write them out

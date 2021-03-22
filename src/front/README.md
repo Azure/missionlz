@@ -40,7 +40,7 @@ From the "src" directory
 
     ```bash
     chmod u+x ./scripts/setup_ezdeploy.sh
-    ./scripts/setup_ezdeploy.sh build <subscription_id> <tenant_id> <location> -t <tf_env_name> -m <mlz_env_name> -p <port>
+    ./script/setup_ezdeploy.sh -d build -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port
     ```
 
 The final results will include a URI that you can use to access the front end running in a remote azure container instance
@@ -121,7 +121,7 @@ prior to following the following instructions
 
         ```bash
         chmod u+x ./script/setup_ezdeploy.sh
-        ./script/setup_ezdeploy.sh local <subscription_id> <tenant_id> <location> -t <tf_env_name> -m <mlz_env_name> -p port
+        ./script/setup_ezdeploy.sh -d local -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port
         ```
 
 4. Invoke environment variables needed for login (These are returned after setup_ezdeploy.sh is run)
