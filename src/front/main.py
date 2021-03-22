@@ -12,7 +12,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from lib import auth
-from subprocess import check_call
+from subprocess import call
 import asyncio
 import os
 import re
@@ -160,16 +160,6 @@ async def home(request: Request):
         
         function submitForm(){
             interval = setInterval(retrieve_results, 2000);
-            $('#promptModal').on('show.bs.modal', function (event) {
-              var modal = $(this)
-              modal.find('.modal-title').text('Polling execution results...')
-              modal.find('.modal-body').html('<div id="terminal"></div>')
-              modal.find('#modBtn').show()
-              modal.find('#modBtn').click(function(){
-                clearInterval(interval)
-              })
-            })
-            $('#promptModal').modal('show')
         }
         
         $(document).ready(function(){
@@ -185,6 +175,16 @@ async def home(request: Request):
         })
         
         $(document).on('submit', '#terraform_config', function(e) {
+            $('#promptModal').on('show.bs.modal', function (event) {
+              var modal = $(this)
+              modal.find('.modal-title').text('Polling execution results: (Box May Stay Blank for an extended amount of time)')
+              modal.find('.modal-body').html('<div id="terminal"></div>')
+              modal.find('#modBtn').show()
+              modal.find('#modBtn').click(function(){
+                clearInterval(interval)
+              })
+            })
+            $('#promptModal').modal('show')
              $.ajax({
                 url: $(this).attr('action'),
                 type: $(this).attr('method'),
@@ -335,22 +335,38 @@ async def process_input(request: Request):
 
     # Call the build script
     # Check that it's executable:
-    executable = os.path.join(os.getcwd(), "..", "build", "apply_tf.sh")
-    os.chmod(executable, 0o755)
+    config_executable = os.path.join(os.getcwd(), "..", "scripts", "mlz_tf_setup.sh")
+    apply_executable = os.path.join(os.getcwd(), "..", "build", "front_wrapper.sh")
+    os.chmod(config_executable, 0o755)
+    os.chmod(apply_executable, 0o755)
     mlz_config = os.path.join(os.getcwd(), "config_output", "mlz_tf_var_front")
     global_config = os.path.join(os.getcwd(), "config_output", "globals.tfvars.json")
     saca = os.path.join(os.getcwd(), "config_output", "saca-hub.tfvars.json")
     tier0 = os.path.join(os.getcwd(), "config_output", "tier-0.tfvars.json")
     tier1 = os.path.join(os.getcwd(), "config_output", "tier-1.tfvars.json")
     tier2 = os.path.join(os.getcwd(), "config_output", "tier-2.tfvars.json")
-    exec_str = "{} {} {} {} {} {} {} y > {} 2>&1".format(
-        executable, mlz_config, global_config, saca, tier0, tier1, tier2, exec_output)
+
+    if keyVaultName:
+        sp_id = secret_client.get_secret("login-app-clientid").value
+        sp_pwd = secret_client.get_secret("login-app-clientid").value
+    else:
+        sp_id = os.getenv("MLZCLIENTID", "NotSet")
+        sp_pwd = os.getenv("MLZCLIENTSECRET", "NotSet")
+
+    config_str = "{} {} {}".format(config_executable, mlz_config, "bypass")
+    exec_str = "{} {} {} {} {} {} {} y {} {}".format(
+        apply_executable, mlz_config, global_config, saca, tier0, tier1, tier2, sp_id, sp_pwd)
+
     with open(exec_output, "w+") as out:
+        creation = await asyncio.create_subprocess_exec(*config_str.split(), stderr=out, stdout=out)
         # This capture is setting to a dead object.  If we want to do work with the process in the future
         # we have to do it here.
+        await creation.wait()
         _ = await asyncio.create_subprocess_exec(*exec_str.split(), stderr=out, stdout=out)
 
     return JSONResponse(content={"status": "success"}, status_code=200)
+
+
 
 
 # Execute a poll for the contents of a specific job,  logs from terraform execution will be stored as text with

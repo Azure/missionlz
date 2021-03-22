@@ -18,7 +18,7 @@ error_log() {
 
 usage() {
   echo "setup_ezdeploy.sh: Setup the Front End for MLZ"
-  error_log "usage: setup_ezdeploy.sh -d <local|build|load> -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name {{default=public}}> -m <mlz_env_name {{default=mlzdeployment}}> -p <web_port {{default=80}}>"
+  error_log "usage: setup_ezdeploy.sh -d <local|build|load> -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name {{default=public}}> -m <mlz_env_name {{default=mlzdeployment}}> -p <web_port {{default=80}}> -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
 }
 
 if [[ "$#" -lt 8 ]]; then
@@ -29,16 +29,14 @@ fi
 export tf_environment=public
 export mlz_env_name=mlzdeployment
 export web_port=80
+subs=()
 
-while getopts "d:s:t:l:e:m:p:" opts; do
+while getopts "d:s:t:l:e:m:p:0:1:2:3:4:" opts; do
   case "${opts}" in
     d) export docker_strategy=${OPTARG}
       ;;
     s) export mlz_config_subid=${OPTARG}
-      export mlz_tier0_subid=${OPTARG}
-      export mlz_tier1_subid=${OPTARG}
-      export mlz_tier2_subid=${OPTARG}
-      export mlz_saca_subid=${OPTARG}
+      subs+=("${OPTARG}")
       ;;
     t) export mlz_tenantid=${OPTARG} 
       ;;
@@ -49,6 +47,18 @@ while getopts "d:s:t:l:e:m:p:" opts; do
     m) export mlz_env_name=${OPTARG}
       ;;
     p) export web_port=${OPTARG}
+      ;;
+    0) export mlz_saca_subid=${OPTARG}
+      subs+=("${OPTARG}")
+      ;;
+    1) export mlz_tier0_subid=${OPTARG}
+      subs+=("${OPTARG}")
+      ;;
+    2) export mlz_tier1_subid=${OPTARG}
+      subs+=("${OPTARG}")
+      ;;
+    3) export mlz_tier2_subid=${OPTARG}
+      subs+=("${OPTARG}")
       ;;
     ?)
       echo "Invalid option: -${OPTARG}."
@@ -63,6 +73,16 @@ done
 # create the subscription resources
 . "${BASH_SOURCE%/*}/config/mlz_config_create.sh"  "bypass"
 
+for sub in "${subs[@]}"
+  do
+  echo "Setting Contributor role assignment for ${mlz_sp_name} on subscription ID: ${sub}"
+  az role assignment create \
+      --role Contributor \
+      --assignee-object-id "${sp_objid}" \
+      --scope "/subscriptions/${sub}" \
+      --assignee-principal-type ServicePrincipal \
+      --output none
+  done
 
 echo "INFO: Setting current az cli subscription to ${mlz_config_subid}"
 az account set --subscription "${mlz_config_subid}"
@@ -168,6 +188,8 @@ if [[ $docker_strategy == "local" ]]; then
   echo "export SUBSCRIPTION_ID=$mlz_config_subid"
   echo "export TF_ENV=$tf_environment"
   echo "export MLZ_ENV=$mlz_env_name"
+  echo "export MLZCLIENTID=$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)"
+  echo "export MLZCLIENTSECRET=$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)"
   echo "Powershell:"
   echo "\$env:CLIENT_ID='$client_id'"
   echo "\$env:CLIENT_SECRET='$client_password'"
@@ -176,6 +198,9 @@ if [[ $docker_strategy == "local" ]]; then
   echo "\$env:SUBSCRIPTION_ID='$mlz_config_subid'"
   echo "\$env:TF_ENV='$tf_environment'"
   echo "\$env:MLZ_ENV='$mlz_env_name'"
+  echo "\$env:MLZCLIENTID='$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
+  echo "\$env:MLZCLIENTSECRET='$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
+ 
 else
   echo "You can access the front end at http://$fqdn"
 fi

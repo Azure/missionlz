@@ -34,10 +34,13 @@ def dotted_write(prop_name: str, val: Union[int, str], target_dict: dict):
         if prop_name in target_dict:
             target_dict[prop_name] = val
 
+
 def find_config(dir_scan=['../core', '../modules'], extension=".front.json"):
     """
     Purpose: Function takes a list of directory names.  Performs an os.walk to find *.front.json files and returns a
     dictionary of file names and their contents.
+
+     If .orig is in place on the file, it's removed.
 
     :dir_scan: the list of directories to be scanned.
     :extension: the extension to look for and return in the scan
@@ -49,7 +52,7 @@ def find_config(dir_scan=['../core', '../modules'], extension=".front.json"):
             for f_name in files:
                 if extension in f_name:
                     cur_file = os.path.join(root, f_name)
-                    config_files[cur_file] = json.load(open(cur_file))
+                    config_files[cur_file.replace(".orig", "")] = json.load(open(cur_file))
 
     return config_files
 
@@ -79,13 +82,14 @@ def build_form(form_doc: dict):
                         with div(cls="input-group input-group-sm mb-3"):
                             with div(cls="input-group-prepend"):
                                 # Process environment options
-                                if "env:" in el_item["default_val"]:
-                                    el_item["default_val"] = os.getenv(el_item["default_val"].replace("env:", ""), "")
+                                if type(el_item["default_val"]) != bool:
+                                    if "env:" in el_item["default_val"]:
+                                        el_item["default_val"] = os.getenv(el_item["default_val"].replace("env:", ""), "")
                                 span(el_item["varname"], cls="input-group-text")
                                 if el_item["type"] == "text":
                                     input_(id=el_item["varname"], cls="form-control", value=el_item["default_val"], name=el_item["varname"])
                                 elif el_item["type"] == "list":
-                                    textarea(id=el_item["varname"], cls="form-control", value=el_item["default_val"].join("\n"), name=el_item["varname"], rows="4", columns="25")
+                                    textarea("\n".join(el_item["default_val"]), id=el_item["varname"], cls="form-control", name=el_item["varname"], rows="4", columns="25")
                                 elif el_item["type"] == "select":
                                     select((option(x, value=x) for x in el_item["options"]), cls="form-control",
                                                default=el_item["default_val"], name=el_item["varname"], id=el_item["varname"])
