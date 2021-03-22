@@ -8,7 +8,7 @@ In order to run this software, you'll need to install some requirements, regardl
 
 For any of the following options you will need docker on your machine. If you are pre-packaging and deploying on a target network, you will need docker locally installed on both your local internet connected machine, and your target machine.  The below instructions might need to be found in your target environment to replicate.
 
-1. Install [Install WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and Docker on Windows[Install Docker WSl2](https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers), or [Install Docker Linux](https://docs.docker.com/engine/install/ubuntu) (Docker-Compose is also required, and is intalled by default with Docker Desktop.)
+1. Install [Install WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and [Docker on Windows for WSL2](https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers), or [Install Docker Linux](https://docs.docker.com/engine/install/ubuntu) (Docker-Compose is also required, and is intalled by default with Docker Desktop.)
 1. [Install the Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli). Be sure to install the Azure CLI in your Linux or WSL environment.
 
 > If you will be transferring this package to an air-gapped cloud, please run the pre-packaging requirements to build a package that's ready to be transferred. This will prepare a docker image with all requirements to run ezdeploy. This is necessary if you don't have access to an updated docker repo/pip repo in your target network.  If you do have these, you can proceed with the installation as if installing to an internet connected Azure Cloud.  
