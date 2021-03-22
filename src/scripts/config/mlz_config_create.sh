@@ -75,12 +75,15 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
         --query appId \
         --output tsv)
 
-    # Get Service Principal ObjectId
+        # Get Service Principal ObjectId
     sp_objid=$(az ad sp show \
         --id "http://${mlz_sp_name}" \
         --query objectId \
         --output tsv)
 
+    # Make available to calling scripts
+    export sp_objid=${sp_objid}
+    
     # Assign Contributor role to Service Principal
     for sub in "${subs[@]}"
     do

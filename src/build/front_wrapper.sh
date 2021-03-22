@@ -16,11 +16,11 @@ error_log() {
 }
 
 usage() {
-  echo "login_azcli.sh: Get the tenant ID from some MLZ configuration file and login using known Service Principal credentials"
-  error_log "usage: login_azcli.sh <mlz config> <SP_ID> <SP_PW>"
+  echo "front_wrapper.sh: This provides a wrapper to get around python shell execution issues, it combines login and apply_tf"
+  error_log "usage: front_wrapper.sh <mlz config> <globals.tfvars> <saca.tfvars> <tier0.tfvars> <tier1.tfvars> <tier2.tfvars> <display terraform output (y/n)> <sp_app_id> <sp_secret_key>"
 }
 
-if [[ "$#" -lt 1 ]]; then
+if [[ "$#" -lt 6 ]]; then
    usage
    exit 1
 fi
@@ -30,8 +30,8 @@ mlz_config=$1
 # source the variables from MLZ config
 source "${mlz_config}"
 
-sp_id=${2:-$MLZCLIENTID}
-sp_pw=${3:-$MLZCLIENTSECRET}
+sp_id=${8:-$MLZCLIENTID}
+sp_pw=${9:-$MLZCLIENTSECRET}
 
 # login with known credentials
 az login --service-principal \
@@ -39,4 +39,6 @@ az login --service-principal \
   --password="${sp_pw}" \
   --tenant "${mlz_tenantid}" \
   --allow-no-subscriptions \
-  --output json
+  --output none
+
+. "${BASH_SOURCE%/*}/apply_tf.sh"  "${1}" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}"

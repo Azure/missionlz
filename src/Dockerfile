@@ -16,18 +16,11 @@ RUN apt-get update \
         python3 \
         python3-pip
 
-ADD ./front* /deployment/front/
 
 # Install Terraform and Python
 RUN wget -O terraform.zip https://releases.hashicorp.com/terraform/0.14.3/terraform_0.14.3_linux_amd64.zip\
     && unzip ./terraform.zip -d /usr/local/bin/ \
-    && rm terraform.zip \
-    && pip3 install -r /deployment/front/requirements.txt
-
-ADD ./scripts* /deployment/scripts/
-ADD ./core* /deployment/core/
-ADD ./modules* /deployment/modules/
-ADD ./build* /deployment/build/
+    && rm terraform.zip 
 
 # Download Terraform providers (plugins)
 # Setting the TF_PLUGIN_CACHE_DIR environment variable instructs Terraform to search that folder for plugins first
@@ -62,6 +55,15 @@ RUN AZ_REPO=$(lsb_release -cs) \
 
 # Install AZ CLI
 RUN apt-get update && apt-get install -y azure-cli
+
+ADD ./front* /deployment/front/
+ADD ./scripts* /deployment/scripts/
+ADD ./core* /deployment/core/
+ADD ./modules* /deployment/modules/
+ADD ./build* /deployment/build/
+
+RUN pip3 install -r /deployment/front/requirements.txt
+
 
 # Reset to the default value
 ENV DEBIAN_FRONTEND=dialog
