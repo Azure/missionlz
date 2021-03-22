@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 FROM ubuntu:20.04
 
 # Instructs apt-get to run without a terminal

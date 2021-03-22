@@ -85,34 +85,37 @@ if [[ $docker_strategy != "local" ]]; then
 
   docker tag lzfront:latest "${mlz_acr_name}.azurecr.io/lzfront:latest"
 
-    echo "INFO: Logging into Container Registry"
-    az acr login --name "${mlz_acr_name}"
+  echo "INFO: Logging into Container Registry"
+  az acr login --name "${mlz_acr_name}"
 
-    echo "INFO: pushing docker container"
-    docker tag lzfront:latest "${mlz_acr_name}".azurecr.io/lzfront:latest
-    docker push "${mlz_acr_name}".azurecr.io/lzfront:latest
-    ACR_LOGIN_SERVER=$(az acr show --name "${mlz_acr_name}" --resource-group "${mlz_rg_name}" --query "loginServer" --output tsv)
+  ACR_REGISTRY_ID=$(az acr show --name "${mlz_acr_name}" --query id --output tsv)
+  az role assignment create --assignee "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" --scope $ACR_REGISTRY_ID --role acrpull
 
-    echo "INFO: creating instance"
-    fqdn=$(az container create \
-    --resource-group "${mlz_rg_name}"\
-    --name "${mlz_instance_name}" \
-    --image "$ACR_LOGIN_SERVER"/lzfront:latest \
-    --dns-name-label "${mlz_dns_name}" \
-    --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" LOCATION="${mlz_config_location}" SUBSCRIPTION_ID="${mlz_config_subid}" TF_ENV="${tf_environment}" MLZ_ENV="${mlz_env_name}" \
-    --registry-username "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
-    --registry-password "$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
-    --ports 80 \
-    --query ipAddress.fqdn \
-    --assign-identity \
-    --output tsv)
+  echo "INFO: pushing docker container"
+  docker tag lzfront:latest "${mlz_acr_name}".azurecr.io/lzfront:latest
+  docker push "${mlz_acr_name}".azurecr.io/lzfront:latest
+  ACR_LOGIN_SERVER=$(az acr show --name "${mlz_acr_name}" --resource-group "${mlz_rg_name}" --query "loginServer" --output tsv)
 
-    echo "INFO: Giving Instance the necessary permissions"
-    az keyvault set-policy \
-    -n "${mlz_kv_name}" \
-      --key-permissions get list \
-      --secret-permissions get list \
-      --object-id "$(az container show --resource-group "${mlz_rg_name}" --name "${mlz_instance_name}" --query identity.principalId --output tsv)"
+  echo "INFO: creating instance"
+  fqdn=$(az container create \
+  --resource-group "${mlz_rg_name}"\
+  --name "${mlz_instance_name}" \
+  --image "$ACR_LOGIN_SERVER"/lzfront:latest \
+  --dns-name-label "${mlz_dns_name}" \
+  --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" LOCATION="${mlz_config_location}" SUBSCRIPTION_ID="${mlz_config_subid}" TF_ENV="${tf_environment}" MLZ_ENV="${mlz_env_name}" \
+  --registry-username "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
+  --registry-password "$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
+  --ports 80 \
+  --query ipAddress.fqdn \
+  --assign-identity \
+  --output tsv)
+
+  echo "INFO: Giving Instance the necessary permissions"
+  az keyvault set-policy \
+  -n "${mlz_kv_name}" \
+    --key-permissions get list \
+    --secret-permissions get list \
+    --object-id "$(az container show --resource-group "${mlz_rg_name}" --name "${mlz_instance_name}" --query identity.principalId --output tsv)"
 else
   fqdn="localhost"
 fi
