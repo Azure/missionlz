@@ -17,9 +17,6 @@ Notes:
 If you will be transferring this package to an air-gapped cloud, please run the pre-packaging requirements to build a package that's ready to be transferred.  This will prepare a docker image with all requirements to run ezdeploy.  This is necessary if you don't have access to an updated docker repo/pip repo in your target network.  If you do have these, you can proceed with the installation as if installing to an internet connected Azure Cloud.
 
 [General Requirements](#General-Requirements)  
-[Pre-Package for AirGap](#Airgap-Prep)  
-[Remote AirGap Deployment](#Airgap-Remote)  
-[Local AirGap Deployment](#Airgap-Local)  
 [Remote Installation/Execution](#Remote-Installation-Instructions)  
 [Local Installation/Execution](#Local-Installation-Instructions)
 
@@ -34,18 +31,6 @@ Install WSL2:
 Install Azure CLI:
 
 1. [Install Azure CLI](#Install-Azure-CLI)
-
-## Airgap-Prep
-
-    Coming Soon
-
-## Airgap-Remote
-
-    Coming Soon
-
-## Airgap-Local
-
-    Coming Soon
 
 ## Remote-Installation-Instructions
 
