@@ -68,6 +68,7 @@ terraform init \
    -backend-config "storage_account_name=${tf_be_sa_name}" \
    -backend-config "container_name=${container_name}" \
    -backend-config "environment=${environment}" \
+   -backend-config "metadata_host=${metadata_host}" \
    -backend-config "tenant_id=${tenant_id}" \
    -backend-config "subscription_id=${sub_id}" \
    -backend-config "client_id=${client_id}" \
