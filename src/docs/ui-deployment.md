@@ -1,40 +1,28 @@
-# Mission LZ Front End
+# Mission LZ User Interface
 
-The mission LZ front-end is designed to be a single stop for easily entering all of the configuration items that terraform needs to deploy mission lz to a target set of subscriptions.  
-
-## Getting Started
-
-In order to run this software, you'll need to install some requirements, regardless of the path you choose to take for execution.  Follow the General Requirements,  and then follow instructions for either remote or local installation
-
-For any of the following options you will need docker on your machine. If you are pre-packaging and deploying on a target network, you will need docker locally installed on both your local internet connected machine, and your target machine.  The below instructions might need to be found in your target environment to replicate. 
-
-Install Docker:
-
-1. [Install Docker Linux](https://docs.docker.com/engine/install/ubuntu)
-2. [Install Docker WSl2](https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers)
-
-Notes:
-If you will be transferring this package to an air-gapped cloud, please run the pre-packaging requirements to build a package that's ready to be transferred.  This will prepare a docker image with all requirements to run ezdeploy.  This is necessary if you don't have access to an updated docker repo/pip repo in your target network.  If you do have these, you can proceed with the installation as if installing to an internet connected Azure Cloud.
-
-[General Requirements](#General-Requirements)  
-[Remote Installation/Execution](#Remote-Installation-Instructions)  
-[Local Installation/Execution](#Local-Installation-Instructions)
+The mission LZ front-end is designed to be a single stop for easily entering all of the configuration items that Terraform needs to deploy Mission LZ to a target set of subscriptions.  
 
 ## General Requirements
 
-To get started, you'll need to be running from a bash/zsh environment.  If you are on a Windows machine you can use WSL2.
+In order to run this software, you'll need to install some requirements, regardless of the path you choose to take for execution. Follow the General Requirements, and then follow instructions for either remote or local installation
 
-Install WSL2:
+For any of the following options you will need docker on your machine. If you are pre-packaging and deploying on a target network, you will need docker locally installed on both your local internet connected machine, and your target machine.  The below instructions might need to be found in your target environment to replicate.
 
-1. [Install WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+1. Install [Install WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and Docker on Windows[Install Docker WSl2](https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers), or [Install Docker Linux](https://docs.docker.com/engine/install/ubuntu) (Docker-Compose is also required, and is intalled by default with Docker Desktop.)
+1. [Install the Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli). Be sure to install the Azure CLI in your Linux or WSL environment.
 
-Install Azure CLI:
+> If you will be transferring this package to an air-gapped cloud, please run the pre-packaging requirements to build a package that's ready to be transferred. This will prepare a docker image with all requirements to run ezdeploy. This is necessary if you don't have access to an updated docker repo/pip repo in your target network.  If you do have these, you can proceed with the installation as if installing to an internet connected Azure Cloud.  
 
-1. [Install Azure CLI](#Install-Azure-CLI)
+## Step-By-Step
 
-## Remote-Installation-Instructions
+[Step-by-Step Remote Installation/Execution](#Step-by-Step-Azure-Installation) (recommended)  
+[Step-by-Step Local Installation/Execution](#Step-by-Step-Local-Installation) (more difficult)
 
-In order to run all of ezdeploy remotely, you'll need to have docker installed locally, as well as the Azure Bash CLI
+To get started, you'll need to be running from a bash/zsh environment. If you are on a Windows machine you can use WSL2.
+
+### Step-by-Step Azure Installation
+
+This process will build the user interface container image on your workstation using Docker, upload the container image to your Azure subscription, and install an instance of the container in Azure Container Instances (ACI). You'll need to have Docker installed locally, as well as the Azure Bash CLI.
 
 From the "src" directory
 
@@ -43,33 +31,16 @@ From the "src" directory
     ./script/setup_ezdeploy.sh -d build -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port
     ```
 
-The final results will include a URI that you can use to access the front end running in a remote azure container instance
+The final results will include a URI that you can use to access the front end running in a remote azure container instance.
 
-## Local-Installation-Instructions
+### Step-by-Step Local Installation
 
-Install Python 3:
+Running the user interface on your local workstation is not our recommended approach because it requires more setup, but it works.
 
-1. [Install Python](#Installing-Python)
+1. [Install Python](#Install-Python)
+1. [Run the User Interface Locally](#Run-the-User-Interface-Locally)
 
-1. [Install Docker-Compose](#Install-Docker-Compose)
-
-1. [Install Azure CLI Linux](#Installing-Azure)
-
-### Installing Azure
-
-Installation instructions below are primarily for Ubuntu 20.04.  You may need to find different instructions for other flavors of Linux.
-
-    ```bash
-    # Install the AZ CLI repository
-    AZ_REPO=$(lsb_release -cs) \
-    && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
-    tee /etc/apt/sources.list.d/azure-cli.list
-
-    # Install AZ CLI
-    apt-get update && apt-get install -y azure-cli
-    ```
-
-### Installing Python
+### Install Python
 
 Basic Installation Instructions for Ubuntu 20.04.   You may need to find different instructions for other flavors of Linux.
 
@@ -82,7 +53,7 @@ Basic Installation Instructions for Ubuntu 20.04.   You may need to find differe
         && ln -s /usr/bin/pip3 /usr/bin/pip
     ```
 
-### Local-Execution
+### Run the User Interface Locally
 
 Before running locally, you must follow the instructions in the primary readme file for this repo.  You must have terraform pre-requisites installed in order to execute from a local system. Local execution will also require your credentials to have access to the service principal credentials for this system to assume; meaning that you should perform:
 
@@ -152,4 +123,4 @@ prior to following the following instructions
         python main.py <port_if_not_80>
         ```
 
-    You can then access the application by pointing your browser at "localhost"
+    You can then access the application by pointing your browser at "localhost".
