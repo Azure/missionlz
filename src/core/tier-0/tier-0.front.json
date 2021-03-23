@@ -1,0 +1,134 @@
+{
+	"tier-0": {
+		"str_maps": {
+			"TIER0_SUBNETVM_NAME": "subnets.{TIER0_SUBNETVM_NAME}.name"
+		},
+		"form": [
+			{
+				"varname": "saca_subid",
+				"type": "text",
+				"default_val": "env:SUBSCRIPTION_ID",
+				"description": "Saca Hub Subscription ID",
+				"options": []
+			},
+			{
+				"varname": "saca_rgname",
+				"type": "text",
+				"default_val": "rg-eastus-mlz-sacaci",
+				"description": "Saca Hub Resource Group Name",
+				"options": []
+			},
+			{
+				"varname": "saca_vnetname",
+				"type": "text",
+				"default_val": "vn-eastus-mlz-sacaci",
+				"description": "Saca Virtual Network Name",
+				"options": []
+			},
+			{
+				"varname": "saca_fwname",
+				"type": "text",
+				"default_val": "DemoFirewallci",
+				"description": "Saca Firewall Name",
+				"options": []
+			},
+			{
+				"varname": "saca_lawsname",
+				"type": "text",
+				"default_val": "laws-eastus-mlz-sacaci",
+				"description": "Saca Log Analytic Workspace Name",
+				"options": []
+			},
+			{
+				"varname": "tier0_subid",
+				"type": "text",
+				"default_val": "env:SUBSCRIPTION_ID",
+				"description": "Tier0 Subscription Id",
+				"options": []
+			},
+			{
+				"varname": "tier0_rgname",
+				"type": "text",
+				"default_val": "rg-eastus-mlz-t0ci",
+				"description": "Tier0 Resource Group Name",
+				"options": []
+			},
+			{
+				"varname": "tier0_vnetname",
+				"type": "text",
+				"default_val": "vn-eastus-mlz-t0ci",
+				"description": "Tier0 Virtual Network Name",
+				"options": []
+			},
+			{
+				"varname": "tier0_vnet_address_space",
+				"type": "list",
+				"default_val": [
+					"10.0.110.0/26"
+				],
+				"description": "A list of values (NewLine Separated) for vnet address space",
+				"options": []
+			},
+			{
+				"varname": "tier0_create_network_watcher",
+				"type": "boolean",
+				"default_val": false,
+				"description": "Whether to create the network watcher in this tier vnet.",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.name",
+				"type": "text",
+				"default_val": "tier0vms",
+				"description": "A unique name for the Tier0 Subnet",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.address_prefixes",
+				"type": "list",
+				"default_val": [
+					"10.0.110.0/27"
+				],
+				"description": "A list of values (NewLine Separated) for vnet address space",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.service_endpoints",
+				"type": "list",
+				"default_val": [
+					"Microsoft.Storage"
+				],
+				"description": "A list of values (NewLine Separated) for service endpoints",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.enforce_private_link_endpoint_network_policies",
+				"type": "boolean",
+				"default_val": false,
+				"description": "Enforce Private Link Endpoint Policies",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.enforce_private_link_service_network_policies",
+				"type": "boolean",
+				"default_val": false,
+				"description": "Enforce private link service network policies",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.nsg_name",
+				"type": "text",
+				"default_val": "tier0vmsnsg",
+				"description": "Unique name for Network Security Group",
+				"options": []
+			},
+			{
+				"varname": "subnets.{TIER0_SUBNETVM_NAME}.routetable_name",
+				"type": "text",
+				"default_val": "tier0vmsrtci",
+				"description": "Tier 0 Routeable Subnet Name",
+				"options": []
+			}
+		]
+	}
+}

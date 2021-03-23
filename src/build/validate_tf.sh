@@ -22,7 +22,7 @@ fi
 
 full_path=$(realpath "${0}")
 repo_path=$(dirname "$(dirname "${full_path}")")
-core_path="${repo_path}/src/core"
+core_path="${repo_path}/core"
 
 if [ -d "$core_path" ];
 then

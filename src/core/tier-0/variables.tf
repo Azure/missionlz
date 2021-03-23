@@ -73,7 +73,7 @@ variable "tier0_vnetname" {
 #################################
 # Network configuration section
 #################################
-variable "vnet_address_space" {
+variable "tier0_vnet_address_space" {
   description = "Address space prefixes list of strings"
   type        = list(string)
 }
