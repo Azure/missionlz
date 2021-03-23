@@ -28,7 +28,7 @@ From the "src" directory
 
     ```bash
     chmod u+x ./scripts/setup_ezdeploy.sh
-    ./script/setup_ezdeploy.sh -d build -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port
+    ./script/setup_ezdeploy.sh -d build -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
     ```
 
 The final results will include a URI that you can use to access the front end running in a remote azure container instance.
@@ -89,10 +89,18 @@ prior to following the following instructions
     mlz_env_name: Can be anything unique to your deployment/environment it is used to ensure unique entries for resources.  (Defaults to mlzdeployment)
 
     port:  Default is 80, if you are running in WSL or otherwise can't bind to 80, use this flag to enter a port
+    
+    Multiple Subscriptions:
+    If you are running with multiple subscriptions, you'll need to use these flags with the setup command. 
+
+    -0: SACA Hub Subscription ID
+    -1: Tier 0 Subscription ID
+    -2: Tier 1 Subscription ID
+    -3: Tier 2 Subscription ID
 
         ```bash
         chmod u+x ./script/setup_ezdeploy.sh
-        ./script/setup_ezdeploy.sh -d local -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port
+        ./script/setup_ezdeploy.sh -d local -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port p -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
         ```
 
 4. Invoke environment variables needed for login (These are returned after setup_ezdeploy.sh is run)
