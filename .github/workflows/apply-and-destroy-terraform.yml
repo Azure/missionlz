@@ -27,17 +27,17 @@ jobs:
 
     - name: get vars
       run : |
-        cd build
+        cd src/build
         ./get_vars.sh
 
     - name: login
       run : |
-        cd build
+        cd src/build
         ./login_azcli.sh vars/mlz_tf_cfg.var
 
     - name: apply terraform
       run : |
-        cd build
+        cd src/build
         ./apply_tf.sh \
           vars/mlz_tf_cfg.var \
           vars/globals.tfvars \
@@ -49,7 +49,7 @@ jobs:
 
     - name: destroy terraform
       run : |
-        cd build
+        cd src/build
         ./destroy_tf.sh \
           vars/mlz_tf_cfg.var \
           vars/globals.tfvars \

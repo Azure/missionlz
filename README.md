@@ -4,11 +4,11 @@ Mission Landing Zone is a highly opinionated template which IT oversight organiz
 
 Mission LZ is:
 
-- Implements [SCCA](https://docs.microsoft.com/en-us/azure/azure-government/compliance/secure-azure-computing-architecture) requirements following Microsoft's [SACA](https://aka.ms/saca) implementation guidance
 - Designed for US Gov mission customers​
+- Implements [SCCA](https://docs.microsoft.com/en-us/azure/azure-government/compliance/secure-azure-computing-architecture) requirements following Microsoft's [SACA](https://aka.ms/saca) implementation guidance
 - Deployable in commercial, government, and air-gapped Azure clouds
 - A narrow scope for a specific common need​
-- Simple solution with low configuration​
+- A simple solution with low configuration​
 - Written in Terraform and Linux shell scripts
 
 Mission Landing Zone is the right solution when:
@@ -70,7 +70,7 @@ This project welcomes contributions and suggestions. See our [Contributing Guide
 
 ## Feedback, Support, and How to Contact Us
 
-Please see the [Support and Feedback Guide](SUPPORT.md).
+Please see the [Support and Feedback Guide](SUPPORT.md). To report a security issue please see our [security guidance](./SECURITY.md).
 
 ## Trademarks
 

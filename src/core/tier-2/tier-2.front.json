@@ -1,9 +1,10 @@
 {
 	"tier-2": {
-    "str_maps":{
-      "TIER2_SUBNETVM_NAME": "subnets.{TIER2_SUBNETVM_NAME}.name"
-    },
-		"form": [{
+		"str_maps": {
+			"TIER2_SUBNETVM_NAME": "subnets.{TIER2_SUBNETVM_NAME}.name"
+		},
+		"form": [
+			{
 				"varname": "saca_subid",
 				"type": "text",
 				"default_val": "env:SUBSCRIPTION_ID",
@@ -62,7 +63,9 @@
 			{
 				"varname": "tier2_vnet_address_space",
 				"type": "list",
-				"default_val": ["10.0.120.0/26"],
+				"default_val": [
+					"10.0.120.0/26"
+				],
 				"description": "A list of values (NewLine Separated) for vnet address space",
 				"options": []
 			},
@@ -83,14 +86,18 @@
 			{
 				"varname": "subnets.{TIER2_SUBNETVM_NAME}.address_prefixes",
 				"type": "list",
-				"default_val": ["10.0.120.0/27"],
+				"default_val": [
+					"10.0.120.0/27"
+				],
 				"description": "A list of values (NewLine Separated) for vnet address space",
 				"options": []
 			},
 			{
 				"varname": "subnets.{TIER2_SUBNETVM_NAME}.service_endpoints",
 				"type": "list",
-				"default_val": ["Microsoft.Storage"],
+				"default_val": [
+					"Microsoft.Storage"
+				],
 				"description": "A list of values (NewLine Separated) for service endpoints",
 				"options": []
 			},

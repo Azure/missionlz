@@ -1,6 +1,7 @@
 {
 	"saca-hub": {
-		"form": [{
+		"form": [
+			{
 				"varname": "deploymentname",
 				"type": "text",
 				"default_val": "mlzci",
@@ -38,7 +39,9 @@
 			{
 				"varname": "vnet_address_space",
 				"type": "list",
-				"default_val": ["10.0.100.0/24"],
+				"default_val": [
+					"10.0.100.0/24"
+				],
 				"description": "Virtual Network Address Space",
 				"options": []
 			},
