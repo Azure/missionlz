@@ -1,0 +1,127 @@
+{
+	"saca-hub": {
+		"form": [
+			{
+				"varname": "deploymentname",
+				"type": "text",
+				"default_val": "mlzci",
+				"description": "A unique name for your terraform deployment",
+				"options": []
+			},
+			{
+				"varname": "saca_subid",
+				"type": "text",
+				"default_val": "env:SUBSCRIPTION_ID",
+				"description": "The subscription id where the SACA hub lives",
+				"options": []
+			},
+			{
+				"varname": "saca_rgname",
+				"type": "text",
+				"default_val": "rg-eastus-mlz-sacaci",
+				"description": "Resource group name",
+				"options": []
+			},
+			{
+				"varname": "saca_vnetname",
+				"type": "text",
+				"default_val": "vn-eastus-mlz-sacaci",
+				"description": "Virtual Network Name",
+				"options": []
+			},
+			{
+				"varname": "saca_lawsname",
+				"type": "text",
+				"default_val": "laws-eastus-mlz-sacaci",
+				"description": "Name for log analytic workspace",
+				"options": []
+			},
+			{
+				"varname": "vnet_address_space",
+				"type": "list",
+				"default_val": [
+					"10.0.100.0/24"
+				],
+				"description": "Virtual Network Address Space",
+				"options": []
+			},
+			{
+				"varname": "tier0_rgname",
+				"type": "text",
+				"default_val": "rg-eastus-mlz-t0ci",
+				"description": "Tier 0 resource group name",
+				"options": []
+			},
+			{
+				"varname": "tier0_vnetname",
+				"type": "text",
+				"default_val": "vn-eastus-mlz-t0ci",
+				"description": "Tier 0 virtual network name",
+				"options": []
+			},
+			{
+				"varname": "tier1_rgname",
+				"type": "text",
+				"default_val": "rg-eastus-mlz-t1ci",
+				"description": "Tier 1 resource group name",
+				"options": []
+			},
+			{
+				"varname": "tier1_vnetname",
+				"type": "text",
+				"default_val": "vn-eastus-mlz-t1ci",
+				"description": "Tier one virtual network name",
+				"options": []
+			},
+			{
+				"varname": "tier2_rgname",
+				"type": "text",
+				"default_val": "rg-eastus-mlz-t1ci",
+				"description": "Tier 2 resource group name",
+				"options": []
+			},
+			{
+				"varname": "tier2_vnetname",
+				"type": "text",
+				"default_val": "vn-eastus-mlz-t2ci",
+				"description": "Tier 2 virtual network name",
+				"options": []
+			},
+			{
+				"varname": "firewall_address_space",
+				"type": "text",
+				"default_val": "10.0.100.0/26",
+				"description": "Address space for the firewall",
+				"options": []
+			},
+			{
+				"varname": "saca_fwname",
+				"type": "text",
+				"default_val": "DemoFirewall",
+				"description": "Saca Firewall Name",
+				"options": []
+			},
+			{
+				"varname": "firewall_ipconfig_name",
+				"type": "text",
+				"default_val": "FirewallIPConfiguration",
+				"description": "Name for the firewall ipconfig",
+				"options": []
+			},
+			{
+				"varname": "public_ip_name",
+				"type": "text",
+				"default_val": "FirewallPublicIP",
+				"description": "Name for the Public IP",
+				"options": []
+			},
+			{
+				"varname": "create_network_watcher",
+				"type": "boolean",
+				"default_val": false,
+				"description": "Do you need to create a network watcher here?",
+				"options": []
+			}
+		]
+	}
+}

@@ -17,19 +17,19 @@ PGM=$(basename "${0}")
 
 if [[ "$#" -lt 2 ]]; then
    echo "destroy_terraform.sh: initializes Terraform for a given directory using given a .env file for backend configuration"
-   echo "usage: destroy_terraform.sh <global variables file> <terraform configuration directory> <auto approve (y/n)>"
+   echo "usage: destroy_terraform.sh <global variables file> <terraform configuration directory> <var_file> <auto approve (y/n)>"
    exit 1
 fi
 
 globalvars=$(realpath "${1}")
 
 tf_dir=$(realpath "${2}")
-tf_name=$(basename "${tf_dir}")
+tf_name=$(basename "${3}")
 
 config_vars="${tf_dir}/config.vars"
-tfvars="${tf_dir}/${tf_name}.tfvars"
+tfvars="${tf_dir}/${tf_name}"
 
-auto_approve=${3:-n}
+auto_approve=${4:-n}
 
 # check for dependencies
 . "${BASH_SOURCE%/*}/util/checkforazcli.sh"
@@ -37,14 +37,6 @@ auto_approve=${3:-n}
 
 # Validate necessary Azure resources exist
 . "${BASH_SOURCE%/*}/config/config_validate.sh" "${tf_dir}"
-
-# Get the .tfvars file matching the terraform directory name
-if [[ ! -f "${tfvars}" ]]
-then
-    echo "${PGM}: Could not find a terraform variables file with the name '${tfvars}' at ${tf_dir}"
-    echo "${PGM}: Exiting."
-    exit 1
-fi
 
 # Validate configuration file exists
 . "${BASH_SOURCE%/*}/util/checkforfile.sh" \

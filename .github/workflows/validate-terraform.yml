@@ -21,4 +21,4 @@ jobs:
     - shell: bash
       name: validate and lint terraform
       run: |
-        build/validate_tf.sh
+        src/build/validate_tf.sh

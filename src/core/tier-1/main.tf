@@ -67,7 +67,7 @@ module "t1-network" {
   location                   = azurerm_resource_group.t1.location
   resource_group_name        = azurerm_resource_group.t1.name
   vnet_name                  = var.tier1_vnetname
-  vnet_address_space         = var.vnet_address_space
+  vnet_address_space         = var.tier1_vnet_address_space
   log_analytics_workspace_id = data.azurerm_log_analytics_workspace.hub.id
 
   tags = {

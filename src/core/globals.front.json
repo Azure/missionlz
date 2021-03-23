@@ -1,0 +1,41 @@
+{
+	"globals": {
+		"form": [
+			{
+				"varname": "tf_environment",
+				"type": "text",
+				"default_val": "env:TF_ENV",
+				"description": "Terraform deployment Environment https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment",
+				"options": []
+			},
+			{
+				"varname": "mlz_cloud",
+				"type": "text",
+				"default_val": "AzureCloud",
+				"description": "Azure cloud being deployed to, # e.g. 'AzureCloud' or 'AzureUSGovernment', etc",
+				"options": []
+			},
+			{
+				"varname": "mlz_tenantid",
+				"type": "text",
+				"default_val": "env:TENANT_ID",
+				"description": "Tenant ID where your subscriptions liv",
+				"options": []
+			},
+			{
+				"varname": "mlz_metadatahost",
+				"type": "text",
+				"default_val": "management.azure.com",
+				"description": "Host for azure metadata: e.g  'management.azure.com' or 'management.usgovcloudapi.net'",
+				"options": []
+			},
+			{
+				"varname": "mlz_location",
+				"type": "text",
+				"default_val": "env:LOCATION",
+				"description": "The location that you're deploying to.",
+				"options": []
+			}
+		]
+	}
+}

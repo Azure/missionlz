@@ -17,8 +17,8 @@ error_log() {
 }
 
 usage() {
-  echo "mlz_tf_setup.sh: configure a resource group that contains Terraform state and a secret store"
-  error_log "usage: mlz_tf_setup.sh <mlz tf config vars>"
+  echo "mlz_tf_setup.sh: configure a resource group that contains Terraform state and a secret store, the presence of bypass indicates skipping primary creation"
+  error_log "usage: mlz_tf_setup.sh <mlz tf config vars> <bypass>"
 }
 
 if [[ "$#" -lt 1 ]]; then
@@ -49,8 +49,9 @@ create_tf_config() {
 ##################################################
 
 # generate MLZ configuration resources
-
-. "${BASH_SOURCE%/*}/config/mlz_config_create.sh" "${mlz_tf_cfg}" "${mlz_env_name}" "${mlz_config_location}"
+if [[ ${2} != "bypass" ]]; then
+  . "${BASH_SOURCE%/*}/config/mlz_config_create.sh" "${mlz_tf_cfg}" "${mlz_env_name}" "${mlz_config_location}"
+fi
 
 create_tf_config "${mlz_saca_subid}" "${core_path}/saca-hub"
 create_tf_config "${mlz_tier0_subid}" "${core_path}/tier-0"

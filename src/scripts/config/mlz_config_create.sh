@@ -25,22 +25,28 @@ if [[ "$#" -lt 1 ]]; then
    exit 1
 fi
 
-mlz_tf_cfg=$(realpath "${1}")
+# Front End By Pass Check
+if [[ ${1} != "bypass" ]]; then
 
-# Source variables
-. "${mlz_tf_cfg}"
+    mlz_tf_cfg=$(realpath "${1}")
+
+    # Source variables
+    . "${mlz_tf_cfg}"
+
+    # Create array of unique subscription IDs. The 'sed' command below search thru the source
+    # variables file looking for all lines that do not have a '#' in the line. If a line with
+    # a '#' is found, the '#' and ever character after it in the line is ignored. The output
+    # of what remains from the sed command is then piped to grep to find the words that match
+    # the pattern. These words are what make up the 'mlz_subs' array.
+    mlz_sub_pattern="mlz_.*._subid"
+    mlz_subs=$(< "${mlz_tf_cfg}" sed 's:#.*$::g' | grep -w "${mlz_sub_pattern}")
+    subs=()
+else
+    mlz_tf_cfg="bypass"
+fi
 
 # generate MLZ configuration names
 . "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_tf_cfg}"
-
-# Create array of unique subscription IDs. The 'sed' command below search thru the source
-# variables file looking for all lines that do not have a '#' in the line. If a line with
-# a '#' is found, the '#' and ever character after it in the line is ignored. The output
-# of what remains from the sed command is then piped to grep to find the words that match
-# the pattern. These words are what make up the 'mlz_subs' array.
-mlz_sub_pattern="mlz_.*._subid"
-mlz_subs=$(< "${mlz_tf_cfg}" sed 's:#.*$::g' | grep -w "${mlz_sub_pattern}")
-subs=()
 
 for mlz_sub in $mlz_subs
 do
@@ -52,6 +58,7 @@ do
 done
 
 # Create Azure AD application registration and Service Principal
+# TODO: Lift the subscription scoping out of here and move into conditional
 echo "Verifying Service Principal is unique (${mlz_sp_name})"
 if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].displayName" -o tsv) ]];then
     echo "Service Principal does not exist...creating"
@@ -68,12 +75,15 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
         --query appId \
         --output tsv)
 
-    # Get Service Principal ObjectId
+        # Get Service Principal ObjectId
     sp_objid=$(az ad sp show \
         --id "http://${mlz_sp_name}" \
         --query objectId \
         --output tsv)
 
+    # Make available to calling scripts
+    export sp_objid=${sp_objid}
+    
     # Assign Contributor role to Service Principal
     for sub in "${subs[@]}"
     do

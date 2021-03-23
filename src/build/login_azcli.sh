@@ -17,7 +17,7 @@ error_log() {
 
 usage() {
   echo "login_azcli.sh: Get the tenant ID from some MLZ configuration file and login using known Service Principal credentials"
-  error_log "usage: login_azcli.sh <mlz config>"
+  error_log "usage: login_azcli.sh <mlz config> <SP_ID> <SP_PW>"
 }
 
 if [[ "$#" -lt 1 ]]; then
@@ -30,10 +30,13 @@ mlz_config=$1
 # source the variables from MLZ config
 source "${mlz_config}"
 
+sp_id=${2:-$MLZCLIENTID}
+sp_pw=${3:-$MLZCLIENTSECRET}
+
 # login with known credentials
 az login --service-principal \
-  --user "${MLZCLIENTID}" \
-  --password="${MLZCLIENTSECRET}" \
+  --user "${sp_id}" \
+  --password="${sp_pw}" \
   --tenant "${mlz_tenantid}" \
   --allow-no-subscriptions \
-  --output none
+  --output json
