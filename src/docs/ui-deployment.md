@@ -45,12 +45,12 @@ Running the user interface on your local workstation is not our recommended appr
 Basic Installation Instructions for Ubuntu 20.04.   You may need to find different instructions for other flavors of Linux.
 
 ```BASH
-    apt-get update \
-        && apt-get install -y \
-        python3 \
-        python3-pip \
-        && ln -s /usr/bin/python3 /usr/bin/python \
-        && ln -s /usr/bin/pip3 /usr/bin/pip
+apt-get update \
+    && apt-get install -y \
+    python3 \
+    python3-pip \
+    && ln -s /usr/bin/python3 /usr/bin/python \
+    && ln -s /usr/bin/pip3 /usr/bin/pip
 ```
 
 ### Run the User Interface Locally
@@ -128,7 +128,7 @@ prior to following the following instructions
 5. Execute web server
 
 ```bash
-        python main.py <port_if_not_80>
+    python main.py <port_if_not_80>
 ```
 
 You can then access the application by pointing your browser at "localhost".
