@@ -178,7 +178,7 @@ async def home(request: Request):
             $('#promptModal').on('show.bs.modal', function (event) {
               var modal = $(this)
               modal.find('.modal-title').text('Polling execution results: (Box May Stay Blank for an extended amount of time)')
-              modal.find('.modal-body').html('<div id="terminal"></div>')
+              modal.find('.modal-body').html('<pre id="terminal"></pre>')
               modal.find('#modBtn').show()
               modal.find('#modBtn').click(function(){
                 clearInterval(interval)
