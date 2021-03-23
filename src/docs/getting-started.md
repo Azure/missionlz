@@ -12,9 +12,9 @@ The user interface deployment runs in a container in your Azure subscription. Th
 
 ### Use the Development Container for Command Line Deployments
 
-If you are planning to deploy from your local workstation, we recommend using the VS Code development container specified in this repository. The container includes all the tools and pre-requisites, but you have to build and run the container. If you have Docker Desktop installed, then VS Code makes the rest of it easy. See the [README](.devcontainer/README.md) document in the `.devcontainer` folder for details.
+If you are planning to deploy from your local workstation, we recommend using the VS Code development container specified in this repository. The container includes all the tools and pre-requisites, but you have to build and run the container. If you have Docker Desktop installed, then VS Code makes the rest of it easy. See the [README](../../.devcontainer/README.md) document in the `.devcontainer` folder for details.
 
-If you want to deploy from the command line on your workstation but do not want to use the develompent container, take a look at the [`Dockerfile`](.devcontainer/Dockerfile) and the [`devcontainer.json`](.devcontainer/Dockerfile) file for examples on how to configure your environment.
+If you want to deploy from the command line on your workstation but do not want to use the develompent container, take a look at the [`Dockerfile`](../../.devcontainer/Dockerfile) and the [`devcontainer.json`](../../.devcontainer/Dockerfile) file for examples on how to configure your environment.
 
 The develoment container is not necessary if you want to use the Mission LZ user interface for deployments. Docker Desktop or Docker CE is still required to build the user interface container.
 
@@ -26,7 +26,7 @@ Docker: Docker Desktop or Docker CE (We use Docker Desktop on Windows 10, integr
 
 The Azure CLI.
 
-All other tools and resources are in the development container and in the user interface container. The simplest path is to deploy from one of these containers, but it is not required if you want to configure your own deployment environment. See the development container [README](.devcontainer/README.md) document in the `.devcontainer` folder for details, and the user interface [Dockerfile](../Dockerfile) for details on user interface pre-requisites.
+All other tools and resources are in the development container and in the user interface container. The simplest path is to deploy from one of these containers, but it is not required if you want to configure your own deployment environment. See the development container [README](../../.devcontainer/README.md) document in the `.devcontainer` folder for details, and the user interface [Dockerfile](../Dockerfile) for details on user interface pre-requisites.
 
 ## Step-by-step
 

@@ -34,7 +34,7 @@ The MLZ deployment architecture uses a single Service Principal whose credential
     mlz_config_location="eastus"
     ```
 
-1. Run `mlz_tf_setup.sh` at [src/scripts/mlz_tf_setup.sh](src/scripts/mlz_tf_setup.sh) to create:
+1. Run `mlz_tf_setup.sh` at [src/scripts/mlz_tf_setup.sh](/src/scripts/mlz_tf_setup.sh) to create:
 
     - A config Resource Group to store the Key Vault
     - Resource Groups for each tier to store the Terraform state Storage Account
