@@ -62,7 +62,7 @@
 			{
 				"varname": "tier1_vnet_address_space",
 				"type": "list",
-				"default_val": ["10.0.110.0/26"],
+				"default_val": ["10.0.115.0/26"],
 				"description": "A list of values (NewLine Separated) for vnet address space",
 				"options": []
 			},
@@ -83,7 +83,7 @@
 			{
 				"varname": "subnets.{TIER1_SUBNETVM_NAME}.address_prefixes",
 				"type": "list",
-				"default_val": ["10.0.110.0/27"],
+				"default_val": ["10.0.115.0/27"],
 				"description": "A list of values (NewLine Separated) for vnet address space",
 				"options": []
 			},
