@@ -286,7 +286,7 @@ async def process_input(request: Request):
     form_config = find_config()
 
     # Load tfvars initial files
-    tf_json = find_config(extension="tfvars.json")
+    tf_json = find_config(extension=".orig.tfvars.json")
 
     # Create a map based on str maps in the form config files
     maps = {}
@@ -304,17 +304,18 @@ async def process_input(request: Request):
         tf_json[f_name] = json.loads(temp_dump)
 
     # Process all form keys:
-    form_dump = json.dumps(form_values)
+    form_dump = str(json.dumps(form_values))
     for key, smap in maps.items():
-        form_dump.replace("{" + key + "}", smap)
+        form_dump = form_dump.replace("{" + key + "}", smap)
     form_values = json.loads(form_dump)
 
     # Write the values to the correct locations in the memory loaded json files
     for key, value in form_values.items():
+        if "listinput:" in key:
+            value = value.split("\n")
+            key = key.replace("listinput:", "")
         for _, doc in tf_json.items():
             # Process a list type value
-            if "\n" in value:
-                value = value.split("\n")
             dotted_write(key, value, doc)
 
     # Loop all open TF documents and write them out

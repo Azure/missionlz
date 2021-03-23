@@ -63,7 +63,7 @@ destroy() {
   cp "${input_vars}" "${temp_vars}"
 
   # remove any configuration tfvars and subtitute it with input vars
-  tf_vars="${path}/${name}.tfvars"
+  tf_vars="${path}/$(basename "${vars}")"
   rm -f "${tf_vars}"
   touch "${tf_vars}"
   cp "${temp_vars}" "${tf_vars}"
@@ -80,7 +80,7 @@ destroy() {
   attempts=1
   max_attempts=5
 
-  destroy_command="${scripts_path}/destroy_terraform.sh ${globals} ${path} y"
+  destroy_command="${scripts_path}/destroy_terraform.sh ${globals} ${path} ${tf_vars} y"
 
   if [[ "$display_tf_output" == "n" ]]; then
     destroy_command+=" &>/dev/null"
