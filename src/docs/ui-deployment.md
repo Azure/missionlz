@@ -26,10 +26,10 @@ This process will build the user interface container image on your workstation u
 
 From the "src" directory
 
-    ```bash
-    chmod u+x ./scripts/setup_ezdeploy.sh
-    ./script/setup_ezdeploy.sh -d build -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
-    ```
+```BASH
+chmod u+x ./scripts/setup_ezdeploy.sh
+./script/setup_ezdeploy.sh -d build -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
+```
 
 The final results will include a URI that you can use to access the front end running in a remote azure container instance.
 
@@ -44,37 +44,37 @@ Running the user interface on your local workstation is not our recommended appr
 
 Basic Installation Instructions for Ubuntu 20.04.   You may need to find different instructions for other flavors of Linux.
 
-    ```bash
+```BASH
     apt-get update \
         && apt-get install -y \
         python3 \
         python3-pip \
         && ln -s /usr/bin/python3 /usr/bin/python \
         && ln -s /usr/bin/pip3 /usr/bin/pip
-    ```
+```
 
 ### Run the User Interface Locally
 
 Before running locally, you must follow the instructions in the primary readme file for this repo.  You must have terraform pre-requisites installed in order to execute from a local system. Local execution will also require your credentials to have access to the service principal credentials for this system to assume; meaning that you should perform:
 
-    ```bash
-    az login
-    ```
+```BASH
+az login
+```
 
 prior to following the following instructions
 
 1. Install and Source a Python Virtual Environment
 
-        ```bash
-        python3 -m venv /path/to/new/virtual/environment
-        source /path/to/new/virtual/environment/bin/activate
-        ```
+```bash
+    python3 -m venv /path/to/new/virtual/environment
+    source /path/to/new/virtual/environment/bin/activate
+```
 
 2. Install requirements via pip
 
-        ```bash
-        pip install -r src/front/requirements.txt
-        ```
+```BASH
+    pip install -r src/front/requirements.txt
+```
 
 3. Run the installation scripts to deploy app requirements
 
@@ -89,46 +89,46 @@ prior to following the following instructions
     mlz_env_name: Can be anything unique to your deployment/environment it is used to ensure unique entries for resources.  (Defaults to mlzdeployment)
 
     port:  Default is 80, if you are running in WSL or otherwise can't bind to 80, use this flag to enter a port
-    
+
     Multiple Subscriptions:
-    If you are running with multiple subscriptions, you'll need to use these flags with the setup command. 
+    If you are running with multiple subscriptions, you'll need to use these flags with the setup command.
 
     -0: SACA Hub Subscription ID
     -1: Tier 0 Subscription ID
     -2: Tier 1 Subscription ID
     -3: Tier 2 Subscription ID
 
-        ```bash
-        chmod u+x ./script/setup_ezdeploy.sh
-        ./script/setup_ezdeploy.sh -d local -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port p -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
-        ```
+```bash
+    chmod u+x ./script/setup_ezdeploy.sh
+    ./script/setup_ezdeploy.sh -d local -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port p -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
+```
 
 4. Invoke environment variables needed for login (These are returned after setup_ezdeploy.sh is run)
 
-        ```powershell
-        $env:CLIENT_ID="<CLIENT_ID>"
-        $env:CLIENT_SECRET="<CLIENT_SECRET"
-        $env:TENANT_ID="<TENANT_ID>"
-        $env:LOCATION='<CLOUD_LOCATION>'
-        $env:SUBSCRIPTION_ID='<SUBSCRIPTION_ID>'
-        $env:TF_ENV='<TERRAFORM_ENVIRONMENT>'
-        $env:MLZ_ENV='<ENVIRONMENT_NAME>'
-        ```
+```powershell
+    $env:CLIENT_ID="<CLIENT_ID>"
+    $env:CLIENT_SECRET="<CLIENT_SECRET"
+    $env:TENANT_ID="<TENANT_ID>"
+    $env:LOCATION='<CLOUD_LOCATION>'
+    $env:SUBSCRIPTION_ID='<SUBSCRIPTION_ID>'
+    $env:TF_ENV='<TERRAFORM_ENVIRONMENT>'
+    $env:MLZ_ENV='<ENVIRONMENT_NAME>'
+```
 
-        ```bash
-        export CLIENT_ID="<CLIENT_ID>"
-        export CLIENT_SECRET="<CLIENT_SECRET"
-        export TENANT_ID="<TENANT_ID>"
-        export LOCATION='<CLOUD_LOCATION>'
-        export SUBSCRIPTION_ID='<SUBSCRIPTION_ID>'
-        export TF_ENV='<TERRAFORM_ENVIRONMENT>'
-        export MLZ_ENV='<ENVIRONMENT_NAME>'
-        ```
+```bash
+    export CLIENT_ID="<CLIENT_ID>"
+    export CLIENT_SECRET="<CLIENT_SECRET"
+    export TENANT_ID="<TENANT_ID>"
+    export LOCATION='<CLOUD_LOCATION>'
+    export SUBSCRIPTION_ID='<SUBSCRIPTION_ID>'
+    export TF_ENV='<TERRAFORM_ENVIRONMENT>'
+    export MLZ_ENV='<ENVIRONMENT_NAME>'
+```
 
 5. Execute web server
 
-        ```bash
+```bash
         python main.py <port_if_not_80>
-        ```
+```
 
-    You can then access the application by pointing your browser at "localhost".
+You can then access the application by pointing your browser at "localhost".
