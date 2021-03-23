@@ -18,7 +18,7 @@ tier1_vnetname = "{TIER1_VNETNAME}"
 # Network configuration section
 #################################
 
-vnet_address_space = ["{TIER1_VNETSPACE}"]
+tier1_vnet_address_space = ["{TIER1_VNETSPACE}"]
 
 subnets = {
   "{TIER1_SUBNETVM_NAME}" = {
