@@ -53,7 +53,7 @@ The MLZ deployment architecture uses a single Service Principal whose credential
 
 ### Set Terraform Configuration Variables
 
-First, clone the *.tfvars.sample file for the global Terraform configuration (e.g. [src/core/globals.tfvars.sample](src/core/globals.tfvars.sample)) and substitute placeholders marked by curly braces "{" and "}" with the values of your choosing.
+First, clone the *.tfvars.sample file for the global Terraform configuration (e.g. [src/core/globals.tfvars.sample](/src/core/globals.tfvars.sample)) and substitute placeholders marked by curly braces "{" and "}" with the values of your choosing.
 
 Then, repeat this process, cloning the *.tfvars.sample file for the Terraform configuration(s) you are deploying and substitute placeholders marked by curly braces "{" and "}" with the values of your choosing.
 
@@ -71,9 +71,9 @@ location="eastus" # the value used by Terraform in src/core/globals.tfvars
 
 ### Deploy Terraform Configuration
 
-You can use `apply_terraform.sh` at [src/scripts/apply_terraform.sh](src/scripts/apply_terraform.sh) to both initialize Terraform and apply a Terraform configuration based on the backend environment variables and Terraform variables you've setup in previous steps.
+You can use `apply_terraform.sh` at [src/scripts/apply_terraform.sh](/src/scripts/apply_terraform.sh) to both initialize Terraform and apply a Terraform configuration based on the backend environment variables and Terraform variables you've setup in previous steps.
 
-The script `destroy_terraform.sh` at [src/scripts/destroy_terraform.sh](src/scripts/destroy_terraform.sh) is helpful during testing. This script is exactly like the
+The script `destroy_terraform.sh` at [src/scripts/destroy_terraform.sh](/src/scripts/destroy_terraform.sh) is helpful during testing. This script is exactly like the
 `apply_terraform.sh` except it destroys resources defined in the target state file
 
 `apply_terraform.sh` and `destroy_terraform.sh` take two arguments:
@@ -99,7 +99,7 @@ src/scripts/apply_terraform.sh \
 
 Repeating this same pattern, for whatever configuration you wanted to apply and reuse in some automated pipeline.
 
-Use `init_terraform.sh` at [src/scripts/init_terraform.sh](src/scripts/init_terraform.sh) to perform just an initialization of the Terraform environment
+Use `init_terraform.sh` at [src/scripts/init_terraform.sh](/src/scripts/init_terraform.sh) to perform just an initialization of the Terraform environment
 
 To initialize Terraform for Tier 1, you could then change the target directory:
 
@@ -112,7 +112,7 @@ src/scripts/init_terraform.sh \
 
 The development container definition downloads the required Terraform plugin providers during the container build so that the container can be transported to an air-gapped network for use. The container also sets the `TF_PLUGIN_CACHE_DIR` environment variable, which Terraform uses as the search location for locally installed providers. If you are not using the container to deploy or if the `TF_PLUGIN_CACHE_DIR` environment variable is not set, Terraform will automatically attempt to download the provider from the internet when you execute the `terraform init` command.
 
-See the development container [README](../../.devcontainer/README.md) for more details on building and running the container.
+See the development container [README](/.devcontainer/README.md) for more details on building and running the container.
 
 ## Helpful Links
 
