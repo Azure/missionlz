@@ -86,7 +86,7 @@ For example, from the root of this repository, you could apply Tier 0 with a com
 ```bash
 src/scripts/apply_terraform.sh \
   src/core/globals.tfvars \
-  src/core/tier-0
+  src/core/tier-0 tier-0.tfvars
 ```
 
 To apply Tier 1, you could then change the target directory:
@@ -94,7 +94,7 @@ To apply Tier 1, you could then change the target directory:
 ```bash
 src/scripts/apply_terraform.sh \
   src/core/globals.tfvars \
-  src/core/tier-1
+  src/core/tier-1 tier-1.tfvars
 ```
 
 Repeating this same pattern, for whatever configuration you wanted to apply and reuse in some automated pipeline.
