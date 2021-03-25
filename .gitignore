@@ -16,6 +16,8 @@ tier-0.tfvars.json
 tier-1.tfvars.json
 tier-2.tfvars.json
 globals.tfvars.json
+*.tfvars.json
+!*.orig.tfvars.json
 
 # Bash artifacts
 *.vars
