@@ -70,12 +70,23 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
         --output tsv)
 
     # Get Service Principal AppId
+    # Added the sleep below to accomodate for the transient behavior where the Service PRincipal creation
+    # is complete but an immediate query for it will fail
+    sp_exists="az ad sp show \
+    --id http://${mlz_sp_name}"
+    
+    sleep_time_in_seconds=10
+    while ! $sp_exists &> /dev/null 
+    do
+        sleep "${sleep_time_in_seconds}"
+    done
+
     sp_clientid=$(az ad sp show \
         --id "http://${mlz_sp_name}" \
         --query appId \
         --output tsv)
 
-        # Get Service Principal ObjectId
+    # Get Service Principal ObjectId
     sp_objid=$(az ad sp show \
         --id "http://${mlz_sp_name}" \
         --query objectId \
