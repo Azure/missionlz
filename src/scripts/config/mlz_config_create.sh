@@ -74,15 +74,16 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
     # is complete but an immediate query for it will fail. The sleep loop will run for 3 minutes and then
     # the script will exit due to a platform problem
     sp_exists="az ad sp show \
-    --id http://${mlz_sp_name}"
-    
+        --id http://${mlz_sp_name} \
+        --query appId"
+
     sleep_time_in_seconds=10
     elapsed_time=0
     while ! $sp_exists &> /dev/null 
     do
-        echo "Waiting up to 3 minutes for the Service Principal provisioning to complete"
+        echo "Waiting up to 3 minutes for the Service Principal appId provisioning to complete"
         sleep "${sleep_time_in_seconds}"
-        elapsed_time+=${sleep_time_in_seconds}
+        elapsed_time=$((elapsed_time + sleep_time_in_seconds))
         if [[ "${elapsed_time}" -ge "180" ]]; then
             error_log "The Service Principal creation did not complete in the exected time. Please check Azure and re-run the script."
             exit 1
@@ -95,6 +96,26 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
         --output tsv)
 
     # Get Service Principal ObjectId
+    # Added the sleep below to accomodate for the transient behavior where the Service Principal creation
+    # is complete but an immediate query for it will fail. The sleep loop will run for 3 minutes and then
+    # the script will exit due to a platform problem
+    sp_exists="az ad sp show \
+        --id http://${mlz_sp_name} \
+        --query objectId"
+
+    sleep_time_in_seconds=10
+    elapsed_time=0
+    while ! $sp_exists &> /dev/null 
+    do
+        echo "Waiting up to 3 minutes for the Service Principal objectId provisioning to complete"
+        sleep "${sleep_time_in_seconds}"
+        elapsed_time=$((elapsed_time + sleep_time_in_seconds))
+        if [[ "${elapsed_time}" -ge "180" ]]; then
+            error_log "The Service Principal creation did not complete in the exected time. Please check Azure and re-run the script."
+            exit 1
+        fi
+    done
+
     sp_objid=$(az ad sp show \
         --id "http://${mlz_sp_name}" \
         --query objectId \
