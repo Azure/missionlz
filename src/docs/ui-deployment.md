@@ -28,7 +28,7 @@ From the "src" directory
 
 ```BASH
 chmod u+x ./scripts/setup_ezdeploy.sh
-./script/setup_ezdeploy.sh -d build -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
+./scripts/setup_ezdeploy.sh -d build -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
 ```
 
 The final results will include a URI that you can use to access the front end running in a remote azure container instance.
