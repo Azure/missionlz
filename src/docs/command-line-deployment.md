@@ -82,7 +82,7 @@ The script `destroy_terraform.sh` at [src/scripts/destroy_terraform.sh](/src/scr
   1. The directory that contains the main.tf and *.tfvars variables file of the configuration to apply
 
 
-This deployment is performed using tiered model to protect systems using a set of buffer zones between full control of the Environment and the high-risk environment that attackers frequently compromise. The deployment must be started with saca-hub followed by tier-0 , tier-1 etc. 
+The hub network must be deployed first. See [Networking](https://github.com/Azure/missionlz#networking) for a description of the hub and spoke and what each network is used for.
 
 For saca-hub, run the following command to apply the terraform configuration from the root of this repository.
 
