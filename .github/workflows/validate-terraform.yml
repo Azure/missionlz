@@ -6,18 +6,15 @@ on: [pull_request, workflow_dispatch]
 jobs:
   validate-terraform:
     runs-on: ubuntu-latest
-    container:
-      image: acrmlzcicd.azurecr.io/missionlzdev
-      credentials:
-        username: ${{ secrets.acr_username }}
-        password: ${{ secrets.acr_password }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 0.13.4
     - shell: bash
       name: check tooling versions
       run: |
-        az version
         terraform -version
+    - uses: actions/checkout@v2
     - shell: bash
       name: validate and lint terraform
       run: |
