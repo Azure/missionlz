@@ -81,7 +81,17 @@ The script `destroy_terraform.sh` at [src/scripts/destroy_terraform.sh](/src/scr
   1. The Global variables file
   1. The directory that contains the main.tf and *.tfvars variables file of the configuration to apply
 
-For example, from the root of this repository, you could apply Tier 0 with a command like:
+
+The hub network must be deployed first. See [Networking](https://github.com/Azure/missionlz#networking) for a description of the hub and spoke and what each network is used for.
+
+For saca-hub, run the following command to apply the terraform configuration from the root of this repository.
+
+```bash
+src/scripts/apply_terraform.sh \
+  src/core/globals.tfvars \
+  src/core/saca-hub saca-hub.tfvars
+
+You could apply Tier 0 with a command below:
 
 ```bash
 src/scripts/apply_terraform.sh \
