@@ -26,8 +26,9 @@ The develoment container is not necessary if you want to use the Mission LZ user
   *(We use [Docker Desktop on Windows 10](https://docs.docker.com/docker-for-windows/install/), integrated with WSL)*
 * Current version of the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
 
-All other tools and resources are in the development container and in the user interface container. The simplest path is to deploy from one of these containers, but it is not required if you want to configure your own deployment environment. See the development container [README](../../.devcontainer/README.md) document in the `.devcontainer` folder for details, and the user interface [Dockerfile](../Dockerfile) for details on user interface pre-requisites.
+All other tools and resources are in the development container and in the user interface container. The simplest path is to deploy from one of these containers, but it is not required if you want to configure your own deployment environment. 
 
 ## Step-by-step
 
-See the detailed step-by-step guides for [Command Line Deployments](command-line-deployment.md) and [User Interface Deployments](ui-deployment.md).
+* See the detailed step-by-step guides for [Command Line Deployments](command-line-deployment.md) and [User Interface Deployments](ui-deployment.md).
+* (*Optional*) See the [README](../../.devcontainer/README.md) document in the `.devcontainer` folder for details and pre-requisites for the development container.
