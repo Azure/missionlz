@@ -46,7 +46,7 @@ From the "src" directory, set the access permissions to the `setup_ezdeploy.sh` 
 
     chmod u+x ./scripts/setup_ezdeploy.sh
     
-    ./scripts/setup_ezdeploy.sh -d build -s $SUBSCRIPTION_ID -t $TENANT_ID -l $LOCATION -e $TF_ENV -m $MLZ_ENV -p 80 -0 $SUBSCRIPTION_ID -1 $SUBSCRIPTION_ID -2 $SUBSCRIPTION_ID -3 $SUBSCRIPTION_I
+    ./scripts/setup_ezdeploy.sh -d build -s $SUBSCRIPTION_ID -t $TENANT_ID -l $LOCATION -e $TF_ENV -m $MLZ_ENV -p 80 -0 $SUBSCRIPTION_ID -1 $SUBSCRIPTION_ID -2 $SUBSCRIPTION_ID -3 $SUBSCRIPTION_ID
 ```
 > In the command above, the **<values-in-brackets>** need to be replaced with actual values from your environment 
 
