@@ -38,7 +38,7 @@ while getopts "d:s:t:l:e:m:p:0:1:2:3:4:" opts; do
     s) export mlz_config_subid=${OPTARG}
       subs+=("${OPTARG}")
       ;;
-    t) export mlz_tenantid=${OPTARG} 
+    t) export mlz_tenantid=${OPTARG}
       ;;
     l) export mlz_config_location=${OPTARG}
       ;;
@@ -95,7 +95,7 @@ if [[ $docker_strategy != "local" ]]; then
   az acr create \
   --resource-group "${mlz_rg_name}" \
   --name "${mlz_acr_name}" \
-  --sku Basic 
+  --sku Basic
 
   echo "Waiting for registry completion and running post process to enable admin on ACR"
   sleep 60
@@ -122,7 +122,7 @@ if [[ $docker_strategy != "local" ]]; then
   --name "${mlz_instance_name}" \
   --image "$ACR_LOGIN_SERVER"/lzfront:latest \
   --dns-name-label "${mlz_dns_name}" \
-  --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" LOCATION="${mlz_config_location}" SUBSCRIPTION_ID="${mlz_config_subid}" TF_ENV="${tf_environment}" MLZ_ENV="${mlz_env_name}" \
+  --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" MLZ_LOCATION="${mlz_config_location}" SUBSCRIPTION_ID="${mlz_config_subid}" TF_ENV="${tf_environment}" MLZ_ENV="${mlz_env_name}" \
   --registry-username "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
   --registry-password "$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
   --ports 80 \
@@ -177,6 +177,7 @@ az keyvault secret set \
 
 echo "KeyVault updated with Login App Registration secret!"
 echo "All steps have been completed you will need the following to access the configuration utility:"
+
 if [[ $docker_strategy == "local" ]]; then
   echo "Your environment variables for local execution are:"
   echo "Copy-Paste:"
@@ -200,7 +201,6 @@ if [[ $docker_strategy == "local" ]]; then
   echo "\$env:MLZ_ENV='$mlz_env_name'"
   echo "\$env:MLZCLIENTID='$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
   echo "\$env:MLZCLIENTSECRET='$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
- 
 else
   echo "You can access the front end at http://$fqdn"
 fi

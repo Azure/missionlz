@@ -146,9 +146,9 @@ async def home(request: Request):
             })
             $('#promptModal').modal('show')
         }
-    
+
         var interval = null
-        function retrieve_results() { 
+        function retrieve_results() {
           $.ajax({
            type: "GET",
            url: "/poll",
@@ -157,23 +157,23 @@ async def home(request: Request):
            }
          });
         }
-        
+
         function submitForm(){
             interval = setInterval(retrieve_results, 2000);
         }
-        
+
         $(document).ready(function(){
             $('#showTenant').click(function(){
                 promptTenant()
             })
-               
+
             logged_in = readCookie("user")
-        
+
             if(!logged_in || $.trim(logged_in) == ""){
               promptLogin()
             }
         })
-        
+
         $(document).on('submit', '#terraform_config', function(e) {
             $('#promptModal').on('show.bs.modal', function (event) {
               var modal = $(this)
@@ -327,7 +327,7 @@ async def process_input(request: Request):
         f.writelines("tf_environment=\"" + os.getenv("TF_ENV") + "\"\n" +
                      "mlz_env_name=\"" + os.getenv("MLZ_ENV") + "\"\n" +
                      "mlz_config_subid=\"" + os.getenv("SUBSCRIPTION_ID") + "\"\n" +
-                     "mlz_config_location=\"" + os.getenv("LOCATION") + "\"\n" +
+                     "mlz_config_location=\"" + os.getenv("MLZ_LOCATION") + "\"\n" +
                      "mlz_tenantid=\"" + os.getenv("TENANT_ID") + "\"\n" +
                      "mlz_tier0_subid=\"" + form_values["tier0_subid"] + "\"\n" +
                      "mlz_tier1_subid=\"" + form_values["tier1_subid"] + "\"\n" +
@@ -348,8 +348,8 @@ async def process_input(request: Request):
     tier2 = os.path.join(os.getcwd(), "config_output", "tier-2.tfvars.json")
 
     if keyVaultName:
-        sp_id = secret_client.get_secret("login-app-clientid").value
-        sp_pwd = secret_client.get_secret("login-app-clientid").value
+        sp_id = secret_client.get_secret("serviceprincipal-clientid").value
+        sp_pwd = secret_client.get_secret("serviceprincipal-pwd").value
     else:
         sp_id = os.getenv("MLZCLIENTID", "NotSet")
         sp_pwd = os.getenv("MLZCLIENTSECRET", "NotSet")
