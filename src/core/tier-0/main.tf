@@ -120,10 +120,13 @@ module "t0-outbound-peering" {
 
 module "t0-inbound-peering" {
   source = "../../modules/virtual-network-peering"
+  providers = {
+    azurerm = azurerm.hub
+  }
 
   source_vnet_name            = data.azurerm_virtual_network.hub.name
   source_rg_name              = data.azurerm_resource_group.hub.name
-  destination_vnet_name       = data.module.t0-network.virtual_network_name
+  destination_vnet_name       = module.t0-network.virtual_network_name
   destination_rg_name         = module.t0-network.resource_group_name
   destination_subscription_id = var.tier0_subid
 
