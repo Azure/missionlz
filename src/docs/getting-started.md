@@ -31,4 +31,4 @@ All other tools and resources are in the development container and in the user i
 ## Step-by-step
 
 * See the detailed step-by-step guides for [Command Line Deployments](command-line-deployment.md) and [User Interface Deployments](ui-deployment.md).
-* (*Optional*) See the [README](../../.devcontainer/README.md) document in the `.devcontainer` folder for details and pre-requisites for the development container.
+* (*Optional*) For details and pre-requisites for the development container, see the [README](../../.devcontainer/README.md) document in the `.devcontainer` folder.
