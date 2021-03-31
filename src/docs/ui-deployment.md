@@ -36,7 +36,7 @@ az login
 
 From the "src" directory, set the access permissions to the `setup_ezdeploy.sh` deployment script and run it (the example below assumes the local workspace root directory is at `$HOME/missionlz`) 
 ```bash
-    cd $HOME/missionlz/src
+    cd $HOME/missionlz/src    # -- your local workspace path may be different 
     
     export TENANT_ID="<TENANT_ID>"
     export SUBSCRIPTION_ID="<SUBSCRIPTION_ID>"
