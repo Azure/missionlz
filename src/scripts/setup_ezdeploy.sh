@@ -3,7 +3,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# shellcheck disable=SC1090,SC1091
+# shellcheck disable=SC1090,SC1091,2154
 # SC1090: Can't follow non-constant source. Use a directive to specify location.
 # SC1091: Not following. Shellcheck can't follow non-constant source.
 # SC2154: "var is referenced but not assigned". These values come from an external file.
@@ -109,7 +109,7 @@ if [[ $docker_strategy != "local" ]]; then
   az acr login --name "${mlz_acr_name}"
 
   ACR_REGISTRY_ID=$(az acr show --name "${mlz_acr_name}" --query id --output tsv)
-  az role assignment create --assignee "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" --scope $ACR_REGISTRY_ID --role acrpull
+  az role assignment create --assignee "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" --scope "${ACR_REGISTRY_ID}" --role acrpull
 
   echo "INFO: pushing docker container"
   docker tag lzfront:latest "${mlz_acr_name}".azurecr.io/lzfront:latest
