@@ -48,7 +48,9 @@ All configuration related to the development container is in the `.devcontainer`
     Remote-Containers: Reopen in Container
     ```
 
-    The container will build on your machine. The first build may take several minutes; the `Reopen in Container` command will be much faster after the initial container build, and VS Code will prompt you if the container needs to be rebuilt when the `Dockerfile` or container configuration settings have changed.
+    > **NOTE:** The container will build on your machine. The first build may take several minutes; the `Reopen in Container` command will be much faster after the initial container build, and VS Code will prompt you if the container needs to be rebuilt when the `Dockerfile` or container configuration settings have changed.
+
+    When logged into the devcontainer's terminal, the working directory changes to `vscode@missionlz-dev:/workspaces/missionlz$`
 
 1. (*Optional*) If you'd like to interact with the devcontainer's terminal from another terminal other than VS Code's built in terminal, you can use the `docker exec` command.
 
@@ -63,5 +65,3 @@ All configuration related to the development container is in the `.devcontainer`
     ```BASH
     docker exec -it -u vscode missionlz-dev /bin/bash
     ```
-
-    When you are logged into the devcontainer's terminal, you will find the working directory
