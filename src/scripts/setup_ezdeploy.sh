@@ -96,6 +96,7 @@ if [[ $docker_strategy != "build" && \
       $docker_strategy != "load" && \
       $docker_strategy != "local" ]]; then
   error_log "Unrecognized docker strategy detected. Must be 'local', 'build', or 'load'."
+  exit 1
 fi
 
 if [[ $docker_strategy == "build" ]]; then
