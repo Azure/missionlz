@@ -75,6 +75,7 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
 
     Secret Name | Value
     ------------ | -------------
+    MLZTENANTID | The Tenant to deploy MLZ into
     MLZCLIENTID | The Service Principal Authorized to deploy resources into MLZ Terraform Subscriptions
     MLZCLIENTSECRET | The credential for the Service Principal above
     STORAGEACCOUNT | The Azure Storage Account for the files in the previous step

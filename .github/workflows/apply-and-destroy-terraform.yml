@@ -28,12 +28,12 @@ jobs:
     - name: get vars
       run : |
         cd src/build
-        ./get_vars.sh
+        ./get_vars.sh "$STORAGEACCOUNT" "$STORAGETOKEN" "$STORAGECONTAINER"
 
     - name: login
       run : |
         cd src/build
-        ./login_azcli.sh vars/mlz_tf_cfg.var
+        ./login_azcli.sh "$MLZTENANTID" "$MLZCLIENTID" "$MLZCLIENTSECRET"
 
     - name: apply terraform
       run : |
