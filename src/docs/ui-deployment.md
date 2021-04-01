@@ -1,6 +1,6 @@
 # Mission LZ User Interface
 
-The mission LZ front-end is designed to be a single stop for easily entering all of the configuration items that Terraform needs to deploy Mission LZ to a target set of subscriptions.  
+The mission LZ front-end is designed to be a single stop for easily entering all of the configuration items that Terraform needs to deploy Mission LZ to a target set of subscriptions.
 
 ## General Requirements
 
@@ -11,11 +11,11 @@ For any of the following options you will need docker on your machine. If you ar
 1. Install [Install WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and [Docker on Windows for WSL2](https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers), or [Install Docker Linux](https://docs.docker.com/engine/install/ubuntu) (Docker-Compose is also required, and is intalled by default with Docker Desktop.)
 1. [Install the Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli). Be sure to install the Azure CLI in your Linux or WSL environment.
 
-> If you will be transferring this package to an air-gapped cloud, please run the pre-packaging requirements to build a package that's ready to be transferred. This will prepare a docker image with all requirements to run ezdeploy. This is necessary if you don't have access to an updated docker repo/pip repo in your target network.  If you do have these, you can proceed with the installation as if installing to an internet connected Azure Cloud.  
+> If you will be transferring this package to an air-gapped cloud, please run the pre-packaging requirements to build a package that's ready to be transferred. This will prepare a docker image with all requirements to run ezdeploy. This is necessary if you don't have access to an updated docker repo/pip repo in your target network.  If you do have these, you can proceed with the installation as if installing to an internet connected Azure Cloud.
 
 ## Step-By-Step
 
-[Step-by-Step Remote Installation/Execution](#Step-by-Step-Azure-Installation) (recommended)  
+[Step-by-Step Remote Installation/Execution](#Step-by-Step-Azure-Installation) (recommended)
 [Step-by-Step Local Installation/Execution](#Step-by-Step-Local-Installation) (more difficult)
 
 To get started, you'll need to be running from a bash/zsh environment. If you are on a Windows machine you can use WSL2.
@@ -57,7 +57,7 @@ apt-get update \
 
 Before running locally, you must follow the instructions in the primary readme file for this repo.  You must have terraform pre-requisites installed in order to execute from a local system. Local execution will also require your credentials to have access to the service principal credentials for this system to assume; meaning that you should perform:
 
-```BASH
+```bash
 az login
 ```
 
@@ -65,18 +65,18 @@ prior to following the following instructions
 
 1. Install and Source a Python Virtual Environment
 
-```bash
+    ```bash
     python3 -m venv /path/to/new/virtual/environment
     source /path/to/new/virtual/environment/bin/activate
-```
+    ```
 
-2. Install requirements via pip
+1. Install requirements via pip
 
-```BASH
+    ```bash
     pip install -r src/front/requirements.txt
-```
+    ```
 
-3. Run the installation scripts to deploy app requirements
+1. Run the installation scripts to deploy app requirements
 
     You will need the following variables for the script:
 
@@ -98,14 +98,14 @@ prior to following the following instructions
     -2: Tier 1 Subscription ID
     -3: Tier 2 Subscription ID
 
-```bash
+    ```bash
     chmod u+x ./script/setup_ezdeploy.sh
     ./script/setup_ezdeploy.sh -d local -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port p -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
-```
+    ```
 
-4. Invoke environment variables needed for login (These are returned after setup_ezdeploy.sh is run)
+1. Invoke environment variables needed for login (These are returned after setup_ezdeploy.sh is run)
 
-```powershell
+    ```powershell
     $env:CLIENT_ID="<CLIENT_ID>"
     $env:CLIENT_SECRET="<CLIENT_SECRET"
     $env:TENANT_ID="<TENANT_ID>"
@@ -113,9 +113,9 @@ prior to following the following instructions
     $env:SUBSCRIPTION_ID='<SUBSCRIPTION_ID>'
     $env:TF_ENV='<TERRAFORM_ENVIRONMENT>'
     $env:MLZ_ENV='<ENVIRONMENT_NAME>'
-```
+    ```
 
-```bash
+    ```bash
     export CLIENT_ID="<CLIENT_ID>"
     export CLIENT_SECRET="<CLIENT_SECRET"
     export TENANT_ID="<TENANT_ID>"
@@ -123,12 +123,12 @@ prior to following the following instructions
     export SUBSCRIPTION_ID='<SUBSCRIPTION_ID>'
     export TF_ENV='<TERRAFORM_ENVIRONMENT>'
     export MLZ_ENV='<ENVIRONMENT_NAME>'
-```
+    ```
 
-5. Execute web server
+1. Execute web server
 
-```bash
+    ```bash
     python main.py <port_if_not_80>
-```
+    ```
 
 You can then access the application by pointing your browser at "localhost".
