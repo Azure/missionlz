@@ -27,6 +27,7 @@ if [[ "$#" -lt 8 ]]; then
 fi
 
 metadata_host="management.azure.com" # TODO (20210401): pass this by parameter or derive from cloud
+acr_endpoint="azurecr.io" # TODO (20210401): pass this by parameter or derive from cloud
 
 tf_environment=public
 mlz_env_name=mlzdeployment
@@ -69,11 +70,26 @@ while getopts "d:s:t:l:e:m:p:0:1:2:3:4:" opts; do
   esac
 done
 
-# create 'src/mlz.config' file
-src_path=$(dirname "$(realpath "${BASH_SOURCE%/*}")")
-mlz_config_file="${src_path}/mlz.config"
+this_script_path=$(realpath "${BASH_SOURCE%/*}")
+src_path=$(dirname "${this_script_path}")
+container_registry_path="$(realpath "${this_script_path}")/container-registry"
 
-. "${BASH_SOURCE%/*}/config/generate_config_file.sh" \
+# check for dependencies
+"${this_script_path}/util/checkforazcli.sh"
+"${this_script_path}/util/checkfordocker.sh"
+
+# check docker strategy
+if [[ $docker_strategy != "local" && \
+      $docker_strategy != "build" && \
+      $docker_strategy != "load" ]]; then
+  error_log "ERROR: Unrecognized docker strategy detected. Must be 'local', 'build', or 'load'."
+  exit 1
+fi
+
+# create MLZ configuration file
+mlz_config_file="${src_path}/mlz.config"
+echo "INFO: creating a mlz.config file based on user input at $(realpath "$mlz_config_file")..."
+"${this_script_path}/config/generate_config_file.sh" \
     "$mlz_config_file" \
     "$tf_environment" \
     "$metadata_host" \
@@ -87,149 +103,50 @@ mlz_config_file="${src_path}/mlz.config"
     "$mlz_tier2_subid"
 
 # generate MLZ configuration names
-. "${BASH_SOURCE%/*}/config/generate_names.sh" "$mlz_config_file"
+. "${this_script_path}/config/generate_names.sh" "$mlz_config_file"
 
-echo "INFO: Setting current az cli subscription to ${mlz_config_subid}"
+echo "INFO: setting up required MLZ resources using $(realpath "$mlz_config_file")..."
+"${this_script_path}/mlz_tf_setup.sh" "$mlz_config_file"
+
+echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
 az account set --subscription "${mlz_config_subid}"
 
-if [[ $docker_strategy != "build" && \
-      $docker_strategy != "load" && \
-      $docker_strategy != "local" ]]; then
-  error_log "Unrecognized docker strategy detected. Must be 'local', 'build', or 'load'."
-  exit 1
+if [[ $docker_strategy == "local" ]]; then
+  local_fqdn="localhost:${web_port}"
+  "${this_script_path}/setup_ezdeploy_local.sh" "$mlz_config_file" "$local_fqdn"
+  exit 0
 fi
 
+# create container registry
+"${container_registry_path}/create_acr.sh" "$mlz_config_file"
+
+# build/load, tag, and push image
+image_name="lzfront"
+image_tag=":latest"
+
 if [[ $docker_strategy == "build" ]]; then
-  echo "do work"
-  # create ACR
-  # build image
-  # deploy instance
-  # add permissions
-  # get URL
+  docker build -t "${image_name}" "${src_path}"
 fi
 
 if [[ $docker_strategy == "load" ]]; then
-  echo "do work"
-  # ???
+  unzip mlz.zip .
+  docker load -i mlz.tar
 fi
 
-if [[ $docker_strategy == "local" ]]; then
-  echo "do work"
-  # set env vars
-fi
+docker tag "${image_name}${image_tag}" "${mlz_acr_name}.${acr_endpoint}/${image_name}${image_tag}"
+docker push "${mlz_acr_name}.${acr_endpoint}/${image_name}${image_tag}"
 
-# # Handle Remote Deploy to a Container Instance
-# if [[ $docker_strategy != "local" ]]; then
-#   echo "Creating ACR"
-#   az acr create \
-#   --resource-group "${mlz_rg_name}" \
-#   --name "${mlz_acr_name}" \
-#   --sku Basic
+# deploy instance
+"${container_registry_path}/deploy_instance.sh" "$mlz_config_file" "$image_name" "$image_tag"
 
-#   echo "Waiting for registry completion and running post process to enable admin on ACR"
-#   sleep 60
-#   az acr update --name "${mlz_acr_name}" --admin-enabled true
+# get URL
+container_fqdn=$(az container show \
+  --resource-group "${mlz_rg_name}"\
+  --name "${mlz_instance_name}" \
+  --query ipAddress.fqdn \
+  --output tsv)
 
-#   . "${BASH_SOURCE%/*}/ezdeploy_docker.sh" "$docker_strategy"
+# create an app registration and add auth scopes to facilitate MSAL login
+"${container_registry_path}/add_auth_scopes.sh" "$mlz_config_file" "$container_fqdn"
 
-#   docker tag lzfront:latest "${mlz_acr_name}.azurecr.io/lzfront:latest"
-
-#   echo "INFO: Logging into Container Registry"
-#   az acr login --name "${mlz_acr_name}"
-
-#   ACR_REGISTRY_ID=$(az acr show --name "${mlz_acr_name}" --query id --output tsv)
-#   az role assignment create --assignee "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" --scope "${ACR_REGISTRY_ID}" --role acrpull
-
-#   echo "INFO: pushing docker container"
-#   docker tag lzfront:latest "${mlz_acr_name}".azurecr.io/lzfront:latest
-#   docker push "${mlz_acr_name}".azurecr.io/lzfront:latest
-#   ACR_LOGIN_SERVER=$(az acr show --name "${mlz_acr_name}" --resource-group "${mlz_rg_name}" --query "loginServer" --output tsv)
-
-#   echo "INFO: creating instance"
-#   fqdn=$(az container create \
-#   --resource-group "${mlz_rg_name}"\
-#   --name "${mlz_instance_name}" \
-#   --image "$ACR_LOGIN_SERVER"/lzfront:latest \
-#   --dns-name-label "${mlz_dns_name}" \
-#   --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" MLZ_LOCATION="${mlz_config_location}" SUBSCRIPTION_ID="${mlz_config_subid}" TF_ENV="${tf_environment}" MLZ_ENV="${mlz_env_name}" \
-#   --registry-username "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
-#   --registry-password "$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
-#   --ports 80 \
-#   --query ipAddress.fqdn \
-#   --assign-identity \
-#   --output tsv)
-
-#   echo "INFO: Giving Instance the necessary permissions"
-#   az keyvault set-policy \
-#   -n "${mlz_kv_name}" \
-#     --key-permissions get list \
-#     --secret-permissions get list \
-#     --object-id "$(az container show --resource-group "${mlz_rg_name}" --name "${mlz_instance_name}" --query identity.principalId --output tsv)"
-# else
-#   fqdn="localhost"
-# fi
-
-# if [[ $web_port != 80 ]]; then
-#   fqdn+=":$web_port"
-# fi
-
-
-# # Generate the Login EndPoint for Security Purposes
-# echo "Creating App Registration to facilitate login capabilities"
-# client_id=$(az ad app create \
-#         --display-name "${mlz_fe_app_name}" \
-#         --reply-urls "http://$fqdn/redirect" \
-#         --required-resource-accesses  "${BASH_SOURCE%/*}"/config/mlz_login_app_resources.json \
-#         --query appId \
-#         --output tsv)
-
-# client_password=$(az ad app credential reset \
-#       --id "$client_id" \
-#         --query password \
-#         --output tsv)
-
-# echo "Storing client id at ${mlz_login_app_kv_name}"
-# az keyvault secret set \
-#     --name "${mlz_login_app_kv_name}" \
-#     --subscription "${mlz_config_subid}" \
-#     --vault-name "${mlz_kv_name}" \
-#     --value "$client_id" \
-#     --output none
-
-# echo "Storing client secret at ${mlz_login_app_kv_password}"
-# az keyvault secret set \
-#     --name "${mlz_login_app_kv_password}" \
-#     --subscription "${mlz_config_subid}" \
-#     --vault-name "${mlz_kv_name}" \
-#     --value "$client_password" \
-#     --output none
-
-# echo "KeyVault updated with Login App Registration secret!"
-# echo "All steps have been completed you will need the following to access the configuration utility:"
-
-# if [[ $docker_strategy == "local" ]]; then
-#   echo "Your environment variables for local execution are:"
-#   echo "Copy-Paste:"
-#   echo "Bash:"
-#   echo "export CLIENT_ID=$client_id"
-#   echo "export CLIENT_SECRET=$client_password"
-#   echo "export TENANT_ID=$mlz_tenantid"
-#   echo "export LOCATION=$mlz_config_location"
-#   echo "export SUBSCRIPTION_ID=$mlz_config_subid"
-#   echo "export TF_ENV=$tf_environment"
-#   echo "export MLZ_ENV=$mlz_env_name"
-#   echo "export MLZCLIENTID=$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)"
-#   echo "export MLZCLIENTSECRET=$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)"
-#   echo "Powershell:"
-#   echo "\$env:CLIENT_ID='$client_id'"
-#   echo "\$env:CLIENT_SECRET='$client_password'"
-#   echo "\$env:TENANT_ID='$mlz_tenantid'"
-#   echo "\$env:LOCATION='$mlz_config_location'"
-#   echo "\$env:SUBSCRIPTION_ID='$mlz_config_subid'"
-#   echo "\$env:TF_ENV='$tf_environment'"
-#   echo "\$env:MLZ_ENV='$mlz_env_name'"
-#   echo "\$env:MLZCLIENTID='$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
-#   echo "\$env:MLZCLIENTSECRET='$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
-# else
-#   echo "You can access the front end at http://$fqdn"
-# fi
+echo "INFO: Complete! You can access the front end at http://$container_fqdn"
