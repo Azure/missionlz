@@ -20,7 +20,7 @@ The develoment container is not necessary if you want to use the Mission LZ user
 
 ## Pre-Requisites
 
-Operating system: Mac OS, Linux, or [`Windows 10 with Windows Subsystem for Linux (WSL)`](https://docs.microsoft.com/en-us/windows/wsl/install-win10) or a Linux virtual machine. (We developed this on Windows 10/WSL running Ubuntu 20.04.)
+Operating system: Mac OS, Linux, or [Windows 10 with Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install-win10) (We developed this on Windows 10/WSL running Ubuntu 20.04).
 
 Docker: Docker Desktop or Docker CE (We use Docker Desktop on Windows 10, integrated with WSL.)
 
