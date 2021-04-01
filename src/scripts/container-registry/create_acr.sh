@@ -16,7 +16,7 @@ error_log() {
 }
 
 usage() {
-  echo "create_acr.sh: Create an Azure Container Registry for hosting the MLZ UI given an MLZ configuration"
+  echo "create_acr.sh: create an Azure Container Registry for hosting the MLZ UI given an MLZ configuration"
   error_log "usage: create_acr.sh <mlz config file>"
 }
 
