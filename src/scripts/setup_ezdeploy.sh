@@ -89,8 +89,33 @@ mlz_config_file="${src_path}/mlz.config"
 # generate MLZ configuration names
 . "${BASH_SOURCE%/*}/config/generate_names.sh" "$mlz_config_file"
 
-# echo "INFO: Setting current az cli subscription to ${mlz_config_subid}"
-# az account set --subscription "${mlz_config_subid}"
+echo "INFO: Setting current az cli subscription to ${mlz_config_subid}"
+az account set --subscription "${mlz_config_subid}"
+
+if [[ $docker_strategy != "build" && \
+      $docker_strategy != "load" && \
+      $docker_strategy != "local" ]]; then
+  error_log "Unrecognized docker strategy detected. Must be 'local', 'build', or 'load'."
+fi
+
+if [[ $docker_strategy == "build" ]]; then
+  echo "do work"
+  # create ACR
+  # build image
+  # deploy instance
+  # add permissions
+  # get URL
+fi
+
+if [[ $docker_strategy == "load" ]]; then
+  echo "do work"
+  # ???
+fi
+
+if [[ $docker_strategy == "local" ]]; then
+  echo "do work"
+  # set env vars
+fi
 
 # # Handle Remote Deploy to a Container Instance
 # if [[ $docker_strategy != "local" ]]; then
