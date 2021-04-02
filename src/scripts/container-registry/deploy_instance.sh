@@ -78,4 +78,6 @@ az keyvault set-policy \
   --name "${mlz_kv_name}" \
   --key-permissions get list \
   --secret-permissions get list \
-  --object-id "${container_obj_id}"
+  --object-id "${container_obj_id}" \
+  --only-show-errors \
+  --output none
