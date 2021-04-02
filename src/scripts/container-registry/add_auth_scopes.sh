@@ -29,8 +29,8 @@ mlz_config_file=$1
 fqdn=$2
 
 # generate MLZ configuration names
-. "$mlz_config_file"
-. "$(dirname "$(realpath "${BASH_SOURCE%/*}")")/config/generate_names.sh" "$mlz_config_file"
+. "${mlz_config_file}"
+. "$(dirname "$(realpath "${BASH_SOURCE%/*}")")/config/generate_names.sh" "${mlz_config_file}"
 
 # path to app resources definition file
 required_resources_json_file="$(dirname "$(realpath "${BASH_SOURCE%/*}")")/config/mlz_login_app_resources.json"
@@ -39,13 +39,14 @@ required_resources_json_file="$(dirname "$(realpath "${BASH_SOURCE%/*}")")/confi
 echo "INFO: creating app registration ${mlz_fe_app_name} to facilitate user logon at ${fqdn}..."
 client_id=$(az ad app create \
   --display-name "${mlz_fe_app_name}" \
-  --reply-urls "http://$fqdn/redirect" \
+  --reply-urls "http://${fqdn}/redirect" \
   --required-resource-accesses "${required_resources_json_file}" \
   --query appId \
   --output tsv)
 client_password=$(az ad app credential reset \
-  --id "$client_id" \
+  --id ${client_id} \
   --query password \
+  --only-show-errors \
   --output tsv)
 
 # update keyvault with the app registration information
@@ -54,7 +55,7 @@ az keyvault secret set \
   --name "${mlz_login_app_kv_name}" \
   --subscription "${mlz_config_subid}" \
   --vault-name "${mlz_kv_name}" \
-  --value "$client_id" \
+  --value "${client_id}" \
   --only-show-errors \
   --output none
 
@@ -62,7 +63,7 @@ az keyvault secret set \
   --name "${mlz_login_app_kv_password}" \
   --subscription "${mlz_config_subid}" \
   --vault-name "${mlz_kv_name}" \
-  --value "$client_password" \
+  --value "${client_password}" \
   --only-show-errors \
   --output none
 
