@@ -51,18 +51,6 @@ while getopts "d:s:t:l:e:m:p:0:1:2:3:4:" opts; do
       ;;
     p) web_port=${OPTARG}
       ;;
-    0) mlz_saca_subid=${OPTARG}
-      subs+=("${OPTARG}")
-      ;;
-    1) mlz_tier0_subid=${OPTARG}
-      subs+=("${OPTARG}")
-      ;;
-    2) mlz_tier1_subid=${OPTARG}
-      subs+=("${OPTARG}")
-      ;;
-    3) mlz_tier2_subid=${OPTARG}
-      subs+=("${OPTARG}")
-      ;;
     ?)
       echo "Invalid option: -${OPTARG}."
       exit 2
@@ -96,17 +84,13 @@ echo "INFO: creating a mlz.config file based on user input at $(realpath "$mlz_c
     "$mlz_env_name" \
     "$mlz_config_location" \
     "$mlz_config_subid" \
-    "$mlz_tenantid" \
-    "$mlz_saca_subid" \
-    "$mlz_tier0_subid" \
-    "$mlz_tier1_subid" \
-    "$mlz_tier2_subid"
+    "$mlz_tenantid"
 
 # generate MLZ configuration names
 . "${this_script_path}/config/generate_names.sh" "$mlz_config_file"
 
 echo "INFO: setting up required MLZ resources using $(realpath "$mlz_config_file")..."
-"${this_script_path}/mlz_tf_setup.sh" "$mlz_config_file"
+"${this_script_path}/config/mlz_config_create.sh" "$mlz_config_file"
 
 echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
 az account set --subscription "${mlz_config_subid}"

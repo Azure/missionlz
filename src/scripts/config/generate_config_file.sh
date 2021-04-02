@@ -13,10 +13,10 @@ error_log() {
 
 usage() {
   echo "generate_config_file.sh: Generate a file at the root named mlz.config given MLZ prerequisites"
-  error_log "usage: generate_config_file.sh <terraform environment> <metadata host> <environment name> <location> <config subscription id> <tenant id> <saca subscription id> <tier 0 subscription id> <tier 1 subscription id> <tier 2 subscription id>"
+  error_log "usage: generate_config_file.sh <terraform environment> <metadata host> <environment name> <location> <config subscription id> <tenant id>"
 }
 
-if [[ "$#" -lt 11 ]]; then
+if [[ "$#" -lt 7 ]]; then
    usage
    exit 1
 fi
@@ -28,10 +28,6 @@ env_name=${4}
 location=${5}
 config_subid=${6}
 tenantid=${7}
-saca_subid=${8}
-tier0_subid=${9}
-tier1_subid=${10}
-tier2_subid=${11}
 
 rm -f "$dest_file"
 touch "$dest_file"
@@ -42,8 +38,4 @@ touch "$dest_file"
     echo "mlz_config_location=${location}"
     echo "mlz_config_subid=${config_subid}"
     echo "mlz_tenantid=${tenantid}"
-    echo "mlz_saca_subid=${saca_subid}"
-    echo "mlz_tier0_subid=${tier0_subid}"
-    echo "mlz_tier1_subid=${tier1_subid}"
-    echo "mlz_tier2_subid=${tier2_subid}"
 } >> "$dest_file"
