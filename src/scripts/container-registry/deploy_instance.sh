@@ -54,7 +54,7 @@ registry_password=$(az keyvault secret show \
   --output tsv)
 
 az container create \
-  --resource-group "${mlz_rg_name}"\
+  --resource-group "${mlz_rg_name}" \
   --name "${mlz_instance_name}" \
   --image "${acr_login_server}/${image_name}:${image_tag}" \
   --dns-name-label "${mlz_dns_name}" \

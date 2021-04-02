@@ -20,7 +20,7 @@ usage() {
   error_log "usage: add_auth_scopes.sh <mlz config file> <mlz UI FQDN url>"
 }
 
-if [[ "$#" -lt 3 ]]; then
+if [[ "$#" -lt 2 ]]; then
    usage
    exit 1
 fi
