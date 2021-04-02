@@ -24,11 +24,25 @@ To get started, you'll need to be running from a bash/zsh environment. If you ar
 
 This process will build the user interface container image on your workstation using Docker, upload the container image to your Azure subscription, and install an instance of the container in Azure Container Instances (ACI). You'll need to have Docker installed locally, as well as the Azure Bash CLI.
 
-From the "src" directory
-
 ```BASH
-chmod u+x ./scripts/setup_ezdeploy.sh
-./script/setup_ezdeploy.sh -d build -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
+cd src/scripts
+./setup_ezdeploy.sh -s <your subscription_id> -t <your tenant_id>
+```
+
+`setup_ezdeploy.sh` has more configurable options, but these are the minimum required to deploy a running UI that will help you make a full MLZ deployment.
+
+Here's the full list of parameters for reference:
+
+```plaintext
+setup_ezdeploy.sh: Setup the front end for MLZ
+            argument    description
+   --docker-strategy -d [local|build|load] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image
+   --subscription-id -s Subscription ID for MissionLZ resources
+         --tenant-id -t Tenant ID where your subscriptions live
+          --location -l The location that you're deploying to (defaults to 'eastus')
+    --tf-environment -e Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
+      --mlz-env-name -z Unique name for MLZ environment (defaults to 'mlz' + UNIX timestamp)
+              --port -p port to expose the front end web UI on (defaults to '80')
 ```
 
 The final results will include a URI that you can use to access the front end running in a remote azure container instance.

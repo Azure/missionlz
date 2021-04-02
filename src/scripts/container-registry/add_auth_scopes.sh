@@ -29,7 +29,8 @@ mlz_config_file=$1
 fqdn=$2
 
 # generate MLZ configuration names
-. "$(dirname "$(realpath "${BASH_SOURCE%/*}")")/generate_names.sh" "$mlz_config_file"
+. "$mlz_config_file"
+. "$(dirname "$(realpath "${BASH_SOURCE%/*}")")/config/generate_names.sh" "$mlz_config_file"
 
 # path to app resources definition file
 required_resources_json_file="$(dirname "$(realpath "${BASH_SOURCE%/*}")")/config/mlz_login_app_resources.json"

@@ -323,6 +323,30 @@ async def process_input(request: Request):
         json.dump(doc, open(os.path.join(os.getcwd(), "config_output", os.path.basename(f_name)), "w+"))
 
     # Use what we know and write out the environment file:
+    # src_dir=os.path.dirname(os.getcwd())
+    # mlz_config_path = os.path.join(src_dir, "mlz.config")
+
+    # write_config_executable = os.path.join(src_dir, "scripts", "config", "generate_config_file.sh")
+    # os.chmod(write_config_executable, 0o755)
+
+    # write_config_command = "{} {} {} {} {} {} {} {}".format(
+    # write_config_executable,
+    #     '--file ' + mlz_config_path,
+    #     '--tf-env public',
+    #     '--metadatahost metadata',
+    #     '--mlz-env glenn',
+    #     '--location eastus',
+    #     '--config-sub-id configsubid',
+    #     '--tenant-id tenantid',)
+
+    # # optionals
+    # write_config_command+=" -h hubid"
+    # write_config_command+=" -0 t0id"
+    # write_config_command+=" -1 t1id"
+    # write_config_command+=" -2 t2id"
+
+    # subprocess.check_call(write_config_command, shell=True)
+
     with open(os.path.join(os.getcwd(), "config_output", "mlz_tf_var_front"), "w+") as f:
         f.writelines("tf_environment=\"" + os.getenv("TF_ENV") + "\"\n" +
                      "mlz_env_name=\"" + os.getenv("MLZ_ENV") + "\"\n" +
