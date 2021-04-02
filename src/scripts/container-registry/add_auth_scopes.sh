@@ -50,7 +50,7 @@ client_password=$(az ad app credential reset \
   --output tsv)
 
 # update keyvault with the app registration information
-echo "INFO: storing app registration information for client ID ${client_id} at ${mlz_login_app_kv_name}..."
+echo "INFO: storing app registration information for client ID ${client_id} in ${mlz_kv_name}..."
 az keyvault secret set \
   --name "${mlz_login_app_kv_name}" \
   --subscription "${mlz_config_subid}" \
@@ -67,5 +67,5 @@ az keyvault secret set \
   --only-show-errors \
   --output none
 
-echo "INFO: waiting thirty seconds to propagate app registration..."
+echo "INFO: waiting thirty seconds to allow for app registration propogation..."
 sleep 30

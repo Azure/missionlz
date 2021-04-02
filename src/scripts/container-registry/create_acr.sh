@@ -28,8 +28,8 @@ fi
 mlz_config_file=$1
 
 # generate MLZ configuration names
-. "$mlz_config_file"
-. "$(dirname "$(realpath "${BASH_SOURCE%/*}")")/config/generate_names.sh" "$mlz_config_file"
+. "${mlz_config_file}"
+. "$(dirname "$(realpath "${BASH_SOURCE%/*}")")/config/generate_names.sh" "${mlz_config_file}"
 
 echo "INFO: creating Azure Container Registry ${mlz_acr_name}..."
 az acr create \
@@ -39,7 +39,7 @@ az acr create \
   --only-show-errors \
   --output none
 
-echo "INFO: enabling administration of ${mlz_acr_name}..."
+echo "INFO: enabling administration of registry ${mlz_acr_name}..."
 sleep 60
 az acr update \
   --name "${mlz_acr_name}" \
@@ -47,7 +47,10 @@ az acr update \
   --only-show-errors \
   --output none
 
-az acr login --name "${mlz_acr_name}"
+az acr login \
+  --name "${mlz_acr_name}" \
+  --only-show-errors \
+  --output none
 
 acr_id=$(az acr show \
   --name "${mlz_acr_name}" \
@@ -58,9 +61,11 @@ client_id=$(az keyvault secret show \
   --name "${mlz_sp_kv_name}" \
   --vault-name "${mlz_kv_name}" \
   --query value \
+  --only-show-errors \
   --output tsv)
 
-echo "INFO: granting ${client_id} 'acrpull' on ${mlz_acr_name}"
+echo "INFO: granting registry identity ${client_id} 'acrpull' on ${mlz_acr_name}..."
+
 az role assignment create \
   --assignee "${client_id}" \
   --scope "${acr_id}" \

@@ -43,8 +43,8 @@ timestamp=$(date +%s)
 metadata_host="management.azure.com" # TODO (20210401): pass this by parameter or derive from cloud
 acr_endpoint="azurecr.io" # TODO (20210401): pass this by parameter or derive from cloud
 
-# set helpful defaults that can be overriden
-# or 'notset' to for mandatory input
+# set helpful defaults that can be overridden
+# or to 'notset' require mandatory input
 docker_strategy="build"
 mlz_config_subid="notset"
 mlz_tenantid="notset"
@@ -128,7 +128,7 @@ fi
 
 # build/load, tag, and push image
 image_name="lzfront"
-image_tag=":latest"
+image_tag="latest"
 
 if [[ $docker_strategy == "build" ]]; then
   docker build -t "${image_name}" "${src_path}"
@@ -139,8 +139,8 @@ if [[ $docker_strategy == "load" ]]; then
   docker load -i mlz.tar
 fi
 
-docker tag "${image_name}${image_tag}" "${mlz_acr_name}.${acr_endpoint}/${image_name}${image_tag}"
-docker push "${mlz_acr_name}.${acr_endpoint}/${image_name}${image_tag}"
+docker tag "${image_name}:${image_tag}" "${mlz_acr_name}.${acr_endpoint}/${image_name}:${image_tag}"
+docker push "${mlz_acr_name}.${acr_endpoint}/${image_name}:${image_tag}"
 
 # deploy an instance
 "${container_registry_path}/deploy_instance.sh" "$mlz_config_file" "$image_name" "$image_tag"
@@ -155,4 +155,4 @@ container_fqdn=$(az container show \
 # create an app registration and add auth scopes to facilitate MSAL login for the instance
 "${container_registry_path}/add_auth_scopes.sh" "$mlz_config_file" "$container_fqdn"
 
-echo "INFO: Complete! You can access the front end at http://$container_fqdn"
+echo "INFO: COMPLETE! You can access the front end at http://$container_fqdn"

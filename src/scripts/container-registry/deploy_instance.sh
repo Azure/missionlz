@@ -30,8 +30,8 @@ image_name=$2
 image_tag=$3
 
 # generate MLZ configuration names
-. "$mlz_config_file"
-. "$(dirname "$(realpath "${BASH_SOURCE%/*}")")/config/generate_names.sh" "$mlz_config_file"
+. "${mlz_config_file}"
+. "$(dirname "$(realpath "${BASH_SOURCE%/*}")")/config/generate_names.sh" "${mlz_config_file}"
 
 acr_login_server=$(az acr show \
   --name "${mlz_acr_name}" \
@@ -39,7 +39,7 @@ acr_login_server=$(az acr show \
   --query "loginServer" \
   --output tsv)
 
-echo "INFO: creating instance ${mlz_instance_name} in ${mlz_acr_name}..."
+echo "INFO: creating instance of ${image_name}:${image_tag} on ${mlz_instance_name} in ${mlz_acr_name}..."
 
 registry_username=$(az keyvault secret show \
   --name "${mlz_sp_kv_name}" \
