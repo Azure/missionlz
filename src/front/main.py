@@ -27,7 +27,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 keyVaultName = os.getenv("KEYVAULT_ID", None)
 
 if keyVaultName:
-    keyVaultUrl = "https://{}.vault.azure.net/".format(keyVaultName) # TODO (20210401): pass this endpoint by parameter or derive from cloud
+    keyVaultUrl = "https://{}.vault.azure.net/".format(keyVaultName) # TODO (20210401): pass this by parameter or derive from cloud
 
     # This will use your Azure Managed Identity
     credential = DefaultAzureCredential()
