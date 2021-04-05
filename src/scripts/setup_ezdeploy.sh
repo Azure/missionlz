@@ -94,8 +94,8 @@ if [[ $docker_strategy != "local" && \
 fi
 
 # create MLZ configuration file
-mlz_config_file="${src_path}/mlz.config"
-echo "INFO: creating a mlz.config file based on user input at $(realpath "$mlz_config_file")..."
+mlz_config_file="${src_path}/mlz_tf_cfg.var"
+echo "INFO: creating a MLZ config file based on user input at $(realpath "$mlz_config_file")..."
 "${this_script_path}/config/generate_config_file.sh" \
     -f "$mlz_config_file" \
     -e "$tf_environment" \

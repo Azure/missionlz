@@ -19,7 +19,7 @@ show_help() {
     printf "%15s %2s %s \n" "$long_name" "$char_name" "$desc"
   }
   print_formatted "argument" "" "description"
-  print_formatted "--file" "-f" "the destination file path and name (e.g. 'src/mlz.config')"
+  print_formatted "--file" "-f" "the destination file path and name (e.g. 'src/mlz_tf_cfg.var')"
   print_formatted "--tf-env" "-e" "Terraform azurerm environment (e.g. 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment"
   print_formatted "--metadatahost" "-m" "Azure Metadata Service endpoint. (e.g 'management.azure.com' or 'management.usgovcloudapi.net')"
   print_formatted "--mlz-env-name" "-z" "Unique name for MLZ environment"

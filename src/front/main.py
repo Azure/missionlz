@@ -338,12 +338,12 @@ async def process_input(request: Request):
         sp_id = os.getenv("MLZCLIENTID", "NotSet")
         sp_pwd = os.getenv("MLZCLIENTSECRET", "NotSet")
 
-    # write a command to write mlz.config:
+    # write a command to write mlz config:
     src_dir = os.path.dirname(os.getcwd())
     generate_config_executable = os.path.join(src_dir, "scripts", "config", "generate_config_file.sh")
     os.chmod(generate_config_executable, 0o755)
 
-    mlz_config_path = os.path.join(src_dir, "mlz.config")
+    mlz_config_path = os.path.join(src_dir, "mlz_tf_cfg.var")
 
     generate_config_args = []
     generate_config_args.append('--file ' + mlz_config_path)
