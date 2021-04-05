@@ -9,6 +9,8 @@
 #
 # Create MLZ backend config resources
 
+set -e
+
 error_log() {
   echo "${1}" 1>&2;
 }

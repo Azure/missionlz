@@ -42,7 +42,7 @@ while getopts "d:s:t:l:e:m:p:0:1:2:3:4:" opts; do
     d) export docker_strategy=${OPTARG}
       ;;
     s) export mlz_config_subid=${OPTARG}
-      sub_array "${OPTARG}"
+      add_unique_sub_to_array "${OPTARG}"
       ;;
     t) export mlz_tenantid=${OPTARG}
       ;;
