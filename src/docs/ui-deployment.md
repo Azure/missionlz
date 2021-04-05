@@ -24,6 +24,21 @@ To get started, you'll need to be running from a bash/zsh environment. If you ar
 
 This process will build the user interface container image on your workstation using Docker, upload the container image to your Azure subscription, and install an instance of the container in Azure Container Instances (ACI). You'll need to have Docker installed locally, as well as the Azure Bash CLI.
 
+Log in using the Azure CLI
+
+```BASH
+az login
+```
+
+> **Note:** For deployments to Azure Government, you will first need to set the cloud before logging in, such as:
+
+```BASH
+ az cloud set --name AzureUSGovernment
+ az login
+```
+
+Then deploy a container instance of the front end with:
+
 ```BASH
 cd src/scripts
 ./setup_ezdeploy.sh -s <your subscription_id> -t <your tenant_id>
@@ -43,9 +58,11 @@ setup_ezdeploy.sh: Setup the front end for MLZ
     --tf-environment -e Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
       --mlz-env-name -z Unique name for MLZ environment (defaults to 'mlz' + UNIX timestamp)
               --port -p port to expose the front end web UI on (defaults to '80')
+        --hub-sub-id -h subscription ID for the hub network and resources (defaults to the value provided for -s --subscription-id)
+      --tier0-sub-id -0 subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
+      --tier1-sub-id -1 subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
+      --tier2-sub-id -2 subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
 ```
-
-The final results will include a URI that you can use to access the front end running in a remote azure container instance.
 
 ### Step-by-Step Local Installation
 
