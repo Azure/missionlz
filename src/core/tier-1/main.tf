@@ -105,13 +105,30 @@ module "t1-subnets" {
 }
 
 module "t1-outbound-peering" {
-  source = "../../modules/virtual-network-outbound-peering"
+  source = "../../modules/virtual-network-peering"
 
   source_rg_name              = module.t1-network.resource_group_name
   source_vnet_name            = module.t1-network.virtual_network_name
   destination_vnet_name       = data.azurerm_virtual_network.hub.name
   destination_rg_name         = data.azurerm_resource_group.hub.name
   destination_subscription_id = var.saca_subid
+
+  tags = {
+    DeploymentName = var.deploymentname
+  }
+}
+
+module "t1-inbound-peering" {
+  source = "../../modules/virtual-network-peering"
+  providers = {
+    azurerm = azurerm.hub
+  }
+
+  source_vnet_name            = data.azurerm_virtual_network.hub.name
+  source_rg_name              = data.azurerm_resource_group.hub.name
+  destination_vnet_name       = module.t1-network.virtual_network_name
+  destination_rg_name         = module.t1-network.resource_group_name
+  destination_subscription_id = var.tier1_subid
 
   tags = {
     DeploymentName = var.deploymentname

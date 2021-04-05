@@ -24,12 +24,36 @@ To get started, you'll need to be running from a bash/zsh environment. If you ar
 
 This process will build the user interface container image on your workstation using Docker, upload the container image to your Azure subscription, and install an instance of the container in Azure Container Instances (ACI). You'll need to have Docker installed locally, as well as the Azure Bash CLI.
 
-From the "src" directory
+Log in using the Azure CLI
 
 ```BASH
-chmod u+x ./scripts/setup_ezdeploy.sh
-./script/setup_ezdeploy.sh -d build -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
+az login
 ```
+
+> **Note:** For deployments to Azure Government, you will first need to set the cloud before logging in, such as:
+
+```BASH
+ az cloud set --name AzureUSGovernment
+ az login
+```
+
+From the "src" directory, set the access permissions to the `setup_ezdeploy.sh` deployment script and run it (the example below assumes the local workspace root directory is at `$HOME/missionlz`)
+
+```bash
+    cd $HOME/missionlz/src    # -- your local workspace path may be different 
+    
+    export TENANT_ID="<TENANT_ID>"
+    export SUBSCRIPTION_ID="<SUBSCRIPTION_ID>"
+    export TF_ENV="<TERRAFORM_ENVIRONMENT>"
+    export MLZ_ENV="<ENVIRONMENT_NAME>"
+    export LOCATION="<CLOUD_LOCATION>"
+
+    chmod u+x ./scripts/setup_ezdeploy.sh
+    
+    ./scripts/setup_ezdeploy.sh -d build -s $SUBSCRIPTION_ID -t $TENANT_ID -l $LOCATION -e $TF_ENV -m $MLZ_ENV -p 80 -0 $SUBSCRIPTION_ID -1 $SUBSCRIPTION_ID -2 $SUBSCRIPTION_ID -3 $SUBSCRIPTION_ID
+```
+
+> In the command above, the *&lt;values-in-brackets&gt;* need to be replaced with actual values from your environment
 
 The final results will include a URI that you can use to access the front end running in a remote azure container instance.
 

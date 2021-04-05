@@ -20,14 +20,15 @@ The develoment container is not necessary if you want to use the Mission LZ user
 
 ## Pre-Requisites
 
-Operating system: Mac OS, Linux, or [Windows 10 with Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install-win10) (We developed this on Windows 10/WSL running Ubuntu 20.04).
+* **Operating system:** Mac OS, Linux, or [Windows 10 with Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+  >*We developed this on Windows 10/WSL running Ubuntu 20.04*
+* **Docker:** Docker Desktop or Docker CE
+  >*We use [Docker Desktop on Windows 10](https://docs.docker.com/docker-for-windows/install/), integrated with WSL*
+* Current version of the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
 
-Docker: Docker Desktop or Docker CE (We use Docker Desktop on Windows 10, integrated with WSL.)
-
-The Azure CLI.
-
-All other tools and resources are in the development container and in the user interface container. The simplest path is to deploy from one of these containers, but it is not required if you want to configure your own deployment environment. See the development container [README](../../.devcontainer/README.md) document in the `.devcontainer` folder for details, and the user interface [Dockerfile](../Dockerfile) for details on user interface pre-requisites.
+All other tools and resources are in the development container and in the user interface container. The simplest path is to deploy from one of these containers, but it is not required if you want to configure your own deployment environment.
 
 ## Step-by-step
 
-See the detailed step-by-step guides for [Command Line Deployments](command-line-deployment.md) and [User Interface Deployments](ui-deployment.md).
+* See the detailed step-by-step guides for [Command Line Deployments](command-line-deployment.md) and [User Interface Deployments](ui-deployment.md).
+* (*Optional*) For details and pre-requisites for the development container, see the [README](../../.devcontainer/README.md) document in the `.devcontainer` folder.
