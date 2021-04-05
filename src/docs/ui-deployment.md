@@ -98,7 +98,7 @@ prior to following the following instructions
 
     `tenant_id`:  the tenant_id where all of your subscriptions are located
 
-    `port`:  Default is 80, if you are running in WSL or otherwise can't bind to 80, use this flag to enter a port
+    `port`:  Default is 80, if you are running in WSL or otherwise can't bind to 80, use this flag to enter a port (e.g. 8081)
 
     ```bash
     cd src/scripts
@@ -108,23 +108,35 @@ prior to following the following instructions
 1. Invoke environment variables needed for login (These are returned after setup_ezdeploy.sh is run)
 
     ```powershell
-    $env:CLIENT_ID="<CLIENT_ID>"
-    $env:CLIENT_SECRET="<CLIENT_SECRET"
-    $env:TENANT_ID="<TENANT_ID>"
-    $env:MLZ_LOCATION='<CLOUD_LOCATION>'
-    $env:SUBSCRIPTION_ID='<SUBSCRIPTION_ID>'
-    $env:TF_ENV='<TERRAFORM_ENVIRONMENT>'
-    $env:MLZ_ENV='<ENVIRONMENT_NAME>'
+    $env:CLIENT_ID='$client_id'
+    $env:CLIENT_SECRET='$client_password'
+    $env:TENANT_ID='$mlz_tenantid'
+    $env:MLZ_LOCATION='$mlz_config_location'
+    $env:SUBSCRIPTION_ID='$mlz_config_subid'
+    $env:HUB_SUBSCRIPTION_ID='HUB_SUBSCRIPTION_ID=$mlz_saca_subid'
+    $env:TIER0_SUBSCRIPTION_ID='TIER0_SUBSCRIPTION_ID=$mlz_tier0_subid'
+    $env:TIER1_SUBSCRIPTION_ID='TIER1_SUBSCRIPTION_ID=$mlz_tier1_subid'
+    $env:TIER2_SUBSCRIPTION_ID='TIER2_SUBSCRIPTION_ID=$mlz_tier2_subid'
+    $env:TF_ENV='$tf_environment'
+    $env:MLZ_ENV='$mlz_env_name'
+    $env:MLZCLIENTID='$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)'
+    $env:MLZCLIENTSECRET='$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)'
     ```
 
     ```bash
-    export CLIENT_ID="<CLIENT_ID>"
-    export CLIENT_SECRET="<CLIENT_SECRET"
-    export TENANT_ID="<TENANT_ID>"
-    export MLZ_LOCATION='<CLOUD_LOCATION>'
-    export SUBSCRIPTION_ID='<SUBSCRIPTION_ID>'
-    export TF_ENV='<TERRAFORM_ENVIRONMENT>'
-    export MLZ_ENV='<ENVIRONMENT_NAME>'
+    export CLIENT_ID=$auth_client_id
+    export CLIENT_SECRET=$auth_client_secret
+    export TENANT_ID=$mlz_tenantid
+    export MLZ_LOCATION=$mlz_config_location
+    export SUBSCRIPTION_ID=$mlz_config_subid
+    export HUB_SUBSCRIPTION_ID=$mlz_saca_subid
+    export TIER0_SUBSCRIPTION_ID=$mlz_tier0_subid
+    export TIER1_SUBSCRIPTION_ID=$mlz_tier1_subid
+    export TIER2_SUBSCRIPTION_ID=$mlz_tier2_subid
+    export TF_ENV=$tf_environment
+    export MLZ_ENV=$mlz_env_name
+    export MLZCLIENTID=$mlz_client_id
+    export MLZCLIENTSECRET=$mlz_client_secret
     ```
 
 1. Execute web server
