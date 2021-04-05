@@ -3,7 +3,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# shellcheck disable=SC1090,SC1091
+# shellcheck disable=SC1090,SC1091,2154
 # SC1090: Can't follow non-constant source. Use a directive to specify location.
 # SC1091: Not following. Shellcheck can't follow non-constant source.
 # SC2154: "var is referenced but not assigned". These values come from an external file.
@@ -29,16 +29,22 @@ fi
 export tf_environment=public
 export mlz_env_name=mlzdeployment
 export web_port=80
+
 subs=()
+add_unique_sub_to_array() {
+    if [[ ! "${subs[*]}" =~ ${1} ]];then
+        subs+=("${1}")
+    fi
+}
 
 while getopts "d:s:t:l:e:m:p:0:1:2:3:4:" opts; do
   case "${opts}" in
     d) export docker_strategy=${OPTARG}
       ;;
     s) export mlz_config_subid=${OPTARG}
-      subs+=("${OPTARG}")
+      add_unique_sub_to_array "${OPTARG}"
       ;;
-    t) export mlz_tenantid=${OPTARG} 
+    t) export mlz_tenantid=${OPTARG}
       ;;
     l) export mlz_config_location=${OPTARG}
       ;;
@@ -49,16 +55,16 @@ while getopts "d:s:t:l:e:m:p:0:1:2:3:4:" opts; do
     p) export web_port=${OPTARG}
       ;;
     0) export mlz_saca_subid=${OPTARG}
-      subs+=("${OPTARG}")
+      add_unique_sub_to_array "${OPTARG}"
       ;;
     1) export mlz_tier0_subid=${OPTARG}
-      subs+=("${OPTARG}")
+      add_unique_sub_to_array "${OPTARG}"
       ;;
     2) export mlz_tier1_subid=${OPTARG}
-      subs+=("${OPTARG}")
+      add_unique_sub_to_array "${OPTARG}"
       ;;
     3) export mlz_tier2_subid=${OPTARG}
-      subs+=("${OPTARG}")
+      add_unique_sub_to_array "${OPTARG}"
       ;;
     ?)
       echo "Invalid option: -${OPTARG}."
@@ -95,7 +101,7 @@ if [[ $docker_strategy != "local" ]]; then
   az acr create \
   --resource-group "${mlz_rg_name}" \
   --name "${mlz_acr_name}" \
-  --sku Basic 
+  --sku Basic
 
   echo "Waiting for registry completion and running post process to enable admin on ACR"
   sleep 60
@@ -109,7 +115,7 @@ if [[ $docker_strategy != "local" ]]; then
   az acr login --name "${mlz_acr_name}"
 
   ACR_REGISTRY_ID=$(az acr show --name "${mlz_acr_name}" --query id --output tsv)
-  az role assignment create --assignee "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" --scope $ACR_REGISTRY_ID --role acrpull
+  az role assignment create --assignee "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" --scope "${ACR_REGISTRY_ID}" --role acrpull
 
   echo "INFO: pushing docker container"
   docker tag lzfront:latest "${mlz_acr_name}".azurecr.io/lzfront:latest
@@ -122,7 +128,7 @@ if [[ $docker_strategy != "local" ]]; then
   --name "${mlz_instance_name}" \
   --image "$ACR_LOGIN_SERVER"/lzfront:latest \
   --dns-name-label "${mlz_dns_name}" \
-  --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" LOCATION="${mlz_config_location}" SUBSCRIPTION_ID="${mlz_config_subid}" TF_ENV="${tf_environment}" MLZ_ENV="${mlz_env_name}" \
+  --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" MLZ_LOCATION="${mlz_config_location}" SUBSCRIPTION_ID="${mlz_config_subid}" TF_ENV="${tf_environment}" MLZ_ENV="${mlz_env_name}" \
   --registry-username "$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
   --registry-password "$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)" \
   --ports 80 \
@@ -177,6 +183,7 @@ az keyvault secret set \
 
 echo "KeyVault updated with Login App Registration secret!"
 echo "All steps have been completed you will need the following to access the configuration utility:"
+
 if [[ $docker_strategy == "local" ]]; then
   echo "Your environment variables for local execution are:"
   echo "Copy-Paste:"
@@ -200,7 +207,6 @@ if [[ $docker_strategy == "local" ]]; then
   echo "\$env:MLZ_ENV='$mlz_env_name'"
   echo "\$env:MLZCLIENTID='$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
   echo "\$env:MLZCLIENTSECRET='$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
- 
 else
   echo "You can access the front end at http://$fqdn"
 fi
