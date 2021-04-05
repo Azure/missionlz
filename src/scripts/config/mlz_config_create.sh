@@ -73,27 +73,44 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
     # Added the sleep below to accomodate for the transient behavior where the Service Principal creation
     # is complete but an immediate query for it will fail. The sleep loop will run for 3 minutes and then
     # the script will exit due to a platform problem
+
     sp_exists="az ad sp show \
         --id http://${mlz_sp_name} \
         --query appId"
 
-    sleep_time_in_seconds=10
-    elapsed_time=0
-    while ! $sp_exists &> /dev/null 
-    do
-        echo "Waiting up to 3 minutes for the Service Principal appId provisioning to complete"
-        sleep "${sleep_time_in_seconds}"
-        elapsed_time=$((elapsed_time + sleep_time_in_seconds))
-        if [[ "${elapsed_time}" -ge "180" ]]; then
-            error_log "The Service Principal creation did not complete in the exected time. Please check Azure and re-run the script."
-            exit 1
-        fi
-    done
+    if ! $sp_exists &> /dev/null; then
+
+        sleep_time_in_seconds=10
+        max_wait_in_minutes=3
+        max_wait_in_seconds=180
+        max_retries=$((max_wait_in_seconds/sleep_time_in_seconds)
+
+        echo "Maximum time to wait in seconds = ${max_wait_in_seconds}"
+        echo "Maximum number of retries = ${max_retries}"
+        
+        count=1
+
+        while [ -z "$(az ad sp show --id http://${mlz_sp_name} --query appId --output tsv --only-show-errors)" ]; then
+        do
+
+            echo "Waiting for Service Principal appId to complete provisioning (${count}/${max_retries})"
+            echo "Trying again in ${sleep_time_in_seconds} seconds..."
+            sleep "${sleep_time_in_seconds}"
+
+            if [[ ${count} -eq max_retries ]]; then
+                echo "Provisioning the Service Principal appId has exceeded ${max_wait_in_minutes} minutes. Investigate and re-run script."
+                exit 1
+            fi
+
+            count=$((count +1))
+
+        done
+    fi
 
     sp_clientid=$(az ad sp show \
-        --id "http://${mlz_sp_name}" \
-        --query appId \
-        --output tsv)
+    --id "http://${mlz_sp_name}" \
+    --query appId \
+    --output tsv)
 
     # Get Service Principal ObjectId
     # Added the sleep below to accomodate for the transient behavior where the Service Principal creation
@@ -103,18 +120,34 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
         --id http://${mlz_sp_name} \
         --query objectId"
 
-    sleep_time_in_seconds=10
-    elapsed_time=0
-    while ! $sp_exists &> /dev/null 
-    do
-        echo "Waiting up to 3 minutes for the Service Principal objectId provisioning to complete"
-        sleep "${sleep_time_in_seconds}"
-        elapsed_time=$((elapsed_time + sleep_time_in_seconds))
-        if [[ "${elapsed_time}" -ge "180" ]]; then
-            error_log "The Service Principal creation did not complete in the exected time. Please check Azure and re-run the script."
-            exit 1
-        fi
-    done
+    if ! $sp_exists &> /dev/null; then
+
+        sleep_time_in_seconds=10
+        max_wait_in_minutes=3
+        max_wait_in_seconds=180
+        max_retries=$((max_wait_in_seconds/sleep_time_in_seconds)
+
+        echo "Maximum time to wait in seconds = ${max_wait_in_seconds}"
+        echo "Maximum number of retries = ${max_retries}"
+        
+        count=1
+
+        while [ -z "$(az ad sp show --id http://${mlz_sp_name} --query objectId --output tsv --only-show-errors)" ]; then
+        do
+
+            echo "Waiting for Service Principal appId to complete provisioning (${count}/${max_retries})"
+            echo "Trying again in ${sleep_time_in_seconds} seconds..."
+            sleep "${sleep_time_in_seconds}"
+
+            if [[ ${count} -eq max_retries ]]; then
+                echo "Provisioning the Service Principal appId has exceeded ${max_wait_in_minutes} minutes. Investigate and re-run script."
+                exit 1
+            fi
+
+            count=$((count +1))
+
+        done
+    fi
 
     sp_objid=$(az ad sp show \
         --id "http://${mlz_sp_name}" \
