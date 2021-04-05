@@ -53,12 +53,28 @@ registry_password=$(az keyvault secret show \
   --query value \
   --output tsv)
 
+# set container environment variables from MLZ config
+env_vars_args=()
+env_vars_args+=("KEYVAULT_ID=${mlz_kv_name}")
+env_vars_args+=("TENANT_ID=${mlz_tenantid}")
+env_vars_args+=("MLZ_LOCATION=${mlz_config_location}")
+env_vars_args+=("SUBSCRIPTION_ID=${mlz_config_subid}")
+env_vars_args+=("TF_ENV=${tf_environment}")
+env_vars_args+=("MLZ_ENV=${mlz_env_name}")
+env_vars_args+=("HUB_SUBSCRIPTION_ID=${mlz_saca_subid}")
+env_vars_args+=("TIER0_SUBSCRIPTION_ID=${mlz_tier0_subid}")
+env_vars_args+=("TIER1_SUBSCRIPTION_ID=${mlz_tier1_subid}")
+env_vars_args+=("TIER2_SUBSCRIPTION_ID=${mlz_tier2_subid}")
+
+# expand array into a string of space separated arguments
+env_vars=$(printf '%s ' "${env_vars_args[*]}")
+
 az container create \
   --resource-group "${mlz_rg_name}" \
   --name "${mlz_instance_name}" \
   --image "${acr_login_server}/${image_name}:${image_tag}" \
   --dns-name-label "${mlz_dns_name}" \
-  --environment-variables KEYVAULT_ID="${mlz_kv_name}" TENANT_ID="${mlz_tenantid}" MLZ_LOCATION="${mlz_config_location}" SUBSCRIPTION_ID="${mlz_config_subid}" TF_ENV="${tf_environment}" MLZ_ENV="${mlz_env_name}" \
+  --environment-variables "${env_vars}" \
   --registry-username "${registry_username}" \
   --registry-password "${registry_password}" \
   --ports 80 \

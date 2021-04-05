@@ -11,7 +11,7 @@
 			{
 				"varname": "saca_subid",
 				"type": "text",
-				"default_val": "env:SUBSCRIPTION_ID",
+				"default_val": "env:HUB_SUBSCRIPTION_ID",
 				"description": "The subscription id where the SACA hub lives",
 				"options": []
 			},

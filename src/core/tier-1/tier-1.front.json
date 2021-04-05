@@ -7,7 +7,7 @@
 			{
 				"varname": "saca_subid",
 				"type": "text",
-				"default_val": "env:SUBSCRIPTION_ID",
+				"default_val": "env:HUB_SUBSCRIPTION_ID",
 				"description": "Saca Hub Subscription ID",
 				"options": []
 			},
@@ -42,7 +42,7 @@
 			{
 				"varname": "tier1_subid",
 				"type": "text",
-				"default_val": "env:SUBSCRIPTION_ID",
+				"default_val": "env:TIER1_SUBSCRIPTION_ID",
 				"description": "Tier0 Subscription Id",
 				"options": []
 			},

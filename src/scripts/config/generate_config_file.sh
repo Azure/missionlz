@@ -90,12 +90,15 @@ touch "$dest_file"
 append_optional_args() {
   key_name=$1
   key_value=$2
-  file_to_append=$3
+  default_value=$3
+  file_to_append=$4
   if [[ $key_value ]]; then
     printf "${key_name}=${key_value}\n" >> "${file_to_append}"
+  else
+    printf "${key_name}=${default_value}\n" >> "${file_to_append}"
   fi
 }
-append_optional_args "mlz_saca_subid" "${mlz_saca_subid}" "${dest_file}"
-append_optional_args "mlz_tier0_subid" "${mlz_tier0_subid}" "${dest_file}"
-append_optional_args "mlz_tier1_subid" "${mlz_tier1_subid}" "${dest_file}"
-append_optional_args "mlz_tier2_subid" "${mlz_tier2_subid}" "${dest_file}"
+append_optional_args "mlz_saca_subid" "${mlz_saca_subid}" "${mlz_config_subid}" "${dest_file}"
+append_optional_args "mlz_tier0_subid" "${mlz_tier0_subid}" "${mlz_config_subid}" "${dest_file}"
+append_optional_args "mlz_tier1_subid" "${mlz_tier1_subid}" "${mlz_config_subid}" "${dest_file}"
+append_optional_args "mlz_tier2_subid" "${mlz_tier2_subid}" "${mlz_config_subid}" "${dest_file}"

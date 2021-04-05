@@ -3,7 +3,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# shellcheck disable=SC1090,SC1091,2154
+# shellcheck disable=SC1083,SC1090,SC1091,2154
+# SC1083: This is literal.
 # SC1090: Can't follow non-constant source. Use a directive to specify location.
 # SC1091: Not following. Shellcheck can't follow non-constant source.
 # SC2154: "var is referenced but not assigned". These values come from an external file.
@@ -53,6 +54,15 @@ tf_environment="public"
 mlz_env_name="mlz${timestamp}"
 web_port="80"
 
+subs=()
+add_unique_sub_to_array() {
+    if [[ ! "${subs[*]}" =~ ${1} ]];then
+        subs+=("${1}")
+    fi
+}
+
+subs_args=()
+
 # inspect user input
 while [ $# -gt 0 ] ; do
   case $1 in
@@ -63,6 +73,22 @@ while [ $# -gt 0 ] ; do
     -e | --tf-environment) tf_environment="$2" ;;
     -z | --mlz-env-name) mlz_env_name="$2" ;;
     -p | --port) web_port="$2" ;;
+    -h | --hub-sub-id)
+      add_unique_sub_to_array "$2"
+      subs_args+=("-h ${2}")
+      ;;
+    -0 | --tier0-sub-id)
+      add_unique_sub_to_array "$2"
+      subs_args+=("-0 ${2}")
+      ;;
+    -1 | --tier1-sub-id)
+      add_unique_sub_to_array "$2"
+      subs_args+=("-1 ${2}")
+      ;;
+    -2 | --tier2-sub-id)
+      add_unique_sub_to_array "$2"
+      subs_args+=("-2 ${2}")
+      ;;
   esac
   shift
 done
@@ -93,17 +119,32 @@ if [[ $docker_strategy != "local" && \
   exit 1
 fi
 
-# create MLZ configuration file
+# create MLZ configuration file based on user input
 mlz_config_file="${src_path}/mlz_tf_cfg.var"
 echo "INFO: creating a MLZ config file based on user input at $(realpath "$mlz_config_file")..."
-"${this_script_path}/config/generate_config_file.sh" \
-    -f "$mlz_config_file" \
-    -e "$tf_environment" \
-    -m "$metadata_host" \
-    -z "$mlz_env_name" \
-    -l "$mlz_config_location" \
-    -s "$mlz_config_subid" \
-    -t "$mlz_tenantid"
+
+### derive args from user input
+gen_config_args=()
+gen_config_args+=("-f ${mlz_config_file}")
+gen_config_args+=("-e ${tf_environment}")
+gen_config_args+=("-m ${metadata_host}")
+gen_config_args+=("-z ${mlz_env_name}")
+gen_config_args+=("-l ${mlz_config_location}")
+gen_config_args+=("-s ${mlz_config_subid}")
+gen_config_args+=("-t ${mlz_tenantid}")
+
+### add hubs and spokes, if present
+for j in "${subs_args[@]}"
+do
+  gen_config_args+=("$j")
+done
+
+### expand array into a string of space separated arguments
+gen_config_args_str=$(printf '%s ' "${gen_config_args[*]}")
+
+### create the file
+# shellcheck disable=SC2086
+. "${this_script_path}/config/generate_config_file.sh" $gen_config_args_str
 
 # generate MLZ configuration names
 . "${this_script_path}/config/generate_names.sh" "$mlz_config_file"
@@ -112,14 +153,31 @@ echo "INFO: creating a MLZ config file based on user input at $(realpath "$mlz_c
 echo "INFO: setting up required MLZ resources using $(realpath "$mlz_config_file")..."
 "${this_script_path}/config/mlz_config_create.sh" "$mlz_config_file"
 
+# add permissions to subscriptions provided by input
+mlz_sp_objid=$(az ad sp show \
+  --id "http://${mlz_sp_name}" \
+  --query objectId \
+  --output tsv)
+
+for sub in "${subs[@]}"
+do
+  echo "INFO: setting Contributor role assignment for ${mlz_sp_name} on subscription ${sub}..."
+  az role assignment create \
+      --role Contributor \
+      --assignee-object-id "${mlz_sp_objid}" \
+      --scope "/subscriptions/${sub}" \
+      --assignee-principal-type ServicePrincipal \
+      --only-show-errors \
+      --output none
+done
+
 # switch to the MLZ subscription
 echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
 az account set --subscription "${mlz_config_subid}"
 
 # if local, call setup_ezdeploy_local
 if [[ $docker_strategy == "local" ]]; then
-  local_fqdn="localhost:${web_port}"
-  "${this_script_path}/setup_ezdeploy_local.sh" "$mlz_config_file" "$local_fqdn"
+  "${this_script_path}/setup_ezdeploy_local.sh" "$mlz_config_file" "$web_port"
   exit 0
 fi
 
