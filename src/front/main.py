@@ -322,43 +322,6 @@ async def process_input(request: Request):
     for f_name, doc in tf_json.items():
         json.dump(doc, open(os.path.join(os.getcwd(), "config_output", os.path.basename(f_name)), "w+"))
 
-    # write a command to write mlz.config:
-    src_dir = os.path.dirname(os.getcwd())
-    generate_config_executable = os.path.join(src_dir, "scripts", "config", "generate_config_file.sh")
-    os.chmod(generate_config_executable, 0o755)
-
-    mlz_config_path = os.path.join(src_dir, "mlz.config")
-
-    generate_config_args = []
-    generate_config_args.append('--file ' + mlz_config_path)
-    generate_config_args.append('--tf-env ' + os.getenv("TF_ENV"))
-    generate_config_args.append('--metadatahost management.azure.com') # TODO (20210401): pass this by parameter or derive from cloud
-    generate_config_args.append('--mlz-env ' + os.getenv("MLZ_ENV"))
-    generate_config_args.append('--location ' + os.getenv("MLZ_LOCATION"))
-    generate_config_args.append('--config-sub-id ' + os.getenv("SUBSCRIPTION_ID"))
-    generate_config_args.append('--tenant-id ' + os.getenv("TENANT_ID"))
-    generate_config_args.append('--hub-sub-id ' + form_values["saca_subid"])
-    generate_config_args.append('--tier0-sub-id ' + form_values["tier0_subid"])
-    generate_config_args.append('--tier1-sub-id ' + form_values["tier1_subid"])
-    generate_config_args.append('--tier2-sub-id ' + form_values["tier2_subid"])
-
-    generate_config_command = "{} {}".format(generate_config_executable, ' '.join(generate_config_args))
-
-    # write a command to execute front_wrapper.sh:
-    wrapper_executable = os.path.join(os.getcwd(), "..", "build", "front_wrapper.sh")
-    os.chmod(wrapper_executable, 0o755)
-
-    wrapper_command = "{} {} {} {} {} {} {} y {} {}".format(
-        wrapper_executable,
-        mlz_config_path,
-        global_vars,
-        saca_vars,
-        tier0_vars,
-        tier1_vars,
-        tier2_vars,
-        sp_id,
-        sp_pwd)
-
     # set terraform vars paths
     config_output_dir = os.path.join(os.getcwd(), "config_output")
     global_vars = os.path.join(config_output_dir, "globals.tfvars.json")
@@ -375,8 +338,45 @@ async def process_input(request: Request):
         sp_id = os.getenv("MLZCLIENTID", "NotSet")
         sp_pwd = os.getenv("MLZCLIENTSECRET", "NotSet")
 
+    # write a command to write mlz.config:
+    src_dir = os.path.dirname(os.getcwd())
+    generate_config_executable = os.path.join(src_dir, "scripts", "config", "generate_config_file.sh")
+    os.chmod(generate_config_executable, 0o755)
+
+    mlz_config_path = os.path.join(src_dir, "mlz.config")
+
+    generate_config_args = []
+    generate_config_args.append('--file ' + mlz_config_path)
+    generate_config_args.append('--tf-env ' + os.getenv("TF_ENV"))
+    generate_config_args.append('--metadatahost management.azure.com') # TODO (20210401): pass this by parameter or derive from cloud
+    generate_config_args.append('--mlz-env-name ' + os.getenv("MLZ_ENV"))
+    generate_config_args.append('--location ' + os.getenv("MLZ_LOCATION"))
+    generate_config_args.append('--config-sub-id ' + os.getenv("SUBSCRIPTION_ID"))
+    generate_config_args.append('--tenant-id ' + os.getenv("TENANT_ID"))
+    generate_config_args.append('--hub-sub-id ' + form_values["saca_subid"])
+    generate_config_args.append('--tier0-sub-id ' + form_values["tier0_subid"])
+    generate_config_args.append('--tier1-sub-id ' + form_values["tier1_subid"])
+    generate_config_args.append('--tier2-sub-id ' + form_values["tier2_subid"])
+
+    generate_config_command = "{} {}".format(generate_config_executable, ' '.join(generate_config_args))
+
+    # write a command to execute front_wrapper.sh:
+    wrapper_executable = os.path.join(src_dir, "build", "front_wrapper.sh")
+    os.chmod(wrapper_executable, 0o755)
+
+    wrapper_command = "{} {} {} {} {} {} {} y {} {}".format(
+        wrapper_executable,
+        mlz_config_path,
+        global_vars,
+        saca_vars,
+        tier0_vars,
+        tier1_vars,
+        tier2_vars,
+        sp_id,
+        sp_pwd)
+
     with open(exec_output, "w+") as out:
-        generate_mlz_config = await asyncio.create_subprocess_exec(*write_config_command.split(), stderr=out, stdout=out)
+        generate_mlz_config = await asyncio.create_subprocess_exec(*generate_config_command.split(), stderr=out, stdout=out)
         # This capture is setting to a dead object.  If we want to do work with the process in the future
         # we have to do it here.
         await generate_mlz_config.wait()

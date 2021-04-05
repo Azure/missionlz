@@ -20,7 +20,7 @@ usage() {
   error_log "usage: setup_ezdeploy.sh <mlz config file> <local url for front end>"
 }
 
-if [[ "$#" -lt 8 ]]; then
+if [[ "$#" -lt 2 ]]; then
    usage
    exit 1
 fi
@@ -63,7 +63,7 @@ echo "for bash:"
 echo "export CLIENT_ID=$auth_client_id"
 echo "export CLIENT_SECRET=$auth_client_secret"
 echo "export TENANT_ID=$mlz_tenantid"
-echo "export LOCATION=$mlz_config_location"
+echo "export MLZ_LOCATION=$mlz_config_location"
 echo "export SUBSCRIPTION_ID=$mlz_config_subid"
 echo "export TF_ENV=$tf_environment"
 echo "export MLZ_ENV=$mlz_env_name"
@@ -73,7 +73,7 @@ echo "for PowerShell:"
 echo "\$env:CLIENT_ID='$client_id'"
 echo "\$env:CLIENT_SECRET='$client_password'"
 echo "\$env:TENANT_ID='$mlz_tenantid'"
-echo "\$env:LOCATION='$mlz_config_location'"
+echo "\$env:MLZ_LOCATION='$mlz_config_location'"
 echo "\$env:SUBSCRIPTION_ID='$mlz_config_subid'"
 echo "\$env:TF_ENV='$tf_environment'"
 echo "\$env:MLZ_ENV='$mlz_env_name'"

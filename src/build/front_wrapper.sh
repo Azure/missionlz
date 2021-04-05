@@ -41,18 +41,17 @@ az login --service-principal \
   --allow-no-subscriptions \
   --output none
 
+src_dir=$(dirname "$(realpath "${BASH_SOURCE%/*}")")
+
 # Create config resources given a subscription ID and terraform configuration folder path
 create_tf_config() {
-  . "${BASH_SOURCE%/*}/config/config_create.sh" "${mlz_tf_cfg}" "${1}" "${2}"
+  . "${src_dir}/scripts/config/config_create.sh" "${mlz_config}" "${1}" "${2}"
 }
 
-# get core terraform modules path
-core_path="$(dirname "$(realpath "${BASH_SOURCE%/*}")")/core"
-
 # create backends for terraform modules
-create_tf_config "${mlz_saca_subid}" "${core_path}/saca-hub"
-create_tf_config "${mlz_tier0_subid}" "${core_path}/tier-0"
-create_tf_config "${mlz_tier1_subid}" "${core_path}/tier-1"
-create_tf_config "${mlz_tier2_subid}" "${core_path}/tier-2"
+create_tf_config "${mlz_saca_subid}" "${src_dir}/core/saca-hub"
+create_tf_config "${mlz_tier0_subid}" "${src_dir}/core/tier-0"
+create_tf_config "${mlz_tier1_subid}" "${src_dir}/core/tier-1"
+create_tf_config "${mlz_tier2_subid}" "${src_dir}/core/tier-2"
 
-. "${BASH_SOURCE%/*}/apply_tf.sh"  "${1}" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}"
+. "${BASH_SOURCE%/*}/apply_tf.sh" "${1}" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}"

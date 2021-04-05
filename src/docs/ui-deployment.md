@@ -87,34 +87,22 @@ prior to following the following instructions
 1. Install requirements via pip
 
     ```bash
-    pip install -r src/front/requirements.txt
+    pip3 install -r src/front/requirements.txt
     ```
 
 1. Run the installation scripts to deploy app requirements
 
     You will need the following variables for the script:
 
-    subscription_id: is the subscription that will house all deployment artifacts: kv, storage, fe instance
+    `subscription_id`: is the subscription that will house all deployment artifacts: kv, storage, fe instance
 
-    tenant_id:  the tenant_id where all of your subscriptions are located
+    `tenant_id`:  the tenant_id where all of your subscriptions are located
 
-    tf_env_name: Please refer to [https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment] for more information.   (Defaults to Public)
-
-    mlz_env_name: Can be anything unique to your deployment/environment it is used to ensure unique entries for resources.  (Defaults to mlzdeployment)
-
-    port:  Default is 80, if you are running in WSL or otherwise can't bind to 80, use this flag to enter a port
-
-    Multiple Subscriptions:
-    If you are running with multiple subscriptions, you'll need to use these flags with the setup command.
-
-    -0: SACA Hub Subscription ID
-    -1: Tier 0 Subscription ID
-    -2: Tier 1 Subscription ID
-    -3: Tier 2 Subscription ID
+    `port`:  Default is 80, if you are running in WSL or otherwise can't bind to 80, use this flag to enter a port
 
     ```bash
-    chmod u+x ./script/setup_ezdeploy.sh
-    ./script/setup_ezdeploy.sh -d local -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port p -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
+    cd src/scripts
+    ./setup_ezdeploy.sh -d local -s <your_subscription_id> -t <your_tenant_id> -p <port>
     ```
 
 1. Invoke environment variables needed for login (These are returned after setup_ezdeploy.sh is run)
@@ -123,7 +111,7 @@ prior to following the following instructions
     $env:CLIENT_ID="<CLIENT_ID>"
     $env:CLIENT_SECRET="<CLIENT_SECRET"
     $env:TENANT_ID="<TENANT_ID>"
-    $env:LOCATION='<CLOUD_LOCATION>'
+    $env:MLZ_LOCATION='<CLOUD_LOCATION>'
     $env:SUBSCRIPTION_ID='<SUBSCRIPTION_ID>'
     $env:TF_ENV='<TERRAFORM_ENVIRONMENT>'
     $env:MLZ_ENV='<ENVIRONMENT_NAME>'
@@ -133,7 +121,7 @@ prior to following the following instructions
     export CLIENT_ID="<CLIENT_ID>"
     export CLIENT_SECRET="<CLIENT_SECRET"
     export TENANT_ID="<TENANT_ID>"
-    export LOCATION='<CLOUD_LOCATION>'
+    export MLZ_LOCATION='<CLOUD_LOCATION>'
     export SUBSCRIPTION_ID='<SUBSCRIPTION_ID>'
     export TF_ENV='<TERRAFORM_ENVIRONMENT>'
     export MLZ_ENV='<ENVIRONMENT_NAME>'
@@ -142,7 +130,8 @@ prior to following the following instructions
 1. Execute web server
 
     ```bash
-    python main.py <port_if_not_80>
+    cd src/front
+    python3 main.py <port_if_not_80>
     ```
 
 You can then access the application by pointing your browser at "localhost".
