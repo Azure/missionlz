@@ -47,8 +47,7 @@ timestamp=$(date +%s)
 metadata_host="management.azure.com" # TODO (20210401): pass this by parameter or derive from cloud
 acr_endpoint="azurecr.io" # TODO (20210401): pass this by parameter or derive from cloud
 
-# set helpful defaults that can be overridden
-# or to 'notset' require mandatory input
+# set helpful defaults that can be overridden or 'notset' for mandatory input
 docker_strategy="build"
 mlz_config_subid="notset"
 mlz_tenantid="notset"
@@ -56,14 +55,6 @@ mlz_config_location="eastus"
 tf_environment="public"
 mlz_env_name="mlz${timestamp}"
 web_port="80"
-
-subs=()
-add_unique_sub_to_array() {
-    if [[ ! "${subs[*]}" =~ ${1} ]];then
-        subs+=("${1}")
-    fi
-}
-
 subs_args=()
 
 # inspect user input
@@ -76,22 +67,10 @@ while [ $# -gt 0 ] ; do
     -e | --tf-environment) tf_environment="$2" ;;
     -z | --mlz-env-name) mlz_env_name="$2" ;;
     -p | --port) web_port="$2" ;;
-    -h | --hub-sub-id)
-      add_unique_sub_to_array "$2"
-      subs_args+=("-h ${2}")
-      ;;
-    -0 | --tier0-sub-id)
-      add_unique_sub_to_array "$2"
-      subs_args+=("-0 ${2}")
-      ;;
-    -1 | --tier1-sub-id)
-      add_unique_sub_to_array "$2"
-      subs_args+=("-1 ${2}")
-      ;;
-    -2 | --tier2-sub-id)
-      add_unique_sub_to_array "$2"
-      subs_args+=("-2 ${2}")
-      ;;
+    -h | --hub-sub-id) subs_args+=("-h ${2}") ;;
+    -0 | --tier0-sub-id) subs_args+=("-0 ${2}") ;;
+    -1 | --tier1-sub-id) subs_args+=("-1 ${2}") ;;
+    -2 | --tier2-sub-id) subs_args+=("-2 ${2}") ;;
   esac
   shift
 done
@@ -147,7 +126,7 @@ gen_config_args_str=$(printf '%s ' "${gen_config_args[*]}")
 
 ### create the file
 # shellcheck disable=SC2086
-. "${this_script_path}/config/generate_config_file.sh" $gen_config_args_str
+"${this_script_path}/config/generate_config_file.sh" $gen_config_args_str
 
 # generate MLZ configuration names
 . "${this_script_path}/config/generate_names.sh" "$mlz_config_file"
@@ -155,24 +134,6 @@ gen_config_args_str=$(printf '%s ' "${gen_config_args[*]}")
 # create MLZ required resources
 echo "INFO: setting up required MLZ resources using $(realpath "$mlz_config_file")..."
 "${this_script_path}/config/mlz_config_create.sh" "$mlz_config_file"
-
-# add permissions to subscriptions provided by input
-mlz_sp_objid=$(az ad sp show \
-  --id "http://${mlz_sp_name}" \
-  --query objectId \
-  --output tsv)
-
-for sub in "${subs[@]}"
-do
-  echo "INFO: setting Contributor role assignment for ${mlz_sp_name} on subscription ${sub}..."
-  az role assignment create \
-      --role Contributor \
-      --assignee-object-id "${mlz_sp_objid}" \
-      --scope "/subscriptions/${sub}" \
-      --assignee-principal-type ServicePrincipal \
-      --only-show-errors \
-      --output none
-done
 
 # switch to the MLZ subscription
 echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
