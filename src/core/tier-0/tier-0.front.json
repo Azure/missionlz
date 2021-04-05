@@ -28,7 +28,7 @@
 			{
 				"varname": "saca_fwname",
 				"type": "text",
-				"default_val": "DemoFirewallci",
+				"default_val": "DemoFirewall",
 				"description": "Saca Firewall Name",
 				"options": []
 			},
@@ -125,7 +125,7 @@
 			{
 				"varname": "subnets.{TIER0_SUBNETVM_NAME}.routetable_name",
 				"type": "text",
-				"default_val": "tier0vmsrtci",
+				"default_val": "tier0vmsrt",
 				"description": "Tier 0 Routeable Subnet Name",
 				"options": []
 			}
