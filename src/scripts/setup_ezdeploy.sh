@@ -125,6 +125,8 @@ done
 gen_config_args_str=$(printf '%s ' "${gen_config_args[*]}")
 
 ### create the file
+### do not quote args $gen_config_args_str, we intend to split
+### ignoring shellcheck for word splitting because that is the desired behavior
 # shellcheck disable=SC2086
 "${this_script_path}/config/generate_config_file.sh" $gen_config_args_str
 

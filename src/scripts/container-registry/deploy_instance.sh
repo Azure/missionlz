@@ -69,12 +69,15 @@ env_vars_args+=("TIER2_SUBSCRIPTION_ID=${mlz_tier2_subid}")
 # expand array into a string of space separated arguments
 env_vars=$(printf '%s ' "${env_vars_args[*]}")
 
+# do not quote args $env_vars, we intend to split
+# ignoring shellcheck for word splitting because that is the desired behavior
+# shellcheck disable=SC2086
 az container create \
   --resource-group "${mlz_rg_name}" \
   --name "${mlz_instance_name}" \
   --image "${acr_login_server}/${image_name}:${image_tag}" \
   --dns-name-label "${mlz_dns_name}" \
-  --environment-variables "${env_vars}" \
+  --environment-variables $env_vars \
   --registry-username "${registry_username}" \
   --registry-password "${registry_password}" \
   --ports 80 \
