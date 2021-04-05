@@ -31,7 +31,7 @@ export mlz_env_name=mlzdeployment
 export web_port=80
 
 subs=()
-sub_array() {
+add_unique_sub_to_array() {
     if [[ ! "${subs[*]}" =~ ${1} ]];then
         subs+=("${1}")
     fi
@@ -55,16 +55,16 @@ while getopts "d:s:t:l:e:m:p:0:1:2:3:4:" opts; do
     p) export web_port=${OPTARG}
       ;;
     0) export mlz_saca_subid=${OPTARG}
-      sub_array "${OPTARG}"
+      add_unique_sub_to_array "${OPTARG}"
       ;;
     1) export mlz_tier0_subid=${OPTARG}
-      sub_array "${OPTARG}"
+      add_unique_sub_to_array "${OPTARG}"
       ;;
     2) export mlz_tier1_subid=${OPTARG}
-      sub_array "${OPTARG}"
+      add_unique_sub_to_array "${OPTARG}"
       ;;
     3) export mlz_tier2_subid=${OPTARG}
-      sub_array "${OPTARG}"
+      add_unique_sub_to_array "${OPTARG}"
       ;;
     ?)
       echo "Invalid option: -${OPTARG}."
