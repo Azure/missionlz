@@ -83,14 +83,14 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
         sleep_time_in_seconds=10
         max_wait_in_minutes=3
         max_wait_in_seconds=180
-        max_retries=$((max_wait_in_seconds/sleep_time_in_seconds)
+        max_retries=$((max_wait_in_seconds/sleep_time_in_seconds))
 
         echo "Maximum time to wait in seconds = ${max_wait_in_seconds}"
         echo "Maximum number of retries = ${max_retries}"
         
         count=1
 
-        while [ -z "$(az ad sp show --id http://${mlz_sp_name} --query appId --output tsv --only-show-errors)" ]; then
+        while ! $sp_exists &> /dev/null
         do
 
             echo "Waiting for Service Principal appId to complete provisioning (${count}/${max_retries})"
@@ -125,14 +125,14 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
         sleep_time_in_seconds=10
         max_wait_in_minutes=3
         max_wait_in_seconds=180
-        max_retries=$((max_wait_in_seconds/sleep_time_in_seconds)
+        max_retries=$((max_wait_in_seconds/sleep_time_in_seconds))
 
         echo "Maximum time to wait in seconds = ${max_wait_in_seconds}"
         echo "Maximum number of retries = ${max_retries}"
         
         count=1
 
-        while [ -z "$(az ad sp show --id http://${mlz_sp_name} --query objectId --output tsv --only-show-errors)" ]; then
+        while ! $sp_exists &> /dev/null
         do
 
             echo "Waiting for Service Principal appId to complete provisioning (${count}/${max_retries})"
