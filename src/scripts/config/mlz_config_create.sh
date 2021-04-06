@@ -27,7 +27,7 @@ sp_exists () {
 
     sp_query="az ad sp show \
         --id http://${sp_name} \
-        --query sp_property"
+        --query ${sp_property}"
 
     if ! $sp_query &> /dev/null; then
 
