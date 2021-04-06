@@ -27,7 +27,6 @@ show_help() {
   print_formatted "argument" "" "description"
   print_formatted "--docker-strategy" "-d" "[local|build|load] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image (defaults to 'build')"
   print_formatted "--subscription-id" "-s" "Subscription ID for MissionLZ resources"
-  print_formatted "--tenant-id" "-t" "Tenant ID where your subscriptions live"
   print_formatted "--location" "-l" "The location that you're deploying to (defaults to 'eastus')"
   print_formatted "--tf-environment" "-e" "Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment"
   print_formatted "--mlz-env-name" "-z" "Unique name for MLZ environment (defaults to 'mlz' + UNIX timestamp)"
@@ -50,7 +49,6 @@ acr_endpoint="azurecr.io" # TODO (20210401): pass this by parameter or derive fr
 # set helpful defaults that can be overridden or 'notset' for mandatory input
 docker_strategy="build"
 mlz_config_subid="notset"
-mlz_tenantid="notset"
 mlz_config_location="eastus"
 tf_environment="public"
 mlz_env_name="mlz${timestamp}"
@@ -62,7 +60,6 @@ while [ $# -gt 0 ] ; do
   case $1 in
     -d | --docker-strategy) docker_strategy="$2" ;;
     -s | --subscription-id) mlz_config_subid="$2" ;;
-    -t | --tenant-id) mlz_tenantid="$2" ;;
     -l | --location) mlz_config_location="$2" ;;
     -e | --tf-environment) tf_environment="$2" ;;
     -z | --mlz-env-name) mlz_env_name="$2" ;;
@@ -75,16 +72,7 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
-# check mandatory parameters
-for i in { $docker_strategy $mlz_config_subid $mlz_tenantid $mlz_config_location $tf_environment $mlz_env_name $web_port }
-do
-  if [[ $i == "notset" ]]; then
-    error_log "ERROR: Missing required arguments. These arguments are mandatory: -d, -s, -t, -l, -e, -z, -p"
-    usage
-    exit 1
-  fi
-done
-
+# setup paths
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
 src_path=$(dirname "${this_script_path}")
 container_registry_path="$(realpath "${this_script_path}")/container-registry"
@@ -93,6 +81,16 @@ container_registry_path="$(realpath "${this_script_path}")/container-registry"
 "${this_script_path}/util/checkforazcli.sh"
 "${this_script_path}/util/checkfordocker.sh"
 
+# check mandatory parameters
+for i in { $docker_strategy $mlz_config_subid $mlz_config_location $tf_environment $mlz_env_name $web_port }
+do
+  if [[ $i == "notset" ]]; then
+    error_log "ERROR: Missing required arguments. These arguments are mandatory: -d, -s, -l, -e, -z, -p"
+    usage
+    exit 1
+  fi
+done
+
 # check docker strategy
 if [[ $docker_strategy != "local" && \
       $docker_strategy != "build" && \
@@ -100,6 +98,15 @@ if [[ $docker_strategy != "local" && \
   error_log "ERROR: Unrecognized docker strategy detected. Must be 'local', 'build', or 'load'."
   exit 1
 fi
+
+# switch to the MLZ subscription
+echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
+az account set --subscription "${mlz_config_subid}"
+
+# retrieve tenant ID for the MLZ subscription
+mlz_tenantid=$(az account show \
+  --query "tenantId" \
+  --output tsv)
 
 # create MLZ configuration file based on user input
 mlz_config_file="${src_path}/mlz_tf_cfg.var"
@@ -136,10 +143,6 @@ gen_config_args_str=$(printf '%s ' "${gen_config_args[*]}")
 # create MLZ required resources
 echo "INFO: setting up required MLZ resources using $(realpath "$mlz_config_file")..."
 "${this_script_path}/config/mlz_config_create.sh" "$mlz_config_file"
-
-# switch to the MLZ subscription
-echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
-az account set --subscription "${mlz_config_subid}"
 
 # if local, call setup_ezdeploy_local
 if [[ $docker_strategy == "local" ]]; then

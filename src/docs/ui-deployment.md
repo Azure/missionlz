@@ -41,7 +41,7 @@ Then deploy a container instance of the front end with:
 
 ```BASH
 cd src/scripts
-./setup_ezdeploy.sh -s <your subscription_id> -t <your tenant_id>
+./setup_ezdeploy.sh -s <subscription id>
 ```
 
 `setup_ezdeploy.sh` has more configurable options, but these are the minimum required to deploy a running UI that will help you make a full MLZ deployment.
@@ -53,7 +53,6 @@ setup_ezdeploy.sh: Setup the front end for MLZ
             argument    description
    --docker-strategy -d [local|build|load] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image
    --subscription-id -s Subscription ID for MissionLZ resources
-         --tenant-id -t Tenant ID where your subscriptions live
           --location -l The location that you're deploying to (defaults to 'eastus')
     --tf-environment -e Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
       --mlz-env-name -z Unique name for MLZ environment (defaults to 'mlz' + UNIX timestamp)
@@ -113,13 +112,11 @@ prior to following the following instructions
 
     `subscription_id`: is the subscription that will house all deployment artifacts: kv, storage, fe instance
 
-    `tenant_id`:  the tenant_id where all of your subscriptions are located
-
     `port`:  Default is 80, if you are running in WSL or otherwise can't bind to 80, use this flag to enter a port (e.g. 8081)
 
     ```bash
     cd src/scripts
-    ./setup_ezdeploy.sh -d local -s <your_subscription_id> -t <your_tenant_id> -p <port>
+    ./setup_ezdeploy.sh -d local -s <subscription_id> -p <port>
     ```
 
 1. Invoke environment variables needed for login (These are returned after setup_ezdeploy.sh is run)
