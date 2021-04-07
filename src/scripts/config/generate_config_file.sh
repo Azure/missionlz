@@ -102,3 +102,7 @@ append_optional_args "mlz_saca_subid" "${mlz_saca_subid}" "${mlz_config_subid}" 
 append_optional_args "mlz_tier0_subid" "${mlz_tier0_subid}" "${mlz_config_subid}" "${dest_file}"
 append_optional_args "mlz_tier1_subid" "${mlz_tier1_subid}" "${mlz_config_subid}" "${dest_file}"
 append_optional_args "mlz_tier2_subid" "${mlz_tier2_subid}" "${mlz_config_subid}" "${dest_file}"
+
+# append cloud specific endpoints
+this_script_path=$(realpath "${BASH_SOURCE%/*}")
+. "${this_script_path}/append_prereq_endpoints.sh" ${dest_file}
