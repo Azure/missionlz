@@ -20,6 +20,46 @@ usage() {
   error_log "usage: mlz_config_create.sh <mlz config>"
 }
 
+sp_exists () {
+
+    sp_name=$1
+    sp_property=$2
+
+    sp_query="az ad sp show \
+        --id http://${sp_name} \
+        --query ${sp_property}"
+
+    if ! $sp_query &> /dev/null; then
+
+        sleep_time_in_seconds=10
+        max_wait_in_minutes=3
+        max_wait_in_seconds=180
+        max_retries=$((max_wait_in_seconds/sleep_time_in_seconds))
+
+        echo "Maximum time to wait in seconds = ${max_wait_in_seconds}"
+        echo "Maximum number of retries = ${max_retries}"
+        
+        count=1
+
+        while ! $sp_query &> /dev/null
+        do
+
+            echo "Waiting for Service Principal ${sp_property} to complete provisioning (${count}/${max_retries})"
+            echo "Trying again in ${sleep_time_in_seconds} seconds..."
+            sleep "${sleep_time_in_seconds}"
+
+            if [[ ${count} -eq max_retries ]]; then
+                echo "Provisioning the Service Principal ${sp_property} has exceeded ${max_wait_in_minutes} minutes. Investigate and re-run script."
+                exit 1
+            fi
+
+            count=$((count +1))
+
+        done
+    fi
+
+}
+
 if [[ "$#" -lt 1 ]]; then
    usage
    exit 1
@@ -70,12 +110,22 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
         --output tsv)
 
     # Get Service Principal AppId
-    sp_clientid=$(az ad sp show \
-        --id "http://${mlz_sp_name}" \
-        --query appId \
-        --output tsv)
+    # Added the sleep below to accomodate for the transient behavior where the Service Principal creation
+    # is complete but an immediate query for it will fail. The sleep loop will run for 3 minutes and then
+    # the script will exit due to a platform problem
+    sp_exists "${mlz_sp_name}" "appId"
 
-        # Get Service Principal ObjectId
+    sp_clientid=$(az ad sp show \
+    --id "http://${mlz_sp_name}" \
+    --query appId \
+    --output tsv)
+
+    # Get Service Principal ObjectId
+    # Added the sleep below to accomodate for the transient behavior where the Service Principal creation
+    # is complete but an immediate query for it will fail. The sleep loop will run for 3 minutes and then
+    # the script will exit due to a platform problem
+    sp_exists "${mlz_sp_name}" "objectId"
+
     sp_objid=$(az ad sp show \
         --id "http://${mlz_sp_name}" \
         --query objectId \

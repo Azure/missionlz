@@ -27,6 +27,19 @@ This process will build the user interface container image on your workstation u
 Log in using the Azure CLI
 
 ```BASH
+chmod u+x ./scripts/setup_ezdeploy.sh
+./scripts/setup_ezdeploy.sh \
+    -d build \
+    -s <subscription_id> \
+    -t <tenant_id> \
+    -l <location> \
+    -e <tf_env_name> \
+    -m <mlz_env_name> \
+    -p port \
+    -0 <saca_subscription_id> \
+    -1 <tier0_subscription_id> \
+    -2 <tier1_subscription_id> \
+    -3 <tier2_subscription_id>
 az login
 ```
 
