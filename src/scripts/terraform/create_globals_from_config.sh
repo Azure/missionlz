@@ -71,4 +71,3 @@ append_kvp "saca_rgname" "rg-saca-${mlz_env_name}"
 append_kvp "saca_vnetname" "vn-saca-${mlz_env_name}"
 append_kvp "saca_fwname" "Firewall${mlz_env_name}"
 append_kvp "saca_lawsname" "laws-${mlz_env_name}"
-
