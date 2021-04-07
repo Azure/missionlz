@@ -1,6 +1,6 @@
 # Mission LZ User Interface
 
-The mission LZ front-end is designed to be a single stop for easily entering all of the configuration items that Terraform needs to deploy Mission LZ to a target set of subscriptions.  
+The mission LZ front-end is designed to be a single stop for easily entering all of the configuration items that Terraform needs to deploy Mission LZ to a target set of subscriptions.
 
 ## General Requirements
 
@@ -11,11 +11,11 @@ For any of the following options you will need docker on your machine. If you ar
 1. Install [Install WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and [Docker on Windows for WSL2](https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers), or [Install Docker Linux](https://docs.docker.com/engine/install/ubuntu) (Docker-Compose is also required, and is intalled by default with Docker Desktop.)
 1. [Install the Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli). Be sure to install the Azure CLI in your Linux or WSL environment.
 
-> If you will be transferring this package to an air-gapped cloud, please run the pre-packaging requirements to build a package that's ready to be transferred. This will prepare a docker image with all requirements to run ezdeploy. This is necessary if you don't have access to an updated docker repo/pip repo in your target network.  If you do have these, you can proceed with the installation as if installing to an internet connected Azure Cloud.  
+> If you will be transferring this package to an air-gapped cloud, please run the pre-packaging requirements to build a package that's ready to be transferred. This will prepare a docker image with all requirements to run ezdeploy. This is necessary if you don't have access to an updated docker repo/pip repo in your target network.  If you do have these, you can proceed with the installation as if installing to an internet connected Azure Cloud.
 
 ## Step-By-Step
 
-[Step-by-Step Remote Installation/Execution](#Step-by-Step-Azure-Installation) (recommended)  
+[Step-by-Step Remote Installation/Execution](#Step-by-Step-Azure-Installation) (recommended)
 [Step-by-Step Local Installation/Execution](#Step-by-Step-Local-Installation) (more difficult)
 
 To get started, you'll need to be running from a bash/zsh environment. If you are on a Windows machine you can use WSL2.
@@ -27,48 +27,34 @@ This process will build the user interface container image on your workstation u
 Log in using the Azure CLI
 
 ```BASH
-chmod u+x ./scripts/setup_ezdeploy.sh
-./scripts/setup_ezdeploy.sh \
-    -d build \
-    -s <subscription_id> \
-    -t <tenant_id> \
-    -l <location> \
-    -e <tf_env_name> \
-    -m <mlz_env_name> \
-    -p port \
-    -0 <saca_subscription_id> \
-    -1 <tier0_subscription_id> \
-    -2 <tier1_subscription_id> \
-    -3 <tier2_subscription_id>
-az login
-```
-
-> **Note:** For deployments to Azure Government, you will first need to set the cloud before logging in, such as:
-
-```BASH
- az cloud set --name AzureUSGovernment
  az login
 ```
 
-From the "src" directory, set the access permissions to the `setup_ezdeploy.sh` deployment script and run it (the example below assumes the local workspace root directory is at `$HOME/missionlz`)
+Then deploy a container instance of the front end with:
 
-```bash
-    cd $HOME/missionlz/src    # -- your local workspace path may be different 
-    
-    export TENANT_ID="<TENANT_ID>"
-    export SUBSCRIPTION_ID="<SUBSCRIPTION_ID>"
-    export TF_ENV="<TERRAFORM_ENVIRONMENT>"
-    export MLZ_ENV="<ENVIRONMENT_NAME>"
-    export LOCATION="<CLOUD_LOCATION>"
-
-    chmod u+x ./scripts/setup_ezdeploy.sh
-    
-    ./scripts/setup_ezdeploy.sh -d build -s $SUBSCRIPTION_ID -t $TENANT_ID -l $LOCATION -e $TF_ENV -m $MLZ_ENV -p 80 -0 $SUBSCRIPTION_ID -1 $SUBSCRIPTION_ID -2 $SUBSCRIPTION_ID -3 $SUBSCRIPTION_ID
+```BASH
+cd src/scripts
+./setup_ezdeploy.sh -s <subscription id>
 ```
 
-> In the command above, the *&lt;values-in-brackets&gt;* need to be replaced with actual values from your environment
+`setup_ezdeploy.sh` has more configurable options, but these are the minimum required to deploy a running UI that will help you make a full MLZ deployment.
 
-The final results will include a URI that you can use to access the front end running in a remote azure container instance.
+Here's the full list of parameters for reference:
+
+```plaintext
+setup_ezdeploy.sh: Setup the front end for MLZ
+            argument    description
+   --docker-strategy -d [local|build|load] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image
+   --subscription-id -s Subscription ID for MissionLZ resources
+          --location -l The location that you're deploying to (defaults to 'eastus')
+    --tf-environment -e Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
+      --mlz-env-name -z Unique name for MLZ environment (defaults to 'mlz' + UNIX timestamp)
+              --port -p port to expose the front end web UI on (defaults to '80')
+        --hub-sub-id -h subscription ID for the hub network and resources (defaults to the value provided for -s --subscription-id)
+      --tier0-sub-id -0 subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
+      --tier1-sub-id -1 subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
+      --tier2-sub-id -2 subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
+```
 
 ### Step-by-Step Local Installation
 
@@ -94,7 +80,7 @@ apt-get update \
 
 Before running locally, you must follow the instructions in the primary readme file for this repo.  You must have terraform pre-requisites installed in order to execute from a local system. Local execution will also require your credentials to have access to the service principal credentials for this system to assume; meaning that you should perform:
 
-```BASH
+```bash
 az login
 ```
 
@@ -102,70 +88,69 @@ prior to following the following instructions
 
 1. Install and Source a Python Virtual Environment
 
-```bash
+    ```bash
     python3 -m venv /path/to/new/virtual/environment
     source /path/to/new/virtual/environment/bin/activate
-```
+    ```
 
-2. Install requirements via pip
+1. Install requirements via pip
 
-```BASH
-    pip install -r src/front/requirements.txt
-```
+    ```bash
+    pip3 install -r src/front/requirements.txt
+    ```
 
-3. Run the installation scripts to deploy app requirements
+1. Run the installation scripts to deploy app requirements
 
     You will need the following variables for the script:
 
-    subscription_id: is the subscription that will house all deployment artifacts: kv, storage, fe instance
+    `subscription_id`: is the subscription that will house all deployment artifacts: kv, storage, fe instance
 
-    tenant_id:  the tenant_id where all of your subscriptions are located
+    `port`:  Default is 80, if you are running in WSL or otherwise can't bind to 80, use this flag to enter a port (e.g. 8081)
 
-    tf_env_name: Please refer to [https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment] for more information.   (Defaults to Public)
+    ```bash
+    cd src/scripts
+    ./setup_ezdeploy.sh -d local -s <subscription_id> -p <port>
+    ```
 
-    mlz_env_name: Can be anything unique to your deployment/environment it is used to ensure unique entries for resources.  (Defaults to mlzdeployment)
+1. Invoke environment variables needed for login (These are returned after setup_ezdeploy.sh is run)
 
-    port:  Default is 80, if you are running in WSL or otherwise can't bind to 80, use this flag to enter a port
+    ```powershell
+    $env:CLIENT_ID='$client_id'
+    $env:CLIENT_SECRET='$client_password'
+    $env:TENANT_ID='$mlz_tenantid'
+    $env:MLZ_LOCATION='$mlz_config_location'
+    $env:SUBSCRIPTION_ID='$mlz_config_subid'
+    $env:HUB_SUBSCRIPTION_ID='HUB_SUBSCRIPTION_ID=$mlz_saca_subid'
+    $env:TIER0_SUBSCRIPTION_ID='TIER0_SUBSCRIPTION_ID=$mlz_tier0_subid'
+    $env:TIER1_SUBSCRIPTION_ID='TIER1_SUBSCRIPTION_ID=$mlz_tier1_subid'
+    $env:TIER2_SUBSCRIPTION_ID='TIER2_SUBSCRIPTION_ID=$mlz_tier2_subid'
+    $env:TF_ENV='$tf_environment'
+    $env:MLZ_ENV='$mlz_env_name'
+    $env:MLZCLIENTID='$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)'
+    $env:MLZCLIENTSECRET='$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)'
+    ```
 
-    Multiple Subscriptions:
-    If you are running with multiple subscriptions, you'll need to use these flags with the setup command.
+    ```bash
+    export CLIENT_ID=$auth_client_id
+    export CLIENT_SECRET=$auth_client_secret
+    export TENANT_ID=$mlz_tenantid
+    export MLZ_LOCATION=$mlz_config_location
+    export SUBSCRIPTION_ID=$mlz_config_subid
+    export HUB_SUBSCRIPTION_ID=$mlz_saca_subid
+    export TIER0_SUBSCRIPTION_ID=$mlz_tier0_subid
+    export TIER1_SUBSCRIPTION_ID=$mlz_tier1_subid
+    export TIER2_SUBSCRIPTION_ID=$mlz_tier2_subid
+    export TF_ENV=$tf_environment
+    export MLZ_ENV=$mlz_env_name
+    export MLZCLIENTID=$mlz_client_id
+    export MLZCLIENTSECRET=$mlz_client_secret
+    ```
 
-    -0: SACA Hub Subscription ID
-    -1: Tier 0 Subscription ID
-    -2: Tier 1 Subscription ID
-    -3: Tier 2 Subscription ID
+1. Execute web server
 
-```bash
-    chmod u+x ./script/setup_ezdeploy.sh
-    ./script/setup_ezdeploy.sh -d local -s <subscription_id> -t <tenant_id> -l <location> -e <tf_env_name> -m <mlz_env_name> -p port p -0 <saca_subscription_id> -1 <tier0_subscription_id> -2 <tier1_subscription_id> -3 <tier2_subscription_id>"
-```
-
-4. Invoke environment variables needed for login (These are returned after setup_ezdeploy.sh is run)
-
-```powershell
-    $env:CLIENT_ID="<CLIENT_ID>"
-    $env:CLIENT_SECRET="<CLIENT_SECRET"
-    $env:TENANT_ID="<TENANT_ID>"
-    $env:LOCATION='<CLOUD_LOCATION>'
-    $env:SUBSCRIPTION_ID='<SUBSCRIPTION_ID>'
-    $env:TF_ENV='<TERRAFORM_ENVIRONMENT>'
-    $env:MLZ_ENV='<ENVIRONMENT_NAME>'
-```
-
-```bash
-    export CLIENT_ID="<CLIENT_ID>"
-    export CLIENT_SECRET="<CLIENT_SECRET"
-    export TENANT_ID="<TENANT_ID>"
-    export LOCATION='<CLOUD_LOCATION>'
-    export SUBSCRIPTION_ID='<SUBSCRIPTION_ID>'
-    export TF_ENV='<TERRAFORM_ENVIRONMENT>'
-    export MLZ_ENV='<ENVIRONMENT_NAME>'
-```
-
-5. Execute web server
-
-```bash
-    python main.py <port_if_not_80>
-```
+    ```bash
+    cd src/front
+    python3 main.py <port_if_not_80>
+    ```
 
 You can then access the application by pointing your browser at "localhost".

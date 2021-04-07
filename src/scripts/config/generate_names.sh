@@ -26,15 +26,12 @@ if [[ "$#" -lt 1 ]]; then
    exit 1
 fi
 
-# Front End By Pass Check
-if [[ ${1} != "bypass" ]]; then
-  mlz_config=$(realpath "${1}")
-  tf_sub_id_raw=${2:-notset}
-  tf_name_raw=${3:-notset}
+mlz_config=$(realpath "${1}")
+tf_sub_id_raw=${2:-notset}
+tf_name_raw=${3:-notset}
 
-  # source variables from MLZ config
-  . "${mlz_config}"
-fi
+# source variables from MLZ config
+. "${mlz_config}"
 
 # remove hyphens for resource naming restrictions
 # in the future, do more cleansing
@@ -67,8 +64,6 @@ export mlz_acr_name="${mlz_acr_name_full:0:24}"
 export mlz_fe_app_name="${mlz_fe_app_name_full:0:24}"
 export mlz_instance_name="${mlz_instance_name_full:0:24}"
 export mlz_dns_name="${mlz_dns_name_full:0:24}"
-
-# FE Resources
 
 if [[ $tf_name_raw != "notset" ]]; then
   # remove hyphens for resource naming restrictions

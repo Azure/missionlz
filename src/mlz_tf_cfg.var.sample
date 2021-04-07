@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 tf_environment="{TF_ENVIRONMENT}" # https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
 mlz_env_name="{MLZ_ENV_NAME}" # Unique name for MLZ environment
-mlz_config_subid="{MLZ_CONFIG_SUBID}" # Subscription ID for Key Vault storing Service Principal creds
+mlz_config_subid="{MLZ_CONFIG_SUBID}" # Subscription ID for MissionLZ configuration resources
 mlz_config_location="{MLZ_CONFIG_LOCATION}" # Azure Region for deploying Mission LZ configuration resources
 mlz_tenantid="{MLZ_TENANTID}"
 mlz_tier0_subid="{MLZ_TIER0_SUBID}"

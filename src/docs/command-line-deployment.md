@@ -48,7 +48,7 @@ The MLZ deployment architecture uses a single Service Principal whose credential
 
     chmod u+x src/scripts/mlz_tf_setup.sh
 
-    src/scripts/mlz_tf_setup.sh src/core/mlz_tf_cfg.var
+    src/scripts/mlz_tf_setup.sh src/mlz_tf_cfg.var
     ```
 
 ### Set Terraform Configuration Variables

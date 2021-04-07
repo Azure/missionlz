@@ -7,56 +7,56 @@
 			{
 				"varname": "saca_subid",
 				"type": "text",
-				"default_val": "env:SUBSCRIPTION_ID",
+				"default_val": "env:HUB_SUBSCRIPTION_ID",
 				"description": "Saca Hub Subscription ID",
 				"options": []
 			},
 			{
 				"varname": "saca_rgname",
 				"type": "text",
-				"default_val": "rg-eastus-mlz-sacaci",
+				"default_val": "rg-eastus-mlz-saca",
 				"description": "Saca Hub Resource Group Name",
 				"options": []
 			},
 			{
 				"varname": "saca_vnetname",
 				"type": "text",
-				"default_val": "vn-eastus-mlz-sacaci",
+				"default_val": "vn-eastus-mlz-saca",
 				"description": "Saca Virtual Network Name",
 				"options": []
 			},
 			{
 				"varname": "saca_fwname",
 				"type": "text",
-				"default_val": "DemoFirewallci",
+				"default_val": "DemoFirewall",
 				"description": "Saca Firewall Name",
 				"options": []
 			},
 			{
 				"varname": "saca_lawsname",
 				"type": "text",
-				"default_val": "laws-eastus-mlz-sacaci",
+				"default_val": "laws-eastus-mlz-saca",
 				"description": "Saca Log Analytic Workspace Name",
 				"options": []
 			},
 			{
 				"varname": "tier2_subid",
 				"type": "text",
-				"default_val": "env:SUBSCRIPTION_ID",
+				"default_val": "env:TIER2_SUBSCRIPTION_ID",
 				"description": "Tier0 Subscription Id",
 				"options": []
 			},
 			{
 				"varname": "tier2_rgname",
 				"type": "text",
-				"default_val": "rg-eastus-mlz-t2ci",
+				"default_val": "rg-eastus-mlz-t2",
 				"description": "Tier2 Resource Group Name",
 				"options": []
 			},
 			{
 				"varname": "tier2_vnetname",
 				"type": "text",
-				"default_val": "vn-eastus-mlz-t2ci",
+				"default_val": "vn-eastus-mlz-t2",
 				"description": "Tier2 Virtual Network Name",
 				"options": []
 			},
@@ -125,7 +125,7 @@
 			{
 				"varname": "subnets.{TIER2_SUBNETVM_NAME}.routetable_name",
 				"type": "text",
-				"default_val": "tier2vmsrtci",
+				"default_val": "tier2vmsrt",
 				"description": "Tier 0 Routeable Subnet Name",
 				"options": []
 			}
