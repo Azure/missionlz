@@ -1,42 +1,18 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-#################################
-# Global Configuration
-#################################
-
-variable "tf_environment" {
-  description = "The Terraform backend environment e.g. public or usgovernment"
-}
-
-variable "mlz_cloud" {
-  description = "The Azure Cloud to deploy to e.g. AzureCloud or AzureUSGovernment"
-}
-
-variable "mlz_tenantid" {
-  description = "The Azure tenant for the deployment"
-}
-
-variable "mlz_location" {
-  description = "The Azure region for most Mission LZ resources"
-}
-
-variable "mlz_metadatahost" {
-  description = "The metadata host for the Azure Cloud e.g. management.azure.com"
-}
-
-variable "mlz_clientid" {
-  description = "The account to deploy with"
-}
-
-variable "mlz_clientsecret" {
-  description = "The account to deploy with"
-}
 
 #################################
 # SACA Hub Configuration
 #################################
 variable "deploymentname" {
   description = "A name for the deployment"
+  type        = string
+}
+
+variable "create_management_group_and_add_subscriptions" {
+  default     = false
+  type        = bool
+  description = "(Optional) Create a new management group and add the subscriptions for the saca hub and tiers to it. (Default = false)"
 }
 
 variable "management_group_name" {
@@ -45,7 +21,20 @@ variable "management_group_name" {
   default     = ""
 }
 
-
 variable "saca_subid" {
   description = "Subscription ID for the deployment"
 }
+
+variable "tier0_subid" {
+  description = "Subscription ID for the deployment"
+}
+
+variable "tier1_subid" {
+  description = "Subscription ID for the deployment"
+}
+
+variable "tier2_subid" {
+  description = "Subscription ID for the deployment"
+}
+
+

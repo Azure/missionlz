@@ -23,13 +23,15 @@ provider "azurerm" {
 provider "random" {
 }
 
+
 resource "random_id" "mgmt-group" {
   byte_length = 12
 }
 
 locals {
   #If the user didn't give us a management group name then generate one
-  management_group_name = (var.management_group_name != "" ? var.management_group_name : format("%.24s", lower(replace("mlz-mg-${random_id.mgmt-group.id.hex}", "/[[:^alnum:]]/", ""))))
+  management_group_name = (var.management_group_name != "" ? var.management_group_name : format("%.24s", lower(replace("mlz-mg-${random_id.mgmt-group.hex}", "/[[:^alnum:]]/", ""))))
+
   subscription_ids_to_add_to_mgmt_group = [
     var.saca_subid,
     var.tier0_subid,
@@ -39,7 +41,8 @@ locals {
 }
 
 resource "azurerm_management_group" "mg" {
-  count            = var.add_subscriptions_to_new_management_group == true ? 1 : 0
-  display_name     = locals.management_group_name
-  subscription_ids = locals.subscription_ids_to_add_to_mgmt_group
+  count        = var.create_management_group_and_add_subscriptions == true ? 1 : 0
+  display_name = local.management_group_name
+  id           = local.management_group_name
+  #subscription_ids = local.subscription_ids_to_add_to_mgmt_group
 }
