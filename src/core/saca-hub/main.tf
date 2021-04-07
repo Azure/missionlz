@@ -27,6 +27,10 @@ provider "random" {
 resource "azurerm_resource_group" "hub" {
   location = var.mlz_location
   name     = var.saca_rgname
+
+  tags = {
+    DeploymentName = var.deploymentname
+  }
 }
 
 module "saca-hub-network" {
