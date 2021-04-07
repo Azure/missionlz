@@ -35,8 +35,10 @@ tier2_vars=$6
 display_tf_output=${7:-n}
 
 # reference paths
-core_path=$(realpath ../core/)
-scripts_path=$(realpath ../scripts/)
+this_script_path=$(realpath "${BASH_SOURCE%/*}")
+src_dir=$(dirname "${this_script_path}")
+core_path="${src_dir}/core/"
+scripts_path="${src_dir}/scripts/"
 
 # destroy function
 destroy() {
