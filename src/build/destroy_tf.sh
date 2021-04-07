@@ -90,22 +90,22 @@ destroy() {
 
   while [ $destroy_success == "false" ]
   do
-    echo "Destroying ${name} (${attempts}/${max_attempts})..."
+    echo "INFO: destroying ${name} (${attempts}/${max_attempts})..."
 
     if ! eval "$destroy_command";
     then
       # if we fail, run terraform destroy again until $max_attempts
-      error_log "Failed to destroy ${name} (${attempts}/${max_attempts})"
+      error_log "ERROR: failed to destroy ${name} (${attempts}/${max_attempts})"
 
       ((attempts++))
 
       if [[ $attempts -gt $max_attempts ]]; then
-        error_log "Failed ${max_attempts} times to destroy ${name}. Exiting."
+        error_log "ERROR: failed ${max_attempts} times to destroy ${name}. Exiting."
         exit 1
       fi
     else
       destroy_success="true"
-      echo "Finished destroying ${name}!"
+      echo "INFO: finished destroying ${name}!"
     fi
   done
 }
