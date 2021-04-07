@@ -49,3 +49,6 @@ __pycache__/
 **/.idea/
 **/config_output/
 **/exec_output
+
+# ignore deploy.sh output
+**/generated-configurations/*

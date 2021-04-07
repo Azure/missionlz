@@ -51,7 +51,6 @@ while [ $# -gt 0 ] ; do
   case $1 in
     -f | --file) dest_file="$2" ;;
     -e | --tf-env) tf_environment="$2" ;;
-    -m | --metadatahost) metadatahost="$2" ;;
     -z | --mlz-env-name) mlz_env_name="$2" ;;
     -l | --location) mlz_config_location="$2" ;;
     -s | --config-sub-id) mlz_config_subid="$2" ;;
@@ -65,10 +64,10 @@ while [ $# -gt 0 ] ; do
 done
 
 # check mandatory parameters
-for i in { $dest_file $tf_environment $metadatahost $mlz_env_name $mlz_config_location $mlz_config_subid $mlz_tenant_id }
+for i in { $dest_file $tf_environment $mlz_env_name $mlz_config_location $mlz_config_subid $mlz_tenant_id }
 do
   if [[ $i == "notset" ]]; then
-    error_log "ERROR: Missing required arguments. These arguments are mandatory: -f, -e, -m, -z, -l, -s, -t"
+    error_log "ERROR: Missing required arguments. These arguments are mandatory: -f, -e, -z, -l, -s, -t"
     usage
     exit 1
   fi
@@ -76,10 +75,11 @@ done
 
 # write the file to the desired path
 rm -f "$dest_file"
+dest_file_dir=$(dirname ${dest_file})
+mkdir -p "${dest_file_dir}"
 touch "$dest_file"
 {
   echo "tf_environment=${tf_environment}"
-  echo "mlz_metadatahost=${metadatahost}"
   echo "mlz_env_name=${mlz_env_name}"
   echo "mlz_config_location=${mlz_config_location}"
   echo "mlz_config_subid=${mlz_config_subid}"
