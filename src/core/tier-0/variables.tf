@@ -138,9 +138,9 @@ variable "subnets" {
           destination_address_prefix = ""
         }
       }
-    }
 
-    routetable_name = "tier0vmsrt"
+      routetable_name = "tier0vmsrt"
+    }
   }
 }
 
