@@ -68,6 +68,7 @@ while [ $# -gt 0 ] ; do
 done
 
 # check mandatory parameters
+# shellcheck disable=1083
 for i in { $mlz_config_subid }
 do
   if [[ $i == "notset" ]]; then
@@ -125,6 +126,14 @@ echo "INFO: creating terraform variables at $tfvars_path..."
 "${this_script_path}/scripts/terraform/create_globals_from_config.sh" "${tfvars_path}" "${mlz_config_file}"
 
 ##### create MLZ resources #####
-# "${this_script_path}/scripts/mlz_tf_setup.sh" "${mlz_config_file}"
+"${this_script_path}/scripts/mlz_tf_setup.sh" "${mlz_config_file}"
 
 ##### apply terraform using MLZ resources #####
+"${this_script_path}/build/apply_tf.sh" \
+  "${mlz_config_file}" \
+  "${tfvars_path}" \
+  "${tfvars_path}" \
+  "${tfvars_path}" \
+  "${tfvars_path}" \
+  "${tfvars_path}" \
+  "y"
