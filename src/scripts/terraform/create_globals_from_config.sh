@@ -3,6 +3,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+# shellcheck disable=1090,2154
+# SC1090: Can't follow non-constant source. This file is dynamic
+# SC2154: "var is referenced but not assigned". These values come from an external file.
+#
 # generate a terraform globals tfvars file given an MLZ config and a desired tfvars file name
 
 set -e
@@ -34,6 +38,7 @@ dest_file_dir=$(dirname ${file_to_create})
 mkdir -p "${dest_file_dir}"
 touch "$file_to_create"
 {
+  echo "deploymentname=${mlz_env_name}"
   echo "tf_environment=${tf_environment}"
   echo "mlz_cloud=${mlz_cloudname}"
   echo "mlz_tenantid=${mlz_tenantid}"

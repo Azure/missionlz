@@ -91,7 +91,7 @@ mlz_tenantid=$(az account show \
 
 # create MLZ configuration file based on user input
 mlz_config_file="${configuration_output_path}/${mlz_env_name}.mlzconfig"
-echo "INFO: creating a MLZ config file based on user input at $(realpath "$mlz_config_file")..."
+echo "INFO: creating an MLZ config file at $mlz_config_file..."
 
 # derive args from user input
 gen_config_args=()
@@ -121,8 +121,10 @@ gen_config_args_str=$(printf '%s ' "${gen_config_args[*]}")
 
 tfvars_filename="${mlz_env_name}.tfvars"
 tfvars_path="${configuration_output_path}/${tfvars_filename}"
+echo "INFO: creating terraform variables at $tfvars_path..."
 "${this_script_path}/scripts/terraform/create_globals_from_config.sh" "${tfvars_path}" "${mlz_config_file}"
 
 ##### create MLZ resources #####
+# "${this_script_path}/scripts/mlz_tf_setup.sh" "${mlz_config_file}"
 
 ##### apply terraform using MLZ resources #####
