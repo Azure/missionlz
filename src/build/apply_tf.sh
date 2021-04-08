@@ -35,8 +35,10 @@ tier2_vars=$6
 display_tf_output=${7:-n}
 
 # reference paths
-core_path=$(realpath ../core/)
-scripts_path=$(realpath ../scripts/)
+this_script_path=$(realpath "${BASH_SOURCE%/*}")
+src_dir=$(dirname "${this_script_path}")
+core_path="${src_dir}/core/"
+scripts_path="${src_dir}/scripts/"
 
 # apply function
 apply() {
@@ -90,24 +92,24 @@ apply() {
 
   while [ $apply_success == "false" ]
   do
-    echo "Applying ${name} (${attempts}/${max_attempts})..."
+    echo "INFO: applying ${name} (${attempts}/${max_attempts})..."
 
     if ! eval "$apply_command";
     then
       # if we fail, run terraform destroy and try again
-      error_log "Failed to apply ${name} (${attempts}/${max_attempts}). Trying some manual clean-up and Terraform destroy..."
+      error_log "ERROR: failed to apply ${name} (${attempts}/${max_attempts}). Trying some manual clean-up and Terraform destroy..."
       eval "$destroy_command"
 
       ((attempts++))
 
       if [[ $attempts -gt $max_attempts ]]; then
-        error_log "Failed ${max_attempts} times to apply ${name}. Exiting."
+        error_log "ERROR: failed ${max_attempts} times to apply ${name}. Exiting."
         exit 1
       fi
     else
       # if we succeed meet the base case
       apply_success="true"
-      echo "Finished applying ${name}!"
+      echo "INFO: finished applying ${name}!"
     fi
   done
 }

@@ -30,6 +30,9 @@ tf_sub_id=${2}
 tf_name=${3}
 tf_dir=$(realpath "${4}")
 
+# source mlz config
+. "${mlz_tf_cfg}"
+
 # generate names
 . "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}"
 
@@ -38,6 +41,7 @@ config_vars="${tf_dir}/config.vars"
 rm -f "$config_vars"
 touch "$config_vars"
 {
+    echo "metadata_host=${mlz_metadatahost}"
     echo "tenant_id=${mlz_tenantid}"
     echo "mlz_env_name=${mlz_env_name}"
     echo "mlz_cfg_sub_id=${mlz_config_subid}"

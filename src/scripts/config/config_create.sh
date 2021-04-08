@@ -38,30 +38,32 @@ tf_name=$(basename "${tf_dir}")
 # generate names
 . "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}"
 
+echo "INFO: creating resources for ${tf_name} Terraform state..."
+
 # create TF Resource Group and Storage Account for Terraform State files
-echo "Validating Resource Group for Terraform state..."
+echo "INFO: sourcing resource group ${tf_rg_name} for Terraform state..."
 rg_exists="az group show \
     --name ${tf_rg_name} \
     --subscription ${tf_sub_id}"
 
 if ! $rg_exists &> /dev/null; then
-    echo "Resource Group does not exist...creating resource group ${tf_rg_name}"
+    echo "INFO: creating resource group ${tf_rg_name}..."
     az group create \
         --subscription "${tf_sub_id}" \
         --location "${mlz_config_location}" \
         --name "${tf_rg_name}" \
+        --tags "DeploymentName=${mlz_env_name}" \
         --output none
-else
-    echo "Resource Group already exists...getting resource group"
+    echo "INFO: resource group ${tf_rg_name} created!"
 fi
 
-echo "Validating Storage Account for Terraform state..."
+echo "INFO: sourcing storage account ${tf_sa_name} for Terraform state..."
 sa_exists="az storage account show \
     --name ${tf_sa_name} \
     --subscription ${tf_sub_id}"
 
 if ! $sa_exists &> /dev/null; then
-    echo "Storage Account does not exist...creating storage account ${tf_sa_name}"
+    echo "INFO: creating storage account ${tf_sa_name}..."
     az storage account create \
         --name "${tf_sa_name}" \
         --subscription "${tf_sub_id}" \
@@ -84,9 +86,7 @@ if ! $sa_exists &> /dev/null; then
         --account-name "${tf_sa_name}" \
         --account-key "${sa_key}" \
         --output none
-    echo "Storage account and container for Terraform state created!"
-else
-    echo "Storage Account already exists"
+    echo "INFO: storage account ${tf_sa_name} and container ${container_name} created!"
 fi
 
 # generate a config.vars file
@@ -95,3 +95,5 @@ fi
     "${tf_sub_id}" \
     "${tf_name}" \
     "${tf_dir}"
+
+echo "INFO: Terraform state resources for ${tf_name} created!"

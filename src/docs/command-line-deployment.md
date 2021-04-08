@@ -8,9 +8,89 @@
     az login
     ```
 
+1. [Quickstart](#Quickstart)
 1. [Configure the Terraform Backend](#Configure-the-Terraform-Backend)
 1. [Set Terraform Configuration Variables](#Set-Terraform-Configuration-Variables)
 1. [Deploy Terraform Configuration](#Deploy-Terraform-Configuration)
+
+### Quickstart
+
+#### Quickstart Deploy
+
+Interested in just getting started and seeing what this does? Login to Azure CLI and try this command to deploy Mission LZ with some default configuration:
+
+```bash
+src/deploy.sh -s {your_subscription_id}
+```
+
+> **NOTE** This implies some software pre-requisites. We highly [recommend using the .devcontainer](https://github.com/Azure/missionlz/blob/main/src/docs/getting-started.md#use-the-development-container-for-command-line-deployments) described in this repository to make thing easier. However, deploying Mission LZ via BASH shell is possible with these minimum requirements:
+>
+> - An Azure Subscription where you have ['Owner' RBAC permissions](<https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/>)
+> - The current version of Azure CLI (try `az cli -v` or see <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/>)
+> - Terraform CLI version > v0.13.4 (try `terraform -v` or see <https://learn.hashicorp.com/tutorials/terraform/install-cli/>)
+
+The `deploy.sh` command deploys all of the MLZ and Terraform resources, and by default, into a single subscription in Azure Commercial EastUS with a timestamped name.
+
+If you needed to deploy into another cloud, say Azure Government, you would [override the default region](https://azure.microsoft.com/en-us/global-infrastructure/geographies/#overview) and [default azurerm terraform environment](https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment) like:
+
+```bash
+az cloud set -n AzureUSGovernment
+az login
+src/deploy.sh -s {your_subscription_id} \
+  --location usgovvirginia \
+  --tf-environment usgovernment
+```
+
+For a complete list of arguments see [Quickstart Arguments](#Quickstart-Arguments).
+
+#### Quickstart Clean
+
+Once the deployment is complete, you'll be presented with a command that will clean up all of the resources that were deployed:
+
+```plaintext
+INFO: Complete!
+INFO: All finished? Want to clean up?
+INFO: Try this command:
+INFO: src/clean.sh -z mymlzenv
+```
+
+Which you can then execute like:
+
+```bash
+src/clean.sh -z mymlzenv
+```
+
+The `clean.sh` command will call Terraform destroy for all the resources Terraform created and delete the MLZ resources and service principal.
+
+#### Quickstart Arguments
+
+If you don't wish to use those defaults, you can customize this command to target multiple subscriptions, different regions, and using different Terraform environments and azurerm configurations with the full set of arguments:
+
+```plaintext
+deploy.sh: create all the configuration and deploy Terraform resources with minimal input
+            argument    description
+   --subscription-id -s Subscription ID for MissionLZ resources
+          --location -l [OPTIONAL] The location that you're deploying to (defaults to 'eastus')
+    --tf-environment -e [OPTIONAL] Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
+      --mlz-env-name -z [OPTIONAL] Unique name for MLZ environment (defaults to 'mlz' + UNIX timestamp)
+        --hub-sub-id -h [OPTIONAL] subscription ID for the hub network and resources (defaults to the value provided for -s --subscription-id)
+      --tier0-sub-id -0 [OPTIONAL] subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
+      --tier1-sub-id -1 [OPTIONAL] subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
+      --tier2-sub-id -2 [OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
+```
+
+For example, if I wanted to deploy into four subscriptions (one for each network) and provide my own name for created resources, I could do so like:
+
+```bash
+src/deploy.sh -s {my_mlz_configuration_subscription_id} \
+  -h {my_hub_network_subscription_id} \
+  -0 {my_identity_network_subscription_id} \
+  -1 {my_operations_network_subscription_id} \
+  -2 {my_shared_services_network_subscription_id} \
+  -z {my_mlz_environment_name}
+```
+
+Need further customization? The rest of this documentation covers in detail how to customize this deployment to your needs.
 
 ### Configure the Terraform Backend
 
@@ -80,7 +160,6 @@ The script `destroy_terraform.sh` at [src/scripts/destroy_terraform.sh](/src/scr
 
   1. The Global variables file
   1. The directory that contains the main.tf and *.tfvars variables file of the configuration to apply
-
 
 The hub network must be deployed first. See [Networking](https://github.com/Azure/missionlz#networking) for a description of the hub and spoke and what each network is used for.
 

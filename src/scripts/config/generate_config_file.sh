@@ -3,6 +3,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+# shellcheck disable=1083,1090,2154
+#
 # Generate a configuration file for MLZ prerequisites and optional SACA and T0-T2 subscriptions.
 
 set -e
@@ -21,7 +23,6 @@ show_help() {
   print_formatted "argument" "" "description"
   print_formatted "--file" "-f" "the destination file path and name (e.g. 'src/mlz_tf_cfg.var')"
   print_formatted "--tf-env" "-e" "Terraform azurerm environment (e.g. 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment"
-  print_formatted "--metadatahost" "-m" "Azure Metadata Service endpoint. (e.g 'management.azure.com' or 'management.usgovcloudapi.net')"
   print_formatted "--mlz-env-name" "-z" "Unique name for MLZ environment"
   print_formatted "--location" "-l" "The location that you're deploying to (e.g. 'eastus')"
   print_formatted "--config-sub-id" "-s" "Subscription ID for MissionLZ configuration resources"
@@ -40,7 +41,6 @@ usage() {
 # stage required parameters as not set
 dest_file="notset"
 tf_environment="notset"
-metadatahost="notset"
 mlz_env_name="notset"
 mlz_config_location="notset"
 mlz_config_subid="notset"
@@ -51,7 +51,6 @@ while [ $# -gt 0 ] ; do
   case $1 in
     -f | --file) dest_file="$2" ;;
     -e | --tf-env) tf_environment="$2" ;;
-    -m | --metadatahost) metadatahost="$2" ;;
     -z | --mlz-env-name) mlz_env_name="$2" ;;
     -l | --location) mlz_config_location="$2" ;;
     -s | --config-sub-id) mlz_config_subid="$2" ;;
@@ -65,10 +64,10 @@ while [ $# -gt 0 ] ; do
 done
 
 # check mandatory parameters
-for i in { $dest_file $tf_environment $metadatahost $mlz_env_name $mlz_config_location $mlz_config_subid $mlz_tenant_id }
+for i in { $dest_file $tf_environment $mlz_env_name $mlz_config_location $mlz_config_subid $mlz_tenant_id }
 do
   if [[ $i == "notset" ]]; then
-    error_log "ERROR: Missing required arguments. These arguments are mandatory: -f, -e, -m, -z, -l, -s, -t"
+    error_log "ERROR: Missing required arguments. These arguments are mandatory: -f, -e, -z, -l, -s, -t"
     usage
     exit 1
   fi
@@ -76,10 +75,11 @@ done
 
 # write the file to the desired path
 rm -f "$dest_file"
+dest_file_dir=$(dirname "${dest_file}")
+mkdir -p "${dest_file_dir}"
 touch "$dest_file"
 {
   echo "tf_environment=${tf_environment}"
-  echo "mlz_metadatahost=${metadatahost}"
   echo "mlz_env_name=${mlz_env_name}"
   echo "mlz_config_location=${mlz_config_location}"
   echo "mlz_config_subid=${mlz_config_subid}"
@@ -93,9 +93,9 @@ append_optional_args() {
   default_value=$3
   file_to_append=$4
   if [[ $key_value ]]; then
-    printf "${key_name}=${key_value}\n" >> "${file_to_append}"
+    printf "%s=%s\n" "${key_name}" "${key_value}" >> "${file_to_append}"
   else
-    printf "${key_name}=${default_value}\n" >> "${file_to_append}"
+    printf "%s=%s\n" "${key_name}" "${default_value}" >> "${file_to_append}"
   fi
 }
 append_optional_args "mlz_saca_subid" "${mlz_saca_subid}" "${mlz_config_subid}" "${dest_file}"
@@ -105,4 +105,4 @@ append_optional_args "mlz_tier2_subid" "${mlz_tier2_subid}" "${mlz_config_subid}
 
 # append cloud specific endpoints
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
-. "${this_script_path}/append_prereq_endpoints.sh" ${dest_file}
+. "${this_script_path}/append_prereq_endpoints.sh" "${dest_file}"

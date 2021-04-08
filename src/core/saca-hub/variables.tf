@@ -73,14 +73,17 @@ variable "firewall_address_space" {
 
 variable "saca_fwname" {
   description = "Name of the Hub Firewall"
+  default     = "mlzDemoFirewall"
 }
 
 variable "firewall_ipconfig_name" {
   description = "The name of the Firewall IP Configuration"
+  default     = "mlzDemoFirewallIpConfiguration"
 }
 
 variable "public_ip_name" {
   description = "The name of the Firewall Public IP"
+  default     = "mlzDemoFirewallPip"
 }
 
 variable "create_network_watcher" {
