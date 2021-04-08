@@ -15,13 +15,29 @@
 
 ### Quickstart
 
+#### Quickstart Deploy
+
 Interested in just getting started and seeing what this does? Login to Azure CLI and try this command to deploy MLZ with some default configuration:
 
 ```bash
 src/deploy.sh -s {your_subscription_id}
 ```
 
-Deploying to another cloud? See [Quickstart in another cloud](#Quickstart-in-another-cloud) for how to do that.
+The `deploy.sh` command deploys all of the MLZ and Terraform resources, and by default, into a single subscription in Azure Commercial EastUS with a timestamped name.
+
+If I needed to deploy into another cloud, say Azure Government, I would need to [override the default region](https://azure.microsoft.com/en-us/global-infrastructure/geographies/#overview) and [default azurerm terraform environment](https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment) like:
+
+```bash
+az cloud set -n AzureUSGovernment
+az login
+src/deploy.sh -s {my_mlz_configuration_subscription_id} \
+  --location usgovvirginia \
+  --tf-environment usgovernment
+```
+
+For a complete list of arguments see [Quickstart Arguments](#Quickstart-Arguments).
+
+#### Quickstart Clean
 
 Once the deployment is complete, you'll be presented with a command that will clean up all of the resources that were deployed:
 
@@ -39,8 +55,6 @@ src/clean.sh -z mymlzenv
 ```
 
 The `clean.sh` command will call Terraform destroy for all the resources Terraform created and delete the MLZ resources and service principal.
-
-The `deploy.sh` command deploys all of the MLZ and Terraform resources, and by default, into a single subscription in Azure Commercial EastUS with a timestamped name.
 
 #### Quickstart Arguments
 
@@ -70,17 +84,6 @@ src/deploy.sh -s {my_mlz_configuration_subscription_id} \
   -z {my_mlz_environment_name}
 ```
 
-#### Quickstart in another cloud
-
-If I needed to deploy into another cloud, say Azure Government, I would need to [override the default region](https://azure.microsoft.com/en-us/global-infrastructure/geographies/#overview) and [default azurerm terraform environment](https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment) like:
-
-```bash
-az cloud set -n AzureUSGovernment
-az login
-src/deploy.sh -s {my_mlz_configuration_subscription_id} \
-  --location usgovvirginia \
-  --tf-environment usgovernment
-```
 
 Need further customization? The rest of this documentation covers in detail how to customize this deployment to your needs.
 
