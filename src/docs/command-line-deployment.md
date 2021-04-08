@@ -21,6 +21,8 @@ Interested in just getting started and seeing what this does? Login to Azure CLI
 src/deploy.sh -s {your_subscription_id}
 ```
 
+Deploying to another cloud? See [Quickstart in another cloud](#Quickstart-in-another-cloud) for how to do that.
+
 Once the deployment is complete, you'll be presented with a command that will clean up all of the resources that were deployed:
 
 ```plaintext
@@ -39,6 +41,8 @@ src/clean.sh -z mymlzenv
 The `clean.sh` command will call Terraform destroy for all the resources Terraform created and delete the MLZ resources and service principal.
 
 The `deploy.sh` command deploys all of the MLZ and Terraform resources, and by default, into a single subscription in Azure Commercial EastUS with a timestamped name.
+
+#### Quickstart Arguments
 
 If you don't wish to use those defaults, you can customize this command to target multiple subscriptions, different regions, and using different Terraform environments and azurerm configurations with the full set of arguments:
 
@@ -65,6 +69,8 @@ src/deploy.sh -s {my_mlz_configuration_subscription_id} \
   -2 {my_shared_services_network_subscription_id} \
   -z {my_mlz_environment_name}
 ```
+
+#### Quickstart in another cloud
 
 If I needed to deploy into another cloud, say Azure Government, I would need to override the default region and default azurerm terraform environment like:
 
