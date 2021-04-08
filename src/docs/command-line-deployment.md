@@ -72,13 +72,13 @@ src/deploy.sh -s {my_mlz_configuration_subscription_id} \
 
 #### Quickstart in another cloud
 
-If I needed to deploy into another cloud, say Azure Government, I would need to override the default region and default azurerm terraform environment like:
+If I needed to deploy into another cloud, say Azure Government, I would need to [override the default region](https://azure.microsoft.com/en-us/global-infrastructure/geographies/#overview) and [default azurerm terraform environment](https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment) like:
 
 ```bash
 az cloud set -n AzureUSGovernment
 az login
 src/deploy.sh -s {my_mlz_configuration_subscription_id} \
-  --location usgovvirginia
+  --location usgovvirginia \
   --tf-environment usgovernment
 ```
 
