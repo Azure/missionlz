@@ -30,7 +30,7 @@ If I needed to deploy into another cloud, say Azure Government, I would need to 
 ```bash
 az cloud set -n AzureUSGovernment
 az login
-src/deploy.sh -s {my_mlz_configuration_subscription_id} \
+src/deploy.sh -s {your_subscription_id} \
   --location usgovvirginia \
   --tf-environment usgovernment
 ```
