@@ -84,7 +84,6 @@ src/deploy.sh -s {my_mlz_configuration_subscription_id} \
   -z {my_mlz_environment_name}
 ```
 
-
 Need further customization? The rest of this documentation covers in detail how to customize this deployment to your needs.
 
 ### Configure the Terraform Backend
