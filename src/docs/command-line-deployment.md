@@ -17,15 +17,21 @@
 
 #### Quickstart Deploy
 
-Interested in just getting started and seeing what this does? Login to Azure CLI and try this command to deploy MLZ with some default configuration:
+Interested in just getting started and seeing what this does? Login to Azure CLI and try this command to deploy Mission LZ with some default configuration:
 
 ```bash
 src/deploy.sh -s {your_subscription_id}
 ```
 
+> **NOTE** This implies some software pre-requisites. We highly [recommend using the .devcontainer](https://github.com/Azure/missionlz/blob/main/src/docs/getting-started.md#use-the-development-container-for-command-line-deployments) described in this repository to make thing easier. However, deploying Mission LZ via BASH shell is possible with these minimum requirements:
+>
+> - An Azure Subscription where you have ['Owner' RBAC permissions](<https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/>)
+> - The current version of Azure CLI (you can check this with `az cli -v` or see <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/>)
+> - Terraform CLI version > v0.13.4 (you can check this with `terraform -v` or see <https://learn.hashicorp.com/tutorials/terraform/install-cli/>)
+
 The `deploy.sh` command deploys all of the MLZ and Terraform resources, and by default, into a single subscription in Azure Commercial EastUS with a timestamped name.
 
-If I needed to deploy into another cloud, say Azure Government, I would need to [override the default region](https://azure.microsoft.com/en-us/global-infrastructure/geographies/#overview) and [default azurerm terraform environment](https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment) like:
+If you needed to deploy into another cloud, say Azure Government, you would [override the default region](https://azure.microsoft.com/en-us/global-infrastructure/geographies/#overview) and [default azurerm terraform environment](https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment) like:
 
 ```bash
 az cloud set -n AzureUSGovernment
