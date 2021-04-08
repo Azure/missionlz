@@ -55,6 +55,27 @@ deploy.sh: create all the configuration and deploy Terraform resources with mini
       --tier2-sub-id -2 [OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
 ```
 
+For example, if I wanted to deploy into four subscriptions (one for each network) and provide my own name for created resource, I could do so like:
+
+```bash
+src/deploy.sh -s {my_mlz_configuration_subscription_id} \
+  -h {my_hub_network_subscription_id} \
+  -0 {my_identity_network_subscription_id} \
+  -1 {my_operations_network_subscription_id} \
+  -2 {my_shared_services_network_subscription_id} \
+  -z {my_mlz_environment_name}
+```
+
+If I needed to deploy into another cloud, say Azure Government, I would need to override the default region and default azurerm terraform environment like:
+
+```bash
+az cloud set -n AzureUSGovernment
+az login
+src/deploy.sh -s {my_mlz_configuration_subscription_id} \
+  --location usgovvirginia
+  --tf-environment usgovernment
+```
+
 Need further customization? The rest of this documentation covers in detail how to customize this deployment to your needs.
 
 ### Configure the Terraform Backend
