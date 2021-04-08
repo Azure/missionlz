@@ -23,7 +23,7 @@ src/deploy.sh -s {your_subscription_id}
 
 Once the deployment is complete, you'll be presented with a command that will clean up all of the resources that were deployed:
 
-```bash
+```plaintext
 INFO: Complete!
 INFO: All finished? Want to clean up?
 INFO: Try this command:
@@ -55,7 +55,7 @@ deploy.sh: create all the configuration and deploy Terraform resources with mini
       --tier2-sub-id -2 [OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
 ```
 
-For example, if I wanted to deploy into four subscriptions (one for each network) and provide my own name for created resource, I could do so like:
+For example, if I wanted to deploy into four subscriptions (one for each network) and provide my own name for created resources, I could do so like:
 
 ```bash
 src/deploy.sh -s {my_mlz_configuration_subscription_id} \
