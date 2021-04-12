@@ -41,8 +41,8 @@ locals {
 }
 
 resource "azurerm_management_group" "mg" {
-  count        = var.create_management_group_and_add_subscriptions == true ? 1 : 0
-  display_name = local.management_group_name
-  id           = local.management_group_name
-  #subscription_ids = local.subscription_ids_to_add_to_mgmt_group
+  count            = var.create_management_group_and_add_subscriptions == true ? 1 : 0
+  display_name     = local.management_group_name
+  subscription_ids = local.subscription_ids_to_add_to_mgmt_group
 }
+
