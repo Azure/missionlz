@@ -25,9 +25,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Setup keyvault accesses to gather keys
 keyVaultName = os.getenv("KEYVAULT_ID", None)
+keyVaultDns = os.getenv("MLZ_KEYVAULTDNS", None)
 
 if keyVaultName:
-    keyVaultUrl = "https://{}.vault.azure.net/".format(keyVaultName) # TODO (20210401): pass this by parameter or derive from cloud
+    keyVaultUrl = "https://{}{}/".format(keyVaultName, keyVaultDns)
 
     # This will use your Azure Managed Identity
     credential = DefaultAzureCredential()
@@ -348,7 +349,7 @@ async def process_input(request: Request):
     generate_config_args = []
     generate_config_args.append('--file ' + mlz_config_path)
     generate_config_args.append('--tf-env ' + os.getenv("TF_ENV"))
-    generate_config_args.append('--metadatahost management.azure.com') # TODO (20210401): pass this by parameter or derive from cloud
+    generate_config_args.append('--metadatahost ' + os.getenv("MLZ_METADATAHOST"))
     generate_config_args.append('--mlz-env-name ' + os.getenv("MLZ_ENV"))
     generate_config_args.append('--location ' + os.getenv("MLZ_LOCATION"))
     generate_config_args.append('--config-sub-id ' + os.getenv("SUBSCRIPTION_ID"))
