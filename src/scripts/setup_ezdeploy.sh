@@ -44,7 +44,6 @@ usage() {
 timestamp=$(date +%s)
 
 metadata_host="management.azure.com" # TODO (20210401): pass this by parameter or derive from cloud
-acr_endpoint="azurecr.io" # TODO (20210401): pass this by parameter or derive from cloud
 
 # set helpful defaults that can be overridden or 'notset' for mandatory input
 docker_strategy="build"
@@ -166,8 +165,8 @@ if [[ $docker_strategy == "load" ]]; then
   docker load -i mlz.tar
 fi
 
-docker tag "${image_name}:${image_tag}" "${mlz_acr_name}.${acr_endpoint}/${image_name}:${image_tag}"
-docker push "${mlz_acr_name}.${acr_endpoint}/${image_name}:${image_tag}"
+docker tag "${image_name}:${image_tag}" "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
+docker push "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
 
 # deploy an instance
 "${container_registry_path}/deploy_instance.sh" "$mlz_config_file" "$image_name" "$image_tag"

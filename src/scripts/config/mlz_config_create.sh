@@ -20,46 +20,6 @@ usage() {
   error_log "usage: mlz_config_create.sh <mlz config>"
 }
 
-sp_exists () {
-
-    sp_name=$1
-    sp_property=$2
-
-    sp_query="az ad sp show \
-        --id http://${sp_name} \
-        --query ${sp_property}"
-
-    if ! $sp_query &> /dev/null; then
-
-        sleep_time_in_seconds=10
-        max_wait_in_minutes=3
-        max_wait_in_seconds=180
-        max_retries=$((max_wait_in_seconds/sleep_time_in_seconds))
-
-        echo "INFO: maximum time to wait in seconds = ${max_wait_in_seconds}"
-        echo "INFO: maximum number of retries = ${max_retries}"
-
-        count=1
-
-        while ! $sp_query &> /dev/null
-        do
-
-            echo "INFO: waiting for service principal ${sp_name} to populate property ${sp_property} (${count}/${max_retries})"
-            echo "INFO: trying again in ${sleep_time_in_seconds} seconds..."
-            sleep "${sleep_time_in_seconds}"
-
-            if [[ ${count} -eq max_retries ]]; then
-                error_log "ERROR: unable to determine ${sp_property} for the service principal ${sp_property} in ${max_wait_in_minutes} minutes. Investigate and re-run script."
-                exit 1
-            fi
-
-            count=$((count +1))
-
-        done
-    fi
-
-}
-
 if [[ "$#" -lt 1 ]]; then
    usage
    exit 1
@@ -93,6 +53,64 @@ do
     fi
 done
 
+# accomodate for transient behavior where Service Principal is created
+# but an immediate query for it will fail
+# and attempt for max_wait_in_seconds before giving up.
+wait_for_sp_creation() {
+    sp_name=$1
+    sp_query="az ad sp show --id ${sp_name}"
+
+    sleep_time_in_seconds=10
+    max_wait_in_seconds=180
+    max_retries=$((max_wait_in_seconds/sleep_time_in_seconds))
+
+    count=1
+
+    while ! $sp_query &> /dev/null
+    do
+        echo "INFO: waiting for service principal ${sp_name} to come back from query '${sp_query}' (${count}/${max_retries})..."
+        echo "INFO: trying again in ${sleep_time_in_seconds} seconds..."
+        sleep "${sleep_time_in_seconds}"
+
+        if [[ ${count} -eq max_retries ]]; then
+            error_log "ERROR: unable to retrieve the service principal ${sp_name} from query '${sp_query}' in ${max_wait_in_seconds} seconds. Investigate and re-run script."
+            exit 1
+        fi
+
+        count=$((count +1))
+    done
+}
+
+# accomodate for transient behavior where Service Principal is created
+# but an immediate query for its properties will fail
+# and attempt for max_wait_in_seconds before giving up.
+wait_for_sp_property() {
+    sp_name=$1
+    sp_property=$2
+
+    query="az ad sp show --id ${sp_name} --query ${sp_property} --output tsv"
+
+    sleep_time_in_seconds=10
+    max_wait_in_seconds=180
+    max_retries=$((max_wait_in_seconds/sleep_time_in_seconds))
+
+    count=1
+
+    while [[ -z $($query)  ]]
+    do
+      echo "INFO: waiting for query \"${query}\" to return results (${count}/${max_retries})"
+      echo "INFO: trying again in ${sleep_time_in_seconds} seconds..."
+      sleep "${sleep_time_in_seconds}"
+
+      if [[ ${count} -eq max_retries ]]; then
+          error_log "ERROR: unable to get results from query \"${query}\" in ${max_wait_in_seconds} seconds. Investigate and re-run script."
+          exit 1
+      fi
+
+      count=$((count +1))
+    done
+}
+
 # Create Azure AD application registration and Service Principal
 # TODO: Lift the subscription scoping out of here and move into conditional
 echo "INFO: verifying service principal ${mlz_sp_name} is unique..."
@@ -105,22 +123,14 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
         --only-show-errors \
         --output tsv)
 
-    # Get Service Principal AppId
-    # Added the sleep below to accomodate for the transient behavior where the Service Principal creation
-    # is complete but an immediate query for it will fail. The sleep loop will run for 3 minutes and then
-    # the script will exit due to a platform problem
-    sp_exists "${mlz_sp_name}" "appId"
+    wait_for_sp_creation "http://${mlz_sp_name}"
+    wait_for_sp_property "http://${mlz_sp_name}" "appId"
+    wait_for_sp_property "http://${mlz_sp_name}" "objectId"
 
     sp_clientid=$(az ad sp show \
-    --id "http://${mlz_sp_name}" \
-    --query appId \
-    --output tsv)
-
-    # Get Service Principal ObjectId
-    # Added the sleep below to accomodate for the transient behavior where the Service Principal creation
-    # is complete but an immediate query for it will fail. The sleep loop will run for 3 minutes and then
-    # the script will exit due to a platform problem
-    sp_exists "${mlz_sp_name}" "objectId"
+        --id "http://${mlz_sp_name}" \
+        --query appId \
+        --output tsv)
 
     sp_objid=$(az ad sp show \
         --id "http://${mlz_sp_name}" \
