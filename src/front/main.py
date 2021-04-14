@@ -12,6 +12,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from lib import auth
+import subprocess
 from subprocess import call
 import asyncio
 import os
@@ -24,14 +25,18 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Setup keyvault accesses to gather keys
+cloud_name = os.getenv("MLZ_CLOUDNAME", None)
+azure_ad_endpoint = os.getenv("MLZ_ACTIVEDIRECTORY", None)
 keyVaultName = os.getenv("KEYVAULT_ID", None)
 keyVaultDns = os.getenv("MLZ_KEYVAULTDNS", None)
+
+subprocess.check_call(["az", "cloud", "set", "-n", cloud_name])
 
 if keyVaultName:
     keyVaultUrl = "https://{}{}/".format(keyVaultName, keyVaultDns)
 
     # This will use your Azure Managed Identity
-    credential = DefaultAzureCredential()
+    credential = DefaultAzureCredential(authority=azure_ad_endpoint)
     secret_client = SecretClient(
         vault_url=keyVaultUrl,
         credential=credential)

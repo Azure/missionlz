@@ -24,7 +24,7 @@ fi
 file_to_append=$1
 
 cloudEndpoints=($(az cloud show \
-  --query '[endpoints.resourceManager, suffixes.acrLoginServerEndpoint, suffixes.keyvaultDns, name]' \
+  --query '[endpoints.resourceManager, suffixes.acrLoginServerEndpoint, suffixes.keyvaultDns, name, endpoints.activeDirectory]' \
   --output tsv))
 
 append_if_not_empty() {
@@ -40,3 +40,4 @@ append_if_not_empty "mlz_metadatahost" ${cloudEndpoints[0]} ${file_to_append}
 append_if_not_empty "mlz_acrLoginServerEndpoint" ${cloudEndpoints[1]} ${file_to_append}
 append_if_not_empty "mlz_keyvaultDns" ${cloudEndpoints[2]} ${file_to_append}
 append_if_not_empty "mlz_cloudname" ${cloudEndpoints[3]} ${file_to_append}
+append_if_not_empty "mlz_activeDirectory" ${cloudEndpoints[4]} ${file_to_append}
