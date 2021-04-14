@@ -55,6 +55,7 @@ registry_password=$(az keyvault secret show \
 
 # set container environment variables from MLZ config
 env_vars_args=()
+env_vars_args+=("MLZ_CLOUDNAME=${mlz_cloudname}")
 env_vars_args+=("MLZ_METADATAHOST=${mlz_metadatahost}")
 env_vars_args+=("KEYVAULT_ID=${mlz_kv_name}")
 env_vars_args+=("MLZ_KEYVAULTDNS=${mlz_keyvaultDns}")

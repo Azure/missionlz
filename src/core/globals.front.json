@@ -11,7 +11,7 @@
 			{
 				"varname": "mlz_cloud",
 				"type": "text",
-				"default_val": "AzureCloud",
+				"default_val": "env:MLZ_CLOUDNAME",
 				"description": "Azure cloud being deployed to, # e.g. 'AzureCloud' or 'AzureUSGovernment', etc",
 				"options": []
 			},
