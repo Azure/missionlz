@@ -45,7 +45,7 @@ app_id=$(az ad app create \
   --query appId \
   --output tsv)
 
-# accomodate for transient behavior where Service Principal is created
+# accomodate for transient behavior where App Registration is created
 # but an immediate query for it will fail
 # and attempt for max_wait_in_seconds before giving up.
 wait_for_app_creation() {
