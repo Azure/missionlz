@@ -12,6 +12,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from lib import auth
+import subprocess
 from subprocess import call
 import asyncio
 import os
@@ -24,13 +25,18 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Setup keyvault accesses to gather keys
+cloud_name = os.getenv("MLZ_CLOUDNAME", None)
+azure_ad_endpoint = os.getenv("MLZ_ACTIVEDIRECTORY", None)
 keyVaultName = os.getenv("KEYVAULT_ID", None)
+keyVaultDns = os.getenv("MLZ_KEYVAULTDNS", None)
+
+subprocess.check_call(["az", "cloud", "set", "-n", cloud_name])
 
 if keyVaultName:
-    keyVaultUrl = "https://{}.vault.azure.net/".format(keyVaultName) # TODO (20210401): pass this by parameter or derive from cloud
+    keyVaultUrl = "https://{}{}/".format(keyVaultName, keyVaultDns)
 
     # This will use your Azure Managed Identity
-    credential = DefaultAzureCredential()
+    credential = DefaultAzureCredential(authority=azure_ad_endpoint)
     secret_client = SecretClient(
         vault_url=keyVaultUrl,
         credential=credential)
@@ -348,7 +354,7 @@ async def process_input(request: Request):
     generate_config_args = []
     generate_config_args.append('--file ' + mlz_config_path)
     generate_config_args.append('--tf-env ' + os.getenv("TF_ENV"))
-    generate_config_args.append('--metadatahost management.azure.com') # TODO (20210401): pass this by parameter or derive from cloud
+    generate_config_args.append('--metadatahost ' + os.getenv("MLZ_METADATAHOST"))
     generate_config_args.append('--mlz-env-name ' + os.getenv("MLZ_ENV"))
     generate_config_args.append('--location ' + os.getenv("MLZ_LOCATION"))
     generate_config_args.append('--config-sub-id ' + os.getenv("SUBSCRIPTION_ID"))

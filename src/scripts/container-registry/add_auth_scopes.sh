@@ -37,59 +37,57 @@ required_resources_json_file="$(dirname "$(realpath "${BASH_SOURCE%/*}")")/confi
 
 # generate app registration
 echo "INFO: creating app registration ${mlz_fe_app_name} to facilitate user logon at ${fqdn}..."
-az ad app create \
+app_id=$(az ad app create \
   --display-name "${mlz_fe_app_name}" \
   --reply-urls "http://${fqdn}/redirect" \
   --required-resource-accesses "${required_resources_json_file}" \
   --only-show-errors \
-  --output none
+  --query appId \
+  --output tsv)
 
-# wait_for_query_success will attempt the query passed by argument
-# if the query does not return a result within max_wait_in_seconds it will exit.
-wait_for_query_success() {
-  query=$1
+# accomodate for transient behavior where App Registration is created
+# but an immediate query for it will fail
+# and attempt for max_wait_in_seconds before giving up.
+wait_for_app_creation() {
+    app_id_to_query=$1
+    app_query="az ad app show --id ${app_id_to_query}"
 
-  sleep_time_in_seconds=10
-  max_wait_in_seconds=180
-  max_retries=$((max_wait_in_seconds/sleep_time_in_seconds))
+    sleep_time_in_seconds=10
+    max_wait_in_seconds=180
+    max_retries=$((max_wait_in_seconds/sleep_time_in_seconds))
 
-  count=1
+    count=1
 
-  while [[ -z $($query)  ]]
-  do
-      echo "INFO: waiting for query \"${query}\" to return results (${count}/${max_retries})"
-      echo "INFO: trying again in ${sleep_time_in_seconds} seconds..."
-      sleep "${sleep_time_in_seconds}"
+    while ! $app_query &> /dev/null
+    do
+        echo "INFO: waiting for app registration for ${app_id_to_query} to come back from query '${app_query}' (${count}/${max_retries})..."
+        echo "INFO: trying again in ${sleep_time_in_seconds} seconds..."
+        sleep "${sleep_time_in_seconds}"
 
-      if [[ ${count} -eq max_retries ]]; then
-          error_log "ERROR: unable to get results from query \"${query}\" in ${max_wait_in_seconds} seconds. Investigate and re-run script."
-          exit 1
-      fi
+        if [[ ${count} -eq max_retries ]]; then
+            error_log "ERROR: unable to retrieve the app registration for ${app_id_to_query} from query '${app_query}' in ${max_wait_in_seconds} seconds. Investigate and re-run script."
+            exit 1
+        fi
 
-      count=$((count +1))
-  done
+        count=$((count +1))
+    done
 }
 
-# use `wait_for_query_success` to accomodate transient failures where
-# app creation completes but an immediate query for it will fail
-app_id_query="az ad app list --display-name ${mlz_fe_app_name} --query [].appId --output tsv"
-wait_for_query_success "$app_id_query"
-
-client_id=$($app_id_query)
+wait_for_app_creation "${app_id}"
 
 client_password=$(az ad app credential reset \
-    --id ${client_id} \
+    --id ${app_id} \
     --query password \
     --only-show-errors \
     --output tsv)
 
 # update keyvault with the app registration information
-echo "INFO: storing app registration information for client ID ${client_id} in ${mlz_kv_name}..."
+echo "INFO: storing app registration information for app ID ${app_id} in ${mlz_kv_name}..."
 az keyvault secret set \
   --name "${mlz_login_app_kv_name}" \
   --subscription "${mlz_config_subid}" \
   --vault-name "${mlz_kv_name}" \
-  --value "${client_id}" \
+  --value "${app_id}" \
   --only-show-errors \
   --output none
 

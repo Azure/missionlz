@@ -43,8 +43,6 @@ usage() {
 
 timestamp=$(date +%s)
 
-metadata_host="management.azure.com" # TODO (20210401): pass this by parameter or derive from cloud
-
 # set helpful defaults that can be overridden or 'notset' for mandatory input
 docker_strategy="build"
 mlz_config_subid="notset"
@@ -115,7 +113,6 @@ echo "INFO: creating a MLZ config file based on user input at $(realpath "$mlz_c
 gen_config_args=()
 gen_config_args+=("-f ${mlz_config_file}")
 gen_config_args+=("-e ${tf_environment}")
-gen_config_args+=("-m ${metadata_host}")
 gen_config_args+=("-z ${mlz_env_name}")
 gen_config_args+=("-l ${mlz_config_location}")
 gen_config_args+=("-s ${mlz_config_subid}")

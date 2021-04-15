@@ -34,6 +34,8 @@ sp_id=${8:-$MLZCLIENTID}
 sp_pw=${9:-$MLZCLIENTSECRET}
 
 # login with known credentials
+az cloud set -n "${mlz_cloudname}"
+
 az login --service-principal \
   --user "${sp_id}" \
   --password="${sp_pw}" \
@@ -41,9 +43,8 @@ az login --service-principal \
   --allow-no-subscriptions \
   --output none
 
+# create config resources given a subscription ID and terraform configuration folder path
 src_dir=$(dirname "$(realpath "${BASH_SOURCE%/*}")")
-
-# Create config resources given a subscription ID and terraform configuration folder path
 create_tf_config() {
   . "${src_dir}/scripts/config/config_create.sh" "${mlz_config}" "${1}" "${2}"
 }
