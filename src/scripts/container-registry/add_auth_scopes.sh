@@ -76,11 +76,11 @@ wait_for_app_creation() {
 # accomodate for transient behavior where App Registration is created
 # but an immediate query for its properties will fail
 # and attempt for max_wait_in_seconds before giving up.
-wait_for_app_query() {
-    app_to_query=$1
+wait_for_app_query_from_list() {
+    app_name_to_query=$1
     property_to_query=$2
 
-    property_query="az ad app show --id ${app_to_query} --query ${property_to_query} --output tsv"
+    property_query="az ad app list --display-name ${app_name_to_query} --query [].${property_to_query} --output tsv"
 
     sleep_time_in_seconds=10
     max_wait_in_seconds=180
@@ -104,7 +104,7 @@ wait_for_app_query() {
 }
 
 wait_for_app_creation "${app_id}"
-wait_for_app_query "${app_id}" "appId"
+wait_for_app_query_from_list "${mlz_fe_app_name}" "appId"
 
 echo "INFO: sourcing app registration information for app ID ${app_id}..."
 client_password=$(az ad app credential reset \
