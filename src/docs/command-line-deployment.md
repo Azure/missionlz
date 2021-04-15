@@ -200,7 +200,7 @@ src/scripts/init_terraform.sh \
 
 After you've deployed your environments with Terraform, it is no longer mandatory to keep Mission LZ Resources like the Service Principal, Key Vault, nor the Terraform state files (though you can re-use these resources and stored Terraform state for updating the deployed environment incrementally using `terraform apply` or destroying them from terraform with `terraform destroy`).
 
-If you no longer have the need for a Service Principal with Contributor rights, the Key Vault that stores this Service Principal's credentials, nor the Terraform state, you can clean up these Mission LZ Resources with the [config_clean.sh](src/scritps/config/config_clean.sh) script passing in the MLZ Configuration file you created earlier:
+If you no longer have the need for a Service Principal with Contributor rights, the Key Vault that stores this Service Principal's credentials, nor the Terraform state, you can clean up these Mission LZ Resources with the [config_clean.sh](/src/scripts/config/config_clean.sh) script passing in the MLZ Configuration file you created earlier:
 
 ```bash
 src/scripts/config/config_clean.sh src/mlz_tf_cfg.var
