@@ -165,7 +165,7 @@ if ! $rg_exists &> /dev/null; then
         --subscription "${mlz_config_subid}" \
         --location "${mlz_config_location}" \
         --name "${mlz_rg_name}" \
-        --tags "DeploymentName=${mlz_env_name}" \
+        --tags "DeploymentName=${mlz_config_tag}" \
         --output none
 fi
 

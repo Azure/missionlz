@@ -52,7 +52,7 @@ if ! $rg_exists &> /dev/null; then
         --subscription "${tf_sub_id}" \
         --location "${mlz_config_location}" \
         --name "${tf_rg_name}" \
-        --tags "DeploymentName=${mlz_env_name}" \
+        --tags "DeploymentName=${mlz_config_tag}" \
         --output none
     echo "INFO: resource group ${tf_rg_name} created!"
 fi

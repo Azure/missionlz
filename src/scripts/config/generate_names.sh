@@ -9,6 +9,7 @@
 # SC2154: "var is referenced but not assigned". These values come from an external file.
 #
 # Generate MLZ resource names
+# rules from: https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules
 
 set -e
 
@@ -35,47 +36,49 @@ tf_name_raw=${3:-notset}
 
 # remove hyphens for resource naming restrictions
 # in the future, do more cleansing
-mlz_sub_id_clean="${mlz_config_subid//-}"
-mlz_env_name_clean="${mlz_env_name//-}"
+mlz_sub_id_clean=$(echo ${mlz_config_subid} | tr -cd '[:alnum:]')
+mlz_env_name_clean=$(echo ${mlz_env_name} | tr -cd '[:alnum:]')
 
 # Universal names
 export container_name="tfstate"
 
 # MLZ naming patterns
-mlz_prefix="mlz-tf"
-mlz_sp_name_full="sp-${mlz_prefix}-${mlz_env_name_clean}"
-mlz_sa_name_full="mlztfsa${mlz_env_name_clean}${mlz_sub_id_clean}"
-mlz_kv_name_full="mlzkv${mlz_env_name_clean}${mlz_sub_id_clean}"
-mlz_acr_name_full="mlzacr${mlz_env_name_clean}${mlz_sub_id_clean}"
-mlz_fe_app_name_full="mlzfeapp${mlz_env_name_clean}${mlz_sub_id_clean}"
-mlz_instance_name_full="mlzfeinstance${mlz_env_name_clean}${mlz_sub_id_clean}"
-mlz_dns_name_full="mlzdep${mlz_env_name_clean}${mlz_sub_id_clean}"
+mlz_prefix="mlz"
+mlz_suffix="${mlz_env_name_clean}${mlz_sub_id_clean}"
+
+mlz_rg_name_full="${mlz_prefix}-config-${mlz_env_name_clean}"
+mlz_sp_name_full="${mlz_prefix}-terraform-sp-${mlz_env_name_clean}"
+mlz_kv_name_full="${mlz_prefix}kv${mlz_suffix}"
+mlz_acr_name_full="${mlz_prefix}acr${mlz_suffix}"
+mlz_fe_app_name_full="${mlz_prefix}-frontend-app-${mlz_env_name_clean}"
+mlz_instance_name_full="${mlz_prefix}feinstance${mlz_suffix}"
+mlz_dns_name_full="${mlz_prefix}dep${mlz_suffix}"
 
 # Name MLZ config resources
-export mlz_rg_name="rg-${mlz_prefix}-${mlz_env_name_clean}"
-export mlz_sp_name="${mlz_sp_name_full}"
+export mlz_config_tag="${mlz_prefix}config${mlz_suffix}"
+export mlz_rg_name="${mlz_rg_name_full:0:63}"
+export mlz_sp_name="${mlz_sp_name_full:0:120}"
 export mlz_sp_kv_name="serviceprincipal-clientid"
 export mlz_sp_kv_password="serviceprincipal-pwd"
 export mlz_login_app_kv_name="login-app-clientid"
 export mlz_login_app_kv_password="login-app-pwd"
-export mlz_sa_name="${mlz_sa_name_full:0:24}" # take the 24 characters of the storage account name
-export mlz_kv_name="${mlz_kv_name_full:0:24}" # take the 24 characters of the key vault name
-export mlz_acr_name="${mlz_acr_name_full:0:24}"
-export mlz_fe_app_name="${mlz_fe_app_name_full:0:24}"
-export mlz_instance_name="${mlz_instance_name_full:0:24}"
-export mlz_dns_name="${mlz_dns_name_full:0:24}"
+export mlz_kv_name="${mlz_kv_name_full:0:24}"
+export mlz_acr_name="${mlz_acr_name_full:0:50}"
+export mlz_fe_app_name="${mlz_fe_app_name_full:0:120}"
+export mlz_instance_name="${mlz_instance_name_full:0:64}"
+export mlz_dns_name="${mlz_dns_name_full:0:60}"
 
 if [[ $tf_name_raw != "notset" ]]; then
   # remove hyphens for resource naming restrictions
   # in the future, do more cleansing
-  tf_sub_id_clean="${tf_sub_id_raw//-}"
-  tf_name="${tf_name_raw//-}"
+  tf_sub_id_clean=$(echo ${tf_sub_id_raw} | tr -cd '[:alnum:]')
+  tf_name=$(echo ${tf_name_raw} | tr -cd '[:alnum:]')
 
   # TF naming patterns
-  tf_prefix="tf-${tf_name}"
-  tf_sa_name_full="tfsa${tf_name}${mlz_env_name_clean}${tf_sub_id_clean}"
+  tf_rg_name_full="${mlz_prefix}-tfstate-${tf_name}-${mlz_env_name_clean}"
+  tf_sa_name_full="tfsa${tf_name}${mlz_suffix}"
 
   # Name TF config resources
-  export tf_rg_name="rg-${tf_prefix}-${mlz_env_name_clean}"
-  export tf_sa_name="${tf_sa_name_full:0:24}" # take the 24 characters of the storage account name
+  export tf_rg_name="${tf_rg_name_full:0:63}"
+  export tf_sa_name="${tf_sa_name_full:0:24}"
 fi
