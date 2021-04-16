@@ -57,7 +57,7 @@ done
 # delete resource groups where deploymentname is mlz_env_name in each subscription
 for sub in "${subs[@]}";
 do
-  rgs_to_delete=$(az group list --subscription "${sub}" --tag "DeploymentName=${mlz_env_name}" --query [].name -o tsv)
+  rgs_to_delete=$(az group list --subscription "${sub}" --tag "DeploymentName=${mlz_config_tag}" --query [].name -o tsv)
   for rg in $rgs_to_delete;
   do
     echo "INFO: deleting ${rg}..."
