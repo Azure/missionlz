@@ -63,6 +63,7 @@ do
     echo "INFO: deleting ${rg}..."
 
     az group delete \
+      --subscription "${sub}" \
       --name "${rg}" \
       --yes \
       --only-show-errors \
