@@ -11,7 +11,7 @@
 			{
 				"varname": "mlz_cloud",
 				"type": "text",
-				"default_val": "AzureCloud",
+				"default_val": "env:MLZ_CLOUDNAME",
 				"description": "Azure cloud being deployed to, # e.g. 'AzureCloud' or 'AzureUSGovernment', etc",
 				"options": []
 			},
@@ -25,7 +25,7 @@
 			{
 				"varname": "mlz_metadatahost",
 				"type": "text",
-				"default_val": "management.azure.com",
+				"default_val": "env:MLZ_METADATAHOST",
 				"description": "Azure Metadata Service endpoint. (e.g 'management.azure.com' or 'management.usgovcloudapi.net')",
 				"options": []
 			},

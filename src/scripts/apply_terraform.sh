@@ -13,8 +13,6 @@
 
 set -e
 
-PGM=$(basename "${0}")
-
 if [[ "$#" -lt 2 ]]; then
    echo "apply_terraform.sh: initializes Terraform for a given directory using given a .env file for backend configuration"
    echo "usage: apply_terraform.sh <global variables file> <terraform configuration directory> <var_file> <auto approve (y/n)>"
@@ -55,6 +53,7 @@ key="${mlz_env_name}${tf_name}"
 # initialize terraform in the configuration directory
 cd "${tf_dir}" || exit
 terraform init \
+   -backend-config "metadata_host=${metadata_host}" \
    -backend-config "key=${key}" \
    -backend-config "resource_group_name=${tf_be_rg_name}" \
    -backend-config "storage_account_name=${tf_be_sa_name}" \

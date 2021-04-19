@@ -16,6 +16,10 @@ variable "vnet_address_space" {
   description = "The address space to be used for the Firewall virtual network"
 }
 
+variable "firewall_sku" {
+  description = "The SKU for Azure Firewall"
+}
+
 variable "firewall_address_space" {
   description = "The address space to be used for the Firewall subnets"
 }

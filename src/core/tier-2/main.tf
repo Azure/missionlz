@@ -59,6 +59,10 @@ data "azurerm_firewall" "firewall" {
 resource "azurerm_resource_group" "t2" {
   location = var.mlz_location
   name     = var.tier2_rgname
+
+  tags = {
+    DeploymentName = var.deploymentname
+  }
 }
 
 module "t2-network" {

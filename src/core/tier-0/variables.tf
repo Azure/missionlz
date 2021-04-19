@@ -76,6 +76,7 @@ variable "tier0_vnetname" {
 variable "tier0_vnet_address_space" {
   description = "Address space prefixes list of strings"
   type        = list(string)
+  default     = ["10.0.110.0/26"]
 }
 
 variable "subnets" {
@@ -103,6 +104,44 @@ variable "subnets" {
 
     routetable_name = string
   }))
+  default = {
+    "tier0vms" = {
+      name              = "tier0vms"
+      address_prefixes  = ["10.0.110.0/27"]
+      service_endpoints = ["Microsoft.Storage"]
+
+      enforce_private_link_endpoint_network_policies = false
+      enforce_private_link_service_network_policies  = false
+
+      nsg_name = "tier0vmsnsg"
+      nsg_rules = {
+        "allow_ssh" = {
+          name                       = "allow_ssh"
+          priority                   = "100"
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "22"
+          destination_port_range     = ""
+          source_address_prefix      = "*"
+          destination_address_prefix = ""
+        },
+        "allow_rdp" = {
+          name                       = "allow_rdp"
+          priority                   = "200"
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "3389"
+          destination_port_range     = ""
+          source_address_prefix      = "*"
+          destination_address_prefix = ""
+        }
+      }
+
+      routetable_name = "tier0vmsrt"
+    }
+  }
 }
 
 variable "create_network_watcher" {

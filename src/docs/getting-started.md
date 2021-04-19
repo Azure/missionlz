@@ -32,3 +32,8 @@ All other tools and resources are in the development container and in the user i
 
 * See the detailed step-by-step guides for [Command Line Deployments](command-line-deployment.md) and [User Interface Deployments](ui-deployment.md).
 * (*Optional*) For details and pre-requisites for the development container, see the [README](../../.devcontainer/README.md) document in the `.devcontainer` folder.
+
+## Next steps
+
+Once you have a lab deployment of Mission Landing Zone established and have decided to move forward, you will want to start planning your production deployment. We recommend reviewing the following pages during your planning phase.  
+- [Using Management Groups with Mission Landing Zone](management-groups.md)

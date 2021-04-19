@@ -28,7 +28,7 @@ resource "azurerm_firewall" "firewall" {
   name                = var.saca_fwname
   location            = data.azurerm_resource_group.hub.location
   resource_group_name = data.azurerm_resource_group.hub.name
-  sku_tier            = "Premium"
+  sku_tier            = var.firewall_sku
   tags                = var.tags
 
   ip_configuration {

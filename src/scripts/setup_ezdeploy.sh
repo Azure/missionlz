@@ -43,9 +43,6 @@ usage() {
 
 timestamp=$(date +%s)
 
-metadata_host="management.azure.com" # TODO (20210401): pass this by parameter or derive from cloud
-acr_endpoint="azurecr.io" # TODO (20210401): pass this by parameter or derive from cloud
-
 # set helpful defaults that can be overridden or 'notset' for mandatory input
 docker_strategy="build"
 mlz_config_subid="notset"
@@ -116,7 +113,6 @@ echo "INFO: creating a MLZ config file based on user input at $(realpath "$mlz_c
 gen_config_args=()
 gen_config_args+=("-f ${mlz_config_file}")
 gen_config_args+=("-e ${tf_environment}")
-gen_config_args+=("-m ${metadata_host}")
 gen_config_args+=("-z ${mlz_env_name}")
 gen_config_args+=("-l ${mlz_config_location}")
 gen_config_args+=("-s ${mlz_config_subid}")
@@ -166,8 +162,8 @@ if [[ $docker_strategy == "load" ]]; then
   docker load -i mlz.tar
 fi
 
-docker tag "${image_name}:${image_tag}" "${mlz_acr_name}.${acr_endpoint}/${image_name}:${image_tag}"
-docker push "${mlz_acr_name}.${acr_endpoint}/${image_name}:${image_tag}"
+docker tag "${image_name}:${image_tag}" "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
+docker push "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
 
 # deploy an instance
 "${container_registry_path}/deploy_instance.sh" "$mlz_config_file" "$image_name" "$image_tag"

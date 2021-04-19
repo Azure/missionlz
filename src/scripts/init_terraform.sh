@@ -48,6 +48,7 @@ key="${mlz_env_name}${tf_name}"
 # Initialize terraform in the configuration directory
 cd "${tf_dir}" || exit
 terraform init \
+   -backend-config "metadata_host=${metadata_host}" \
    -backend-config "key=${key}" \
    -backend-config "resource_group_name=${tf_be_rg_name}" \
    -backend-config "storage_account_name=${tf_be_sa_name}" \
