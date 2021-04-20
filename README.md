@@ -64,7 +64,7 @@ See our [Getting Started Guide](src/docs/getting-started.md) in the docs.
 
 See the [Projects](https://github.com/Azure/missionlz/projects) page for the release timeline and feature areas.
 
-Here's what the repo consists of as of April 2021 (items in grey are either planned but not yet implemented by Mission LZ, or are reference products or resources that could fill a customer workload need):
+Here's what the repo consists of as of April 2021:
 
 <!-- markdownlint-disable MD033 -->
 <img src="src/docs/images/missionlz_as_of_april2021.png" alt="Mission LZ as of April 2021" width="600" />
