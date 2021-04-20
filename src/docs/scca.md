@@ -33,7 +33,7 @@ REQ ID | BCAP Security Requirements | Azure Technologies | Mission LZ
 2.1.1.7 | The BCAP shall provide the capability to detect and prevent unauthorized data exfiltration from the DISN to an end-point inside CSE | N/A |
 2.1.1.8 | The BCAP and/or BCAP Management System shall provide the capability to sense, correlate, and warn on advanced persistent threats | Azure Security Center | ✔️
 2.1.1.9 | The BCAP shall provide the capability to detect custom traffic and activity signatures | Azure Security Center | ✔️
-2.1.1.10 | The BCAP shall provide an interface to conduct ports, protocols, and service management (PPSM) activities in order to provide control for BCND providers | Azure Firewall <br/> NSG <br/> Network Watcher | ✔️
+2.1.1.10 | The BCAP shall provide an interface to conduct ports, protocols, and service management (PPSM) activities in order to provide control for BCND providers | Azure Firewall <br/> Network Security Groups <br/> Network Watcher | ✔️
 2.1.1.11 | The BCAP shall provide full packet capture (FPC) for traversing communications | N/A |
 2.1.1.12 | The BCAP shall provide network packet flow metrics and statistics for all traversing communications | Azure Firewall <br/> Log Analytics <br/> Network Watcher | ✔️
 2.1.1.13 | The BCAP shall provide the capability to detect and prevent application session hijacking | N/A |
@@ -42,7 +42,7 @@ REQ ID | BCAP Security Requirements | Azure Technologies | Mission LZ
 
 REQ ID | VDSS Security Requirements | Azure Technologies | Mission LZ
 -------|----------------------------|--------------------|-----------
-2.1.2.1 | The VDSS shall maintain virtual separation of all management, user, and data traffic. | Azure Virtual Network <br/> Azure Firewall <br/> Azure NSGs | ✔️
+2.1.2.1 | The VDSS shall maintain virtual separation of all management, user, and data traffic. | Azure Virtual Network <br/> Azure Firewall <br/> Network Security Groups | ✔️
 2.1.2.2 | The VDSS shall allow the use of encryption for segmentation of management traffic. | Azure Virtual Network (default) | ✔️
 2.1.2.3 | The VDSS shall provide a reverse proxy capability to handle access requests from client systems | N/A |
 2.1.2.4 | The VDSS shall provide a capability to inspect and filter application layer conversations based on a predefined set of rules (including HTTP) to identify and block malicious content | N/A |
@@ -69,9 +69,9 @@ REQ ID | VDMS Security Requirements | Azure Technologies | Mission LZ
 2.1.3.2 | The VDMS shall provide Host Based Security System (HBSS), or approved equivalent, to manage endpoint security for all enclaves within the CSE | Azure Security Center | ✔️
 2.1.3.3 | The VDMS shall provide identity services to include an Online Certificate Status Protocol (OCloud Workload Security) responder for remote system DoD Common Access Card (CAC) two-factor authentication of DoD privileged users to systems instantiated within the CSE | Multi-Factor Authentication |
 2.1.3.4 | The VDMS shall provide a configuration and update management system to serve systems and applications for all enclaves within the CSE | N/A
-2.1.3.5 | The VDMS shall provide logical domain services to include directory access, directory federation, Dynamic Host Configuration Protocol (DHCP), and Domain Name System (DNS) for all enclaves within the CSE | Az Active Directory (AAD) <br/> Azure DNS | ✔️
+2.1.3.5 | The VDMS shall provide logical domain services to include directory access, directory federation, Dynamic Host Configuration Protocol (DHCP), and Domain Name System (DNS) for all enclaves within the CSE | Azure Active Directory (AAD) <br/> Azure DNS | ✔️
 2.1.3.6 | The VDMS shall provide a network for managing systems and applications within the CSE that is logically separate from the user and data networks. | Virtual Network <br/> Azure Subnets | ✔️
-2.1.3.7 | The VDMS shall provide a system, security, application, and user activity event logging and archiving system for common collection, storage, and access to event logs by privileged users performing BCP and MCP activities. | Log A <br/> Azure Security Center | ✔️
+2.1.3.7 | The VDMS shall provide a system, security, application, and user activity event logging and archiving system for common collection, storage, and access to event logs by privileged users performing BCP and MCP activities. | Azure Log Analytics <br/> Azure Security Center | ✔️
 2.1.3.8 | The VDMS shall provide for the exchange of DoD privileged user authentication and authorization attributes with the CSP's Identity and access management system to enable cloud system provisioning, deployment, and configuration | Azure Active Directory Connect |
 2.1.3.9 | The VDMS shall implement the technical capabilities necessary to execute the mission and objectives of the TCCM role. | Azure Active Directory | ✔️
 
