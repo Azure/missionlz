@@ -25,7 +25,7 @@ show_help() {
     printf "%20s %2s %s \n" "$long_name" "$char_name" "$desc"
   }
   print_formatted "argument" "" "description"
-  print_formatted "--docker-strategy" "-d" "[local|build|load] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image (defaults to 'build')"
+  print_formatted "--docker-strategy" "-d" "[local|build|load|export] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image (defaults to 'build'), export to build and create mlz.zip with the docker image"
   print_formatted "--subscription-id" "-s" "Subscription ID for MissionLZ resources"
   print_formatted "--location" "-l" "The location that you're deploying to (defaults to 'eastus')"
   print_formatted "--tf-environment" "-e" "Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment"
@@ -79,21 +79,48 @@ container_registry_path="$(realpath "${this_script_path}")/container-registry"
 "${this_script_path}/util/checkfordocker.sh"
 
 # check mandatory parameters
-for i in { $docker_strategy $mlz_config_subid $mlz_config_location $tf_environment $mlz_env_name $web_port }
-do
-  if [[ $i == "notset" ]]; then
-    error_log "ERROR: Missing required arguments. These arguments are mandatory: -d, -s, -l, -e, -z, -p"
-    usage
-    exit 1
-  fi
-done
+if [[ $docker_strategy != "export" ]]; then
+  for i in { $docker_strategy $mlz_config_subid $mlz_config_location $tf_environment $mlz_env_name $web_port }
+  do
+    if [[ $i == "notset" ]]; then
+      error_log "ERROR: Missing required arguments. These arguments are mandatory: -d, -s, -l, -e, -z, -p"
+      usage
+      exit 1
+    fi
+  done
+fi
 
 # check docker strategy
 if [[ $docker_strategy != "local" && \
       $docker_strategy != "build" && \
-      $docker_strategy != "load" ]]; then
+      $docker_strategy != "load" && \
+      $docker_strategy != "export" ]]; then
   error_log "ERROR: Unrecognized docker strategy detected. Must be 'local', 'build', or 'load'."
   exit 1
+fi
+
+# build/load, tag, and push image
+image_name="lzfront"
+image_tag="latest"
+
+if [[ $docker_strategy == "build" || $docker_strategy == "export" ]]; then
+  echo "INFO: building docker image"
+  docker build -t "${image_name}" "${src_path}"
+fi
+
+if [[ $docker_strategy == "export" ]]; then
+  echo "INFO: Saving docker image and compressing it before exiting."
+  docker save "${image_name}:${image_tag}" -o mlz.tar
+  zip mlz.zip mlz.tar
+  rm mlz.tar
+  echo "INFO: Compressed deployable archive is saved locally as mlz.zip."
+  exit
+fi
+
+if [[ $docker_strategy == "load" ]]; then
+  echo "INFO: Decompressing mlz zip archive and loading it to local docker image library."
+  unzip mlz.zip
+  docker load -i mlz.tar
 fi
 
 # switch to the MLZ subscription
@@ -148,19 +175,6 @@ fi
 
 # otherwise, create container registry
 "${container_registry_path}/create_acr.sh" "$mlz_config_file"
-
-# build/load, tag, and push image
-image_name="lzfront"
-image_tag="latest"
-
-if [[ $docker_strategy == "build" ]]; then
-  docker build -t "${image_name}" "${src_path}"
-fi
-
-if [[ $docker_strategy == "load" ]]; then
-  unzip mlz.zip .
-  docker load -i mlz.tar
-fi
 
 docker tag "${image_name}:${image_tag}" "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
 docker push "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"

@@ -14,6 +14,7 @@ RUN apt-get update \
         unzip \
         wget \
         python3 \
+        sed \ 
         python3-pip
 
 
