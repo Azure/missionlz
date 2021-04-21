@@ -2,6 +2,8 @@
 
 The route we've deemed best for managing policy within MLZ is to apply templates of policy where appropriate. The included policy is a simple sample policy that is not relevant to the deployment of MLZ.  It stands as a place holder for future policy groupings.
 
+Viewing the documentation is highly recommended. After that you can decide whether this scripted path for applying a blueprint is the right choice for you. [BluePrint Documentation]()
+
 ## Adding Policy
 
 The addition of a policy can be handled manually or by exporting an already created set of templates.  If you wish to export a set of blueprint templates, please follow the instructions at the end of the document.
@@ -29,6 +31,11 @@ In order to generate the templates that can be used with the above import instru
 You must login, and connect to your relevant subscription prior to running the template export functions
 
 ```powershell
+Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force
+Install-Module -Name Az.Blueprint
+read this: How to manage assignments with PowerShell - Azure Blueprints | Microsoft Docs 
+
+
 Connect-AzureRmAccount
 Get-AzureRmSubscription -SubscriptionName "<YOUR_SUBSCRIPTION_NAME>" | Select-AzureRmSubscription
 ```
@@ -37,3 +44,5 @@ Get-AzureRmSubscription -SubscriptionName "<YOUR_SUBSCRIPTION_NAME>" | Select-Az
 $bpDefinition = Get-AzBlueprint -SubscriptionId '<YOUR_SUBSCRIPTION_ID>' -Name '<YOUR_BLUEPRINT_NAME>' -Version '<YOUR_BLUEPRINT_VERSION>'
 Export-AzBlueprintWithArtifact -Blueprint $bpDefinition -OutputPath "./src/scripts/policy/blueprints/<BLUEPRINT_NAME>"
 ```
+
+The template created might have a capitalized folder of Artifacts and a capitalized Blueprints.json file and both of these need to be lowercased in order to be applied about the apply_blueprint.sh script.

@@ -22,7 +22,7 @@ usage() {
   error_log "usage: apply_blueprint.sh <subscription> <location> <blueprint_name>"
 }
 
-if [[ "$#" -lt 2 ]]; then
+if [[ "$#" -lt 3 ]]; then
     usage
     exit 1
 fi
