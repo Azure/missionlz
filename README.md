@@ -16,7 +16,7 @@ Mission Landing Zone is the right solution when:
 - A simple, secure, and scalable hub and spoke infrastructure is needed
 - Various teams need separate, secure cloud environments administered by a central IT team
 - There is a need to implement SCCA
-- Hosting any workload requiring a secure environment, for example: data warehousing, AI/ML, and containerized applications  
+- Hosting any workload requiring a secure environment, for example: data warehousing, AI/ML, and containerized applications
 
 Design goals include:
 
@@ -63,6 +63,12 @@ See our [Getting Started Guide](src/docs/getting-started.md) in the docs.
 ## Product Roadmap
 
 See the [Projects](https://github.com/Azure/missionlz/projects) page for the release timeline and feature areas.
+
+Here's what the repo consists of as of April 2021:
+
+<!-- markdownlint-disable MD033 -->
+<img src="src/docs/images/missionlz_as_of_april2021.png" alt="Mission LZ as of April 2021" width="600" />
+<!-- markdownlint-enable MD033 -->
 
 ## Contributing
 
