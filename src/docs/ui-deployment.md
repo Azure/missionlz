@@ -37,6 +37,17 @@ cd src/scripts
 ./setup_ezdeploy.sh -s <subscription id>
 ```
 
+If you needed to deploy into another cloud, say Azure Government, you would [override the default region](https://azure.microsoft.com/en-us/global-infrastructure/geographies/#overview) and [default azurerm terraform environment](https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment) like:
+
+```bash
+az cloud set -n AzureUSGovernment
+az login
+cd src/scripts
+./setup_ezdeploy.sh -s {your_subscription_id} \
+  --location usgovvirginia \
+  --tf-environment usgovernment
+```
+
 `setup_ezdeploy.sh` has more configurable options, but these are the minimum required to deploy a running UI that will help you make a full MLZ deployment.
 
 Here's the full list of parameters for reference:
