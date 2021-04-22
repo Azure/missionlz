@@ -25,7 +25,7 @@ show_help() {
     printf "%20s %2s %s \n" "$long_name" "$char_name" "$desc"
   }
   print_formatted "argument" "" "description"
-  print_formatted "--docker-strategy" "-d" "[local|build|load|export] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image (defaults to 'build'), export to build and create mlz.zip with the docker image"
+  print_formatted "--docker-strategy" "-d" "[local|build|load|export] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image (defaults to 'build')"
   print_formatted "--subscription-id" "-s" "Subscription ID for MissionLZ resources"
   print_formatted "--location" "-l" "The location that you're deploying to (defaults to 'eastus')"
   print_formatted "--tf-environment" "-e" "Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment"
@@ -34,6 +34,7 @@ show_help() {
   print_formatted "--tier0-sub-id" "-0" "subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier1-sub-id" "-1" "subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier2-sub-id" "-2" "subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)"
+  print_formatted "--zip-file" "-f" "Zipped docker file for use with the load docker strategy, defaults to mlz.zip"
 }
 
 usage() {
@@ -51,6 +52,7 @@ tf_environment="public"
 mlz_env_name="mlz${timestamp}"
 web_port="80"
 subs_args=()
+zip_file="mlz.zip"
 
 # inspect user input
 while [ $# -gt 0 ] ; do
@@ -65,6 +67,7 @@ while [ $# -gt 0 ] ; do
     -0 | --tier0-sub-id) subs_args+=("-0 ${2}") ;;
     -1 | --tier1-sub-id) subs_args+=("-1 ${2}") ;;
     -2 | --tier2-sub-id) subs_args+=("-2 ${2}") ;;
+    -f | --zip-file) zip_file="$2" ;;
   esac
   shift
 done
@@ -79,7 +82,6 @@ container_registry_path="$(realpath "${this_script_path}")/container-registry"
 "${this_script_path}/util/checkfordocker.sh"
 
 # check mandatory parameters
-if [[ $docker_strategy != "export" ]]; then
   for i in { $docker_strategy $mlz_config_subid $mlz_config_location $tf_environment $mlz_env_name $web_port }
   do
     if [[ $i == "notset" ]]; then
@@ -88,13 +90,11 @@ if [[ $docker_strategy != "export" ]]; then
       exit 1
     fi
   done
-fi
 
 # check docker strategy
 if [[ $docker_strategy != "local" && \
       $docker_strategy != "build" && \
-      $docker_strategy != "load" && \
-      $docker_strategy != "export" ]]; then
+      $docker_strategy != "load" ]]; then
   error_log "ERROR: Unrecognized docker strategy detected. Must be 'local', 'build', or 'load'."
   exit 1
 fi
@@ -103,23 +103,14 @@ fi
 image_name="lzfront"
 image_tag="latest"
 
-if [[ $docker_strategy == "build" || $docker_strategy == "export" ]]; then
+if [[ $docker_strategy == "build" ]]; then
   echo "INFO: building docker image"
   docker build -t "${image_name}" "${src_path}"
 fi
 
-if [[ $docker_strategy == "export" ]]; then
-  echo "INFO: Saving docker image and compressing it before exiting."
-  docker save "${image_name}:${image_tag}" -o mlz.tar
-  zip mlz.zip mlz.tar
-  rm mlz.tar
-  echo "INFO: Compressed deployable archive is saved locally as mlz.zip."
-  exit
-fi
-
 if [[ $docker_strategy == "load" ]]; then
   echo "INFO: Decompressing mlz zip archive and loading it to local docker image library."
-  unzip mlz.zip
+  unzip "${zip_file}"
   docker load -i mlz.tar
 fi
 
