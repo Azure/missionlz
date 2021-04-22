@@ -3,7 +3,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# shellcheck disable=1090,2154
+# shellcheck disable=1090,1091,2154
+#
 # create all the configuration and deploy Terraform resources with minimal input
 
 set -e
@@ -48,18 +49,31 @@ timestamp=$(date +%s)
 
 # set helpful defaults that can be overridden or 'notset' for mandatory input
 mlz_config_subid="notset"
+
 mlz_config_location="eastus"
+use_location_default=true
+
 tf_environment="public"
+use_tfenv_default=true
+
 mlz_env_name="mlz${timestamp}"
+use_envname_default=true
+
 subs_args=()
 
 # inspect user input
 while [ $# -gt 0 ] ; do
   case $1 in
     -s | --subscription-id) mlz_config_subid="$2" ;;
-    -l | --location) mlz_config_location="$2" ;;
-    -e | --tf-environment) tf_environment="$2" ;;
-    -z | --mlz-env-name) mlz_env_name="$2" ;;
+    -l | --location)
+      mlz_config_location="$2"
+      use_location_default=false ;;
+    -e | --tf-environment)
+      tf_environment="$2"
+      use_tfenv_default=false ;;
+    -z | --mlz-env-name)
+      mlz_env_name="$2"
+      use_envname_default=false ;;
     -h | --hub-sub-id) subs_args+=("-h ${2}") ;;
     -0 | --tier0-sub-id) subs_args+=("-0 ${2}") ;;
     -1 | --tier1-sub-id) subs_args+=("-1 ${2}") ;;
@@ -79,6 +93,20 @@ do
   fi
 done
 
+# notify the user about any defaults
+notify_of_default() {
+  value_is_default=$1
+  argument_name=$2
+  argument_value=$3
+  if [[ "$value_is_default" = true ]]; then
+    echo "INFO: using the default value '${argument_value}' for '${argument_name}', specify the '${argument_name}' argument to provide a different value."
+  fi
+
+}
+notify_of_default "${use_location_default}" "--location" "${mlz_config_location}"
+notify_of_default "${use_tfenv_default}" "--tf-environment" "${tf_environment}"
+notify_of_default "${use_envname_default}" "--mlz-env-name" "${mlz_env_name}"
+
 # switch to the MLZ subscription
 echo "INFO: setting current subscription to ${mlz_config_subid}..."
 az account set \
@@ -90,6 +118,12 @@ az account set \
 mlz_tenantid=$(az account show \
   --query "tenantId" \
   --output tsv)
+
+# validate that the location is present in the current cloud
+"${this_script_path}/scripts/util/validateazlocation.sh" "$mlz_config_location"
+
+# validate that terraform environment matches for the current cloud
+"${this_script_path}/scripts/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
 
 # create MLZ configuration file based on user input
 mlz_config_file="${configuration_output_path}/${mlz_env_name}.mlzconfig"
