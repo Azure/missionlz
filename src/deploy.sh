@@ -114,16 +114,16 @@ az account set \
   --only-show-errors \
   --output none
 
+# validate that the location is present in the current cloud
+"${this_script_path}/scripts/util/validateazlocation.sh" "${mlz_config_location}"
+
+# validate that terraform environment matches for the current cloud
+"${this_script_path}/scripts/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
+
 # retrieve tenant ID for the MLZ subscription
 mlz_tenantid=$(az account show \
   --query "tenantId" \
   --output tsv)
-
-# validate that the location is present in the current cloud
-"${this_script_path}/scripts/util/validateazlocation.sh" "$mlz_config_location"
-
-# validate that terraform environment matches for the current cloud
-"${this_script_path}/scripts/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
 
 # create MLZ configuration file based on user input
 mlz_config_file="${configuration_output_path}/${mlz_env_name}.mlzconfig"

@@ -129,8 +129,12 @@ do
   fi
 done
 
+# switch to the MLZ subscription
+echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
+az account set --subscription "${mlz_config_subid}"
+
 # validate that the location is present in the current cloud
-"${this_script_path}/util/validateazlocation.sh" "$mlz_config_location"
+"${this_script_path}/util/validateazlocation.sh" "${mlz_config_location}"
 
 # validate that terraform environment matches for the current cloud
 "${this_script_path}/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
@@ -157,10 +161,6 @@ if [[ $docker_strategy == "load" ]]; then
   unzip "${zip_file}"
   docker load -i mlz.tar
 fi
-
-# switch to the MLZ subscription
-echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
-az account set --subscription "${mlz_config_subid}"
 
 # retrieve tenant ID for the MLZ subscription
 mlz_tenantid=$(az account show \
