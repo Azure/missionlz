@@ -40,8 +40,8 @@ tfenv_cloud_pairs['public']='azurecloud'
 tfenv_cloud_pairs['usgovernment']='azureusgovernment'
 tfenv_cloud_pairs['german']='azuregermancloud'
 tfenv_cloud_pairs['china']='azurechinacloud'
-tfenv_cloud_pairs['ussec']='azureussec'
-tfenv_cloud_pairs['usnat']='azureusnat'
+tfenv_cloud_pairs['ussec']='ussec'
+tfenv_cloud_pairs['usnat']='usnat'
 
 tf_env_is_valid=false
 
