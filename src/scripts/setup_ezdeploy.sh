@@ -99,6 +99,16 @@ this_script_path=$(realpath "${BASH_SOURCE%/*}")
 src_path=$(dirname "${this_script_path}")
 container_registry_path="$(realpath "${this_script_path}")/container-registry"
 
+# check mandatory parameters
+for i in { $docker_strategy $mlz_config_subid $mlz_config_location $tf_environment $mlz_env_name $web_port }
+do
+  if [[ $i == "notset" ]]; then
+    error_log "ERROR: Missing required arguments. These arguments are mandatory: -d, -s, -l, -e, -z, -p"
+    usage
+    exit 1
+  fi
+done
+
 # notify the user about any defaults
 notify_of_default() {
   value_is_default=$1
@@ -118,16 +128,6 @@ notify_of_default "${use_port_default}" "--port" "${web_port}"
 # check for dependencies
 "${this_script_path}/util/checkforazcli.sh"
 "${this_script_path}/util/checkfordocker.sh"
-
-# check mandatory parameters
-for i in { $docker_strategy $mlz_config_subid $mlz_config_location $tf_environment $mlz_env_name $web_port }
-do
-  if [[ $i == "notset" ]]; then
-    error_log "ERROR: Missing required arguments. These arguments are mandatory: -d, -s, -l, -e, -z, -p"
-    usage
-    exit 1
-  fi
-done
 
 # switch to the MLZ subscription
 echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
