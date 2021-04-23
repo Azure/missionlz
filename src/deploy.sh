@@ -3,7 +3,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# shellcheck disable=1090,1091,2154
+# shellcheck disable=1091
+# SC1091: Not following. Shellcheck can't follow non-constant source. These script is dynamically resolved.
 #
 # create all the configuration and deploy Terraform resources with minimal input
 
