@@ -25,7 +25,7 @@ show_help() {
     printf "%20s %2s %s \n" "$long_name" "$char_name" "$desc"
   }
   print_formatted "argument" "" "description"
-  print_formatted "--docker-strategy" "-d" "[local|build|load] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image (defaults to 'build')"
+  print_formatted "--docker-strategy" "-d" "[local|build|load]| 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image (defaults to 'build')"
   print_formatted "--subscription-id" "-s" "Subscription ID for MissionLZ resources"
   print_formatted "--location" "-l" "The location that you're deploying to (defaults to 'eastus')"
   print_formatted "--tf-environment" "-e" "Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment"
@@ -65,6 +65,7 @@ use_port_default=true
 zip_file="mlz.zip"
 
 subs_args=()
+zip_file="mlz.zip"
 
 # inspect user input
 while [ $# -gt 0 ] ; do
