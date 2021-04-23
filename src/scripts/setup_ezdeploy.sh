@@ -25,7 +25,7 @@ show_help() {
     printf "%20s %2s %s \n" "$long_name" "$char_name" "$desc"
   }
   print_formatted "argument" "" "description"
-  print_formatted "--docker-strategy" "-d" "[local|build|load|export] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image (defaults to 'build')"
+  print_formatted "--docker-strategy" "-d" "[local|build|load]| 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image (defaults to 'build')"
   print_formatted "--subscription-id" "-s" "Subscription ID for MissionLZ resources"
   print_formatted "--location" "-l" "The location that you're deploying to (defaults to 'eastus')"
   print_formatted "--tf-environment" "-e" "Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment"
@@ -82,14 +82,14 @@ container_registry_path="$(realpath "${this_script_path}")/container-registry"
 "${this_script_path}/util/checkfordocker.sh"
 
 # check mandatory parameters
-  for i in { $docker_strategy $mlz_config_subid $mlz_config_location $tf_environment $mlz_env_name $web_port }
-  do
-    if [[ $i == "notset" ]]; then
-      error_log "ERROR: Missing required arguments. These arguments are mandatory: -d, -s, -l, -e, -z, -p"
-      usage
-      exit 1
-    fi
-  done
+for i in { $docker_strategy $mlz_config_subid $mlz_config_location $tf_environment $mlz_env_name $web_port }
+do
+  if [[ $i == "notset" ]]; then
+    error_log "ERROR: Missing required arguments. These arguments are mandatory: -d, -s, -l, -e, -z, -p"
+    usage
+    exit 1
+  fi
+done
 
 # check docker strategy
 if [[ $docker_strategy != "local" && \
