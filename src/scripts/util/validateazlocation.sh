@@ -33,9 +33,10 @@ current_cloud=$(az cloud show --query name --output tsv)
 current_sub=$(az account show --query id --output tsv)
 valid_locations=$(az account list-locations --query [].name --output tsv)
 
-if ! echo "$valid_locations" | grep -q "${location}"; then
+# if the active subscription does not support the given location, throw an error and exit
+if ! echo "$valid_locations" | grep -wq "${location}"; then
   error_log "ERROR: could not find region '${location}' for subscription of '${current_sub}' in current cloud '${current_cloud}' "
   echo "INFO: is this a valid region? Try 'az account list-locations' to see what regions are available to you."
-  echo "INFO: do you have the correct cloud set? Try 'az cloud set -n' to set it."
+  echo "INFO: do you have the correct cloud set? Try 'az cloud set' to set it."
   exit 1
 fi

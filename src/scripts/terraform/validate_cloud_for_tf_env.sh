@@ -50,6 +50,7 @@ if [[ ${tfenv_cloud_pairs["${tf_env_lower}"]} == "${current_cloud_lower}" ]]; th
   tf_env_is_valid=true
 fi
 
+# otherwise, throw an error and exit
 if [[ "${tf_env_is_valid}" = false ]]; then
   error_log "ERROR: Terraform environment '${tf_env}' is not a valid environment for cloud '${current_cloud}'"
   echo "INFO: check the valid settings for Terraform environment here: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs#environment"
