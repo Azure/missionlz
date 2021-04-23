@@ -25,7 +25,7 @@ show_help() {
     printf "%20s %2s %s \n" "$long_name" "$char_name" "$desc"
   }
   print_formatted "argument" "" "description"
-  print_formatted "--docker-strategy" "-d" "[local|build|load] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image (defaults to 'build')"
+  print_formatted "--docker-strategy" "-d" "[local|build|load]| 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image (defaults to 'build')"
   print_formatted "--subscription-id" "-s" "Subscription ID for MissionLZ resources"
   print_formatted "--location" "-l" "The location that you're deploying to (defaults to 'eastus')"
   print_formatted "--tf-environment" "-e" "Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment"
@@ -34,6 +34,7 @@ show_help() {
   print_formatted "--tier0-sub-id" "-0" "subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier1-sub-id" "-1" "subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier2-sub-id" "-2" "subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)"
+  print_formatted "--zip-file" "-f" "Zipped docker file for use with the load docker strategy, defaults to mlz.zip"
 }
 
 usage() {
@@ -51,6 +52,7 @@ tf_environment="public"
 mlz_env_name="mlz${timestamp}"
 web_port="80"
 subs_args=()
+zip_file="mlz.zip"
 
 # inspect user input
 while [ $# -gt 0 ] ; do
@@ -65,6 +67,7 @@ while [ $# -gt 0 ] ; do
     -0 | --tier0-sub-id) subs_args+=("-0 ${2}") ;;
     -1 | --tier1-sub-id) subs_args+=("-1 ${2}") ;;
     -2 | --tier2-sub-id) subs_args+=("-2 ${2}") ;;
+    -f | --zip-file) zip_file="$2" ;;
   esac
   shift
 done
@@ -94,6 +97,21 @@ if [[ $docker_strategy != "local" && \
       $docker_strategy != "load" ]]; then
   error_log "ERROR: Unrecognized docker strategy detected. Must be 'local', 'build', or 'load'."
   exit 1
+fi
+
+# build/load, tag, and push image
+image_name="lzfront"
+image_tag="latest"
+
+if [[ $docker_strategy == "build" ]]; then
+  echo "INFO: building docker image"
+  docker build -t "${image_name}" "${src_path}"
+fi
+
+if [[ $docker_strategy == "load" ]]; then
+  echo "INFO: Decompressing mlz zip archive and loading it to local docker image library."
+  unzip "${zip_file}"
+  docker load -i mlz.tar
 fi
 
 # switch to the MLZ subscription
@@ -148,19 +166,6 @@ fi
 
 # otherwise, create container registry
 "${container_registry_path}/create_acr.sh" "$mlz_config_file"
-
-# build/load, tag, and push image
-image_name="lzfront"
-image_tag="latest"
-
-if [[ $docker_strategy == "build" ]]; then
-  docker build -t "${image_name}" "${src_path}"
-fi
-
-if [[ $docker_strategy == "load" ]]; then
-  unzip mlz.zip .
-  docker load -i mlz.tar
-fi
 
 docker tag "${image_name}:${image_tag}" "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
 docker push "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"

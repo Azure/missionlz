@@ -108,7 +108,7 @@ wait_for_app_query_from_list "${mlz_fe_app_name}" "appId"
 
 echo "INFO: sourcing app registration information for app ID ${app_id}..."
 client_password=$(az ad app credential reset \
-    --id ${app_id} \
+    --id "${app_id}" \
     --query password \
     --only-show-errors \
     --output tsv)
