@@ -101,7 +101,6 @@ notify_of_default() {
   if [[ "$value_is_default" = true ]]; then
     echo "INFO: using the default value '${argument_value}' for '${argument_name}', specify the '${argument_name}' argument to provide a different value."
   fi
-
 }
 notify_of_default "${use_location_default}" "--location" "${mlz_config_location}"
 notify_of_default "${use_tfenv_default}" "--tf-environment" "${tf_environment}"
