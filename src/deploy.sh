@@ -48,16 +48,15 @@ timestamp=$(date +%s)
 ##### generate an MLZ config file #####
 
 # set helpful defaults that can be overridden or 'notset' for mandatory input
-mlz_config_subid="notset"
+default_config_subid="notset"
+default_config_location="eastus"
+default_tf_environment="public"
+default_env_name="mlz${timestamp}"
 
-mlz_config_location="eastus"
-use_location_default=true
-
-tf_environment="public"
-use_tfenv_default=true
-
-mlz_env_name="mlz${timestamp}"
-use_envname_default=true
+mlz_config_subid="${default_config_subid}"
+mlz_config_location="${default_config_location}"
+tf_environment="${default_tf_environment}"
+mlz_env_name="${default_env_name}"
 
 subs_args=()
 
@@ -65,15 +64,9 @@ subs_args=()
 while [ $# -gt 0 ] ; do
   case $1 in
     -s | --subscription-id) mlz_config_subid="$2" ;;
-    -l | --location)
-      mlz_config_location="$2"
-      use_location_default=false ;;
-    -e | --tf-environment)
-      tf_environment="$2"
-      use_tfenv_default=false ;;
-    -z | --mlz-env-name)
-      mlz_env_name="$2"
-      use_envname_default=false ;;
+    -l | --location) mlz_config_location="$2" ;;
+    -e | --tf-environment) tf_environment="$2" ;;
+    -z | --mlz-env-name) mlz_env_name="$2" ;;
     -h | --hub-sub-id) subs_args+=("-h ${2}") ;;
     -0 | --tier0-sub-id) subs_args+=("-0 ${2}") ;;
     -1 | --tier1-sub-id) subs_args+=("-1 ${2}") ;;
@@ -95,16 +88,16 @@ done
 
 # notify the user about any defaults
 notify_of_default() {
-  value_is_default=$1
-  argument_name=$2
+  argument_name=$1
+  argument_default=$2
   argument_value=$3
-  if [[ "$value_is_default" = true ]]; then
-    echo "INFO: using the default value '${argument_value}' for '${argument_name}', specify the '${argument_name}' argument to provide a different value."
+  if [[ "${argument_value}" = "${argument_default}" ]]; then
+    echo "INFO: using the default value '${argument_default}' for '${argument_name}', specify the '${argument_name}' argument to provide a different value."
   fi
 }
-notify_of_default "${use_location_default}" "--location" "${mlz_config_location}"
-notify_of_default "${use_tfenv_default}" "--tf-environment" "${tf_environment}"
-notify_of_default "${use_envname_default}" "--mlz-env-name" "${mlz_env_name}"
+notify_of_default "--location" "${default_config_location}" "${mlz_config_location}"
+notify_of_default "--tf-environment" "${default_tf_environment}" "${tf_environment}"
+notify_of_default "--mlz-env-name" "${default_env_name}" "${mlz_env_name}"
 
 # switch to the MLZ subscription
 echo "INFO: setting current subscription to ${mlz_config_subid}..."

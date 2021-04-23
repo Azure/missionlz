@@ -47,45 +47,30 @@ timestamp=$(date +%s)
 # set helpful defaults that can be overridden or 'notset' for mandatory input
 mlz_config_subid="notset"
 
-docker_strategy="build"
-use_docker_default=true
+default_docker_strategy="build"
+default_mlz_location="eastus"
+default_tf_environment="public"
+default_env_name="mlz${timestamp}"
+default_web_port="80"
 
-mlz_config_location="eastus"
-use_location_default=true
-
-tf_environment="public"
-use_tfenv_default=true
-
-mlz_env_name="mlz${timestamp}"
-use_envname_default=true
-
-web_port="80"
-use_port_default=true
-
+docker_strategy="${default_docker_strategy}"
+mlz_config_location="${default_mlz_location}"
+tf_environment="${default_tf_environment}"
+mlz_env_name="${default_env_name}"
+web_port="${default_web_port}"
 zip_file="mlz.zip"
 
 subs_args=()
-zip_file="mlz.zip"
 
 # inspect user input
 while [ $# -gt 0 ] ; do
   case $1 in
-    -d | --docker-strategy)
-      docker_strategy="$2"
-      use_docker_default=false ;;
+    -d | --docker-strategy) docker_strategy="$2" ;;
     -s | --subscription-id) mlz_config_subid="$2" ;;
-    -l | --location)
-      mlz_config_location="$2"
-      use_location_default=false ;;
-    -e | --tf-environment)
-      tf_environment="$2"
-      use_tfenv_default=false ;;
-    -z | --mlz-env-name)
-      mlz_env_name="$2"
-      use_envname_default=false ;;
-    -p | --port)
-      web_port="$2"
-      use_port_default=false ;;
+    -l | --location) mlz_config_location="$2" ;;
+    -e | --tf-environment) tf_environment="$2" ;;
+    -z | --mlz-env-name) mlz_env_name="$2" ;;
+    -p | --port) web_port="$2" ;;
     -h | --hub-sub-id) subs_args+=("-h ${2}") ;;
     -0 | --tier0-sub-id) subs_args+=("-0 ${2}") ;;
     -1 | --tier1-sub-id) subs_args+=("-1 ${2}") ;;
@@ -112,19 +97,19 @@ done
 
 # notify the user about any defaults
 notify_of_default() {
-  value_is_default=$1
-  argument_name=$2
+  argument_name=$1
+  argument_default=$2
   argument_value=$3
-  if [[ "$value_is_default" = true ]]; then
-    echo "INFO: using the default value '${argument_value}' for '${argument_name}', specify the '${argument_name}' argument to provide a different value."
+  if [[ "${argument_value}" = "${argument_default}" ]]; then
+    echo "INFO: using the default value '${argument_default}' for '${argument_name}', specify the '${argument_name}' argument to provide a different value."
   fi
 
 }
-notify_of_default "${use_docker_default}" "--docker-strategy" "${docker_strategy}"
-notify_of_default "${use_location_default}" "--location" "${mlz_config_location}"
-notify_of_default "${use_tfenv_default}" "--tf-environment" "${tf_environment}"
-notify_of_default "${use_envname_default}" "--mlz-env-name" "${mlz_env_name}"
-notify_of_default "${use_port_default}" "--port" "${web_port}"
+notify_of_default "--docker-strategy" "${default_docker_strategy}" "${docker_strategy}"
+notify_of_default "--location" "${default_mlz_location}" "${mlz_config_location}"
+notify_of_default "--tf-environment" "${default_tf_environment}" "${tf_environment}"
+notify_of_default "--mlz-env-name" "${default_env_name}" "${mlz_env_name}"
+notify_of_default "--port" "${default_web_port}" "${web_port}"
 
 # check for dependencies
 "${this_script_path}/util/checkforazcli.sh"
