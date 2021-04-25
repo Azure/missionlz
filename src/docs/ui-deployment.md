@@ -54,6 +54,7 @@ setup_ezdeploy.sh: Setup the front end for MLZ
       --tier0-sub-id -0 subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
       --tier1-sub-id -1 subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
       --tier2-sub-id -2 subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
+          --zip-file -f Zipped docker file for use with the 'load' docker strategy (defaults to 'mlz.zip')
 ```
 
 ### Step-by-Step Azure Air Gapped Installation
