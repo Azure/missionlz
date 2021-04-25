@@ -44,7 +44,7 @@ Here's the full list of parameters for reference:
 ```plaintext
 setup_ezdeploy.sh: Setup the front end for MLZ
             argument    description
-   --docker-strategy -d [local|build|load] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image, 'export' to build and create mlz.zip with the docker image
+   --docker-strategy -d [local|build|load] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image
    --subscription-id -s Subscription ID for MissionLZ resources
           --location -l The location that you're deploying to (defaults to 'eastus')
     --tf-environment -e Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
