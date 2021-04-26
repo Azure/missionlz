@@ -42,7 +42,7 @@
 			{
 				"varname": "tier0_subid",
 				"type": "text",
-				"default_val": "env:TIER0_SUBSCRIPTION_ID",
+				"default_val": "${env:TIER0_SUBSCRIPTION_ID}",
 				"description": "Tier0 Subscription Id",
 				"options": []
 			},
