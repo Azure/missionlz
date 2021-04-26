@@ -44,7 +44,7 @@ Here's the full list of parameters for reference:
 ```plaintext
 setup_ezdeploy.sh: Setup the front end for MLZ
             argument    description
-   --docker-strategy -d [local|build|load|export] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image, 'export' to build and create mlz.zip with the docker image
+   --docker-strategy -d [local|build|load] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image
    --subscription-id -s Subscription ID for MissionLZ resources
           --location -l The location that you're deploying to (defaults to 'eastus')
     --tf-environment -e Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
@@ -54,11 +54,12 @@ setup_ezdeploy.sh: Setup the front end for MLZ
       --tier0-sub-id -0 subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
       --tier1-sub-id -1 subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
       --tier2-sub-id -2 subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
+          --zip-file -f Zipped docker file for use with the 'load' docker strategy (defaults to 'mlz.zip')
 ```
 
 ### Step-by-Step Azure Air Gapped Installation
 
-This process closely mirrors the standard Azure documentation with a few subtle amendments.  
+This process closely mirrors the standard Azure documentation with a few subtle amendments.
 
 On your internet connected staging machine (With Docker Installed):
 
@@ -78,7 +79,7 @@ cd src/scripts
 ./setup_ezdeploy.sh -d load -s <subscription id> -e "<AZURE_ENVIRONMENT>" -l "<AZURE_LOCATION>"
 ```
 
-If desired both commands allow for the input of file names for exporting and for the load if the defaults are not sufficient. 
+If desired both commands allow for the input of file names for exporting and for the load if the defaults are not sufficient.
 
 ### Step-by-Step Local Installation
 
