@@ -34,6 +34,7 @@ show_help() {
   print_formatted "--tier1-sub-id" "-1" "subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier2-sub-id" "-2" "subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--zip-file" "-f" "Zipped docker file for use with the 'load' docker strategy (defaults to 'mlz.zip')"
+  print_formatted "--help" "-h" "Print this message"
 }
 
 usage() {
@@ -70,11 +71,14 @@ while [ $# -gt 0 ] ; do
     -e | --tf-environment) tf_environment="$2" ;;
     -z | --mlz-env-name) mlz_env_name="$2" ;;
     -p | --port) web_port="$2" ;;
-    -h | --hub-sub-id) subs_args+=("-h ${2}") ;;
+    -u | --hub-sub-id) subs_args+=("-u ${2}") ;;
     -0 | --tier0-sub-id) subs_args+=("-0 ${2}") ;;
     -1 | --tier1-sub-id) subs_args+=("-1 ${2}") ;;
     -2 | --tier2-sub-id) subs_args+=("-2 ${2}") ;;
     -f | --zip-file) zip_file="$2" ;;
+    -h | --help)
+      show_help
+      exit 0 ;;
   esac
   shift
 done

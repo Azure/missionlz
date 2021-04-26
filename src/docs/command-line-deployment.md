@@ -74,7 +74,7 @@ deploy.sh: create all the configuration and deploy Terraform resources with mini
           --location -l [OPTIONAL] The location that you're deploying to (defaults to 'eastus')
     --tf-environment -e [OPTIONAL] Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
       --mlz-env-name -z [OPTIONAL] Unique name for MLZ environment (defaults to 'mlz' + UNIX timestamp)
-        --hub-sub-id -h [OPTIONAL] subscription ID for the hub network and resources (defaults to the value provided for -s --subscription-id)
+        --hub-sub-id -u [OPTIONAL] subscription ID for the hub network and resources (defaults to the value provided for -s --subscription-id)
       --tier0-sub-id -0 [OPTIONAL] subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
       --tier1-sub-id -1 [OPTIONAL] subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
       --tier2-sub-id -2 [OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
