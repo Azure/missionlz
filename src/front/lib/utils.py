@@ -3,8 +3,12 @@
 # Provides a set of utility functions to be called from the primary API
 import os
 import json
+import re
 from dominate.tags import *
 from typing import Union
+
+# Re-usable variable sets
+env_match = re.compile("\${env:([0-9a-zA-Z_]+)}")
 
 def dotted_write(prop_name: str, val: Union[int, str], target_dict: dict):
     """
@@ -84,7 +88,7 @@ def build_form(form_doc: dict):
                                 # Process environment options
                                 if type(el_item["default_val"]) != bool:
                                     if "env:" in el_item["default_val"]:
-                                        el_item["default_val"] = os.getenv(el_item["default_val"].replace("env:", ""), "")
+                                        el_item["default_val"] = env_match.sub(environ_replace, el_item["default_val"])
                                 span(el_item["varname"], cls="input-group-text")
                                 if el_item["type"] == "text":
                                     input_(id=el_item["varname"], cls="form-control", value=el_item["default_val"], name=el_item["varname"])
@@ -106,3 +110,14 @@ def build_form(form_doc: dict):
         input_(value="Execute Terraform", type="submit")
 
     return doc_form
+
+
+def environ_replace(match_obj):
+    """
+    Purpose:  Iterate over the resulting match groups from a regex and return the matching environment variable
+    form to be appended to the front end UI
+
+    :form_doc: a dictionary derived from a loaded json
+    """
+    for x in match_obj.groups():
+        return os.getenv(x)
