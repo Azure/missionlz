@@ -65,17 +65,36 @@ subs_args=()
 # inspect user input
 while [ $# -gt 0 ] ; do
   case $1 in
-    -s | --subscription-id) mlz_config_subid="$2" ;;
-    -l | --location) mlz_config_location="$2" ;;
-    -e | --tf-environment) tf_environment="$2" ;;
-    -z | --mlz-env-name) mlz_env_name="$2" ;;
-    -u | --hub-sub-id) subs_args+=("-u ${2}") ;;
-    -0 | --tier0-sub-id) subs_args+=("-0 ${2}") ;;
-    -1 | --tier1-sub-id) subs_args+=("-1 ${2}") ;;
-    -2 | --tier2-sub-id) subs_args+=("-2 ${2}") ;;
+    -s | --subscription-id)
+      shift
+      mlz_config_subid="$1" ;;
+    -l | --location)
+      shift
+      mlz_config_location="$1" ;;
+    -e | --tf-environment)
+      shift
+      tf_environment="$1" ;;
+    -z | --mlz-env-name)
+      shift
+      mlz_env_name="$1" ;;
+    -u | --hub-sub-id)
+      shift
+      subs_args+=("-u ${1}") ;;
+    -0 | --tier0-sub-id)
+      shift
+      subs_args+=("-0 ${1}") ;;
+    -1 | --tier1-sub-id)
+      shift
+      subs_args+=("-1 ${1}") ;;
+    -2 | --tier2-sub-id)
+      shift
+      subs_args+=("-2 ${1}") ;;
     -h | --help)
       show_help
       exit 0 ;;
+    *)
+      error_log "ERROR: Unexpected argument: ${1}"
+      usage && exit 1 ;;
   esac
   shift
 done

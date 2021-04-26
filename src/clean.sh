@@ -42,10 +42,15 @@ mlz_env_name="notset"
 # inspect user input
 while [ $# -gt 0 ] ; do
   case $1 in
-    -z | --mlz-env-name) mlz_env_name="$2" ;;
+    -z | --mlz-env-name)
+      shift
+      mlz_env_name="$1" ;;
     -h | --help)
       show_help
       exit 0 ;;
+    *)
+      error_log "ERROR: Unexpected argument: ${1}"
+      usage && exit 1 ;;
   esac
   shift
 done

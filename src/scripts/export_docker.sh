@@ -40,10 +40,15 @@ zip_file="mlz.zip"
 # inspect user input
 while [ $# -gt 0 ] ; do
   case $1 in
-    -f | --output-file) zip_file="$2" ;;
+    -f | --output-file)
+      shift
+      zip_file="$1" ;;
     -h | --help)
       show_help
       exit 0 ;;
+    *)
+      error_log "ERROR: Unexpected argument: ${1}"
+      usage && exit 1 ;;
   esac
   shift
 done
