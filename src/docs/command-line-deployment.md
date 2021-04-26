@@ -84,7 +84,7 @@ For example, if I wanted to deploy into four subscriptions (one for each network
 
 ```bash
 src/deploy.sh -s {my_mlz_configuration_subscription_id} \
-  -h {my_hub_network_subscription_id} \
+  -u {my_hub_network_subscription_id} \
   -0 {my_identity_network_subscription_id} \
   -1 {my_operations_network_subscription_id} \
   -2 {my_shared_services_network_subscription_id} \
