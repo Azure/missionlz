@@ -160,6 +160,7 @@ async def home(request: Request):
            url: "/poll",
            success: function(msg){
              $("#terminal").text(msg);
+             $("#terminal").scrollTop($("#terminal")[0].scrollHeight);
            }
          });
         }
