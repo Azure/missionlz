@@ -7,7 +7,7 @@
 			{
 				"varname": "saca_subid",
 				"type": "text",
-				"default_val": "env:HUB_SUBSCRIPTION_ID",
+				"default_val": "${env:HUB_SUBSCRIPTION_ID}",
 				"description": "Saca Hub Subscription ID",
 				"options": []
 			},
