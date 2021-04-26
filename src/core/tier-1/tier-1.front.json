@@ -7,21 +7,21 @@
 			{
 				"varname": "saca_subid",
 				"type": "text",
-				"default_val": "env:HUB_SUBSCRIPTION_ID",
+				"default_val": "${env:HUB_SUBSCRIPTION_ID}",
 				"description": "Saca Hub Subscription ID",
 				"options": []
 			},
 			{
 				"varname": "saca_rgname",
 				"type": "text",
-				"default_val": "rg-eastus-mlz-saca",
+				"default_val": "rg-${env:MLZ_LOCATION}-mlz-saca",
 				"description": "Saca Hub Resource Group Name",
 				"options": []
 			},
 			{
 				"varname": "saca_vnetname",
 				"type": "text",
-				"default_val": "vn-eastus-mlz-saca",
+				"default_val": "vn-${env:MLZ_LOCATION}-mlz-saca",
 				"description": "Saca Virtual Network Name",
 				"options": []
 			},
@@ -35,28 +35,28 @@
 			{
 				"varname": "saca_lawsname",
 				"type": "text",
-				"default_val": "laws-eastus-mlz-saca",
+				"default_val": "laws-${env:MLZ_LOCATION}-mlz-saca",
 				"description": "Saca Log Analytic Workspace Name",
 				"options": []
 			},
 			{
 				"varname": "tier1_subid",
 				"type": "text",
-				"default_val": "env:TIER1_SUBSCRIPTION_ID",
+				"default_val": "${env:TIER1_SUBSCRIPTION_ID}",
 				"description": "Tier0 Subscription Id",
 				"options": []
 			},
 			{
 				"varname": "tier1_rgname",
 				"type": "text",
-				"default_val": "rg-eastus-mlz-t1",
+				"default_val": "rg-${env:MLZ_LOCATION}-mlz-t1",
 				"description": "Tier0 Resource Group Name",
 				"options": []
 			},
 			{
 				"varname": "tier1_vnetname",
 				"type": "text",
-				"default_val": "vn-eastus-mlz-t1",
+				"default_val": "vn-${env:MLZ_LOCATION}-mlz-t1",
 				"description": "Tier0 Virtual Network Name",
 				"options": []
 			},
