@@ -11,28 +11,28 @@
 			{
 				"varname": "saca_subid",
 				"type": "text",
-				"default_val": "env:HUB_SUBSCRIPTION_ID",
+				"default_val": "${env:HUB_SUBSCRIPTION_ID}",
 				"description": "The subscription id where the SACA hub lives",
 				"options": []
 			},
 			{
 				"varname": "saca_rgname",
 				"type": "text",
-				"default_val": "rg-eastus-mlz-saca",
+				"default_val": "rg-${env:MLZ_LOCATION}-mlz-saca",
 				"description": "Resource group name",
 				"options": []
 			},
 			{
 				"varname": "saca_vnetname",
 				"type": "text",
-				"default_val": "vn-eastus-mlz-saca",
+				"default_val": "vn-${env:MLZ_LOCATION}-mlz-saca",
 				"description": "Virtual Network Name",
 				"options": []
 			},
 			{
 				"varname": "saca_lawsname",
 				"type": "text",
-				"default_val": "laws-eastus-mlz-saca",
+				"default_val": "laws-${env:MLZ_LOCATION}-mlz-saca",
 				"description": "Name for log analytic workspace",
 				"options": []
 			},
@@ -48,42 +48,42 @@
 			{
 				"varname": "tier0_rgname",
 				"type": "text",
-				"default_val": "rg-eastus-mlz-t0",
+				"default_val": "rg-${env:MLZ_LOCATION}-mlz-t0",
 				"description": "Tier 0 resource group name",
 				"options": []
 			},
 			{
 				"varname": "tier0_vnetname",
 				"type": "text",
-				"default_val": "vn-eastus-mlz-t0",
+				"default_val": "vn-${env:MLZ_LOCATION}-mlz-t0",
 				"description": "Tier 0 virtual network name",
 				"options": []
 			},
 			{
 				"varname": "tier1_rgname",
 				"type": "text",
-				"default_val": "rg-eastus-mlz-t1",
+				"default_val": "rg-${env:MLZ_LOCATION}-mlz-t1",
 				"description": "Tier 1 resource group name",
 				"options": []
 			},
 			{
 				"varname": "tier1_vnetname",
 				"type": "text",
-				"default_val": "vn-eastus-mlz-t1",
+				"default_val": "vn-${env:MLZ_LOCATION}-mlz-t1",
 				"description": "Tier one virtual network name",
 				"options": []
 			},
 			{
 				"varname": "tier2_rgname",
 				"type": "text",
-				"default_val": "rg-eastus-mlz-t2",
+				"default_val": "rg-${env:MLZ_LOCATION}-mlz-t2",
 				"description": "Tier 2 resource group name",
 				"options": []
 			},
 			{
 				"varname": "tier2_vnetname",
 				"type": "text",
-				"default_val": "vn-eastus-mlz-t2",
+				"default_val": "vn-${env:MLZ_LOCATION}-mlz-t2",
 				"description": "Tier 2 virtual network name",
 				"options": []
 			},
