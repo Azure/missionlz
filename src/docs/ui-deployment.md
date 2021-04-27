@@ -63,7 +63,32 @@ setup_ezdeploy.sh: Setup the front end for MLZ
       --tier0-sub-id -0 subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
       --tier1-sub-id -1 subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
       --tier2-sub-id -2 subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
+          --zip-file -f Zipped docker file for use with the 'load' docker strategy (defaults to 'mlz.zip')
 ```
+
+## Step-by-Step Azure Air Gapped Installation
+
+This process closely mirrors the standard Azure documentation with a few subtle amendments.
+
+On your internet connected staging machine (With Docker Installed):
+
+Build the docker image needed for deployment:
+
+```BASH
+cd src/scripts
+./export_docker.sh
+```
+
+This will take some time by building the docker image, and then saving it to the scripts working directory and compressing it to "mlz.zip"
+
+Move this file along with the repo to the destination for airgapped deployment Then execute the following
+
+```BASH
+cd src/scripts
+./setup_ezdeploy.sh -d load -s <subscription id> -e "<AZURE_ENVIRONMENT>" -l "<AZURE_LOCATION>"
+```
+
+If desired both commands allow for the input of file names for exporting and for the load if the defaults are not sufficient.
 
 ## Step-by-Step Local Installation
 

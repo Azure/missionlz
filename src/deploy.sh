@@ -3,7 +3,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# shellcheck disable=1090,2154
+# shellcheck disable=1091
+# SC1091: Not following. Shellcheck can't follow non-constant source. These script are dynamically resolved.
+#
 # create all the configuration and deploy Terraform resources with minimal input
 
 set -e
@@ -47,10 +49,16 @@ timestamp=$(date +%s)
 ##### generate an MLZ config file #####
 
 # set helpful defaults that can be overridden or 'notset' for mandatory input
-mlz_config_subid="notset"
-mlz_config_location="eastus"
-tf_environment="public"
-mlz_env_name="mlz${timestamp}"
+default_config_subid="notset"
+default_config_location="eastus"
+default_tf_environment="public"
+default_env_name="mlz${timestamp}"
+
+mlz_config_subid="${default_config_subid}"
+mlz_config_location="${default_config_location}"
+tf_environment="${default_tf_environment}"
+mlz_env_name="${default_env_name}"
+
 subs_args=()
 
 # inspect user input
@@ -79,12 +87,31 @@ do
   fi
 done
 
+# notify the user about any defaults
+notify_of_default() {
+  argument_name=$1
+  argument_default=$2
+  argument_value=$3
+  if [[ "${argument_value}" = "${argument_default}" ]]; then
+    echo "INFO: using the default value '${argument_default}' for '${argument_name}', specify the '${argument_name}' argument to provide a different value."
+  fi
+}
+notify_of_default "--location" "${default_config_location}" "${mlz_config_location}"
+notify_of_default "--tf-environment" "${default_tf_environment}" "${tf_environment}"
+notify_of_default "--mlz-env-name" "${default_env_name}" "${mlz_env_name}"
+
 # switch to the MLZ subscription
 echo "INFO: setting current subscription to ${mlz_config_subid}..."
 az account set \
   --subscription "${mlz_config_subid}" \
   --only-show-errors \
   --output none
+
+# validate that the location is present in the current cloud
+"${this_script_path}/scripts/util/validateazlocation.sh" "${mlz_config_location}"
+
+# validate that terraform environment matches for the current cloud
+"${this_script_path}/scripts/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
 
 # retrieve tenant ID for the MLZ subscription
 mlz_tenantid=$(az account show \
