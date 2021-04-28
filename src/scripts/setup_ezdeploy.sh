@@ -3,10 +3,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# shellcheck disable=SC1083,SC1090,SC1091,2154
-# SC1083: This is literal.
-# SC1090: Can't follow non-constant source. Use a directive to specify location.
-# SC1091: Not following. Shellcheck can't follow non-constant source.
+# shellcheck disable=SC1083,SC1091,2154
+# SC1083: This is literal. We want to expand the items literally.
+# SC1091: Not following. Shellcheck can't follow non-constant source. These script are dynamically resolved.
 # SC2154: "var is referenced but not assigned". These values come from an external file.
 #
 # This script deploys container registries, app registrations, and a container instance to run the MLZ front end
@@ -34,7 +33,7 @@ show_help() {
   print_formatted "--tier0-sub-id" "-0" "subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier1-sub-id" "-1" "subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier2-sub-id" "-2" "subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)"
-  print_formatted "--zip-file" "-f" "Zipped docker file for use with the load docker strategy, defaults to mlz.zip"
+  print_formatted "--zip-file" "-f" "Zipped docker file for use with the 'load' docker strategy (defaults to 'mlz.zip')"
 }
 
 usage() {
@@ -45,14 +44,22 @@ usage() {
 timestamp=$(date +%s)
 
 # set helpful defaults that can be overridden or 'notset' for mandatory input
-docker_strategy="build"
 mlz_config_subid="notset"
-mlz_config_location="eastus"
-tf_environment="public"
-mlz_env_name="mlz${timestamp}"
-web_port="80"
-subs_args=()
+
+default_docker_strategy="build"
+default_mlz_location="eastus"
+default_tf_environment="public"
+default_env_name="mlz${timestamp}"
+default_web_port="80"
+
+docker_strategy="${default_docker_strategy}"
+mlz_config_location="${default_mlz_location}"
+tf_environment="${default_tf_environment}"
+mlz_env_name="${default_env_name}"
+web_port="${default_web_port}"
 zip_file="mlz.zip"
+
+subs_args=()
 
 # inspect user input
 while [ $# -gt 0 ] ; do
@@ -77,10 +84,6 @@ this_script_path=$(realpath "${BASH_SOURCE%/*}")
 src_path=$(dirname "${this_script_path}")
 container_registry_path="$(realpath "${this_script_path}")/container-registry"
 
-# check for dependencies
-"${this_script_path}/util/checkforazcli.sh"
-"${this_script_path}/util/checkfordocker.sh"
-
 # check mandatory parameters
 for i in { $docker_strategy $mlz_config_subid $mlz_config_location $tf_environment $mlz_env_name $web_port }
 do
@@ -90,6 +93,36 @@ do
     exit 1
   fi
 done
+
+# notify the user about any defaults
+notify_of_default() {
+  argument_name=$1
+  argument_default=$2
+  argument_value=$3
+  if [[ "${argument_value}" = "${argument_default}" ]]; then
+    echo "INFO: using the default value '${argument_default}' for '${argument_name}', specify the '${argument_name}' argument to provide a different value."
+  fi
+
+}
+notify_of_default "--docker-strategy" "${default_docker_strategy}" "${docker_strategy}"
+notify_of_default "--location" "${default_mlz_location}" "${mlz_config_location}"
+notify_of_default "--tf-environment" "${default_tf_environment}" "${tf_environment}"
+notify_of_default "--mlz-env-name" "${default_env_name}" "${mlz_env_name}"
+notify_of_default "--port" "${default_web_port}" "${web_port}"
+
+# check for dependencies
+"${this_script_path}/util/checkforazcli.sh"
+"${this_script_path}/util/checkfordocker.sh"
+
+# switch to the MLZ subscription
+echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
+az account set --subscription "${mlz_config_subid}"
+
+# validate that the location is present in the current cloud
+"${this_script_path}/util/validateazlocation.sh" "${mlz_config_location}"
+
+# validate that terraform environment matches for the current cloud
+"${this_script_path}/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
 
 # check docker strategy
 if [[ $docker_strategy != "local" && \
@@ -113,10 +146,6 @@ if [[ $docker_strategy == "load" ]]; then
   unzip "${zip_file}"
   docker load -i mlz.tar
 fi
-
-# switch to the MLZ subscription
-echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
-az account set --subscription "${mlz_config_subid}"
 
 # retrieve tenant ID for the MLZ subscription
 mlz_tenantid=$(az account show \
