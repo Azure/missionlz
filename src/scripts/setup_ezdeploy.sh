@@ -34,6 +34,7 @@ show_help() {
   print_formatted "--tier1-sub-id" "-1" "subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier2-sub-id" "-2" "subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--zip-file" "-f" "Zipped docker file for use with the 'load' docker strategy (defaults to 'mlz.zip')"
+  print_formatted "--help" "-h" "Print this message"
 }
 
 usage() {
@@ -64,17 +65,44 @@ subs_args=()
 # inspect user input
 while [ $# -gt 0 ] ; do
   case $1 in
-    -d | --docker-strategy) docker_strategy="$2" ;;
-    -s | --subscription-id) mlz_config_subid="$2" ;;
-    -l | --location) mlz_config_location="$2" ;;
-    -e | --tf-environment) tf_environment="$2" ;;
-    -z | --mlz-env-name) mlz_env_name="$2" ;;
-    -p | --port) web_port="$2" ;;
-    -h | --hub-sub-id) subs_args+=("-h ${2}") ;;
-    -0 | --tier0-sub-id) subs_args+=("-0 ${2}") ;;
-    -1 | --tier1-sub-id) subs_args+=("-1 ${2}") ;;
-    -2 | --tier2-sub-id) subs_args+=("-2 ${2}") ;;
-    -f | --zip-file) zip_file="$2" ;;
+    -d | --docker-strategy)
+      shift
+      docker_strategy="$1" ;;
+    -s | --subscription-id)
+      shift
+      mlz_config_subid="$1" ;;
+    -l | --location)
+      shift
+      mlz_config_location="$1" ;;
+    -e | --tf-environment)
+      shift
+      tf_environment="$1" ;;
+    -z | --mlz-env-name)
+      shift
+      mlz_env_name="$1" ;;
+    -p | --port)
+      shift
+      web_port="$1" ;;
+    -u | --hub-sub-id)
+      shift
+      subs_args+=("-u ${1}") ;;
+    -0 | --tier0-sub-id)
+      shift
+      subs_args+=("-0 ${1}") ;;
+    -1 | --tier1-sub-id)
+      subs_args+=("-1 ${1}") ;;
+    -2 | --tier2-sub-id)
+      shift
+      subs_args+=("-2 ${1}") ;;
+    -f | --zip-file)
+      shift
+      zip_file="$1" ;;
+    -h | --help)
+      show_help
+      exit 0 ;;
+    *)
+      error_log "ERROR: Unexpected argument: ${1}"
+      usage && exit 1 ;;
   esac
   shift
 done

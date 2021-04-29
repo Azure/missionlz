@@ -27,10 +27,11 @@ show_help() {
   print_formatted "--location" "-l" "The location that you're deploying to (e.g. 'eastus')"
   print_formatted "--config-sub-id" "-s" "Subscription ID for MissionLZ configuration resources"
   print_formatted "--tenant-id" "-t" "Tenant ID where your subscriptions live"
-  print_formatted "--hub-sub-id" "-h" "[OPTIONAL]: subscription ID for the hub network and resources"
+  print_formatted "--hub-sub-id" "-u" "[OPTIONAL]: subscription ID for the hub network and resources"
   print_formatted "--tier0-sub-id" "-0" "[OPTIONAL]: subscription ID for tier 0 network and resources"
   print_formatted "--tier1-sub-id" "-1" "[OPTIONAL]: subscription ID for tier 1 network and resources"
   print_formatted "--tier2-sub-id" "-2" "[OPTIONAL]: subscription ID for tier 2 network and resources"
+  print_formatted "--help" "-h" "Print this message"
 }
 
 usage() {
@@ -49,16 +50,42 @@ mlz_tenant_id="notset"
 # inspect arguments
 while [ $# -gt 0 ] ; do
   case $1 in
-    -f | --file) dest_file="$2" ;;
-    -e | --tf-env) tf_environment="$2" ;;
-    -z | --mlz-env-name) mlz_env_name="$2" ;;
-    -l | --location) mlz_config_location="$2" ;;
-    -s | --config-sub-id) mlz_config_subid="$2" ;;
-    -t | --tenant-id) mlz_tenant_id="$2" ;;
-    -h | --hub-sub-id) mlz_saca_subid="$2" ;;
-    -0 | --tier0-sub-id) mlz_tier0_subid="$2" ;;
-    -1 | --tier1-sub-id) mlz_tier1_subid="$2" ;;
-    -2 | --tier2-sub-id) mlz_tier2_subid="$2" ;;
+    -f | --file)
+      shift
+      dest_file="$1" ;;
+    -e | --tf-env)
+      shift
+      tf_environment="$1" ;;
+    -z | --mlz-env-name)
+      shift
+      mlz_env_name="$1" ;;
+    -l | --location)
+      shift
+      mlz_config_location="$1" ;;
+    -s | --config-sub-id)
+      shift
+      mlz_config_subid="$1" ;;
+    -t | --tenant-id)
+      shift
+      mlz_tenant_id="$1" ;;
+    -u | --hub-sub-id)
+      shift
+      mlz_saca_subid="$1" ;;
+    -0 | --tier0-sub-id)
+      shift
+      mlz_tier0_subid="$1" ;;
+    -1 | --tier1-sub-id)
+      shift
+      mlz_tier1_subid="$1" ;;
+    -2 | --tier2-sub-id)
+      shift
+      mlz_tier2_subid="$1" ;;
+    -h | --help)
+      show_help
+      exit 0 ;;
+    *)
+      error_log "ERROR: Unexpected argument: ${1}"
+      usage && exit 1 ;;
   esac
   shift
 done

@@ -59,11 +59,12 @@ setup_ezdeploy.sh: Setup the front end for MLZ
     --tf-environment -e Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
       --mlz-env-name -z Unique name for MLZ environment (defaults to 'mlz' + UNIX timestamp)
               --port -p port to expose the front end web UI on (defaults to '80')
-        --hub-sub-id -h subscription ID for the hub network and resources (defaults to the value provided for -s --subscription-id)
+        --hub-sub-id -u subscription ID for the hub network and resources (defaults to the value provided for -s --subscription-id)
       --tier0-sub-id -0 subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
       --tier1-sub-id -1 subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
       --tier2-sub-id -2 subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
           --zip-file -f Zipped docker file for use with the 'load' docker strategy (defaults to 'mlz.zip')
+              --help -h Print this message
 ```
 
 ## Step-by-Step Azure Air Gapped Installation

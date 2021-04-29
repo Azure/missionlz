@@ -9,7 +9,7 @@
 # SC1091: Not following. Shellcheck can't follow non-constant source.
 # SC2154: "var is referenced but not assigned". These values come from an external file.
 #
-# This script locally saves a local docker image for movement between airgapped networks. 
+# This script locally saves a local docker image for movement between airgapped networks.
 
 set -e
 
@@ -26,6 +26,7 @@ show_help() {
   }
   print_formatted "argument" "" "description"
   print_formatted "--output-file" "-f" "Output file name/location, defaults to same directory 'mlz.zip'"
+  print_formatted "--help" "-h" "Print this message"
 }
 
 usage() {
@@ -39,7 +40,15 @@ zip_file="mlz.zip"
 # inspect user input
 while [ $# -gt 0 ] ; do
   case $1 in
-    -f | --output-file) zip_file="$2" ;;
+    -f | --output-file)
+      shift
+      zip_file="$1" ;;
+    -h | --help)
+      show_help
+      exit 0 ;;
+    *)
+      error_log "ERROR: Unexpected argument: ${1}"
+      usage && exit 1 ;;
   esac
   shift
 done

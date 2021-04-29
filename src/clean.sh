@@ -21,7 +21,8 @@ show_help() {
     printf "%20s %2s %s \n" "$long_name" "$char_name" "$desc"
   }
   print_formatted "argument" "" "description"
-  print_formatted "--mlz-env-name" "-z" "[OPTIONAL] Unique name for MLZ environment (defaults to 'mlz' + UNIX timestamp)"
+  print_formatted "--mlz-env-name" "-z" "Unique name for MLZ environment"
+  print_formatted "--help" "-h" "Print this message"
 }
 
 usage() {
@@ -33,14 +34,23 @@ this_script_path=$(realpath "${BASH_SOURCE%/*}")
 configuration_output_path="${this_script_path}/generated-configurations"
 
 # check for dependencies
-
 "${this_script_path}/scripts/util/checkforazcli.sh"
 "${this_script_path}/scripts/util/checkforterraform.sh"
+
+mlz_env_name="notset"
 
 # inspect user input
 while [ $# -gt 0 ] ; do
   case $1 in
-    -z | --mlz-env-name) mlz_env_name="$2" ;;
+    -z | --mlz-env-name)
+      shift
+      mlz_env_name="$1" ;;
+    -h | --help)
+      show_help
+      exit 0 ;;
+    *)
+      error_log "ERROR: Unexpected argument: ${1}"
+      usage && exit 1 ;;
   esac
   shift
 done
