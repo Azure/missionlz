@@ -19,7 +19,12 @@ variable "vnet_address_space" {
 }
 
 variable "firewall_address_space" {
-  description = "The address space to be used for the Firewall virtual network."
+  description = "The address space to be used for the Firewall virtual network subnet used for client traffic."
+  type        = string
+}
+
+variable "management_address_space" {
+  description = "The address space to be used for the Firewall virtual network subnet used for management traffic."
   type        = string
 }
 

@@ -21,6 +21,13 @@ resource "azurerm_subnet" "firewall" {
   address_prefixes     = [cidrsubnet(var.firewall_address_space, 0, 0)]
 }
 
+resource "azurerm_subnet" "management" {
+  name                 = "AzureFirewallManagementSubnet"
+  resource_group_name  = module.hub-network.resource_group_name
+  virtual_network_name = module.hub-network.virtual_network_name
+  address_prefixes     = [cidrsubnet(var.management_address_space, 0, 0)]
+}
+
 resource "azurerm_log_analytics_workspace" "loganalytics" {
   name                = var.log_analytics_workspace_name
   resource_group_name = data.azurerm_resource_group.rg.name

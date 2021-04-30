@@ -34,13 +34,14 @@ resource "azurerm_resource_group" "hub" {
 }
 
 module "saca-hub-network" {
-  depends_on             = [azurerm_resource_group.hub]
-  source                 = "../../modules/hub"
-  location               = var.mlz_location
-  resource_group_name    = azurerm_resource_group.hub.name
-  vnet_name              = var.saca_vnetname
-  vnet_address_space     = var.vnet_address_space
-  firewall_address_space = var.firewall_address_space
+  depends_on               = [azurerm_resource_group.hub]
+  source                   = "../../modules/hub"
+  location                 = var.mlz_location
+  resource_group_name      = azurerm_resource_group.hub.name
+  vnet_name                = var.saca_vnetname
+  vnet_address_space       = var.vnet_address_space
+  firewall_address_space   = var.firewall_address_space
+  management_address_space = var.management_address_space
 
   log_analytics_workspace_name              = var.saca_lawsname
   log_analytics_workspace_sku               = "PerGB2018"

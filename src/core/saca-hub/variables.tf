@@ -71,6 +71,12 @@ variable "firewall_address_space" {
   type        = string
 }
 
+variable "management_address_space" {
+  description = "The address space to be used for the Firewall virtual network subnet used for management traffic."
+  default     = "10.0.100.64/26"
+  type        = string
+}
+
 variable "saca_fwname" {
   description = "Name of the Hub Firewall"
   default     = "mlzDemoFirewall"
