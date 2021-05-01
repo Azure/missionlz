@@ -28,6 +28,27 @@ resource "azurerm_subnet" "management" {
   address_prefixes     = [cidrsubnet(var.management_address_space, 0, 0)]
 }
 
+resource "azurerm_route_table" "routetable" {
+ name                          = var.routetable_name
+ resource_group_name           = azurerm_subnet.management.resource_group_name
+ location                      = data.azurerm_resource_group.rg.location
+ disable_bgp_route_propagation = true
+ tags                          = var.tags
+}
+
+resource "azurerm_route" "routetable" {
+ name                = "default_route"
+ resource_group_name = azurerm_route_table.routetable.resource_group_name
+ route_table_name    = azurerm_route_table.routetable.name
+ address_prefix      = "0.0.0.0/0"
+ next_hop_type       = "Internet"
+}
+
+resource "azurerm_subnet_route_table_association" "routetable" {
+ subnet_id      = azurerm_subnet.management.id
+ route_table_id = azurerm_route_table.routetable.id
+}
+
 resource "azurerm_log_analytics_workspace" "loganalytics" {
   name                = var.log_analytics_workspace_name
   resource_group_name = data.azurerm_resource_group.rg.name

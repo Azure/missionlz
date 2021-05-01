@@ -42,6 +42,7 @@ module "saca-hub-network" {
   vnet_address_space       = var.vnet_address_space
   firewall_address_space   = var.firewall_address_space
   management_address_space = var.management_address_space
+  routetable_name = var.mgmt_routetable_name
 
   log_analytics_workspace_name              = var.saca_lawsname
   log_analytics_workspace_sku               = "PerGB2018"

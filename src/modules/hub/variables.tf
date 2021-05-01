@@ -28,6 +28,11 @@ variable "management_address_space" {
   type        = string
 }
 
+variable "routetable_name" {
+  description = "The name of the route table to be applied to the firewall management subnet."
+  type        = string
+}
+
 variable "log_analytics_workspace_name" {
   description = "The name used for the Log Analytics Workspace (must be globally unique)."
   type        = string

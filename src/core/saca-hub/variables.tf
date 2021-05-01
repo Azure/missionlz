@@ -92,6 +92,11 @@ variable "public_ip_name" {
   default     = "mlzDemoFirewallPip"
 }
 
+variable "mgmt_routetable_name" {
+  description = "The name of the route table applied to the management subnet"
+  default     = "mlzDemoFirewallMgmtRT"
+}
+
 variable "create_network_watcher" {
   description = "Deploy a Network Watcher resource alongside this virtual network (there's a limit of one per-subscription-per-region)"
   type        = bool
