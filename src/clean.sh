@@ -33,60 +33,63 @@ usage() {
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
 configuration_output_path="${this_script_path}/generated-configurations"
 
-# check for dependencies
-"${this_script_path}/scripts/util/checkforazcli.sh"
-"${this_script_path}/scripts/util/checkforterraform.sh"
+check_dependencies() {
+  "${this_script_path}/scripts/util/checkforazcli.sh"
+  "${this_script_path}/scripts/util/checkforterraform.sh"
+}
 
-mlz_env_name="notset"
+inspect_input() {
+  mlz_env_name="notset"
 
-# inspect user input
-while [ $# -gt 0 ] ; do
-  case $1 in
-    -z | --mlz-env-name)
-      shift
-      mlz_env_name="$1" ;;
-    -h | --help)
-      show_help
-      exit 0 ;;
-    *)
-      error_log "ERROR: Unexpected argument: ${1}"
-      usage && exit 1 ;;
-  esac
-  shift
-done
+  while [ $# -gt 0 ] ; do
+    case $1 in
+      -z | --mlz-env-name)
+        shift
+        mlz_env_name="$1" ;;
+      -h | --help)
+        show_help
+        exit 0 ;;
+      *)
+        error_log "ERROR: Unexpected argument: ${1}"
+        usage && exit 1 ;;
+    esac
+    shift
+  done
 
-# check mandatory parameters
-# shellcheck disable=1083
-for i in { $mlz_env_name }
-do
-  if [[ $i == "notset" ]]; then
-    error_log "ERROR: Missing required arguments. These arguments are mandatory: -z"
-    usage
-    exit 1
-  fi
-done
+  # check mandatory parameters
+  # shellcheck disable=1083
+  for i in { $mlz_env_name }
+  do
+    if [[ $i == "notset" ]]; then
+      error_log "ERROR: Missing required arguments. These arguments are mandatory: -z"
+      usage
+      exit 1
+    fi
+  done
+}
 
-# source generated config
-mlz_config_file="${configuration_output_path}/${mlz_env_name}.mlzconfig"
-. "${mlz_config_file}"
+import_configuration() {
+  # declare where to find configuration
+  mlz_config_file="${configuration_output_path}/${mlz_env_name}.mlzconfig"
 
-# generate names for reference
-. "${this_script_path}/scripts/config/generate_names.sh" "${mlz_config_file}"
+  # generate names for reference
+  . "${mlz_config_file}"
+  . "${this_script_path}/scripts/config/generate_names.sh" "${mlz_config_file}"
+}
 
-# source generated terraform vars
-tfvars_filename="${mlz_env_name}.tfvars"
-tfvars_path="${configuration_output_path}/${tfvars_filename}"
+login_azcli() {
+  echo "INFO: setting current subscription to ${mlz_config_subid}..."
+  az account set \
+    --subscription "${mlz_config_subid}" \
+    --only-show-errors \
+    --output none
+}
 
-# login
-echo "INFO: setting current subscription to ${mlz_config_subid}..."
-az account set \
-  --subscription "${mlz_config_subid}" \
-  --only-show-errors \
-  --output none
+destroy_terraform() {
+  local tfvars_path="${configuration_output_path}/${mlz_env_name}.tfvars"
 
-# destroy terraform
-echo "INFO: destroying Terraform using ${mlz_config_file} and ${tfvars_path}..."
-"${this_script_path}/build/destroy_tf.sh" \
+  echo "INFO: destroying Terraform using ${mlz_config_file} and ${tfvars_path}..."
+  "${this_script_path}/build/destroy_tf.sh" \
   "${mlz_config_file}" \
   "${tfvars_path}" \
   "${tfvars_path}" \
@@ -94,7 +97,20 @@ echo "INFO: destroying Terraform using ${mlz_config_file} and ${tfvars_path}..."
   "${tfvars_path}" \
   "${tfvars_path}" \
   "y"
+}
 
-# clean up MLZ config resources
-echo "INFO: cleaning up MLZ resources with tag 'DeploymentName=${mlz_env_name}'..."
-. "${this_script_path}/scripts/config/config_clean.sh" "${mlz_config_file}"
+destroy_mlz() {
+  echo "INFO: cleaning up MLZ resources with tag 'DeploymentName=${mlz_env_name}'..."
+  . "${this_script_path}/scripts/config/config_clean.sh" "${mlz_config_file}"
+}
+
+##########
+# main
+##########
+
+check_dependencies
+inspect_input
+import_configuration
+login_azcli
+destroy_terraform
+destroy_mlz
