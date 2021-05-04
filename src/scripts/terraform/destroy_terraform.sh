@@ -9,13 +9,13 @@
 # SC2154: "var is referenced but not assigned". These values come from an external file.
 # SC2143: Use grep -q instead of comparing output. Ignored for legibility.
 #
-# Applies a Terraform configuration given a backend configuration, a global variables file, and a terraform configurationd directory
+# Destroys a Terraform configuration given a backend configuration, a global variables file, and a terraform configurationd directory
 
 set -e
 
 if [[ "$#" -lt 2 ]]; then
-   echo "apply_terraform.sh: initializes Terraform for a given directory using given a .env file for backend configuration"
-   echo "usage: apply_terraform.sh <global variables file> <terraform configuration directory> <var_file> <auto approve (y/n)>"
+   echo "destroy_terraform.sh: initializes Terraform for a given directory using given a .env file for backend configuration"
+   echo "usage: destroy_terraform.sh <global variables file> <terraform configuration directory> <var_file> <auto approve (y/n)>"
    exit 1
 fi
 
@@ -29,15 +29,17 @@ tfvars="${tf_dir}/${tf_name}"
 
 auto_approve=${4:-n}
 
+scripts_path=$(realpath "${BASH_SOURCE%/*}/..")
+
 # check for dependencies
-. "${BASH_SOURCE%/*}/util/checkforazcli.sh"
-. "${BASH_SOURCE%/*}/util/checkforterraform.sh"
+. "${scripts_path}/util/checkforazcli.sh"
+. "${scripts_path}/util/checkforterraform.sh"
 
 # Validate necessary Azure resources exist
-. "${BASH_SOURCE%/*}/config/config_validate.sh" "${tf_dir}"
+. "${scripts_path}/config/config_validate.sh" "${tf_dir}"
 
 # Validate configuration file exists
-. "${BASH_SOURCE%/*}/util/checkforfile.sh" \
+. "${scripts_path}/util/checkforfile.sh" \
    "${config_vars}" \
    "The configuration file ${config_vars} is empty or does not exist. You may need to run MLZ setup."
 
@@ -45,7 +47,7 @@ auto_approve=${4:-n}
 . "${config_vars}"
 
 # Verify Service Principal is valid and set client_id and client_secret environment variables
-. "${BASH_SOURCE%/*}/config/get_sp_identity.sh" "${config_vars}"
+. "${scripts_path}/config/get_sp_identity.sh" "${config_vars}"
 
 # Set the terraform state key
 key="${mlz_env_name}${tf_name}"
@@ -64,16 +66,16 @@ terraform init \
    -backend-config "client_id=${client_id}" \
    -backend-config "client_secret=${client_secret}"
 
-# apply the terraform configuration with global vars and the configuration's tfvars
-apply_command="terraform apply"
+# destroy the terraform configuration with global vars and the configuration's tfvars
+destroy_command="terraform destroy"
 
 if [[ $auto_approve == "y" ]]; then
-   apply_command+=" -input=false -auto-approve"
+   destroy_command+=" -input=false -auto-approve"
 fi
 
-apply_command+=" -var-file=${globalvars}"
-apply_command+=" -var-file=${tfvars}"
-apply_command+=" -var mlz_clientid=${client_id}"
-apply_command+=" -var mlz_clientsecret=${client_secret}"
+destroy_command+=" -var-file=${globalvars}"
+destroy_command+=" -var-file=${tfvars}"
+destroy_command+=" -var mlz_clientid=${client_id}"
+destroy_command+=" -var mlz_clientsecret=${client_secret}"
 
-eval "${apply_command}"
+eval "${destroy_command}"

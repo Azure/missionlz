@@ -39,7 +39,7 @@ jobs:
       run : |
         cd src/build
         ./apply_tf.sh \
-          vars/mlz_tf_cfg.var \
+          vars/mlz.config \
           vars/globals.tfvars \
           vars/saca-hub.tfvars \
           vars/tier-0.tfvars \
@@ -51,7 +51,7 @@ jobs:
       run : |
         cd src/build
         ./destroy_tf.sh \
-          vars/mlz_tf_cfg.var \
+          vars/mlz.config \
           vars/globals.tfvars \
           vars/saca-hub.tfvars \
           vars/tier-0.tfvars \

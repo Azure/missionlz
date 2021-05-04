@@ -82,8 +82,8 @@ apply() {
   attempts=1
   max_attempts=5
 
-  apply_command="${scripts_path}/apply_terraform.sh ${globals} ${path} ${tf_vars} y"
-  destroy_command="${scripts_path}/destroy_terraform.sh ${globals} ${path} ${tf_vars} y"
+  apply_command="${scripts_path}/terraform/apply_terraform.sh ${globals} ${path} ${tf_vars} y"
+  destroy_command="${scripts_path}/terraform/destroy_terraform.sh ${globals} ${path} ${tf_vars} y"
 
   if [[ $display_tf_output == "n" ]]; then
     apply_command+=" &>/dev/null"

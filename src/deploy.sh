@@ -110,12 +110,12 @@ create_mlz_configuration_file() {
 
   # ignoring shellcheck for word splitting because that is the desired behavior
   # shellcheck disable=SC2086
-  "${this_script_path}/scripts/config/generate_config_file.sh" $gen_config_args_str
+  "${this_script_path}/scripts/generate_config_file.sh" $gen_config_args_str
 }
 
 create_mlz_resources() {
   echo "INFO: creating MLZ resources using ${mlz_config_file_path}..."
-  "${this_script_path}/scripts/mlz_tf_setup.sh" "${mlz_config_file_path}"
+  "${this_script_path}/scripts/create_mlz_configuration_resources.sh" "${mlz_config_file_path}"
 }
 
 create_terraform_variables() {

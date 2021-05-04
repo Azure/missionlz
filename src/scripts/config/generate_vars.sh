@@ -25,16 +25,16 @@ if [[ "$#" -lt 4 ]]; then
    exit 1
 fi
 
-mlz_tf_cfg=$1
+mlz_config=$1
 tf_sub_id=${2}
 tf_name=${3}
 tf_dir=$(realpath "${4}")
 
 # source mlz config
-. "${mlz_tf_cfg}"
+. "${mlz_config}"
 
 # generate names
-. "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}"
+. "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_config}" "${tf_sub_id}" "${tf_name}"
 
 # generate a config.vars file
 config_vars="${tf_dir}/config.vars"

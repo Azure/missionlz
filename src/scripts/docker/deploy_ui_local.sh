@@ -16,8 +16,8 @@ error_log() {
 }
 
 usage() {
-  echo "setup_ezdeploy_local.sh: setup a local front end for MLZ"
-  error_log "usage: setup_ezdeploy.sh <mlz config file> <local url for front end>"
+  echo "deploy_ui_local.sh: setup a local front end for MLZ"
+  error_log "usage: deploy_ui_local.sh <mlz config file> <local url for front end>"
 }
 
 if [[ "$#" -lt 2 ]]; then

@@ -38,7 +38,7 @@ show_help() {
 }
 
 usage() {
-  echo "setup_ezdeploy.sh: Setup the front end for MLZ"
+  echo "deploy_ui.sh: Setup the front end for MLZ"
   show_help
 }
 
@@ -109,8 +109,6 @@ done
 
 # setup paths
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
-src_path=$(dirname "${this_script_path}")
-container_registry_path="$(realpath "${this_script_path}")/container-registry"
 
 # check mandatory parameters
 for i in { $docker_strategy $mlz_config_subid $mlz_config_location $tf_environment $mlz_env_name $web_port }
@@ -139,18 +137,18 @@ notify_of_default "--mlz-env-name" "${default_env_name}" "${mlz_env_name}"
 notify_of_default "--port" "${default_web_port}" "${web_port}"
 
 # check for dependencies
-"${this_script_path}/util/checkforazcli.sh"
-"${this_script_path}/util/checkfordocker.sh"
+"${this_script_path}/scripts/util/checkforazcli.sh"
+"${this_script_path}/scripts/util/checkfordocker.sh"
 
 # switch to the MLZ subscription
 echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
 az account set --subscription "${mlz_config_subid}"
 
 # validate that the location is present in the current cloud
-"${this_script_path}/util/validateazlocation.sh" "${mlz_config_location}"
+"${this_script_path}/scripts/util/validateazlocation.sh" "${mlz_config_location}"
 
 # validate that terraform environment matches for the current cloud
-"${this_script_path}/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
+"${this_script_path}/scripts/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
 
 # check docker strategy
 if [[ $docker_strategy != "local" && \
@@ -166,7 +164,7 @@ image_tag="latest"
 
 if [[ $docker_strategy == "build" ]]; then
   echo "INFO: building docker image"
-  docker build -t "${image_name}" "${src_path}"
+  docker build -t "${image_name}" "${this_script_path}"
 fi
 
 if [[ $docker_strategy == "load" ]]; then
@@ -181,7 +179,7 @@ mlz_tenantid=$(az account show \
   --output tsv)
 
 # create MLZ configuration file based on user input
-mlz_config_file="${src_path}/mlz_tf_cfg.var"
+mlz_config_file="${this_script_path}/mlz.config"
 echo "INFO: creating a MLZ config file based on user input at $(realpath "$mlz_config_file")..."
 
 ### derive args from user input
@@ -206,29 +204,29 @@ gen_config_args_str=$(printf '%s ' "${gen_config_args[*]}")
 ### do not quote args $gen_config_args_str, we intend to split
 ### ignoring shellcheck for word splitting because that is the desired behavior
 # shellcheck disable=SC2086
-"${this_script_path}/config/generate_config_file.sh" $gen_config_args_str
+"${this_script_path}/scripts/config/generate_config_file.sh" $gen_config_args_str
 
 # generate MLZ configuration names
-. "${this_script_path}/config/generate_names.sh" "$mlz_config_file"
+. "${this_script_path}/scripts/config/generate_names.sh" "$mlz_config_file"
 
 # create MLZ required resources
 echo "INFO: setting up required MLZ resources using $(realpath "$mlz_config_file")..."
-"${this_script_path}/config/mlz_config_create.sh" "$mlz_config_file"
+"${this_script_path}/scripts/config/mlz_config_create.sh" "$mlz_config_file"
 
-# if local, call setup_ezdeploy_local
+# if local, call deploy_ui_local
 if [[ $docker_strategy == "local" ]]; then
-  "${this_script_path}/setup_ezdeploy_local.sh" "$mlz_config_file" "$web_port"
+  "${this_script_path}/scripts/docker/deploy_ui_local.sh" "$mlz_config_file" "$web_port"
   exit 0
 fi
 
 # otherwise, create container registry
-"${container_registry_path}/create_acr.sh" "$mlz_config_file"
+"${this_script_path}/scripts/container-registry/create_acr.sh" "$mlz_config_file"
 
 docker tag "${image_name}:${image_tag}" "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
 docker push "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
 
 # deploy an instance
-"${container_registry_path}/deploy_instance.sh" "$mlz_config_file" "$image_name" "$image_tag"
+"${this_script_path}/scripts/container-registry/deploy_instance.sh" "$mlz_config_file" "$image_name" "$image_tag"
 
 # get the URL for the instance
 container_fqdn=$(az container show \
@@ -238,6 +236,6 @@ container_fqdn=$(az container show \
   --output tsv)
 
 # create an app registration and add auth scopes to facilitate MSAL login for the instance
-"${container_registry_path}/add_auth_scopes.sh" "$mlz_config_file" "$container_fqdn"
+"${this_script_path}/scripts/container-registry/add_auth_scopes.sh" "$mlz_config_file" "$container_fqdn"
 
 echo "INFO: COMPLETE! You can access the front end at http://$container_fqdn"
