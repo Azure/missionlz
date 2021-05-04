@@ -53,5 +53,5 @@ variable "tags" {
 variable "firewall_disable_snat" {
   description = "The address space to be used to ensure that SNAT is disabled."
   default     = ["0.0.0.0/0"]
-  type        = string
+  type        = list
 }
