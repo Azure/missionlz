@@ -79,4 +79,4 @@ az keyvault purge \
     --name "${mlz_kv_name}" \
     --subscription "${mlz_config_subid}"
 
-echo "INFO: Complete! Resources for ${mlz_env_name} deleted!"
+echo "INFO: Complete! MLZ Configuration resources for ${mlz_env_name} deleted!"

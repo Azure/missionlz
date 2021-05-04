@@ -30,32 +30,12 @@ usage() {
   show_help
 }
 
-this_script_path=$(realpath "${BASH_SOURCE%/*}")
-configuration_output_path="${this_script_path}/generated-configurations"
-
 check_dependencies() {
   "${this_script_path}/scripts/util/checkforazcli.sh"
   "${this_script_path}/scripts/util/checkforterraform.sh"
 }
 
-inspect_input() {
-  mlz_env_name="notset"
-
-  while [ $# -gt 0 ] ; do
-    case $1 in
-      -z | --mlz-env-name)
-        shift
-        mlz_env_name="$1" ;;
-      -h | --help)
-        show_help
-        exit 0 ;;
-      *)
-        error_log "ERROR: Unexpected argument: ${1}"
-        usage && exit 1 ;;
-    esac
-    shift
-  done
-
+inspect_user_input() {
   # check mandatory parameters
   # shellcheck disable=1083
   for i in { $mlz_env_name }
@@ -69,12 +49,8 @@ inspect_input() {
 }
 
 import_configuration() {
-  # declare where to find configuration
-  mlz_config_file="${configuration_output_path}/${mlz_env_name}.mlzconfig"
-
-  # generate names for reference
-  . "${mlz_config_file}"
-  . "${this_script_path}/scripts/config/generate_names.sh" "${mlz_config_file}"
+  . "${mlz_config_file_path}"
+  . "${this_script_path}/scripts/config/generate_names.sh" "${mlz_config_file_path}"
 }
 
 login_azcli() {
@@ -86,31 +62,61 @@ login_azcli() {
 }
 
 destroy_terraform() {
-  local tfvars_path="${configuration_output_path}/${mlz_env_name}.tfvars"
-
-  echo "INFO: destroying Terraform using ${mlz_config_file} and ${tfvars_path}..."
+  echo "INFO: destroying Terraform using ${mlz_config_file_path} and ${tfvars_file_path}..."
   "${this_script_path}/build/destroy_tf.sh" \
-  "${mlz_config_file}" \
-  "${tfvars_path}" \
-  "${tfvars_path}" \
-  "${tfvars_path}" \
-  "${tfvars_path}" \
-  "${tfvars_path}" \
+  "${mlz_config_file_path}" \
+  "${tfvars_file_path}" \
+  "${tfvars_file_path}" \
+  "${tfvars_file_path}" \
+  "${tfvars_file_path}" \
+  "${tfvars_file_path}" \
   "y"
 }
 
+notify_failed_to_destroy_terraform() {
+  error_log "ERROR: failed to destroy Terraform deployment..."
+  echo "INFO: continuing to destroy MLZ Configuration resources..."
+}
+
 destroy_mlz() {
-  echo "INFO: cleaning up MLZ resources with tag 'DeploymentName=${mlz_env_name}'..."
-  . "${this_script_path}/scripts/config/config_clean.sh" "${mlz_config_file}"
+  echo "INFO: cleaning up MLZ Configuration resources with tag 'DeploymentName=${mlz_env_name}'..."
+  . "${this_script_path}/scripts/config/config_clean.sh" "${mlz_config_file_path}"
 }
 
 ##########
 # main
 ##########
 
+this_script_path=$(realpath "${BASH_SOURCE%/*}")
+configuration_output_path="${this_script_path}/generated-configurations"
+
+mlz_env_name="notset"
+
+while [ $# -gt 0 ] ; do
+  case $1 in
+    -z | --mlz-env-name)
+      shift
+      mlz_env_name="$1" ;;
+    -h | --help)
+      show_help
+      exit 0 ;;
+    *)
+      error_log "ERROR: Unexpected argument: ${1}"
+      usage && exit 1 ;;
+  esac
+  shift
+done
+
+# validate requirements
+inspect_user_input
 check_dependencies
-inspect_input
+
+# set paths
+mlz_config_file_path="${configuration_output_path}/${mlz_env_name}.mlzconfig"
+tfvars_file_path="${configuration_output_path}/${mlz_env_name}.tfvars"
+
+# teardown resources
 import_configuration
 login_azcli
-destroy_terraform
+destroy_terraform || notify_failed_to_destroy_terraform
 destroy_mlz
