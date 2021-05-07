@@ -24,6 +24,10 @@ provider "random" {
   version = "3.1.0"
 }
 
+provider "time" {
+  version = "0.7.1"
+}
+
 resource "azurerm_resource_group" "hub" {
   location = var.mlz_location
   name     = var.saca_rgname
@@ -42,7 +46,7 @@ module "saca-hub-network" {
   vnet_address_space       = var.vnet_address_space
   firewall_address_space   = var.firewall_address_space
   management_address_space = var.management_address_space
-  routetable_name = var.mgmt_routetable_name
+  routetable_name          = var.mgmt_routetable_name
 
   log_analytics_workspace_name              = var.saca_lawsname
   log_analytics_workspace_sku               = "PerGB2018"
