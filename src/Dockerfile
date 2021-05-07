@@ -14,14 +14,14 @@ RUN apt-get update \
         unzip \
         wget \
         python3 \
-        sed \ 
+        sed \
         python3-pip
 
 
 # Install Terraform and Python
 RUN wget -O terraform.zip https://releases.hashicorp.com/terraform/0.14.3/terraform_0.14.3_linux_amd64.zip\
     && unzip ./terraform.zip -d /usr/local/bin/ \
-    && rm terraform.zip 
+    && rm terraform.zip
 
 # Download Terraform providers (plugins)
 # Setting the TF_PLUGIN_CACHE_DIR environment variable instructs Terraform to search that folder for plugins first
@@ -55,7 +55,7 @@ RUN AZ_REPO=$(lsb_release -cs) \
     tee /etc/apt/sources.list.d/azure-cli.list
 
 # Install AZ CLI
-RUN apt-get update && apt-get install -y azure-cli
+RUN apt-get update && apt-get install -y azure-cli=2.22.0-1~focal
 
 ADD ./front* /deployment/front/
 ADD ./scripts* /deployment/scripts/
