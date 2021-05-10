@@ -2,10 +2,20 @@
 # Licensed under the MIT License.
 terraform {
   backend "azurerm" {}
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "= 2.55.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "= 3.1.0"
+    }
+  }
 }
 
 provider "azurerm" {
-  version         = "~> 2.50.0"
   environment     = var.tf_environment
   metadata_host   = var.mlz_metadatahost
   tenant_id       = var.mlz_tenantid
@@ -17,7 +27,6 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  version         = "~> 2.50.0"
   alias           = "hub"
   environment     = var.tf_environment
   metadata_host   = var.mlz_metadatahost
@@ -30,7 +39,6 @@ provider "azurerm" {
 }
 
 provider "random" {
-  version = "3.1.0"
 }
 
 data "azurerm_resource_group" "hub" {

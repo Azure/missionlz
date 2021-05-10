@@ -160,6 +160,7 @@ async def home(request: Request):
            url: "/poll",
            success: function(msg){
              $("#terminal").text(msg);
+             $("#terminal").scrollTop($("#terminal")[0].scrollHeight);
            }
          });
         }
@@ -354,7 +355,6 @@ async def process_input(request: Request):
     generate_config_args = []
     generate_config_args.append('--file ' + mlz_config_path)
     generate_config_args.append('--tf-env ' + os.getenv("TF_ENV"))
-    generate_config_args.append('--metadatahost ' + os.getenv("MLZ_METADATAHOST"))
     generate_config_args.append('--mlz-env-name ' + os.getenv("MLZ_ENV"))
     generate_config_args.append('--location ' + os.getenv("MLZ_LOCATION"))
     generate_config_args.append('--config-sub-id ' + os.getenv("SUBSCRIPTION_ID"))

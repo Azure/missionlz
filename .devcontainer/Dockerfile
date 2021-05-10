@@ -40,10 +40,11 @@ RUN wget -O terraform.zip https://releases.hashicorp.com/terraform/0.13.4/terraf
 # Download Terraform providers (plugins)
 # Setting the TF_PLUGIN_CACHE_DIR environment variable instructs Terraform to search that folder for plugins first
 ENV TF_PLUGIN_CACHE_DIR=/usr/lib/tf-plugins
-ARG AZURERM_LOCAL_PATH="${TF_PLUGIN_CACHE_DIR}/registry.terraform.io/hashicorp/azurerm/2.50.0/linux_amd64"
+ARG AZURERM_LOCAL_PATH="${TF_PLUGIN_CACHE_DIR}/registry.terraform.io/hashicorp/azurerm/2.55.0/linux_amd64"
 ARG RANDOM_LOCAL_PATH="${TF_PLUGIN_CACHE_DIR}/registry.terraform.io/hashicorp/random/3.1.0/linux_amd64"
 ARG TIME_LOCAL_PATH="${TF_PLUGIN_CACHE_DIR}/registry.terraform.io/hashicorp/time/0.7.1/linux_amd64"
 ARG AZURERM_PROVIDER=https://releases.hashicorp.com/terraform-provider-azurerm/2.50.0/terraform-provider-azurerm_2.50.0_linux_amd64.zip
+ARG AZURERM_PROVIDER=https://releases.hashicorp.com/terraform-provider-azurerm/2.55.0/terraform-provider-azurerm_2.55.0_linux_amd64.zip
 ARG RANDOM_PROVIDER=https://releases.hashicorp.com/terraform-provider-random/3.1.0/terraform-provider-random_3.1.0_linux_amd64.zip
 ARG TIME_PROVIDER=https://releases.hashicorp.com/terraform-provider-time/0.7.1/terraform-provider-time_0.7.1_linux_amd64.zip
 RUN wget -O azurerm.zip ${AZURERM_PROVIDER} \
@@ -75,7 +76,7 @@ RUN AZ_REPO=$(lsb_release -cs) \
     tee /etc/apt/sources.list.d/azure-cli.list
 
 # Install AZ CLI
-RUN apt-get update && apt-get install -y azure-cli
+RUN apt-get update && apt-get install -y azure-cli=2.22.0-1~focal
 
 # Add the vscode user
 ARG USERNAME=vscode

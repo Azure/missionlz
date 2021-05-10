@@ -4,7 +4,10 @@ The mission LZ front-end is designed to be a single stop for easily entering all
 
 ## General Requirements
 
-In order to run this software, you'll need to install some requirements, regardless of the path you choose to take for execution. Follow the General Requirements, and then follow instructions for either remote or local installation
+In order to run this software, you'll need to install some requirements, regardless of the path you choose to take for execution. To get started, you'll need to be running from a bash/zsh environment. If you are on a Windows machine you can use WSL2. Follow the [General Requirements](getting-started.md) for further detail, and then follow instructions below for either remote or local installation
+
+- [Step-by-Step Remote Installation/Execution](#Step-by-Step-Azure-Installation) (recommended)
+- [Step-by-Step Local Installation/Execution](#Step-by-Step-Local-Installation) (more difficult)
 
 For any of the following options you will need docker on your machine. If you are pre-packaging and deploying on a target network, you will need docker locally installed on both your local internet connected machine, and your target machine.  The below instructions might need to be found in your target environment to replicate.
 
@@ -13,14 +16,7 @@ For any of the following options you will need docker on your machine. If you ar
 
 > If you will be transferring this package to an air-gapped cloud, please run the pre-packaging requirements to build a package that's ready to be transferred. This will prepare a docker image with all requirements to run ezdeploy. This is necessary if you don't have access to an updated docker repo/pip repo in your target network.  If you do have these, you can proceed with the installation as if installing to an internet connected Azure Cloud.
 
-## Step-By-Step
-
-[Step-by-Step Remote Installation/Execution](#Step-by-Step-Azure-Installation) (recommended)
-[Step-by-Step Local Installation/Execution](#Step-by-Step-Local-Installation) (more difficult)
-
-To get started, you'll need to be running from a bash/zsh environment. If you are on a Windows machine you can use WSL2.
-
-### Step-by-Step Azure Installation
+## Step-by-Step Azure Installation
 
 This process will build the user interface container image on your workstation using Docker, upload the container image to your Azure subscription, and install an instance of the container in Azure Container Instances (ACI). You'll need to have Docker installed locally, as well as the Azure Bash CLI.
 
@@ -37,6 +33,19 @@ cd src/scripts
 ./setup_ezdeploy.sh -s <subscription id>
 ```
 
+### Additional Configuration Options
+
+If you needed to deploy into another cloud, say Azure Government, you would [override the default region](https://azure.microsoft.com/en-us/global-infrastructure/geographies/#overview) and [default azurerm terraform environment](https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment) like:
+
+```bash
+az cloud set -n AzureUSGovernment
+az login
+cd src/scripts
+./setup_ezdeploy.sh -s {your_subscription_id} \
+  --location usgovvirginia \
+  --tf-environment usgovernment
+```
+
 `setup_ezdeploy.sh` has more configurable options, but these are the minimum required to deploy a running UI that will help you make a full MLZ deployment.
 
 Here's the full list of parameters for reference:
@@ -44,21 +53,23 @@ Here's the full list of parameters for reference:
 ```plaintext
 setup_ezdeploy.sh: Setup the front end for MLZ
             argument    description
-   --docker-strategy -d [local|build|load|export] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image, 'export' to build and create mlz.zip with the docker image
+   --docker-strategy -d [local|build|load] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image
    --subscription-id -s Subscription ID for MissionLZ resources
           --location -l The location that you're deploying to (defaults to 'eastus')
     --tf-environment -e Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
       --mlz-env-name -z Unique name for MLZ environment (defaults to 'mlz' + UNIX timestamp)
               --port -p port to expose the front end web UI on (defaults to '80')
-        --hub-sub-id -h subscription ID for the hub network and resources (defaults to the value provided for -s --subscription-id)
+        --hub-sub-id -u subscription ID for the hub network and resources (defaults to the value provided for -s --subscription-id)
       --tier0-sub-id -0 subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
       --tier1-sub-id -1 subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
       --tier2-sub-id -2 subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
+          --zip-file -f Zipped docker file for use with the 'load' docker strategy (defaults to 'mlz.zip')
+              --help -h Print this message
 ```
 
-### Step-by-Step Azure Air Gapped Installation
+## Step-by-Step Azure Air Gapped Installation
 
-This process closely mirrors the standard Azure documentation with a few subtle amendments.  
+This process closely mirrors the standard Azure documentation with a few subtle amendments.
 
 On your internet connected staging machine (With Docker Installed):
 
@@ -78,9 +89,9 @@ cd src/scripts
 ./setup_ezdeploy.sh -d load -s <subscription id> -e "<AZURE_ENVIRONMENT>" -l "<AZURE_LOCATION>"
 ```
 
-If desired both commands allow for the input of file names for exporting and for the load if the defaults are not sufficient. 
+If desired both commands allow for the input of file names for exporting and for the load if the defaults are not sufficient.
 
-### Step-by-Step Local Installation
+## Step-by-Step Local Installation
 
 Running the user interface on your local workstation is not our recommended approach because it requires more setup, but it works.
 
