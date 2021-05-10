@@ -54,7 +54,7 @@ variable "saca_lawsname" {
   description = "Log Analytics Workspace name for the deployment"
 }
 
-variable "saca_fwname" {
+variable "firewall_name" {
   description = "Name of the Hub Firewall"
 }
 

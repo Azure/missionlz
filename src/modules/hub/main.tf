@@ -18,7 +18,7 @@ resource "azurerm_subnet" "fw_client" {
   name                 = "AzureFirewallSubnet"
   resource_group_name  = module.hub-network.resource_group_name
   virtual_network_name = module.hub-network.virtual_network_name
-  address_prefixes     = [cidrsubnet(var.firewall_address_space, 0, 0)]
+  address_prefixes     = [cidrsubnet(var.client_address_space, 0, 0)]
 }
 
 resource "azurerm_subnet" "fw_mgmt" {

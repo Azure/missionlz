@@ -53,9 +53,9 @@ module "saca-hub-network" {
   resource_group_name      = azurerm_resource_group.hub.name
   vnet_name                = var.saca_vnetname
   vnet_address_space       = var.vnet_address_space
-  firewall_address_space   = var.firewall_address_space
+  client_address_space     = var.client_address_space
   management_address_space = var.management_address_space
-  routetable_name          = var.mgmt_routetable_name
+  routetable_name          = var.management_routetable_name
 
   log_analytics_workspace_name              = var.saca_lawsname
   log_analytics_workspace_sku               = "PerGB2018"
@@ -72,21 +72,21 @@ locals {
 }
 
 module "saca-firewall" {
-  depends_on             = [module.saca-hub-network]
-  source                 = "../../modules/firewall"
-  location               = var.mlz_location
-  resource_group_name    = module.saca-hub-network.resource_group_name
-  vnet_name              = module.saca-hub-network.virtual_network_name
-  vnet_address_space     = module.saca-hub-network.virtual_network_address_space
-  firewall_sku           = contains(local.firewall_premium_tf_environments, lower(var.tf_environment)) ? "Premium" : "Standard"
-  fw_client_sn_name      = module.saca-hub-network.fw_client_subnet_name
-  fw_mgmt_sn_name        = module.saca-hub-network.fw_mgmt_subnet_name
-  firewall_address_space = var.firewall_address_space
-  saca_fwname            = var.saca_fwname
-  fw_client_ipcfg_name   = var.fw_client_ipcfg_name
-  fw_client_pip_name     = var.fw_client_pip_name
-  fw_mgmt_ipcfg_name     = var.fw_mgmt_ipcfg_name
-  fw_mgmt_pip_name       = var.fw_mgmt_pip_name
+  depends_on               = [module.saca-hub-network]
+  source                   = "../../modules/firewall"
+  location                 = var.mlz_location
+  resource_group_name      = module.saca-hub-network.resource_group_name
+  vnet_name                = module.saca-hub-network.virtual_network_name
+  vnet_address_space       = module.saca-hub-network.virtual_network_address_space
+  firewall_sku             = contains(local.firewall_premium_tf_environments, lower(var.tf_environment)) ? "Premium" : "Standard"
+  fw_client_sn_name        = module.saca-hub-network.fw_client_subnet_name
+  fw_mgmt_sn_name          = module.saca-hub-network.fw_mgmt_subnet_name
+  client_address_space     = var.client_address_space
+  firewall_name            = var.firewall_name
+  client_ipconfig_name     = var.client_ipconfig_name
+  client_publicip_name     = var.client_publicip_name
+  management_ipconfig_name = var.management_ipconfig_name
+  management_publicip_name = var.management_publicip_name
 
   log_analytics_workspace_id = module.saca-hub-network.log_analytics_workspace_id
 

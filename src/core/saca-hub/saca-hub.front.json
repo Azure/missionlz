@@ -88,14 +88,14 @@
 				"options": []
 			},
 			{
-				"varname": "firewall_address_space",
+				"varname": "client_address_space",
 				"type": "text",
 				"default_val": "10.0.100.0/26",
 				"description": "Address space for the firewall",
 				"options": []
 			},
 			{
-				"varname": "saca_fwname",
+				"varname": "firewall_name",
 				"type": "text",
 				"default_val": "DemoFirewall",
 				"description": "Saca Firewall Name",

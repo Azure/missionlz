@@ -22,7 +22,7 @@ data "azurerm_subnet" "fw_mgmt_sn" {
 }
 
 resource "azurerm_public_ip" "fw_client_pip" {
-  name                = var.fw_client_pip_name
+  name                = var.client_publicip_name
   location            = data.azurerm_resource_group.hub.location
   resource_group_name = data.azurerm_resource_group.hub.name
   allocation_method   = "Static"
@@ -31,7 +31,7 @@ resource "azurerm_public_ip" "fw_client_pip" {
 }
 
 resource "azurerm_public_ip" "fw_mgmt_pip" {
-  name                = var.fw_mgmt_pip_name
+  name                = var.management_publicip_name
   location            = data.azurerm_resource_group.hub.location
   resource_group_name = data.azurerm_resource_group.hub.name
   allocation_method   = "Static"
@@ -40,7 +40,7 @@ resource "azurerm_public_ip" "fw_mgmt_pip" {
 }
 
 resource "azurerm_firewall" "firewall" {
-  name                = var.saca_fwname
+  name                = var.firewall_name
   location            = data.azurerm_resource_group.hub.location
   resource_group_name = data.azurerm_resource_group.hub.name
   sku_tier            = var.firewall_sku
@@ -48,13 +48,13 @@ resource "azurerm_firewall" "firewall" {
   tags                = var.tags
 
   ip_configuration {
-    name                 = var.fw_client_ipcfg_name
+    name                 = var.client_ipconfig_name
     subnet_id            = data.azurerm_subnet.fw_client_sn.id
     public_ip_address_id = azurerm_public_ip.fw_client_pip.id
   }
 
   management_ip_configuration {
-    name                 = var.fw_mgmt_ipcfg_name
+    name                 = var.management_ipconfig_name
     subnet_id            = data.azurerm_subnet.fw_mgmt_sn.id
     public_ip_address_id = azurerm_public_ip.fw_mgmt_pip.id
   }

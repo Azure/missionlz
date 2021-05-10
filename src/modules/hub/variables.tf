@@ -18,7 +18,7 @@ variable "vnet_address_space" {
   type        = list(string)
 }
 
-variable "firewall_address_space" {
+variable "client_address_space" {
   description = "The address space to be used for the Firewall virtual network subnet used for client traffic."
   type        = string
 }

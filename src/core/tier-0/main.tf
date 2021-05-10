@@ -60,7 +60,7 @@ data "azurerm_log_analytics_workspace" "hub" {
 
 data "azurerm_firewall" "firewall" {
   provider            = azurerm.hub
-  name                = var.saca_fwname
+  name                = var.firewall_name
   resource_group_name = data.azurerm_resource_group.hub.name
 }
 

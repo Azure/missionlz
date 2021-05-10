@@ -65,7 +65,7 @@ variable "vnet_address_space" {
 # Firewall configuration section
 #################################
 
-variable "firewall_address_space" {
+variable "client_address_space" {
   description = "The address space to be used for the Firewall virtual network."
   default     = "10.0.100.0/26"
   type        = string
@@ -77,32 +77,32 @@ variable "management_address_space" {
   type        = string
 }
 
-variable "saca_fwname" {
+variable "firewall_name" {
   description = "Name of the Hub Firewall"
   default     = "mlzDemoFirewall"
 }
 
-variable "fw_client_ipcfg_name" {
+variable "client_ipconfig_name" {
   description = "The name of the Firewall Client IP Configuration"
   default     = "mlzDemoFWClientIpCfg"
 }
 
-variable "fw_client_pip_name" {
+variable "client_publicip_name" {
   description = "The name of the Firewall Client Public IP"
   default     = "mlzDemoFWClientPip"
 }
 
-variable "fw_mgmt_ipcfg_name" {
+variable "management_ipconfig_name" {
   description = "The name of the Firewall Management IP Configuration"
   default     = "mlzDemoFWMgmtIpCfg"
 }
 
-variable "fw_mgmt_pip_name" {
+variable "management_publicip_name" {
   description = "The name of the Firewall Management Public IP"
   default     = "mlzDemoFWMgmtPip"
 }
 
-variable "mgmt_routetable_name" {
+variable "management_routetable_name" {
   description = "The name of the route table applied to the management subnet"
   default     = "mlzDemoFirewallMgmtRT"
 }
