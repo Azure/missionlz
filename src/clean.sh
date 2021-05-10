@@ -100,3 +100,4 @@ echo "INFO: cleaning up MLZ resources with tag 'DeploymentName=${mlz_env_name}'.
 . "${this_script_path}/scripts/config/config_clean.sh" "${mlz_config_file}"
 # clean up reources that was created by deploy.sh
 rm -rf "${configuration_output_path}/${mlz_env_name}.mlzconfig" "${configuration_output_path}/${tfvars_filename}"
+rm -rf "${this_script_path}/core/*/${tfvars_filename}"
