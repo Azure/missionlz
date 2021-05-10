@@ -110,9 +110,7 @@ delete_files_in_directory_by_name() {
 }
 
 # clean up MLZ config resources
+delete_files_in_directory_by_name "$this_script_path" "$tfvars_filename"
 echo "INFO: cleaning up MLZ resources with tag 'DeploymentName=${mlz_env_name}'..."
 . "${this_script_path}/scripts/config/config_clean.sh" "${mlz_config_file}"
-# clean up reources that was created by deploy.sh
 rm -rf "${configuration_output_path}/${mlz_env_name}.mlzconfig" "${configuration_output_path:?}/${tfvars_filename}"
-
-delete_files_in_directory_by_name "$this_script_path" "$tfvars_filename"
