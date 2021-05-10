@@ -95,10 +95,24 @@ echo "INFO: destroying Terraform using ${mlz_config_file} and ${tfvars_path}..."
   "${tfvars_path}" \
   "y"
 
+#function to remove files wherever they exist
+delete_files_in_directory_by_name() {
+  directory_to_search=$1
+  file_name_to_match=$2
+
+  matches=$(find "$directory_to_search" -type f -name "$file_name_to_match")
+
+  for match in $matches
+  do
+    echo "deleting $match ..."
+    rm -f "$match"
+  done
+}
+
 # clean up MLZ config resources
 echo "INFO: cleaning up MLZ resources with tag 'DeploymentName=${mlz_env_name}'..."
 . "${this_script_path}/scripts/config/config_clean.sh" "${mlz_config_file}"
 # clean up reources that was created by deploy.sh
-rm -rf "${configuration_output_path}/${mlz_env_name}.mlzconfig" "${configuration_output_path}/${tfvars_filename}"
-rm -rf "${this_script_path}/core/saca-hub/${tfvars_filename}" "${this_script_path}/core/tier-0/${tfvars_filename}"
-rm -rf "${this_script_path}/core/tier-1/${tfvars_filename}" "${this_script_path}/core/tier-2/${tfvars_filename}"
+rm -rf "${configuration_output_path}/${mlz_env_name}.mlzconfig" "${configuration_output_path:?}/${tfvars_filename}"
+
+delete_files_in_directory_by_name "$this_script_path" "$tfvars_filename"
