@@ -70,11 +70,14 @@ module "saca-firewall" {
   vnet_name              = module.saca-hub-network.virtual_network_name
   vnet_address_space     = module.saca-hub-network.virtual_network_address_space
   firewall_sku           = contains(local.firewall_premium_tf_environments, lower(var.tf_environment)) ? "Premium" : "Standard"
-  firewall_subnet_name   = module.saca-hub-network.firewall_subnet_name
+  fw_client_sn_name      = module.saca-hub-network.fw_client_subnet_name
+  fw_mgmt_sn_name        = module.saca-hub-network.fw_mgmt_subnet_name
   firewall_address_space = var.firewall_address_space
   saca_fwname            = var.saca_fwname
-  firewall_ipconfig_name = var.firewall_ipconfig_name
-  public_ip_name         = var.public_ip_name
+  fw_client_ipcfg_name   = var.fw_client_ipcfg_name
+  fw_client_pip_name     = var.fw_client_pip_name
+  fw_mgmt_ipcfg_name     = var.fw_mgmt_ipcfg_name
+  fw_mgmt_pip_name       = var.fw_mgmt_pip_name
 
   log_analytics_workspace_id = module.saca-hub-network.log_analytics_workspace_id
 

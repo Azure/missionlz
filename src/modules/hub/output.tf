@@ -20,12 +20,20 @@ output "virtual_network_address_space" {
   value       = module.hub-network.virtual_network_address_space
 }
 
-output "firewall_subnet_name" {
-  value = azurerm_subnet.firewall.name
+output "fw_client_subnet_name" {
+  value = azurerm_subnet.fw_client.name
 }
 
-output "firewall_subnet_id" {
-  value = azurerm_subnet.firewall.id
+output "fw_mgmt_subnet_name" {
+  value = azurerm_subnet.fw_mgmt.name
+}
+
+output "fw_client_subnet_id" {
+  value = azurerm_subnet.fw_client.id
+}
+
+output "fw_mgmt_subnet_id" {
+  value = azurerm_subnet.fw_mgmt.id
 }
 
 output "log_analytics_workspace_name" {

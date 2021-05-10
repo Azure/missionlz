@@ -14,14 +14,14 @@ module "hub-network" {
   tags                       = var.tags
 }
 
-resource "azurerm_subnet" "firewall" {
+resource "azurerm_subnet" "fw_client" {
   name                 = "AzureFirewallSubnet"
   resource_group_name  = module.hub-network.resource_group_name
   virtual_network_name = module.hub-network.virtual_network_name
   address_prefixes     = [cidrsubnet(var.firewall_address_space, 0, 0)]
 }
 
-resource "azurerm_subnet" "management" {
+resource "azurerm_subnet" "fw_mgmt" {
   name                 = "AzureFirewallManagementSubnet"
   resource_group_name  = module.hub-network.resource_group_name
   virtual_network_name = module.hub-network.virtual_network_name
@@ -30,7 +30,7 @@ resource "azurerm_subnet" "management" {
 
 resource "azurerm_route_table" "routetable" {
   name                          = var.routetable_name
-  resource_group_name           = azurerm_subnet.management.resource_group_name
+  resource_group_name           = azurerm_subnet.fw_mgmt.resource_group_name
   location                      = data.azurerm_resource_group.rg.location
   disable_bgp_route_propagation = true
   tags                          = var.tags
@@ -53,7 +53,7 @@ resource "time_sleep" "wait_30_seconds" {
 }
 
 resource "azurerm_subnet_route_table_association" "routetable" {
-  subnet_id      = azurerm_subnet.management.id
+  subnet_id      = azurerm_subnet.fw_mgmt.id
   route_table_id = azurerm_route_table.routetable.id
   depends_on = [
     time_sleep.wait_30_seconds

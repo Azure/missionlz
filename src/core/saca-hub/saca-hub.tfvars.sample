@@ -21,7 +21,11 @@ tier2_vnetname     = "{TIER2_VNETNAME}"
 # Firewall configuration section
 #################################
 
-firewall_address_space = "{SACA_FWSPACE}"
-saca_fwname          = "{SACA_FWNAME}"
-firewall_ipconfig_name = "{SACA_FWIPCONFIGNAME}"
-public_ip_name         = "{SACA_FWPIPNAME}"
+firewall_address_space   = "{FW_CLIENT_SPACE}"
+management_address_space = "{FW_MGMT_SPACE}"
+saca_fwname              = "{FW_NAME}"
+fw_client_ipcfg_name     = "{FW_CLIENT_IPCFG_NAME}"
+fw_client_pip_name       = "{FW_CLIENT_PIP_NAME}"
+fw_mgmt_ipcfg_name       = "{FW_MGMT_IPCFG_NAME}"
+fw_client_pip_name       = "{FW_MGMT_PIP_NAME}"
+mgmt_routetable_name     = "{FW_MGMT_ROUTE_TABLE_NAME}"

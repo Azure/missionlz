@@ -82,14 +82,24 @@ variable "saca_fwname" {
   default     = "mlzDemoFirewall"
 }
 
-variable "firewall_ipconfig_name" {
-  description = "The name of the Firewall IP Configuration"
-  default     = "mlzDemoFirewallIpConfiguration"
+variable "fw_client_ipcfg_name" {
+  description = "The name of the Firewall Client IP Configuration"
+  default     = "mlzDemoFWClientIpCfg"
 }
 
-variable "public_ip_name" {
-  description = "The name of the Firewall Public IP"
-  default     = "mlzDemoFirewallPip"
+variable "fw_client_pip_name" {
+  description = "The name of the Firewall Client Public IP"
+  default     = "mlzDemoFWClientPip"
+}
+
+variable "fw_mgmt_ipcfg_name" {
+  description = "The name of the Firewall Management IP Configuration"
+  default     = "mlzDemoFWMgmtIpCfg"
+}
+
+variable "fw_mgmt_pip_name" {
+  description = "The name of the Firewall Management Public IP"
+  default     = "mlzDemoFWMgmtPip"
 }
 
 variable "mgmt_routetable_name" {

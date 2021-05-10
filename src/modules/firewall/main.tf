@@ -9,14 +9,29 @@ data "azurerm_virtual_network" "hub" {
   resource_group_name = data.azurerm_resource_group.hub.name
 }
 
-data "azurerm_subnet" "firewall" {
-  name                 = var.firewall_subnet_name
+data "azurerm_subnet" "fw_client_sn" {
+  name                 = var.fw_client_sn_name
   virtual_network_name = data.azurerm_virtual_network.hub.name
   resource_group_name  = data.azurerm_resource_group.hub.name
 }
 
-resource "azurerm_public_ip" "firewall" {
-  name                = var.public_ip_name
+data "azurerm_subnet" "fw_mgmt_sn" {
+  name                 = var.fw_mgmt_sn_name
+  virtual_network_name = data.azurerm_virtual_network.hub.name
+  resource_group_name  = data.azurerm_resource_group.hub.name
+}
+
+resource "azurerm_public_ip" "fw_client_pip" {
+  name                = var.fw_client_pip_name
+  location            = data.azurerm_resource_group.hub.location
+  resource_group_name = data.azurerm_resource_group.hub.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+  tags                = var.tags
+}
+
+resource "azurerm_public_ip" "fw_mgmt_pip" {
+  name                = var.fw_mgmt_pip_name
   location            = data.azurerm_resource_group.hub.location
   resource_group_name = data.azurerm_resource_group.hub.name
   allocation_method   = "Static"
@@ -32,9 +47,15 @@ resource "azurerm_firewall" "firewall" {
   tags                = var.tags
 
   ip_configuration {
-    name                 = var.firewall_ipconfig_name
-    subnet_id            = data.azurerm_subnet.firewall.id
-    public_ip_address_id = azurerm_public_ip.firewall.id
+    name                 = var.fw_client_ipcfg_name
+    subnet_id            = data.azurerm_subnet.fw_client_sn.id
+    public_ip_address_id = azurerm_public_ip.fw_client_pip.id
+  }
+
+  management_ip_configuration {
+    name                 = var.fw_mgmt_ipcfg_name
+    subnet_id            = data.azurerm_subnet.fw_mgmt_sn.id
+    public_ip_address_id = azurerm_public_ip.fw_mgmt_pip.id
   }
 }
 
@@ -85,8 +106,8 @@ resource "azurerm_monitor_diagnostic_setting" "firewall-diagnostics" {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "publicip-diagnostics" {
-  name                       = "${azurerm_public_ip.firewall.name}-pip-diagnostics"
-  target_resource_id         = azurerm_public_ip.firewall.id
+  name                       = "${azurerm_public_ip.fw_client_pip.name}-pip-diagnostics"
+  target_resource_id         = azurerm_public_ip.fw_client_pip.id
   storage_account_id         = azurerm_storage_account.loganalytics.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
