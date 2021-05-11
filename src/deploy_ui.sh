@@ -4,9 +4,6 @@
 # Licensed under the MIT License.
 #
 # shellcheck disable=SC1083,SC1091,2154,2155
-# SC1083: This is literal. We want to expand the items literally.
-# SC1091: Not following. Shellcheck can't follow non-constant source. These script are dynamically resolved.
-# SC2154: "var is referenced but not assigned". These values come from an external file.
 #
 # This script deploys container registries, app registrations, and a container instance to run the MLZ front end
 
