@@ -3,7 +3,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# shellcheck disable=1090,2154
+# shellcheck disable=1090,1091,2154
 #
 # remove resources deployed by deploy.sh by mlz env name
 
@@ -80,7 +80,26 @@ notify_failed_to_destroy_terraform() {
 
 destroy_mlz() {
   echo "INFO: cleaning up MLZ Configuration resources with tag 'DeploymentName=${mlz_env_name}'..."
-  . "${this_script_path}/scripts/config/config_clean.sh" "${mlz_config_file_path}"
+
+  delete_files_in_directory_by_name() {
+    directory_to_search=$1
+    file_name_to_match=$2
+
+    matches=$(find "$directory_to_search" -type f -name "$file_name_to_match")
+
+    for match in $matches
+    do
+      echo "INFO: deleting $match ..."
+      rm -f "$match"
+    done
+  }
+
+  # clean up MLZ config resources
+  . "${this_script_path}/scripts/config/config_clean.sh" "${mlz_config_file}"
+
+  # clean up files
+  delete_files_in_directory_by_name "{$this_script_path}" "${tfvars_file_name}"
+  rm -rf "${configuration_output_path}/${mlz_env_name}.mlzconfig" "${configuration_output_path:?}/${tfvars_file_name}"
 }
 
 ##########
@@ -113,7 +132,8 @@ check_dependencies
 
 # set paths
 mlz_config_file_path="${configuration_output_path}/${mlz_env_name}.mlzconfig"
-tfvars_file_path="${configuration_output_path}/${mlz_env_name}.tfvars"
+tfvars_file_name="${mlz_env_name}.tfvars"
+tfvars_file_path="${configuration_output_path}/${tfvars_file_name}"
 
 # teardown resources
 import_configuration

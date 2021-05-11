@@ -29,6 +29,7 @@ resource "azurerm_firewall" "firewall" {
   location            = data.azurerm_resource_group.hub.location
   resource_group_name = data.azurerm_resource_group.hub.name
   sku_tier            = var.firewall_sku
+  private_ip_ranges   = var.disable_snat_ip_range
   tags                = var.tags
 
   ip_configuration {

@@ -69,7 +69,7 @@ RUN AZ_REPO=$(lsb_release -cs) \
     tee /etc/apt/sources.list.d/azure-cli.list
 
 # Install AZ CLI
-RUN apt-get update && apt-get install -y azure-cli
+RUN apt-get update && apt-get install -y azure-cli=2.22.0-1~focal
 
 # Add the vscode user
 ARG USERNAME=vscode
