@@ -38,7 +38,7 @@ show_help() {
 }
 
 usage() {
-  echo "deploy_ui.sh: Setup the front end for MLZ"
+  echo "deploy_ui.sh: This script deploys container registries, app registrations, and a container instance to run the MLZ front end"
   show_help
 }
 
