@@ -104,7 +104,7 @@ delete_files_in_directory_by_name() {
 
   for match in $matches
   do
-    echo "deleting $match ..."
+    echo "INFO: deleting $match ..."
     rm -f "$match"
   done
 }
