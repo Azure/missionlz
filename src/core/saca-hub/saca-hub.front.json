@@ -132,8 +132,15 @@
 			{
 				"varname": "management_publicip_name",
 				"type": "text",
-				"default_val": "FirewallManaghementPublicIP",
+				"default_val": "FirewallManagementPublicIP",
 				"description": "Name for the Public IP attached to the firewall management subnet",
+				"options": []
+			},
+			{
+				"varname": "management_routetable_name",
+				"type": "text",
+				"default_val": "FirewallManagementRouteTable",
+				"description": "Name of the routing table that gets attached to the firewall management subnet",
 				"options": []
 			},
 			{
