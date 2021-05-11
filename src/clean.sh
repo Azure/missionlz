@@ -136,7 +136,8 @@ tfvars_file_name="${mlz_env_name}.tfvars"
 tfvars_file_path="${configuration_output_path}/${tfvars_file_name}"
 
 # teardown resources
+# if terraform destroy fails, notify and continue to destroy mlz
 import_configuration
 login_azcli
-destroy_terraform || notify_failed_to_destroy_terraform # if terraform destroy fails, notify and continue to destroy mlz resources
+destroy_terraform || notify_failed_to_destroy_terraform
 destroy_mlz
