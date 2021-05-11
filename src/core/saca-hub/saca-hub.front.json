@@ -91,7 +91,14 @@
 				"varname": "client_address_space",
 				"type": "text",
 				"default_val": "10.0.100.0/26",
-				"description": "Address space for the firewall",
+				"description": "Address space for the client subnet attached to firewall",
+				"options": []
+			},
+			{
+				"varname": "management_address_space",
+				"type": "text",
+				"default_val": "10.0.100.64/26",
+				"description": "Address space for the management subnet attached to firewall",
 				"options": []
 			},
 			{
@@ -102,17 +109,31 @@
 				"options": []
 			},
 			{
-				"varname": "firewall_ipconfig_name",
+				"varname": "client_ipconfig_name",
 				"type": "text",
-				"default_val": "FirewallIPConfiguration",
-				"description": "Name for the firewall ipconfig",
+				"default_val": "FirewallClientIPConfiguration",
+				"description": "Name for the IP configuration for the firewall client subnet",
 				"options": []
 			},
 			{
-				"varname": "public_ip_name",
+				"varname": "management_ipconfig_name",
 				"type": "text",
-				"default_val": "FirewallPublicIP",
-				"description": "Name for the Public IP",
+				"default_val": "FirewallManagementIPConfiguration",
+				"description": "Name for the IP configuration for the firewall management subnet",
+				"options": []
+			},
+			{
+				"varname": "client_publicip_name",
+				"type": "text",
+				"default_val": "FirewallClientPublicIP",
+				"description": "Name for the Public IP attached to the firewall client subnet",
+				"options": []
+			},
+			{
+				"varname": "management_publicip_name",
+				"type": "text",
+				"default_val": "FirewallManaghementPublicIP",
+				"description": "Name for the Public IP attached to the firewall management subnet",
 				"options": []
 			},
 			{
