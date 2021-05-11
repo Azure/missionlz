@@ -81,6 +81,9 @@ notify_failed_to_destroy_terraform() {
 destroy_mlz() {
   echo "INFO: cleaning up MLZ Configuration resources with tag 'DeploymentName=${mlz_env_name}'..."
 
+  # clean up MLZ config resources
+  . "${this_script_path}/scripts/config/config_clean.sh" "${mlz_config_file_path}"
+
   delete_files_in_directory_by_name() {
     directory_to_search=$1
     file_name_to_match=$2
@@ -93,9 +96,6 @@ destroy_mlz() {
       rm -f "$match"
     done
   }
-
-  # clean up MLZ config resources
-  . "${this_script_path}/scripts/config/config_clean.sh" "${mlz_config_file}"
 
   # clean up files
   delete_files_in_directory_by_name "{$this_script_path}" "${tfvars_file_name}"

@@ -109,7 +109,7 @@ create_mlz_configuration_file() {
 
   # ignoring shellcheck for word splitting because that is the desired behavior
   # shellcheck disable=SC2086
-  "${this_script_path}/scripts/generate_config_file.sh" $gen_config_args_str
+  "${this_script_path}/scripts/config/generate_config_file.sh" $gen_config_args_str
 }
 
 create_mlz_resources() {
