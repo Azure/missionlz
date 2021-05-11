@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+# You can generate one of these with generate_config_file.sh
 tf_environment="{TF_ENVIRONMENT}" # https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
 mlz_env_name="{MLZ_ENV_NAME}" # Unique name for MLZ environment
 mlz_config_subid="{MLZ_CONFIG_SUBID}" # Subscription ID for MissionLZ configuration resources
