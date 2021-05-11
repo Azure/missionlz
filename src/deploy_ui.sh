@@ -3,7 +3,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# shellcheck disable=SC1083,SC1091,2154
+# shellcheck disable=SC1083,SC1091,2154,2155
 # SC1083: This is literal. We want to expand the items literally.
 # SC1091: Not following. Shellcheck can't follow non-constant source. These script are dynamically resolved.
 # SC2154: "var is referenced but not assigned". These values come from an external file.
@@ -42,9 +42,152 @@ usage() {
   show_help
 }
 
+check_dependencies() {
+  "${this_script_path}/scripts/util/checkforazcli.sh"
+  "${this_script_path}/scripts/util/checkfordocker.sh"
+}
+
+inspect_user_input() {
+  # check mandatory parameters
+  for i in { $docker_strategy $mlz_config_subid $mlz_config_location $tf_environment $mlz_env_name $web_port }
+  do
+    if [[ $i == "notset" ]]; then
+      error_log "ERROR: Missing required arguments. These arguments are mandatory: -d, -s, -l, -e, -z, -p"
+      usage
+      exit 1
+    fi
+  done
+
+  # notify the user about any defaults
+  log_default() {
+    local argument_name=$1
+    local argument_default=$2
+    local argument_value=$3
+    if [[ "${argument_value}" = "${argument_default}" ]]; then
+      echo "INFO: using the default value '${argument_default}' for '${argument_name}', specify the '${argument_name}' argument to provide a different value."
+    fi
+
+  }
+  log_default "--docker-strategy" "${default_docker_strategy}" "${docker_strategy}"
+  log_default "--location" "${default_mlz_location}" "${mlz_config_location}"
+  log_default "--tf-environment" "${default_tf_environment}" "${tf_environment}"
+  log_default "--mlz-env-name" "${default_env_name}" "${mlz_env_name}"
+  log_default "--port" "${default_web_port}" "${web_port}"
+}
+
+validate_docker_strategy() {
+  if [[ $docker_strategy != "local" && \
+        $docker_strategy != "build" && \
+        $docker_strategy != "load" ]]; then
+    error_log "ERROR: Unrecognized docker strategy detected. Must be 'local', 'build', or 'load'."
+    exit 1
+  fi
+}
+
+login_azcli() {
+  echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
+  az account set --subscription "${mlz_config_subid}"
+}
+
+validate_cloud_arguments() {
+  echo "INFO: validating settings for '${mlz_config_location}' and '${tf_environment}'..."
+  # ensure location is present and terraform environment matches for the current cloud
+  "${this_script_path}/scripts/util/validateazlocation.sh" "${mlz_config_location}"
+  "${this_script_path}/scripts/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
+}
+
+create_mlz_configuration_file() {
+  echo "INFO: creating a MLZ config file based on user input at $(realpath "$mlz_config_file")..."
+
+  local mlz_tenantid=$(az account show \
+  --query "tenantId" \
+  --output tsv)
+
+  ### derive args from user input
+  gen_config_args=()
+  gen_config_args+=("-f ${mlz_config_file}")
+  gen_config_args+=("-e ${tf_environment}")
+  gen_config_args+=("-z ${mlz_env_name}")
+  gen_config_args+=("-l ${mlz_config_location}")
+  gen_config_args+=("-s ${mlz_config_subid}")
+  gen_config_args+=("-t ${mlz_tenantid}")
+
+  ### add hubs and spokes, if present
+  for j in "${subs_args[@]}"
+  do
+    gen_config_args+=("$j")
+  done
+
+  ### expand array into a string of space separated arguments
+  gen_config_args_str=$(printf '%s ' "${gen_config_args[*]}")
+
+  ### create the file
+  ### do not quote args $gen_config_args_str, we intend to split
+  ### ignoring shellcheck for word splitting because that is the desired behavior
+  # shellcheck disable=SC2086
+  "${this_script_path}/scripts/config/generate_config_file.sh" $gen_config_args_str
+
+  # generate MLZ configuration names
+  . "${this_script_path}/scripts/config/generate_names.sh" "$mlz_config_file"
+}
+
+create_mlz_resources() {
+  echo "INFO: setting up required MLZ resources using $(realpath "$mlz_config_file")..."
+  "${this_script_path}/scripts/config/mlz_config_create.sh" "$mlz_config_file"
+}
+
+handle_docker_image() {
+  if [[ $docker_strategy == "build" ]]; then
+    echo "INFO: building docker image"
+    docker build -t "${image_name}" "${this_script_path}"
+  fi
+
+  if [[ $docker_strategy == "load" ]]; then
+    echo "INFO: Decompressing mlz zip archive and loading it to local docker image library."
+    unzip "${zip_file}"
+    docker load -i mlz.tar
+  fi
+
+  # if local, call deploy_ui_local and exit
+  if [[ $docker_strategy == "local" ]]; then
+    "${this_script_path}/scripts/docker/deploy_ui_local.sh" "$mlz_config_file" "$web_port"
+    exit 0
+  fi
+}
+
+create_registry() {
+  "${this_script_path}/scripts/container-registry/create_acr.sh" "$mlz_config_file"
+}
+
+deploy_container() {
+  docker tag "${image_name}:${image_tag}" "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
+  docker push "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
+
+  "${this_script_path}/scripts/container-registry/deploy_instance.sh" "$mlz_config_file" "$image_name" "$image_tag"
+}
+
+create_auth_scopes() {
+  # get the URL for the instance
+  container_fqdn=$(az container show \
+    --resource-group "${mlz_rg_name}"\
+    --name "${mlz_instance_name}" \
+    --query ipAddress.fqdn \
+    --output tsv)
+
+  # create an app registration and add auth scopes to facilitate MSAL login for the instance
+  "${this_script_path}/scripts/container-registry/add_auth_scopes.sh" "$mlz_config_file" "$container_fqdn"
+
+  echo "INFO: COMPLETE! You can access the front end at http://$container_fqdn"
+}
+
+##########
+# main
+##########
+
+this_script_path=$(realpath "${BASH_SOURCE%/*}")
 timestamp=$(date +%s)
 
-# set helpful defaults that can be overridden or 'notset' for mandatory input
+# set defaults that can be overridden or 'notset' for mandatory input
 mlz_config_subid="notset"
 
 default_docker_strategy="build"
@@ -52,6 +195,8 @@ default_mlz_location="eastus"
 default_tf_environment="public"
 default_env_name="mlz${timestamp}"
 default_web_port="80"
+image_name="lzfront"
+image_tag="latest"
 
 docker_strategy="${default_docker_strategy}"
 mlz_config_location="${default_mlz_location}"
@@ -107,135 +252,21 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
-# setup paths
-this_script_path=$(realpath "${BASH_SOURCE%/*}")
+# validate requirements
+check_dependencies
+inspect_user_input
+validate_docker_strategy
+login_azcli
+validate_cloud_arguments
 
-# check mandatory parameters
-for i in { $docker_strategy $mlz_config_subid $mlz_config_location $tf_environment $mlz_env_name $web_port }
-do
-  if [[ $i == "notset" ]]; then
-    error_log "ERROR: Missing required arguments. These arguments are mandatory: -d, -s, -l, -e, -z, -p"
-    usage
-    exit 1
-  fi
-done
-
-# notify the user about any defaults
-notify_of_default() {
-  argument_name=$1
-  argument_default=$2
-  argument_value=$3
-  if [[ "${argument_value}" = "${argument_default}" ]]; then
-    echo "INFO: using the default value '${argument_default}' for '${argument_name}', specify the '${argument_name}' argument to provide a different value."
-  fi
-
-}
-notify_of_default "--docker-strategy" "${default_docker_strategy}" "${docker_strategy}"
-notify_of_default "--location" "${default_mlz_location}" "${mlz_config_location}"
-notify_of_default "--tf-environment" "${default_tf_environment}" "${tf_environment}"
-notify_of_default "--mlz-env-name" "${default_env_name}" "${mlz_env_name}"
-notify_of_default "--port" "${default_web_port}" "${web_port}"
-
-# check for dependencies
-"${this_script_path}/scripts/util/checkforazcli.sh"
-"${this_script_path}/scripts/util/checkfordocker.sh"
-
-# switch to the MLZ subscription
-echo "INFO: setting current az cli subscription to ${mlz_config_subid}..."
-az account set --subscription "${mlz_config_subid}"
-
-# validate that the location is present in the current cloud
-"${this_script_path}/scripts/util/validateazlocation.sh" "${mlz_config_location}"
-
-# validate that terraform environment matches for the current cloud
-"${this_script_path}/scripts/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
-
-# check docker strategy
-if [[ $docker_strategy != "local" && \
-      $docker_strategy != "build" && \
-      $docker_strategy != "load" ]]; then
-  error_log "ERROR: Unrecognized docker strategy detected. Must be 'local', 'build', or 'load'."
-  exit 1
-fi
-
-# build/load, tag, and push image
-image_name="lzfront"
-image_tag="latest"
-
-if [[ $docker_strategy == "build" ]]; then
-  echo "INFO: building docker image"
-  docker build -t "${image_name}" "${this_script_path}"
-fi
-
-if [[ $docker_strategy == "load" ]]; then
-  echo "INFO: Decompressing mlz zip archive and loading it to local docker image library."
-  unzip "${zip_file}"
-  docker load -i mlz.tar
-fi
-
-# retrieve tenant ID for the MLZ subscription
-mlz_tenantid=$(az account show \
-  --query "tenantId" \
-  --output tsv)
-
-# create MLZ configuration file based on user input
+# set paths
 mlz_config_file="${this_script_path}/mlz.config"
-echo "INFO: creating a MLZ config file based on user input at $(realpath "$mlz_config_file")..."
 
-### derive args from user input
-gen_config_args=()
-gen_config_args+=("-f ${mlz_config_file}")
-gen_config_args+=("-e ${tf_environment}")
-gen_config_args+=("-z ${mlz_env_name}")
-gen_config_args+=("-l ${mlz_config_location}")
-gen_config_args+=("-s ${mlz_config_subid}")
-gen_config_args+=("-t ${mlz_tenantid}")
+# create mlz resources
+create_mlz_resources
 
-### add hubs and spokes, if present
-for j in "${subs_args[@]}"
-do
-  gen_config_args+=("$j")
-done
-
-### expand array into a string of space separated arguments
-gen_config_args_str=$(printf '%s ' "${gen_config_args[*]}")
-
-### create the file
-### do not quote args $gen_config_args_str, we intend to split
-### ignoring shellcheck for word splitting because that is the desired behavior
-# shellcheck disable=SC2086
-"${this_script_path}/scripts/config/generate_config_file.sh" $gen_config_args_str
-
-# generate MLZ configuration names
-. "${this_script_path}/scripts/config/generate_names.sh" "$mlz_config_file"
-
-# create MLZ required resources
-echo "INFO: setting up required MLZ resources using $(realpath "$mlz_config_file")..."
-"${this_script_path}/scripts/config/mlz_config_create.sh" "$mlz_config_file"
-
-# if local, call deploy_ui_local
-if [[ $docker_strategy == "local" ]]; then
-  "${this_script_path}/scripts/docker/deploy_ui_local.sh" "$mlz_config_file" "$web_port"
-  exit 0
-fi
-
-# otherwise, create container registry
-"${this_script_path}/scripts/container-registry/create_acr.sh" "$mlz_config_file"
-
-docker tag "${image_name}:${image_tag}" "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
-docker push "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
-
-# deploy an instance
-"${this_script_path}/scripts/container-registry/deploy_instance.sh" "$mlz_config_file" "$image_name" "$image_tag"
-
-# get the URL for the instance
-container_fqdn=$(az container show \
-  --resource-group "${mlz_rg_name}"\
-  --name "${mlz_instance_name}" \
-  --query ipAddress.fqdn \
-  --output tsv)
-
-# create an app registration and add auth scopes to facilitate MSAL login for the instance
-"${this_script_path}/scripts/container-registry/add_auth_scopes.sh" "$mlz_config_file" "$container_fqdn"
-
-echo "INFO: COMPLETE! You can access the front end at http://$container_fqdn"
+# deploy UI
+handle_docker_image
+create_registry
+deploy_container
+create_auth_scopes
