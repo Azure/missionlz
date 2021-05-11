@@ -3,7 +3,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# shellcheck disable=SC1083,SC1091,2154,2155
+# shellcheck disable=SC1083,SC1090,SC1091,2154,2155
 #
 # This script deploys container registries, app registrations, and a container instance to run the MLZ front end
 
@@ -117,7 +117,6 @@ create_mlz_configuration_file() {
 
   ### expand array into a string of space separated arguments
   gen_config_args_str=$(printf '%s ' "${gen_config_args[*]}")
-
   ### create the file
   ### do not quote args $gen_config_args_str, we intend to split
   ### ignoring shellcheck for word splitting because that is the desired behavior
@@ -125,6 +124,7 @@ create_mlz_configuration_file() {
   "${this_script_path}/scripts/config/generate_config_file.sh" $gen_config_args_str
 
   # generate MLZ configuration names
+  . "$mlz_config_file"
   . "${this_script_path}/scripts/config/generate_names.sh" "$mlz_config_file"
 }
 
@@ -256,10 +256,9 @@ validate_docker_strategy
 login_azcli
 validate_cloud_arguments
 
-# set paths
-mlz_config_file="${this_script_path}/mlz.config"
-
 # create mlz resources
+mlz_config_file="${this_script_path}/mlz.config"
+create_mlz_configuration_file
 create_mlz_resources
 
 # deploy UI

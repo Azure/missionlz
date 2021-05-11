@@ -202,11 +202,9 @@ inspect_user_input
 login_azcli
 validate_cloud_arguments
 
-# set paths
+# create variables
 mlz_config_file_path="${configuration_output_path}/${mlz_env_name}.mlzconfig"
 tfvars_file_path="${configuration_output_path}/${mlz_env_name}.tfvars"
-
-# create variables
 create_mlz_configuration_file
 create_terraform_variables
 
