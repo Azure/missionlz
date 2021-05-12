@@ -24,11 +24,11 @@ variable "client_address_space" {
   description = "The address space to be used for the Firewall subnets"
 }
 
-variable "fw_client_sn_name" {
+variable "firewall_client_subnet_name" {
   description = "The name of the Firewall client traffic subnet"
 }
 
-variable "fw_mgmt_sn_name" {
+variable "firewall_management_subnet_name" {
   description = "The name of the Firewall management traffic subnet"
 }
 

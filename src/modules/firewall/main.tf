@@ -10,13 +10,13 @@ data "azurerm_virtual_network" "hub" {
 }
 
 data "azurerm_subnet" "fw_client_sn" {
-  name                 = var.fw_client_sn_name
+  name                 = var.firewall_client_subnet_name
   virtual_network_name = data.azurerm_virtual_network.hub.name
   resource_group_name  = data.azurerm_resource_group.hub.name
 }
 
 data "azurerm_subnet" "fw_mgmt_sn" {
-  name                 = var.fw_mgmt_sn_name
+  name                 = var.firewall_management_subnet_name
   virtual_network_name = data.azurerm_virtual_network.hub.name
   resource_group_name  = data.azurerm_resource_group.hub.name
 }
