@@ -95,6 +95,22 @@ echo "INFO: destroying Terraform using ${mlz_config_file} and ${tfvars_path}..."
   "${tfvars_path}" \
   "y"
 
+#function to remove files wherever they exist
+delete_files_in_directory_by_name() {
+  directory_to_search=$1
+  file_name_to_match=$2
+
+  matches=$(find "$directory_to_search" -type f -name "$file_name_to_match")
+
+  for match in $matches
+  do
+    echo "INFO: deleting $match ..."
+    rm -f "$match"
+  done
+}
+
 # clean up MLZ config resources
+delete_files_in_directory_by_name "$this_script_path" "$tfvars_filename"
 echo "INFO: cleaning up MLZ resources with tag 'DeploymentName=${mlz_env_name}'..."
 . "${this_script_path}/scripts/config/config_clean.sh" "${mlz_config_file}"
+rm -rf "${configuration_output_path}/${mlz_env_name}.mlzconfig" "${configuration_output_path:?}/${tfvars_filename}"
