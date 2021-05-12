@@ -17,12 +17,12 @@ if [[ "${PGM}" == "configure_asc.sh" && "$#" -lt 1 ]]; then
     echo "${PGM}: Initializes Azure Security Center Standard tier for Storage Accounts and Virtual Machines"
     echo "usage: ${PGM} <mlz tf config vars>"
     exit 1
-elif [[ ! "${PGM}" == "mlz_tf_setup.sh" ]];then
+elif [[ ! "${PGM}" == "create_mlz_configuration_resources.sh" ]];then
 
-    mlz_tf_cfg=$(realpath "${1}")
+    mlz_config=$(realpath "${1}")
 
     # Source variables
-    . "${mlz_tf_cfg}"
+    . "${mlz_config}"
 
     mlz_sub_pattern="mlz_.*._subid"
     mlz_subs=$(< "$(realpath "${1}")" sed 's:#.*$::g' | grep -w "${mlz_sub_pattern}")
@@ -74,7 +74,7 @@ do
             --resource-group ${mlz_lawsrg_name} \
             --workspace-name ${mlz_laws_name}
             --subscription ${sub}"
-        
+
         if ! $laws_exists &> /dev/null; then
             echo "Log Analytics workspace does not exist...creating workspace ${mlz_laws_name}"
             lawsId=$(az monitor log-analytics workspace create \

@@ -82,7 +82,7 @@ destroy() {
   attempts=1
   max_attempts=5
 
-  destroy_command="${scripts_path}/destroy_terraform.sh ${globals} ${path} ${tf_vars} y"
+  destroy_command="${scripts_path}/terraform/destroy_terraform.sh ${globals} ${path} ${tf_vars} y"
 
   if [[ "$display_tf_output" == "n" ]]; then
     destroy_command+=" &>/dev/null"

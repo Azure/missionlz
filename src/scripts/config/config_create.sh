@@ -25,18 +25,18 @@ if [[ "$#" -lt 3 ]]; then
    exit 1
 fi
 
-mlz_tf_cfg=$(realpath "${1}")
+mlz_config=$(realpath "${1}")
 tf_sub_id=$2
 tf_dir=$(realpath "${3}")
 
 # source MLZ config vars
-. "${mlz_tf_cfg}"
+. "${mlz_config}"
 
 # derive TF names from the terraform directory
 tf_name=$(basename "${tf_dir}")
 
 # generate names
-. "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_tf_cfg}" "${tf_sub_id}" "${tf_name}"
+. "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_config}" "${tf_sub_id}" "${tf_name}"
 
 echo "INFO: creating resources for ${tf_name} Terraform state..."
 
@@ -91,7 +91,7 @@ fi
 
 # generate a config.vars file
 . "${BASH_SOURCE%/*}/generate_vars.sh" \
-    "${mlz_tf_cfg}" \
+    "${mlz_config}" \
     "${tf_sub_id}" \
     "${tf_name}" \
     "${tf_dir}"

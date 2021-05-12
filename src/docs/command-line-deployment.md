@@ -21,7 +21,7 @@
 Interested in just getting started and seeing what this does? Login to Azure CLI and try this command to deploy Mission LZ with some default configuration:
 
 ```bash
-src/deploy.sh -s {your_subscription_id}
+src/scripts/deploy.sh -s {your_subscription_id}
 ```
 
 > **NOTE** This implies some software pre-requisites. We highly [recommend using the .devcontainer](https://github.com/Azure/missionlz/blob/main/src/docs/getting-started.md#use-the-development-container-for-command-line-deployments) described in this repository to make thing easier. However, deploying Mission LZ via BASH shell is possible with these minimum requirements:
@@ -37,7 +37,7 @@ If you needed to deploy into another cloud, say Azure Government, you would [ove
 ```bash
 az cloud set -n AzureUSGovernment
 az login
-src/deploy.sh -s {your_subscription_id} \
+src/scripts/deploy.sh -s {your_subscription_id} \
   --location usgovvirginia \
   --tf-environment usgovernment
 ```
@@ -52,13 +52,13 @@ Once the deployment is complete, you'll be presented with a command that will cl
 INFO: Complete!
 INFO: All finished? Want to clean up?
 INFO: Try this command:
-INFO: src/clean.sh -z mymlzenv
+INFO: src/scripts/clean.sh -z mymlzenv
 ```
 
 Which you can then execute like:
 
 ```bash
-src/clean.sh -z mymlzenv
+src/scripts/clean.sh -z mymlzenv
 ```
 
 The `clean.sh` command will call Terraform destroy for all the resources Terraform created and delete the MLZ resources and service principal.
@@ -83,7 +83,7 @@ deploy.sh: create all the configuration and deploy Terraform resources with mini
 For example, if I wanted to deploy into four subscriptions (one for each network) and provide my own name for created resources, I could do so like:
 
 ```bash
-src/deploy.sh -s {my_mlz_configuration_subscription_id} \
+src/scripts/deploy.sh -s {my_mlz_configuration_subscription_id} \
   -u {my_hub_network_subscription_id} \
   -0 {my_identity_network_subscription_id} \
   -1 {my_operations_network_subscription_id} \
@@ -99,9 +99,9 @@ Deployment of MLZ happens through use of a single Service Principal whose creden
 
 MLZ uses this Service Principal and its credentials from the Key Vault to deploy the resources described in Terraform at `src/core` and stores Terraform state for each component into separate storage accounts.
 
-1. First, create the MLZ Configuration file `mlz_tf_cfg.var` file using the `mlz_tf_cfg.var.sample` as a template.
+1. First, create the MLZ Configuration file `mlz.config` file using the `mlz.config.sample` as a template.
 
-    The information in the `mlz_tf_cfg.var` file, will be used by `mlz_tf_setup.sh` to create and populate a `config.vars` file for each tier and saved inside the deployment folder for each tier (example: \src\core\tier-0\config.vars).
+    The information in the `mlz.config` file, will be used by `create_mlz_configuration_resources.sh` to create and populate a `config.vars` file for each tier and saved inside the deployment folder for each tier (example: \src\core\tier-0\config.vars).
 
     For example:
 
@@ -117,7 +117,7 @@ MLZ uses this Service Principal and its credentials from the Key Vault to deploy
     mlz_config_location="eastus"
     ```
 
-1. Then, run `mlz_tf_setup.sh` at [src/scripts/mlz_tf_setup.sh](/src/scripts/mlz_tf_setup.sh) to create:
+1. Then, run `create_mlz_configuration_resources.sh` at [src/scripts/config/create_mlz_configuration_resources.sh](/src/scripts/config/create_mlz_configuration_resources.sh) to create:
 
     - A config Resource Group to store the Key Vault
     - Resource Groups for each tier to store the Terraform state Storage Account
@@ -127,7 +127,7 @@ MLZ uses this Service Principal and its credentials from the Key Vault to deploy
     - Tier specific Terraform backend config files
 
     ```bash
-    src/scripts/mlz_tf_setup.sh src/mlz_tf_cfg.var
+    src/scripts/config/create_mlz_configuration_resources.sh src/mlz.config
     ```
 
 ### Set Terraform Configuration Variables
@@ -150,9 +150,9 @@ location="eastus" # the value used by Terraform in src/core/globals.tfvars
 
 ### Deploy Terraform Configuration
 
-You can use `apply_terraform.sh` at [src/scripts/apply_terraform.sh](/src/scripts/apply_terraform.sh) to both initialize Terraform and apply a Terraform configuration based on the backend environment variables and Terraform variables you've setup in previous steps.
+You can use `apply_terraform.sh` at [src/scripts/terraform/apply_terraform.sh](/src/scripts/terraform/apply_terraform.sh) to both initialize Terraform and apply a Terraform configuration based on the backend environment variables and Terraform variables you've setup in previous steps.
 
-The script `destroy_terraform.sh` at [src/scripts/destroy_terraform.sh](/src/scripts/destroy_terraform.sh) is helpful during testing. This script is exactly like the
+The script `destroy_terraform.sh` at [src/scripts/terraform/destroy_terraform.sh](/src/scripts/terraform/destroy_terraform.sh) is helpful during testing. This script is exactly like the
 `apply_terraform.sh` except it destroys resources defined in the target state file
 
 `apply_terraform.sh` and `destroy_terraform.sh` take two arguments:
@@ -165,14 +165,15 @@ The hub network must be deployed first. See [Networking](https://github.com/Azur
 For saca-hub, run the following command to apply the terraform configuration from the root of this repository.
 
 ```bash
-src/scripts/apply_terraform.sh \
+  src/scripts/terraform/apply_terraform.sh \
   src/core/globals.tfvars \
   src/core/saca-hub saca-hub.tfvars
+```
 
 You could apply Tier 0 with a command below:
 
 ```bash
-src/scripts/apply_terraform.sh \
+src/scripts/terraform/apply_terraform.sh \
   src/core/globals.tfvars \
   src/core/tier-0 tier-0.tfvars
 ```
@@ -180,19 +181,19 @@ src/scripts/apply_terraform.sh \
 To apply Tier 1, you could then change the target directory:
 
 ```bash
-src/scripts/apply_terraform.sh \
+src/scripts/terraform/apply_terraform.sh \
   src/core/globals.tfvars \
   src/core/tier-1 tier-1.tfvars
 ```
 
 Repeating this same pattern, for whatever configuration you wanted to apply and reuse in some automated pipeline.
 
-Use `init_terraform.sh` at [src/scripts/init_terraform.sh](/src/scripts/init_terraform.sh) to perform just an initialization of the Terraform environment
+Use `init_terraform.sh` at [src/scripts/terraform/init_terraform.sh](/src/scripts/terraform/init_terraform.sh) to perform just an initialization of the Terraform environment
 
 To initialize Terraform for Tier 1, you could then change the target directory:
 
 ```bash
-src/scripts/init_terraform.sh \
+src/scripts/terraform/init_terraform.sh \
   src/core/tier-1
 ```
 
@@ -203,7 +204,7 @@ After you've deployed your environments with Terraform, it is no longer mandator
 If you no longer have the need for a Service Principal with Contributor rights, the Key Vault that stores this Service Principal's credentials, nor the Terraform state, you can clean up these Mission LZ Resources with the [config_clean.sh](/src/scripts/config/config_clean.sh) script passing in the MLZ Configuration file you created earlier:
 
 ```bash
-src/scripts/config/config_clean.sh src/mlz_tf_cfg.var
+src/scripts/config/config_clean.sh src/mlz.config
 ```
 
 ### Terraform Providers

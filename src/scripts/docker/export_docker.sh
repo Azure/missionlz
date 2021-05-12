@@ -34,6 +34,14 @@ usage() {
   show_help
 }
 
+# set paths
+this_script_path=$(realpath "${BASH_SOURCE%/*}")
+scripts_path="$(realpath ${this_script_path}/../)"
+src_path="$(realpath ${this_script_path}/../../)"
+
+# check for zip
+"${this_script_path}/../util/checkforzip.sh"
+
 # default file name
 zip_file="mlz.zip"
 
@@ -53,17 +61,16 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
-# build/load, tag, and push image
-this_script_path=$(realpath "${BASH_SOURCE%/*}")
-src_path=$(dirname "${this_script_path}")
+# build and zip the image
+zip_name="${scripts_path}/${zip_file}"
 image_name="lzfront"
 image_tag="latest"
 
-echo "INFO: building docker image"
+echo "INFO: building docker image ${image_name}:${image_tag}..."
 docker build -t "${image_name}" "${src_path}"
 
-echo "INFO: Saving docker image and compressing it before exiting."
+echo "INFO: saving docker image and compressing it to ${zip_name}..."
 docker save "${image_name}:${image_tag}" -o mlz.tar
-zip "${zip_file}" mlz.tar
+zip "${zip_name}" mlz.tar
 rm mlz.tar
-echo "INFO: Compressed deployable archive is saved locally as ${zip_file}."
+echo "INFO: Complete! Compressed deployable archive is saved locally as ${zip_name}"

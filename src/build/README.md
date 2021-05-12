@@ -35,9 +35,9 @@ usage() {
 ```
 
 ```shell
-# assuming src/scripts/mlz_tf_setup.sh has been run before...
+# assuming src/scripts/config/create_mlz_configuration_resources.sh has been run before...
 ./apply_tf.sh \
-  ./path-to/mlz_tf_cfg.var \
+  ./path-to/mlz.config \
   ./path-to/globals.tfvars \
   ./path-to/saca-hub.tfvars \
   ./path-to/tier-0.tfvars \
@@ -47,9 +47,9 @@ usage() {
 ```
 
 ```shell
-# assuming src/scripts/mlz_tf_setup.sh has been run before...
+# assuming src/scripts/config/create_mlz_configuration_resources.sh has been run before...
 ./destroy_tf.sh \
-  ./path-to/mlz_tf_cfg.var \
+  ./path-to/mlz.config \
   ./path-to/globals.tfvars \
   ./path-to/saca-hub.tfvars \
   ./path-to/tier-0.tfvars \

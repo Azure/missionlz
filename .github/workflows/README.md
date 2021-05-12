@@ -34,19 +34,19 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
 
 1. MLZ Setup
 
-    To apply terraform at all, locally, or from this automation, `scripts/mlz_tf_setup.sh` must be run to create the storage accounts to store Terraform state and create the Service Principal with authorization to deploy resources into the configured subscription(s).
+    To apply terraform at all, locally, or from this automation, `src/scripts/config/create_mlz_configuration_resources.sh` must be run to create the storage accounts to store Terraform state and create the Service Principal with authorization to deploy resources into the configured subscription(s).
 
     See the root README's [Configure the Terraform Backend](#../..//README.md/#Configure-the-Terraform-Backend) on how to do this.
 
 1. Configuration store
 
-    When applying terraform locally or from this automation, an MLZ Configuration file (commonly mlz_tf_cfg.var) and Terraform-specific variables files (commonly *.tfvars) are required.
+    When applying terraform locally or from this automation, an MLZ Configuration file (commonly mlz.config) and Terraform-specific variables files (commonly *.tfvars) are required.
 
     You should end up with a container with these files:
 
     File Name | Value
     ------------ | -------------
-    mlz_tf_cfg.var | An MLZ Configuration file that comes from mlz_tf_setup.sh
+    mlz.config | An MLZ Configuration file that comes from create_mlz_configuration_resources.sh
     globals.tfvars | Global MLZ terraform values
     saca-hub.tfvars | SACA Hub MLZ terraform values
     tier-0.tfvars | Tier 0 MLZ terraform values
@@ -59,7 +59,7 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
     ./build/get_vars.sh
 
     # pulls down these files:
-    vars/mlz_tf_cfg.var
+    vars/mlz.config
     vars/globals.tfvars
     vars/saca-hub.tfvars
     vars/tier-0.tfvars
