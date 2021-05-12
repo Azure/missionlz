@@ -38,8 +38,8 @@ usage() {
 }
 
 check_dependencies() {
-  "${this_script_path}/scripts/util/checkforazcli.sh"
-  "${this_script_path}/scripts/util/checkforterraform.sh"
+  "${this_script_path}/util/checkforazcli.sh"
+  "${this_script_path}/util/checkforterraform.sh"
 }
 
 inspect_user_input() {
@@ -79,8 +79,8 @@ login_azcli() {
 validate_cloud_arguments() {
   echo "INFO: validating settings for '${mlz_config_location}' and '${tf_environment}'..."
   # ensure location is present and terraform environment matches for the current cloud
-  "${this_script_path}/scripts/util/validateazlocation.sh" "${mlz_config_location}"
-  "${this_script_path}/scripts/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
+  "${this_script_path}/util/validateazlocation.sh" "${mlz_config_location}"
+  "${this_script_path}/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
 }
 
 create_mlz_configuration_file() {
@@ -109,23 +109,23 @@ create_mlz_configuration_file() {
 
   # ignoring shellcheck for word splitting because that is the desired behavior
   # shellcheck disable=SC2086
-  "${this_script_path}/scripts/config/generate_config_file.sh" $gen_config_args_str
+  "${this_script_path}/config/generate_config_file.sh" $gen_config_args_str
 }
 
 create_mlz_resources() {
   echo "INFO: creating MLZ resources using ${mlz_config_file_path}..."
-  "${this_script_path}/scripts/create_mlz_configuration_resources.sh" "${mlz_config_file_path}"
+  "${this_script_path}/config/create_mlz_configuration_resources.sh" "${mlz_config_file_path}"
 }
 
 create_terraform_variables() {
   echo "INFO: creating terraform variables at ${tfvars_file_path}..."
-  "${this_script_path}/scripts/terraform/create_globals_from_config.sh" "${tfvars_file_path}" "${mlz_config_file_path}"
+  "${this_script_path}/terraform/create_globals_from_config.sh" "${tfvars_file_path}" "${mlz_config_file_path}"
 }
 
 apply_terraform() {
   echo "INFO: applying Terraform using ${mlz_config_file_path} and ${tfvars_file_path}..."
-  . "${this_script_path}/scripts/config/generate_names.sh" "${mlz_config_file_path}"
-  "${this_script_path}/build/apply_tf.sh" \
+  . "${this_script_path}/config/generate_names.sh" "${mlz_config_file_path}"
+  "${this_script_path}/../build/apply_tf.sh" \
     "${mlz_config_file_path}" \
     "${tfvars_file_path}" \
     "${tfvars_file_path}" \
@@ -145,7 +145,7 @@ display_clean_hint() {
 ##########
 
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
-configuration_output_path="${this_script_path}/generated-configurations"
+configuration_output_path="${this_script_path}/../generated-configurations"
 timestamp=$(date +%s)
 
 # set some defaults

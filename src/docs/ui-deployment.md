@@ -76,7 +76,7 @@ On your internet connected staging machine (With Docker Installed):
 Build the docker image needed for deployment:
 
 ```BASH
-cd src/scripts
+cd src/scripts/docker
 ./export_docker.sh
 ```
 

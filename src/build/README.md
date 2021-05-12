@@ -35,7 +35,7 @@ usage() {
 ```
 
 ```shell
-# assuming src/scripts/create_mlz_configuration_resources.sh has been run before...
+# assuming src/scripts/config/create_mlz_configuration_resources.sh has been run before...
 ./apply_tf.sh \
   ./path-to/mlz.config \
   ./path-to/globals.tfvars \
@@ -47,7 +47,7 @@ usage() {
 ```
 
 ```shell
-# assuming src/scripts/create_mlz_configuration_resources.sh has been run before...
+# assuming src/scripts/config/create_mlz_configuration_resources.sh has been run before...
 ./destroy_tf.sh \
   ./path-to/mlz.config \
   ./path-to/globals.tfvars \

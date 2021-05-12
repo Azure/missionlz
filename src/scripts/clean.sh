@@ -31,8 +31,8 @@ usage() {
 }
 
 check_dependencies() {
-  "${this_script_path}/scripts/util/checkforazcli.sh"
-  "${this_script_path}/scripts/util/checkforterraform.sh"
+  "${this_script_path}/util/checkforazcli.sh"
+  "${this_script_path}/util/checkforterraform.sh"
 }
 
 inspect_user_input() {
@@ -50,7 +50,7 @@ inspect_user_input() {
 
 import_configuration() {
   . "${mlz_config_file_path}"
-  . "${this_script_path}/scripts/config/generate_names.sh" "${mlz_config_file_path}"
+  . "${this_script_path}/config/generate_names.sh" "${mlz_config_file_path}"
 }
 
 login_azcli() {
@@ -63,7 +63,7 @@ login_azcli() {
 
 destroy_terraform() {
   echo "INFO: destroying Terraform using ${mlz_config_file_path} and ${tfvars_file_path}..."
-  "${this_script_path}/build/destroy_tf.sh" \
+  "${this_script_path}/../build/destroy_tf.sh" \
   "${mlz_config_file_path}" \
   "${tfvars_file_path}" \
   "${tfvars_file_path}" \
@@ -82,7 +82,7 @@ destroy_mlz() {
   echo "INFO: cleaning up MLZ Configuration resources with tag 'DeploymentName=${mlz_env_name}'..."
 
   # clean up MLZ config resources
-  . "${this_script_path}/scripts/config/config_clean.sh" "${mlz_config_file_path}"
+  . "${this_script_path}/config/config_clean.sh" "${mlz_config_file_path}"
 
   delete_files_in_directory_by_name() {
     directory_to_search=$1
@@ -107,7 +107,7 @@ destroy_mlz() {
 ##########
 
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
-configuration_output_path="${this_script_path}/generated-configurations"
+configuration_output_path="${this_script_path}/../generated-configurations"
 
 mlz_env_name="notset"
 

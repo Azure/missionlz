@@ -34,7 +34,7 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
 
 1. MLZ Setup
 
-    To apply terraform at all, locally, or from this automation, `src/scripts/create_mlz_configuration_resources.sh` must be run to create the storage accounts to store Terraform state and create the Service Principal with authorization to deploy resources into the configured subscription(s).
+    To apply terraform at all, locally, or from this automation, `src/scripts/config/create_mlz_configuration_resources.sh` must be run to create the storage accounts to store Terraform state and create the Service Principal with authorization to deploy resources into the configured subscription(s).
 
     See the root README's [Configure the Terraform Backend](#../..//README.md/#Configure-the-Terraform-Backend) on how to do this.
 

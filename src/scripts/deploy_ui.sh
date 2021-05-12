@@ -26,7 +26,7 @@ show_help() {
   print_formatted "--location" "-l" "The location that you're deploying to (defaults to 'eastus')"
   print_formatted "--tf-environment" "-e" "Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment"
   print_formatted "--mlz-env-name" "-z" "Unique name for MLZ environment (defaults to 'mlz' + UNIX timestamp)"
-  print_formatted "--hub-sub-id" "-h" "subscription ID for the hub network and resources (defaults to the value provided for -s --subscription-id)"
+  print_formatted "--hub-sub-id" "-u" "subscription ID for the hub network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier0-sub-id" "-0" "subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier1-sub-id" "-1" "subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier2-sub-id" "-2" "subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)"
@@ -40,8 +40,8 @@ usage() {
 }
 
 check_dependencies() {
-  "${this_script_path}/scripts/util/checkforazcli.sh"
-  "${this_script_path}/scripts/util/checkfordocker.sh"
+  "${this_script_path}/util/checkforazcli.sh"
+  "${this_script_path}/util/checkfordocker.sh"
 }
 
 inspect_user_input() {
@@ -89,8 +89,8 @@ login_azcli() {
 validate_cloud_arguments() {
   echo "INFO: validating settings for '${mlz_config_location}' and '${tf_environment}'..."
   # ensure location is present and terraform environment matches for the current cloud
-  "${this_script_path}/scripts/util/validateazlocation.sh" "${mlz_config_location}"
-  "${this_script_path}/scripts/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
+  "${this_script_path}/util/validateazlocation.sh" "${mlz_config_location}"
+  "${this_script_path}/terraform/validate_cloud_for_tf_env.sh" "${tf_environment}"
 }
 
 create_mlz_configuration_file() {
@@ -121,22 +121,22 @@ create_mlz_configuration_file() {
   ### do not quote args $gen_config_args_str, we intend to split
   ### ignoring shellcheck for word splitting because that is the desired behavior
   # shellcheck disable=SC2086
-  "${this_script_path}/scripts/config/generate_config_file.sh" $gen_config_args_str
+  "${this_script_path}/config/generate_config_file.sh" $gen_config_args_str
 
   # generate MLZ configuration names
   . "$mlz_config_file"
-  . "${this_script_path}/scripts/config/generate_names.sh" "$mlz_config_file"
+  . "${this_script_path}/config/generate_names.sh" "$mlz_config_file"
 }
 
 create_mlz_resources() {
   echo "INFO: setting up required MLZ resources using $(realpath "$mlz_config_file")..."
-  "${this_script_path}/scripts/config/mlz_config_create.sh" "$mlz_config_file"
+  "${this_script_path}/config/mlz_config_create.sh" "$mlz_config_file"
 }
 
 handle_docker_image() {
   if [[ $docker_strategy == "build" ]]; then
     echo "INFO: building docker image"
-    docker build -t "${image_name}" "${this_script_path}"
+    docker build -t "${image_name}" "${src_path}"
   fi
 
   if [[ $docker_strategy == "load" ]]; then
@@ -147,20 +147,20 @@ handle_docker_image() {
 
   # if local, call deploy_ui_local and exit
   if [[ $docker_strategy == "local" ]]; then
-    "${this_script_path}/scripts/docker/deploy_ui_local.sh" "$mlz_config_file" "$web_port"
+    "${this_script_path}/docker/deploy_ui_local.sh" "$mlz_config_file" "$web_port"
     exit 0
   fi
 }
 
 create_registry() {
-  "${this_script_path}/scripts/container-registry/create_acr.sh" "$mlz_config_file"
+  "${this_script_path}/container-registry/create_acr.sh" "$mlz_config_file"
 }
 
 deploy_container() {
   docker tag "${image_name}:${image_tag}" "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
   docker push "${mlz_acr_name}${mlz_acrLoginServerEndpoint}/${image_name}:${image_tag}"
 
-  "${this_script_path}/scripts/container-registry/deploy_instance.sh" "$mlz_config_file" "$image_name" "$image_tag"
+  "${this_script_path}/container-registry/deploy_instance.sh" "$mlz_config_file" "$image_name" "$image_tag"
 }
 
 create_auth_scopes() {
@@ -172,7 +172,7 @@ create_auth_scopes() {
     --output tsv)
 
   # create an app registration and add auth scopes to facilitate MSAL login for the instance
-  "${this_script_path}/scripts/container-registry/add_auth_scopes.sh" "$mlz_config_file" "$container_fqdn"
+  "${this_script_path}/container-registry/add_auth_scopes.sh" "$mlz_config_file" "$container_fqdn"
 
   echo "INFO: COMPLETE! You can access the front end at http://$container_fqdn"
 }
@@ -182,6 +182,7 @@ create_auth_scopes() {
 ##########
 
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
+src_path="${this_script_path}/../"
 timestamp=$(date +%s)
 
 # set defaults that can be overridden or 'notset' for mandatory input
@@ -232,6 +233,7 @@ while [ $# -gt 0 ] ; do
       shift
       subs_args+=("-0 ${1}") ;;
     -1 | --tier1-sub-id)
+      shift
       subs_args+=("-1 ${1}") ;;
     -2 | --tier2-sub-id)
       shift
@@ -257,7 +259,7 @@ login_azcli
 validate_cloud_arguments
 
 # create mlz resources
-mlz_config_file="${this_script_path}/mlz.config"
+mlz_config_file="${src_path}/mlz.config"
 create_mlz_configuration_file
 create_mlz_resources
 
