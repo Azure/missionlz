@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+# You can generate one of these with generate_config_file.sh
 tf_environment="{TF_ENVIRONMENT}" # https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
-mlz_metadatahost="{MLZ_METADATAHOST}"
 mlz_env_name="{MLZ_ENV_NAME}" # Unique name for MLZ environment
 mlz_config_subid="{MLZ_CONFIG_SUBID}" # Subscription ID for MissionLZ configuration resources
 mlz_config_location="{MLZ_CONFIG_LOCATION}" # Azure Region for deploying Mission LZ configuration resources
@@ -10,3 +10,8 @@ mlz_tier0_subid="{MLZ_TIER0_SUBID}"
 mlz_tier1_subid="{MLZ_TIER1_SUBID}"
 mlz_tier2_subid="{MLZ_TIER2_SUBID}"
 mlz_saca_subid="{MLZ_SACA_SUBID}"
+mlz_metadatahost="{MLZ_METADATAHOST}" # e.g. https://management.azure.com/
+mlz_acrLoginServerEndpoint="{MLZ_ACRLOGINSERVERENDPOINT}" # e.g. .azurecr.io
+mlz_keyvaultDns="{MLZ_KEYVAULTDNS}" # e.g. .vault.azure.net
+mlz_cloudname="{MLZ_CLOUDNAME}" # e.g. AzureCloud
+mlz_activeDirectory="{MLZ_ACTIVEDIRECTORY}" # e.g. https://login.microsoftonline.com

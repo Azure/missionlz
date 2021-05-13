@@ -10,7 +10,7 @@ terraform-provider-random_v*
 *.terraform.lock.hcl
 
 # Setup config variables file
-mlz_tf_cfg.var
+mlz.config
 saca-hub.tfvars.json
 tier-0.tfvars.json
 tier-1.tfvars.json
@@ -50,5 +50,7 @@ __pycache__/
 **/config_output/
 **/exec_output
 
-# ignore deploy.sh output
+# ignore generated output
 **/generated-configurations/*
+mlz.zip
+mlz.tar

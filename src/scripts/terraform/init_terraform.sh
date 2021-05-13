@@ -24,15 +24,17 @@ tf_name=$(basename "${tf_dir}")
 
 config_vars="${tf_dir}/config.vars"
 
+scripts_path=$(realpath "${BASH_SOURCE%/*}/..")
+
 # check for dependencies
-. "${BASH_SOURCE%/*}/util/checkforazcli.sh"
-. "${BASH_SOURCE%/*}/util/checkforterraform.sh"
+. "${scripts_path}/util/checkforazcli.sh"
+. "${scripts_path}/util/checkforterraform.sh"
 
 # Validate necessary Azure resources exist
-. "${BASH_SOURCE%/*}/config/config_validate.sh" "${tf_dir}"
+. "${scripts_path}/config/config_validate.sh" "${tf_dir}"
 
 # Validate configuration file exists
-. "${BASH_SOURCE%/*}/util/checkforfile.sh" \
+. "${scripts_path}/util/checkforfile.sh" \
    "${config_vars}" \
    "The configuration file ${config_vars} is empty or does not exist. You may need to run MLZ setup."
 
@@ -40,7 +42,7 @@ config_vars="${tf_dir}/config.vars"
 . "${config_vars}"
 
 # Verify Service Principal is valid and set client_id and client_secret environment variables
-. "${BASH_SOURCE%/*}/config/get_sp_identity.sh" "${config_vars}"
+. "${scripts_path}/config/get_sp_identity.sh" "${config_vars}"
 
 # Set the terraform state key
 key="${mlz_env_name}${tf_name}"

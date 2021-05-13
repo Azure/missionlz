@@ -30,7 +30,7 @@ Then deploy a container instance of the front end with:
 
 ```BASH
 cd src/scripts
-./setup_ezdeploy.sh -s <subscription id>
+./deploy_ui.sh -s <subscription id>
 ```
 
 ### Additional Configuration Options
@@ -41,17 +41,17 @@ If you needed to deploy into another cloud, say Azure Government, you would [ove
 az cloud set -n AzureUSGovernment
 az login
 cd src/scripts
-./setup_ezdeploy.sh -s {your_subscription_id} \
+./deploy_ui.sh -s {your_subscription_id} \
   --location usgovvirginia \
   --tf-environment usgovernment
 ```
 
-`setup_ezdeploy.sh` has more configurable options, but these are the minimum required to deploy a running UI that will help you make a full MLZ deployment.
+`deploy_ui.sh` has more configurable options, but these are the minimum required to deploy a running UI that will help you make a full MLZ deployment.
 
 Here's the full list of parameters for reference:
 
 ```plaintext
-setup_ezdeploy.sh: Setup the front end for MLZ
+deploy_ui.sh: Setup the front end for MLZ
             argument    description
    --docker-strategy -d [local|build|load] 'local' for localhost, 'build' to build from this repo, or 'load' to unzip an image
    --subscription-id -s Subscription ID for MissionLZ resources
@@ -76,7 +76,7 @@ On your internet connected staging machine (With Docker Installed):
 Build the docker image needed for deployment:
 
 ```BASH
-cd src/scripts
+cd src/scripts/docker
 ./export_docker.sh
 ```
 
@@ -86,7 +86,7 @@ Move this file along with the repo to the destination for airgapped deployment T
 
 ```BASH
 cd src/scripts
-./setup_ezdeploy.sh -d load -s <subscription id> -e "<AZURE_ENVIRONMENT>" -l "<AZURE_LOCATION>"
+./deploy_ui.sh -d load -s <subscription id> -e "<AZURE_ENVIRONMENT>" -l "<AZURE_LOCATION>"
 ```
 
 If desired both commands allow for the input of file names for exporting and for the load if the defaults are not sufficient.
@@ -144,10 +144,10 @@ prior to following the following instructions
 
     ```bash
     cd src/scripts
-    ./setup_ezdeploy.sh -d local -s <subscription_id> -p <port>
+    ./deploy_ui.sh -d local -s <subscription_id> -p <port>
     ```
 
-1. Invoke environment variables needed for login (These are returned after setup_ezdeploy.sh is run)
+1. Invoke environment variables needed for login (These are returned after deploy_ui.sh is run)
 
     ```powershell
     $env:CLIENT_ID='$client_id'
