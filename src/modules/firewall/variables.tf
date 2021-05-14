@@ -20,24 +20,36 @@ variable "firewall_sku" {
   description = "The SKU for Azure Firewall"
 }
 
-variable "firewall_address_space" {
+variable "client_address_space" {
   description = "The address space to be used for the Firewall subnets"
 }
 
-variable "firewall_subnet_name" {
-  description = "The name of the Firewall subnet"
+variable "firewall_client_subnet_name" {
+  description = "The name of the Firewall client traffic subnet"
 }
 
-variable "saca_fwname" {
+variable "firewall_management_subnet_name" {
+  description = "The name of the Firewall management traffic subnet"
+}
+
+variable "firewall_name" {
   description = "The name of the Firewall"
 }
 
-variable "firewall_ipconfig_name" {
-  description = "The name of the Firewall IP Configuration"
+variable "client_ipconfig_name" {
+  description = "The name of the Firewall Client IP Configuration"
 }
 
-variable "public_ip_name" {
-  description = "The name of the Firewall Public IP"
+variable "client_publicip_name" {
+  description = "The name of the Firewall Client Public IP"
+}
+
+variable "management_ipconfig_name" {
+  description = "The name of the Firewall Management IP Configuration"
+}
+
+variable "management_publicip_name" {
+  description = "The name of the Firewall Management Public IP"
 }
 
 variable "log_analytics_workspace_id" {

@@ -18,8 +18,18 @@ variable "vnet_address_space" {
   type        = list(string)
 }
 
-variable "firewall_address_space" {
-  description = "The address space to be used for the Firewall virtual network."
+variable "client_address_space" {
+  description = "The address space to be used for the Firewall virtual network subnet used for client traffic."
+  type        = string
+}
+
+variable "management_address_space" {
+  description = "The address space to be used for the Firewall virtual network subnet used for management traffic."
+  type        = string
+}
+
+variable "routetable_name" {
+  description = "The name of the route table to be applied to the firewall management subnet."
   type        = string
 }
 
