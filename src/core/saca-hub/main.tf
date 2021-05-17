@@ -57,6 +57,9 @@ module "saca-hub-network" {
   management_address_space = var.management_address_space
   routetable_name          = var.management_routetable_name
 
+  jumpbox_subnet_name   = var.jumpbox_subnet_name
+  jumpbox_address_space = var.jumpbox_address_space
+
   log_analytics_workspace_name              = var.saca_lawsname
   log_analytics_workspace_sku               = "PerGB2018"
   log_analytics_workspace_retention_in_days = "30"
@@ -79,6 +82,22 @@ module "bastion-host" {
   tags = {
     DeploymentName = var.deploymentname
   }
+}
+
+module "jumpbox-virtual-machine" {
+  depends_on           = [module.saca-hub-network]
+  source               = "../../modules/windows-virtual-machine"
+  resource_group_name  = azurerm_resource_group.hub.name
+  virtual_network_name = var.saca_vnetname
+  subnet_name          = var.jumpbox_subnet_name
+  name                 = var.jumpbox_vm_name
+  size                 = var.jumpbox_vm_size
+  admin_username       = var.jumpbox_admin_username
+  admin_password       = var.jumpbox_admin_password
+  publisher            = var.jumpbox_vm_publisher
+  offer                = var.jumpbox_vm_offer
+  sku                  = var.jumpbox_vm_sku
+  version              = var.jumpbox_vm_version
 }
 
 locals {

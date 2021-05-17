@@ -140,3 +140,67 @@ variable "bastion_ipconfig_name" {
   default     = "mlzDemoBastionHostIpCfg"
   type        = string
 }
+
+#################################
+# Jumpbox VM Configuration
+#################################
+
+variable "jumpbox_subnet_name" {
+  description = "The name of the jumpbox subnet"
+  default     = "mlzDemoJumpboxSubnet"
+  type        = string
+}
+
+variable "jumpbox_address_space" {
+  description = "The address space to be used for the jumpbox subnet."
+  default     = "10.0.100.160/27"
+  type        = string
+}
+
+variable "jumpbox_vm_name" {
+  description = "The name of the jumpbox virtual machine"
+  default     = "mlzDemoJumpboxVm"
+  type        = string
+}
+
+variable "jumpbox_vm_size" {
+  description = "The size of the jumpbox virtual machine"
+  default     = "Standard_DS1_v2"
+  type        = string
+}
+
+variable "jumpbox_admin_username" {
+  description = "The admin username of the jumpbox virtual machine"
+  type        = string
+  sensitive   = true
+}
+
+variable "jumpbox_admin_password" {
+  description = "The admin password of the jumpbox virtual machine"
+  type        = string
+  sensitive   = true
+}
+
+variable "jumpbox_vm_publisher" {
+  description = "The publisher of the jumpbox virtual machine source image"
+  default     = "MicrosoftWindowsServer"
+  type        = string
+}
+
+variable "jumpbox_vm_offer" {
+  description = "The offer of the virtual machine source image"
+  default     = "WindowsServer"
+  type        = string
+}
+
+variable "jumpbox_vm_sku" {
+  description = "The SKU of the virtual machine source image"
+  default     = "2019-datacenter-gensecond"
+  type        = string
+}
+
+variable "jumpbox_vm_version" {
+  description = "The version of the virtual machine source image"
+  default     = "latest"
+  type        = string
+}

@@ -28,6 +28,13 @@ resource "azurerm_subnet" "fw_mgmt" {
   address_prefixes     = [cidrsubnet(var.management_address_space, 0, 0)]
 }
 
+resource "azurerm_subnet" "fw_jumpbox" {
+  name                 = var.jumpbox_subnet_name
+  resource_group_name  = module.hub-network.resource_group_name
+  virtual_network_name = module.hub-network.virtual_network_name
+  address_prefixes     = [cidrsubnet(var.jumpbox_address_space, 0, 0)]
+}
+
 resource "azurerm_route_table" "routetable" {
   name                          = var.routetable_name
   resource_group_name           = azurerm_subnet.fw_mgmt.resource_group_name
