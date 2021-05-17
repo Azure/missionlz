@@ -97,7 +97,7 @@ module "jumpbox-virtual-machine" {
   publisher            = var.jumpbox_vm_publisher
   offer                = var.jumpbox_vm_offer
   sku                  = var.jumpbox_vm_sku
-  version              = var.jumpbox_vm_version
+  image_version        = var.jumpbox_vm_version
 }
 
 locals {

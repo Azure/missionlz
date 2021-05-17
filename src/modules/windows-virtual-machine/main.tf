@@ -18,13 +18,14 @@ resource "azurerm_network_interface" "windows_vm" {
 
   ip_configuration {
     name                          = "${var.name}_IPCONFIG"
-    subnet_id                     = azurerm_subnet.vm_subnet.id
+    subnet_id                     = data.azurerm_subnet.vm_subnet.id
     private_ip_address_allocation = "Dynamic"
   }
 }
 
 resource "azurerm_windows_virtual_machine" "windows_vm" {
   name                = var.name
+  computer_name       = substr(var.name, 0, 14) # computer_name can only be 15 characters maximum
   resource_group_name = data.azurerm_resource_group.vm_resource_group.name
   location            = data.azurerm_resource_group.vm_resource_group.location
   size                = var.size
@@ -43,6 +44,6 @@ resource "azurerm_windows_virtual_machine" "windows_vm" {
     publisher = var.publisher
     offer     = var.offer
     sku       = var.sku
-    version   = var.version
+    version   = var.image_version
   }
 }

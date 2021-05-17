@@ -48,6 +48,16 @@ variable "log_analytics_workspace_retention_in_days" {
   type        = string
 }
 
+variable "jumpbox_subnet_name" {
+  description = "The name for the jumpboxes subnet."
+  type        = string
+}
+
+variable jumpbox_address_space {
+  description = "The address space for the jumpboxes subnet."
+  type        = string
+}
+
 variable "tags" {
   description = "A map of tags to add to all resources"
   default     = {}

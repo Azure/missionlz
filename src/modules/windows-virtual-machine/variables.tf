@@ -53,7 +53,7 @@ variable "sku" {
   type        = string
 }
 
-variable "version" {
+variable "image_version" {
   description = "The version of the virtual machine source image"
   type        = string
 }
