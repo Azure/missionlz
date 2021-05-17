@@ -18,7 +18,7 @@ resource "azurerm_network_interface" "windows_vm" {
 
   ip_configuration {
     name                          = "${var.name}_IPCONFIG"
-    subnet_id                     = azurerm_subnet.example.id
+    subnet_id                     = azurerm_subnet.vm_subnet.id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -31,7 +31,7 @@ resource "azurerm_windows_virtual_machine" "windows_vm" {
   admin_username      = var.admin_username
   admin_password      = var.admin_password
   network_interface_ids = [
-    azurerm_network_interface.example.id,
+    azurerm_network_interface.windows_vm.id,
   ]
 
   os_disk {
