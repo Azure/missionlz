@@ -66,6 +66,21 @@ module "saca-hub-network" {
   }
 }
 
+module "bastion-host" {
+  depends_on            = [module.saca-hub-network]
+  source                = "../../modules/bastion"
+  resource_group_name   = azurerm_resource_group.hub.name
+  virtual_network_name  = var.saca_vnetname
+  bastion_host_name     = var.bastion_host_name
+  subnet_address_prefix = var.bastion_address_space
+  public_ip_name        = var.bastion_public_ip_name
+  ipconfig_name         = var.bastion_ipconfig_name
+
+  tags = {
+    DeploymentName = var.deploymentname
+  }
+}
+
 locals {
   # azurerm terraform environments where Azure Firewall Premium is supported
   firewall_premium_tf_environments = ["public"]

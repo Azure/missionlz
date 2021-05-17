@@ -29,3 +29,12 @@ client_publicip_name       = "{FIREWALL_CLIENT_PUBLICIP_NAME}"
 management_ipconfig_name   = "{FIREWALL_MANAGEMENT_IPCONFIG_NAME}"
 management_publicip_name   = "{FIREWALL_MANAGEMENT_PUBLICIP_NAME}"
 management_routetable_name = "{FIREWALL_MANAGEMENT_ROUTE_TABLE_NAME}"
+
+#################################
+# Bastion Host Configuration
+#################################
+
+bastion_host_name      = "{BASTION_HOST_NAME}",
+bastion_address_space  = "{BASTION_ADDRESS_SPACE}",
+bastion_public_ip_name = "{BASTION_PUBLIC_IP_NAME}",
+bastion_ipconfig_name  = "{BASTION_IPCONFIG_NAME}"

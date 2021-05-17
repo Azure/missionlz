@@ -149,6 +149,34 @@
 				"default_val": false,
 				"description": "Do you need to create a network watcher here?",
 				"options": []
+			},
+			{
+				"varname": "bastion_host_name",
+				"type": "text",
+				"default_val": "mlzDemoBastionHost",
+				"description": "The name of the Bastion Host",
+				"options": []
+			},
+			{
+				"varname": "bastion_address_space",
+				"type": "text",
+				"default_val": "10.0.100.128/27",
+				"description": "The address space to be used for the Bastion Host subnet (must be /27 or larger).",
+				"options": []
+			},
+			{
+				"varname": "bastion_public_ip_name",
+				"type": "text",
+				"default_val": "mlzDemoBastionHostPip",
+				"description": "The name of the Bastion Host Public IP",
+				"options": []
+			},
+			{
+				"varname": "bastion_ipconfig_name",
+				"type": "text",
+				"default_val": "mlzDemoBastionHostIpCfg",
+				"description": "The name of the Bastion Host IP Configuration",
+				"options": []
 			}
 		]
 	}

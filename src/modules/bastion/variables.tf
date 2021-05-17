@@ -11,6 +11,11 @@ variable "virtual_network_name" {
   type        = string
 }
 
+variable "bastion_host_name" {
+  description = "The name of the Bastion Host"
+  type        = string
+}
+
 variable "subnet_address_prefix" {
   description = "The address prefix for the Bastion Host (must be a /27 or larger)"
   type        = string
@@ -21,7 +26,7 @@ variable "public_ip_name" {
   type        = string
 }
 
-variable "bastion_host_ipconfig_name" {
+variable "ipconfig_name" {
   description = "The name of the Bastion Host IP configuration resource"
   type        = string
 }
