@@ -32,6 +32,10 @@ variable "mlz_clientsecret" {
   description = "The account to deploy with"
 }
 
+variable "mlz_objectid" {
+  description = "The account to deploy with"
+}
+
 #################################
 # SACA Hub Configuration
 #################################
@@ -208,6 +212,12 @@ variable "jumpbox_subnet" {
   }
 }
 
+variable "jumpbox_keyvault_name" {
+  description = "The name of the jumpbox virtual machine keyvault"
+  default     = "mlzDemoJumpboxVm"
+  type        = string
+}
+
 variable "jumpbox_vm_name" {
   description = "The name of the jumpbox virtual machine"
   default     = "mlzDemoJumpboxVm"
@@ -218,18 +228,6 @@ variable "jumpbox_vm_size" {
   description = "The size of the jumpbox virtual machine"
   default     = "Standard_DS1_v2"
   type        = string
-}
-
-variable "jumpbox_admin_username" {
-  description = "The admin username of the jumpbox virtual machine"
-  type        = string
-  sensitive   = true
-}
-
-variable "jumpbox_admin_password" {
-  description = "The admin password of the jumpbox virtual machine"
-  type        = string
-  sensitive   = true
 }
 
 variable "jumpbox_vm_publisher" {

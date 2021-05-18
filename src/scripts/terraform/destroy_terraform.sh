@@ -77,5 +77,6 @@ destroy_command+=" -var-file=${globalvars}"
 destroy_command+=" -var-file=${tfvars}"
 destroy_command+=" -var mlz_clientid=${client_id}"
 destroy_command+=" -var mlz_clientsecret=${client_secret}"
+destroy_command+=" -var mlz_objectid=${object_id}"
 
 eval "${destroy_command}"
