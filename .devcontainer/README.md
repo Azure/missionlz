@@ -30,22 +30,20 @@ All configuration related to the development container is in the `.devcontainer`
           git config --global credential.helper "/mnt/c/Program\ Files/Git/mingw64/libexec/git-core/git-credential-manager.exe"
      ```
 
-- Open a command line (e.g. `wsl.exe` or `bash.exe`), change to the root folder of the local workspace for the cloned repository, and start VS Code from this root folder (not a sub folder or a parent folder).
-  > **NOTE:** If you are using WSL or BASH on Linux or Mac, you can navigate to the root folder of the project (for example, in the path `$HOME/missionlz` assuming you cloned the project to $HOME) and enter the command below to launch VS Code in correct directory. Be sure to include the trailing "." in the second command.
+### Step-by-Step
+
+1. Open a command line (e.g. `wsl.exe` or `bash.exe`), change to the root folder of the local workspace for the cloned repository, and start VS Code from this root folder (not a sub folder or a parent folder).
+   > **NOTE:** If you are using WSL or BASH on Linux or Mac, you can navigate to the root folder of the project (for example, in the path `$HOME/missionlz` assuming you cloned the project to $HOME) and enter the command below to launch VS Code in correct directory. Be sure to include the trailing "." in the second command. 
 
     ```BASH
     cd $HOME/missionlz
     code .
     ```
 
-- Install the recommended VS Code extensions found in `.vscode/extensions.json` (relative to the root of the project folder), including the "Remote Development" extension from Microsoft.
-  > **NOTE:** When VS Code starts, it reads the file `.vscode/extensions.json` relative from the current working directory. On startup, VS Code may prompt the user to install any extensions referenced here that are not already installed.
+1. Install the recommended VS Code extensions found in `.vscode/extensions.json` (relative to the root of the project folder), including the "Remote Development" extension from Microsoft.
+   > **NOTE:** When VS Code is correctly started from the MissionLZ project root directory, you should see folders named `.devcontainer`, `.vscode`, and `src` at the root of the VS Code Explorer pane. In the startup process, VS Code reads the file `.vscode/extensions.json` (relative from the current working directory) and may prompt the user to install any extensions referenced here that are not already installed.
 
-### Step-by-Step
-
-1. Open VS Code from the root folder of the local workspace (not a sub folder or a parent folder). You should see a folder named `.devcontainer` at the root of the VS Code Explorer pane.
-
-1. In the VS Code command palette (Ctrl+Shift+P), run this command
+1. In the VS Code command palette (Ctrl+Shift+P), run this command:
 
     ```VSCODE
     Remote-Containers: Reopen in Container
@@ -55,16 +53,18 @@ All configuration related to the development container is in the `.devcontainer`
 
     When logged into the devcontainer's terminal, the working directory changes to `vscode@missionlz-dev:/workspaces/missionlz$`
 
-1. (*Optional*) If you'd like to interact with the devcontainer's terminal from another terminal other than VS Code's built in terminal, you can use the `docker exec` command.
+### Step-by-Step (VS Code alternative)
 
-    > **NOTE:** VS Code attaches to the container as the user named "vscode", so you have to do the same thing when attaching to a BASH session in the container by specifying the user as an argument to the `docker exec` command. If you do not specify the user then you will be connected as root, which will cause permissions issues in git (if you are launching VS Code from WSL).
+(*Optional*) If you'd like to interact with the devcontainer's terminal from another terminal other than VS Code's built in terminal, you can use the `docker exec` command.
 
-    ```BASH
-    docker exec --interactive --tty --user vscode missionlz-dev /bin/bash
-    ```
+ > **NOTE:** VS Code attaches to the container as the user named "vscode", so you have to do the same thing when attaching to a BASH session in the container by specifying the user as an argument to the `docker exec` command. If you do not specify the user then you will be connected as root, which will cause permissions issues in git (if you are launching VS Code from WSL).
 
-    Or, the equivalent short form below:
+```BASH
+docker exec --interactive --tty --user vscode missionlz-dev /bin/bash
+```
 
-    ```BASH
-    docker exec -it -u vscode missionlz-dev /bin/bash
-    ```
+Or, the equivalent short form below:
+
+```BASH
+docker exec -it -u vscode missionlz-dev /bin/bash
+```
