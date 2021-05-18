@@ -214,7 +214,7 @@ variable "jumpbox_subnet" {
 
 variable "jumpbox_keyvault_name" {
   description = "The name of the jumpbox virtual machine keyvault"
-  default     = "mlzDemoJumpboxVm"
+  default     = "mlzDemoJumpboxVmKv"
   type        = string
 }
 
