@@ -83,6 +83,7 @@ module "bastion-host" {
     DeploymentName = var.deploymentname
   }
 }
+
 locals {
   # azurerm terraform environments where Azure Firewall Premium is supported
   firewall_premium_tf_environments = ["public"]
