@@ -98,7 +98,7 @@ destroy_mlz() {
   }
 
   # clean up files
-  delete_files_in_directory_by_name "{$this_script_path}" "${tfvars_file_name}"
+  delete_files_in_directory_by_name "${src_path}" "${tfvars_file_name}"
   rm -rf "${configuration_output_path}/${mlz_env_name}.mlzconfig" "${configuration_output_path:?}/${tfvars_file_name}"
 }
 
@@ -107,6 +107,7 @@ destroy_mlz() {
 ##########
 
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
+src_path="$(realpath "${this_script_path}/../")"
 configuration_output_path="${this_script_path}/../generated-configurations"
 
 mlz_env_name="notset"

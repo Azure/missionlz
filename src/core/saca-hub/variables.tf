@@ -112,3 +112,31 @@ variable "create_network_watcher" {
   type        = bool
   default     = false
 }
+
+#################################
+# Bastion Host Configuration
+#################################
+
+variable "bastion_host_name" {
+  description = "The name of the Bastion Host"
+  default     = "mlzDemoBastionHost"
+  type        = string
+}
+
+variable "bastion_address_space" {
+  description = "The address space to be used for the Bastion Host subnet (must be /27 or larger)."
+  default     = "10.0.100.128/27"
+  type        = string
+}
+
+variable "bastion_public_ip_name" {
+  description = "The name of the Bastion Host Public IP"
+  default     = "mlzDemoBastionHostPip"
+  type        = string
+}
+
+variable "bastion_ipconfig_name" {
+  description = "The name of the Bastion Host IP Configuration"
+  default     = "mlzDemoBastionHostIpCfg"
+  type        = string
+}
