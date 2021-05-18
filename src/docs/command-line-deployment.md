@@ -16,7 +16,7 @@ The steps in this article assume the following pre-requisites for command-line d
 1. Follow the [steps to open the `.devcontainer`](../../.devcontainer/README.md) as the recommended option (or start a local BASH shell with the additional requirements installed as the alternate option)
 
    > `vscode@missionlz-dev:/workspaces/missionlz$` is the root working directory for the BASH shell in the `.devcontainer`
- 
+
 1. Log in using the Azure CLI
 
     ```BASH
