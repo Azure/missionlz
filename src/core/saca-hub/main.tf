@@ -57,9 +57,6 @@ module "saca-hub-network" {
   management_address_space = var.management_address_space
   routetable_name          = var.management_routetable_name
 
-  jumpbox_subnet_name   = var.jumpbox_subnet_name
-  jumpbox_address_space = var.jumpbox_address_space
-
   log_analytics_workspace_name              = var.saca_lawsname
   log_analytics_workspace_sku               = "PerGB2018"
   log_analytics_workspace_retention_in_days = "30"
@@ -83,23 +80,6 @@ module "bastion-host" {
     DeploymentName = var.deploymentname
   }
 }
-
-module "jumpbox-virtual-machine" {
-  depends_on           = [module.saca-hub-network]
-  source               = "../../modules/windows-virtual-machine"
-  resource_group_name  = azurerm_resource_group.hub.name
-  virtual_network_name = var.saca_vnetname
-  subnet_name          = var.jumpbox_subnet_name
-  name                 = var.jumpbox_vm_name
-  size                 = var.jumpbox_vm_size
-  admin_username       = var.jumpbox_admin_username
-  admin_password       = var.jumpbox_admin_password
-  publisher            = var.jumpbox_vm_publisher
-  offer                = var.jumpbox_vm_offer
-  sku                  = var.jumpbox_vm_sku
-  image_version        = var.jumpbox_vm_version
-}
-
 locals {
   # azurerm terraform environments where Azure Firewall Premium is supported
   firewall_premium_tf_environments = ["public"]
@@ -127,4 +107,48 @@ module "saca-firewall" {
   tags = {
     DeploymentName = var.deploymentname
   }
+}
+
+module "jumpbox-subnet" {
+  depends_on = [module.saca-hub-network, module.saca-firewall]
+  source     = "../../modules/subnet"
+
+  name                 = var.jumpbox_subnet.name
+  location             = var.mlz_location
+  resource_group_name  = azurerm_resource_group.hub.name
+  virtual_network_name = var.saca_vnetname
+  address_prefixes     = var.jumpbox_subnet.address_prefixes
+  service_endpoints    = lookup(var.jumpbox_subnet, "service_endpoints", [])
+
+  enforce_private_link_endpoint_network_policies = lookup(var.jumpbox_subnet, "enforce_private_link_endpoint_network_policies", null)
+  enforce_private_link_service_network_policies  = lookup(var.jumpbox_subnet, "enforce_private_link_service_network_policies", null)
+
+  nsg_name  = var.jumpbox_subnet.nsg_name
+  nsg_rules = var.jumpbox_subnet.nsg_rules
+
+  routetable_name     = var.jumpbox_subnet.routetable_name
+  firewall_ip_address = module.saca-firewall.firewall_public_ip
+
+  log_analytics_storage_id   = module.saca-hub-network.log_analytics_storage_id
+  log_analytics_workspace_id = module.saca-hub-network.log_analytics_workspace_id
+
+  tags = {
+    DeploymentName = var.deploymentname
+  }
+}
+
+module "jumpbox-virtual-machine" {
+  depends_on           = [module.saca-hub-network, module.jumpbox-subnet]
+  source               = "../../modules/windows-virtual-machine"
+  resource_group_name  = azurerm_resource_group.hub.name
+  virtual_network_name = var.saca_vnetname
+  subnet_name          = var.jumpbox_subnet.name
+  name                 = var.jumpbox_vm_name
+  size                 = var.jumpbox_vm_size
+  admin_username       = var.jumpbox_admin_username
+  admin_password       = var.jumpbox_admin_password
+  publisher            = var.jumpbox_vm_publisher
+  offer                = var.jumpbox_vm_offer
+  sku                  = var.jumpbox_vm_sku
+  image_version        = var.jumpbox_vm_version
 }

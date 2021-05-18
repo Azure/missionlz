@@ -145,16 +145,67 @@ variable "bastion_ipconfig_name" {
 # Jumpbox VM Configuration
 #################################
 
-variable "jumpbox_subnet_name" {
-  description = "The name of the jumpbox subnet"
-  default     = "mlzDemoJumpboxSubnet"
-  type        = string
-}
+variable "jumpbox_subnet" {
+  description = "The subnet for jumpboxes"
+  type = object({
+    name              = string
+    address_prefixes  = list(string)
+    service_endpoints = list(string)
 
-variable "jumpbox_address_space" {
-  description = "The address space to be used for the jumpbox subnet."
-  default     = "10.0.100.160/27"
-  type        = string
+    enforce_private_link_endpoint_network_policies = bool
+    enforce_private_link_service_network_policies  = bool
+
+    nsg_name = string
+    nsg_rules = map(object({
+      name                       = string
+      priority                   = string
+      direction                  = string
+      access                     = string
+      protocol                   = string
+      source_port_range          = string
+      destination_port_range     = string
+      source_address_prefix      = string
+      destination_address_prefix = string
+    }))
+
+    routetable_name = string
+  })
+  default = {
+    name              = "mlzDemoJumpboxSubnet"
+    address_prefixes  = ["10.0.100.160/27"]
+    service_endpoints = ["Microsoft.Storage"]
+
+    enforce_private_link_endpoint_network_policies = false
+    enforce_private_link_service_network_policies  = false
+
+    nsg_name = "mlzDemoJumpboxSubnetNsg"
+    nsg_rules = {
+      "allow_ssh" = {
+        name                       = "allow_ssh"
+        priority                   = "100"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "22"
+        destination_port_range     = ""
+        source_address_prefix      = "*"
+        destination_address_prefix = ""
+      },
+      "allow_rdp" = {
+        name                       = "allow_rdp"
+        priority                   = "200"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "3389"
+        destination_port_range     = ""
+        source_address_prefix      = "*"
+        destination_address_prefix = ""
+      }
+    }
+
+    routetable_name = "mlzDemoJumpboxSubnetRt"
+  }
 }
 
 variable "jumpbox_vm_name" {
