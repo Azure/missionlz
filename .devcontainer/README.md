@@ -12,7 +12,7 @@ All configuration related to the development container is in the `.devcontainer`
 ### Step-by-Step
 
 1. Open a command line (e.g. `wsl.exe` or `bash.exe`), change to the root folder of the cloned local workspace for the cloned Mission LZ project, and start VS Code from this root folder (not a sub folder or a parent folder).
-   > **NOTE:** If you are using WSL or BASH on Linux or Mac, you can navigate to the root folder of the project (for example, in the path `$HOME/missionlz` assuming you cloned the project to $HOME) and enter the command below to launch VS Code in correct directory. Be sure to include the trailing "." in the second command. 
+   > **NOTE:** If you are using WSL or BASH on Linux or Mac, you can navigate to the root folder of the project (for example, in the path `$HOME/missionlz` assuming you cloned the project to $HOME) and enter the command below to launch VS Code in correct directory. Be sure to include the trailing "." in the second command.
 
     ```BASH
     cd $HOME/missionlz
