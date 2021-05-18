@@ -29,13 +29,11 @@ variable "size" {
 variable "admin_username" {
   description = "The admin username of the virtual machine"
   type        = string
-  sensitive   = true
 }
 
 variable "admin_password" {
   description = "The admin password of the virtual machine"
   type        = string
-  sensitive   = true
 }
 
 variable "publisher" {
