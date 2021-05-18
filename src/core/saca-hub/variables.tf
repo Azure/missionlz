@@ -237,19 +237,19 @@ variable "jumpbox_vm_publisher" {
 }
 
 variable "jumpbox_vm_offer" {
-  description = "The offer of the virtual machine source image"
+  description = "The offer of the jumpbox virtual machine source image"
   default     = "WindowsServer"
   type        = string
 }
 
 variable "jumpbox_vm_sku" {
-  description = "The SKU of the virtual machine source image"
+  description = "The SKU of the jumpbox virtual machine source image"
   default     = "2019-datacenter-gensecond"
   type        = string
 }
 
 variable "jumpbox_vm_version" {
-  description = "The version of the virtual machine source image"
+  description = "The version of the jumpbox virtual machine source image"
   default     = "latest"
   type        = string
 }

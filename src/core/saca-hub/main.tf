@@ -141,68 +141,23 @@ module "jumpbox-subnet" {
   }
 }
 
-resource "azurerm_key_vault" "jumpbox-keyvault" {
-  name                       = var.jumpbox_keyvault_name
-  location                   = azurerm_resource_group.hub.location
-  resource_group_name        = azurerm_resource_group.hub.name
-  tenant_id                  = var.mlz_tenantid
-  soft_delete_retention_days = 90
-  sku_name                   = "standard" # 'standard' or 'premium' case sensitive
+module "jumpbox" {
+  depends_on = [module.saca-hub-network, module.jumpbox-subnet]
+  source     = "../../modules/jumpbox"
 
-  access_policy {
-    tenant_id = var.mlz_tenantid
-    object_id = var.mlz_objectid
-
-    key_permissions = [
-      "create",
-      "get",
-    ]
-
-    secret_permissions = [
-      "set",
-      "get",
-      "delete",
-      "purge",
-      "recover"
-    ]
-  }
-}
-
-resource "random_password" "jumpbox-password" {
-  length           = 16
-  special          = true
-  override_special = "_%@"
-}
-
-resource "azurerm_key_vault_secret" "jumpbox-password" {
-  name         = "jumpbox-password"
-  value        = random_password.jumpbox-password.result
-  key_vault_id = azurerm_key_vault.jumpbox-keyvault.id
-}
-
-resource "random_string" "jumpbox-username" {
-  length  = 12
-  special = false
-}
-
-resource "azurerm_key_vault_secret" "jumpbox-username" {
-  name         = "jumpbox-username"
-  value        = random_string.jumpbox-username.result
-  key_vault_id = azurerm_key_vault.jumpbox-keyvault.id
-}
-
-module "jumpbox-virtual-machine" {
-  depends_on           = [module.saca-hub-network, module.jumpbox-subnet]
-  source               = "../../modules/windows-virtual-machine"
   resource_group_name  = azurerm_resource_group.hub.name
   virtual_network_name = var.saca_vnetname
   subnet_name          = var.jumpbox_subnet.name
-  name                 = var.jumpbox_vm_name
-  size                 = var.jumpbox_vm_size
-  admin_username       = azurerm_key_vault_secret.jumpbox-username.value
-  admin_password       = azurerm_key_vault_secret.jumpbox-password.value
-  publisher            = var.jumpbox_vm_publisher
-  offer                = var.jumpbox_vm_offer
-  sku                  = var.jumpbox_vm_sku
-  image_version        = var.jumpbox_vm_version
+  location             = azurerm_resource_group.hub.location
+
+  keyvault_name = var.jumpbox_keyvault_name
+  tenant_id     = var.mlz_tenantid
+  object_id     = var.mlz_objectid
+
+  name          = var.jumpbox_vm_name
+  size          = var.jumpbox_vm_size
+  publisher     = var.jumpbox_vm_publisher
+  offer         = var.jumpbox_vm_offer
+  sku           = var.jumpbox_vm_sku
+  image_version = var.jumpbox_vm_version
 }

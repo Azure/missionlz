@@ -31,6 +31,10 @@ variable "mlz_clientsecret" {
   description = "The account to deploy with"
 }
 
+variable "mlz_objectid" {
+  description = "The account to deploy with"
+}
+
 #################################
 # Tier 2 Configuration
 #################################
