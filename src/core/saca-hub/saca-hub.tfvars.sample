@@ -34,6 +34,7 @@ management_routetable_name = "{FIREWALL_MANAGEMENT_ROUTE_TABLE_NAME}"
 # Bastion Host Configuration
 #################################
 
+create_bastion_jumpbox = "{CREATE_BASTION_JUMPBOX}"
 bastion_host_name      = "{BASTION_HOST_NAME}",
 bastion_address_space  = "{BASTION_ADDRESS_SPACE}",
 bastion_public_ip_name = "{BASTION_PUBLIC_IP_NAME}",

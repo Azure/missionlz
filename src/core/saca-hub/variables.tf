@@ -121,6 +121,12 @@ variable "create_network_watcher" {
 # Bastion Host Configuration
 #################################
 
+variable "create_bastion_jumpbox" {
+  description = "Create a bastion host and jumpbox VM?"
+  type        = bool
+  default     = true
+}
+
 variable "bastion_host_name" {
   description = "The name of the Bastion Host"
   default     = "mlzDemoBastionHost"
