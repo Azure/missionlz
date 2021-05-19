@@ -1,8 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+resource "random_id" "jumpbox-keyvault" {
+  byte_length = 12
+}
+
 resource "azurerm_key_vault" "jumpbox-keyvault" {
-  name                       = var.keyvault_name
+  name                       = format("%.24s", lower(replace("${var.keyvault_name}${random_id.jumpbox-keyvault.id}", "/[[:^alnum:]]/", "")))
   location                   = var.location
   resource_group_name        = var.resource_group_name
   tenant_id                  = var.tenant_id
