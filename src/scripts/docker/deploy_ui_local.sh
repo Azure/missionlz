@@ -28,13 +28,14 @@ fi
 mlz_config_file=$1
 web_port=$2
 
-container_registry_path="$(realpath "${BASH_SOURCE%/*}")/container-registry"
+container_registry_path="$(realpath "${BASH_SOURCE%/*}")/../container-registry"
+config_path="$(realpath "${BASH_SOURCE%/*}")/../config"
 
 # source mlz_config_file
 . "${mlz_config_file}"
 
 # generate MLZ configuration names
-. "$(realpath "${BASH_SOURCE%/*}")/config/generate_names.sh" "$mlz_config_file"
+"${config_path}/generate_names.sh" "$mlz_config_file"
 
 # create auth scopes
 local_fqdn="localhost:${web_port}"
