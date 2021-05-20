@@ -29,6 +29,7 @@ show_help() {
   print_formatted "--tier0-sub-id" "-0" "[OPTIONAL] subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier1-sub-id" "-1" "[OPTIONAL] subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier2-sub-id" "-2" "[OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)"
+  print_formatted "--no-bastion" "" "[OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM"
   print_formatted "--help" "-h" "Print this message"
 }
 
@@ -119,7 +120,7 @@ create_mlz_resources() {
 
 create_terraform_variables() {
   echo "INFO: creating terraform variables at ${tfvars_file_path}..."
-  "${this_script_path}/terraform/create_globals_from_config.sh" "${tfvars_file_path}" "${mlz_config_file_path}"
+  "${this_script_path}/terraform/create_globals_from_config.sh" "${tfvars_file_path}" "${mlz_config_file_path}" "${create_bastion_jumpbox}"
 }
 
 apply_terraform() {
@@ -153,6 +154,7 @@ default_config_subid="notset"
 default_config_location="eastus"
 default_tf_environment="public"
 default_env_name="mlz${timestamp}"
+create_bastion_jumpbox=true
 
 mlz_config_subid="${default_config_subid}"
 mlz_config_location="${default_config_location}"
@@ -189,6 +191,8 @@ while [ $# -gt 0 ] ; do
     -h | --help)
       show_help
       exit 0 ;;
+    --no-bastion)
+      create_bastion_jumpbox=false ;;
     *)
       error_log "ERROR: Unexpected argument: ${1}"
       usage && exit 1 ;;

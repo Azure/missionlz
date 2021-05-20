@@ -69,21 +69,6 @@ module "saca-hub-network" {
   }
 }
 
-module "bastion-host" {
-  depends_on            = [module.saca-hub-network]
-  source                = "../../modules/bastion"
-  resource_group_name   = azurerm_resource_group.hub.name
-  virtual_network_name  = var.saca_vnetname
-  bastion_host_name     = var.bastion_host_name
-  subnet_address_prefix = var.bastion_address_space
-  public_ip_name        = var.bastion_public_ip_name
-  ipconfig_name         = var.bastion_ipconfig_name
-
-  tags = {
-    DeploymentName = var.deploymentname
-  }
-}
-
 locals {
   # azurerm terraform environments where Azure Firewall Premium is supported
   firewall_premium_tf_environments = ["public"]
@@ -113,7 +98,25 @@ module "saca-firewall" {
   }
 }
 
+module "bastion-host" {
+  count      = var.create_bastion_jumpbox ? 1 : 0
+  depends_on = [module.saca-hub-network]
+  source     = "../../modules/bastion"
+
+  resource_group_name   = azurerm_resource_group.hub.name
+  virtual_network_name  = var.saca_vnetname
+  bastion_host_name     = var.bastion_host_name
+  subnet_address_prefix = var.bastion_address_space
+  public_ip_name        = var.bastion_public_ip_name
+  ipconfig_name         = var.bastion_ipconfig_name
+
+  tags = {
+    DeploymentName = var.deploymentname
+  }
+}
+
 module "jumpbox-subnet" {
+  count      = var.create_bastion_jumpbox ? 1 : 0
   depends_on = [module.saca-hub-network, module.saca-firewall]
   source     = "../../modules/subnet"
 
@@ -142,6 +145,7 @@ module "jumpbox-subnet" {
 }
 
 module "jumpbox" {
+  count      = var.create_bastion_jumpbox ? 1 : 0
   depends_on = [module.saca-hub-network, module.jumpbox-subnet]
   source     = "../../modules/jumpbox"
 
