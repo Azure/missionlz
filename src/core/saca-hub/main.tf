@@ -27,6 +27,9 @@ provider "azurerm" {
     log_analytics_workspace {
       permanently_delete_on_destroy = true
     }
+    key_vault {
+      purge_soft_delete_on_destroy = true
+    }
   }
 }
 
@@ -108,4 +111,53 @@ module "saca-firewall" {
   tags = {
     DeploymentName = var.deploymentname
   }
+}
+
+module "jumpbox-subnet" {
+  depends_on = [module.saca-hub-network, module.saca-firewall]
+  source     = "../../modules/subnet"
+
+  name                 = var.jumpbox_subnet.name
+  location             = var.mlz_location
+  resource_group_name  = azurerm_resource_group.hub.name
+  virtual_network_name = var.saca_vnetname
+  address_prefixes     = var.jumpbox_subnet.address_prefixes
+  service_endpoints    = lookup(var.jumpbox_subnet, "service_endpoints", [])
+
+  enforce_private_link_endpoint_network_policies = lookup(var.jumpbox_subnet, "enforce_private_link_endpoint_network_policies", null)
+  enforce_private_link_service_network_policies  = lookup(var.jumpbox_subnet, "enforce_private_link_service_network_policies", null)
+
+  nsg_name  = var.jumpbox_subnet.nsg_name
+  nsg_rules = var.jumpbox_subnet.nsg_rules
+
+  routetable_name     = var.jumpbox_subnet.routetable_name
+  firewall_ip_address = module.saca-firewall.firewall_public_ip
+
+  log_analytics_storage_id   = module.saca-hub-network.log_analytics_storage_id
+  log_analytics_workspace_id = module.saca-hub-network.log_analytics_workspace_id
+
+  tags = {
+    DeploymentName = var.deploymentname
+  }
+}
+
+module "jumpbox" {
+  depends_on = [module.saca-hub-network, module.jumpbox-subnet]
+  source     = "../../modules/jumpbox"
+
+  resource_group_name  = azurerm_resource_group.hub.name
+  virtual_network_name = var.saca_vnetname
+  subnet_name          = var.jumpbox_subnet.name
+  location             = azurerm_resource_group.hub.location
+
+  keyvault_name = var.jumpbox_keyvault_name
+  tenant_id     = var.mlz_tenantid
+  object_id     = var.mlz_objectid
+
+  name          = var.jumpbox_vm_name
+  size          = var.jumpbox_vm_size
+  publisher     = var.jumpbox_vm_publisher
+  offer         = var.jumpbox_vm_offer
+  sku           = var.jumpbox_vm_sku
+  image_version = var.jumpbox_vm_version
 }
