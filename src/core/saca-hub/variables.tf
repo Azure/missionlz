@@ -32,6 +32,10 @@ variable "mlz_clientsecret" {
   description = "The account to deploy with"
 }
 
+variable "mlz_objectid" {
+  description = "The account to deploy with"
+}
+
 #################################
 # SACA Hub Configuration
 #################################
@@ -111,4 +115,141 @@ variable "create_network_watcher" {
   description = "Deploy a Network Watcher resource alongside this virtual network (there's a limit of one per-subscription-per-region)"
   type        = bool
   default     = false
+}
+
+#################################
+# Bastion Host Configuration
+#################################
+
+variable "bastion_host_name" {
+  description = "The name of the Bastion Host"
+  default     = "mlzDemoBastionHost"
+  type        = string
+}
+
+variable "bastion_address_space" {
+  description = "The address space to be used for the Bastion Host subnet (must be /27 or larger)."
+  default     = "10.0.100.128/27"
+  type        = string
+}
+
+variable "bastion_public_ip_name" {
+  description = "The name of the Bastion Host Public IP"
+  default     = "mlzDemoBastionHostPip"
+  type        = string
+}
+
+variable "bastion_ipconfig_name" {
+  description = "The name of the Bastion Host IP Configuration"
+  default     = "mlzDemoBastionHostIpCfg"
+  type        = string
+}
+
+#################################
+# Jumpbox VM Configuration
+#################################
+
+variable "jumpbox_subnet" {
+  description = "The subnet for jumpboxes"
+  type = object({
+    name              = string
+    address_prefixes  = list(string)
+    service_endpoints = list(string)
+
+    enforce_private_link_endpoint_network_policies = bool
+    enforce_private_link_service_network_policies  = bool
+
+    nsg_name = string
+    nsg_rules = map(object({
+      name                       = string
+      priority                   = string
+      direction                  = string
+      access                     = string
+      protocol                   = string
+      source_port_range          = string
+      destination_port_range     = string
+      source_address_prefix      = string
+      destination_address_prefix = string
+    }))
+
+    routetable_name = string
+  })
+  default = {
+    name              = "mlzDemoJumpboxSubnet"
+    address_prefixes  = ["10.0.100.160/27"]
+    service_endpoints = ["Microsoft.Storage"]
+
+    enforce_private_link_endpoint_network_policies = false
+    enforce_private_link_service_network_policies  = false
+
+    nsg_name = "mlzDemoJumpboxSubnetNsg"
+    nsg_rules = {
+      "allow_ssh" = {
+        name                       = "allow_ssh"
+        priority                   = "100"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "22"
+        destination_port_range     = ""
+        source_address_prefix      = "*"
+        destination_address_prefix = ""
+      },
+      "allow_rdp" = {
+        name                       = "allow_rdp"
+        priority                   = "200"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "3389"
+        destination_port_range     = ""
+        source_address_prefix      = "*"
+        destination_address_prefix = ""
+      }
+    }
+
+    routetable_name = "mlzDemoJumpboxSubnetRt"
+  }
+}
+
+variable "jumpbox_keyvault_name" {
+  description = "The name of the jumpbox virtual machine keyvault"
+  default     = "mlzDemoJumpboxVmKv"
+  type        = string
+}
+
+variable "jumpbox_vm_name" {
+  description = "The name of the jumpbox virtual machine"
+  default     = "mlzDemoJumpboxVm"
+  type        = string
+}
+
+variable "jumpbox_vm_size" {
+  description = "The size of the jumpbox virtual machine"
+  default     = "Standard_DS1_v2"
+  type        = string
+}
+
+variable "jumpbox_vm_publisher" {
+  description = "The publisher of the jumpbox virtual machine source image"
+  default     = "MicrosoftWindowsServer"
+  type        = string
+}
+
+variable "jumpbox_vm_offer" {
+  description = "The offer of the jumpbox virtual machine source image"
+  default     = "WindowsServer"
+  type        = string
+}
+
+variable "jumpbox_vm_sku" {
+  description = "The SKU of the jumpbox virtual machine source image"
+  default     = "2019-datacenter-gensecond"
+  type        = string
+}
+
+variable "jumpbox_vm_version" {
+  description = "The version of the jumpbox virtual machine source image"
+  default     = "latest"
+  type        = string
 }
