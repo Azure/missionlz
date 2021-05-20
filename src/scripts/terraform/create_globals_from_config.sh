@@ -17,7 +17,7 @@ error_log() {
 
 usage() {
   echo "create_globals_from_config.sh: generate a terraform tfvars file given an MLZ config and a desired tfvars file name"
-  echo "create_globals_from_config.sh: <destination file path> <mlz config file path>"
+  echo "create_globals_from_config.sh: <destination file path> <mlz config file path> <create bastion host>"
   show_help
 }
 
@@ -28,6 +28,7 @@ fi
 
 file_to_create=$1
 mlz_config=$2
+create_bastion_jumpbox=${3:-true}
 
 # source config
 . "${mlz_config}"
@@ -71,3 +72,5 @@ append_kvp "saca_rgname" "rg-saca-${mlz_env_name}"
 append_kvp "saca_vnetname" "vn-saca-${mlz_env_name}"
 append_kvp "firewall_name" "Firewall${mlz_env_name}"
 append_kvp "saca_lawsname" "laws-${mlz_env_name}"
+
+append_kvp "create_bastion_jumpbox" "${create_bastion_jumpbox}"

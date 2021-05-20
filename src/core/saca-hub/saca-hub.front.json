@@ -151,6 +151,13 @@
 				"options": []
 			},
 			{
+				"varname": "create_bastion_jumpbox",
+				"type": "boolean",
+				"default_val": true,
+				"description": "Create a bastion host and jumpbox VM?",
+				"options": []
+			},
+			{
 				"varname": "bastion_host_name",
 				"type": "text",
 				"default_val": "mlzDemoBastionHost",
