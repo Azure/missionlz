@@ -211,4 +211,11 @@ az keyvault secret set \
     --value "${sp_clientid}" \
     --output none
 
+az keyvault secret set \
+    --name "${mlz_sp_obj_name}" \
+    --subscription "${mlz_config_subid}" \
+    --vault-name "${mlz_kv_name}" \
+    --value "${sp_objid}" \
+    --output none
+
 echo "INFO: MLZ resources for ${mlz_env_name} created!"

@@ -75,5 +75,6 @@ apply_command+=" -var-file=${globalvars}"
 apply_command+=" -var-file=${tfvars}"
 apply_command+=" -var mlz_clientid=${client_id}"
 apply_command+=" -var mlz_clientsecret=${client_secret}"
+apply_command+=" -var mlz_objectid=${object_id}"
 
 eval "${apply_command}"
