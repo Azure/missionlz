@@ -78,6 +78,8 @@ deploy.sh: create all the configuration and deploy Terraform resources with mini
       --tier0-sub-id -0 [OPTIONAL] subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
       --tier1-sub-id -1 [OPTIONAL] subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
       --tier2-sub-id -2 [OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
+        --no-bastion    [OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM
+              --help -h Print this message
 ```
 
 For example, if I wanted to deploy into four subscriptions (one for each network) and provide my own name for created resources, I could do so like:

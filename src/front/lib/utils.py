@@ -98,9 +98,14 @@ def build_form(form_doc: dict):
                                     select((option(x, value=x) for x in el_item["options"]), cls="form-control",
                                                default=el_item["default_val"], name=el_item["varname"], id=el_item["varname"])
                                 elif el_item["type"] == "boolean":
-                                    span(
-                                        input_(type="checkbox", default=bool(el_item["default_val"]), name=el_item["varname"], id=el_item["varname"])
-                                        , cls="input-group-text")
+                                    if bool(el_item["default_val"]):
+                                        span(
+                                            input_(type="checkbox", checked="checked", value="true", name=el_item["varname"], id=el_item["varname"])
+                                            , cls="input-group-text")
+                                    else:
+                                        span(
+                                            input_(type="checkbox", value="true", name=el_item["varname"], id=el_item["varname"])
+                                            , cls="input-group-text")
             doc_panels.add(doc_panel)
 
     doc_form.add(doc_tabs)
