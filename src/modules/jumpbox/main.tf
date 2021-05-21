@@ -44,6 +44,12 @@ resource "azurerm_key_vault_secret" "jumpbox-password" {
   key_vault_id = azurerm_key_vault.jumpbox-keyvault.id
 }
 
+resource "azurerm_key_vault_secret" "jumpbox-username" {
+  name         = "jumpbox-username"
+  value        = var.admin_username
+  key_vault_id = azurerm_key_vault.jumpbox-keyvault.id
+}
+
 module "windows-virtual-machine" {
   source               = "../windows-virtual-machine"
   resource_group_name  = var.resource_group_name
