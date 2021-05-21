@@ -16,7 +16,7 @@ If you are planning to deploy from your local workstation, we recommend using th
 
 If you want to deploy from the command line on your workstation but do not want to use the develompent container, take a look at the [`Dockerfile`](../../.devcontainer/Dockerfile) and the [`devcontainer.json`](../../.devcontainer/Dockerfile) file for examples on how to configure your environment.
 
-The develoment container is not necessary if you want to use the Mission LZ user interface for deployments. Docker Desktop or Docker CE is still required to build the user interface container.
+The develoment container is not necessary if you want to use the Mission LZ user interface for deployments. Docker Desktop or Docker CE is still required to build the user interface container or you can download a precompiled UI conatiner from the [Releases](https://github.com/Azure/missionlz/releases) page.
 
 ## Pre-Requisites
 

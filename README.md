@@ -50,7 +50,7 @@ Mission LZ has the following scope:
 
 ## Networking
 
-Networking is set up in a hub and spoke design, separated by tiers: T0, T1, T2, and multiple T3s. Security can be configured to allow separation of duties between all tiers. Most customers will deploy each tier to a separate Azure subscription, but multiple subscriptions are not required.
+Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity and Authorization), T1 (Infrastructure Operations), T2 (DevSecOps and Shared Services), and multiple T3s (Workloads). Security can be configured to allow separation of duties between all tiers. Most customers will deploy each tier to a separate Azure subscription, but multiple subscriptions are not required.
 
 <!-- markdownlint-disable MD033 -->
 <img src="src/docs/images/networking.png" alt="Mission LZ Networking" width="600" />

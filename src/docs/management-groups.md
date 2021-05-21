@@ -4,7 +4,7 @@
 
 ### MLZ Structure
 
-The base Mission Landing Zone (MLZ) tiers (SACA Hub, Tier 0, Tier1, Tier 2) can be deployed across one or more Azure subscriptions.  The  mission workloads (Tier 3) can be deployed into separate subscriptions per workload, consolidated into a single subscription, or a combination of these approaches can be used based on your needs.  So from a management perspective, there is usually one SACA Hub subscription, one Tier 0 subscription, one Tier 1 subscription, one Tier 2 subscription and one or more Tier 3 subscriptions.  
+The base Mission Landing Zone (MLZ) tiers (SACA Hub, Tier 0, Tier1, Tier 2) can be deployed across one or more Azure subscriptions.  The  mission workloads (Tier 3) can be deployed into separate subscriptions per workload, consolidated into a single subscription, or a combination of these approaches can be used based on your needs.  So from a management perspective, there is usually one SACA Hub subscription, one Tier 0 (Identity and Authorization) subscription, one Tier 1 (Infrastructure Operations) subscription, one Tier 2 (DevSecOps and Shared Services) subscription and one or more Tier 3 (Workload) subscriptions.  
 
 ### Management Groups
 
