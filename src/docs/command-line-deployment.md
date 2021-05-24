@@ -1,6 +1,21 @@
 # Command-Line Deployment
 
+The steps in this article assume the following pre-requisites for command-line deployments:
+
+* Follow the Mission LZ [Getting Started](https://github.com/Azure/missionlz/blob/main/src/docs/getting-started.md#pre-requisites) steps.
+* **(Highly recommend)** Use the [the Mission LZ `.devcontainer`](https://github.com/Azure/missionlz/blob/main/src/docs/getting-started.md#use-the-development-container-for-command-line-deployments) provided in the Mission LZ project and perform the deployment steps below within this context. This container image provides a controlled environment that includes all the pre-requisite tools for Mission LZ deployments and should lead to an overall better user experience.
+
+  > As an alternative, it is possible to deploy Mission LZ via BASH running from the local workstation, but requires the following additional requirements:
+  >
+  > * An Azure Subscription where you have ['Owner' RBAC permissions](<https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/>)
+  > * The current version of Azure CLI (try `az cli -v` or see <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/>)
+  > * Terraform CLI version > v0.13.4 (try `terraform -v` or see <https://learn.hashicorp.com/tutorials/terraform/install-cli/>)
+
 ## Step-by-step
+
+1. Follow the [steps to open the `.devcontainer`](../../.devcontainer/README.md) as the recommended option (or start a local BASH shell with the additional requirements installed as the alternate option)
+
+   > `vscode@missionlz-dev:/workspaces/missionlz$` is the root working directory for the BASH shell in the `.devcontainer`
 
 1. Log in using the Azure CLI
 
@@ -8,27 +23,32 @@
     az login
     ```
 
-1. [Quickstart](#Quickstart)
-1. [Setup Mission LZ Resources](#Setup-Mission-LZ-Resources)
-1. [Set Terraform Configuration Variables](#Set-Terraform-Configuration-Variables)
-1. [Deploy Terraform Configuration](#Deploy-Terraform-Configuration)
-1. [Clean up Mission LZ Resources](#Clean-up-Mission-LZ-Resources)
+   > *(Optional)* If you needed to deploy into another cloud such as Azure Government, set the cloud name before logging in:
 
-### Quickstart
+     ```BASH
+     az cloud set -n AzureUSGovernment
+     az login
+     ```
 
-#### Quickstart Deploy
+1. Quickstart
+   1. [Deploy](#quickstart-deploy)
+   1. [Clean](#quickstart-clean)
+   1. [Arguments](#quickstart-arguments)
+1. Advanced path (*optional*)
+   1. [Setup Mission LZ Resources](#setup-mission-lz-resources)
+   1. [Set Terraform Configuration Variables](#set-terraform-configuration-variables)
+   1. [Deploy Terraform Configuration](#deploy-terraform-configuration)
+   1. [Clean up Mission LZ Resources](#clean-up-mission-lz-resources)
+
+## Quickstart
+
+### Quickstart Deploy
 
 Interested in just getting started and seeing what this does? Login to Azure CLI and try this command to deploy Mission LZ with some default configuration:
 
 ```bash
 src/scripts/deploy.sh -s {your_subscription_id}
 ```
-
-> **NOTE** This implies some software pre-requisites. We highly [recommend using the .devcontainer](https://github.com/Azure/missionlz/blob/main/src/docs/getting-started.md#use-the-development-container-for-command-line-deployments) described in this repository to make thing easier. However, deploying Mission LZ via BASH shell is possible with these minimum requirements:
->
-> - An Azure Subscription where you have ['Owner' RBAC permissions](<https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/>)
-> - The current version of Azure CLI (try `az cli -v` or see <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/>)
-> - Terraform CLI version > v0.13.4 (try `terraform -v` or see <https://learn.hashicorp.com/tutorials/terraform/install-cli/>)
 
 The `deploy.sh` command deploys all of the MLZ and Terraform resources, and by default, into a single subscription in Azure Commercial EastUS with a timestamped name.
 
@@ -44,7 +64,7 @@ src/scripts/deploy.sh -s {your_subscription_id} \
 
 For a complete list of arguments see [Quickstart Arguments](#Quickstart-Arguments).
 
-#### Quickstart Clean
+### Quickstart Clean
 
 Once the deployment is complete, you'll be presented with a command that will clean up all of the resources that were deployed:
 
@@ -63,7 +83,7 @@ src/scripts/clean.sh -z mymlzenv
 
 The `clean.sh` command will call Terraform destroy for all the resources Terraform created and delete the MLZ resources and service principal.
 
-#### Quickstart Arguments
+### Quickstart Arguments
 
 If you don't wish to use those defaults, you can customize this command to target multiple subscriptions, different regions, and using different Terraform environments and azurerm configurations with the full set of arguments:
 
@@ -95,7 +115,7 @@ src/scripts/deploy.sh -s {my_mlz_configuration_subscription_id} \
 
 Need further customization? The rest of this documentation covers in detail how to customize this deployment to your needs.
 
-### Setup Mission LZ Resources
+## Setup Mission LZ Resources
 
 Deployment of MLZ happens through use of a single Service Principal whose credentials are stored in a central "config" Key Vault.
 
@@ -121,18 +141,18 @@ MLZ uses this Service Principal and its credentials from the Key Vault to deploy
 
 1. Then, run `create_mlz_configuration_resources.sh` at [src/scripts/config/create_mlz_configuration_resources.sh](/src/scripts/config/create_mlz_configuration_resources.sh) to create:
 
-    - A config Resource Group to store the Key Vault
-    - Resource Groups for each tier to store the Terraform state Storage Account
-    - A Service Principal to execute terraform commands
-    - An Azure Key Vault to store the Service Principal's client ID and client secret
-    - A Storage Account and Container for each tier to store tier Terraform state files
-    - Tier specific Terraform backend config files
+    * A config Resource Group to store the Key Vault
+    * Resource Groups for each tier to store the Terraform state Storage Account
+    * A Service Principal to execute terraform commands
+    * An Azure Key Vault to store the Service Principal's client ID and client secret
+    * A Storage Account and Container for each tier to store tier Terraform state files
+    * Tier specific Terraform backend config files
 
     ```bash
     src/scripts/config/create_mlz_configuration_resources.sh src/mlz.config
     ```
 
-### Set Terraform Configuration Variables
+## Set Terraform Configuration Variables
 
 First, clone the *.tfvars.sample file for the global Terraform configuration (e.g. [src/core/globals.tfvars.sample](/src/core/globals.tfvars.sample)) and substitute placeholders marked by curly braces "{" and "}" with the values of your choosing.
 
@@ -150,7 +170,7 @@ Would become:
 location="eastus" # the value used by Terraform in src/core/globals.tfvars
 ```
 
-### Deploy Terraform Configuration
+## Deploy Terraform Configuration
 
 You can use `apply_terraform.sh` at [src/scripts/terraform/apply_terraform.sh](/src/scripts/terraform/apply_terraform.sh) to both initialize Terraform and apply a Terraform configuration based on the backend environment variables and Terraform variables you've setup in previous steps.
 
@@ -199,7 +219,7 @@ src/scripts/terraform/init_terraform.sh \
   src/core/tier-1
 ```
 
-### Clean up Mission LZ Resources
+## Clean up Mission LZ Resources
 
 After you've deployed your environments with Terraform, it is no longer mandatory to keep Mission LZ Resources like the Service Principal, Key Vault, nor the Terraform state files (though you can re-use these resources and stored Terraform state for updating the deployed environment incrementally using `terraform apply` or destroying them from terraform with `terraform destroy`).
 
@@ -209,7 +229,7 @@ If you no longer have the need for a Service Principal with Contributor rights, 
 src/scripts/config/config_clean.sh src/mlz.config
 ```
 
-### Terraform Providers
+## Terraform Providers
 
 The development container definition downloads the required Terraform plugin providers during the container build so that the container can be transported to an air-gapped network for use. The container also sets the `TF_PLUGIN_CACHE_DIR` environment variable, which Terraform uses as the search location for locally installed providers. If you are not using the container to deploy or if the `TF_PLUGIN_CACHE_DIR` environment variable is not set, Terraform will automatically attempt to download the provider from the internet when you execute the `terraform init` command.
 
