@@ -94,6 +94,8 @@ deploy.sh: create all the configuration and deploy Terraform resources with mini
       --tier0-sub-id -0 [OPTIONAL] subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
       --tier1-sub-id -1 [OPTIONAL] subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
       --tier2-sub-id -2 [OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
+        --no-bastion    [OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM
+              --help -h Print this message
 ```
 
 For example, if I wanted to deploy into four subscriptions (one for each network) and provide my own name for created resources, I could do so like:
@@ -186,7 +188,7 @@ For saca-hub, run the following command to apply the terraform configuration fro
   src/core/saca-hub saca-hub.tfvars
 ```
 
-You could apply Tier 0 with a command below:
+You could apply Tier 0 (Identity and Authorization) with a command below:
 
 ```bash
 src/scripts/terraform/apply_terraform.sh \
@@ -194,7 +196,7 @@ src/scripts/terraform/apply_terraform.sh \
   src/core/tier-0 tier-0.tfvars
 ```
 
-To apply Tier 1, you could then change the target directory:
+To apply Tier 1 (Infrastructure Operations), you could then change the target directory:
 
 ```bash
 src/scripts/terraform/apply_terraform.sh \
@@ -206,7 +208,7 @@ Repeating this same pattern, for whatever configuration you wanted to apply and 
 
 Use `init_terraform.sh` at [src/scripts/terraform/init_terraform.sh](/src/scripts/terraform/init_terraform.sh) to perform just an initialization of the Terraform environment
 
-To initialize Terraform for Tier 1, you could then change the target directory:
+To initialize Terraform for Tier 1 (Infrastructure Operations), you could then change the target directory:
 
 ```bash
 src/scripts/terraform/init_terraform.sh \

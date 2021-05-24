@@ -27,6 +27,9 @@ provider "azurerm" {
     log_analytics_workspace {
       permanently_delete_on_destroy = true
     }
+    key_vault {
+      purge_soft_delete_on_destroy = true
+    }
   }
 }
 
@@ -66,21 +69,6 @@ module "saca-hub-network" {
   }
 }
 
-module "bastion-host" {
-  depends_on            = [module.saca-hub-network]
-  source                = "../../modules/bastion"
-  resource_group_name   = azurerm_resource_group.hub.name
-  virtual_network_name  = var.saca_vnetname
-  bastion_host_name     = var.bastion_host_name
-  subnet_address_prefix = var.bastion_address_space
-  public_ip_name        = var.bastion_public_ip_name
-  ipconfig_name         = var.bastion_ipconfig_name
-
-  tags = {
-    DeploymentName = var.deploymentname
-  }
-}
-
 locals {
   # azurerm terraform environments where Azure Firewall Premium is supported
   firewall_premium_tf_environments = ["public"]
@@ -108,4 +96,79 @@ module "saca-firewall" {
   tags = {
     DeploymentName = var.deploymentname
   }
+}
+
+module "bastion-host" {
+  count      = var.create_bastion_jumpbox ? 1 : 0
+  depends_on = [module.saca-hub-network]
+  source     = "../../modules/bastion"
+
+  resource_group_name   = azurerm_resource_group.hub.name
+  virtual_network_name  = var.saca_vnetname
+  bastion_host_name     = var.bastion_host_name
+  subnet_address_prefix = var.bastion_address_space
+  public_ip_name        = var.bastion_public_ip_name
+  ipconfig_name         = var.bastion_ipconfig_name
+
+  tags = {
+    DeploymentName = var.deploymentname
+  }
+}
+
+module "jumpbox-subnet" {
+  count      = var.create_bastion_jumpbox ? 1 : 0
+  depends_on = [module.saca-hub-network, module.saca-firewall]
+  source     = "../../modules/subnet"
+
+  name                 = var.jumpbox_subnet.name
+  location             = var.mlz_location
+  resource_group_name  = azurerm_resource_group.hub.name
+  virtual_network_name = var.saca_vnetname
+  address_prefixes     = var.jumpbox_subnet.address_prefixes
+  service_endpoints    = lookup(var.jumpbox_subnet, "service_endpoints", [])
+
+  enforce_private_link_endpoint_network_policies = lookup(var.jumpbox_subnet, "enforce_private_link_endpoint_network_policies", null)
+  enforce_private_link_service_network_policies  = lookup(var.jumpbox_subnet, "enforce_private_link_service_network_policies", null)
+
+  nsg_name  = var.jumpbox_subnet.nsg_name
+  nsg_rules = var.jumpbox_subnet.nsg_rules
+
+  routetable_name     = var.jumpbox_subnet.routetable_name
+  firewall_ip_address = module.saca-firewall.firewall_public_ip
+
+  log_analytics_storage_id   = module.saca-hub-network.log_analytics_storage_id
+  log_analytics_workspace_id = module.saca-hub-network.log_analytics_workspace_id
+
+  tags = {
+    DeploymentName = var.deploymentname
+  }
+}
+
+module "jumpbox" {
+  count      = var.create_bastion_jumpbox ? 1 : 0
+  depends_on = [module.saca-hub-network, module.jumpbox-subnet]
+  source     = "../../modules/jumpbox"
+
+  resource_group_name  = azurerm_resource_group.hub.name
+  virtual_network_name = var.saca_vnetname
+  subnet_name          = var.jumpbox_subnet.name
+  location             = azurerm_resource_group.hub.location
+
+  keyvault_name = var.jumpbox_keyvault_name
+  tenant_id     = var.mlz_tenantid
+  object_id     = var.mlz_objectid
+
+  windows_name          = var.jumpbox_windows_vm_name
+  windows_size          = var.jumpbox_windows_vm_size
+  windows_publisher     = var.jumpbox_windows_vm_publisher
+  windows_offer         = var.jumpbox_windows_vm_offer
+  windows_sku           = var.jumpbox_windows_vm_sku
+  windows_image_version = var.jumpbox_windows_vm_version
+
+  linux_name          = var.jumpbox_linux_vm_name
+  linux_size          = var.jumpbox_linux_vm_size
+  linux_publisher     = var.jumpbox_linux_vm_publisher
+  linux_offer         = var.jumpbox_linux_vm_offer
+  linux_sku           = var.jumpbox_linux_vm_sku
+  linux_image_version = var.jumpbox_linux_vm_version
 }

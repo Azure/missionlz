@@ -28,13 +28,14 @@ fi
 mlz_config_file=$1
 web_port=$2
 
-container_registry_path="$(realpath "${BASH_SOURCE%/*}")/container-registry"
+container_registry_path="$(realpath "${BASH_SOURCE%/*}")/../container-registry"
+config_path="$(realpath "${BASH_SOURCE%/*}")/../config"
 
 # source mlz_config_file
 . "${mlz_config_file}"
 
 # generate MLZ configuration names
-. "$(realpath "${BASH_SOURCE%/*}")/config/generate_names.sh" "$mlz_config_file"
+"${config_path}/generate_names.sh" "$mlz_config_file"
 
 # create auth scopes
 local_fqdn="localhost:${web_port}"
@@ -85,6 +86,7 @@ echo "export TF_ENV=$tf_environment"
 echo "export MLZ_ENV=$mlz_env_name"
 echo "export MLZCLIENTID=$mlz_client_id"
 echo "export MLZCLIENTSECRET=$mlz_client_secret"
+echo "export MLZOBJECTID=$mlz_object_id"
 
 echo "for PowerShell:"
 echo "\$env:CLIENT_ID='$auth_client_id'"
@@ -104,6 +106,7 @@ echo "\$env:TF_ENV='$tf_environment'"
 echo "\$env:MLZ_ENV='$mlz_env_name'"
 echo "\$env:MLZCLIENTID='$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
 echo "\$env:MLZCLIENTSECRET='$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
+echo "\$env:MLZOBJECTID='$(az keyvault secret show --name "${mlz_sp_obj_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
 
 echo "=============================="
 echo "INFO: 2) Then, execute the web server with:"
