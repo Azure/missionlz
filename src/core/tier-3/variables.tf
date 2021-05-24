@@ -36,7 +36,7 @@ variable "mlz_objectid" {
 }
 
 #################################
-# Tier 2 Configuration
+# Tier 3 Configuration
 #################################
 variable "deploymentname" {
   description = "A name for the deployment"
@@ -80,7 +80,7 @@ variable "tier3_vnetname" {
 variable "tier3_vnet_address_space" {
   description = "Address space prefixes list of strings"
   type        = list(string)
-  default     = ["10.0.120.0/26"]
+  default     = ["10.0.125.0/26"]
 }
 
 variable "subnets" {
@@ -111,7 +111,7 @@ variable "subnets" {
   default = {
     "tier3vms" = {
       name              = "tier3vms"
-      address_prefixes  = ["10.0.120.0/27"]
+      address_prefixes  = ["10.0.125.0/27"]
       service_endpoints = ["Microsoft.Storage"]
 
       enforce_private_link_endpoint_network_policies = false
