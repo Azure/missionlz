@@ -43,8 +43,9 @@ All other tools and resources are in the development container and in the user i
           git clone https://github.com/Azure/missionlz.git
      ```
     >
-    > * The Windows Git Credential Manager can be configured to work from WSL to help with complex authentication patterns like two-factor authentication. See the [documentation here](https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-git#git-credential-manager-setup). Below is the command to run for setting the Windows Credential Manager in WSL:
-
+    > * Authenticating to git is not required for cloning the Mission LZ repo, but you may want to set it up for times when you need authentication, like when you need to push a new branch. 
+    >   * The Windows Git Credential Manager can be configured to work from WSL to help with complex authentication patterns like two-factor authentication. See the [documentation here](https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-git#git-credential-manager-setup). Below is the command to run for setting the Windows Credential Manager in WSL:
+    >
      ```BASH
           git config --global credential.helper "/mnt/c/Program\ Files/Git/mingw64/libexec/git-core/git-credential-manager.exe"
      ```
