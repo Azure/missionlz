@@ -86,6 +86,11 @@ variable "firewall_name" {
   default     = "mlzDemoFirewall"
 }
 
+variable "firewall_policy_name" {
+  description = "Name of the firewall policy to apply to the hub firewall"
+  default     = "firewallpolicy"
+}
+
 variable "client_ipconfig_name" {
   description = "The name of the Firewall Client IP Configuration"
   default     = "mlzDemoFWClientIpCfg"
