@@ -31,6 +31,7 @@ show_help() {
   print_formatted "--tier0-sub-id" "-0" "[OPTIONAL]: subscription ID for tier 0 network and resources"
   print_formatted "--tier1-sub-id" "-1" "[OPTIONAL]: subscription ID for tier 1 network and resources"
   print_formatted "--tier2-sub-id" "-2" "[OPTIONAL]: subscription ID for tier 2 network and resources"
+  print_formatted "--tier3-sub-id" "-2" "[OPTIONAL]: subscription ID for tier 3 network and resources"
   print_formatted "--help" "-h" "Print this message"
 }
 
@@ -80,6 +81,9 @@ while [ $# -gt 0 ] ; do
     -2 | --tier2-sub-id)
       shift
       mlz_tier2_subid="$1" ;;
+    -3 | --mlz_tier3_subid)
+      shift
+      mlz_tier3_subid="$1" ;;
     -h | --help)
       show_help
       exit 0 ;;
