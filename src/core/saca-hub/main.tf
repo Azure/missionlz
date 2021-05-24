@@ -69,21 +69,6 @@ module "saca-hub-network" {
   }
 }
 
-module "bastion-host" {
-  depends_on            = [module.saca-hub-network]
-  source                = "../../modules/bastion"
-  resource_group_name   = azurerm_resource_group.hub.name
-  virtual_network_name  = var.saca_vnetname
-  bastion_host_name     = var.bastion_host_name
-  subnet_address_prefix = var.bastion_address_space
-  public_ip_name        = var.bastion_public_ip_name
-  ipconfig_name         = var.bastion_ipconfig_name
-
-  tags = {
-    DeploymentName = var.deploymentname
-  }
-}
-
 locals {
   # azurerm terraform environments where Azure Firewall Premium is supported
   firewall_premium_tf_environments = ["public"]
@@ -114,7 +99,25 @@ module "saca-firewall" {
   }
 }
 
+module "bastion-host" {
+  count      = var.create_bastion_jumpbox ? 1 : 0
+  depends_on = [module.saca-hub-network]
+  source     = "../../modules/bastion"
+
+  resource_group_name   = azurerm_resource_group.hub.name
+  virtual_network_name  = var.saca_vnetname
+  bastion_host_name     = var.bastion_host_name
+  subnet_address_prefix = var.bastion_address_space
+  public_ip_name        = var.bastion_public_ip_name
+  ipconfig_name         = var.bastion_ipconfig_name
+
+  tags = {
+    DeploymentName = var.deploymentname
+  }
+}
+
 module "jumpbox-subnet" {
+  count      = var.create_bastion_jumpbox ? 1 : 0
   depends_on = [module.saca-hub-network, module.saca-firewall]
   source     = "../../modules/subnet"
 
@@ -143,6 +146,7 @@ module "jumpbox-subnet" {
 }
 
 module "jumpbox" {
+  count      = var.create_bastion_jumpbox ? 1 : 0
   depends_on = [module.saca-hub-network, module.jumpbox-subnet]
   source     = "../../modules/jumpbox"
 
@@ -155,10 +159,17 @@ module "jumpbox" {
   tenant_id     = var.mlz_tenantid
   object_id     = var.mlz_objectid
 
-  name          = var.jumpbox_vm_name
-  size          = var.jumpbox_vm_size
-  publisher     = var.jumpbox_vm_publisher
-  offer         = var.jumpbox_vm_offer
-  sku           = var.jumpbox_vm_sku
-  image_version = var.jumpbox_vm_version
+  windows_name          = var.jumpbox_windows_vm_name
+  windows_size          = var.jumpbox_windows_vm_size
+  windows_publisher     = var.jumpbox_windows_vm_publisher
+  windows_offer         = var.jumpbox_windows_vm_offer
+  windows_sku           = var.jumpbox_windows_vm_sku
+  windows_image_version = var.jumpbox_windows_vm_version
+
+  linux_name          = var.jumpbox_linux_vm_name
+  linux_size          = var.jumpbox_linux_vm_size
+  linux_publisher     = var.jumpbox_linux_vm_publisher
+  linux_offer         = var.jumpbox_linux_vm_offer
+  linux_sku           = var.jumpbox_linux_vm_sku
+  linux_image_version = var.jumpbox_linux_vm_version
 }

@@ -44,28 +44,38 @@ resource "azurerm_key_vault_secret" "jumpbox-password" {
   key_vault_id = azurerm_key_vault.jumpbox-keyvault.id
 }
 
-resource "random_string" "jumpbox-username" {
-  length  = 12
-  special = false
-}
-
 resource "azurerm_key_vault_secret" "jumpbox-username" {
   name         = "jumpbox-username"
-  value        = random_string.jumpbox-username.result
+  value        = var.admin_username
   key_vault_id = azurerm_key_vault.jumpbox-keyvault.id
 }
 
-module "jumpbox-virtual-machine" {
+module "windows-virtual-machine" {
   source               = "../windows-virtual-machine"
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.virtual_network_name
   subnet_name          = var.subnet_name
-  name                 = var.name
-  size                 = var.size
-  admin_username       = azurerm_key_vault_secret.jumpbox-username.value
+  name                 = var.windows_name
+  size                 = var.windows_size
+  admin_username       = var.admin_username
   admin_password       = azurerm_key_vault_secret.jumpbox-password.value
-  publisher            = var.publisher
-  offer                = var.offer
-  sku                  = var.sku
-  image_version        = var.image_version
+  publisher            = var.windows_publisher
+  offer                = var.windows_offer
+  sku                  = var.windows_sku
+  image_version        = var.windows_image_version
+}
+
+module "linux-virtual-machine" {
+  source               = "../linux-virtual-machine"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = var.virtual_network_name
+  subnet_name          = var.subnet_name
+  name                 = var.linux_name
+  size                 = var.linux_size
+  admin_username       = var.admin_username
+  admin_password       = azurerm_key_vault_secret.jumpbox-password.value
+  publisher            = var.linux_publisher
+  offer                = var.linux_offer
+  sku                  = var.linux_sku
+  image_version        = var.linux_image_version
 }
