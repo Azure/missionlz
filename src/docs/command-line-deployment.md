@@ -30,11 +30,15 @@ The steps in this article assume the following pre-requisites for command-line d
      az login
      ```
 
-1. [Quickstart](#quickstart)
-1. [Setup Mission LZ Resources](#setup-mission-lz-resources)
-1. [Set Terraform Configuration Variables](#set-terraform-configuration-variables)
-1. [Deploy Terraform Configuration](#deploy-terraform-configuration)
-1. [Clean up Mission LZ Resources](#clean-up-mission-lz-resources)
+1. Quickstart
+   1. [Deploy](#quickstart-deploy)
+   1. [Clean](#quickstart-clean)
+   1. [Arguments](#quickstart-arguments)
+1. Advanced path (*optional*)
+   1. [Setup Mission LZ Resources](#setup-mission-lz-resources)
+   1. [Set Terraform Configuration Variables](#set-terraform-configuration-variables)
+   1. [Deploy Terraform Configuration](#deploy-terraform-configuration)
+   1. [Clean up Mission LZ Resources](#clean-up-mission-lz-resources)
 
 ## Quickstart
 
