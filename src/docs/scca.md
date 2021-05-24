@@ -16,7 +16,7 @@ Each component has a set of controls. The controls for each component are listed
 - Some of the controls are implemented using Azure technologies, but are not within the scope of Mission Landing Zone, e.g. multi-factor authentication and AAD Connect. These rows do not have a ✔️ in the Mission LZ column.
 - Some of the controls are not implemented with Azure technologies, e.g. BCAP 2.1.1.7. These rows have "N/A" under the Azure Technologies column.
 
-> NOTE: the mapping of controls to technologies and Mission Landing Zone implementation represents our opinion on how Mission Landing Zone implements SCCA controls. The mappings below are not defined by any  DoD organization or Authorizing Official.
+> NOTE: the mapping of controls to technologies and Mission Landing Zone implementation represents our opinion on how Mission Landing Zone implements SCCA controls. The mappings below are not defined by any DoD organization or Authorizing Official.
 
 ## BCAP Controls
 
