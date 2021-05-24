@@ -224,38 +224,74 @@ variable "jumpbox_keyvault_name" {
   type        = string
 }
 
-variable "jumpbox_vm_name" {
-  description = "The name of the jumpbox virtual machine"
-  default     = "mlzDemoJumpboxVm"
+variable "jumpbox_windows_vm_name" {
+  description = "The name of the Windows jumpbox virtual machine"
+  default     = "mlzDemoJumpboxWindowsVm"
   type        = string
 }
 
-variable "jumpbox_vm_size" {
-  description = "The size of the jumpbox virtual machine"
+variable "jumpbox_windows_vm_size" {
+  description = "The size of the Windows jumpbox virtual machine"
   default     = "Standard_DS1_v2"
   type        = string
 }
 
-variable "jumpbox_vm_publisher" {
-  description = "The publisher of the jumpbox virtual machine source image"
+variable "jumpbox_windows_vm_publisher" {
+  description = "The publisher of the Windows jumpbox virtual machine source image"
   default     = "MicrosoftWindowsServer"
   type        = string
 }
 
-variable "jumpbox_vm_offer" {
-  description = "The offer of the jumpbox virtual machine source image"
+variable "jumpbox_windows_vm_offer" {
+  description = "The offer of the Windows jumpbox virtual machine source image"
   default     = "WindowsServer"
   type        = string
 }
 
-variable "jumpbox_vm_sku" {
-  description = "The SKU of the jumpbox virtual machine source image"
+variable "jumpbox_windows_vm_sku" {
+  description = "The SKU of the Windows jumpbox virtual machine source image"
   default     = "2019-datacenter-gensecond"
   type        = string
 }
 
-variable "jumpbox_vm_version" {
-  description = "The version of the jumpbox virtual machine source image"
+variable "jumpbox_windows_vm_version" {
+  description = "The version of the Windows jumpbox virtual machine source image"
+  default     = "latest"
+  type        = string
+}
+
+variable "jumpbox_linux_vm_name" {
+  description = "The name of the Linux jumpbox virtual machine"
+  default     = "mlzDemoJumpboxLinuxVm"
+  type        = string
+}
+
+variable "jumpbox_linux_vm_size" {
+  description = "The size of the Linux jumpbox virtual machine"
+  default     = "Standard_DS1_v2"
+  type        = string
+}
+
+variable "jumpbox_linux_vm_publisher" {
+  description = "The publisher of the Linux jumpbox virtual machine source image"
+  default     = "Canonical"
+  type        = string
+}
+
+variable "jumpbox_linux_vm_offer" {
+  description = "The offer of the Linux jumpbox virtual machine source image"
+  default     = "UbuntuServer"
+  type        = string
+}
+
+variable "jumpbox_linux_vm_sku" {
+  description = "The SKU of the Linux jumpbox virtual machine source image"
+  default     = "18.04-LTS"
+  type        = string
+}
+
+variable "jumpbox_linux_vm_version" {
+  description = "The version of the Linux jumpbox virtual machine source image"
   default     = "latest"
   type        = string
 }

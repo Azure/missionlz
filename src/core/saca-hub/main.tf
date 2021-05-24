@@ -158,10 +158,17 @@ module "jumpbox" {
   tenant_id     = var.mlz_tenantid
   object_id     = var.mlz_objectid
 
-  name          = var.jumpbox_vm_name
-  size          = var.jumpbox_vm_size
-  publisher     = var.jumpbox_vm_publisher
-  offer         = var.jumpbox_vm_offer
-  sku           = var.jumpbox_vm_sku
-  image_version = var.jumpbox_vm_version
+  windows_name          = var.jumpbox_windows_vm_name
+  windows_size          = var.jumpbox_windows_vm_size
+  windows_publisher     = var.jumpbox_windows_vm_publisher
+  windows_offer         = var.jumpbox_windows_vm_offer
+  windows_sku           = var.jumpbox_windows_vm_sku
+  windows_image_version = var.jumpbox_windows_vm_version
+
+  linux_name          = var.jumpbox_linux_vm_name
+  linux_size          = var.jumpbox_linux_vm_size
+  linux_publisher     = var.jumpbox_linux_vm_publisher
+  linux_offer         = var.jumpbox_linux_vm_offer
+  linux_sku           = var.jumpbox_linux_vm_sku
+  linux_image_version = var.jumpbox_linux_vm_version
 }

@@ -36,32 +36,68 @@ variable "object_id" {
   type        = string
 }
 
-variable "name" {
-  description = "The name of the virtual machine"
+variable "admin_username" {
+  description = "The username used to administer jumpboxes"
+  default     = "azureuser"
   type        = string
 }
 
-variable "size" {
-  description = "The size of the virtual machine"
+variable "windows_name" {
+  description = "The name of the Windows virtual machine"
   type        = string
 }
 
-variable "publisher" {
-  description = "The publisher of the virtual machine source image"
+variable "windows_size" {
+  description = "The size of the Windows virtual machine"
   type        = string
 }
 
-variable "offer" {
-  description = "The offer of the virtual machine source image"
+variable "windows_publisher" {
+  description = "The publisher of the Windows virtual machine source image"
   type        = string
 }
 
-variable "sku" {
-  description = "The SKU of the virtual machine source image"
+variable "windows_offer" {
+  description = "The offer of the Windows virtual machine source image"
   type        = string
 }
 
-variable "image_version" {
-  description = "The version of the virtual machine source image"
+variable "windows_sku" {
+  description = "The SKU of the Windows virtual machine source image"
+  type        = string
+}
+
+variable "windows_image_version" {
+  description = "The version of the Windows virtual machine source image"
+  type        = string
+}
+
+variable "linux_name" {
+  description = "The name of the Linux virtual machine"
+  type        = string
+}
+
+variable "linux_size" {
+  description = "The size of the Linux virtual machine"
+  type        = string
+}
+
+variable "linux_publisher" {
+  description = "The publisher of the Linux virtual machine source image"
+  type        = string
+}
+
+variable "linux_offer" {
+  description = "The offer of the Linux virtual machine source image"
+  type        = string
+}
+
+variable "linux_sku" {
+  description = "The SKU of the Linux virtual machine source image"
+  type        = string
+}
+
+variable "linux_image_version" {
+  description = "The version of the Linux virtual machine source image"
   type        = string
 }
