@@ -35,7 +35,7 @@ create_service_principal_name(){
 }
 
 create_keyvault_names(){
-  local mlz_kv_name_full="${mlz_prefix}${env_name_alphanumeric:0:8}kv${randomish_identifier}"
+  local mlz_kv_name_full="${mlz_prefix}${env_name_alphanumeric}kv${randomish_identifier}"
   export mlz_kv_name="${mlz_kv_name_full:0:24}"
 
   export mlz_sp_kv_name="serviceprincipal-clientid"
@@ -66,7 +66,7 @@ create_terraform_backend_names() {
     local tfstate_resource_group_name="${mlz_prefix}-${env_name_alphanumeric}-tfstate-${tf_name}"
     export tf_rg_name="${tfstate_resource_group_name:0:63}"
 
-    local tfstate_storage_account_name="tfsa${tf_name}${randomish_identifier}"
+    local tfstate_storage_account_name="tfsa${tf_name}${env_name_alphanumeric}${randomish_identifier}"
     valid_tfstate_storage_account_name=$(echo "${tfstate_storage_account_name:0:24}" | tr '[:upper:]' '[:lower:]')
     export tf_sa_name=${valid_tfstate_storage_account_name}
 
@@ -87,7 +87,7 @@ tf_name_raw=${2:-notset}
 mlz_prefix="mlz"
 
 env_name_alphanumeric=$(echo "${mlz_env_name}" | tr -cd '[:alnum:]')
-randomish_identifier=$(echo "${mlz_config_subid}${env_name_alphanumeric}" | base64 | head -c 8)
+randomish_identifier=${mlz_config_subid:0:8} # take the first octet in the subscription ID
 
 create_resource_group_names
 create_service_principal_name
