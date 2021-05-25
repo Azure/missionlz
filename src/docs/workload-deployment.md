@@ -29,7 +29,7 @@ After you have deployed the core MLZ resources,  you can use the following (The 
 
 ### Advanced Deployment
 
-A true usage of tier 3 workloads will require a more advanced setup than allowed through a quick start.   In order to perform these deployments you will have to modify three configuration files, and use the deployment script with the resulting files.
+A production usage of tier 3 workloads will require a more advanced setup than allowed through a quick start.   In order to perform these deployments you will have to modify three configuration files, and use the deployment script with the resulting files.
 
 **NOTE** These steps will need to be repeated for each workload subscription you wish to add.
 
