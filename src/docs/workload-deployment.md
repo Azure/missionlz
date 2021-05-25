@@ -44,7 +44,7 @@ A production usage of tier 3 workloads will require a more advanced setup than a
 
 2. You will need to source the global terraform configuration you used for your primarily deployment. This is typically located at [src/core/globals.tfvars.sample](/src/core/globals.tfvars.sample)),  if you used quickstart you may find it in the src/generated-configurations directory. Make note of the location, you will not need to modify this file.
 
-3. You will have to modify the *.tfvars.sample variables for [src/core/tier-3/tier-3.tfvars.sample](src/core/tier-3/tier-3.tfvars.sample).  If deploying multiple workloads it's especially important to change the 'TIER3_VNETSPACE' variable,  and the matching 'TIER3_SUBNETVM_ADDRESSPREFIXLIST' variable.   These variables represent the networking address space, and they must be different than other tier/workload spaces or the deployment will fail.
+3. You will have to modify the *.tfvars.sample variables for [src/core/tier-3/tier-3.tfvars.sample](/src/core/tier-3/tier-3.tfvars.sample).  If deploying multiple workloads it's especially important to change the 'TIER3_VNETSPACE' variable,  and the matching 'TIER3_SUBNETVM_ADDRESSPREFIXLIST' variable.   These variables represent the networking address space, and they must be different than other tier/workload spaces or the deployment will fail.
 
 4. Once you have collected all of these artifacts you can deploy your workload tier with.  The folder names are examples, these files can be placed anywhere.
 
