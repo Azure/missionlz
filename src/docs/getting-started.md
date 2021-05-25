@@ -43,7 +43,7 @@ All other tools and resources are in the development container and in the user i
           git clone https://github.com/Azure/missionlz.git
      ```
     >
-    > * Authenticating to git is not required for cloning the Mission LZ repo, but you may want to set it up for times when you need authentication, like when you need to push a new branch. 
+    > * Authenticating to git is not required for cloning the Mission LZ repo, but you may want to set it up for times when you need authentication, like when you need to push a new branch.
     >   * The Windows Git Credential Manager can be configured to work from WSL to help with complex authentication patterns like two-factor authentication. See the [documentation here](https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-git#git-credential-manager-setup). Below is the command to run for setting the Windows Credential Manager in WSL:
     >
      ```BASH
@@ -56,6 +56,12 @@ All other tools and resources are in the development container and in the user i
 * (*Optional*) For details and pre-requisites for the development container, see the [README](../../.devcontainer/README.md) document in the `.devcontainer` folder.
 
 ## Next steps
+
+### Deploy Your Workloads
+
+Now that you have the core hub and spoke tiers deployed (tier 0, tier 1, tier 2), the next step is to deploy one or more workload tiers. Misson LZ supports multiple workload tiers. See [Workload Deployment](workload-deployment.md) for details and step-by-step instructions.
+
+### Manage Your Deployment
 
 Once you have a lab deployment of Mission Landing Zone established and have decided to move forward, you will want to start planning your production deployment. We recommend reviewing the following pages during your planning phase.  
 
