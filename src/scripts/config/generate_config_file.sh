@@ -31,7 +31,7 @@ show_help() {
   print_formatted "--tier0-sub-id" "-0" "[OPTIONAL]: subscription ID for tier 0 network and resources"
   print_formatted "--tier1-sub-id" "-1" "[OPTIONAL]: subscription ID for tier 1 network and resources"
   print_formatted "--tier2-sub-id" "-2" "[OPTIONAL]: subscription ID for tier 2 network and resources"
-  print_formatted "--tier3-sub-id" "-2" "[OPTIONAL]: subscription ID for tier 3 network and resources"
+  print_formatted "--tier3-sub-id" "-3" "[OPTIONAL]: subscription ID for tier 3 network and resources"
   print_formatted "--help" "-h" "Print this message"
 }
 
