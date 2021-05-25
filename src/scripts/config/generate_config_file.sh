@@ -81,7 +81,7 @@ while [ $# -gt 0 ] ; do
     -2 | --tier2-sub-id)
       shift
       mlz_tier2_subid="$1" ;;
-    -3 | --mlz_tier3_subid)
+    -3 | --tier3-sub-id
       shift
       mlz_tier3_subid="$1" ;;
     -h | --help)
