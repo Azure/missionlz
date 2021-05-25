@@ -3,9 +3,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# shellcheck disable=SC1090,SC2154
-# SC1090: Can't follow non-constant source. Use a directive to specify location.
-# SC2154: "var is referenced but not assigned". These values come from an external file.
+# shellcheck disable=SC1090,SC1091,SC2154
 #
 # Configures the landing zone subscriptions for Azure Security Center
 
@@ -50,7 +48,7 @@ do
     if [[ ${ascAutoProv} == "Off" ]]; then
 
     # generate names
-    . "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_env_name}" "${sub}"
+    . "${BASH_SOURCE%/*}"/generate_names.sh "${mlz_env_name}"
 
         # Create Resource Group for Log Analytics workspace
         rg_exists="az group show \

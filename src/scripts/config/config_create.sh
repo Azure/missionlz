@@ -36,7 +36,7 @@ tf_dir=$(realpath "${3}")
 tf_name=$(basename "${tf_dir}")
 
 # generate names
-. "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_config}" "${tf_sub_id}" "${tf_name}"
+. "${BASH_SOURCE%/*}/generate_names.sh" "${mlz_config}" "${tf_name}"
 
 echo "INFO: creating resources for ${tf_name} Terraform state..."
 
