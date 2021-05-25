@@ -11,13 +11,13 @@ Mission LZ supports deploying multiple workload tiers that are connected to the 
     ```
 
 1. [Quickstart](#Quickstart)
-1. [Advanced Deployment](#Set-Terraform-Configuration-Variables)
+1. [Advanced Deployment](#Advanced-Deployment)
 
 ### Quickstart
 
 #### Quickstart Deploy
 
-In tandem with the quickstart found in [QuickStart Deploying MLZ](https://github.com/Azure/missionlz/blob/main/src/docscommand-line-deployments.md#Quickstart) you can quickly get up and running and deploy a single workload instance to your configuration.  Note: This should be run using the -tier3-sub-id flag in order to create the fast config files to deploy this network resource.
+In tandem with the quickstart found in [QuickStart Deploying MLZ](command-line-deployment.md#Quickstart) you can quickly get up and running and deploy a single workload instance to your configuration.  Note: This should be run using the -tier3-sub-id flag in order to create the fast config files to deploy this network resource.
 
 After you have deployed the core MLZ resources,  you can use the following (The generated-configuration item artifacts come from the base deployment and can be reused)
 
@@ -32,8 +32,9 @@ After you have deployed the core MLZ resources,  you can use the following (The 
 A production usage of tier 3 workloads will require a more advanced setup than allowed through a quick start.   In order to perform these deployments you will have to modify three configuration files, and use the deployment script with the resulting files.
 
 > **NOTE** These steps will need to be repeated for each workload tier you wish to add.
-
+<!-- markdownlint-disable MD028 -->
 > **NOTE** Like the other Mission LZ tiers, each tier 3 workload can be deployed into its own subscription or they can be deployed into a single subscription. For production deployments we recommend that each tier 3 is deployed into its own subscription to simplify managing security and access.
+<!-- markdownlint-enable MD028 -->
 
 1. First, moidfy the MLZ Configuration file `mlz.config` file using the `mlz.config.sample` as a template,  this file should be a copy of the file used to deploy MLZ.  You will need to modify the following to include the actual subscription number:
 
