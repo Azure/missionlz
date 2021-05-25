@@ -86,6 +86,7 @@ module "saca-firewall" {
   firewall_management_subnet_name = module.saca-hub-network.firewall_management_subnet_name
   client_address_space            = var.client_address_space
   firewall_name                   = var.firewall_name
+  firewall_policy_name            = var.firewall_policy_name
   client_ipconfig_name            = var.client_ipconfig_name
   client_publicip_name            = var.client_publicip_name
   management_ipconfig_name        = var.management_ipconfig_name

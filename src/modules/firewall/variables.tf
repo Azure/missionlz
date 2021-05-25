@@ -36,6 +36,10 @@ variable "firewall_name" {
   description = "The name of the Firewall"
 }
 
+variable "firewall_policy_name" {
+  description = "The name of the firewall policy"
+}
+
 variable "client_ipconfig_name" {
   description = "The name of the Firewall Client IP Configuration"
 }

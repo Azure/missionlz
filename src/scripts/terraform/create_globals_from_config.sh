@@ -71,6 +71,7 @@ append_kvp "saca_subid" "${mlz_saca_subid}"
 append_kvp "saca_rgname" "rg-saca-${mlz_env_name}"
 append_kvp "saca_vnetname" "vn-saca-${mlz_env_name}"
 append_kvp "firewall_name" "Firewall${mlz_env_name}"
+append_kvp "firewall_policy_name" "firewallpolicy${mlz_env_name}"
 append_kvp "saca_lawsname" "laws-${mlz_env_name}"
 
 append_kvp "create_bastion_jumpbox" "${create_bastion_jumpbox}"
