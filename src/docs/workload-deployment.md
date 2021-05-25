@@ -1,6 +1,8 @@
-# Command-Line Deployment
+# Workload Deployment (Tier 3)
 
-## Step-by-step
+Mission LZ supports deploying multiple workload tiers that are connected to the hub. We call these tier 3s, or T3s, for convenience. Each tier 3 is intended to support a single workload or single team that needs isolation from the other teams and network connectivity via the hub.
+
+## Command Line Step-by-step
 
 1. Log in using the Azure CLI
 
