@@ -31,7 +31,9 @@ After you have deployed the core MLZ resources,  you can use the following (The 
 
 A production usage of tier 3 workloads will require a more advanced setup than allowed through a quick start.   In order to perform these deployments you will have to modify three configuration files, and use the deployment script with the resulting files.
 
-**NOTE** These steps will need to be repeated for each workload subscription you wish to add.
+> **NOTE** These steps will need to be repeated for each workload tier you wish to add.
+
+> **NOTE** Like the other Mission LZ tiers, each tier 3 workload can be deployed into its own subscription or they can be deployed into a single subscription. For production deployments we recommend that each tier 3 is deployed into its own subscription to simplify managing security and access.
 
 1. First, moidfy the MLZ Configuration file `mlz.config` file using the `mlz.config.sample` as a template,  this file should be a copy of the file used to deploy MLZ.  You will need to modify the following to include the actual subscription number:
 
