@@ -1,0 +1,60 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+#################################
+# Tier 3 Configuration
+#################################
+
+deploymentname = "{TIER3_DEPLOYMENTNAME}"
+saca_subid     = "{SACA_SUBID}"
+saca_rgname    = "{SACA_RGNAME}"
+saca_vnetname  = "{SACA_VENTNAME}"
+firewall_name    = "{firewall_name}"
+saca_lawsname  = "{SACA_LAWSNAME}"
+tier3_subid    = "{TIER3_SUBID}"
+tier3_rgname   = "{TIER3_RGNAME}"
+tier3_vnetname = "{TIER3_VNETNAME}"
+
+#################################
+# Network configuration section
+#################################
+
+tier3_vnet_address_space = ["{TIER3_VNETSPACE}"]
+
+subnets = {
+  "{TIER3_SUBNETVM_NAME}" = {
+    name              = "{TIER3_SUBNETVM_NAME}"
+    address_prefixes  = ["{TIER3_SUBNETVM_ADDRESSPREFIXLIST}"]
+    service_endpoints = ["{TIER3_SUBNETVM_SERVICEENDPOINTLIST}"]
+
+    enforce_private_link_endpoint_network_policies = {TIER3_SUBNETVM_ENABLEPRIVATELINKENDPOINT}
+    enforce_private_link_service_network_policies = {TIER3_SUBNETVM_ENABLEPRIVATELINKSERVICE}
+
+    nsg_name = "{TIER3_SUBNETVM_NSGNAME}"
+    nsg_rules = {
+      "allow_ssh" = {
+        name                       = "allow_ssh"
+        priority                   = "100"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = ""
+        destination_port_range     = "22"
+        source_address_prefix      = "*"
+        destination_address_prefix = ""
+      }
+      "allow_rdp" = {
+        name                       = "allow_rdp"
+        priority                   = "200"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = ""
+        destination_port_range     = "3389"
+        source_address_prefix      = "*"
+        destination_address_prefix = ""
+      }
+    }
+
+    routetable_name = "{TIER3_SUBNETVM_RTNAME}"
+  }
+}

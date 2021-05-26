@@ -67,6 +67,14 @@ append_kvp "tier2_subid" "${mlz_tier2_subid}"
 append_kvp "tier2_rgname" "rg-t2-${mlz_env_name}"
 append_kvp "tier2_vnetname" "vn-t2-${mlz_env_name}"
 
+if [ -n "${mlz_tier3_subid+x}" ]; then
+
+append_kvp "tier3_subid" "${mlz_tier3_subid}"
+append_kvp "tier3_rgname" "rg-t3-${mlz_env_name}"
+append_kvp "tier3_vnetname" "vn-t3-${mlz_env_name}"
+
+fi
+
 append_kvp "saca_subid" "${mlz_saca_subid}"
 append_kvp "saca_rgname" "rg-saca-${mlz_env_name}"
 append_kvp "saca_vnetname" "vn-saca-${mlz_env_name}"

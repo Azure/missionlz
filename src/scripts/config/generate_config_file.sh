@@ -31,6 +31,7 @@ show_help() {
   print_formatted "--tier0-sub-id" "-0" "[OPTIONAL]: subscription ID for tier 0 network and resources"
   print_formatted "--tier1-sub-id" "-1" "[OPTIONAL]: subscription ID for tier 1 network and resources"
   print_formatted "--tier2-sub-id" "-2" "[OPTIONAL]: subscription ID for tier 2 network and resources"
+  print_formatted "--tier3-sub-id" "-3" "[OPTIONAL]: subscription ID for tier 3 network and resources"
   print_formatted "--help" "-h" "Print this message"
 }
 
@@ -80,6 +81,9 @@ while [ $# -gt 0 ] ; do
     -2 | --tier2-sub-id)
       shift
       mlz_tier2_subid="$1" ;;
+    -3 | --tier3-sub-id)
+      shift
+      mlz_tier3_subid="$1" ;;
     -h | --help)
       show_help
       exit 0 ;;
@@ -129,6 +133,7 @@ append_optional_args "mlz_saca_subid" "${mlz_saca_subid}" "${mlz_config_subid}" 
 append_optional_args "mlz_tier0_subid" "${mlz_tier0_subid}" "${mlz_config_subid}" "${dest_file}"
 append_optional_args "mlz_tier1_subid" "${mlz_tier1_subid}" "${mlz_config_subid}" "${dest_file}"
 append_optional_args "mlz_tier2_subid" "${mlz_tier2_subid}" "${mlz_config_subid}" "${dest_file}"
+append_optional_args "mlz_tier3_subid" "${mlz_tier3_subid}" "${mlz_config_subid}" "${dest_file}"
 
 # append cloud specific endpoints
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
