@@ -25,6 +25,7 @@ The develoment container is not necessary if you want to use the Mission LZ user
 * **Docker:** Docker Desktop or Docker CE
   >*We use [Docker Desktop on Windows 10](https://docs.docker.com/docker-for-windows/install/), integrated with WSL*
 * Current version of the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
+* An Azure Subscription where you have ['Owner' RBAC permissions].
 
 All other tools and resources are in the development container and in the user interface container. The simplest path is to deploy from one of these containers, but it is not required if you want to configure your own deployment environment.
 
