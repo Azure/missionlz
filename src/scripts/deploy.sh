@@ -146,7 +146,7 @@ display_clean_hint() {
 ##########
 
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
-configuration_output_path="${this_script_path}/../generated-configurations"
+configuration_output_path="$(realpath ${this_script_path}/../generated-configurations)"
 timestamp=$(date +%s)
 
 # set some defaults
