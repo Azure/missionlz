@@ -38,8 +38,9 @@ append_cloud_value() {
   local cloud_key_name=$2
   local file=$3
 
-  local cloud_key_value=$(az cloud show --query "${cloud_key_name}" --output tsv)
-  printf "${mlz_key_name}=${cloud_key_value}\n" >> "${file}"
+  local cloud_key_value
+  cloud_key_value=$(az cloud show --query "${cloud_key_name}" --output tsv)
+  printf "%s=%s\n" "${mlz_key_name}" "${cloud_key_value}" >> "${file}"
 }
 
 # for each member of the dictionary, write "key=$(az cloud show...)" to a file
