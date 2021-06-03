@@ -43,7 +43,7 @@ format_if_metadatahost() {
 
     # 1) awk -F/ '{print $3}'
     #
-    #   -F/ is "using the charactrer / as a field separator"
+    #   -F/ is "using the character / as a field separator"
     #
     #   '{print $3}' is "print me the third field"
     #
