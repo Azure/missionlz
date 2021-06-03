@@ -67,7 +67,7 @@ See the [Projects](https://github.com/Azure/missionlz/projects) page for the rel
 Here's what the repo consists of as of April 2021:
 
 <!-- markdownlint-disable MD033 -->
-<img src="src/docs/images/missionlz_as_of_april2021.png" alt="Mission LZ as of April 2021" width="600" />
+<img src="src/docs/images/missionlz_as_of_may2021.png" alt="Mission LZ as of April 2021" width="600" />
 <!-- markdownlint-enable MD033 -->
 
 ## Contributing
