@@ -122,8 +122,36 @@ create_mlz_configuration_file() {
   ### ignoring shellcheck for word splitting because that is the desired behavior
   # shellcheck disable=SC2086
   "${this_script_path}/config/generate_config_file.sh" $gen_config_args_str
+}
 
-  # generate MLZ configuration names
+validate_mlz_configuration_file() {
+  . "${mlz_config_file}"
+
+  ensure_vars_are_set ()
+  {
+    local var_names=("$@")
+    local any_required_var_unset=false
+
+    for var_name in "${var_names[@]}"; do
+      if [[ -z "${!var_name}" ]]; then
+        echo "ERROR: ${var_name} is required but is not set in MLZ configuration file at ${mlz_config_file}"
+        any_required_var_unset=true
+      fi
+    done
+
+    if [[ "$any_required_var_unset" == true ]]; then
+      exit 1
+    fi
+  }
+
+  ensure_vars_are_set mlz_acrLoginServerEndpoint \
+    mlz_keyvaultDns \
+    mlz_metadatahost \
+    mlz_cloudname \
+    mlz_activeDirectory
+}
+
+create_mlz_configuration_names() {
   . "$mlz_config_file"
   . "${this_script_path}/config/generate_names.sh" "$mlz_config_file"
 }
@@ -182,7 +210,7 @@ create_auth_scopes() {
 ##########
 
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
-src_path="${this_script_path}/../"
+src_path=$(realpath "${this_script_path}/../")
 timestamp=$(date +%s)
 
 # set defaults that can be overridden or 'notset' for mandatory input
@@ -258,9 +286,11 @@ validate_docker_strategy
 login_azcli
 validate_cloud_arguments
 
-# create mlz resources
+# create mlz resources and names
 mlz_config_file="${src_path}/mlz.config"
 create_mlz_configuration_file
+validate_mlz_configuration_file
+create_mlz_configuration_names
 create_mlz_resources
 
 # deploy UI
