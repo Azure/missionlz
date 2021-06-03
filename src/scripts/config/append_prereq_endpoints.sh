@@ -38,7 +38,7 @@ format_if_metadatahost() {
   local cloud_key_value=$2
 
   if [[ $mlz_key_name != "mlz_metadatahost" ]]; then
-    echo $cloud_key_value
+    echo "$cloud_key_value"
   else
 
     # 1) awk -F/ '{print $3}'
@@ -47,9 +47,7 @@ format_if_metadatahost() {
     #
     #   '{print $3}' is "print me the third field"
     #
-    # 2) for example
-    #
-    #   https://management.azure.com/
+    # 2) for example on https://management.azure.com/
     #
     #   $1      $2 $3                    $4
     #   https: / / management.azure.com /
@@ -59,7 +57,7 @@ format_if_metadatahost() {
     #   $3 is management.azure.com
     #   $4 is
 
-    echo $(echo "$cloud_key_value" | awk -F/ '{print $3}')
+    echo "$cloud_key_value" | awk -F/ '{print $3}'
   fi
 }
 
