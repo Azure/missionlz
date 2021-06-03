@@ -32,7 +32,7 @@ mlz_az_cloud_keys['mlz_cloudname']='name'
 mlz_az_cloud_keys['mlz_activeDirectory']='endpoints.activeDirectory'
 
 # since we cannot guarantee the results of `az cloud show` for each value we want,
-# we query for them individually when printing to the file and allow for empty results
+# we query for them individually when printing to the file to accommodate for empty results
 append_cloud_value() {
   local mlz_key_name=$1
   local cloud_key_name=$2
