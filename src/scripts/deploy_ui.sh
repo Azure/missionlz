@@ -124,18 +124,10 @@ create_mlz_configuration_file() {
   "${this_script_path}/config/generate_config_file.sh" $gen_config_args_str
 }
 
-create_mlz_configuration_names() {
-  . "$mlz_config_file"
-  . "${this_script_path}/config/generate_names.sh" "$mlz_config_file"
-}
+validate_mlz_configuration_file() {
+  . "${mlz_config_file}"
 
-create_mlz_resources() {
-  echo "INFO: setting up required MLZ resources using $(realpath "$mlz_config_file")..."
-  "${this_script_path}/config/mlz_config_create.sh" "$mlz_config_file"
-}
-
-validate_required_cloud_args() {
-  check_required_mlz_vars()
+  ensure_vars_are_set ()
   {
     local var_names=("$@")
     local any_required_var_unset=false
@@ -151,11 +143,22 @@ validate_required_cloud_args() {
       exit 1
     fi
   }
-  check_required_mlz_vars mlz_acrLoginServerEndpoint \
+
+  ensure_vars_are_set mlz_acrLoginServerEndpoint \
     mlz_keyvaultDns \
     mlz_metadatahost \
     mlz_cloudname \
     mlz_activeDirectory
+}
+
+create_mlz_configuration_names() {
+  . "$mlz_config_file"
+  . "${this_script_path}/config/generate_names.sh" "$mlz_config_file"
+}
+
+create_mlz_resources() {
+  echo "INFO: setting up required MLZ resources using $(realpath "$mlz_config_file")..."
+  "${this_script_path}/config/mlz_config_create.sh" "$mlz_config_file"
 }
 
 handle_docker_image() {
@@ -286,11 +289,11 @@ validate_cloud_arguments
 # create mlz resources and names
 mlz_config_file="${src_path}/mlz.config"
 create_mlz_configuration_file
+validate_mlz_configuration_file
 create_mlz_configuration_names
 create_mlz_resources
 
 # deploy UI
-validate_required_cloud_args
 handle_docker_image
 create_registry
 deploy_container

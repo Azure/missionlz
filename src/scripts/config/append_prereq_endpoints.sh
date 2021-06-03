@@ -40,7 +40,10 @@ append_cloud_value() {
 
   local cloud_key_value
   cloud_key_value=$(az cloud show --query "${cloud_key_name}" --output tsv)
-  printf "%s=%s\n" "${mlz_key_name}" "${cloud_key_value}" >> "${file}"
+
+  if [[ $cloud_key_value ]]; then
+    printf "%s=%s\n" "${mlz_key_name}" "${cloud_key_value}" >> "${file}"
+  fi
 }
 
 # for each member of the dictionary, write "key=$(az cloud show...)" to a file
