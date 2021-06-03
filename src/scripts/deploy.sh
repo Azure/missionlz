@@ -113,6 +113,29 @@ create_mlz_configuration_file() {
   "${this_script_path}/config/generate_config_file.sh" $gen_config_args_str
 }
 
+validate_mlz_configuration_file() {
+  . "${mlz_config_file_path}"
+
+  ensure_vars_are_set()
+  {
+    local var_names=("$@")
+    local any_required_var_unset=false
+
+    for var_name in "${var_names[@]}"; do
+      if [[ -z "${!var_name}" ]]; then
+        echo "ERROR: ${var_name} is required but is not set in MLZ configuration file at ${mlz_config_file_path}"
+        any_required_var_unset=true
+      fi
+    done
+
+    if [[ "$any_required_var_unset" == true ]]; then
+      exit 1
+    fi
+  }
+
+  ensure_vars_are_set mlz_metadatahost mlz_cloudname
+}
+
 create_mlz_resources() {
   echo "INFO: creating MLZ resources using ${mlz_config_file_path}..."
   "${this_script_path}/config/create_mlz_configuration_resources.sh" "${mlz_config_file_path}"
@@ -146,7 +169,7 @@ display_clean_hint() {
 ##########
 
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
-configuration_output_path="${this_script_path}/../generated-configurations"
+configuration_output_path="$(realpath ${this_script_path}/../generated-configurations)"
 timestamp=$(date +%s)
 
 # set some defaults
@@ -210,6 +233,7 @@ validate_cloud_arguments
 mlz_config_file_path="${configuration_output_path}/${mlz_env_name}.mlzconfig"
 tfvars_file_path="${configuration_output_path}/${mlz_env_name}.tfvars"
 create_mlz_configuration_file
+validate_mlz_configuration_file
 create_terraform_variables
 
 # create resources
