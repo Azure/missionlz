@@ -188,6 +188,9 @@ while [ $# -gt 0 ] ; do
     -2 | --tier2-sub-id)
       shift
       subs_args+=("-2 ${1}") ;;
+    -3 | --tier3-sub-id)
+      shift
+      subs_args+=("-3 ${1}") ;;
     -h | --help)
       show_help
       exit 0 ;;
