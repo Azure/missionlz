@@ -36,7 +36,7 @@ A production usage of tier 3 workloads will require a more advanced setup than a
 > **NOTE** Like the other Mission LZ tiers, each tier 3 workload can be deployed into its own subscription or they can be deployed into a single subscription. For production deployments we recommend that each tier 3 is deployed into its own subscription to simplify managing security and access.
 <!-- markdownlint-enable MD028 -->
 
-1. First, moidfy the MLZ Configuration file `mlz.config` file using the `mlz.config.sample` as a template,  this file should be a copy of the file used to deploy MLZ.  You will need to modify the following to include the actual subscription number:
+1. First, modify the MLZ Configuration file `mlz.config` file using the `mlz.config.sample` as a template,  this file should be a copy of the file used to deploy MLZ.  You will need to modify the following to include the actual subscription number:
 
     ```plaintext
     mlz_tier3_subid="{MLZ_TIER3_SUBID}" # Optional if not currently deploying a tier 3
