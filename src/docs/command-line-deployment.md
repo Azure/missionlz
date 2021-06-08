@@ -7,8 +7,7 @@ The steps in this article assume the following pre-requisites for command-line d
 
   > As an alternative, it is possible to deploy Mission LZ via BASH running from the local workstation, but requires the following additional requirements:
   >
-  > * An Azure Subscription where you have ['Owner' RBAC permissions](<https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/>)
-  > * The current version of Azure CLI (try `az cli -v` or see <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/>)
+  > * The current version of Azure CLI (try `az version` or see <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/>)
   > * Terraform CLI version > v0.13.4 (try `terraform -v` or see <https://learn.hashicorp.com/tutorials/terraform/install-cli/>)
 
 ## Step-by-step

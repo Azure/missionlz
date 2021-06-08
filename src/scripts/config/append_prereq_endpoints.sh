@@ -23,21 +23,64 @@ fi
 
 file_to_append=$1
 
-cloudEndpoints=($(az cloud show \
-  --query '[endpoints.resourceManager, suffixes.acrLoginServerEndpoint, suffixes.keyvaultDns, name, endpoints.activeDirectory]' \
-  --output tsv))
+# create a dictionary of mlz_* values we want from an `az cloud show` result
+declare -A mlz_az_cloud_keys
+mlz_az_cloud_keys['mlz_metadatahost']='endpoints.resourceManager'
+mlz_az_cloud_keys['mlz_acrLoginServerEndpoint']='suffixes.acrLoginServerEndpoint'
+mlz_az_cloud_keys['mlz_keyvaultDns']='suffixes.keyvaultDns'
+mlz_az_cloud_keys['mlz_cloudname']='name'
+mlz_az_cloud_keys['mlz_activeDirectory']='endpoints.activeDirectory'
 
-append_if_not_empty() {
-  key_name=$1
-  key_value=$2
-  file=$3
-  if [[ $key_value ]]; then
-    printf "${key_name}=${key_value}\n" >> "${file}"
+# if it's the metadatahost, strip it of URI components
+# in some clouds, Terraform allows only the domain name
+format_if_metadatahost() {
+  local mlz_key_name=$1
+  local cloud_key_value=$2
+
+  if [[ $mlz_key_name != "mlz_metadatahost" ]]; then
+    echo "$cloud_key_value"
+  else
+
+    # 1) awk -F/ '{print $3}'
+    #
+    #   -F/ is "using the character / as a field separator"
+    #
+    #   '{print $3}' is "print me the third field"
+    #
+    # 2) for example on https://management.azure.com/
+    #
+    #   $1      $2 $3                    $4
+    #   https: / / management.azure.com /
+    #
+    #   $1 is https:
+    #   $2 is
+    #   $3 is management.azure.com
+    #   $4 is
+
+    echo "$cloud_key_value" | awk -F/ '{print $3}'
   fi
 }
 
-append_if_not_empty "mlz_metadatahost" ${cloudEndpoints[0]} ${file_to_append}
-append_if_not_empty "mlz_acrLoginServerEndpoint" ${cloudEndpoints[1]} ${file_to_append}
-append_if_not_empty "mlz_keyvaultDns" ${cloudEndpoints[2]} ${file_to_append}
-append_if_not_empty "mlz_cloudname" ${cloudEndpoints[3]} ${file_to_append}
-append_if_not_empty "mlz_activeDirectory" ${cloudEndpoints[4]} ${file_to_append}
+# since we cannot guarantee the results of `az cloud show` for each value we require,
+# query for values individually and skip printing any empty results
+append_cloud_value() {
+  local mlz_key_name=$1
+  local cloud_key_name=$2
+  local file=$3
+
+  local cloud_key_value
+  cloud_key_value=$(az cloud show --query "${cloud_key_name}" --output tsv)
+
+  if [[ $cloud_key_value ]]; then
+    cloud_key_value=$(format_if_metadatahost "$mlz_key_name" "$cloud_key_value")
+    printf "%s=%s\n" "${mlz_key_name}" "${cloud_key_value}" >> "${file}"
+  else
+    echo "INFO: Oops! Did not find a value for 'az cloud show --query ${cloud_key_name}'..."
+    echo "INFO: There will not be a value for ${mlz_key_name} on the MLZ config file at ${file}..."
+  fi
+}
+
+# for each member of the dictionary, write "key=$(az cloud show...)" to a file
+for mlz_key_name in "${!mlz_az_cloud_keys[@]}"; do
+    append_cloud_value "$mlz_key_name" "${mlz_az_cloud_keys[$mlz_key_name]}" "${file_to_append}"
+done
