@@ -92,7 +92,7 @@ module "saca-firewall" {
   management_ipconfig_name        = var.management_ipconfig_name
   management_publicip_name        = var.management_publicip_name
 
-  log_analytics_workspace_id = module.saca-hub-network.log_analytics_workspace_id
+  log_analytics_workspace_resource_id = module.saca-hub-network.log_analytics_workspace_resource_id
 
   tags = {
     DeploymentName = var.deploymentname
@@ -137,8 +137,10 @@ module "jumpbox-subnet" {
   routetable_name     = var.jumpbox_subnet.routetable_name
   firewall_ip_address = module.saca-firewall.firewall_public_ip
 
-  log_analytics_storage_id   = module.saca-hub-network.log_analytics_storage_id
-  log_analytics_workspace_id = module.saca-hub-network.log_analytics_workspace_id
+  log_analytics_storage_id            = module.saca-hub-network.log_analytics_storage_id
+  log_analytics_workspace_id          = module.saca-hub-network.log_analytics_workspace_id
+  log_analytics_workspace_location    = module.saca-hub-network.log_analytics_workspace_location
+  log_analytics_workspace_resource_id = module.saca-hub-network.log_analytics_workspace_resource_id
 
   tags = {
     DeploymentName = var.deploymentname

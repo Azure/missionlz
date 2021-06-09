@@ -41,6 +41,14 @@ output "log_analytics_workspace_name" {
 }
 
 output "log_analytics_workspace_id" {
+  value = azurerm_log_analytics_workspace.loganalytics.workspace_id
+}
+
+output "log_analytics_workspace_location" {
+  value = data.azurerm_resource_group.rg.location
+}
+
+output "log_analytics_workspace_resource_id" {
   value = azurerm_log_analytics_workspace.loganalytics.id
 }
 
