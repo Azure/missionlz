@@ -74,12 +74,12 @@ resource "azurerm_resource_group" "t0" {
 }
 
 module "t0-network" {
-  depends_on                 = [azurerm_resource_group.t0, data.azurerm_log_analytics_workspace.hub]
-  source                     = "../../modules/virtual-network"
-  location                   = azurerm_resource_group.t0.location
-  resource_group_name        = azurerm_resource_group.t0.name
-  vnet_name                  = var.tier0_vnetname
-  vnet_address_space         = var.tier0_vnet_address_space
+  depends_on                          = [azurerm_resource_group.t0, data.azurerm_log_analytics_workspace.hub]
+  source                              = "../../modules/virtual-network"
+  location                            = azurerm_resource_group.t0.location
+  resource_group_name                 = azurerm_resource_group.t0.name
+  vnet_name                           = var.tier0_vnetname
+  vnet_address_space                  = var.tier0_vnet_address_space
   log_analytics_workspace_resource_id = data.azurerm_log_analytics_workspace.hub.id
 
   tags = {
