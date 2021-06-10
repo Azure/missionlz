@@ -31,7 +31,7 @@ resource "azurerm_monitor_diagnostic_setting" "vnet" {
   name                       = "${var.vnet_name}-vn-diagnostics"
   target_resource_id         = azurerm_virtual_network.vnet.id
   storage_account_id         = azurerm_storage_account.loganalytics.id
-  log_analytics_workspace_id = var.log_analytics_workspace_id
+  log_analytics_workspace_id = var.log_analytics_workspace_resource_id
 
   metric {
     category = "AllMetrics"

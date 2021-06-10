@@ -16,7 +16,7 @@ variable "vnet_address_space" {
   description = "The address space to be used for the virtual network"
 }
 
-variable "log_analytics_workspace_id" {
+variable "log_analytics_workspace_resource_id" {
   description = "The resource ID of the Log Analytics Workspace to log events from the virtual network"
 }
 
