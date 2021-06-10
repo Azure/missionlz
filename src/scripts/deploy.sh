@@ -29,6 +29,7 @@ show_help() {
   print_formatted "--tier0-sub-id" "-0" "[OPTIONAL] subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier1-sub-id" "-1" "[OPTIONAL] subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier2-sub-id" "-2" "[OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)"
+  print_formatted "--tier3-sub-id" "-3" "[OPTIONAL] subscription ID for tier 3 network and resources (defaults to the value provided for -s --subscription-id), input is used in conjunction with deploy_t3.sh"
   print_formatted "--no-bastion" "" "[OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM"
   print_formatted "--help" "-h" "Print this message"
 }
@@ -211,6 +212,9 @@ while [ $# -gt 0 ] ; do
     -2 | --tier2-sub-id)
       shift
       subs_args+=("-2 ${1}") ;;
+    -3 | --tier3-sub-id)
+      shift
+      subs_args+=("-3 ${1}") ;;
     -h | --help)
       show_help
       exit 0 ;;
