@@ -4,14 +4,23 @@ data "azurerm_resource_group" "rg" {
   name = var.resource_group_name
 }
 
+resource "azurerm_log_analytics_workspace" "loganalytics" {
+  name                = var.log_analytics_workspace_name
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  sku                 = var.log_analytics_workspace_sku
+  retention_in_days   = var.log_analytics_workspace_retention_in_days
+  tags                = var.tags
+}
+
 module "hub-network" {
-  source                     = "../virtual-network"
-  location                   = data.azurerm_resource_group.rg.location
-  resource_group_name        = data.azurerm_resource_group.rg.name
-  vnet_name                  = var.vnet_name
-  vnet_address_space         = var.vnet_address_space
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics.id
-  tags                       = var.tags
+  source                              = "../virtual-network"
+  location                            = data.azurerm_resource_group.rg.location
+  resource_group_name                 = data.azurerm_resource_group.rg.name
+  vnet_name                           = var.vnet_name
+  vnet_address_space                  = var.vnet_address_space
+  log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.loganalytics.id
+  tags                                = var.tags
 }
 
 resource "azurerm_subnet" "fw_client" {
@@ -58,13 +67,4 @@ resource "azurerm_subnet_route_table_association" "routetable" {
   depends_on = [
     time_sleep.wait_30_seconds
   ]
-}
-
-resource "azurerm_log_analytics_workspace" "loganalytics" {
-  name                = var.log_analytics_workspace_name
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
-  sku                 = var.log_analytics_workspace_sku
-  retention_in_days   = var.log_analytics_workspace_retention_in_days
-  tags                = var.tags
 }

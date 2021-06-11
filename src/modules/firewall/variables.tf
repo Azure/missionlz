@@ -56,8 +56,8 @@ variable "management_publicip_name" {
   description = "The name of the Firewall Management Public IP"
 }
 
-variable "log_analytics_workspace_id" {
-  description = "The id of the Log Analytics Workspace"
+variable "log_analytics_workspace_resource_id" {
+  description = "The resource id of the Log Analytics Workspace"
 }
 
 variable "tags" {
@@ -66,8 +66,8 @@ variable "tags" {
   default     = {}
 }
 
-# With forced tunneling on, Configure Azure Firewall to never SNAT regardless of the destination IP address, 
-# use 0.0.0.0/0 as your private IP address range. 
+# With forced tunneling on, Configure Azure Firewall to never SNAT regardless of the destination IP address,
+# use 0.0.0.0/0 as your private IP address range.
 # With this configuration, Azure Firewall can never route traffic directly to the Internet.
 # see: https://docs.microsoft.com/en-us/azure/firewall/snat-private-range
 variable "disable_snat_ip_range" {

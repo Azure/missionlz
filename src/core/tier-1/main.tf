@@ -74,13 +74,13 @@ resource "azurerm_resource_group" "t1" {
 }
 
 module "t1-network" {
-  depends_on                 = [azurerm_resource_group.t1, data.azurerm_log_analytics_workspace.hub]
-  source                     = "../../modules/virtual-network"
-  location                   = azurerm_resource_group.t1.location
-  resource_group_name        = azurerm_resource_group.t1.name
-  vnet_name                  = var.tier1_vnetname
-  vnet_address_space         = var.tier1_vnet_address_space
-  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.hub.id
+  depends_on                          = [azurerm_resource_group.t1, data.azurerm_log_analytics_workspace.hub]
+  source                              = "../../modules/virtual-network"
+  location                            = azurerm_resource_group.t1.location
+  resource_group_name                 = azurerm_resource_group.t1.name
+  vnet_name                           = var.tier1_vnetname
+  vnet_address_space                  = var.tier1_vnet_address_space
+  log_analytics_workspace_resource_id = data.azurerm_log_analytics_workspace.hub.id
 
   tags = {
     DeploymentName = var.deploymentname
@@ -108,8 +108,10 @@ module "t1-subnets" {
   routetable_name     = each.value.routetable_name
   firewall_ip_address = data.azurerm_firewall.firewall.ip_configuration[0].private_ip_address
 
-  log_analytics_storage_id   = module.t1-network.log_analytics_storage_id
-  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.hub.id
+  log_analytics_storage_id            = module.t1-network.log_analytics_storage_id
+  log_analytics_workspace_id          = data.azurerm_log_analytics_workspace.hub.workspace_id
+  log_analytics_workspace_location    = data.azurerm_log_analytics_workspace.hub.location
+  log_analytics_workspace_resource_id = data.azurerm_log_analytics_workspace.hub.id
 
   tags = {
     DeploymentName = var.deploymentname
