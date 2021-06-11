@@ -104,7 +104,7 @@
 			{
 				"varname": "firewall_name",
 				"type": "text",
-				"default_val": "DemoFirewall",
+				"default_val": "mlzFirewall",
 				"description": "Saca Firewall Name",
 				"options": []
 			},
@@ -167,7 +167,7 @@
 			{
 				"varname": "bastion_host_name",
 				"type": "text",
-				"default_val": "mlzDemoBastionHost",
+				"default_val": "mlzBastionHost",
 				"description": "The name of the Bastion Host",
 				"options": []
 			},
@@ -181,21 +181,21 @@
 			{
 				"varname": "bastion_public_ip_name",
 				"type": "text",
-				"default_val": "mlzDemoBastionHostPip",
+				"default_val": "mlzBastionHostPip",
 				"description": "The name of the Bastion Host Public IP",
 				"options": []
 			},
 			{
 				"varname": "bastion_ipconfig_name",
 				"type": "text",
-				"default_val": "mlzDemoBastionHostIpCfg",
+				"default_val": "mlzBastionHostIpCfg",
 				"description": "The name of the Bastion Host IP Configuration",
 				"options": []
 			},
 			{
 				"varname": "jumpbox_subnet.name",
 				"type": "text",
-				"default_val": "mlzDemoJumpboxSubnet",
+				"default_val": "mlzJumpboxSubnet",
 				"description": "The name of the jumpbox subnet",
 				"options": []
 			},
@@ -211,28 +211,28 @@
 			{
 				"varname": "jumpbox_subnet.nsg_name",
 				"type": "text",
-				"default_val": "mlzDemoJumpboxSubnetNsg",
+				"default_val": "mlzJumpboxSubnetNsg",
 				"description": "The name of the jumpbox subnet route table network security group",
 				"options": []
 			},
 			{
 				"varname": "jumpbox_subnet.routetable_name",
 				"type": "text",
-				"default_val": "mlzDemoJumpboxSubnetRt",
+				"default_val": "mlzJumpboxSubnetRt",
 				"description": "The name of the jumpbox subnet route table",
 				"options": []
 			},
 			{
 				"varname": "jumpbox_keyvault_name",
 				"type": "text",
-				"default_val": "mlzDemoJumpboxVmKv",
+				"default_val": "mlzJumpboxVmKv",
 				"description": "The name of the jumpbox credentials Key Vault",
 				"options": []
 			},
 			{
 				"varname": "jumpbox_windows_vm_name",
 				"type": "text",
-				"default_val": "mlzDemoJumpboxWindowsVm",
+				"default_val": "mlzJumpboxWindowsVm",
 				"description": "The name of the Windows jumpbox virtual machine",
 				"options": []
 			},
@@ -274,7 +274,7 @@
 			{
 				"varname": "jumpbox_linux_vm_name",
 				"type": "text",
-				"default_val": "mlzDemoJumpboxLinuxVm",
+				"default_val": "mlzJumpboxLinuxVm",
 				"description": "The name of the Linux jumpbox virtual machine",
 				"options": []
 			},
