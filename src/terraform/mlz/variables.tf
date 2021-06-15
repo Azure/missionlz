@@ -300,3 +300,288 @@ variable "jumpbox_linux_vm_version" {
   default     = "latest"
   type        = string
 }
+
+#################################
+# Tier 0 Configuration
+#################################
+variable "tier0_subid" {
+  description = "Subscription ID for the deployment"
+}
+
+variable "tier0_rgname" {
+  description = "Resource Group for the deployment"
+}
+
+variable "tier0_vnetname" {
+  description = "Virtual Network Name for the deployment"
+}
+
+#################################
+# Network configuration section
+#################################
+variable "tier0_vnet_address_space" {
+  description = "Address space prefixes list of strings"
+  type        = list(string)
+  default     = ["10.0.110.0/26"]
+}
+
+variable "tier0_subnets" {
+  description = "A complex object that describes subnets."
+  type = map(object({
+    name              = string
+    address_prefixes  = list(string)
+    service_endpoints = list(string)
+
+    enforce_private_link_endpoint_network_policies = bool
+    enforce_private_link_service_network_policies  = bool
+
+    nsg_name = string
+    nsg_rules = map(object({
+      name                       = string
+      priority                   = string
+      direction                  = string
+      access                     = string
+      protocol                   = string
+      source_port_range          = string
+      destination_port_range     = string
+      source_address_prefix      = string
+      destination_address_prefix = string
+    }))
+
+    routetable_name = string
+  }))
+  default = {
+    "tier0vms" = {
+      name              = "tier0vms"
+      address_prefixes  = ["10.0.110.0/27"]
+      service_endpoints = ["Microsoft.Storage"]
+
+      enforce_private_link_endpoint_network_policies = false
+      enforce_private_link_service_network_policies  = false
+
+      nsg_name = "tier0vmsnsg"
+      nsg_rules = {
+        "allow_ssh" = {
+          name                       = "allow_ssh"
+          priority                   = "100"
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "22"
+          destination_port_range     = ""
+          source_address_prefix      = "*"
+          destination_address_prefix = ""
+        },
+        "allow_rdp" = {
+          name                       = "allow_rdp"
+          priority                   = "200"
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "3389"
+          destination_port_range     = ""
+          source_address_prefix      = "*"
+          destination_address_prefix = ""
+        }
+      }
+
+      routetable_name = "tier0vmsrt"
+    }
+  }
+}
+
+variable "tier0_create_network_watcher" {
+  description = "Deploy a Network Watcher resource alongside this virtual network (there's a limit of one per-subscription-per-region)"
+  type        = bool
+  default     = false
+}
+
+#################################
+# Tier 1 Configuration
+#################################
+variable "tier1_subid" {
+  description = "Subscription ID for the deployment"
+}
+
+variable "tier1_rgname" {
+  description = "Resource Group for the deployment"
+}
+
+variable "tier1_vnetname" {
+  description = "Virtual Network Name for the deployment"
+}
+
+#################################
+# Network configuration section
+#################################
+variable "tier1_vnet_address_space" {
+  description = "Address space prefixes for the virtual network"
+  type        = list(string)
+  default     = ["10.0.115.0/26"]
+}
+
+variable "tier1_subnets" {
+  description = "A complex object that describes subnets."
+  type = map(object({
+    name              = string
+    address_prefixes  = list(string)
+    service_endpoints = list(string)
+
+    enforce_private_link_endpoint_network_policies = bool
+    enforce_private_link_service_network_policies  = bool
+
+    nsg_name = string
+    nsg_rules = map(object({
+      name                       = string
+      priority                   = string
+      direction                  = string
+      access                     = string
+      protocol                   = string
+      source_port_range          = string
+      destination_port_range     = string
+      source_address_prefix      = string
+      destination_address_prefix = string
+    }))
+
+    routetable_name = string
+  }))
+  default = {
+    "tier1vms" = {
+      name              = "tier1vms"
+      address_prefixes  = ["10.0.115.0/27"]
+      service_endpoints = ["Microsoft.Storage"]
+
+      enforce_private_link_endpoint_network_policies = false
+      enforce_private_link_service_network_policies  = false
+
+      nsg_name = "tier1vmsnsg"
+      nsg_rules = {
+        "allow_ssh" = {
+          name                       = "allow_ssh"
+          priority                   = "100"
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "22"
+          destination_port_range     = ""
+          source_address_prefix      = "*"
+          destination_address_prefix = ""
+        },
+        "allow_rdp" = {
+          name                       = "allow_rdp"
+          priority                   = "200"
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "3389"
+          destination_port_range     = ""
+          source_address_prefix      = "*"
+          destination_address_prefix = ""
+        }
+      }
+
+      routetable_name = "tier1vmsrt"
+    }
+  }
+}
+
+variable "tier1_create_network_watcher" {
+  description = "Deploy a Network Watcher resource alongside this virtual network (there's a limit of one per-subscription-per-region)"
+  type        = bool
+  default     = false
+}
+
+#################################
+# Tier 2 Configuration
+#################################
+variable "tier2_subid" {
+  description = "Subscription ID for the deployment"
+}
+
+variable "tier2_rgname" {
+  description = "Resource Group for the deployment"
+}
+
+variable "tier2_vnetname" {
+  description = "Virtual Network Name for the deployment"
+}
+
+#################################
+# Network configuration section
+#################################
+variable "tier2_vnet_address_space" {
+  description = "Address space prefixes list of strings"
+  type        = list(string)
+  default     = ["10.0.120.0/26"]
+}
+
+variable "tier2_subnets" {
+  description = "A complex object that describes subnets."
+  type = map(object({
+    name              = string
+    address_prefixes  = list(string)
+    service_endpoints = list(string)
+
+    enforce_private_link_endpoint_network_policies = bool
+    enforce_private_link_service_network_policies  = bool
+
+    nsg_name = string
+    nsg_rules = map(object({
+      name                       = string
+      priority                   = string
+      direction                  = string
+      access                     = string
+      protocol                   = string
+      source_port_range          = string
+      destination_port_range     = string
+      source_address_prefix      = string
+      destination_address_prefix = string
+    }))
+
+    routetable_name = string
+  }))
+  default = {
+    "tier2vms" = {
+      name              = "tier2vms"
+      address_prefixes  = ["10.0.120.0/27"]
+      service_endpoints = ["Microsoft.Storage"]
+
+      enforce_private_link_endpoint_network_policies = false
+      enforce_private_link_service_network_policies  = false
+
+      nsg_name = "tier2vmsnsg"
+      nsg_rules = {
+        "allow_ssh" = {
+          name                       = "allow_ssh"
+          priority                   = "100"
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "22"
+          destination_port_range     = ""
+          source_address_prefix      = "*"
+          destination_address_prefix = ""
+        },
+        "allow_rdp" = {
+          name                       = "allow_rdp"
+          priority                   = "200"
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "3389"
+          destination_port_range     = ""
+          source_address_prefix      = "*"
+          destination_address_prefix = ""
+        }
+      }
+
+      routetable_name = "tier2vmsrt"
+    }
+  }
+}
+
+variable "tier2_create_network_watcher" {
+  description = "Deploy a Network Watcher resource alongside this virtual network (there's a limit of one per-subscription-per-region)"
+  type        = bool
+  default     = false
+}

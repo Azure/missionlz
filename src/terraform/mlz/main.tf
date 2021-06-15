@@ -12,6 +12,10 @@ terraform {
       source  = "hashicorp/random"
       version = "= 3.1.0"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = "0.7.1"
+    }
   }
 }
 
@@ -37,139 +41,121 @@ provider "random" {
 }
 
 provider "time" {
-  version = "0.7.1"
 }
 
-resource "azurerm_resource_group" "hub" {
-  location = var.mlz_location
-  name     = var.saca_rgname
+module "saca-hub" {
+  source                       = "../core/saca-hub"
+  tf_environment               = var.tf_environment
+  mlz_cloud                    = var.mlz_cloud
+  mlz_tenantid                 = var.mlz_tenantid
+  mlz_location                 = var.mlz_location
+  mlz_metadatahost             = var.mlz_metadatahost
+  mlz_clientid                 = var.mlz_clientid
+  mlz_clientsecret             = var.mlz_clientsecret
+  mlz_objectid                 = var.mlz_objectid
+  deploymentname               = var.deploymentname
+  saca_subid                   = var.saca_subid
+  saca_rgname                  = var.saca_rgname
+  saca_vnetname                = var.saca_vnetname
+  saca_lawsname                = var.saca_lawsname
+  vnet_address_space           = var.vnet_address_space
+  client_address_space         = var.client_address_space
+  management_address_space     = var.management_address_space
+  firewall_name                = var.firewall_name
+  firewall_policy_name         = var.firewall_policy_name
+  client_ipconfig_name         = var.client_ipconfig_name
+  client_publicip_name         = var.client_publicip_name
+  management_ipconfig_name     = var.management_ipconfig_name
+  management_publicip_name     = var.management_publicip_name
+  management_routetable_name   = var.management_routetable_name
+  create_network_watcher       = var.create_network_watcher
+  create_bastion_jumpbox       = var.create_bastion_jumpbox
+  bastion_host_name            = var.bastion_host_name
+  bastion_address_space        = var.bastion_address_space
+  bastion_public_ip_name       = var.bastion_public_ip_name
+  bastion_ipconfig_name        = var.bastion_ipconfig_name
+  jumpbox_subnet               = var.jumpbox_subnet
+  jumpbox_keyvault_name        = var.jumpbox_keyvault_name
+  jumpbox_windows_vm_name      = var.jumpbox_windows_vm_name
+  jumpbox_windows_vm_size      = var.jumpbox_windows_vm_size
+  jumpbox_windows_vm_publisher = var.jumpbox_windows_vm_publisher
+  jumpbox_windows_vm_offer     = var.jumpbox_windows_vm_offer
+  jumpbox_windows_vm_sku       = var.jumpbox_windows_vm_sku
+  jumpbox_windows_vm_version   = var.jumpbox_windows_vm_version
+  jumpbox_linux_vm_name        = var.jumpbox_linux_vm_name
+  jumpbox_linux_vm_size        = var.jumpbox_linux_vm_size
+  jumpbox_linux_vm_publisher   = var.jumpbox_linux_vm_publisher
+  jumpbox_linux_vm_offer       = var.jumpbox_linux_vm_offer
+  jumpbox_linux_vm_sku         = var.jumpbox_linux_vm_sku
+  jumpbox_linux_vm_version     = var.jumpbox_linux_vm_version
 
   tags = {
     DeploymentName = var.deploymentname
   }
 }
 
-module "saca-hub-network" {
-  depends_on               = [azurerm_resource_group.hub]
-  source                   = "../../modules/hub"
-  location                 = var.mlz_location
-  resource_group_name      = azurerm_resource_group.hub.name
-  vnet_name                = var.saca_vnetname
-  vnet_address_space       = var.vnet_address_space
-  client_address_space     = var.client_address_space
-  management_address_space = var.management_address_space
-  routetable_name          = var.management_routetable_name
-
-  log_analytics_workspace_name              = var.saca_lawsname
-  log_analytics_workspace_sku               = "PerGB2018"
-  log_analytics_workspace_retention_in_days = "30"
-
+module "tier0" {
+  source                   = "../core/tier-0"
+  saca_subid               = var.saca_subid
+  saca_rgname              = var.saca_rgname
+  saca_vnetname            = var.saca_vnetname
+  firewall_name            = var.firewall_name
+  saca_lawsname            = var.saca_lawsname
+  tier0_subid              = var.tier0_subid
+  tier0_rgname             = var.tier0_rgname
+  tier0_vnetname           = var.tier0_vnetname
+  tier0_vnet_address_space = var.tier0_vnet_address_space
+  subnets                  = var.tier0_subnets
+  create_network_watcher   = var.tier0_create_network_watcher
   tags = {
     DeploymentName = var.deploymentname
   }
 }
 
-locals {
-  # azurerm terraform environments where Azure Firewall Premium is supported
-  firewall_premium_tf_environments = ["public"]
-}
-
-module "saca-firewall" {
-  depends_on                      = [module.saca-hub-network]
-  source                          = "../../modules/firewall"
-  location                        = var.mlz_location
-  resource_group_name             = module.saca-hub-network.resource_group_name
-  vnet_name                       = module.saca-hub-network.virtual_network_name
-  vnet_address_space              = module.saca-hub-network.virtual_network_address_space
-  firewall_sku                    = contains(local.firewall_premium_tf_environments, lower(var.tf_environment)) ? "Premium" : "Standard"
-  firewall_client_subnet_name     = module.saca-hub-network.firewall_client_subnet_name
-  firewall_management_subnet_name = module.saca-hub-network.firewall_management_subnet_name
-  client_address_space            = var.client_address_space
-  firewall_name                   = var.firewall_name
-  firewall_policy_name            = var.firewall_policy_name
-  client_ipconfig_name            = var.client_ipconfig_name
-  client_publicip_name            = var.client_publicip_name
-  management_ipconfig_name        = var.management_ipconfig_name
-  management_publicip_name        = var.management_publicip_name
-
-  log_analytics_workspace_id = module.saca-hub-network.log_analytics_workspace_id
-
+module "tier1" {
+  source                   = "../core/tier-1"
+  saca_subid               = var.saca_subid
+  saca_rgname              = var.saca_rgname
+  saca_vnetname            = var.saca_vnetname
+  firewall_name            = var.firewall_name
+  saca_lawsname            = var.saca_lawsname
+  tier1_subid              = var.tier1_subid
+  tier1_rgname             = var.tier1_rgname
+  tier1_vnetname           = var.tier1_vnetname
+  tier1_vnet_address_space = var.tier1_vnet_address_space
+  subnets                  = var.tier1_subnets
+  create_network_watcher   = var.tier1_create_network_watcher
   tags = {
     DeploymentName = var.deploymentname
   }
 }
 
-module "bastion-host" {
-  count      = var.create_bastion_jumpbox ? 1 : 0
-  depends_on = [module.saca-hub-network]
-  source     = "../../modules/bastion"
-
-  resource_group_name   = azurerm_resource_group.hub.name
-  virtual_network_name  = var.saca_vnetname
-  bastion_host_name     = var.bastion_host_name
-  subnet_address_prefix = var.bastion_address_space
-  public_ip_name        = var.bastion_public_ip_name
-  ipconfig_name         = var.bastion_ipconfig_name
-
+module "tier2" {
+  source                   = "../core/tier-2"
+  saca_subid               = var.saca_subid
+  saca_rgname              = var.saca_rgname
+  saca_vnetname            = var.saca_vnetname
+  firewall_name            = var.firewall_name
+  saca_lawsname            = var.saca_lawsname
+  tier2_subid              = var.tier2_subid
+  tier2_rgname             = var.tier2_rgname
+  tier2_vnetname           = var.tier2_vnetname
+  tier2_vnet_address_space = var.tier2_vnet_address_space
+  subnets                  = var.tier2_subnets
+  create_network_watcher   = var.tier2_create_network_watcher
   tags = {
     DeploymentName = var.deploymentname
   }
 }
 
-module "jumpbox-subnet" {
-  count      = var.create_bastion_jumpbox ? 1 : 0
-  depends_on = [module.saca-hub-network, module.saca-firewall]
-  source     = "../../modules/subnet"
+/*
+module "tier3" {
+  for_each = var.tier3_map
+  source                   = "../core/tier-3"
 
-  name                 = var.jumpbox_subnet.name
-  location             = var.mlz_location
-  resource_group_name  = azurerm_resource_group.hub.name
-  virtual_network_name = var.saca_vnetname
-  address_prefixes     = var.jumpbox_subnet.address_prefixes
-  service_endpoints    = lookup(var.jumpbox_subnet, "service_endpoints", [])
-
-  enforce_private_link_endpoint_network_policies = lookup(var.jumpbox_subnet, "enforce_private_link_endpoint_network_policies", null)
-  enforce_private_link_service_network_policies  = lookup(var.jumpbox_subnet, "enforce_private_link_service_network_policies", null)
-
-  nsg_name  = var.jumpbox_subnet.nsg_name
-  nsg_rules = var.jumpbox_subnet.nsg_rules
-
-  routetable_name     = var.jumpbox_subnet.routetable_name
-  firewall_ip_address = module.saca-firewall.firewall_public_ip
-
-  log_analytics_storage_id   = module.saca-hub-network.log_analytics_storage_id
-  log_analytics_workspace_id = module.saca-hub-network.log_analytics_workspace_id
 
   tags = {
     DeploymentName = var.deploymentname
   }
 }
-
-module "jumpbox" {
-  count      = var.create_bastion_jumpbox ? 1 : 0
-  depends_on = [module.saca-hub-network, module.jumpbox-subnet]
-  source     = "../../modules/jumpbox"
-
-  resource_group_name  = azurerm_resource_group.hub.name
-  virtual_network_name = var.saca_vnetname
-  subnet_name          = var.jumpbox_subnet.name
-  location             = azurerm_resource_group.hub.location
-
-  keyvault_name = var.jumpbox_keyvault_name
-  tenant_id     = var.mlz_tenantid
-  object_id     = var.mlz_objectid
-
-  windows_name          = var.jumpbox_windows_vm_name
-  windows_size          = var.jumpbox_windows_vm_size
-  windows_publisher     = var.jumpbox_windows_vm_publisher
-  windows_offer         = var.jumpbox_windows_vm_offer
-  windows_sku           = var.jumpbox_windows_vm_sku
-  windows_image_version = var.jumpbox_windows_vm_version
-
-  linux_name          = var.jumpbox_linux_vm_name
-  linux_size          = var.jumpbox_linux_vm_size
-  linux_publisher     = var.jumpbox_linux_vm_publisher
-  linux_offer         = var.jumpbox_linux_vm_offer
-  linux_sku           = var.jumpbox_linux_vm_sku
-  linux_image_version = var.jumpbox_linux_vm_version
-}
+*/
