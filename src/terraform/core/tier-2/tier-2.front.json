@@ -33,10 +33,10 @@
 				"options": []
 			},
 			{
-				"varname": "saca_lawsname",
+				"varname": "lawsname",
 				"type": "text",
-				"default_val": "laws-${env:MLZ_LOCATION}-mlz-saca",
-				"description": "Saca Log Analytic Workspace Name",
+				"default_val": "laws-${env:MLZ_LOCATION}-mlz",
+				"description": "Log Analytic Workspace Name",
 				"options": []
 			},
 			{

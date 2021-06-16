@@ -43,19 +43,19 @@ variable "deploymentname" {
   description = "A name for the deployment"
 }
 
-variable "saca_subid" {
+variable "hub_subid" {
   description = "Subscription ID for the deployment"
 }
 
-variable "saca_rgname" {
+variable "hub_rgname" {
   description = "Resource Group for the deployment"
 }
 
-variable "saca_vnetname" {
+variable "hub_vnetname" {
   description = "Virtual Network Name for the deployment"
 }
 
-variable "saca_lawsname" {
+variable "hub_lawsname" {
   description = "Log Analytics Workspace Name for the deployment"
 }
 

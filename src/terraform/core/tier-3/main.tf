@@ -1,46 +1,5 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-terraform {
-  backend "azurerm" {}
-
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "= 2.55.0"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "= 3.1.0"
-    }
-  }
-}
-
-provider "azurerm" {
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
-  subscription_id = var.tier3_subid
-  client_id       = var.mlz_clientid
-  client_secret   = var.mlz_clientsecret
-
-  features {}
-}
-
-provider "azurerm" {
-  alias           = "hub"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
-  subscription_id = var.saca_subid
-  client_id       = var.mlz_clientid
-  client_secret   = var.mlz_clientsecret
-
-  features {}
-}
-
-provider "random" {
-}
-
 data "azurerm_resource_group" "hub" {
   provider = azurerm.hub
   name     = var.saca_rgname
@@ -74,13 +33,13 @@ resource "azurerm_resource_group" "t3" {
 }
 
 module "t3-network" {
-  depends_on                 = [azurerm_resource_group.t3, data.azurerm_log_analytics_workspace.hub]
-  source                     = "../../modules/virtual-network"
-  location                   = azurerm_resource_group.t3.location
-  resource_group_name        = azurerm_resource_group.t3.name
-  vnet_name                  = var.tier3_vnetname
-  vnet_address_space         = var.tier3_vnet_address_space
-  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.hub.id
+  depends_on                          = [azurerm_resource_group.t3, data.azurerm_log_analytics_workspace.hub]
+  source                              = "../../modules/virtual-network"
+  location                            = azurerm_resource_group.t3.location
+  resource_group_name                 = azurerm_resource_group.t3.name
+  vnet_name                           = var.tier3_vnetname
+  vnet_address_space                  = var.tier3_vnet_address_space
+  log_analytics_workspace_resource_id = data.azurerm_log_analytics_workspace.hub.id
 
   tags = {
     DeploymentName = var.deploymentname
@@ -108,8 +67,10 @@ module "t3-subnets" {
   routetable_name     = each.value.routetable_name
   firewall_ip_address = data.azurerm_firewall.firewall.ip_configuration[0].private_ip_address
 
-  log_analytics_storage_id   = module.t3-network.log_analytics_storage_id
-  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.hub.id
+  log_analytics_storage_id            = module.t3-network.log_analytics_storage_id
+  log_analytics_workspace_id          = data.azurerm_log_analytics_workspace.hub.workspace_id
+  log_analytics_workspace_location    = data.azurerm_log_analytics_workspace.hub.location
+  log_analytics_workspace_resource_id = data.azurerm_log_analytics_workspace.hub.id
 
   tags = {
     DeploymentName = var.deploymentname

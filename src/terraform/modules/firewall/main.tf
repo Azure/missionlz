@@ -93,7 +93,7 @@ resource "azurerm_monitor_diagnostic_setting" "firewall-diagnostics" {
   name                       = "${azurerm_firewall.firewall.name}-fw-diagnostics"
   target_resource_id         = azurerm_firewall.firewall.id
   storage_account_id         = azurerm_storage_account.loganalytics.id
-  log_analytics_workspace_id = var.log_analytics_workspace_id
+  log_analytics_workspace_id = var.log_analytics_workspace_resource_id
 
   dynamic "log" {
     for_each = local.firewall_log_categories
@@ -119,7 +119,7 @@ resource "azurerm_monitor_diagnostic_setting" "publicip-diagnostics" {
   name                       = "${azurerm_public_ip.fw_client_pip.name}-pip-diagnostics"
   target_resource_id         = azurerm_public_ip.fw_client_pip.id
   storage_account_id         = azurerm_storage_account.loganalytics.id
-  log_analytics_workspace_id = var.log_analytics_workspace_id
+  log_analytics_workspace_id = var.log_analytics_workspace_resource_id
 
   dynamic "log" {
     for_each = local.public_ip_log_categories

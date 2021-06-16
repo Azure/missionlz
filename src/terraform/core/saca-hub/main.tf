@@ -1,8 +1,4 @@
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
 terraform {
-  backend "azurerm" {}
-
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -12,32 +8,11 @@ terraform {
       source  = "hashicorp/random"
       version = "= 3.1.0"
     }
-  }
-}
-
-provider "azurerm" {
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
-  subscription_id = var.saca_subid
-  client_id       = var.mlz_clientid
-  client_secret   = var.mlz_clientsecret
-
-  features {
-    log_analytics_workspace {
-      permanently_delete_on_destroy = true
-    }
-    key_vault {
-      purge_soft_delete_on_destroy = true
+    time = {
+      source  = "hashicorp/time"
+      version = "0.7.1"
     }
   }
-}
-
-provider "random" {
-}
-
-provider "time" {
-  version = "0.7.1"
 }
 
 resource "azurerm_resource_group" "hub" {
@@ -92,7 +67,7 @@ module "saca-firewall" {
   management_ipconfig_name        = var.management_ipconfig_name
   management_publicip_name        = var.management_publicip_name
 
-  log_analytics_workspace_id = module.saca-hub-network.log_analytics_workspace_id
+  log_analytics_workspace_resource_id = module.saca-hub-network.log_analytics_workspace_resource_id
 
   tags = {
     DeploymentName = var.deploymentname
@@ -137,8 +112,10 @@ module "jumpbox-subnet" {
   routetable_name     = var.jumpbox_subnet.routetable_name
   firewall_ip_address = module.saca-firewall.firewall_public_ip
 
-  log_analytics_storage_id   = module.saca-hub-network.log_analytics_storage_id
-  log_analytics_workspace_id = module.saca-hub-network.log_analytics_workspace_id
+  log_analytics_storage_id            = module.saca-hub-network.log_analytics_storage_id
+  log_analytics_workspace_id          = module.saca-hub-network.log_analytics_workspace_id
+  log_analytics_workspace_location    = module.saca-hub-network.log_analytics_workspace_location
+  log_analytics_workspace_resource_id = module.saca-hub-network.log_analytics_workspace_resource_id
 
   tags = {
     DeploymentName = var.deploymentname
