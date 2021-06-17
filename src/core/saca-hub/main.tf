@@ -6,11 +6,15 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "= 2.55.0"
+      version = "= 2.63.0"
     }
     random = {
       source  = "hashicorp/random"
       version = "= 3.1.0"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = "0.7.1"
     }
   }
 }
@@ -37,7 +41,6 @@ provider "random" {
 }
 
 provider "time" {
-  version = "0.7.1"
 }
 
 resource "azurerm_resource_group" "hub" {
