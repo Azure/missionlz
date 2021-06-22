@@ -1,0 +1,26 @@
+# do not ship, but provide these values and use an azurerm local backend for testing the monolith deployment
+
+mlz_clientid=""
+mlz_clientsecret=""
+mlz_objectid=""
+
+tf_environment="public"
+mlz_cloud="AzureCloud"
+mlz_tenantid=""
+mlz_location="eastus"
+mlz_metadatahost="management.azure.com"
+
+deploymentname     = "0622mlz"
+hub_subid         = ""
+hub_rgname        = "0622saca"
+hub_vnetname      = "0622sacavn"
+mlz_lawsname      = "0622sacalaws"
+tier0_subid        = ""
+tier0_rgname       = "0622tier0"
+tier0_vnetname     = "0622tier0vn"
+tier1_subid        = ""
+tier1_rgname       = "0622tier1"
+tier1_vnetname     = "0622tier1vn"
+tier2_subid        = ""
+tier2_rgname       = "0622tier2"
+tier2_vnetname     = "0622tier2vn"
