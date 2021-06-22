@@ -65,7 +65,7 @@ locals {
 }
 
 ################################
-### STAGE 0: scaffolding     ###
+### STAGE 0: Scaffolding     ###
 ################################
 
 resource "azurerm_resource_group" "hub" {
@@ -105,7 +105,7 @@ resource "azurerm_resource_group" "t2" {
 }
 
 ################################
-### STAGE 1: logging         ###
+### STAGE 1: Logging         ###
 ################################
 
 resource "random_id" "loganalytics" {
@@ -129,7 +129,7 @@ resource "azurerm_log_analytics_workspace" "loganalytics" {
 }
 
 ################################
-### STAGE 2: networking      ###
+### STAGE 2: Networking      ###
 ################################
 
 module "hub-network" {
@@ -253,85 +253,89 @@ module "spoke-network-t2" {
 }
 
 ################################
-### STAGE 3: remote access   ###
+### STAGE 3: Remote Access   ###
 ################################
 
-# module "bastion-host" {
-#   count      = var.create_bastion_jumpbox ? 1 : 0
-#   depends_on = [module.saca-hub-network]
-#   source     = "../modules/bastion"
+#########################################################################
+### This stage is optional based on the value of `create_bastion_jumpbox`
+#########################################################################
 
-#   resource_group_name   = data.azurerm_resource_group.hub.name
-#   virtual_network_name  = var.saca_vnetname
-#   bastion_host_name     = var.bastion_host_name
-#   subnet_address_prefix = var.bastion_address_space
-#   public_ip_name        = var.bastion_public_ip_name
-#   ipconfig_name         = var.bastion_ipconfig_name
+module "bastion-host" {
+  count      = var.create_bastion_jumpbox ? 1 : 0
+  depends_on = [module.hub-network]
+  source     = "../modules/bastion"
 
-#   tags = {
-#     DeploymentName = var.deploymentname
-#   }
-# }
+  resource_group_name   = var.hub_rgname
+  virtual_network_name  = var.hub_vnetname
+  bastion_host_name     = var.bastion_host_name
+  subnet_address_prefix = var.bastion_address_space
+  public_ip_name        = var.bastion_public_ip_name
+  ipconfig_name         = var.bastion_ipconfig_name
 
-# module "jumpbox-subnet" {
-#   count      = var.create_bastion_jumpbox ? 1 : 0
-#   depends_on = [module.saca-hub-network, module.saca-firewall]
-#   source     = "../modules/subnet"
+  tags = {
+    DeploymentName = var.deploymentname
+  }
+}
 
-#   name                 = var.jumpbox_subnet.name
-#   location             = var.mlz_location
-#   resource_group_name  = data.azurerm_resource_group.hub.name
-#   virtual_network_name = var.saca_vnetname
-#   address_prefixes     = var.jumpbox_subnet.address_prefixes
-#   service_endpoints    = lookup(var.jumpbox_subnet, "service_endpoints", [])
+module "jumpbox-subnet" {
+  count      = var.create_bastion_jumpbox ? 1 : 0
+  depends_on = [module.hub-network, module.firewall, azurerm_log_analytics_workspace.loganalytics]
+  source     = "../modules/subnet"
 
-#   enforce_private_link_endpoint_network_policies = lookup(var.jumpbox_subnet, "enforce_private_link_endpoint_network_policies", null)
-#   enforce_private_link_service_network_policies  = lookup(var.jumpbox_subnet, "enforce_private_link_service_network_policies", null)
+  name                 = var.jumpbox_subnet.name
+  location             = var.mlz_location
+  resource_group_name  = var.hub_rgname
+  virtual_network_name = var.hub_vnetname
+  address_prefixes     = var.jumpbox_subnet.address_prefixes
+  service_endpoints    = lookup(var.jumpbox_subnet, "service_endpoints", [])
 
-#   nsg_name  = var.jumpbox_subnet.nsg_name
-#   nsg_rules = var.jumpbox_subnet.nsg_rules
+  enforce_private_link_endpoint_network_policies = lookup(var.jumpbox_subnet, "enforce_private_link_endpoint_network_policies", null)
+  enforce_private_link_service_network_policies  = lookup(var.jumpbox_subnet, "enforce_private_link_service_network_policies", null)
 
-#   routetable_name     = var.jumpbox_subnet.routetable_name
-#   firewall_ip_address = module.saca-firewall.firewall_public_ip
+  nsg_name  = var.jumpbox_subnet.nsg_name
+  nsg_rules = var.jumpbox_subnet.nsg_rules
 
-#   log_analytics_storage_id            = module.saca-hub-network.log_analytics_storage_id
-#   log_analytics_workspace_id          = module.saca-hub-network.log_analytics_workspace_id
-#   log_analytics_workspace_location    = module.saca-hub-network.log_analytics_workspace_location
-#   log_analytics_workspace_resource_id = module.saca-hub-network.log_analytics_workspace_resource_id
+  routetable_name     = var.jumpbox_subnet.routetable_name
+  firewall_ip_address = module.firewall.firewall_public_ip
 
-#   tags = {
-#     DeploymentName = var.deploymentname
-#   }
-# }
+  log_analytics_storage_id            = module.hub-network.log_analytics_storage_id
+  log_analytics_workspace_id          = azurerm_log_analytics_workspace.loganalytics.workspace_id
+  log_analytics_workspace_location    = var.mlz_location
+  log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.loganalytics.id
 
-# module "jumpbox" {
-#   count      = var.create_bastion_jumpbox ? 1 : 0
-#   depends_on = [module.saca-hub-network, module.jumpbox-subnet]
-#   source     = "../modules/jumpbox"
+  tags = {
+    DeploymentName = var.deploymentname
+  }
+}
 
-#   resource_group_name  = data.azurerm_resource_group.hub.name
-#   virtual_network_name = var.saca_vnetname
-#   subnet_name          = var.jumpbox_subnet.name
-#   location             = azurerm_resource_group.hub.location
+module "jumpbox" {
+  count      = var.create_bastion_jumpbox ? 1 : 0
+  depends_on = [module.hub-network, module.jumpbox-subnet]
+  source     = "../modules/jumpbox"
 
-#   keyvault_name = var.jumpbox_keyvault_name
-#   tenant_id     = var.mlz_tenantid
-#   object_id     = var.mlz_objectid
+  resource_group_name  = var.hub_rgname
+  virtual_network_name = var.hub_vnetname
+  subnet_name          = var.jumpbox_subnet.name
+  location             = var.mlz_location
 
-#   windows_name          = var.jumpbox_windows_vm_name
-#   windows_size          = var.jumpbox_windows_vm_size
-#   windows_publisher     = var.jumpbox_windows_vm_publisher
-#   windows_offer         = var.jumpbox_windows_vm_offer
-#   windows_sku           = var.jumpbox_windows_vm_sku
-#   windows_image_version = var.jumpbox_windows_vm_version
+  keyvault_name = var.jumpbox_keyvault_name
+  tenant_id     = var.mlz_tenantid
+  object_id     = var.mlz_objectid
 
-#   linux_name          = var.jumpbox_linux_vm_name
-#   linux_size          = var.jumpbox_linux_vm_size
-#   linux_publisher     = var.jumpbox_linux_vm_publisher
-#   linux_offer         = var.jumpbox_linux_vm_offer
-#   linux_sku           = var.jumpbox_linux_vm_sku
-#   linux_image_version = var.jumpbox_linux_vm_version
-# }
+  windows_name          = var.jumpbox_windows_vm_name
+  windows_size          = var.jumpbox_windows_vm_size
+  windows_publisher     = var.jumpbox_windows_vm_publisher
+  windows_offer         = var.jumpbox_windows_vm_offer
+  windows_sku           = var.jumpbox_windows_vm_sku
+  windows_image_version = var.jumpbox_windows_vm_version
+
+  linux_name          = var.jumpbox_linux_vm_name
+  linux_size          = var.jumpbox_linux_vm_size
+  linux_publisher     = var.jumpbox_linux_vm_publisher
+  linux_offer         = var.jumpbox_linux_vm_offer
+  linux_sku           = var.jumpbox_linux_vm_sku
+  linux_image_version = var.jumpbox_linux_vm_version
+}
 
 /*
 module "tier3" {

@@ -35,3 +35,7 @@ output "firewall_client_subnet_id" {
 output "firewall_mgmt_subnet_id" {
   value = azurerm_subnet.fw_mgmt.id
 }
+
+output "log_analytics_storage_id" {
+  value = module.hub-network.log_analytics_storage_id
+}
