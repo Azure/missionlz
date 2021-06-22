@@ -35,23 +35,3 @@ output "firewall_client_subnet_id" {
 output "firewall_mgmt_subnet_id" {
   value = azurerm_subnet.fw_mgmt.id
 }
-
-output "log_analytics_workspace_name" {
-  value = azurerm_log_analytics_workspace.loganalytics.name
-}
-
-output "log_analytics_workspace_id" {
-  value = azurerm_log_analytics_workspace.loganalytics.workspace_id
-}
-
-output "log_analytics_workspace_location" {
-  value = data.azurerm_resource_group.rg.location
-}
-
-output "log_analytics_workspace_resource_id" {
-  value = azurerm_log_analytics_workspace.loganalytics.id
-}
-
-output "log_analytics_storage_id" {
-  value = module.hub-network.log_analytics_storage_id
-}

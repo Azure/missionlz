@@ -1,25 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-data "azurerm_resource_group" "rg" {
-  name = var.resource_group_name
-}
-
-resource "azurerm_log_analytics_workspace" "loganalytics" {
-  name                = var.log_analytics_workspace_name
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
-  sku                 = var.log_analytics_workspace_sku
-  retention_in_days   = var.log_analytics_workspace_retention_in_days
-  tags                = var.tags
-}
 
 module "hub-network" {
   source                              = "../virtual-network"
-  location                            = data.azurerm_resource_group.rg.location
-  resource_group_name                 = data.azurerm_resource_group.rg.name
+  location                            = var.location
+  resource_group_name                 = var.resource_group_name
   vnet_name                           = var.vnet_name
   vnet_address_space                  = var.vnet_address_space
-  log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.loganalytics.id
+  log_analytics_workspace_resource_id = var.log_analytics_workspace_resource_id
   tags                                = var.tags
 }
 
@@ -38,9 +26,9 @@ resource "azurerm_subnet" "fw_mgmt" {
 }
 
 resource "azurerm_route_table" "routetable" {
-  name                          = var.routetable_name
+  name                          = "FirewallDefaultRoute"
   resource_group_name           = azurerm_subnet.fw_mgmt.resource_group_name
-  location                      = data.azurerm_resource_group.rg.location
+  location                      = var.location
   disable_bgp_route_propagation = true
   tags                          = var.tags
 }
@@ -48,7 +36,7 @@ resource "azurerm_route_table" "routetable" {
 resource "azurerm_route" "default_route" {
   name                = "default_route"
   resource_group_name = azurerm_route_table.routetable.resource_group_name
-  route_table_name    = azurerm_route_table.routetable.name
+  route_table_name    = "FirewallDefaultRoute"
   address_prefix      = "0.0.0.0/0"
   next_hop_type       = "Internet"
 }
@@ -62,9 +50,11 @@ resource "time_sleep" "wait_30_seconds" {
 }
 
 resource "azurerm_subnet_route_table_association" "routetable" {
-  subnet_id      = azurerm_subnet.fw_mgmt.id
-  route_table_id = azurerm_route_table.routetable.id
   depends_on = [
+    azurerm_route.default_route,
     time_sleep.wait_30_seconds
   ]
+
+  subnet_id      = azurerm_subnet.fw_mgmt.id
+  route_table_id = azurerm_route_table.routetable.id
 }

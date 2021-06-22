@@ -55,11 +55,7 @@ variable "hub_vnetname" {
   description = "Virtual Network Name for the deployment"
 }
 
-variable "hub_lawsname" {
-  description = "Log Analytics Workspace Name for the deployment"
-}
-
-variable "vnet_address_space" {
+variable "hub_vnet_address_space" {
   description = "The address space to be used for the virtual network."
   default     = ["10.0.100.0/24"]
   type        = list(string)
@@ -69,13 +65,13 @@ variable "vnet_address_space" {
 # Firewall configuration section
 #################################
 
-variable "client_address_space" {
+variable "hub_client_address_space" {
   description = "The address space to be used for the Firewall virtual network."
   default     = "10.0.100.0/26"
   type        = string
 }
 
-variable "management_address_space" {
+variable "hub_management_address_space" {
   description = "The address space to be used for the Firewall virtual network subnet used for management traffic."
   default     = "10.0.100.64/26"
   type        = string
@@ -83,7 +79,7 @@ variable "management_address_space" {
 
 variable "firewall_name" {
   description = "Name of the Hub Firewall"
-  default     = "mlzDemoFirewall"
+  default     = "mlzFirewall"
 }
 
 variable "firewall_policy_name" {
@@ -93,27 +89,27 @@ variable "firewall_policy_name" {
 
 variable "client_ipconfig_name" {
   description = "The name of the Firewall Client IP Configuration"
-  default     = "mlzDemoFWClientIpCfg"
+  default     = "mlzFWClientIpCfg"
 }
 
 variable "client_publicip_name" {
   description = "The name of the Firewall Client Public IP"
-  default     = "mlzDemoFWClientPip"
+  default     = "mlzFWClientPip"
 }
 
 variable "management_ipconfig_name" {
   description = "The name of the Firewall Management IP Configuration"
-  default     = "mlzDemoFWMgmtIpCfg"
+  default     = "mlzFWMgmtIpCfg"
 }
 
 variable "management_publicip_name" {
   description = "The name of the Firewall Management Public IP"
-  default     = "mlzDemoFWMgmtPip"
+  default     = "mlzFWMgmtPip"
 }
 
-variable "management_routetable_name" {
+variable "hub_management_routetable_name" {
   description = "The name of the route table applied to the management subnet"
-  default     = "mlzDemoFirewallMgmtRT"
+  default     = "mlzFirewallMgmtRT"
 }
 
 variable "create_network_watcher" {
@@ -134,7 +130,7 @@ variable "create_bastion_jumpbox" {
 
 variable "bastion_host_name" {
   description = "The name of the Bastion Host"
-  default     = "mlzDemoBastionHost"
+  default     = "mlzBastionHost"
   type        = string
 }
 
@@ -146,13 +142,13 @@ variable "bastion_address_space" {
 
 variable "bastion_public_ip_name" {
   description = "The name of the Bastion Host Public IP"
-  default     = "mlzDemoBastionHostPip"
+  default     = "mlzBastionHostPip"
   type        = string
 }
 
 variable "bastion_ipconfig_name" {
   description = "The name of the Bastion Host IP Configuration"
-  default     = "mlzDemoBastionHostIpCfg"
+  default     = "mlzBastionHostIpCfg"
   type        = string
 }
 
@@ -186,14 +182,14 @@ variable "jumpbox_subnet" {
     routetable_name = string
   })
   default = {
-    name              = "mlzDemoJumpboxSubnet"
+    name              = "mlzJumpboxSubnet"
     address_prefixes  = ["10.0.100.160/27"]
     service_endpoints = ["Microsoft.Storage"]
 
     enforce_private_link_endpoint_network_policies = false
     enforce_private_link_service_network_policies  = false
 
-    nsg_name = "mlzDemoJumpboxSubnetNsg"
+    nsg_name = "mlzJumpboxSubnetNsg"
     nsg_rules = {
       "allow_ssh" = {
         name                       = "allow_ssh"
@@ -219,19 +215,19 @@ variable "jumpbox_subnet" {
       }
     }
 
-    routetable_name = "mlzDemoJumpboxSubnetRt"
+    routetable_name = "mlzJumpboxSubnetRt"
   }
 }
 
 variable "jumpbox_keyvault_name" {
   description = "The name of the jumpbox virtual machine keyvault"
-  default     = "mlzDemoJumpboxVmKv"
+  default     = "mlzJumpboxVmKv"
   type        = string
 }
 
 variable "jumpbox_windows_vm_name" {
   description = "The name of the Windows jumpbox virtual machine"
-  default     = "mlzDemoJumpboxWindowsVm"
+  default     = "mlzJumpboxWindowsVm"
   type        = string
 }
 
@@ -267,7 +263,7 @@ variable "jumpbox_windows_vm_version" {
 
 variable "jumpbox_linux_vm_name" {
   description = "The name of the Linux jumpbox virtual machine"
-  default     = "mlzDemoJumpboxLinuxVm"
+  default     = "mlzJumpboxLinuxVm"
   type        = string
 }
 
@@ -409,6 +405,10 @@ variable "tier1_rgname" {
 
 variable "tier1_vnetname" {
   description = "Virtual Network Name for the deployment"
+}
+
+variable "mlz_lawsname" {
+  description = "Log Analytics Workspace Name for the deployment"
 }
 
 #################################

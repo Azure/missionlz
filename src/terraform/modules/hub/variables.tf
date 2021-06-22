@@ -33,18 +33,8 @@ variable "routetable_name" {
   type        = string
 }
 
-variable "log_analytics_workspace_name" {
-  description = "The name used for the Log Analytics Workspace (must be globally unique)."
-  type        = string
-}
-
-variable "log_analytics_workspace_sku" {
-  description = "The SKU used for the Log Analytics Workspace."
-  type        = string
-}
-
-variable "log_analytics_workspace_retention_in_days" {
-  description = "The number of days to retain logs in the Log Analytics Workspace."
+variable "log_analytics_workspace_resource_id" {
+  description = "The Azure resource ID for the Log Analytics Workspace."
   type        = string
 }
 
