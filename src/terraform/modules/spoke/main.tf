@@ -14,30 +14,25 @@ data "azurerm_virtual_network" "hub" {
   resource_group_name = data.azurerm_resource_group.hub.name
 }
 
-data "azurerm_log_analytics_workspace" "loganalytics" {
-  name                = var.laws_name
-  resource_group_name = var.laws_rg_name
-}
-
 data "azurerm_firewall" "firewall" {
   name                = var.firewall_name
   resource_group_name = var.firewall_rg_name
 }
 
 module "spoke-network" {
-  depends_on                          = [data.azurerm_resource_group.spoke, data.azurerm_log_analytics_workspace.loganalytics]
+  depends_on                          = [data.azurerm_resource_group.spoke]
   source                              = "../virtual-network"
   location                            = data.azurerm_resource_group.spoke.location
   resource_group_name                 = data.azurerm_resource_group.spoke.name
   vnet_name                           = var.spoke_vnetname
   vnet_address_space                  = var.spoke_vnet_address_space
-  log_analytics_workspace_resource_id = data.azurerm_log_analytics_workspace.loganalytics.id
+  log_analytics_workspace_resource_id = var.laws_resource_id
 
   tags = var.tags
 }
 
 module "subnets" {
-  depends_on = [module.spoke-network, data.azurerm_log_analytics_workspace.loganalytics]
+  depends_on = [module.spoke-network]
   source     = "../subnet"
   for_each   = var.subnets
 
@@ -58,9 +53,9 @@ module "subnets" {
   firewall_ip_address = data.azurerm_firewall.firewall.ip_configuration[0].private_ip_address
 
   log_analytics_storage_id            = module.spoke-network.log_analytics_storage_id
-  log_analytics_workspace_id          = data.azurerm_log_analytics_workspace.loganalytics.workspace_id
-  log_analytics_workspace_location    = data.azurerm_log_analytics_workspace.loganalytics.location
-  log_analytics_workspace_resource_id = data.azurerm_log_analytics_workspace.loganalytics.id
+  log_analytics_workspace_id          = var.laws_workspace_id
+  log_analytics_workspace_location    = var.laws_location
+  log_analytics_workspace_resource_id = var.laws_resource_id
 
   tags = var.tags
 }

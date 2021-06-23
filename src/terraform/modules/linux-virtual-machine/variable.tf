@@ -55,3 +55,9 @@ variable "image_version" {
   description = "The version of the virtual machine source image"
   type        = string
 }
+
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  default     = {}
+  type        = map(string)
+}

@@ -17,8 +17,16 @@ variable "laws_name" {
   description = "Log Analytics Workspace name for the deployment"
 }
 
-variable "laws_rg_name" {
-  description = "Resource group containing the Log Analytics Workspace for the deployment"
+variable "laws_location" {
+  description = "Log Analytics Workspace location"
+}
+
+variable "laws_workspace_id" {
+  description = "Log Analytics Workspace workspace ID"
+}
+
+variable "laws_resource_id" {
+  description = "Log Analytics Workspace Azure Resource ID"
 }
 
 variable "firewall_name" {

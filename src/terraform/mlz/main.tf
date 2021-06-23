@@ -46,7 +46,71 @@ provider "azurerm" {
   client_id       = var.mlz_clientid
   client_secret   = var.mlz_clientsecret
 
-  features {}
+  features {
+    log_analytics_workspace {
+      permanently_delete_on_destroy = true
+    }
+    key_vault {
+      purge_soft_delete_on_destroy = true
+    }
+  }
+}
+
+provider "azurerm" {
+  alias           = "tier0"
+  environment     = var.tf_environment
+  metadata_host   = var.mlz_metadatahost
+  tenant_id       = var.mlz_tenantid
+  subscription_id = var.tier0_subid
+  client_id       = var.mlz_clientid
+  client_secret   = var.mlz_clientsecret
+
+  features {
+    log_analytics_workspace {
+      permanently_delete_on_destroy = true
+    }
+    key_vault {
+      purge_soft_delete_on_destroy = true
+    }
+  }
+}
+
+provider "azurerm" {
+  alias           = "tier1"
+  environment     = var.tf_environment
+  metadata_host   = var.mlz_metadatahost
+  tenant_id       = var.mlz_tenantid
+  subscription_id = var.tier1_subid
+  client_id       = var.mlz_clientid
+  client_secret   = var.mlz_clientsecret
+
+  features {
+    log_analytics_workspace {
+      permanently_delete_on_destroy = true
+    }
+    key_vault {
+      purge_soft_delete_on_destroy = true
+    }
+  }
+}
+
+provider "azurerm" {
+  alias           = "tier2"
+  environment     = var.tf_environment
+  metadata_host   = var.mlz_metadatahost
+  tenant_id       = var.mlz_tenantid
+  subscription_id = var.tier2_subid
+  client_id       = var.mlz_clientid
+  client_secret   = var.mlz_clientsecret
+
+  features {
+    log_analytics_workspace {
+      permanently_delete_on_destroy = true
+    }
+    key_vault {
+      purge_soft_delete_on_destroy = true
+    }
+  }
 }
 
 provider "random" {
@@ -69,6 +133,8 @@ locals {
 ################################
 
 resource "azurerm_resource_group" "hub" {
+  provider = azurerm.hub
+
   location = var.mlz_location
   name     = var.hub_rgname
 
@@ -77,7 +143,9 @@ resource "azurerm_resource_group" "hub" {
   }
 }
 
-resource "azurerm_resource_group" "t0" {
+resource "azurerm_resource_group" "tier0" {
+  provider = azurerm.tier0
+
   location = var.mlz_location
   name     = var.tier0_rgname
 
@@ -86,7 +154,9 @@ resource "azurerm_resource_group" "t0" {
   }
 }
 
-resource "azurerm_resource_group" "t1" {
+resource "azurerm_resource_group" "tier1" {
+  provider = azurerm.tier1
+
   location = var.mlz_location
   name     = var.tier1_rgname
 
@@ -95,7 +165,9 @@ resource "azurerm_resource_group" "t1" {
   }
 }
 
-resource "azurerm_resource_group" "t2" {
+resource "azurerm_resource_group" "tier2" {
+  provider = azurerm.tier2
+
   location = var.mlz_location
   name     = var.tier2_rgname
 
@@ -108,16 +180,19 @@ resource "azurerm_resource_group" "t2" {
 ### STAGE 1: Logging         ###
 ################################
 
-resource "random_id" "loganalytics" {
+resource "random_id" "laws" {
   keepers = {
-    resource_group = azurerm_resource_group.t1.name
+    resource_group = azurerm_resource_group.tier1.name
   }
 
   byte_length = 8
 }
 
-resource "azurerm_log_analytics_workspace" "loganalytics" {
-  name                = format("%.24s", lower(replace("${var.mlz_lawsname}${random_id.loganalytics.hex}", "/[[:^alnum:]]/", "")))
+resource "azurerm_log_analytics_workspace" "laws" {
+  provider   = azurerm.tier1
+  depends_on = [random_id.laws]
+
+  name                = format("%.24s", lower(replace("${var.mlz_lawsname}${random_id.laws.hex}", "/[[:^alnum:]]/", "")))
   resource_group_name = var.tier1_rgname
   location            = var.mlz_location
   sku                 = "PerGB2018"
@@ -133,8 +208,10 @@ resource "azurerm_log_analytics_workspace" "loganalytics" {
 ################################
 
 module "hub-network" {
-  depends_on               = [azurerm_resource_group.hub]
-  source                   = "../modules/hub"
+  providers  = { azurerm = azurerm.hub }
+  depends_on = [azurerm_resource_group.hub]
+  source     = "../modules/hub"
+
   location                 = var.mlz_location
   resource_group_name      = var.hub_rgname
   vnet_name                = var.hub_vnetname
@@ -143,7 +220,7 @@ module "hub-network" {
   management_address_space = var.hub_management_address_space
   routetable_name          = var.hub_management_routetable_name
 
-  log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.loganalytics.id
+  log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
 
   tags = {
     DeploymentName = var.deploymentname
@@ -151,12 +228,13 @@ module "hub-network" {
 }
 
 module "firewall" {
-  depends_on = [module.hub-network]
+  providers  = { azurerm = azurerm.hub }
+  depends_on = [azurerm_resource_group.hub, module.hub-network]
   source     = "../modules/firewall"
-  location   = var.mlz_location
 
   sub_id               = var.hub_subid
   resource_group_name  = module.hub-network.resource_group_name
+  location             = var.mlz_location
   vnet_name            = module.hub-network.virtual_network_name
   vnet_address_space   = module.hub-network.virtual_network_address_space
   client_address_space = var.hub_client_address_space
@@ -173,7 +251,7 @@ module "firewall" {
   management_ipconfig_name = var.management_ipconfig_name
   management_publicip_name = var.management_publicip_name
 
-  log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.loganalytics.id
+  log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
 
   tags = {
     DeploymentName = var.deploymentname
@@ -181,7 +259,8 @@ module "firewall" {
 }
 
 module "spoke-network-t0" {
-  depends_on = [azurerm_resource_group.t0, module.hub-network]
+  providers  = { azurerm = azurerm.tier0 }
+  depends_on = [azurerm_resource_group.tier0, module.hub-network, module.firewall]
   source     = "../modules/spoke"
 
   firewall_name    = var.firewall_name
@@ -189,8 +268,11 @@ module "spoke-network-t0" {
   hub_subid        = var.hub_subid
   hub_rgname       = module.hub-network.resource_group_name
   hub_vnetname     = module.hub-network.virtual_network_name
-  laws_name        = azurerm_log_analytics_workspace.loganalytics.name
-  laws_rg_name     = var.tier1_rgname
+
+  laws_name         = azurerm_log_analytics_workspace.laws.name
+  laws_location     = var.mlz_location
+  laws_workspace_id = azurerm_log_analytics_workspace.laws.workspace_id
+  laws_resource_id  = azurerm_log_analytics_workspace.laws.id
 
   spoke_subid    = var.tier0_subid
   spoke_rgname   = var.tier0_rgname
@@ -205,7 +287,8 @@ module "spoke-network-t0" {
 }
 
 module "spoke-network-t1" {
-  depends_on = [azurerm_resource_group.t1, module.hub-network]
+  providers  = { azurerm = azurerm.tier1 }
+  depends_on = [azurerm_resource_group.tier1, module.hub-network, module.firewall]
   source     = "../modules/spoke"
 
   firewall_name    = var.firewall_name
@@ -213,8 +296,11 @@ module "spoke-network-t1" {
   hub_subid        = var.hub_subid
   hub_rgname       = module.hub-network.resource_group_name
   hub_vnetname     = module.hub-network.virtual_network_name
-  laws_name        = azurerm_log_analytics_workspace.loganalytics.name
-  laws_rg_name     = var.tier1_rgname
+
+  laws_name         = azurerm_log_analytics_workspace.laws.name
+  laws_location     = var.mlz_location
+  laws_workspace_id = azurerm_log_analytics_workspace.laws.workspace_id
+  laws_resource_id  = azurerm_log_analytics_workspace.laws.id
 
   spoke_subid    = var.tier1_subid
   spoke_rgname   = var.tier1_rgname
@@ -229,7 +315,8 @@ module "spoke-network-t1" {
 }
 
 module "spoke-network-t2" {
-  depends_on = [azurerm_resource_group.t2, module.hub-network]
+  providers  = { azurerm = azurerm.tier2 }
+  depends_on = [azurerm_resource_group.tier2, module.hub-network, module.firewall]
   source     = "../modules/spoke"
 
   firewall_name    = var.firewall_name
@@ -237,8 +324,11 @@ module "spoke-network-t2" {
   hub_subid        = var.hub_subid
   hub_rgname       = module.hub-network.resource_group_name
   hub_vnetname     = module.hub-network.virtual_network_name
-  laws_name        = azurerm_log_analytics_workspace.loganalytics.name
-  laws_rg_name     = var.tier1_rgname
+
+  laws_name         = azurerm_log_analytics_workspace.laws.name
+  laws_location     = var.mlz_location
+  laws_workspace_id = azurerm_log_analytics_workspace.laws.workspace_id
+  laws_resource_id  = azurerm_log_analytics_workspace.laws.id
 
   spoke_subid    = var.tier2_subid
   spoke_rgname   = var.tier2_rgname
@@ -261,8 +351,10 @@ module "spoke-network-t2" {
 #########################################################################
 
 module "bastion-host" {
-  count      = var.create_bastion_jumpbox ? 1 : 0
-  depends_on = [module.hub-network]
+  count = var.create_bastion_jumpbox ? 1 : 0
+
+  providers  = { azurerm = azurerm.hub }
+  depends_on = [azurerm_resource_group.hub, module.hub-network, module.firewall]
   source     = "../modules/bastion"
 
   resource_group_name   = var.hub_rgname
@@ -278,8 +370,10 @@ module "bastion-host" {
 }
 
 module "jumpbox-subnet" {
-  count      = var.create_bastion_jumpbox ? 1 : 0
-  depends_on = [module.hub-network, module.firewall, azurerm_log_analytics_workspace.loganalytics]
+  count = var.create_bastion_jumpbox ? 1 : 0
+
+  providers  = { azurerm = azurerm.hub }
+  depends_on = [module.hub-network, module.firewall, azurerm_log_analytics_workspace.laws]
   source     = "../modules/subnet"
 
   name                 = var.jumpbox_subnet.name
@@ -299,9 +393,9 @@ module "jumpbox-subnet" {
   firewall_ip_address = module.firewall.firewall_public_ip
 
   log_analytics_storage_id            = module.hub-network.log_analytics_storage_id
-  log_analytics_workspace_id          = azurerm_log_analytics_workspace.loganalytics.workspace_id
+  log_analytics_workspace_id          = azurerm_log_analytics_workspace.laws.workspace_id
   log_analytics_workspace_location    = var.mlz_location
-  log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.loganalytics.id
+  log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
 
   tags = {
     DeploymentName = var.deploymentname
@@ -309,8 +403,10 @@ module "jumpbox-subnet" {
 }
 
 module "jumpbox" {
-  count      = var.create_bastion_jumpbox ? 1 : 0
-  depends_on = [module.hub-network, module.jumpbox-subnet]
+  count = var.create_bastion_jumpbox ? 1 : 0
+
+  providers  = { azurerm = azurerm.hub }
+  depends_on = [module.hub-network, module.firewall, module.jumpbox-subnet]
   source     = "../modules/jumpbox"
 
   resource_group_name  = var.hub_rgname
@@ -335,6 +431,10 @@ module "jumpbox" {
   linux_offer         = var.jumpbox_linux_vm_offer
   linux_sku           = var.jumpbox_linux_vm_sku
   linux_image_version = var.jumpbox_linux_vm_version
+
+  tags = {
+    DeploymentName = var.deploymentname
+  }
 }
 
 /*

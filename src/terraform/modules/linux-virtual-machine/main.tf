@@ -21,6 +21,8 @@ resource "azurerm_network_interface" "linux_vm" {
     subnet_id                     = data.azurerm_subnet.vm_subnet.id
     private_ip_address_allocation = "Dynamic"
   }
+
+  tags = var.tags
 }
 
 resource "azurerm_linux_virtual_machine" "linux_vm" {
@@ -47,4 +49,6 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
     sku       = var.sku
     version   = var.image_version
   }
+
+  tags = var.tags
 }

@@ -30,6 +30,8 @@ resource "azurerm_key_vault" "jumpbox-keyvault" {
       "recover"
     ]
   }
+
+  tags = var.tags
 }
 
 resource "random_password" "jumpbox-password" {
@@ -63,6 +65,7 @@ module "windows-virtual-machine" {
   offer                = var.windows_offer
   sku                  = var.windows_sku
   image_version        = var.windows_image_version
+  tags                 = var.tags
 }
 
 module "linux-virtual-machine" {
@@ -78,4 +81,5 @@ module "linux-virtual-machine" {
   offer                = var.linux_offer
   sku                  = var.linux_sku
   image_version        = var.linux_image_version
+  tags                 = var.tags
 }

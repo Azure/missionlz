@@ -21,6 +21,8 @@ resource "azurerm_network_interface" "windows_vm" {
     subnet_id                     = data.azurerm_subnet.vm_subnet.id
     private_ip_address_allocation = "Dynamic"
   }
+
+  tags = var.tags
 }
 
 resource "azurerm_windows_virtual_machine" "windows_vm" {
@@ -46,4 +48,6 @@ resource "azurerm_windows_virtual_machine" "windows_vm" {
     sku       = var.sku
     version   = var.image_version
   }
+
+  tags = var.tags
 }
