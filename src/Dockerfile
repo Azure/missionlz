@@ -14,7 +14,7 @@ ARG TFLINT_VERSION=0.29.1
 ARG TFLINT_AZURERM=0.10.1
 
 # Azure CLI version
-ARG AZURE_CLI_VERSION=2.22.0-1~focal
+ARG AZURE_CLI_VERSION=2.25.0-1~focal
 
 # Update distro (software-properties-common installs the add-apt-repository command)
 RUN apt-get update \
