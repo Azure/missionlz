@@ -86,7 +86,7 @@ apply() {
 
   while [ $apply_success == "false" ]
   do
-    echo "INFO: applying terraform at ${tf_dir} (${attempts}/${max_attempts})..."
+    echo "INFO: applying Terraform at ${tf_dir} (${attempts}/${max_attempts})..."
 
     if ! eval "$apply_command";
     then
