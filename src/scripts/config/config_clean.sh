@@ -14,7 +14,7 @@ error_log() {
 }
 
 usage() {
-  echo "config_create.sh: remove mlz configuration resources from an mlz configuration file"
+  echo "config_clean.sh: remove mlz configuration resources from an mlz configuration file"
   error_log "usage: config_clean.sh <mlz config>"
 }
 

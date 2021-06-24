@@ -16,8 +16,8 @@ error_log() {
 }
 
 usage() {
-  echo "config_create.sh: Create Terraform module config resources"
-  error_log "usage: config_create.sh <mlz config> <tf subscription id> <path to terraform module>"
+  echo "create_terraform_backend_resources.sh: Create Terraform module config resources"
+  error_log "usage: create_terraform_backend_resources.sh <mlz config> <tf subscription id> <path to terraform module>"
 }
 
 if [[ "$#" -lt 3 ]]; then
@@ -79,6 +79,7 @@ if ! $sa_exists &> /dev/null; then
         --query "[?keyName=='key1'].value" \
         --output tsv)
 
+    echo "INFO: creating container ${container_name} in storage account ${tf_sa_name}..."
     az storage container create \
         --name "${container_name}" \
         --subscription "${tf_sub_id}" \
@@ -93,7 +94,6 @@ fi
 . "${BASH_SOURCE%/*}/generate_vars.sh" \
     "${mlz_config}" \
     "${tf_sub_id}" \
-    "${tf_name}" \
     "${tf_dir}"
 
 echo "INFO: Terraform state resources for ${tf_name} created!"

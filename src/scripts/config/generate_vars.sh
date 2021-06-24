@@ -17,18 +17,18 @@ error_log() {
 
 usage() {
   echo "generate_vars.sh: Generate a config.vars file at a given Terraform directory"
-  error_log "usage: generate_vars.sh <mlz config> <tf sub id> <tf name> <tf dir>"
+  error_log "usage: generate_vars.sh <mlz config> <tf sub id> <tf dir>"
 }
 
-if [[ "$#" -lt 4 ]]; then
+if [[ "$#" -lt 3 ]]; then
    usage
    exit 1
 fi
 
-mlz_config=$1
-tf_sub_id=${2}
-tf_name=${3}
-tf_dir=$(realpath "${4}")
+mlz_config=$(realpath "${1}")
+tf_sub_id="${2}"
+tf_dir=$(realpath "${3}")
+tf_name=$(basename "${tf_dir}")
 
 # source mlz config
 . "${mlz_config}"

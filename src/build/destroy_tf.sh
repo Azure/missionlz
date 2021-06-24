@@ -28,11 +28,8 @@ fi
 # take some valid, well known, mlz_config and vars as input
 mlz_config=$1
 globals=$2
-saca_vars=$3
-tier0_vars=$4
-tier1_vars=$5
-tier2_vars=$6
-display_tf_output=${7:-n}
+mlz_vars=$3
+display_tf_output=${4:-n}
 
 # reference paths
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
@@ -117,4 +114,4 @@ destroy() {
 destroy "tier-2" "${mlz_tier2_subid}" "${core_path}/tier-2" "${tier2_vars}"
 destroy "tier-1" "${mlz_tier1_subid}" "${core_path}/tier-1" "${tier1_vars}"
 destroy "tier-0" "${mlz_tier0_subid}" "${core_path}/tier-0" "${tier0_vars}"
-destroy "saca-hub" "${mlz_saca_subid}" "${core_path}/saca-hub" "${saca_vars}"
+destroy "saca-hub" "${mlz_saca_subid}" "${core_path}/saca-hub" "${mlz_vars}"

@@ -116,7 +116,7 @@ apply() {
 . "${mlz_config}"
 
 # Create Resources for T3
-. "${this_script_path}/config/config_create.sh" "${mlz_config}" "${mlz_tier0_subid}" "${core_path}/tier-3"
+. "${this_script_path}/config/create_terraform_backend_resources.sh" "${mlz_config}" "${mlz_tier0_subid}" "${core_path}/tier-3"
 
 # call apply()
 apply "tier-3" "${mlz_tier3_subid}" "${core_path}/tier-3" "${tier3_vars}"

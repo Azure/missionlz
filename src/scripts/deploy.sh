@@ -115,12 +115,12 @@ create_mlz_configuration_file() {
 
 create_mlz_resources() {
   echo "INFO: creating MLZ resources using ${mlz_config_file_path}..."
-  "${this_script_path}/config/create_mlz_configuration_resources.sh" "${mlz_config_file_path}"
+  "${this_script_path}/config/create_required_resources.sh" "${mlz_config_file_path}"
 }
 
 create_terraform_variables() {
   echo "INFO: creating terraform variables at ${tfvars_file_path}..."
-  "${this_script_path}/terraform/create_globals_from_config.sh" "${tfvars_file_path}" "${mlz_config_file_path}" "${create_bastion_jumpbox}"
+  "${this_script_path}/terraform/create_tfvars_from_config.sh" "${tfvars_file_path}" "${mlz_config_file_path}" "${create_bastion_jumpbox}"
 }
 
 apply_terraform() {
@@ -128,10 +128,6 @@ apply_terraform() {
   . "${this_script_path}/config/generate_names.sh" "${mlz_config_file_path}"
   "${this_script_path}/../build/apply_tf.sh" \
     "${mlz_config_file_path}" \
-    "${tfvars_file_path}" \
-    "${tfvars_file_path}" \
-    "${tfvars_file_path}" \
-    "${tfvars_file_path}" \
     "${tfvars_file_path}" \
     "y"
 }

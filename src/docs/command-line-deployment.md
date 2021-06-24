@@ -123,7 +123,7 @@ MLZ uses this Service Principal and its credentials from the Key Vault to deploy
 
 1. First, create the MLZ Configuration file `mlz.config` file using the `mlz.config.sample` as a template.
 
-    The information in the `mlz.config` file, will be used by `create_mlz_configuration_resources.sh` to create and populate a `config.vars` file for each tier and saved inside the deployment folder for each tier (example: \src\core\tier-0\config.vars).
+    The information in the `mlz.config` file, will be used by `create_required_resources.sh` to create and populate a `config.vars` file for each tier and saved inside the deployment folder for each tier (example: \src\core\tier-0\config.vars).
 
     For example:
 
@@ -139,7 +139,7 @@ MLZ uses this Service Principal and its credentials from the Key Vault to deploy
     mlz_config_location="eastus"
     ```
 
-1. Then, run `create_mlz_configuration_resources.sh` at [src/scripts/config/create_mlz_configuration_resources.sh](/src/scripts/config/create_mlz_configuration_resources.sh) to create:
+1. Then, run `create_required_resources.sh` at [src/scripts/config/create_required_resources.sh](/src/scripts/config/create_required_resources.sh) to create:
 
     * A config Resource Group to store the Key Vault
     * Resource Groups for each tier to store the Terraform state Storage Account
@@ -149,7 +149,7 @@ MLZ uses this Service Principal and its credentials from the Key Vault to deploy
     * Tier specific Terraform backend config files
 
     ```bash
-    src/scripts/config/create_mlz_configuration_resources.sh src/mlz.config
+    src/scripts/config/create_required_resources.sh src/mlz.config
     ```
 
 ## Set Terraform Configuration Variables

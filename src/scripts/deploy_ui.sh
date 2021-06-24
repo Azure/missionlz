@@ -130,7 +130,7 @@ create_mlz_configuration_file() {
 
 create_mlz_resources() {
   echo "INFO: setting up required MLZ resources using $(realpath "$mlz_config_file")..."
-  "${this_script_path}/config/mlz_config_create.sh" "$mlz_config_file"
+  "${this_script_path}/config/create_mlz_config_resources.sh" "$mlz_config_file"
 }
 
 handle_docker_image() {

@@ -46,7 +46,7 @@ az login --service-principal \
 # create config resources given a subscription ID and terraform configuration folder path
 src_dir=$(dirname "$(realpath "${BASH_SOURCE%/*}")")
 create_tf_config() {
-  . "${src_dir}/scripts/config/config_create.sh" "${mlz_config}" "${1}" "${2}"
+  . "${src_dir}/scripts/config/create_terraform_backend_resources.sh" "${mlz_config}" "${1}" "${2}"
 }
 
 # create backends for terraform modules

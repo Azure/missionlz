@@ -16,8 +16,8 @@ error_log() {
 }
 
 usage() {
-  echo "create_globals_from_config.sh: generate a terraform tfvars file given an MLZ config and a desired tfvars file name"
-  echo "create_globals_from_config.sh: <destination file path> <mlz config file path> <create bastion host>"
+  echo "create_tfvars_from_config.sh: generate a terraform tfvars file given an MLZ config and a desired tfvars file name"
+  echo "create_tfvars_from_config.sh: <destination file path> <mlz config file path> <create bastion host>"
   show_help
 }
 
@@ -55,6 +55,11 @@ append_kvp "mlz_tenantid" "${mlz_tenantid}"
 append_kvp "mlz_location" "${mlz_config_location}"
 append_kvp "mlz_metadatahost" "${mlz_metadatahost}"
 
+append_kvp "hub_subid" "${mlz_saca_subid}"
+append_kvp "hub_rgname" "rg-saca-${mlz_env_name}"
+append_kvp "hub_vnetname" "vn-saca-${mlz_env_name}"
+append_kvp "create_bastion_jumpbox" "${create_bastion_jumpbox}"
+
 append_kvp "tier0_subid" "${mlz_tier0_subid}"
 append_kvp "tier0_rgname" "rg-t0-${mlz_env_name}"
 append_kvp "tier0_vnetname" "vn-t0-${mlz_env_name}"
@@ -62,6 +67,7 @@ append_kvp "tier0_vnetname" "vn-t0-${mlz_env_name}"
 append_kvp "tier1_subid" "${mlz_tier1_subid}"
 append_kvp "tier1_rgname" "rg-t1-${mlz_env_name}"
 append_kvp "tier1_vnetname" "vn-t1-${mlz_env_name}"
+append_kvp "mlz_lawsname" "laws-${mlz_env_name}"
 
 append_kvp "tier2_subid" "${mlz_tier2_subid}"
 append_kvp "tier2_rgname" "rg-t2-${mlz_env_name}"
@@ -74,12 +80,3 @@ append_kvp "tier3_rgname" "rg-t3-${mlz_env_name}"
 append_kvp "tier3_vnetname" "vn-t3-${mlz_env_name}"
 
 fi
-
-append_kvp "saca_subid" "${mlz_saca_subid}"
-append_kvp "saca_rgname" "rg-saca-${mlz_env_name}"
-append_kvp "saca_vnetname" "vn-saca-${mlz_env_name}"
-append_kvp "firewall_name" "Firewall${mlz_env_name}"
-append_kvp "firewall_policy_name" "firewallpolicy${mlz_env_name}"
-append_kvp "saca_lawsname" "laws-${mlz_env_name}"
-
-append_kvp "create_bastion_jumpbox" "${create_bastion_jumpbox}"

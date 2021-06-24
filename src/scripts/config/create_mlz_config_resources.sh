@@ -16,8 +16,8 @@ error_log() {
 }
 
 usage() {
-  echo "mlz_config_create.sh: Create MLZ config resources"
-  error_log "usage: mlz_config_create.sh <mlz config>"
+  echo "create_mlz_config_resources.sh: Create MLZ config resources"
+  error_log "usage: create_mlz_config_resources.sh <mlz config>"
 }
 
 if [[ "$#" -lt 1 ]]; then

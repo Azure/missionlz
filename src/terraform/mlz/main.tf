@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 terraform {
-  backend "local" {}
+  backend "azurerm" {}
 
   required_providers {
     azurerm = {

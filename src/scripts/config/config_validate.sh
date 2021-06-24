@@ -40,10 +40,10 @@ fi
 # Validate Terraform Backend resource group
 rg_exists="az group show \
     --name ${tf_be_rg_name} \
-    --subscription ${sub_id}"
+    --subscription ${mlz_cfg_sub_id}"
 
 if ! $rg_exists &> /dev/null; then
-   echo "Config Resource Group ${tf_be_rg_name} does not exist...validate config.vars file and re-run script"
+   echo "Terraform State Resource Group '${tf_be_rg_name}' does not exist...validate config.vars file and re-run script"
    exit 1
 fi
 
@@ -53,6 +53,6 @@ kv_exists="az keyvault show \
     --subscription ${mlz_cfg_sub_id}"
 
 if ! $kv_exists &> /dev/null; then
-   echo "Config Key Vault ${mlz_cfg_kv_name} does not exist...validate config.vars file and re-run script"
+   echo "Key Vault to source client_id for deployment '${mlz_cfg_kv_name}' does not exist...validate config.vars file and re-run script"
    exit 1
 fi
