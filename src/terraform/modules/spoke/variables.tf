@@ -1,6 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+variable "location" {
+  description = "The region for spoke network deployment"
+}
+
 variable "hub_subid" {
   description = "Subscription ID for the hub network deployment"
 }
@@ -29,12 +33,8 @@ variable "laws_resource_id" {
   description = "Log Analytics Workspace Azure Resource ID"
 }
 
-variable "firewall_name" {
-  description = "Name of the firewall"
-}
-
-variable "firewall_rg_name" {
-  description = "Resource group containing the firewall for the deployment"
+variable "firewall_private_ip" {
+  description = "Private IP of the Firewall"
 }
 
 variable "spoke_subid" {

@@ -263,11 +263,12 @@ module "spoke-network-t0" {
   depends_on = [azurerm_resource_group.tier0, module.hub-network, module.firewall]
   source     = "../modules/spoke"
 
-  firewall_name    = var.firewall_name
-  firewall_rg_name = module.hub-network.resource_group_name
-  hub_subid        = var.hub_subid
-  hub_rgname       = module.hub-network.resource_group_name
-  hub_vnetname     = module.hub-network.virtual_network_name
+  location = azurerm_resource_group.tier0.location
+
+  hub_subid           = var.hub_subid
+  hub_rgname          = module.hub-network.resource_group_name
+  hub_vnetname        = module.hub-network.virtual_network_name
+  firewall_private_ip = module.firewall.firewall_private_ip
 
   laws_name         = azurerm_log_analytics_workspace.laws.name
   laws_location     = var.mlz_location
@@ -286,16 +287,41 @@ module "spoke-network-t0" {
   }
 }
 
+resource "azurerm_virtual_network_peering" "t0-to-hub" {
+  provider   = azurerm.tier0
+  depends_on = [azurerm_resource_group.tier0, module.spoke-network-t0, module.hub-network, module.firewall]
+
+  name                         = "${var.tier0_vnetname}-to-${var.hub_vnetname}"
+  resource_group_name          = var.tier0_rgname
+  virtual_network_name         = var.tier0_vnetname
+  remote_virtual_network_id    = module.hub-network.virtual_network_id
+  allow_virtual_network_access = true
+  allow_forwarded_traffic      = true
+}
+
+resource "azurerm_virtual_network_peering" "hub-to-t0" {
+  provider   = azurerm.hub
+  depends_on = [azurerm_resource_group.hub, module.spoke-network-t0, module.hub-network, module.firewall]
+
+  name                         = "${var.hub_vnetname}-to-${var.tier0_vnetname}"
+  resource_group_name          = var.hub_rgname
+  virtual_network_name         = var.hub_vnetname
+  remote_virtual_network_id    = module.spoke-network-t0.virtual_network_id
+  allow_virtual_network_access = true
+  allow_forwarded_traffic      = true
+}
+
 module "spoke-network-t1" {
   providers  = { azurerm = azurerm.tier1 }
   depends_on = [azurerm_resource_group.tier1, module.hub-network, module.firewall]
   source     = "../modules/spoke"
 
-  firewall_name    = var.firewall_name
-  firewall_rg_name = module.hub-network.resource_group_name
-  hub_subid        = var.hub_subid
-  hub_rgname       = module.hub-network.resource_group_name
-  hub_vnetname     = module.hub-network.virtual_network_name
+  location = azurerm_resource_group.tier1.location
+
+  hub_subid           = var.hub_subid
+  hub_rgname          = module.hub-network.resource_group_name
+  hub_vnetname        = module.hub-network.virtual_network_name
+  firewall_private_ip = module.firewall.firewall_private_ip
 
   laws_name         = azurerm_log_analytics_workspace.laws.name
   laws_location     = var.mlz_location
@@ -314,16 +340,41 @@ module "spoke-network-t1" {
   }
 }
 
+resource "azurerm_virtual_network_peering" "t1-to-hub" {
+  provider   = azurerm.tier1
+  depends_on = [azurerm_resource_group.tier1, module.spoke-network-t1, module.hub-network, module.firewall]
+
+  name                         = "${var.tier1_vnetname}-to-${var.hub_vnetname}"
+  resource_group_name          = var.tier1_rgname
+  virtual_network_name         = var.tier1_vnetname
+  remote_virtual_network_id    = module.hub-network.virtual_network_id
+  allow_virtual_network_access = true
+  allow_forwarded_traffic      = true
+}
+
+resource "azurerm_virtual_network_peering" "hub-to-t1" {
+  provider   = azurerm.hub
+  depends_on = [azurerm_resource_group.hub, module.spoke-network-t1, module.hub-network, module.firewall]
+
+  name                         = "${var.hub_vnetname}-to-${var.tier1_vnetname}"
+  resource_group_name          = var.hub_rgname
+  virtual_network_name         = var.hub_vnetname
+  remote_virtual_network_id    = module.spoke-network-t1.virtual_network_id
+  allow_virtual_network_access = true
+  allow_forwarded_traffic      = true
+}
+
 module "spoke-network-t2" {
   providers  = { azurerm = azurerm.tier2 }
   depends_on = [azurerm_resource_group.tier2, module.hub-network, module.firewall]
   source     = "../modules/spoke"
 
-  firewall_name    = var.firewall_name
-  firewall_rg_name = module.hub-network.resource_group_name
-  hub_subid        = var.hub_subid
-  hub_rgname       = module.hub-network.resource_group_name
-  hub_vnetname     = module.hub-network.virtual_network_name
+  location = azurerm_resource_group.tier2.location
+
+  hub_subid           = var.hub_subid
+  hub_rgname          = module.hub-network.resource_group_name
+  hub_vnetname        = module.hub-network.virtual_network_name
+  firewall_private_ip = module.firewall.firewall_private_ip
 
   laws_name         = azurerm_log_analytics_workspace.laws.name
   laws_location     = var.mlz_location
@@ -340,6 +391,30 @@ module "spoke-network-t2" {
   tags = {
     DeploymentName = var.deploymentname
   }
+}
+
+resource "azurerm_virtual_network_peering" "t2-to-hub" {
+  provider   = azurerm.tier2
+  depends_on = [azurerm_resource_group.tier2, module.spoke-network-t2, module.hub-network, module.firewall]
+
+  name                         = "${var.tier2_vnetname}-to-${var.hub_vnetname}"
+  resource_group_name          = var.tier2_rgname
+  virtual_network_name         = var.tier2_vnetname
+  remote_virtual_network_id    = module.hub-network.virtual_network_id
+  allow_virtual_network_access = true
+  allow_forwarded_traffic      = true
+}
+
+resource "azurerm_virtual_network_peering" "hub-to-t2" {
+  provider   = azurerm.hub
+  depends_on = [azurerm_resource_group.hub, module.spoke-network-t2, module.hub-network, module.firewall]
+
+  name                         = "${var.hub_vnetname}-to-${var.tier2_vnetname}"
+  resource_group_name          = var.hub_rgname
+  virtual_network_name         = var.hub_vnetname
+  remote_virtual_network_id    = module.spoke-network-t2.virtual_network_id
+  allow_virtual_network_access = true
+  allow_forwarded_traffic      = true
 }
 
 ################################
@@ -373,7 +448,7 @@ module "jumpbox-subnet" {
   count = var.create_bastion_jumpbox ? 1 : 0
 
   providers  = { azurerm = azurerm.hub }
-  depends_on = [module.hub-network, module.firewall, azurerm_log_analytics_workspace.laws]
+  depends_on = [azurerm_resource_group.hub, module.hub-network, module.firewall, azurerm_log_analytics_workspace.laws]
   source     = "../modules/subnet"
 
   name                 = var.jumpbox_subnet.name
@@ -406,7 +481,7 @@ module "jumpbox" {
   count = var.create_bastion_jumpbox ? 1 : 0
 
   providers  = { azurerm = azurerm.hub }
-  depends_on = [module.hub-network, module.firewall, module.jumpbox-subnet]
+  depends_on = [azurerm_resource_group.hub, module.hub-network, module.firewall, module.jumpbox-subnet]
   source     = "../modules/jumpbox"
 
   resource_group_name  = var.hub_rgname

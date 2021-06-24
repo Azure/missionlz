@@ -20,6 +20,11 @@ output "virtual_network_address_space" {
   value       = module.hub-network.virtual_network_address_space
 }
 
+output "virtual_network_id" {
+  description = "The id of the virtual network"
+  value       = module.hub-network.virtual_network_id
+}
+
 output "firewall_client_subnet_name" {
   value = azurerm_subnet.fw_client.name
 }

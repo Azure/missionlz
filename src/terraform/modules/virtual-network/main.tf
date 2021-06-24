@@ -33,16 +33,6 @@ resource "azurerm_monitor_diagnostic_setting" "vnet" {
   storage_account_id         = azurerm_storage_account.loganalytics.id
   log_analytics_workspace_id = var.log_analytics_workspace_resource_id
 
-  log {
-    category = "VMProtectionAlerts"
-    enabled  = false
-
-    retention_policy {
-      days    = 0
-      enabled = false
-    }
-  }
-
   metric {
     category = "AllMetrics"
 
