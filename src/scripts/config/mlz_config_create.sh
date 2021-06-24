@@ -114,26 +114,23 @@ wait_for_sp_property() {
 # Create Azure AD application registration and Service Principal
 # TODO: Lift the subscription scoping out of here and move into conditional
 echo "INFO: verifying service principal ${mlz_sp_name} is unique..."
-if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].displayName" -o tsv) ]];then
+if [[ -z $(az ad sp list --filter "displayName eq 'http://${mlz_sp_name}'" --query "[].displayName" -o tsv) ]];then
     echo "INFO: creating service principal ${mlz_sp_name}..."
-    sp_pwd=$(az ad sp create-for-rbac \
+    sp_creds=($(az ad sp create-for-rbac \
         --name "http://${mlz_sp_name}" \
         --skip-assignment true \
-        --query password \
+        --query '[password, appId]'  \
         --only-show-errors \
-        --output tsv)
+        --output tsv))
 
-    wait_for_sp_creation "http://${mlz_sp_name}"
-    wait_for_sp_property "http://${mlz_sp_name}" "appId"
-    wait_for_sp_property "http://${mlz_sp_name}" "objectId"
+    sp_pwd=${sp_creds[0]}
+    sp_clientid=${sp_creds[1]}
 
-    sp_clientid=$(az ad sp show \
-        --id "http://${mlz_sp_name}" \
-        --query appId \
-        --output tsv)
+    wait_for_sp_creation $sp_clientid
+    wait_for_sp_property $sp_clientid "objectId"
 
     sp_objid=$(az ad sp show \
-        --id "http://${mlz_sp_name}" \
+        --id "${sp_clientid}" \
         --query objectId \
         --output tsv)
 
