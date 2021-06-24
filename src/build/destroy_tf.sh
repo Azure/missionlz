@@ -7,7 +7,7 @@
 # SC1090: Can't follow non-constant source. These values come from an external file.
 # SC2154: "var is referenced but not assigned". These values come from an external file.
 #
-# Automation that calls destroy terraform given a MLZ configuration and some globals.tfvars
+# Automation that calls destroy terraform given a MLZ configuration
 
 set -e
 

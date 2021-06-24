@@ -7,7 +7,7 @@
 # SC1090: Can't follow non-constant source. Use a directive to specify location.
 # SC2154: "var is referenced but not assigned". These values come from an external file.
 #
-# Automation that calls apply terraform given a MLZ configuration and some globals.tfvars
+# Automation that calls apply terraform given a MLZ configuration
 
 set -e
 

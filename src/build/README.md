@@ -30,7 +30,7 @@ There's an [optional argument to display terraform output](#Optionally-display-T
 ```shell
 usage() {
   echo "apply_tf.sh: Automation that calls apply terraform given a MLZ configuration and some tfvars"
-  error_log "usage: apply_tf.sh <mlz config> <globals.tfvars> <saca.tfvars> <tier0.tfvars> <tier1.tfvars> <tier2.tfvars> <display terraform output (y/n)>"
+  error_log "usage: apply_tf.sh <mlz config> <mlz.tfvars> <display terraform output (y/n)>"
 }
 ```
 
@@ -38,11 +38,7 @@ usage() {
 # assuming src/scripts/config/create_required_resources.sh has been run before...
 ./apply_tf.sh \
   ./path-to/mlz.config \
-  ./path-to/globals.tfvars \
-  ./path-to/saca-hub.tfvars \
-  ./path-to/tier-0.tfvars \
-  ./path-to/tier-1.tfvars \
-  ./path-to/tier-2.tfvars \
+  ./path-to/mlz.tfvars
   y
 ```
 
@@ -50,11 +46,7 @@ usage() {
 # assuming src/scripts/config/create_required_resources.sh has been run before...
 ./destroy_tf.sh \
   ./path-to/mlz.config \
-  ./path-to/globals.tfvars \
-  ./path-to/saca-hub.tfvars \
-  ./path-to/tier-0.tfvars \
-  ./path-to/tier-1.tfvars \
-  ./path-to/tier-2.tfvars \
+  ./path-to/mlz.tfvars \
   y
 ```
 
