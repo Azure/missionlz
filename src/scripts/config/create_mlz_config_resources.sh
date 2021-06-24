@@ -116,7 +116,7 @@ wait_for_sp_property() {
 echo "INFO: verifying service principal ${mlz_sp_name} is unique..."
 if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].displayName" -o tsv) ]];then
     echo "INFO: creating service principal ${mlz_sp_name}..."
-    sp_pwd=$(az ad sp create-for-rbac \
+    sp_client_secret=$(az ad sp create-for-rbac \
         --name "http://${mlz_sp_name}" \
         --skip-assignment true \
         --query password \
@@ -127,12 +127,12 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
     wait_for_sp_property "http://${mlz_sp_name}" "appId"
     wait_for_sp_property "http://${mlz_sp_name}" "objectId"
 
-    sp_clientid=$(az ad sp show \
+    sp_client_id=$(az ad sp show \
         --id "http://${mlz_sp_name}" \
         --query appId \
         --output tsv)
 
-    sp_objid=$(az ad sp show \
+    sp_object_id=$(az ad sp show \
         --id "http://${mlz_sp_name}" \
         --query objectId \
         --output tsv)
@@ -143,7 +143,7 @@ if [[ -z $(az ad sp list --filter "displayName eq '${mlz_sp_name}'" --query "[].
     echo "INFO: setting Contributor role assignment for ${mlz_sp_name} on subscription ${sub}..."
     az role assignment create \
         --role Contributor \
-        --assignee-object-id "${sp_objid}" \
+        --assignee-object-id "${sp_object_id}" \
         --scope "/subscriptions/${sub}" \
         --assignee-principal-type ServicePrincipal \
         --output none
@@ -191,31 +191,31 @@ az keyvault set-policy \
     --name "${mlz_kv_name}" \
     --subscription "${mlz_config_subid}" \
     --resource-group "${mlz_rg_name}" \
-    --object-id "${sp_objid}" \
+    --object-id "${sp_object_id}" \
     --secret-permissions get list set \
     --output none
 
 # Set Key Vault Secrets
 echo "INFO: setting secrets in ${mlz_kv_name} for service principal ${mlz_sp_name}..."
 az keyvault secret set \
-    --name "${mlz_sp_kv_password}" \
+    --name "${mlz_kv_sp_client_secret}" \
     --subscription "${mlz_config_subid}" \
     --vault-name "${mlz_kv_name}" \
-    --value "${sp_pwd}" \
+    --value "${sp_client_secret}" \
     --output none
 
 az keyvault secret set \
-    --name "${mlz_sp_kv_name}" \
+    --name "${mlz_kv_sp_client_id}" \
     --subscription "${mlz_config_subid}" \
     --vault-name "${mlz_kv_name}" \
-    --value "${sp_clientid}" \
+    --value "${sp_client_id}" \
     --output none
 
 az keyvault secret set \
-    --name "${mlz_sp_obj_name}" \
+    --name "${mlz_kv_sp_object_id}" \
     --subscription "${mlz_config_subid}" \
     --vault-name "${mlz_kv_name}" \
-    --value "${sp_objid}" \
+    --value "${sp_object_id}" \
     --output none
 
 echo "INFO: MLZ resources for ${mlz_env_name} created!"

@@ -42,13 +42,13 @@ acr_login_server=$(az acr show \
 echo "INFO: creating instance of ${image_name}:${image_tag} on ${mlz_instance_name} in ${mlz_acr_name}..."
 
 registry_username=$(az keyvault secret show \
-  --name "${mlz_sp_kv_name}" \
+  --name "${mlz_kv_sp_client_id}" \
   --vault-name "${mlz_kv_name}" \
   --query value \
   --output tsv)
 
 registry_password=$(az keyvault secret show \
-  --name "${mlz_sp_kv_password}" \
+  --name "${mlz_kv_sp_client_secret}" \
   --vault-name "${mlz_kv_name}" \
   --query value \
   --output tsv)

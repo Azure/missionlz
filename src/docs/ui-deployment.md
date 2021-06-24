@@ -161,8 +161,8 @@ prior to following the following instructions
     $env:TIER2_SUBSCRIPTION_ID='TIER2_SUBSCRIPTION_ID=$mlz_tier2_subid'
     $env:TF_ENV='$tf_environment'
     $env:MLZ_ENV='$mlz_env_name'
-    $env:MLZCLIENTID='$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)'
-    $env:MLZCLIENTSECRET='$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)'
+    $env:MLZCLIENTID='$(az keyvault secret show --name "${mlz_kv_sp_client_id}" --vault-name "${mlz_kv_name}" --query value --output tsv)'
+    $env:MLZCLIENTSECRET='$(az keyvault secret show --name "${mlz_kv_sp_client_secret}" --vault-name "${mlz_kv_name}" --query value --output tsv)'
     ```
 
     ```bash

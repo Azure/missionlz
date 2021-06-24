@@ -58,7 +58,7 @@ acr_id=$(az acr show \
   --output tsv)
 
 client_id=$(az keyvault secret show \
-  --name "${mlz_sp_kv_name}" \
+  --name "${mlz_kv_sp_client_id}" \
   --vault-name "${mlz_kv_name}" \
   --query value \
   --only-show-errors \

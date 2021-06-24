@@ -52,12 +52,12 @@ auth_client_secret=$(az keyvault secret show \
   --query value \
   --output tsv)
 mlz_client_id=$(az keyvault secret show \
-  --name "${mlz_sp_kv_name}" \
+  --name "${mlz_kv_sp_client_id}" \
   --vault-name "${mlz_kv_name}" \
   --query value \
   --output tsv)
 mlz_client_secret=$(az keyvault secret show \
-  --name "${mlz_sp_kv_password}" \
+  --name "${mlz_kv_sp_client_secret}" \
   --vault-name "${mlz_kv_name}" \
   --query value \
   --output tsv)
@@ -104,9 +104,9 @@ echo "\$env:TIER1_SUBSCRIPTION_ID='TIER1_SUBSCRIPTION_ID=$mlz_tier1_subid'"
 echo "\$env:TIER2_SUBSCRIPTION_ID='TIER2_SUBSCRIPTION_ID=$mlz_tier2_subid'"
 echo "\$env:TF_ENV='$tf_environment'"
 echo "\$env:MLZ_ENV='$mlz_env_name'"
-echo "\$env:MLZCLIENTID='$(az keyvault secret show --name "${mlz_sp_kv_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
-echo "\$env:MLZCLIENTSECRET='$(az keyvault secret show --name "${mlz_sp_kv_password}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
-echo "\$env:MLZOBJECTID='$(az keyvault secret show --name "${mlz_sp_obj_name}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
+echo "\$env:MLZCLIENTID='$(az keyvault secret show --name "${mlz_kv_sp_client_id}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
+echo "\$env:MLZCLIENTSECRET='$(az keyvault secret show --name "${mlz_kv_sp_client_secret}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
+echo "\$env:MLZOBJECTID='$(az keyvault secret show --name "${mlz_kv_sp_object_id}" --vault-name "${mlz_kv_name}" --query value --output tsv)'"
 
 echo "=============================="
 echo "INFO: 2) Then, execute the web server with:"

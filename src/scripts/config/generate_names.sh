@@ -38,9 +38,9 @@ create_keyvault_names(){
   local mlz_kv_name_full="${mlz_prefix}${env_name_alphanumeric}kv${randomish_identifier}"
   export mlz_kv_name="${mlz_kv_name_full:0:24}"
 
-  export mlz_sp_kv_name="serviceprincipal-clientid"
-  export mlz_sp_kv_password="serviceprincipal-pwd"
-  export mlz_sp_obj_name="serviceprincipal-objectid"
+  export mlz_kv_sp_client_id="serviceprincipal-clientid"
+  export mlz_kv_sp_client_secret="serviceprincipal-pwd"
+  export mlz_kv_sp_object_id="serviceprincipal-objectid"
   export mlz_login_app_kv_name="login-app-clientid"
   export mlz_login_app_kv_password="login-app-pwd"
 }
