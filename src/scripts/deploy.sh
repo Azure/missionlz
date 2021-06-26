@@ -29,6 +29,7 @@ show_help() {
   print_formatted "--tier0-sub-id" "-0" "[OPTIONAL] subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier1-sub-id" "-1" "[OPTIONAL] subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier2-sub-id" "-2" "[OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)"
+  print_formatted "--write-outputs" "-w" "[OPTIONAL] Tier 3 Deployment Requires terraform output, use this flag to write."
   print_formatted "--no-bastion" "" "[OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM"
   print_formatted "--help" "-h" "Print this message"
 }
@@ -132,6 +133,11 @@ apply_terraform() {
     "y"
 }
 
+write_outputs() {
+  echo "INFO: Writing outputs from terraform deployment"
+  terraform output -json | tee ${configuration_output_path/deploy_output.json
+}
+
 display_clean_hint() {
   echo "INFO: Try this command to clean up what was deployed:"
   echo "INFO: ${this_script_path}/clean.sh -z ${mlz_env_name}"
@@ -156,6 +162,7 @@ mlz_config_subid="${default_config_subid}"
 mlz_config_location="${default_config_location}"
 tf_environment="${default_tf_environment}"
 mlz_env_name="${default_env_name}"
+write_output="false"
 subs_args=()
 
 while [ $# -gt 0 ] ; do
@@ -184,6 +191,9 @@ while [ $# -gt 0 ] ; do
     -2 | --tier2-sub-id)
       shift
       subs_args+=("-2 ${1}") ;;
+    -w | --write-outputs)
+      shift
+      write_output="true"
     -h | --help)
       show_help
       exit 0 ;;
@@ -212,3 +222,6 @@ create_terraform_variables
 trap 'display_clean_hint' EXIT # no matter if the next commands fail, run display_clean_hint
 create_mlz_resources
 apply_terraform
+if [[ $write_output == "true" ]]; then
+  write_outputs
+fi

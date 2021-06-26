@@ -34,7 +34,7 @@ display_tf_output=${4:-n}
 # reference paths
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
 src_dir=$(dirname "${this_script_path}")
-core_path="${src_dir}/core/"
+terraform_path="${src_dir}/terraform/"
 scripts_path="${src_dir}/scripts/"
 echo $core_path
 
@@ -119,4 +119,4 @@ apply() {
 . "${this_script_path}/config/create_terraform_backend_resources.sh" "${mlz_config}" "${mlz_tier0_subid}" "${core_path}/tier-3"
 
 # call apply()
-apply "tier-3" "${mlz_tier3_subid}" "${core_path}/tier-3" "${tier3_vars}"
+apply "tier-3" "${mlz_tier3_subid}" "${terraform_path}/tier3" "${tier3_vars}"
