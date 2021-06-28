@@ -88,7 +88,8 @@ wait_for_sp_property() {
     sp_name=$1
     sp_property=$2
 
-    query="az ad sp show --id ${sp_name} --query ${sp_property} --output tsv"
+    args=(--filter "\"appId eq '$sp_name'\"" --query "[0].$sp_property" --output tsv)
+    query="az ad sp list ${args[*]}"
 
     sleep_time_in_seconds=10
     max_wait_in_seconds=180
@@ -96,7 +97,7 @@ wait_for_sp_property() {
 
     count=1
 
-    while [[ -z $($query)  ]]
+    while [[ -z $(eval "$query") ]]
     do
       echo "INFO: waiting for query \"${query}\" to return results (${count}/${max_retries})"
       echo "INFO: trying again in ${sleep_time_in_seconds} seconds..."
@@ -129,10 +130,10 @@ if [[ -z $(az ad sp list --filter "displayName eq 'http://${mlz_sp_name}'" --que
     wait_for_sp_creation "${sp_client_id}"
     wait_for_sp_property "${sp_client_id}" "objectId"
 
-    sp_object_id=$(az ad sp show \
-        --id "${sp_clientid}" \
-        --query objectId \
-        --output tsv)
+    odata_filter_args=(--filter "\"appId eq '$sp_client_id'\"" --query "[0].objectId" --output tsv)
+    object_id_query="az ad sp list ${odata_filter_args[*]}"
+
+    sp_object_id=$(eval "$object_id_query")
 
     # Assign Contributor role to Service Principal
     for sub in "${subs[@]}"
