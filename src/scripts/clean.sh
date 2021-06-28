@@ -104,7 +104,7 @@ destroy_mlz() {
 
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
 src_path="$(realpath "${this_script_path}/../")"
-configuration_output_path="${this_script_path}/../generated-configurations"
+configuration_output_path=$(realpath "${this_script_path}/../generated-configurations")
 
 mlz_env_name="notset"
 

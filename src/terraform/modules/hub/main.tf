@@ -1,6 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+resource "azurerm_log_analytics_workspace" "loganalytics" {
+  name                = var.log_analytics_workspace_name
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  sku                 = var.log_analytics_workspace_sku
+  retention_in_days   = var.log_analytics_workspace_retention_in_days
+  tags                = var.tags
+}
+
 module "hub-network" {
   source                              = "../virtual-network"
   location                            = var.location
