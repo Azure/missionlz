@@ -3,7 +3,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-# shellcheck disable=SC1090,SC1091,SC2154
+# shellcheck disable=SC1090,SC1091,SC2154,SC2207
 # SC1090: Can't follow non-constant source. Use a directive to specify location.
 # SC2154: "var is referenced but not assigned". These values come from an external file.
 #
@@ -119,15 +119,15 @@ if [[ -z $(az ad sp list --filter "displayName eq 'http://${mlz_sp_name}'" --que
     sp_creds=($(az ad sp create-for-rbac \
         --name "http://${mlz_sp_name}" \
         --skip-assignment true \
-        --query '[password, appId]'  \
+        --query "[password, appId]" \
         --only-show-errors \
         --output tsv))
 
-    sp_pwd=${sp_creds[0]}
-    sp_clientid=${sp_creds[1]}
+    sp_client_secret=${sp_creds[0]}
+    sp_client_id=${sp_creds[1]}
 
-    wait_for_sp_creation $sp_clientid
-    wait_for_sp_property $sp_clientid "objectId"
+    wait_for_sp_creation "${sp_client_id}"
+    wait_for_sp_property "${sp_client_id}" "objectId"
 
     sp_object_id=$(az ad sp show \
         --id "${sp_clientid}" \
