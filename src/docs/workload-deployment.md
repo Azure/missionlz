@@ -17,7 +17,7 @@ Mission LZ supports deploying multiple workload tiers that are connected to the 
 
 #### Quickstart Deploy
 
-In tandem with the quickstart found in [QuickStart Deploying MLZ](command-line-deployment.md#Quickstart) you can quickly get up and running and deploy a single workload instance to your configuration.  Note: This should be run using the -tier3-sub-id flag if you wish to change the subscription id for tier 3.   Additionally the "-w true" flag should be appended to ensure that the output 
+In tandem with the quickstart found in [QuickStart Deploying MLZ](command-line-deployment.md#Quickstart) you can quickly get up and running and deploy a single workload instance to your configuration.  Note: This should be run using the -tier3-sub-id flag if you wish to change the subscription id for tier 3.   Additionally the "-w" flag should be appended to ensure that the output 
 
 After you have deployed the core MLZ resources,  you can use the following (The generated-configuration item artifacts come from the base deployment and can be reused)
 

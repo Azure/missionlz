@@ -136,7 +136,7 @@ apply_terraform() {
 
 write_outputs() {
   echo "INFO: Writing outputs from terraform deployment"
-  cd ${terraform_dir}/mlz
+  cd "${this_script_path}/../terraform/mlz"
   terraform output | tee ${configuration_output_path}/output.tfvars
 }
 
