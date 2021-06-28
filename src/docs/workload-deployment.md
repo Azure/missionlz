@@ -17,12 +17,12 @@ Mission LZ supports deploying multiple workload tiers that are connected to the 
 
 #### Quickstart Deploy
 
-In tandem with the quickstart found in [QuickStart Deploying MLZ](command-line-deployment.md#Quickstart) you can quickly get up and running and deploy a single workload instance to your configuration.  Note: This should be run using the -tier3-sub-id flag in order to create the fast config files to deploy this network resource.
+In tandem with the quickstart found in [QuickStart Deploying MLZ](command-line-deployment.md#Quickstart) you can quickly get up and running and deploy a single workload instance to your configuration.  Note: This should be run using the -tier3-sub-id flag if you wish to change the subscription id for tier 3.   Additionally the "-w true" flag should be appended to ensure that the output 
 
 After you have deployed the core MLZ resources,  you can use the following (The generated-configuration item artifacts come from the base deployment and can be reused)
 
 ```bash
-./deploy_t3.sh ../generated-configurations/{mlz_env_name}.mlzconfig ../generated-configurations/{mlz_env_name}.tfvars  ../generated-configurations/{mlz_env_name}.tfvars y
+./deploy_t3.sh ../generated-configurations/{mlz_env_name}.mlzconfig ../generated-configurations/{mlz_env_name}.tfvars ../generated-configurations/output.tfvars ../generated-configurations/{mlz_env_name}.tfvars y
 ```
 
 > **CONSIDERATIONS** This script should not be run unless the instructions for setting up the core MLZ deployment have been followed.  It will deploy a single workload with default configurations for testing/demonstration purposes.
@@ -36,7 +36,7 @@ A production usage of tier 3 workloads will require a more advanced setup than a
 > **NOTE** Like the other Mission LZ tiers, each tier 3 workload can be deployed into its own subscription or they can be deployed into a single subscription. For production deployments we recommend that each tier 3 is deployed into its own subscription to simplify managing security and access.
 <!-- markdownlint-enable MD028 -->
 
-1. First, moidfy the MLZ Configuration file `mlz.config` file using the `mlz.config.sample` as a template,  this file should be a copy of the file used to deploy MLZ.  You will need to modify the following to include the actual subscription number:
+1. First, modify the MLZ Configuration file `mlz.config` file using the `mlz.config.sample` as a template,  this file should be a copy of the file used to deploy MLZ.  You will need to modify the following to include the actual subscription number:
 
     ```plaintext
     mlz_tier3_subid="{MLZ_TIER3_SUBID}" # Optional if not currently deploying a tier 3
@@ -46,12 +46,23 @@ A production usage of tier 3 workloads will require a more advanced setup than a
 
 3. You will have to modify the *.tfvars.sample variables for [src/terraform/tier-3/tier-3.tfvars.sample](/src/terraform/tier-3/tier-3.tfvars.sample).  If deploying multiple workloads it's especially important to change the 'TIER3_VNETSPACE' variable,  and the matching 'TIER3_SUBNETVM_ADDRESSPREFIXLIST' variable.   These variables represent the networking address space, and they must be different than other tier/workload spaces or the deployment will fail.
 
-4. Once you have collected all of these artifacts you can deploy your workload tier with.  The folder names are examples, these files can be placed anywhere.
+4. The deployment of a Tier 3 relies on an already completed deployment of MLZ and a resulting output file that contains 3 variables:
+
+    ```plaintext
+      laws_name:  The Log Analytic workspace name
+      laws_rgname: The resource group you've deployed LAWS to.
+      firewall_private_ip: The Ip address of the firewall that the tier 3 will be connecting to.
+    ```
+
+    You can manually provide these in an output.tfvars file if you need.
+
+5. Once you have collected all of these artifacts you can deploy your workload tier with.  The folder names are examples, these files can be placed anywhere.
 
   ```bash
     src/scripts/deploy_t3.sh \
     src/mlz.config
     src/terraform/mlz.tfvars \
+    src/terraform/output.tfvars
     src/terraform/tier-3/tier-3.tfvars
   ```
 
