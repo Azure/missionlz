@@ -10,3 +10,9 @@ output "laws_rgname" {
     description = "Resource Group for Laws"
     value = azurerm_log_analytics_workspace.laws.resource_group_name
 }
+
+
+output "firewall_private_ip" {
+    description "Firewall private IP"
+    value = firewall.firewall_private_ip
+}

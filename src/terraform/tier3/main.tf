@@ -106,7 +106,7 @@ resource "azurerm_resource_group" "tier3" {
 ################################
 
 data "azurerm_log_analytics_workspace" "laws" {
-  provider   = azurerm.tier1
+  provider = azurerm.tier1
 
   name                = var.laws_name
   resource_group_name = var.tier1_rgname
@@ -116,22 +116,28 @@ data "azurerm_log_analytics_workspace" "laws" {
 ### STAGE 2: Networking      ###
 ################################
 
+data "azurerm_virtual_network" "hub" {
+  name                = var.hub_vnetname
+  resource_group_name = var.hub_rgname
+}
+
+
 module "spoke-network-t3" {
-  providers  = { azurerm = azurerm.tier3 }
+  provider   = azurerm.tier3
   depends_on = [azurerm_resource_group.tier3]
   source     = "../modules/spoke"
 
-  location = azurerm_resource_group.tier2.location
+  location = azurerm_resource_group.tier3.location
 
   hub_subid           = var.hub_subid
   hub_rgname          = var.hub_rgname
   hub_vnetname        = var.hub_vnetname
   firewall_private_ip = var.firewall_private_ip
 
-  laws_name         = azurerm_log_analytics_workspace.laws.name
+  laws_name         = data.azurerm_log_analytics_workspace.laws.name
   laws_location     = var.mlz_location
-  laws_workspace_id = azurerm_log_analytics_workspace.laws.workspace_id
-  laws_resource_id  = azurerm_log_analytics_workspace.laws.id
+  laws_workspace_id = data.azurerm_log_analytics_workspace.laws.workspace_id
+  laws_resource_id  = data.azurerm_log_analytics_workspace.laws.id
 
   spoke_subid    = var.tier3_subid
   spoke_rgname   = var.tier3_rgname
@@ -152,14 +158,14 @@ resource "azurerm_virtual_network_peering" "t3-to-hub" {
   name                         = "${var.tier3_vnetname}-to-${var.hub_vnetname}"
   resource_group_name          = var.tier3_rgname
   virtual_network_name         = var.tier3_vnetname
-  remote_virtual_network_id    = var.hub_network_id
+  remote_virtual_network_id    = data.azurerm_virtual_network.hub.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
 }
 
 resource "azurerm_virtual_network_peering" "hub-to-t3" {
   provider   = azurerm.hub
-  depends_on = [azurerm_resource_group.hub, module.spoke-network-t3]
+  depends_on = [module.spoke-network-t3]
 
   name                         = "${var.hub_vnetname}-to-${var.tier3_vnetname}"
   resource_group_name          = var.hub_rgname
