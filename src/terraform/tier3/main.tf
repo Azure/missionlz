@@ -108,8 +108,8 @@ resource "azurerm_resource_group" "tier3" {
 data "azurerm_log_analytics_workspace" "laws" {
   provider = azurerm.tier1
 
-  name                = var.laws_name
-  resource_group_name = var.tier1_rgname
+  name                = var.laws_name.value
+  resource_group_name = var.laws_rgname.value
 }
 
 ################################
@@ -123,7 +123,7 @@ data "azurerm_virtual_network" "hub" {
 
 
 module "spoke-network-t3" {
-  provider   = azurerm.tier3
+  providers  = { azurerm = azurerm.tier3 }
   depends_on = [azurerm_resource_group.tier3]
   source     = "../modules/spoke"
 
@@ -132,7 +132,7 @@ module "spoke-network-t3" {
   hub_subid           = var.hub_subid
   hub_rgname          = var.hub_rgname
   hub_vnetname        = var.hub_vnetname
-  firewall_private_ip = var.firewall_private_ip
+  firewall_private_ip = var.firewall_private_ip.value
 
   laws_name         = data.azurerm_log_analytics_workspace.laws.name
   laws_location     = var.mlz_location

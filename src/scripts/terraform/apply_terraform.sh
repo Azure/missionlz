@@ -15,13 +15,14 @@ set -e
 
 if [[ "$#" -lt 2 ]]; then
    echo "apply_terraform.sh: initializes Terraform for a given directory using given a .env file for backend configuration"
-   echo "usage: apply_terraform.sh <terraform configuration directory> <tfvars_file> <auto approve (y/n)>"
+   echo "usage: apply_terraform.sh <terraform configuration directory> <tfvars_file> <auto approve (y/n)> <extra_vars_file>"
    exit 1
 fi
 
 tf_dir=$(realpath "${1}")
 tf_vars=$(realpath "${2}")
 auto_approve=${3:-n}
+extra_vars=${4:notset}
 
 scripts_path=$(realpath "${BASH_SOURCE%/*}/..")
 
@@ -73,6 +74,11 @@ apply_command+=" -var-file=${tf_vars}"
 apply_command+=" -var mlz_clientid=${client_id}"
 apply_command+=" -var mlz_clientsecret=${client_secret}"
 apply_command+=" -var mlz_objectid=${object_id}"
+
+if [[ $extra_vars != "notset" ]]; then
+   extra_vars_real=$(realpath "${4}")
+   apply_command+=" -var-file=${extra_vars_real}"
+fi 
 
 
 eval "${apply_command}"

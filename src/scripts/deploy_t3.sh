@@ -17,7 +17,7 @@ error_log() {
 
 usage() {
   echo "deploy_t3.sh: Automation that calls apply terraform given a MLZ configuration and some tfvars"
-  error_log "usage: deploy_t3.sh <mlz config> <globals.tfvars> <output.tfvars> <tier3.tfvars> <display terraform output (y/n)>"
+  error_log "usage: deploy_t3.sh <mlz config> <output.tfvars> <tier3.tfvars> <display terraform output (y/n)>"
 }
 
 if [[ "$#" -lt 3 ]]; then
@@ -27,27 +27,23 @@ fi
 
 # take some valid, well known, mlz_config and vars as input
 mlz_config=$1
-globals=$2
-output=$3
-pre_tier3_vars=$4
-display_tf_output=${5:-n}
+output_vars=$(realpath "${2}")
+tier3_vars=$3
+display_tf_output=${4:-n}
 
 # reference paths
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
-configuration_output_path="${this_script_path}/../generated-configurations"
-merged_output_name="merged_vars.tfvars"
 src_dir=$(dirname "${this_script_path}")
 terraform_path="${src_dir}/terraform/"
 scripts_dir="${src_dir}/scripts/"
-
-# Merge outputs and tier3 files to send to tier3 deployment
-cat ${output} ${pre_tier3_vars} > ${configuration_output_path}/${merged_output_name}
 
 # apply function
 apply() {
   sub_id=$1
   tf_dir=$2
   vars=$3
+
+  . "${this_script_path}/config/create_terraform_backend_resources.sh" "${mlz_config}" "${sub_id}" "${tf_dir}" 
 
   # generate config.vars based on MLZ Config and Terraform module
   . "${scripts_dir}/config/generate_vars.sh" \
@@ -83,7 +79,7 @@ apply() {
   attempts=1
   max_attempts=5
 
-  apply_command="${scripts_dir}/terraform/apply_terraform.sh ${tf_dir} ${tf_vars} y"
+  apply_command="${scripts_dir}/terraform/apply_terraform.sh ${tf_dir} ${tf_vars} y ${output_vars}"
   destroy_command="${scripts_dir}/terraform/destroy_terraform.sh ${tf_dir} ${tf_vars} y"
 
   if [[ $display_tf_output == "n" ]]; then
@@ -119,4 +115,4 @@ apply() {
 . "${mlz_config}"
 
 # call apply()
-apply "${mlz_tier3_subid}" "${terraform_path}/tier3" "${configuration_output_path}/${merged_output_name}"
+apply "${mlz_tier3_subid}" "${terraform_path}/tier3" "${tier3_vars}"
