@@ -15,19 +15,13 @@ set -e
 
 if [[ "$#" -lt 2 ]]; then
    echo "destroy_terraform.sh: initializes Terraform for a given directory using given a .env file for backend configuration"
-   echo "usage: destroy_terraform.sh <global variables file> <terraform configuration directory> <var_file> <auto approve (y/n)>"
+   echo "usage: destroy_terraform.sh <terraform configuration directory> <tfvars_file> <auto approve (y/n)>"
    exit 1
 fi
 
-globalvars=$(realpath "${1}")
-
-tf_dir=$(realpath "${2}")
-tf_name=$(basename "${3}")
-
-config_vars="${tf_dir}/config.vars"
-tfvars="${tf_dir}/${tf_name}"
-
-auto_approve=${4:-n}
+tf_dir=$(realpath "${1}")
+tf_vars=$(realpath "${2}")
+auto_approve=${3:-n}
 
 scripts_path=$(realpath "${BASH_SOURCE%/*}/..")
 
@@ -39,6 +33,7 @@ scripts_path=$(realpath "${BASH_SOURCE%/*}/..")
 . "${scripts_path}/config/config_validate.sh" "${tf_dir}"
 
 # Validate configuration file exists
+config_vars="${tf_dir}/config.vars"
 . "${scripts_path}/util/checkforfile.sh" \
    "${config_vars}" \
    "The configuration file ${config_vars} is empty or does not exist. You may need to run MLZ setup."
@@ -50,6 +45,7 @@ scripts_path=$(realpath "${BASH_SOURCE%/*}/..")
 . "${scripts_path}/config/get_sp_identity.sh" "${config_vars}"
 
 # Set the terraform state key
+tf_name=$(basename "$(dirname "${tf_vars}")")
 key="${mlz_env_name}${tf_name}"
 
 # initialize terraform in the configuration directory
@@ -57,8 +53,8 @@ cd "${tf_dir}" || exit
 terraform init \
    -backend-config "metadata_host=${metadata_host}" \
    -backend-config "key=${key}" \
-   -backend-config "resource_group_name=${tf_be_rg_name}" \
-   -backend-config "storage_account_name=${tf_be_sa_name}" \
+   -backend-config "resource_group_name=${tf_rg_name}" \
+   -backend-config "storage_account_name=${tf_sa_name}" \
    -backend-config "container_name=${container_name}" \
    -backend-config "environment=${environment}" \
    -backend-config "tenant_id=${tenant_id}" \
@@ -73,8 +69,7 @@ if [[ $auto_approve == "y" ]]; then
    destroy_command+=" -input=false -auto-approve"
 fi
 
-destroy_command+=" -var-file=${globalvars}"
-destroy_command+=" -var-file=${tfvars}"
+destroy_command+=" -var-file=${tf_vars}"
 destroy_command+=" -var mlz_clientid=${client_id}"
 destroy_command+=" -var mlz_clientsecret=${client_secret}"
 destroy_command+=" -var mlz_objectid=${object_id}"

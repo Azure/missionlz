@@ -40,11 +40,7 @@ jobs:
         cd src/build
         ./apply_tf.sh \
           vars/mlz.config \
-          vars/globals.tfvars \
-          vars/saca-hub.tfvars \
-          vars/tier-0.tfvars \
-          vars/tier-1.tfvars \
-          vars/tier-2.tfvars \
+          vars/mlz.tfvars \
           n
 
     - name: destroy terraform
@@ -52,9 +48,5 @@ jobs:
         cd src/build
         ./destroy_tf.sh \
           vars/mlz.config \
-          vars/globals.tfvars \
-          vars/saca-hub.tfvars \
-          vars/tier-0.tfvars \
-          vars/tier-1.tfvars \
-          vars/tier-2.tfvars \
+          vars/mlz.tfvars \
           n

@@ -15,17 +15,14 @@ set -e
 
 if [[ "$#" -lt 2 ]]; then
    echo "apply_terraform.sh: initializes Terraform for a given directory using given a .env file for backend configuration"
-   echo "usage: apply_terraform.sh <global variables file> <terraform configuration directory> <var_file> <auto approve (y/n)>"
+   echo "usage: apply_terraform.sh <terraform configuration directory> <tfvars_file> <auto approve (y/n)> <extra_vars_file>"
    exit 1
 fi
 
-globalvars=$(realpath "${1}")
-tf_dir=$(realpath "${2}")
-tf_name=$(basename "${3}")
-config_vars="${tf_dir}/config.vars"
-tfvars="${tf_dir}/${tf_name}"
-
-auto_approve=${4:-n}
+tf_dir=$(realpath "${1}")
+tf_vars=$(realpath "${2}")
+auto_approve=${3:-n}
+extra_vars=${4:-notset}
 
 scripts_path=$(realpath "${BASH_SOURCE%/*}/..")
 
@@ -37,6 +34,7 @@ scripts_path=$(realpath "${BASH_SOURCE%/*}/..")
 . "${scripts_path}/config/config_validate.sh" "${tf_dir}"
 
 # Validate configuration file exists
+config_vars="${tf_dir}/config.vars"
 . "${scripts_path}/util/checkforfile.sh" \
    "${config_vars}" \
    "The configuration file ${config_vars} is empty or does not exist. You may need to run MLZ setup."
@@ -48,6 +46,7 @@ scripts_path=$(realpath "${BASH_SOURCE%/*}/..")
 . "${scripts_path}/config/get_sp_identity.sh" "${config_vars}"
 
 # Set the terraform state key
+tf_name=$(basename "$(dirname "${tf_vars}")")
 key="${mlz_env_name}${tf_name}"
 
 # initialize terraform in the configuration directory
@@ -55,8 +54,8 @@ cd "${tf_dir}" || exit
 terraform init \
    -backend-config "metadata_host=${metadata_host}" \
    -backend-config "key=${key}" \
-   -backend-config "resource_group_name=${tf_be_rg_name}" \
-   -backend-config "storage_account_name=${tf_be_sa_name}" \
+   -backend-config "resource_group_name=${tf_rg_name}" \
+   -backend-config "storage_account_name=${tf_sa_name}" \
    -backend-config "container_name=${container_name}" \
    -backend-config "environment=${environment}" \
    -backend-config "tenant_id=${tenant_id}" \
@@ -71,10 +70,15 @@ if [[ $auto_approve == "y" ]]; then
    apply_command+=" -input=false -auto-approve"
 fi
 
-apply_command+=" -var-file=${globalvars}"
-apply_command+=" -var-file=${tfvars}"
+apply_command+=" -var-file=${tf_vars}"
 apply_command+=" -var mlz_clientid=${client_id}"
 apply_command+=" -var mlz_clientsecret=${client_secret}"
 apply_command+=" -var mlz_objectid=${object_id}"
+
+if [[ $extra_vars != "notset" ]]; then
+   extra_vars_real=$(realpath "${4}")
+   apply_command+=" -var-file=${extra_vars_real}"
+fi 
+
 
 eval "${apply_command}"

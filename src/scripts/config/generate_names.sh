@@ -38,25 +38,11 @@ create_keyvault_names(){
   local mlz_kv_name_full="${mlz_prefix}${env_name_alphanumeric}kv${randomish_identifier}"
   export mlz_kv_name="${mlz_kv_name_full:0:24}"
 
-  export mlz_sp_kv_name="serviceprincipal-clientid"
-  export mlz_sp_kv_password="serviceprincipal-pwd"
-  export mlz_sp_obj_name="serviceprincipal-objectid"
+  export mlz_kv_sp_client_id="serviceprincipal-clientid"
+  export mlz_kv_sp_client_secret="serviceprincipal-pwd"
+  export mlz_kv_sp_object_id="serviceprincipal-objectid"
   export mlz_login_app_kv_name="login-app-clientid"
   export mlz_login_app_kv_password="login-app-pwd"
-}
-
-create_container_registry_names(){
-  local mlz_acr_name_full="${mlz_prefix}${env_name_alphanumeric}acr${randomish_identifier}"
-  export mlz_acr_name="${mlz_acr_name_full:0:50}"
-
-  local mlz_fe_app_name_full="${mlz_prefix}-${env_name_alphanumeric}-frontend-app"
-  export mlz_fe_app_name="${mlz_fe_app_name_full:0:120}"
-
-  local mlz_instance_name_full="${mlz_prefix}${env_name_alphanumeric}feinstance${randomish_identifier}"
-  export mlz_instance_name="${mlz_instance_name_full:0:63}"
-
-  local mlz_dns_name_full="${mlz_prefix}${env_name_alphanumeric}dns${randomish_identifier}"
-  export mlz_dns_name="${mlz_dns_name_full:0:60}"
 }
 
 create_terraform_backend_names() {
@@ -92,5 +78,4 @@ randomish_identifier=${mlz_config_subid:0:8} # take the first octet in the subsc
 create_resource_group_names
 create_service_principal_name
 create_keyvault_names
-create_container_registry_names
 create_terraform_backend_names

@@ -52,8 +52,8 @@ cd "${tf_dir}" || exit
 terraform init \
    -backend-config "metadata_host=${metadata_host}" \
    -backend-config "key=${key}" \
-   -backend-config "resource_group_name=${tf_be_rg_name}" \
-   -backend-config "storage_account_name=${tf_be_sa_name}" \
+   -backend-config "resource_group_name=${tf_rg_name}" \
+   -backend-config "storage_account_name=${tf_sa_name}" \
    -backend-config "container_name=${container_name}" \
    -backend-config "environment=${environment}" \
    -backend-config "tenant_id=${tenant_id}" \

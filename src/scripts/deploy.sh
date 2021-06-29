@@ -30,6 +30,7 @@ show_help() {
   print_formatted "--tier1-sub-id" "-1" "[OPTIONAL] subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier2-sub-id" "-2" "[OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier3-sub-id" "-3" "[OPTIONAL] subscription ID for tier 3 network and resources (defaults to the value provided for -s --subscription-id), input is used in conjunction with deploy_t3.sh"
+  print_formatted "--write-output" "-w" "[OPTIONAL] Tier 3 Deployment requires Terraform output, use this flag to write terraform output"
   print_formatted "--no-bastion" "" "[OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM"
   print_formatted "--help" "-h" "Print this message"
 }
@@ -139,12 +140,12 @@ validate_mlz_configuration_file() {
 
 create_mlz_resources() {
   echo "INFO: creating MLZ resources using ${mlz_config_file_path}..."
-  "${this_script_path}/config/create_mlz_configuration_resources.sh" "${mlz_config_file_path}"
+  "${this_script_path}/config/create_required_resources.sh" "${mlz_config_file_path}"
 }
 
 create_terraform_variables() {
   echo "INFO: creating terraform variables at ${tfvars_file_path}..."
-  "${this_script_path}/terraform/create_globals_from_config.sh" "${tfvars_file_path}" "${mlz_config_file_path}" "${create_bastion_jumpbox}"
+  "${this_script_path}/terraform/create_tfvars_from_config.sh" "${tfvars_file_path}" "${mlz_config_file_path}" "${create_bastion_jumpbox}"
 }
 
 apply_terraform() {
@@ -153,11 +154,13 @@ apply_terraform() {
   "${this_script_path}/../build/apply_tf.sh" \
     "${mlz_config_file_path}" \
     "${tfvars_file_path}" \
-    "${tfvars_file_path}" \
-    "${tfvars_file_path}" \
-    "${tfvars_file_path}" \
-    "${tfvars_file_path}" \
     "y"
+}
+
+write_outputs() {
+  echo "INFO: Writing outputs from terraform deployment"
+  cd "${this_script_path}/../terraform/mlz"
+  terraform output -json | tee ${configuration_output_path}/output.tfvars.json
 }
 
 display_clean_hint() {
@@ -184,6 +187,7 @@ mlz_config_subid="${default_config_subid}"
 mlz_config_location="${default_config_location}"
 tf_environment="${default_tf_environment}"
 mlz_env_name="${default_env_name}"
+write_output="false"
 subs_args=()
 
 while [ $# -gt 0 ] ; do
@@ -215,11 +219,13 @@ while [ $# -gt 0 ] ; do
     -3 | --tier3-sub-id)
       shift
       subs_args+=("-3 ${1}") ;;
+    -w | --write-output)      
+      write_output="true" ;;
+    --no-bastion)
+      create_bastion_jumpbox=false ;;
     -h | --help)
       show_help
       exit 0 ;;
-    --no-bastion)
-      create_bastion_jumpbox=false ;;
     *)
       error_log "ERROR: Unexpected argument: ${1}"
       usage && exit 1 ;;
@@ -244,3 +250,6 @@ create_terraform_variables
 trap 'display_clean_hint' EXIT # no matter if the next commands fail, run display_clean_hint
 create_mlz_resources
 apply_terraform
+if [[ $write_output == "true" ]]; then
+  write_outputs
+fi
