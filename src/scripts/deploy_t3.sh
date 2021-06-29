@@ -17,7 +17,7 @@ error_log() {
 
 usage() {
   echo "deploy_t3.sh: Automation that calls apply terraform given a MLZ configuration and some tfvars"
-  error_log "usage: deploy_t3.sh <mlz config> <output.tfvars> <tier3.tfvars> <display terraform output (y/n)>"
+  error_log "usage: deploy_t3.sh <mlz config> <output.tfvars.json> <tier3.tfvars> <display terraform output (y/n)>"
 }
 
 if [[ "$#" -lt 3 ]]; then

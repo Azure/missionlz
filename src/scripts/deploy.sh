@@ -160,7 +160,7 @@ apply_terraform() {
 write_outputs() {
   echo "INFO: Writing outputs from terraform deployment"
   cd "${this_script_path}/../terraform/mlz"
-  terraform output -json | tee ${configuration_output_path}/output.tfvars
+  terraform output -json | tee ${configuration_output_path}/output.tfvars.json
 }
 
 display_clean_hint() {

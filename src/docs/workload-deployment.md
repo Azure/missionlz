@@ -24,10 +24,10 @@ In tandem with the quickstart found in [QuickStart Deploying MLZ](command-line-d
 After you have deployed the core MLZ resources, you can use this command (the generated-configuration item artifacts come from the base deployment and can be reused), substituting `{mlz_env_name}` with the appropriate value.
 
 ```bash
-./deploy_t3.sh ../generated-configurations/{mlz_env_name}.mlzconfig ../generated-configurations/{mlz_env_name}.tfvars ../generated-configurations/output.tfvars ../generated-configurations/{mlz_env_name}.tfvars y
+./deploy_t3.sh ../generated-configurations/{mlz_env_name}.mlzconfig ../generated-configurations/{mlz_env_name}.tfvars ../generated-configurations/output.tfvars.json y
 ```
 
-> **CONSIDERATIONS** This script should not be run unless the instructions for setting up the core MLZ deployment have been followed.  It will deploy a single workload with default configurations for testing/demonstration purposes.
+> **CONSIDERATIONS** This script should not be run unless the instructions for setting up the core MLZ deployment have been followed. It will deploy a single workload with default configurations for testing/demonstration purposes.
 
 ### Advanced Deployment
 
@@ -85,7 +85,7 @@ A production usage of tier 3 workloads will require a more advanced setup than a
   ```bash
     src/scripts/deploy_t3.sh \
     src/mlz.config
-    src/terraform/output.tfvars
+    src/terraform/output.tfvars.json
     src/terraform/tier-3/tier-3.tfvars
   ```
 
