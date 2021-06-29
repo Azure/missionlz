@@ -11,7 +11,6 @@ output "laws_rgname" {
   value       = azurerm_log_analytics_workspace.laws.resource_group_name
 }
 
-
 output "firewall_private_ip" {
   description = "Firewall private IP"
   value       = module.firewall.firewall_private_ip
