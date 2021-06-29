@@ -37,18 +37,18 @@ config_vars=$1
 
 # query for service principal client ID
 kv_id_exists="az keyvault secret show \
-    --name ${sp_client_id_secret_name} \
-    --vault-name ${mlz_cfg_kv_name} \
-    --subscription ${mlz_cfg_sub_id}"
+    --name ${mlz_kv_sp_client_id} \
+    --vault-name ${mlz_kv_name} \
+    --subscription ${mlz_config_subid}"
 
 if ! $kv_id_exists &> /dev/null; then
-   echo "The Key Vault secret ${sp_client_id_secret_name} does not exist...validate config.vars file and re-run script"
+   echo "The Key Vault secret ${mlz_kv_sp_client_id} does not exist...validate config.vars file and re-run script"
    exit 1
 else
    client_id=$(az keyvault secret show \
-      --name "${sp_client_id_secret_name}" \
-      --vault-name "${mlz_cfg_kv_name}" \
-      --subscription "${mlz_cfg_sub_id}" \
+      --name "${mlz_kv_sp_client_id}" \
+      --vault-name "${mlz_kv_name}" \
+      --subscription "${mlz_config_subid}" \
       --query value \
       --output tsv)
    export client_id
@@ -56,18 +56,18 @@ fi
 
 # query for service principal password
 kv_pwd_exists="az keyvault secret show \
-    --name ${sp_client_pwd_secret_name} \
-    --vault-name ${mlz_cfg_kv_name} \
-    --subscription ${mlz_cfg_sub_id}"
+    --name ${mlz_kv_sp_client_secret} \
+    --vault-name ${mlz_kv_name} \
+    --subscription ${mlz_config_subid}"
 
 if ! $kv_pwd_exists &> /dev/null; then
-   echo "The Key Vault secret ${sp_client_pwd_secret_name} does not exist...validate config.vars file and re-run script"
+   echo "The Key Vault secret ${mlz_kv_sp_client_secret} does not exist...validate config.vars file and re-run script"
    exit 1
 else
    client_secret=$(az keyvault secret show \
-      --name "${sp_client_pwd_secret_name}" \
-      --vault-name "${mlz_cfg_kv_name}" \
-      --subscription "${mlz_cfg_sub_id}" \
+      --name "${mlz_kv_sp_client_secret}" \
+      --vault-name "${mlz_kv_name}" \
+      --subscription "${mlz_config_subid}" \
       --query value \
       --output tsv)
    export client_secret
@@ -75,17 +75,17 @@ fi
 
 # query for service principal object ID
 kv_obj_id_exists="az keyvault secret show \
-    --name ${sp_object_id_secret_name} \
-    --vault-name ${mlz_cfg_kv_name} \
-    --subscription ${mlz_cfg_sub_id}"
+    --name ${mlz_kv_sp_object_id} \
+    --vault-name ${mlz_kv_name} \
+    --subscription ${mlz_config_subid}"
 if ! $kv_obj_id_exists &> /dev/null; then
-   echo "The Key Vault secret ${sp_object_id_secret_name} does not exist...validate config.vars file and re-run script"
+   echo "The Key Vault secret ${mlz_kv_sp_object_id} does not exist...validate config.vars file and re-run script"
    exit 1
 else
    object_id=$(az keyvault secret show \
-      --name "${sp_object_id_secret_name}" \
-      --vault-name "${mlz_cfg_kv_name}" \
-      --subscription "${mlz_cfg_sub_id}" \
+      --name "${mlz_kv_sp_object_id}" \
+      --vault-name "${mlz_kv_name}" \
+      --subscription "${mlz_config_subid}" \
       --query value \
       --output tsv)
    export object_id

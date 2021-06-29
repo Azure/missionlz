@@ -28,13 +28,13 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
 
     1. Checks out the .devcontainer from a private container registry for common tools
 
-    1. Recursively validates and lints all the terraform referenced at src/core
+    1. Recursively validates and lints all the terraform referenced at src/terraform
 
 ## Configuration Prerequisites
 
 1. MLZ Setup
 
-    To apply terraform at all, locally, or from this automation, `src/scripts/config/create_mlz_configuration_resources.sh` must be run to create the storage accounts to store Terraform state and create the Service Principal with authorization to deploy resources into the configured subscription(s).
+    To apply terraform at all, locally, or from this automation, `src/scripts/config/create_required_resources.sh` must be run to create the storage accounts to store Terraform state and create the Service Principal with authorization to deploy resources into the configured subscription(s).
 
     See the root README's [Configure the Terraform Backend](#../..//README.md/#Configure-the-Terraform-Backend) on how to do this.
 
@@ -46,12 +46,8 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
 
     File Name | Value
     ------------ | -------------
-    mlz.config | An MLZ Configuration file that comes from create_mlz_configuration_resources.sh
-    globals.tfvars | Global MLZ terraform values
-    saca-hub.tfvars | SACA Hub MLZ terraform values
-    tier-0.tfvars | Tier 0 MLZ terraform values
-    tier-1.tfvars | Tier 1 MLZ terraform values
-    tier-2.tfvars | Tier 2 MLZ terraform values
+    mlz.config | An MLZ Configuration file that comes from create_required_resources.sh
+    mlz.tfvars | MLZ terraform values
 
     Running this from your local machine, you can provide these files yourself, but, today, for automation these files are stored in an Azure Storage Account and retrieved at workflow execution time. See [build/get_vars.sh](../../build/get_vars.sh) to see how we retrieve
 
@@ -60,11 +56,7 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
 
     # pulls down these files:
     vars/mlz.config
-    vars/globals.tfvars
-    vars/saca-hub.tfvars
-    vars/tier-0.tfvars
-    vars/tier-1.tfvars
-    vars/tier-2.tfvars
+    vars/mlz.tfvars
     ```
 
 1. Secret store and minimally scoped Service Principal

@@ -15,7 +15,7 @@ if [[ "${PGM}" == "configure_asc.sh" && "$#" -lt 1 ]]; then
     echo "${PGM}: Initializes Azure Security Center Standard tier for Storage Accounts and Virtual Machines"
     echo "usage: ${PGM} <mlz tf config vars>"
     exit 1
-elif [[ ! "${PGM}" == "create_mlz_configuration_resources.sh" ]];then
+elif [[ ! "${PGM}" == "create_required_resources.sh" ]];then
 
     mlz_config=$(realpath "${1}")
 

@@ -66,10 +66,6 @@ destroy_terraform() {
   "${this_script_path}/../build/destroy_tf.sh" \
   "${mlz_config_file_path}" \
   "${tfvars_file_path}" \
-  "${tfvars_file_path}" \
-  "${tfvars_file_path}" \
-  "${tfvars_file_path}" \
-  "${tfvars_file_path}" \
   "y"
 }
 

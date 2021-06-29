@@ -97,6 +97,8 @@ deploy.sh: create all the configuration and deploy Terraform resources with mini
       --tier0-sub-id -0 [OPTIONAL] subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
       --tier1-sub-id -1 [OPTIONAL] subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
       --tier2-sub-id -2 [OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
+      --tier3-sub-id -3 [OPTIONAL] subscription ID for tier 3 network and resources (defaults to the value provided for -s --subscription-id), input is used in conjunction with deploy_t3.sh
+      --write-output -w [OPTIONAL] Tier 3 Deployment requires Terraform output, use this flag to write terraform output
         --no-bastion    [OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM
               --help -h Print this message
 ```
@@ -118,11 +120,11 @@ Need further customization? The rest of this documentation covers in detail how 
 
 Deployment of MLZ happens through use of a single Service Principal whose credentials are stored in a central "config" Key Vault.
 
-MLZ uses this Service Principal and its credentials from the Key Vault to deploy the resources described in Terraform at `src/core` and stores Terraform state for each component into separate storage accounts.
+MLZ uses this Service Principal and its credentials from the Key Vault to deploy the resources described in Terraform at `src/terraform` and stores Terraform state for each component into separate storage accounts.
 
 1. First, create the MLZ Configuration file `mlz.config` file using the `mlz.config.sample` as a template.
 
-    The information in the `mlz.config` file, will be used by `create_mlz_configuration_resources.sh` to create and populate a `config.vars` file for each tier and saved inside the deployment folder for each tier (example: \src\core\tier-0\config.vars).
+    The information in the `mlz.config` file, will be used by `create_required_resources.sh` to create and populate a `config.vars` file for each tier and saved inside the deployment folder for each tier (example: \src\core\tier-0\config.vars).
 
     For example:
 
@@ -138,35 +140,34 @@ MLZ uses this Service Principal and its credentials from the Key Vault to deploy
     mlz_config_location="eastus"
     ```
 
-1. Then, run `create_mlz_configuration_resources.sh` at [src/scripts/config/create_mlz_configuration_resources.sh](/src/scripts/config/create_mlz_configuration_resources.sh) to create:
+1. Then, run `create_required_resources.sh` at [src/scripts/config/create_required_resources.sh](/src/scripts/config/create_required_resources.sh) to create:
 
-    * A config Resource Group to store the Key Vault
-    * Resource Groups for each tier to store the Terraform state Storage Account
     * A Service Principal to execute terraform commands
-    * An Azure Key Vault to store the Service Principal's client ID and client secret
-    * A Storage Account and Container for each tier to store tier Terraform state files
-    * Tier specific Terraform backend config files
+    * A config Resource Group to store the Key Vault
+    * A config Key Vault to store the Service Principal's client ID and client secret
+    * A terraform state Resource Groups for each tier
+    * A terraform state Storage Account for each tier
+    * A terraform state Storage Container for each tier
+    * Backend config file (config.vars) for the deployment
 
     ```bash
-    src/scripts/config/create_mlz_configuration_resources.sh src/mlz.config
+    src/scripts/config/create_required_resources.sh src/mlz.config
     ```
 
 ## Set Terraform Configuration Variables
 
-First, clone the *.tfvars.sample file for the global Terraform configuration (e.g. [src/core/globals.tfvars.sample](/src/core/globals.tfvars.sample)) and substitute placeholders marked by curly braces "{" and "}" with the values of your choosing.
-
-Then, repeat this process, cloning the *.tfvars.sample file for the Terraform configuration(s) you are deploying and substitute placeholders marked by curly braces "{" and "}" with the values of your choosing.
+First, clone the *.tfvars.sample file ([src/terraform/mlz/mlz.tfvars.sample](/src/terraform/mlz/mlz.tfvars.sample)) and substitute placeholders marked by curly braces "{" and "}" with the values of your choosing.
 
 For example:
 
 ```plaintext
-location="{MLZ_LOCATION}" # the templated value in src/core/globals.tfvars.sample
+location="{MLZ_LOCATION}" # the templated value in src/terraform/mlz/mlz.tfvars.sample
 ```
 
 Would become:
 
 ```plaintext
-location="eastus" # the value used by Terraform in src/core/globals.tfvars
+location="eastus" # the value used by Terraform in src/terraform/mlz/mlz.tfvars.sample
 ```
 
 ## Deploy Terraform Configuration
@@ -178,44 +179,21 @@ The script `destroy_terraform.sh` at [src/scripts/terraform/destroy_terraform.sh
 
 `apply_terraform.sh` and `destroy_terraform.sh` take two arguments:
 
-  1. The Global variables file
-  1. The directory that contains the main.tf and *.tfvars variables file of the configuration to apply
+  1. The directory that contains the main.tf to apply
+  1. The path to the .tfvars variables file to apply
 
-The hub network must be deployed first. See [Networking](https://github.com/Azure/missionlz#networking) for a description of the hub and spoke and what each network is used for.
-
-For saca-hub, run the following command to apply the terraform configuration from the root of this repository.
+For example, run the following command to apply the MLZ terraform configuration repository.
 
 ```bash
   src/scripts/terraform/apply_terraform.sh \
-  src/core/globals.tfvars \
-  src/core/saca-hub saca-hub.tfvars
+  src/terraform/mlz \
+  src/terraform/mlz.tfvars
 ```
-
-You could apply Tier 0 (Identity and Authorization) with a command below:
-
-```bash
-src/scripts/terraform/apply_terraform.sh \
-  src/core/globals.tfvars \
-  src/core/tier-0 tier-0.tfvars
-```
-
-To apply Tier 1 (Infrastructure Operations), you could then change the target directory:
-
-```bash
-src/scripts/terraform/apply_terraform.sh \
-  src/core/globals.tfvars \
-  src/core/tier-1 tier-1.tfvars
-```
-
-Repeating this same pattern, for whatever configuration you wanted to apply and reuse in some automated pipeline.
-
-Use `init_terraform.sh` at [src/scripts/terraform/init_terraform.sh](/src/scripts/terraform/init_terraform.sh) to perform just an initialization of the Terraform environment
-
-To initialize Terraform for Tier 1 (Infrastructure Operations), you could then change the target directory:
+Use `init_terraform.sh` at [src/scripts/terraform/init_terraform.sh](/src/scripts/terraform/init_terraform.sh) to perform just an initialization of the Terraform environment:
 
 ```bash
 src/scripts/terraform/init_terraform.sh \
-  src/core/tier-1
+  src/terraform/mlz
 ```
 
 ## Clean up Mission LZ Resources
