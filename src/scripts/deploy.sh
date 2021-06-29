@@ -30,7 +30,7 @@ show_help() {
   print_formatted "--tier1-sub-id" "-1" "[OPTIONAL] subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier2-sub-id" "-2" "[OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)"
   print_formatted "--tier3-sub-id" "-3" "[OPTIONAL] subscription ID for tier 3 network and resources (defaults to the value provided for -s --subscription-id), input is used in conjunction with deploy_t3.sh"
-  print_formatted "--write-output" "-w" "[OPTIONAL] Tier 3 Deployment Requires terraform output, use this flag to write."
+  print_formatted "--write-output" "-w" "[OPTIONAL] Tier 3 Deployment requires Terraform output, use this flag to write terraform output"
   print_formatted "--no-bastion" "" "[OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM"
   print_formatted "--help" "-h" "Print this message"
 }
@@ -219,14 +219,13 @@ while [ $# -gt 0 ] ; do
     -3 | --tier3-sub-id)
       shift
       subs_args+=("-3 ${1}") ;;
-    -w | --write-output)
-      shift
+    -w | --write-output)      
       write_output="true" ;;
+    --no-bastion)
+      create_bastion_jumpbox=false ;;
     -h | --help)
       show_help
       exit 0 ;;
-    --no-bastion)
-      create_bastion_jumpbox=false ;;
     *)
       error_log "ERROR: Unexpected argument: ${1}"
       usage && exit 1 ;;

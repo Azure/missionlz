@@ -17,9 +17,11 @@ Mission LZ supports deploying multiple workload tiers that are connected to the 
 
 #### Quickstart Deploy
 
-In tandem with the quickstart found in [QuickStart Deploying MLZ](command-line-deployment.md#Quickstart) you can quickly get up and running and deploy a single workload instance to your configuration.  Note: This should be run using the -tier3-sub-id flag if you wish to change the subscription id for tier 3.   Additionally the "-w" flag should be appended to ensure that the output 
+In tandem with the quickstart found in [QuickStart Deploying MLZ](command-line-deployment.md#Quickstart) you can quickly get up and running and deploy a single workload instance to your configuration.  
 
-After you have deployed the core MLZ resources,  you can use the following (The generated-configuration item artifacts come from the base deployment and can be reused)
+> NOTE: This should be run using the `--tier3-sub-id` flag and `--write-output` flag if you wish to specify the subscription ID for the tier 3. Be sure to use the "-w" flag to ensure that the output required for deployment is generated.
+
+After you have deployed the core MLZ resources, you can use this command (the generated-configuration item artifacts come from the base deployment and can be reused), substituting `{mlz_env_name}` with the appropriate value.
 
 ```bash
 ./deploy_t3.sh ../generated-configurations/{mlz_env_name}.mlzconfig ../generated-configurations/{mlz_env_name}.tfvars ../generated-configurations/output.tfvars ../generated-configurations/{mlz_env_name}.tfvars y
@@ -32,6 +34,7 @@ After you have deployed the core MLZ resources,  you can use the following (The 
 A production usage of tier 3 workloads will require a more advanced setup than allowed through a quick start.   In order to perform these deployments you will have to modify three configuration files, and use the deployment script with the resulting files.
 
 > **NOTE** These steps will need to be repeated for each workload tier you wish to add.
+
 <!-- markdownlint-disable MD028 -->
 > **NOTE** Like the other Mission LZ tiers, each tier 3 workload can be deployed into its own subscription or they can be deployed into a single subscription. For production deployments we recommend that each tier 3 is deployed into its own subscription to simplify managing security and access.
 <!-- markdownlint-enable MD028 -->

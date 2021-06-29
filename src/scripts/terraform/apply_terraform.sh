@@ -22,7 +22,7 @@ fi
 tf_dir=$(realpath "${1}")
 tf_vars=$(realpath "${2}")
 auto_approve=${3:-n}
-extra_vars=${4:notset}
+extra_vars=${4:-notset}
 
 scripts_path=$(realpath "${BASH_SOURCE%/*}/..")
 
