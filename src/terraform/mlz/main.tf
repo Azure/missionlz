@@ -425,25 +425,6 @@ resource "azurerm_virtual_network_peering" "hub-to-t2" {
 ### This stage is optional based on the value of `create_bastion_jumpbox`
 #########################################################################
 
-module "bastion-host" {
-  count = var.create_bastion_jumpbox ? 1 : 0
-
-  providers  = { azurerm = azurerm.hub }
-  depends_on = [azurerm_resource_group.hub, module.hub-network, module.firewall]
-  source     = "../modules/bastion"
-
-  resource_group_name   = var.hub_rgname
-  virtual_network_name  = var.hub_vnetname
-  bastion_host_name     = var.bastion_host_name
-  subnet_address_prefix = var.bastion_address_space
-  public_ip_name        = var.bastion_public_ip_name
-  ipconfig_name         = var.bastion_ipconfig_name
-
-  tags = {
-    DeploymentName = var.deploymentname
-  }
-}
-
 module "jumpbox-subnet" {
   count = var.create_bastion_jumpbox ? 1 : 0
 
@@ -471,6 +452,25 @@ module "jumpbox-subnet" {
   log_analytics_workspace_id          = azurerm_log_analytics_workspace.laws.workspace_id
   log_analytics_workspace_location    = var.mlz_location
   log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
+
+  tags = {
+    DeploymentName = var.deploymentname
+  }
+}
+
+module "bastion-host" {
+  count = var.create_bastion_jumpbox ? 1 : 0
+
+  providers  = { azurerm = azurerm.hub }
+  depends_on = [azurerm_resource_group.hub, module.hub-network, module.firewall, module.jumpbox-subnet]
+  source     = "../modules/bastion"
+
+  resource_group_name   = var.hub_rgname
+  virtual_network_name  = var.hub_vnetname
+  bastion_host_name     = var.bastion_host_name
+  subnet_address_prefix = var.bastion_address_space
+  public_ip_name        = var.bastion_public_ip_name
+  ipconfig_name         = var.bastion_ipconfig_name
 
   tags = {
     DeploymentName = var.deploymentname
@@ -511,15 +511,3 @@ module "jumpbox" {
     DeploymentName = var.deploymentname
   }
 }
-
-/*
-module "tier3" {
-  for_each = var.tier3_map
-  source                   = "../core/tier-3"
-
-
-  tags = {
-    DeploymentName = var.deploymentname
-  }
-}
-*/
