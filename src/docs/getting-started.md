@@ -53,11 +53,19 @@ All other tools and resources are in the development container. The simplest pat
 
 ## Next steps
 
-### Deploy Your Workloads
+### 1. Deploy the Hub and Spoke
 
-Now that you have the core hub and spoke tiers deployed (tier 0, tier 1, tier 2), the next step is to deploy one or more workload tiers. Misson LZ supports multiple workload tiers. See [Workload Deployment](workload-deployment.md) for details and step-by-step instructions.
+With the environment pre-requisites out of the way, deploy the hub and spoke using the [Command Line Deployment](command-line-deployment.md) for step-by-step instructions:
 
-### Manage Your Deployment
+* [Command Line Deployment](command-line-deployment.md)
+
+### 2. Deploy Your Workloads
+
+Now that you have the core hub and spoke tiers deployed (tier 0, tier 1, tier 2), the next step is to deploy one or more workload tiers. Misson LZ supports multiple workload tiers. See [Workload Deployment](workload-deployment.md) for details and step-by-step instructions:
+
+* [Workload Deployment](workload-deployment.md)
+
+### 3. Manage Your Deployment
 
 Once you have a lab deployment of Mission Landing Zone established and have decided to move forward, you will want to start planning your production deployment. We recommend reviewing the following pages during your planning phase.
 
