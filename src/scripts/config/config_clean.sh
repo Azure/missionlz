@@ -72,7 +72,7 @@ do
 done
 
 echo "INFO: deleting service principal ${mlz_sp_name}..."
-az ad sp delete --id "http://${mlz_sp_name}"
+az ad sp delete --id $(az ad sp list --display-name "http://${mlz_sp_name}" --query [0].appId --output tsv)
 
 echo "INFO: purging key vault ${mlz_kv_name}..."
 az keyvault purge \
