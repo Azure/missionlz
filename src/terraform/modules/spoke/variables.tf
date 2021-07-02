@@ -5,22 +5,6 @@ variable "location" {
   description = "The region for spoke network deployment"
 }
 
-variable "hub_subid" {
-  description = "Subscription ID for the hub network deployment"
-}
-
-variable "hub_rgname" {
-  description = "Resource Group for the hub network deployment"
-}
-
-variable "hub_vnetname" {
-  description = "Virtual Network Name for the hub network deployment"
-}
-
-variable "laws_name" {
-  description = "Log Analytics Workspace name for the deployment"
-}
-
 variable "laws_location" {
   description = "Log Analytics Workspace location"
 }
@@ -35,10 +19,6 @@ variable "laws_resource_id" {
 
 variable "firewall_private_ip" {
   description = "Private IP of the Firewall"
-}
-
-variable "spoke_subid" {
-  description = "Subscription ID for the spoke network deployment"
 }
 
 variable "spoke_rgname" {
