@@ -95,7 +95,13 @@ destroy_mlz() {
 
   # clean up files
   delete_files_in_directory_by_name "${src_path}" "${tfvars_file_name}"
-  rm -rf "${configuration_output_path}/${mlz_env_name}.mlzconfig" "${configuration_output_path:?}/${tfvars_file_name}"
+  echo "INFO: deleting ${configuration_output_path}/${mlz_env_name}.mlzconfig ..."
+  rm -rf "${configuration_output_path}/${mlz_env_name}.mlzconfig"
+  echo "INFO: deleting ${tf_mlz_main_path}/config.vars ..."
+  rm -rf "${tf_mlz_main_path}/config.vars"
+  echo "INFO: deleting terraform.lock file and .terraform folder ..."
+  rm -rf "${tf_mlz_main_path}/.terraform.lock.hcl"
+  rm -rf "${tf_mlz_main_path}/.terraform"
 }
 
 ##########
@@ -131,6 +137,7 @@ check_dependencies
 mlz_config_file_path="${configuration_output_path}/${mlz_env_name}.mlzconfig"
 tfvars_file_name="${mlz_env_name}.tfvars"
 tfvars_file_path="${configuration_output_path}/${tfvars_file_name}"
+tf_mlz_main_path=$(realpath "${configuration_output_path}/../terraform/mlz")
 
 # teardown resources
 # if terraform destroy fails, notify and continue to destroy mlz
