@@ -75,11 +75,6 @@ variable "hub_management_address_space" {
   type        = string
 }
 
-variable "hub_management_routetable_name" {
-  description = "The name of the route table applied to the management subnet"
-  default     = "mlzFirewallMgmtRT"
-}
-
 variable "firewall_name" {
   description = "Name of the Hub Firewall"
   default     = "mlzFirewall"
