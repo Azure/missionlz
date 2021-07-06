@@ -1,38 +1,49 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+
 #################################
-# Saca Configuration
+# Global Configuration
 #################################
 
-deploymentname     = "{SACA_DEPLOYMENTNAME}"
-saca_subid         = "{SACA_SUBID}"
-saca_rgname        = "{SACA_RGNAME}"
-saca_vnetname      = "{SACA_VNETNAME}"
-saca_lawsname      = "{SACA_LAWSNAME}"
-vnet_address_space = ["{SACA_VNETSPACE}"]
+tf_environment   ="{TF_ENVIRONMENT}"
+deploymentname   ="{DEPLOYMENTNAME}"
+mlz_tenantid     ="{MLZ_TENANTID}"
+mlz_location     ="{MLZ_LOCATION}"
+mlz_metadatahost ="{MLZ_METADATAHOST}"
+mlz_clientid     ="{MLZ_CLIENTID}"
+mlz_clientsecret ="{MLZ_CLIENTSECRET}"
+mlz_objectid     ="{MLZ_OBJECTID}"
+
+#################################
+# Hub Configuration
+#################################
+
+hub_subid                      = "{HUB_SUBID}"
+hub_rgname                     = "{HUB_RGNAME}"
+hub_vnetname                   = "{HUB_VNETNAME}"
+hub_vnet_address_space         = ["{HUB_VNET_ADDRESS_SPACE}"]
+hub_client_address_space       = "{HUB_CLIENT_ADDRESS_SPACE}"
+hub_management_address_space   = "{HUB_MANAGEMENT_ADDRESS_SPACE}"
 
 #################################
 # Firewall configuration section
 #################################
 
-client_address_space       = "{FIREWALL_CLIENT_SPACE}"
-management_address_space   = "{FIREWALL_MANAGEMENT_SPACE}"
-firewall_name              = "{FIREWALL_NAME}"
-firewall_policy_name       = "{FIREWALL_POLICY_NAME}"
-client_ipconfig_name       = "{FIREWALL_CLIENT_IPCONFIG_NAME}"
-client_publicip_name       = "{FIREWALL_CLIENT_PUBLICIP_NAME}"
-management_ipconfig_name   = "{FIREWALL_MANAGEMENT_IPCONFIG_NAME}"7
-management_publicip_name   = "{FIREWALL_MANAGEMENT_PUBLICIP_NAME}"
-management_routetable_name = "{FIREWALL_MANAGEMENT_ROUTE_TABLE_NAME}"
+firewall_name            = "{FIREWALL_NAME}"
+firewall_policy_name     = "{FIREWALL_POLICY_NAME}"
+client_ipconfig_name     = "{CLIENT_IPCONFIG_NAME}"
+client_publicip_name     = "{CLIENT_PUBLICIP_NAME}"
+management_ipconfig_name = "{MANAGEMENT_IPCONFIG_NAME}"
+management_publicip_name = "{MANAGEMENT_PUBLICIP_NAME}"
 
 #################################
 # Bastion Host Configuration
 #################################
 
 create_bastion_jumpbox = "{CREATE_BASTION_JUMPBOX}"
-bastion_host_name      = "{BASTION_HOST_NAME}",
-bastion_address_space  = "{BASTION_ADDRESS_SPACE}",
-bastion_public_ip_name = "{BASTION_PUBLIC_IP_NAME}",
+bastion_host_name      = "{BASTION_HOST_NAME}"
+bastion_address_space  = "{BASTION_ADDRESS_SPACE}"
+bastion_public_ip_name = "{BASTION_PUBLIC_IP_NAME}"
 bastion_ipconfig_name  = "{BASTION_IPCONFIG_NAME}"
 
 #################################
@@ -59,7 +70,7 @@ jumpbox_subnet = {
       destination_port_range     = ""
       source_address_prefix      = "*"
       destination_address_prefix = ""
-    },
+    }
     "allow_rdp" = {
       name                       = "allow_rdp"
       priority                   = "200"
@@ -76,20 +87,19 @@ jumpbox_subnet = {
   routetable_name = "{JUMPBOX_SUBNET_RT_NAME}"
 }
 
-jumpbox_keyvault_name = "{JUMPBOX_KEYVAULT_NAME}"
-jumpbox_windows_vm_name = "{JUMPBOX_WINDOWS_VM_NAME}"
-jumpbox_windows_vm_size = "{JUMPBOX_WINDOWS_VM_SIZE}"
+jumpbox_keyvault_name        = "{JUMPBOX_KEYVAULT_NAME}"
+jumpbox_windows_vm_name      = "{JUMPBOX_WINDOWS_VM_NAME}"
+jumpbox_windows_vm_size      = "{JUMPBOX_WINDOWS_VM_SIZE}"
 jumpbox_windows_vm_publisher = "{JUMPBOX_WINDOWS_VM_PUBLISHER}"
-jumpbox_windows_vm_offer = "{JUMPBOX_WINDOWS_VM_OFFER}"
-jumpbox_windows_vm_sku = "{JUMPBOX_WINDOWS_VM_SKU}"
-jumpbox_windows_vm_version = "{JUMPBOX_WINDOWS_VM_VERSION}"
-jumpbox_linux_vm_name = "{JUMPBOX_LINUX_VM_NAME}"
-jumpbox_linux_vm_size = "{JUMPBOX_LINUX_VM_SIZE}"
-jumpbox_linux_vm_publisher = "{JUMPBOX_LINUX_VM_PUBLISHER}"
-jumpbox_linux_vm_offer = "{JUMPBOX_LINUX_VM_OFFER}"
-jumpbox_linux_vm_sku = "{JUMPBOX_LINUX_VM_SKU}"
-jumpbox_linux_vm_version = "{JUMPBOX_LINUX_VM_VERSION}"
-
+jumpbox_windows_vm_offer     = "{JUMPBOX_WINDOWS_VM_OFFER}"
+jumpbox_windows_vm_sku       = "{JUMPBOX_WINDOWS_VM_SKU}"
+jumpbox_windows_vm_version   = "{JUMPBOX_WINDOWS_VM_VERSION}"
+jumpbox_linux_vm_name        = "{JUMPBOX_LINUX_VM_NAME}"
+jumpbox_linux_vm_size        = "{JUMPBOX_LINUX_VM_SIZE}"
+jumpbox_linux_vm_publisher   = "{JUMPBOX_LINUX_VM_PUBLISHER}"
+jumpbox_linux_vm_offer       = "{JUMPBOX_LINUX_VM_OFFER}"
+jumpbox_linux_vm_sku         = "{JUMPBOX_LINUX_VM_SKU}"
+jumpbox_linux_vm_version     = "{JUMPBOX_LINUX_VM_VERSION}"
 
 #################################
 # Tier 0 Configuration
@@ -99,11 +109,7 @@ tier0_subid    = "{TIER0_SUBID}"
 tier0_rgname   = "{TIER0_RGNAME}"
 tier0_vnetname = "{TIER0_VNETNAME}"
 
-#################################
-# Tier 0 Network configuration section
-#################################
-
-tier0_vnet_address_space = ["{TIER0_VNETSPACE}"]
+tier0_vnet_address_space = ["{TIER0_VNET_ADDRESS_SPACE}"]
 
 tier0_subnets = {
   "{TIER0_SUBNETVM_NAME}" = {
@@ -148,16 +154,12 @@ tier0_subnets = {
 # Tier 1 Network configuration section
 #################################
 
-tier1_sub_id =     = "{TIER1_SUBID}"
-tier1_rgname       = "{TIER1_RGNAME}"
-tier1_vnetname     = "{TIER1_VNETNAME}"
+tier1_subid    = "{TIER1_SUBID}"
+tier1_rgname   = "{TIER1_RGNAME}"
+tier1_vnetname = "{TIER1_VNETNAME}"
+mlz_lawsname   = "{MLZ_LAWSNAME}
 
-
-#################################
-# Network configuration section
-#################################
-
-tier1_vnet_address_space = ["{TIER1_VNETSPACE}"]
+tier1_vnet_address_space = ["{TIER1_VNET_ADDRESS_SPACE}"]
 
 tier1_subnets = {
   "{TIER1_SUBNETVM_NAME}" = {
@@ -202,16 +204,11 @@ tier1_subnets = {
 # Tier 2 Network configuration section
 #################################
 
-tier2_sub_id =     = "{TIER2_SUBID}"
-tier2_rgname       = "{TIER2_RGNAME}"
-tier2_vnetname     = "{TIER2_VNETNAME}"
+tier2_subid    = "{TIER2_SUBID}"
+tier2_rgname   = "{TIER2_RGNAME}"
+tier2_vnetname = "{TIER2_VNETNAME}"
 
-
-#################################
-# Network configuration section
-#################################
-
-tier2_vnet_address_space = ["{TIER2_VNETSPACE}"]
+tier2_vnet_address_space = ["{TIER2_VNET_ADDRESS_SPACE}"]
 
 tier2_subnets = {
   "{TIER2_SUBNETVM_NAME}" = {
@@ -249,59 +246,5 @@ tier2_subnets = {
     }
 
     routetable_name = "{TIER2_SUBNETVM_RTNAME}"
-  }
-}
-
-
-#################################
-# Tier 3 Network configuration section
-#################################
-
-tier3_subid    = "{TIER3_SUBID}"
-tier3_rgname   = "{TIER3_RGNAME}"
-tier3_vnetname = "{TIER3_VNETNAME}"
-
-#################################
-# Network configuration section
-#################################
-
-tier3_vnet_address_space = ["{TIER3_VNETSPACE}"]
-
-subnets = {
-  "{TIER3_SUBNETVM_NAME}" = {
-    name              = "{TIER3_SUBNETVM_NAME}"
-    address_prefixes  = ["{TIER3_SUBNETVM_ADDRESSPREFIXLIST}"]
-    service_endpoints = ["{TIER3_SUBNETVM_SERVICEENDPOINTLIST}"]
-
-    enforce_private_link_endpoint_network_policies = {TIER3_SUBNETVM_ENABLEPRIVATELINKENDPOINT}
-    enforce_private_link_service_network_policies = {TIER3_SUBNETVM_ENABLEPRIVATELINKSERVICE}
-
-    nsg_name = "{TIER3_SUBNETVM_NSGNAME}"
-    nsg_rules = {
-      "allow_ssh" = {
-        name                       = "allow_ssh"
-        priority                   = "100"
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "Tcp"
-        source_port_range          = ""
-        destination_port_range     = "22"
-        source_address_prefix      = "*"
-        destination_address_prefix = ""
-      }
-      "allow_rdp" = {
-        name                       = "allow_rdp"
-        priority                   = "200"
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "Tcp"
-        source_port_range          = ""
-        destination_port_range     = "3389"
-        source_address_prefix      = "*"
-        destination_address_prefix = ""
-      }
-    }
-
-    routetable_name = "{TIER3_SUBNETVM_RTNAME}"
   }
 }

@@ -1,24 +1,36 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+
 #################################
-# Saca Configuration
+# Global Configuration
 #################################
 
-deploymentname     = "{SACA_DEPLOYMENTNAME}"
-saca_subid         = "{SACA_SUBID}"
-saca_rgname        = "{SACA_RGNAME}"
-saca_vnetname      = "{SACA_VNETNAME}"
-saca_lawsname      = "{SACA_LAWSNAME}"
-vnet_address_space = ["{SACA_VNETSPACE}"]
+tf_environment   = "{TF_ENVIRONMENT}"
+deploymentname   = "{DEPLOYMENTNAME}"
+mlz_tenantid     = "{MLZ_TENANTID}"
+mlz_location     = "{MLZ_LOCATION}"
+mlz_metadatahost = "{MLZ_METADATAHOST}"
+mlz_clientid     = "{MLZ_CLIENTID}"
+mlz_clientsecret = "{MLZ_CLIENTSECRET}"
+mlz_objectid     = "{MLZ_OBJECTID}"
 
+#################################
+# Hub Configuration
+#################################
+
+
+hub_subid           = "{HUB_SUBID}"
+hub_rgname          = "{HUB_RGNAME}"
+hub_vnetname        = "{HUB_VNETNAME}"
+firewall_private_ip = "{FIREWALL_PRIVATE_IP}"
 
 #################################
 # Tier 1 Network configuration section
 #################################
 
-tier1_sub_id =     = "{TIER1_SUBID}"
-tier1_rgname       = "{TIER1_RGNAME}"
-tier1_vnetname     = "{TIER1_VNETNAME}"
+tier1_subid = "{TIER1_SUBID}"
+laws_name   = "{LAWS_NAME}"
+laws_rgname = "{LAWS_RGNAME}"
 
 #################################
 # Tier 3 Network configuration section
@@ -28,11 +40,7 @@ tier3_subid    = "{TIER3_SUBID}"
 tier3_rgname   = "{TIER3_RGNAME}"
 tier3_vnetname = "{TIER3_VNETNAME}"
 
-#################################
-# Network configuration section
-#################################
-
-tier3_vnet_address_space = ["{TIER3_VNETSPACE}"]
+tier3_vnet_address_space = ["{TIER3_VNET_ADDRESS_SPACE}"]
 
 subnets = {
   "{TIER3_SUBNETVM_NAME}" = {

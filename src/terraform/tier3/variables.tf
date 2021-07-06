@@ -8,8 +8,8 @@ variable "tf_environment" {
   description = "The Terraform backend environment e.g. public or usgovernment"
 }
 
-variable "mlz_cloud" {
-  description = "The Azure Cloud to deploy to e.g. AzureCloud or AzureUSGovernment"
+variable "deploymentname" {
+  description = "A name for the deployment"
 }
 
 variable "mlz_tenantid" {
@@ -36,24 +36,9 @@ variable "mlz_objectid" {
   description = "The account to deploy with"
 }
 
-variable "laws_name" {
-  description = "Log Analytics Workspace Name for the deployment"
-}
-
-variable "laws_rgname" {
-  description = "The RG that laws was deployed to."
-}
-
-variable "firewall_private_ip" {
-  description = "Firewall IP to bind network to"
-}
-
 #################################
-# SACA Hub Configuration
+# Hub Configuration
 #################################
-variable "deploymentname" {
-  description = "A name for the deployment"
-}
 
 variable "hub_subid" {
   description = "Subscription ID for the deployment"
@@ -67,25 +52,24 @@ variable "hub_vnetname" {
   description = "Virtual Network Name for the deployment"
 }
 
-variable "hub_vnet_address_space" {
-  description = "The address space to be used for the virtual network."
-  default     = ["10.0.100.0/24"]
-  type        = list(string)
+variable "firewall_private_ip" {
+  description = "Firewall IP to bind network to"
 }
 
 #################################
 # Tier 1 Configuration
 #################################
+
 variable "tier1_subid" {
   description = "Subscription ID for the deployment"
 }
 
-variable "tier1_rgname" {
-  description = "Resource Group for the deployment"
+variable "laws_name" {
+  description = "Log Analytics Workspace Name for the deployment"
 }
 
-variable "tier1_vnetname" {
-  description = "Virtual Network Name for the deployment"
+variable "laws_rgname" {
+  description = "The RG that laws was deployed to."
 }
 
 #################################
@@ -103,9 +87,6 @@ variable "tier3_vnetname" {
   description = "Virtual Network Name for the deployment"
 }
 
-#################################
-# Network configuration section
-#################################
 variable "tier3_vnet_address_space" {
   description = "Address space prefixes list of strings"
   type        = list(string)
@@ -175,10 +156,4 @@ variable "tier3_subnets" {
       routetable_name = "tier3vmsrt"
     }
   }
-}
-
-variable "tier3_create_network_watcher" {
-  description = "Deploy a Network Watcher resource alongside this virtual network (there's a limit of one per-subscription-per-region)"
-  type        = bool
-  default     = false
 }

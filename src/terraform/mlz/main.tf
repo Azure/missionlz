@@ -218,7 +218,6 @@ module "hub-network" {
   vnet_address_space       = var.hub_vnet_address_space
   client_address_space     = var.hub_client_address_space
   management_address_space = var.hub_management_address_space
-  routetable_name          = var.hub_management_routetable_name
 
   log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
 
@@ -265,20 +264,14 @@ module "spoke-network-t0" {
 
   location = azurerm_resource_group.tier0.location
 
-  hub_subid           = var.hub_subid
-  hub_rgname          = module.hub-network.resource_group_name
-  hub_vnetname        = module.hub-network.virtual_network_name
   firewall_private_ip = module.firewall.firewall_private_ip
 
-  laws_name         = azurerm_log_analytics_workspace.laws.name
   laws_location     = var.mlz_location
   laws_workspace_id = azurerm_log_analytics_workspace.laws.workspace_id
   laws_resource_id  = azurerm_log_analytics_workspace.laws.id
 
-  spoke_subid    = var.tier0_subid
-  spoke_rgname   = var.tier0_rgname
-  spoke_vnetname = var.tier0_vnetname
-
+  spoke_rgname             = var.tier0_rgname
+  spoke_vnetname           = var.tier0_vnetname
   spoke_vnet_address_space = var.tier0_vnet_address_space
   subnets                  = var.tier0_subnets
 
@@ -318,20 +311,14 @@ module "spoke-network-t1" {
 
   location = azurerm_resource_group.tier1.location
 
-  hub_subid           = var.hub_subid
-  hub_rgname          = module.hub-network.resource_group_name
-  hub_vnetname        = module.hub-network.virtual_network_name
   firewall_private_ip = module.firewall.firewall_private_ip
 
-  laws_name         = azurerm_log_analytics_workspace.laws.name
   laws_location     = var.mlz_location
   laws_workspace_id = azurerm_log_analytics_workspace.laws.workspace_id
   laws_resource_id  = azurerm_log_analytics_workspace.laws.id
 
-  spoke_subid    = var.tier1_subid
-  spoke_rgname   = var.tier1_rgname
-  spoke_vnetname = var.tier1_vnetname
-
+  spoke_rgname             = var.tier1_rgname
+  spoke_vnetname           = var.tier1_vnetname
   spoke_vnet_address_space = var.tier1_vnet_address_space
   subnets                  = var.tier1_subnets
 
@@ -371,20 +358,14 @@ module "spoke-network-t2" {
 
   location = azurerm_resource_group.tier2.location
 
-  hub_subid           = var.hub_subid
-  hub_rgname          = module.hub-network.resource_group_name
-  hub_vnetname        = module.hub-network.virtual_network_name
   firewall_private_ip = module.firewall.firewall_private_ip
 
-  laws_name         = azurerm_log_analytics_workspace.laws.name
   laws_location     = var.mlz_location
   laws_workspace_id = azurerm_log_analytics_workspace.laws.workspace_id
   laws_resource_id  = azurerm_log_analytics_workspace.laws.id
 
-  spoke_subid    = var.tier2_subid
-  spoke_rgname   = var.tier2_rgname
-  spoke_vnetname = var.tier2_vnetname
-
+  spoke_rgname             = var.tier2_rgname
+  spoke_vnetname           = var.tier2_vnetname
   spoke_vnet_address_space = var.tier2_vnet_address_space
   subnets                  = var.tier2_subnets
 

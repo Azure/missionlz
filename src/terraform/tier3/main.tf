@@ -129,20 +129,14 @@ module "spoke-network-t3" {
 
   location = azurerm_resource_group.tier3.location
 
-  hub_subid           = var.hub_subid
-  hub_rgname          = var.hub_rgname
-  hub_vnetname        = var.hub_vnetname
   firewall_private_ip = var.firewall_private_ip.value
 
-  laws_name         = data.azurerm_log_analytics_workspace.laws.name
   laws_location     = var.mlz_location
   laws_workspace_id = data.azurerm_log_analytics_workspace.laws.workspace_id
   laws_resource_id  = data.azurerm_log_analytics_workspace.laws.id
 
-  spoke_subid    = var.tier3_subid
-  spoke_rgname   = var.tier3_rgname
-  spoke_vnetname = var.tier3_vnetname
-
+  spoke_rgname             = var.tier3_rgname
+  spoke_vnetname           = var.tier3_vnetname
   spoke_vnet_address_space = var.tier3_vnet_address_space
   subnets                  = var.tier3_subnets
 

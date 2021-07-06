@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+
 variable "resource_group_name" {
   description = "A container that holds related resources for an Azure solution"
 }
@@ -25,11 +26,6 @@ variable "client_address_space" {
 
 variable "management_address_space" {
   description = "The address space to be used for the Firewall virtual network subnet used for management traffic."
-  type        = string
-}
-
-variable "routetable_name" {
-  description = "The name of the route table to be applied to the firewall management subnet."
   type        = string
 }
 

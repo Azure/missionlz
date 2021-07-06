@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+
 #################################
 # Global Configuration
 #################################
@@ -8,8 +9,8 @@ variable "tf_environment" {
   description = "The Terraform backend environment e.g. public or usgovernment"
 }
 
-variable "mlz_cloud" {
-  description = "The Azure Cloud to deploy to e.g. AzureCloud or AzureUSGovernment"
+variable "deploymentname" {
+  description = "A name for the deployment"
 }
 
 variable "mlz_tenantid" {
@@ -37,11 +38,8 @@ variable "mlz_objectid" {
 }
 
 #################################
-# SACA Hub Configuration
+# Hub Configuration
 #################################
-variable "deploymentname" {
-  description = "A name for the deployment"
-}
 
 variable "hub_subid" {
   description = "Subscription ID for the deployment"
@@ -105,17 +103,6 @@ variable "management_ipconfig_name" {
 variable "management_publicip_name" {
   description = "The name of the Firewall Management Public IP"
   default     = "mlzFWMgmtPip"
-}
-
-variable "hub_management_routetable_name" {
-  description = "The name of the route table applied to the management subnet"
-  default     = "mlzFirewallMgmtRT"
-}
-
-variable "create_network_watcher" {
-  description = "Deploy a Network Watcher resource alongside this virtual network (there's a limit of one per-subscription-per-region)"
-  type        = bool
-  default     = false
 }
 
 #################################
@@ -300,6 +287,7 @@ variable "jumpbox_linux_vm_version" {
 #################################
 # Tier 0 Configuration
 #################################
+
 variable "tier0_subid" {
   description = "Subscription ID for the deployment"
 }
@@ -312,9 +300,6 @@ variable "tier0_vnetname" {
   description = "Virtual Network Name for the deployment"
 }
 
-#################################
-# Network configuration section
-#################################
 variable "tier0_vnet_address_space" {
   description = "Address space prefixes list of strings"
   type        = list(string)
@@ -386,15 +371,10 @@ variable "tier0_subnets" {
   }
 }
 
-variable "tier0_create_network_watcher" {
-  description = "Deploy a Network Watcher resource alongside this virtual network (there's a limit of one per-subscription-per-region)"
-  type        = bool
-  default     = false
-}
-
 #################################
 # Tier 1 Configuration
 #################################
+
 variable "tier1_subid" {
   description = "Subscription ID for the deployment"
 }
@@ -411,9 +391,6 @@ variable "mlz_lawsname" {
   description = "Log Analytics Workspace Name for the deployment"
 }
 
-#################################
-# Network configuration section
-#################################
 variable "tier1_vnet_address_space" {
   description = "Address space prefixes for the virtual network"
   type        = list(string)
@@ -485,15 +462,10 @@ variable "tier1_subnets" {
   }
 }
 
-variable "tier1_create_network_watcher" {
-  description = "Deploy a Network Watcher resource alongside this virtual network (there's a limit of one per-subscription-per-region)"
-  type        = bool
-  default     = false
-}
-
 #################################
 # Tier 2 Configuration
 #################################
+
 variable "tier2_subid" {
   description = "Subscription ID for the deployment"
 }
@@ -506,9 +478,6 @@ variable "tier2_vnetname" {
   description = "Virtual Network Name for the deployment"
 }
 
-#################################
-# Network configuration section
-#################################
 variable "tier2_vnet_address_space" {
   description = "Address space prefixes list of strings"
   type        = list(string)
@@ -578,10 +547,4 @@ variable "tier2_subnets" {
       routetable_name = "tier2vmsrt"
     }
   }
-}
-
-variable "tier2_create_network_watcher" {
-  description = "Deploy a Network Watcher resource alongside this virtual network (there's a limit of one per-subscription-per-region)"
-  type        = bool
-  default     = false
 }
