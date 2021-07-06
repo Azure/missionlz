@@ -391,6 +391,12 @@ variable "mlz_lawsname" {
   description = "Log Analytics Workspace Name for the deployment"
 }
 
+variable "create_sentinel" {
+  description = "Create an Azure Sentinel Log Analytics Workspace Solution"
+  type        = bool
+  default     = true
+}
+
 variable "tier1_vnet_address_space" {
   description = "Address space prefixes for the virtual network"
   type        = list(string)

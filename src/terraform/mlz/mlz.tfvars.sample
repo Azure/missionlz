@@ -154,10 +154,11 @@ tier0_subnets = {
 # Tier 1 Network configuration section
 #################################
 
-tier1_subid    = "{TIER1_SUBID}"
-tier1_rgname   = "{TIER1_RGNAME}"
-tier1_vnetname = "{TIER1_VNETNAME}"
-mlz_lawsname   = "{MLZ_LAWSNAME}
+tier1_subid     = "{TIER1_SUBID}"
+tier1_rgname    = "{TIER1_RGNAME}"
+tier1_vnetname  = "{TIER1_VNETNAME}"
+mlz_lawsname    = "{MLZ_LAWSNAME}
+create_sentinel = "{CREATE_SENTINEL}"
 
 tier1_vnet_address_space = ["{TIER1_VNET_ADDRESS_SPACE}"]
 
