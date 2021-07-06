@@ -109,10 +109,6 @@ tier0_subid    = "{TIER0_SUBID}"
 tier0_rgname   = "{TIER0_RGNAME}"
 tier0_vnetname = "{TIER0_VNETNAME}"
 
-#################################
-# Tier 0 Network configuration section
-#################################
-
 tier0_vnet_address_space = ["{TIER0_VNET_ADDRESS_SPACE}"]
 
 tier0_subnets = {
@@ -163,10 +159,6 @@ tier1_rgname   = "{TIER1_RGNAME}"
 tier1_vnetname = "{TIER1_VNETNAME}"
 mlz_lawsname   = "{MLZ_LAWSNAME}
 
-#################################
-# Network configuration section
-#################################
-
 tier1_vnet_address_space = ["{TIER1_VNET_ADDRESS_SPACE}"]
 
 tier1_subnets = {
@@ -215,10 +207,6 @@ tier1_subnets = {
 tier2_subid    = "{TIER2_SUBID}"
 tier2_rgname   = "{TIER2_RGNAME}"
 tier2_vnetname = "{TIER2_VNETNAME}"
-
-#################################
-# Network configuration section
-#################################
 
 tier2_vnet_address_space = ["{TIER2_VNET_ADDRESS_SPACE}"]
 
