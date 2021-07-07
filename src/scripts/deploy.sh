@@ -32,6 +32,7 @@ show_help() {
   print_formatted "--tier3-sub-id" "-3" "[OPTIONAL] subscription ID for tier 3 network and resources (defaults to the value provided for -s --subscription-id), input is used in conjunction with deploy_t3.sh"
   print_formatted "--write-output" "-w" "[OPTIONAL] Tier 3 Deployment requires Terraform output, use this flag to write terraform output"
   print_formatted "--no-bastion" "" "[OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM"
+  print_formatted "--no-sentinel" "" "[OPTIONAL] when present, do not create an Azure Sentinel solution"
   print_formatted "--help" "-h" "Print this message"
 }
 
@@ -145,7 +146,7 @@ create_mlz_resources() {
 
 create_terraform_variables() {
   echo "INFO: creating terraform variables at ${tfvars_file_path}..."
-  "${this_script_path}/terraform/create_tfvars_from_config.sh" "${tfvars_file_path}" "${mlz_config_file_path}" "${create_bastion_jumpbox}"
+  "${this_script_path}/terraform/create_tfvars_from_config.sh" "${tfvars_file_path}" "${mlz_config_file_path}" "${create_bastion_jumpbox}" "${create_sentinel}"
 }
 
 apply_terraform() {
@@ -182,6 +183,7 @@ default_config_location="eastus"
 default_tf_environment="public"
 default_env_name="mlz${timestamp}"
 create_bastion_jumpbox=true
+create_sentinel=true
 
 mlz_config_subid="${default_config_subid}"
 mlz_config_location="${default_config_location}"
@@ -219,10 +221,12 @@ while [ $# -gt 0 ] ; do
     -3 | --tier3-sub-id)
       shift
       subs_args+=("-3 ${1}") ;;
-    -w | --write-output)      
+    -w | --write-output)
       write_output="true" ;;
     --no-bastion)
       create_bastion_jumpbox=false ;;
+    --no-sentinel)
+      create_sentinel=false ;;
     -h | --help)
       show_help
       exit 0 ;;
