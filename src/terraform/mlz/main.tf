@@ -203,9 +203,28 @@ resource "azurerm_log_analytics_workspace" "laws" {
   }
 }
 
-################################
-### STAGE 2: Networking      ###
-################################
+resource "azurerm_log_analytics_solution" "laws_sentinel" {
+  count = var.create_sentinel ? 1 : 0
+
+  solution_name         = "SecurityInsights"
+  location              = azurerm_resource_group.tier1.location
+  resource_group_name   = azurerm_resource_group.tier1.name
+  workspace_resource_id = azurerm_log_analytics_workspace.laws.id
+  workspace_name        = azurerm_log_analytics_workspace.laws.name
+
+  plan {
+    publisher = "Microsoft"
+    product   = "OMSGallery/SecurityInsights"
+  }
+
+  tags = {
+    DeploymentName = var.deploymentname
+  }
+}
+
+###############################
+## STAGE 2: Networking      ###
+###############################
 
 module "hub-network" {
   providers  = { azurerm = azurerm.hub }

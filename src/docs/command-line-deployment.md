@@ -100,6 +100,7 @@ deploy.sh: create all the configuration and deploy Terraform resources with mini
       --tier3-sub-id -3 [OPTIONAL] subscription ID for tier 3 network and resources (defaults to the value provided for -s --subscription-id), input is used in conjunction with deploy_t3.sh
       --write-output -w [OPTIONAL] Tier 3 Deployment requires Terraform output, use this flag to write terraform output
         --no-bastion    [OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM
+        --no-sentinel   [OPTIONAL] when present, do not create an Azure Sentinel solution
               --help -h Print this message
 ```
 
