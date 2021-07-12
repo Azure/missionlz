@@ -23,6 +23,7 @@ resource "azurerm_public_ip" "bastion_host_pip" {
   resource_group_name = data.azurerm_resource_group.bastion_host_rg.name
   allocation_method   = "Static"
   sku                 = "Standard"
+  availability_zone   = "No-Zone"
   tags                = var.tags
 }
 
