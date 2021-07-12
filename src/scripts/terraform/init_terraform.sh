@@ -47,16 +47,24 @@ scripts_path=$(realpath "${BASH_SOURCE%/*}/..")
 # Set the terraform state key
 key="${mlz_env_name}${tf_name}"
 
+# declare terraform init arguments for the backend configuration
+init_args=()
+init_args+=("-backend-config=\"metadata_host=${metadata_host}\"")
+init_args+=("-backend-config=\"key=${key}\"")
+init_args+=("-backend-config=\"resource_group_name=${tf_rg_name}\"")
+init_args+=("-backend-config=\"storage_account_name=${tf_sa_name}\"")
+init_args+=("-backend-config=\"container_name=${container_name}\"")
+init_args+=("-backend-config=\"environment=${environment}\"")
+init_args+=("-backend-config=\"tenant_id=${tenant_id}\"")
+init_args+=("-backend-config=\"subscription_id=${sub_id}\"")
+init_args+=("-backend-config=\"client_id=${client_id}\"")
+init_args+=("-backend-config=\"client_secret=${client_secret}\"")
+
+# If there is an offline terraform provider (plugin) cache, append it to the init arguments
+if [[ -d $TF_PLUGIN_CACHE_DIR ]]; then
+   init_args+=("-plugin-dir=${TF_PLUGIN_CACHE_DIR}")
+fi
+
 # Initialize terraform in the configuration directory
 cd "${tf_dir}" || exit
-terraform init \
-   -backend-config "metadata_host=${metadata_host}" \
-   -backend-config "key=${key}" \
-   -backend-config "resource_group_name=${tf_rg_name}" \
-   -backend-config "storage_account_name=${tf_sa_name}" \
-   -backend-config "container_name=${container_name}" \
-   -backend-config "environment=${environment}" \
-   -backend-config "tenant_id=${tenant_id}" \
-   -backend-config "subscription_id=${sub_id}" \
-   -backend-config "client_id=${client_id}" \
-   -backend-config "client_secret=${client_secret}"
+eval terraform init "${init_args[@]}"
