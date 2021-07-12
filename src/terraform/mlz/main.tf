@@ -6,7 +6,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "= 2.63.0"
+      version = "= 2.67.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -446,7 +446,7 @@ module "jumpbox-subnet" {
   nsg_rules = var.jumpbox_subnet.nsg_rules
 
   routetable_name     = var.jumpbox_subnet.routetable_name
-  firewall_ip_address = module.firewall.firewall_public_ip
+  firewall_ip_address = module.firewall.firewall_private_ip
 
   log_analytics_storage_id            = module.hub-network.log_analytics_storage_id
   log_analytics_workspace_id          = azurerm_log_analytics_workspace.laws.workspace_id
