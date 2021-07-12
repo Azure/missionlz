@@ -34,10 +34,21 @@ resource "azurerm_key_vault" "jumpbox-keyvault" {
   tags = var.tags
 }
 
+resource "random_integer" "jumpbox-password-length" {
+  min = 8
+  max = 123
+}
+
 resource "random_password" "jumpbox-password" {
-  length           = 16
-  special          = true
-  override_special = "_%@"
+  length      = random_integer.jumpbox-password-length.result
+  upper       = true
+  lower       = true
+  number      = true
+  special     = true
+  min_upper   = 1
+  min_lower   = 1
+  min_numeric = 1
+  min_special = 1
 }
 
 resource "azurerm_key_vault_secret" "jumpbox-password" {
