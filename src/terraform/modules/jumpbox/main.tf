@@ -34,13 +34,19 @@ resource "azurerm_key_vault" "jumpbox-keyvault" {
   tags = var.tags
 }
 
-resource "random_integer" "jumpbox-password-length" {
+resource "azurerm_key_vault_secret" "jumpbox-username" {
+  name         = "jumpbox-username"
+  value        = var.admin_username
+  key_vault_id = azurerm_key_vault.jumpbox-keyvault.id
+}
+
+resource "random_integer" "windows-jumpbox-password" {
   min = 8
   max = 123
 }
 
-resource "random_password" "jumpbox-password" {
-  length      = random_integer.jumpbox-password-length.result
+resource "random_password" "windows-jumpbox-password" {
+  length      = random_integer.windows-jumpbox-password.result
   upper       = true
   lower       = true
   number      = true
@@ -51,15 +57,32 @@ resource "random_password" "jumpbox-password" {
   min_special = 1
 }
 
-resource "azurerm_key_vault_secret" "jumpbox-password" {
-  name         = "jumpbox-password"
-  value        = random_password.jumpbox-password.result
+resource "azurerm_key_vault_secret" "windows-jumpbox-password" {
+  name         = "windows-jumpbox-password"
+  value        = random_password.windows-jumpbox-password.result
   key_vault_id = azurerm_key_vault.jumpbox-keyvault.id
 }
 
-resource "azurerm_key_vault_secret" "jumpbox-username" {
-  name         = "jumpbox-username"
-  value        = var.admin_username
+resource "random_integer" "linux-jumpbox-password" {
+  min = 6
+  max = 72
+}
+
+resource "random_password" "linux-jumpbox-password" {
+  length      = random_integer.linux-jumpbox-password.result
+  upper       = true
+  lower       = true
+  number      = true
+  special     = true
+  min_upper   = 1
+  min_lower   = 1
+  min_numeric = 1
+  min_special = 1
+}
+
+resource "azurerm_key_vault_secret" "linux-jumpbox-password" {
+  name         = "linux-jumpbox-password"
+  value        = random_password.linux-jumpbox-password.result
   key_vault_id = azurerm_key_vault.jumpbox-keyvault.id
 }
 
@@ -71,7 +94,7 @@ module "windows-virtual-machine" {
   name                 = var.windows_name
   size                 = var.windows_size
   admin_username       = var.admin_username
-  admin_password       = azurerm_key_vault_secret.jumpbox-password.value
+  admin_password       = random_password.windows-jumpbox-password.result
   publisher            = var.windows_publisher
   offer                = var.windows_offer
   sku                  = var.windows_sku
@@ -87,7 +110,7 @@ module "linux-virtual-machine" {
   name                 = var.linux_name
   size                 = var.linux_size
   admin_username       = var.admin_username
-  admin_password       = azurerm_key_vault_secret.jumpbox-password.value
+  admin_password       = random_password.linux-jumpbox-password.result
   publisher            = var.linux_publisher
   offer                = var.linux_offer
   sku                  = var.linux_sku
