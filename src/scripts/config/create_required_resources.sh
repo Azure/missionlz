@@ -42,4 +42,4 @@ mlz_path="$(realpath "${this_script_path}/../../terraform/mlz")"
 . "${this_script_path}/create_mlz_config_resources.sh" "${mlz_config}" "${mlz_env_name}" "${mlz_config_location}"
 
 # create terraform resources given a subscription ID and terraform configuration folder
-. "${this_script_path}/create_terraform_backend_resources.sh" "${mlz_config}" "${mlz_saca_subid}" "${mlz_path}"
+. "${this_script_path}/create_terraform_backend_resources.sh" "${mlz_config}" "${mlz_config_subid}" "${mlz_path}"
