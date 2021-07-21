@@ -73,10 +73,10 @@ inspect_user_input() {
 
   # if the user has set --service-principal, ensure mandatory arguments are provided
   if [[ "${user_supplied_principal}" == true ]]; then
-    for i in { $user_supplied_principal_username, $user_supplied_principal_password, $user_supplied_principal_tenant }
+    for i in { $user_supplied_principal_username, $user_supplied_principal_password }
     do
         if [[ $i == "notset" ]]; then
-          error_log "ERROR: When supplying a service principal, these arguments are mandatory: --service-principal, --username, --password, --tenant"
+          error_log "ERROR: When supplying a service principal, these arguments are mandatory: --service-principal, --username, --password"
           usage
           exit 1
         fi
@@ -199,7 +199,6 @@ create_sentinel=true
 user_supplied_principal=false
 user_supplied_principal_username="notset"
 user_supplied_principal_password="notset"
-user_supplied_principal_tenant="notset"
 
 mlz_config_subid="${default_config_subid}"
 mlz_config_location="${default_config_location}"
@@ -251,9 +250,6 @@ while [ $# -gt 0 ] ; do
     --password)
       shift
       user_supplied_principal_password="$1" ;;
-    --tenant)
-      shift
-      user_supplied_principal_tenant="$1" ;;
     -h | --help)
       show_help
       exit 0 ;;
