@@ -118,7 +118,7 @@ wait_for_sp_property() {
 if [[ "${sp_client_id}" != "notset" && "${sp_client_secret}" != "notset" ]]; then
     echo "INFO: getting object ID for Service Principal ${sp_client_id}..."
     sp_object_id=$(az ad sp list \
-        --filter "displayName eq 'http://${service_principal_username}'" \
+        --filter "appId eq '$sp_client_id'" \
         --query "[].objectId" \
         --output tsv)
 else
@@ -155,7 +155,7 @@ fi
 # Assign Contributor Role to Subscriptions
 for sub in "${subs[@]}"
 do
-    echo "INFO: setting Contributor role assignment for ${mlz_sp_name} on subscription ${sub}..."
+    echo "INFO: setting Contributor role assignment for ${sp_client_id} on subscription ${sub}..."
     az role assignment create \
         --role Contributor \
         --assignee-object-id "${sp_object_id}" \

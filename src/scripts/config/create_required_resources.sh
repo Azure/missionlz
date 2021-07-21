@@ -43,8 +43,6 @@ mlz_path="$(realpath "${this_script_path}/../../terraform/mlz")"
 # create MLZ configuration resources
 . "${this_script_path}/create_mlz_config_resources.sh" \
   "${mlz_config}" \
-  "${mlz_env_name}" \
-  "${mlz_config_location}" \
   "${service_principal_username}" \
   "${service_principal_password}"
 

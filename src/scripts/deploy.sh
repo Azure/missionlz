@@ -73,9 +73,7 @@ inspect_user_input() {
 
   # if the user has set --service-principal, ensure mandatory arguments are provided
   if [[ "${user_supplied_principal}" == true ]]; then
-    for i in { $user_supplied_principal_username,
-               $user_supplied_principal_password,
-               $user_supplied_principal_tenant }
+    for i in { $user_supplied_principal_username, $user_supplied_principal_password, $user_supplied_principal_tenant }
     do
         if [[ $i == "notset" ]]; then
           error_log "ERROR: When supplying a service principal, these arguments are mandatory: --service-principal, --username, --password, --tenant"
@@ -87,14 +85,6 @@ inspect_user_input() {
 }
 
 login_azcli() {
-  if [[ "${user_supplied_principal}" == "true" ]]; then
-    echo "INFO: logging into to Azure CLI with Service Principal ${user_supplied_principal_username}..."
-    az login --service-principal \
-      --username "${user_supplied_principal_username}" \
-      --password "${user_supplied_principal_password}" \
-      --tenant "${user_supplied_principal_tenant}"
-  fi
-
   echo "INFO: setting current subscription to ${mlz_config_subid}..."
   az account set \
     --subscription "${mlz_config_subid}" \
