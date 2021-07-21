@@ -56,7 +56,7 @@ init_args+=("-backend-config=\"storage_account_name=${tf_sa_name}\"")
 init_args+=("-backend-config=\"container_name=${container_name}\"")
 init_args+=("-backend-config=\"environment=${environment}\"")
 init_args+=("-backend-config=\"tenant_id=${tenant_id}\"")
-init_args+=("-backend-config=\"subscription_id=${sub_id}\"")
+init_args+=("-backend-config=\"subscription_id=${mlz_config_subid}\"")
 init_args+=("-backend-config=\"client_id=${client_id}\"")
 init_args+=("-backend-config=\"client_secret=${client_secret}\"")
 
