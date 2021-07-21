@@ -70,9 +70,31 @@ inspect_user_input() {
   log_default "--location" "${default_config_location}" "${mlz_config_location}"
   log_default "--tf-environment" "${default_tf_environment}" "${tf_environment}"
   log_default "--mlz-env-name" "${default_env_name}" "${mlz_env_name}"
+
+  # if the user has set --service-principal, ensure mandatory arguments are provided
+  if [[ "${user_supplied_principal}" == true ]]; then
+    for i in { $user_supplied_principal_username,
+               $user_supplied_principal_password,
+               $user_supplied_principal_tenant }
+    do
+        if [[ $i == "notset" ]]; then
+          error_log "ERROR: When supplying a service principal, these arguments are mandatory: --service-principal, --username, --password, --tenant"
+          usage
+          exit 1
+        fi
+    done
+  fi
 }
 
 login_azcli() {
+  if [[ "${user_supplied_principal}" == "true" ]]; then
+    echo "INFO: logging into to Azure CLI with Service Principal ${user_supplied_principal_username}..."
+    az login --service-principal \
+      --username "${user_supplied_principal_username}" \
+      --password "${user_supplied_principal_password}" \
+      --tenant "${user_supplied_principal_tenant}"
+  fi
+
   echo "INFO: setting current subscription to ${mlz_config_subid}..."
   az account set \
     --subscription "${mlz_config_subid}" \
@@ -141,7 +163,7 @@ validate_mlz_configuration_file() {
 
 create_mlz_resources() {
   echo "INFO: creating MLZ resources using ${mlz_config_file_path}..."
-  "${this_script_path}/config/create_required_resources.sh" "${mlz_config_file_path}"
+  "${this_script_path}/config/create_required_resources.sh" "${mlz_config_file_path}" "${user_supplied_principal_username}" "${user_supplied_principal_password}"
 }
 
 create_terraform_variables() {
@@ -184,6 +206,10 @@ default_tf_environment="public"
 default_env_name="mlz${timestamp}"
 create_bastion_jumpbox=true
 create_sentinel=true
+user_supplied_principal=false
+user_supplied_principal_username="notset"
+user_supplied_principal_password="notset"
+user_supplied_principal_tenant="notset"
 
 mlz_config_subid="${default_config_subid}"
 mlz_config_location="${default_config_location}"
@@ -227,6 +253,17 @@ while [ $# -gt 0 ] ; do
       create_bastion_jumpbox=false ;;
     --no-sentinel)
       create_sentinel=false ;;
+    --service-principal)
+      user_supplied_principal=true ;;
+    --username)
+      shift
+      user_supplied_principal_username="$1" ;;
+    --password)
+      shift
+      user_supplied_principal_password="$1" ;;
+    --tenant)
+      shift
+      user_supplied_principal_tenant="$1" ;;
     -h | --help)
       show_help
       exit 0 ;;
