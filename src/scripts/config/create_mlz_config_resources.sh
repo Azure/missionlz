@@ -17,7 +17,7 @@ error_log() {
 
 usage() {
   echo "create_mlz_config_resources.sh: Create MLZ config resources"
-  error_log "usage: create_mlz_config_resources.sh <mlz config> <service principal username> <service principal password>"
+  error_log "usage: create_mlz_config_resources.sh <mlz config> <create service principal (true or false)"
 }
 
 if [[ "$#" -lt 1 ]]; then
@@ -26,8 +26,9 @@ if [[ "$#" -lt 1 ]]; then
 fi
 
 mlz_config=$(realpath "${1}")
-sp_client_id=${2:-notset}
-sp_client_secret=${3:-notset}
+create_service_principal=${2:-true}
+
+this_script_path=$(realpath "${BASH_SOURCE%/*}")
 
 # Source variables
 . "${mlz_config}"
@@ -114,11 +115,22 @@ wait_for_sp_property() {
     done
 }
 
+check_for_arm_credential() {
+    util_path=$(realpath "${this_script_path}/../util")
+    "${util_path}/checkforarmcredential.sh" "ERROR: When using a user-provided service principal, these environment variables are mandatory: ARM_CLIENT_ID, ARM_CLIENT_SECRET"
+}
+
 # Create Service Principal
-if [[ "${sp_client_id}" != "notset" && "${sp_client_secret}" != "notset" ]]; then
-    echo "INFO: getting object ID for Service Principal ${sp_client_id}..."
+if [[ "${create_service_principal}" == false ]];
+then
+    check_for_arm_credential
+
+    echo "INFO: getting object ID for Service Principal ${ARM_CLIENT_ID}..."
+
+    sp_client_id="${ARM_CLIENT_ID}"
+    sp_client_secret="${ARM_CLIENT_SECRET}"
     sp_object_id=$(az ad sp list \
-        --filter "appId eq '$sp_client_id'" \
+        --filter "appId eq '${ARM_CLIENT_ID}'" \
         --query "[].objectId" \
         --output tsv)
 else

@@ -18,9 +18,11 @@ show_help() {
     local long_name=$1
     local char_name=$2
     local desc=$3
-    printf "%20s %2s %s \n" "$long_name" "$char_name" "$desc"
+    printf "%25s %2s %s \n" "$long_name" "$char_name" "$desc"
   }
+  print_formatted "--------" "" "-----------"
   print_formatted "argument" "" "description"
+  print_formatted "--------" "" "-----------"
   print_formatted "--subscription-id" "-s" "Subscription ID for MissionLZ resources"
   print_formatted "--location" "-l" "[OPTIONAL] The location that you're deploying to (defaults to 'eastus')"
   print_formatted "--tf-environment" "-e" "[OPTIONAL] Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment"
@@ -33,6 +35,7 @@ show_help() {
   print_formatted "--write-output" "-w" "[OPTIONAL] Tier 3 Deployment requires Terraform output, use this flag to write terraform output"
   print_formatted "--no-bastion" "" "[OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM"
   print_formatted "--no-sentinel" "" "[OPTIONAL] when present, do not create an Azure Sentinel solution"
+  print_formatted "--no-service-principal" "" "[OPTIONAL] when present, do not create an Azure Service Principal, instead use the credentials in the environment variables '\$ARM_CLIENT_ID' and '\$ARM_CLIENT_SECRET'"
   print_formatted "--help" "-h" "Print this message"
 }
 
@@ -72,15 +75,8 @@ inspect_user_input() {
   log_default "--mlz-env-name" "${default_env_name}" "${mlz_env_name}"
 
   # if the user has set --service-principal, ensure mandatory arguments are provided
-  if [[ "${user_supplied_principal}" == true ]]; then
-    for i in { $user_supplied_principal_username, $user_supplied_principal_password }
-    do
-        if [[ $i == "notset" ]]; then
-          error_log "ERROR: When supplying a service principal, these arguments are mandatory: --service-principal, --username, --password"
-          usage
-          exit 1
-        fi
-    done
+  if [[ "${create_service_principal}" == false ]]; then
+    "${this_script_path}/util/checkforarmcredential.sh" "ERROR: When specifying --no-service-principal, these environment variables are mandatory: ARM_CLIENT_ID, ARM_CLIENT_SECRET"
   fi
 }
 
@@ -153,7 +149,7 @@ validate_mlz_configuration_file() {
 
 create_mlz_resources() {
   echo "INFO: creating MLZ resources using ${mlz_config_file_path}..."
-  "${this_script_path}/config/create_required_resources.sh" "${mlz_config_file_path}" "${user_supplied_principal_username}" "${user_supplied_principal_password}"
+  "${this_script_path}/config/create_required_resources.sh" "${mlz_config_file_path}" "${create_service_principal}"
 }
 
 create_terraform_variables() {
@@ -196,9 +192,7 @@ default_tf_environment="public"
 default_env_name="mlz${timestamp}"
 create_bastion_jumpbox=true
 create_sentinel=true
-user_supplied_principal=false
-user_supplied_principal_username="notset"
-user_supplied_principal_password="notset"
+create_service_principal=true
 
 mlz_config_subid="${default_config_subid}"
 mlz_config_location="${default_config_location}"
@@ -242,14 +236,8 @@ while [ $# -gt 0 ] ; do
       create_bastion_jumpbox=false ;;
     --no-sentinel)
       create_sentinel=false ;;
-    --service-principal)
-      user_supplied_principal=true ;;
-    --username)
-      shift
-      user_supplied_principal_username="$1" ;;
-    --password)
-      shift
-      user_supplied_principal_password="$1" ;;
+    --no-service-principal)
+      create_service_principal=false ;;
     -h | --help)
       show_help
       exit 0 ;;
