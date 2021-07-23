@@ -49,7 +49,6 @@ object_id=$(az ad sp list \
     --query "[].objectId" \
     --output tsv)
 
-
 subs_requiring_role_assignment=()
 
 for sub in ${subs[@]}
