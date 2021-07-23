@@ -74,7 +74,8 @@ inspect_user_input() {
   log_default "--tf-environment" "${default_tf_environment}" "${tf_environment}"
   log_default "--mlz-env-name" "${default_env_name}" "${mlz_env_name}"
 
-  # if the user has set --no-service-principal, ensure mandatory arguments are provided
+  # if the user has set --no-service-principal, ensure mandatory environment variables are set
+  # and that the service principal exists
   if [[ "${create_service_principal}" == false ]]; then
     "${this_script_path}/util/checkforarmcredential.sh" "ERROR: When specifying --no-service-principal, these environment variables are mandatory: ARM_CLIENT_ID, ARM_CLIENT_SECRET"
   fi
