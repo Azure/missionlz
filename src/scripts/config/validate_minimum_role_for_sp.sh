@@ -49,6 +49,9 @@ object_id=$(az ad sp list \
     --query "[].objectId" \
     --output tsv)
 
+
+subs_requiring_role_assignment=()
+
 for sub in ${subs[@]}
 do
     valid_assignments=$(az role assignment list \
@@ -57,11 +60,20 @@ do
         --query "[?roleDefinitionName=='Contributor' || roleDefinitionName=='Owner'].{scope: scope}" \
         --output tsv)
     if [[ -z $valid_assignments ]]; then
-        error_log "ERROR: service principal with client ID ${client_id} does not have 'Contributor' or 'Owner' roles for subscription ${sub}!"
-        echo "INFO: at minimum, the 'Contributor' role is required to manage resources via Terraform."
-        echo "INFO: to set this role for this subscription, a user with the 'Owner' role can try this command:"
-        echo "INFO: az role assignment create --assignee-object-id ${object_id} --role \"Contributor\" --scope \"/subscriptions/${sub}\""
-        error_log "ERROR: please assign the 'Contributor' role to this subscription and try again."
-        exit 1
+        subs_requiring_role_assignment+=("${sub}")
     fi
 done
+
+if [[ ${#subs_requiring_role_assignment[@]} -gt 0 ]]; then
+    error_log "ERROR: service principal with client ID ${client_id} is missing 'Contributor' role!"
+    echo "INFO: at minimum, the 'Contributor' role is required to manage resources via Terraform."
+    echo "INFO: to set this role for the relevant subscriptions, a user with the 'Owner' role can try these commands:"
+
+    for sub in ${subs_requiring_role_assignment[@]}
+    do
+        echo "INFO: az role assignment create --assignee-object-id ${object_id} --role \"Contributor\" --scope \"/subscriptions/${sub}\""
+    done
+
+    error_log "ERROR: please assign the 'Contributor' role to this service principal and try again."
+    exit 1
+fi
