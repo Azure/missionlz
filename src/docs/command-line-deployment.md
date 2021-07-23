@@ -120,11 +120,13 @@ Need further customization? The rest of this documentation covers in detail how 
 
 #### Using your own Service Principal
 
-Were you provided a subscription(s) and credentials to use, or, already have an identity you want to use to deploy and manage Terraform with?
+Were you provided a subscription(s) and credentials to use, or do you already have an identity you want to use to deploy and manage Terraform with?
 
 By default, Mission LZ will attempt to create a Service Principal to deploy and manage Terraform on your behalf.
 
-To use other credentials, first, set ARM_CLIENT_ID and ARM_CLIENT_SECRET environment variables:
+> **NOTE:** If you are providing your own Service Principal, that Service Principal must have at minimum a 'Contributor' role.
+
+To use your own Service Principal credentials, first, set ARM_CLIENT_ID and ARM_CLIENT_SECRET environment variables:
 
 ```bash
 export ARM_CLIENT_ID="{YOUR_SERVICE_PRINCIPAL_CLIENT_ID}"
@@ -142,6 +144,16 @@ If you use `--no-service-principal` without `ARM_CLIENT_ID` and `ARM_CLIENT_SECR
 ```plaintext
 ERROR: When specifying --no-service-principal, these environment variables are mandatory: ARM_CLIENT_ID, ARM_CLIENT_SECRET
 INFO: You can set these environment variables with 'export ARM_CLIENT_ID="YOUR_CLIENT_ID"' and 'export ARM_CLIENT_SECRET="YOUR_CLIENT_SECRET"'
+```
+
+If you use `--no-service-principal` but the Service Principal you supply with `ARM_CLIENT_ID` does not have "Contributor" RBAC permissions for the subscriptions you wish to deploy into, you will receive an error:
+
+```plaintext:
+ERROR: service principal with client ID AAAAAAAA-BBBB-CCCC-DDDDDDDDDD does not have 'Contributor' or 'Owner' roles for subscription 00000000-1111-2222-333333333333!
+INFO: at minimum, the 'Contributor' role is required to manage resources via Terraform.
+INFO: to set this role for this subscription, a user with the 'Owner' role can try this command:
+INFO: az role assignment create --assignee-object-id EEEEEEEE-FFFF-GGGG-HHHHHHHHHH --role "Contributor" --scope "/subscriptions/00000000-1111-2222-333333333333"
+ERROR: please assign the 'Contributor' role to this subscription and try again.
 ```
 
 ## Setup Mission LZ Resources

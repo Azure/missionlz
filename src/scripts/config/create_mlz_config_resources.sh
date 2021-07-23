@@ -120,12 +120,17 @@ check_for_arm_credential() {
     "${util_path}/checkforarmcredential.sh" "ERROR: When using a user-provided service principal, these environment variables are mandatory: ARM_CLIENT_ID, ARM_CLIENT_SECRET"
 }
 
+validate_minimum_role_for_sp() {
+    "${this_script_path}/validate_minimum_role_for_sp.sh" "${mlz_config}" "${ARM_CLIENT_ID}"
+}
+
 # Create Service Principal
 if [[ "${create_service_principal}" == false ]];
 then
     check_for_arm_credential
+    validate_minimum_role_for_sp
 
-    echo "INFO: getting object ID for Service Principal ${ARM_CLIENT_ID}..."
+    echo "INFO: using user-supplied service principal with client ID ${ARM_CLIENT_ID}..."
 
     sp_client_id="${ARM_CLIENT_ID}"
     sp_client_secret="${ARM_CLIENT_SECRET}"
@@ -158,23 +163,23 @@ else
         object_id_query="az ad sp list ${odata_filter_args[*]}"
 
         sp_object_id=$(eval "$object_id_query")
+
+        # Assign Contributor Role to Subscriptions
+        for sub in "${subs[@]}"
+        do
+            echo "INFO: setting Contributor role assignment for ${sp_client_id} on subscription ${sub}..."
+            az role assignment create \
+                --role Contributor \
+                --assignee-object-id "${sp_object_id}" \
+                --scope "/subscriptions/${sub}" \
+                --assignee-principal-type ServicePrincipal \
+                --output none
+        done
     else
         error_log "ERROR: A service principal named ${mlz_sp_name} already exists. This must be a unique service principal for your use only. Try again with a new mlz-env-name. Exiting script."
         exit 1
     fi
 fi
-
-# Assign Contributor Role to Subscriptions
-for sub in "${subs[@]}"
-do
-    echo "INFO: setting Contributor role assignment for ${sp_client_id} on subscription ${sub}..."
-    az role assignment create \
-        --role Contributor \
-        --assignee-object-id "${sp_object_id}" \
-        --scope "/subscriptions/${sub}" \
-        --assignee-principal-type ServicePrincipal \
-        --output none
-done
 
 # Validate or create Terraform Config resource group
 rg_exists="az group show \
