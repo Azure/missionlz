@@ -109,7 +109,7 @@ The product owner is responsible for ensuring that each issue is fully triaged a
 
 #### Release Definition
 
-The product owner defines the releases in the form of GitHub projects. One release is defined per month. Each release has one or more themes. The themes are reviewed agreed upon by the team during the weekly planning meeting.
+The product owner defines the releases in the form of GitHub projects. One release is defined per month. Each release has one or more themes. The themes are reviewed and agreed upon by the team during the weekly planning meeting.
 
 #### Weekly Planning Meeting
 
