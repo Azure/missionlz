@@ -12,7 +12,7 @@ The command-line deployments involve (1) defining configuration settings (we hav
 
 If you are planning to deploy from your local workstation, we recommend using the VS Code development container specified in this repository. The container includes all the tools and pre-requisites, but you have to build and run the container. If you have Docker Desktop installed, then VS Code makes the rest of it easy. See the [README](../../.devcontainer/README.md) document in the `.devcontainer` folder for details.
 
-If you want to deploy from the command line on your workstation but do not want to use the develompent container, take a look at the [`Dockerfile`](../../.devcontainer/Dockerfile) and the [`devcontainer.json`](../../.devcontainer/Dockerfile) file for examples on how to configure your environment.
+If you want to deploy from the command line on your workstation but do not want to use the development container, take a look at the [`Dockerfile`](../../.devcontainer/Dockerfile) and the [`devcontainer.json`](../../.devcontainer/Dockerfile) file for examples on how to configure your environment.
 
 ## Pre-Requisites
 
