@@ -2,7 +2,7 @@
 
 ## Concepts
 
-Mission LZ is intended to comply with the controls listed in the  [Secure Cloud Computing Architecture (SCCA) Functional Requirements Document (FRD)](https://dl.dod.cyber.mil/wp-content/uploads/cloud/pdf/SCCA_FRD_v2-9.pdf).
+Mission LZ is intended to comply with the controls listed in the  [Secure Cloud Computing Architecture (SCCA) Functional Requirements Document (FRD)](https://rmf.org/wp-content/uploads/2018/05/SCCA_FRD_v2-9.pdf).
 
 The SCCA has four components:
 
