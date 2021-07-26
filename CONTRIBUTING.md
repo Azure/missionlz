@@ -107,6 +107,8 @@ The backlog is defined in the form of GitHub issues, including bugs and regular 
 
 The product owner is responsible for ensuring that each issue is fully triaged and is either closed or added to a release backlog. Triage with the team primarily happens at the weekly planning meeting and can also happen via GitHub as comments within an issue.
 
+When new issues are added to the GitHub issues list, the product owner makes sure that a `needs triage` label is added so that the issue will be discussed in the next planning meeting.
+
 #### Release Definition
 
 The product owner defines the releases in the form of GitHub projects. One release is defined per month. Each release has one or more themes. The themes are reviewed and agreed upon by the team during the weekly planning meeting.
@@ -115,9 +117,10 @@ The product owner defines the releases in the form of GitHub projects. One relea
 
 The product owner sets the agenda for the meeting. The agenda includes:
 
-- New issues that need triage, usually selected by GitHub issues with a 'triage' label.
+- New issues that need triage, usually selected by GitHub issues with a `needs triage` label.
 - Prioritization of new and existing issues within the current release. Items added or removed from the current release.
-- Changes to the themes of the current and future releases.
+- Changes to the themes of the current and future releases, and the scope of future releases.
+- Issues that are not currently in a release. (Filter the GitHub Issues list for issues not currently assigned to a project, i.e., `is:issue is:open no:project`).
 
 #### Backlog Prioritization
 
