@@ -18,7 +18,7 @@ error_log() {
 
 usage() {
   echo "create_required_resources.sh: configure a resource group that contains Terraform state and a secret store"
-  error_log "usage: create_required_resources.sh <mlz config>"
+  error_log "usage: create_required_resources.sh <mlz config> <create service principal (true or false)>"
 }
 
 if [[ "$#" -lt 1 ]]; then
@@ -27,6 +27,7 @@ if [[ "$#" -lt 1 ]]; then
 fi
 
 mlz_config=$(realpath "${1}")
+create_service_principal=${2:-true}
 
 this_script_path=$(realpath "${BASH_SOURCE%/*}")
 
@@ -39,7 +40,9 @@ mlz_path="$(realpath "${this_script_path}/../../terraform/mlz")"
 . "${mlz_config}"
 
 # create MLZ configuration resources
-. "${this_script_path}/create_mlz_config_resources.sh" "${mlz_config}" "${mlz_env_name}" "${mlz_config_location}"
+. "${this_script_path}/create_mlz_config_resources.sh" \
+  "${mlz_config}" \
+  "${create_service_principal}"
 
 # create terraform resources given a subscription ID and terraform configuration folder
 . "${this_script_path}/create_terraform_backend_resources.sh" "${mlz_config}" "${mlz_config_subid}" "${mlz_path}"
