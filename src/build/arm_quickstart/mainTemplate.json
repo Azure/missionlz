@@ -1,0 +1,123 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "service_principal_id": {
+        "type": "string",
+        "metadata": {
+          "description": "A pre-generate service principal with contributor role attached for running the deployment."
+        }
+      },
+      "service_principal_secret": {
+        "type": "securestring",
+        "metadata": {
+          "description": "The sercret key for the service pincipal you created."
+        }
+      },
+      "subscription_id": {
+        "type": "string",
+        "defaultValue": "[subscription().subscriptionId]",
+        "metadata": {
+          "description": "Subscription ID for MissionLZ resources (defaults to context subscription)"
+        }
+      },
+      "mlz_location": {
+        "type": "string",
+        "defaultValue": "eastus",
+        "metadata": {
+          "description": "The location that you're deploying to, defaults to selected resource group location."
+        }
+      },
+      "tf_environment": {
+        "type": "string",
+        "defaultValue": "public",
+        "metadata": {
+          "description": "Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment"
+        }
+      },
+      "mlz_env_name": {
+        "type": "string",
+        "defaultValue": "[concat('mlz', parameters('utcValue'))]",
+        "metadata": {
+          "description": "The location that you're deploying to"
+        }
+      },
+      "no_bastion": {
+        "type": "string",
+        "defaultValue": "true",
+        "metadata": {
+          "description": "If any value is present, will not create Bastion Host and Jumpbox VM"
+        }
+      },
+      "no_sentinel": {
+        "type": "string",
+        "defaultValue": "true",
+        "metadata": {
+          "description": "If any value is present, will not create an Azure Sentinel solution"
+        }
+      },
+      "utcValue": {
+        "type": "string",
+        "defaultValue": "[utcNow()]"
+      }
+    },
+   "resources": [
+      {
+        "type": "Microsoft.Resources/deploymentScripts",
+        "apiVersion": "2020-10-01",
+        "name": "[concat('deployMLZ', parameters('utcValue'))]",
+        "location": "[resourceGroup().location]",
+        "kind": "AzureCLI",
+        "properties": {
+          "forceUpdateTag": "[parameters('utcValue')]",
+          "azCliVersion": "2.15.0",
+          "timeout": "PT120M",
+          "environmentVariables":[
+            {
+              "name": "TERRAFORM_VERSION",
+              "value": "1.0.0"
+            },
+            {
+              "name": "ARM_CLIENT_ID",
+              "value": "[parameters('service_principal_id')]"
+            },
+            {
+              "name": "ARM_CLIENT_SECRET",
+              "value": "[parameters('service_principal_secret')]"
+            },
+            {
+              "name": "env_tenant_id",
+              "value": "[subscription().tenantId]"
+            },
+            {
+              "name": "subscription_id",
+              "value": "[parameters('subscription_id')]"
+            },
+             {
+              "name": "mlz_location",
+              "value": "[parameters('mlz_location')]"
+            },
+             {
+              "name": "tf_environment",
+              "value": "[parameters('tf_environment')]"
+            },
+             {
+              "name": "mlz_env_name",
+              "value": "[parameters('mlz_env_name')]"
+            },
+              {
+              "name": "no_bastion",
+              "value": "[parameters('no_bastion')]"
+            },
+              {
+              "name": "no_sentinel",
+              "value": "[parameters('no_sentinel')]"
+            }
+          ],
+          "primaryScriptUri": "https://raw.githubusercontent.com/Azure/missionlz/main/src/build/arm_quickstart/arm_deploy.sh",
+          "cleanupPreference": "OnExpiration",
+          "retentionInterval": "P1D"
+        }
+      }
+    ]
+  }
