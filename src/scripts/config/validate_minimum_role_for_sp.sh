@@ -3,6 +3,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+# shellcheck disable=SC1090
+# SC1090: Can't follow non-constant source. Use a directive to specify location.
+#
 # validates that a Service Principal has 'Contributor' or 'Owner'
 # role assigned for the subscriptions in a given .mlzconfig
 
@@ -51,7 +54,7 @@ object_id=$(az ad sp list \
 
 subs_requiring_role_assignment=()
 
-for sub in ${subs[@]}
+for sub in "${subs[@]}"
 do
     valid_assignments=$(az role assignment list \
         --assignee "${object_id}" \
@@ -68,7 +71,7 @@ if [[ ${#subs_requiring_role_assignment[@]} -gt 0 ]]; then
     echo "INFO: at minimum, the 'Contributor' role is required to manage resources via Terraform."
     echo "INFO: to set this role for the relevant subscriptions, a user with the 'Owner' role can try these commands:"
 
-    for sub in ${subs_requiring_role_assignment[@]}
+    for sub in "${subs_requiring_role_assignment[@]}"
     do
         echo "INFO: az role assignment create --assignee-object-id ${object_id} --role \"Contributor\" --scope \"/subscriptions/${sub}\""
     done
