@@ -2,8 +2,8 @@
 
 Mission Landing Zone is a highly opinionated template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their teams. It addresses a narrowly scoped, specific need for an SCCA compliant hub and spoke infrastructure.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbuild%2Farm_quickstart%2FmainTemplate.json)
-[![Deploy to Azure](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbuild%2Farm_quickstart%2FmainTemplate.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fbreestryker%2Farmdispatch%2Fsrc%2Fbuild%2Farm_quickstart%2FmainTemplate.json)
+[![Deploy to Azure](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fbreestryker%2Farmdispatch%2Fsrc%2Fbuild%2Farm_quickstart%2FmainTemplate.json)
 
 Mission LZ is:
 
