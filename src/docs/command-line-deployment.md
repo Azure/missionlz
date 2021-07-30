@@ -88,19 +88,20 @@ If you don't wish to use those defaults, you can customize this command to targe
 
 ```plaintext
 deploy.sh: create all the configuration and deploy Terraform resources with minimal input
-            argument    description
-   --subscription-id -s Subscription ID for MissionLZ resources
-          --location -l [OPTIONAL] The location that you're deploying to (defaults to 'eastus')
-    --tf-environment -e [OPTIONAL] Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
-      --mlz-env-name -z [OPTIONAL] Unique name for MLZ environment (defaults to 'mlz' + UNIX timestamp)
-        --hub-sub-id -u [OPTIONAL] subscription ID for the hub network and resources (defaults to the value provided for -s --subscription-id)
-      --tier0-sub-id -0 [OPTIONAL] subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
-      --tier1-sub-id -1 [OPTIONAL] subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
-      --tier2-sub-id -2 [OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
-      --tier3-sub-id -3 [OPTIONAL] subscription ID for tier 3 network and resources (defaults to the value provided for -s --subscription-id), input is used in conjunction with deploy_t3.sh
-      --write-output -w [OPTIONAL] Tier 3 Deployment requires Terraform output, use this flag to write terraform output
-        --no-bastion    [OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM
-        --no-sentinel   [OPTIONAL] when present, do not create an Azure Sentinel solution
+                 argument    description
+        --subscription-id -s Subscription ID for MissionLZ resources
+               --location -l [OPTIONAL] The location that you're deploying to (defaults to 'eastus')
+         --tf-environment -e [OPTIONAL] Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment
+           --mlz-env-name -z [OPTIONAL] Unique name for MLZ environment (defaults to 'mlz' + UNIX timestamp)
+             --hub-sub-id -u [OPTIONAL] subscription ID for the hub network and resources (defaults to the value provided for -s --subscription-id)
+           --tier0-sub-id -0 [OPTIONAL] subscription ID for tier 0 network and resources (defaults to the value provided for -s --subscription-id)
+           --tier1-sub-id -1 [OPTIONAL] subscription ID for tier 1 network and resources (defaults to the value provided for -s --subscription-id)
+           --tier2-sub-id -2 [OPTIONAL] subscription ID for tier 2 network and resources (defaults to the value provided for -s --subscription-id)
+           --tier3-sub-id -3 [OPTIONAL] subscription ID for tier 3 network and resources (defaults to the value provided for -s --subscription-id), input is used in conjunction with deploy_t3.sh
+           --write-output -w [OPTIONAL] Tier 3 Deployment requires Terraform output, use this flag to write terraform output
+             --no-bastion    [OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM
+            --no-sentinel    [OPTIONAL] when present, do not create an Azure Sentinel solution
+   --no-service-principal    [OPTIONAL] when present, do not create an Azure Service Principal, instead use the credentials in the environment variables '$ARM_CLIENT_ID' and '$ARM_CLIENT_SECRET'
               --help -h Print this message
 ```
 
@@ -116,6 +117,44 @@ src/scripts/deploy.sh -s {my_mlz_configuration_subscription_id} \
 ```
 
 Need further customization? The rest of this documentation covers in detail how to customize this deployment to your needs.
+
+#### Using your own Service Principal
+
+Were you provided a subscription(s) and credentials to use, or do you already have an identity you want to use to deploy and manage Terraform with?
+
+By default, Mission LZ will attempt to create a Service Principal to deploy and manage Terraform on your behalf.
+
+> **NOTE:** If you are providing your own Service Principal, that Service Principal must have at minimum a 'Contributor' role.
+
+To use your own Service Principal credentials, first, set ARM_CLIENT_ID and ARM_CLIENT_SECRET environment variables:
+
+```bash
+export ARM_CLIENT_ID="{YOUR_SERVICE_PRINCIPAL_CLIENT_ID}"
+export ARM_CLIENT_SECRET="{YOUR_SERVICE_PRINCIPAL_CLIENT_SECRET}"
+```
+
+Then, specify the `--no-service-principal` flag when running `deploy.sh`:
+
+```bash
+deploy.sh --subscription-id "{YOUR_SUBSCRIPTION_ID}" --no-service-principal
+```
+
+If you use `--no-service-principal` without `ARM_CLIENT_ID` and `ARM_CLIENT_SECRET` set in your environment, you will recieve an error:
+
+```plaintext
+ERROR: When specifying --no-service-principal, these environment variables are mandatory: ARM_CLIENT_ID, ARM_CLIENT_SECRET
+INFO: You can set these environment variables with 'export ARM_CLIENT_ID="YOUR_CLIENT_ID"' and 'export ARM_CLIENT_SECRET="YOUR_CLIENT_SECRET"'
+```
+
+If you use `--no-service-principal` but the Service Principal you supply with `ARM_CLIENT_ID` does not have "Contributor" RBAC permissions for the subscriptions you wish to deploy into, you will receive an error:
+
+```plaintext:
+ERROR: service principal with client ID AAAAAAAA-BBBB-CCCC-DDDDDDDDDD does not have 'Contributor' or 'Owner' roles for subscription 00000000-1111-2222-333333333333!
+INFO: at minimum, the 'Contributor' role is required to manage resources via Terraform.
+INFO: to set this role for this subscription, a user with the 'Owner' role can try this command:
+INFO: az role assignment create --assignee-object-id EEEEEEEE-FFFF-GGGG-HHHHHHHHHH --role "Contributor" --scope "/subscriptions/00000000-1111-2222-333333333333"
+ERROR: please assign the 'Contributor' role to this subscription and try again.
+```
 
 ## Setup Mission LZ Resources
 

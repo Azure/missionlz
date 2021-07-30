@@ -17,7 +17,7 @@ error_log() {
 
 usage() {
   echo "create_mlz_config_resources.sh: Create MLZ config resources"
-  error_log "usage: create_mlz_config_resources.sh <mlz config>"
+  error_log "usage: create_mlz_config_resources.sh <mlz config> <create service principal (true or false)>"
 }
 
 if [[ "$#" -lt 1 ]]; then
@@ -26,6 +26,9 @@ if [[ "$#" -lt 1 ]]; then
 fi
 
 mlz_config=$(realpath "${1}")
+create_service_principal=${2:-true}
+
+this_script_path=$(realpath "${BASH_SOURCE%/*}")
 
 # Source variables
 . "${mlz_config}"
@@ -112,43 +115,70 @@ wait_for_sp_property() {
     done
 }
 
-# Create Azure AD application registration and Service Principal
-# TODO: Lift the subscription scoping out of here and move into conditional
-echo "INFO: verifying service principal ${mlz_sp_name} is unique..."
-if [[ -z $(az ad sp list --filter "displayName eq 'http://${mlz_sp_name}'" --query "[].displayName" -o tsv) ]];then
-    echo "INFO: creating service principal ${mlz_sp_name}..."
-    sp_creds=($(az ad sp create-for-rbac \
-        --name "http://${mlz_sp_name}" \
-        --skip-assignment true \
-        --query "[password, appId]" \
-        --only-show-errors \
-        --output tsv))
+check_for_arm_credential() {
+    util_path=$(realpath "${this_script_path}/../util")
+    "${util_path}/checkforarmcredential.sh" "ERROR: When using a user-provided service principal, these environment variables are mandatory: ARM_CLIENT_ID, ARM_CLIENT_SECRET"
+}
 
-    sp_client_secret=${sp_creds[0]}
-    sp_client_id=${sp_creds[1]}
+validate_minimum_role_for_sp() {
+    "${this_script_path}/validate_minimum_role_for_sp.sh" "${mlz_config}" "${ARM_CLIENT_ID}"
+}
 
-    wait_for_sp_creation "${sp_client_id}"
-    wait_for_sp_property "${sp_client_id}" "objectId"
+# Create Service Principal
+if [[ "${create_service_principal}" == false ]];
+then
+    check_for_arm_credential
+    validate_minimum_role_for_sp
 
-    odata_filter_args=(--filter "\"appId eq '$sp_client_id'\"" --query "[0].objectId" --output tsv)
-    object_id_query="az ad sp list ${odata_filter_args[*]}"
+    echo "INFO: using user-supplied service principal with client ID ${ARM_CLIENT_ID}..."
 
-    sp_object_id=$(eval "$object_id_query")
-
-    # Assign Contributor role to Service Principal
-    for sub in "${subs[@]}"
-    do
-    echo "INFO: setting Contributor role assignment for ${mlz_sp_name} on subscription ${sub}..."
-    az role assignment create \
-        --role Contributor \
-        --assignee-object-id "${sp_object_id}" \
-        --scope "/subscriptions/${sub}" \
-        --assignee-principal-type ServicePrincipal \
-        --output none
-    done
+    sp_client_id="${ARM_CLIENT_ID}"
+    sp_client_secret="${ARM_CLIENT_SECRET}"
+    sp_object_id=$(az ad sp list \
+        --filter "appId eq '${ARM_CLIENT_ID}'" \
+        --query "[].objectId" \
+        --output tsv)
 else
-    error_log "ERROR: A service principal named ${mlz_sp_name} already exists. This must be a unique service principal for your use only. Try again with a new mlz-env-name. Exiting script."
-    exit 1
+    echo "INFO: verifying service principal ${mlz_sp_name} is unique..."
+    if [[ -z $(az ad sp list \
+               --filter "displayName eq 'http://${mlz_sp_name}'" \
+               --query "[].displayName" \
+               --output tsv) ]];
+    then
+        echo "INFO: creating service principal ${mlz_sp_name}..."
+        sp_creds=($(az ad sp create-for-rbac \
+            --name "http://${mlz_sp_name}" \
+            --skip-assignment true \
+            --query "[password, appId]" \
+            --only-show-errors \
+            --output tsv))
+
+        sp_client_secret=${sp_creds[0]}
+        sp_client_id=${sp_creds[1]}
+
+        wait_for_sp_creation "${sp_client_id}"
+        wait_for_sp_property "${sp_client_id}" "objectId"
+
+        odata_filter_args=(--filter "\"appId eq '$sp_client_id'\"" --query "[0].objectId" --output tsv)
+        object_id_query="az ad sp list ${odata_filter_args[*]}"
+
+        sp_object_id=$(eval "$object_id_query")
+
+        # Assign Contributor Role to Subscriptions
+        for sub in "${subs[@]}"
+        do
+            echo "INFO: setting Contributor role assignment for ${sp_client_id} on subscription ${sub}..."
+            az role assignment create \
+                --role Contributor \
+                --assignee-object-id "${sp_object_id}" \
+                --scope "/subscriptions/${sub}" \
+                --assignee-principal-type ServicePrincipal \
+                --output none
+        done
+    else
+        error_log "ERROR: A service principal named ${mlz_sp_name} already exists. This must be a unique service principal for your use only. Try again with a new mlz-env-name. Exiting script."
+        exit 1
+    fi
 fi
 
 # Validate or create Terraform Config resource group
