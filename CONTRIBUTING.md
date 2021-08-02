@@ -15,6 +15,10 @@ or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any addi
 
 Contributions come in many forms: submitting issues, writing code, and participating in discussions or questions.
 
+## Use of Third-party code
+
+Third-party code must include the associated license in the [`NOTICE`](NOTICE) file.
+
 ## Contribution Process
 
 ### Summary
@@ -129,9 +133,5 @@ The product owner is responsible for ensuring that the backlog items are priorit
 #### Architecture
 
 The product owner is responsible for ensuring that enough architecture documentation exists for the development team and stakeholders. Developing the architecture is a collaborative effort with the rest of the team. Any team member may contribute to the architecture, and some issues may be added to the backlog for discovery and testing in order to determine the elements of the architecture.
-
-## Use of Third-party code
-
-- Third-party code must include licenses.
 
 **Thank You!** - Your contributions to open source, large or small, make projects like this possible. Thank you for taking the time to contribute.
