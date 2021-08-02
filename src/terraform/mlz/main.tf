@@ -3,10 +3,11 @@
 terraform {
   backend "azurerm" {}
 
+  required_version = "= 1.0.3"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "= 2.67.0"
+      version = "= 2.69.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -14,7 +15,7 @@ terraform {
     }
     time = {
       source  = "hashicorp/time"
-      version = "0.7.1"
+      version = "0.7.2"
     }
   }
 }

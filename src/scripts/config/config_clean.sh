@@ -71,8 +71,13 @@ do
   done
 done
 
-echo "INFO: deleting service principal ${mlz_sp_name}..."
-az ad sp delete --id $(az ad sp list --display-name "http://${mlz_sp_name}" --query [0].appId --output tsv)
+echo "INFO: querying for any created service principal with name ${mlz_sp_name}..."
+sp_id=$(az ad sp list --display-name "http://${mlz_sp_name}" --query [0].appId --output tsv)
+
+if [[ $sp_id ]]; then
+  echo "INFO: deleting service principal ${mlz_sp_name}..."
+  az ad sp delete --id "${sp_id}"
+fi
 
 echo "INFO: purging key vault ${mlz_kv_name}..."
 az keyvault purge \
