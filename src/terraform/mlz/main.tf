@@ -205,6 +205,7 @@ resource "azurerm_log_analytics_workspace" "laws" {
 }
 
 resource "azurerm_log_analytics_solution" "laws_sentinel" {
+  provider   = azurerm.tier1
   count = var.create_sentinel ? 1 : 0
 
   solution_name         = "SecurityInsights"
