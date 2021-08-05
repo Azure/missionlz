@@ -3,11 +3,11 @@
 terraform {
   backend "azurerm" {}
 
-  required_version = "= 1.0.3"
+  required_version = "= 1.0.4"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "= 2.69.0"
+      version = "= 2.70.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -205,8 +205,8 @@ resource "azurerm_log_analytics_workspace" "laws" {
 }
 
 resource "azurerm_log_analytics_solution" "laws_sentinel" {
-  provider   = azurerm.tier1
-  count = var.create_sentinel ? 1 : 0
+  provider = azurerm.tier1
+  count    = var.create_sentinel ? 1 : 0
 
   solution_name         = "SecurityInsights"
   location              = azurerm_resource_group.tier1.location
