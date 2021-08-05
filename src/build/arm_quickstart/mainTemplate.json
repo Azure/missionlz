@@ -2,55 +2,55 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "service_principal_id": {
+      "servicePrincipalId": {
         "type": "string",
         "metadata": {
           "description": "A pre-generate service principal with contributor role attached for running the deployment."
         }
       },
-      "service_principal_secret": {
+      "servicePrincipalSecret": {
         "type": "securestring",
         "metadata": {
           "description": "The sercret key for the service pincipal you created."
         }
       },
-      "subscription_id": {
+      "subscriptionId": {
         "type": "string",
         "defaultValue": "[subscription().subscriptionId]",
         "metadata": {
           "description": "Subscription ID for MissionLZ resources (defaults to context subscription)"
         }
       },
-      "mlz_location": {
+      "mlzLocation": {
         "type": "string",
         "defaultValue": "eastus",
         "metadata": {
           "description": "The location that you're deploying to, defaults to selected resource group location."
         }
       },
-      "tf_environment": {
+      "tfEnvironment": {
         "type": "string",
         "defaultValue": "public",
         "metadata": {
           "description": "Terraform azurerm environment (defaults to 'public') see: https://www.terraform.io/docs/language/settings/backends/azurerm.html#environment"
         }
       },
-      "mlz_env_name": {
+      "mlzEnvName": {
         "type": "string",
         "defaultValue": "[concat('mlz', parameters('utcValue'))]",
         "metadata": {
           "description": "The location that you're deploying to"
         }
       },
-      "no_bastion": {
-        "type": "string",
+      "noBastion": {
+        "type": "bool",
         "defaultValue": "true",
         "metadata": {
           "description": "If any value is present, will not create Bastion Host and Jumpbox VM"
         }
       },
-      "no_sentinel": {
-        "type": "string",
+      "noSentinel": {
+        "type": "bool",
         "defaultValue": "true",
         "metadata": {
           "description": "If any value is present, will not create an Azure Sentinel solution"
@@ -79,11 +79,11 @@
             },
             {
               "name": "ARM_CLIENT_ID",
-              "value": "[parameters('service_principal_id')]"
+              "value": "[parameters('servicePrincipalId')]"
             },
             {
               "name": "ARM_CLIENT_SECRET",
-              "value": "[parameters('service_principal_secret')]"
+              "value": "[parameters('servicePrincipalSecret')]"
             },
             {
               "name": "env_tenant_id",
@@ -91,27 +91,27 @@
             },
             {
               "name": "subscription_id",
-              "value": "[parameters('subscription_id')]"
+              "value": "[parameters('subscriptionId')]"
             },
              {
               "name": "mlz_location",
-              "value": "[parameters('mlz_location')]"
+              "value": "[parameters('mlzLocation')]"
             },
              {
               "name": "tf_environment",
-              "value": "[parameters('tf_environment')]"
+              "value": "[parameters('tfEnvironment')]"
             },
              {
               "name": "mlz_env_name",
-              "value": "[parameters('mlz_env_name')]"
+              "value": "[parameters('mlzEnvName')]"
             },
               {
               "name": "no_bastion",
-              "value": "[parameters('no_bastion')]"
+              "value": "[parameters('noBastion')]"
             },
               {
               "name": "no_sentinel",
-              "value": "[parameters('no_sentinel')]"
+              "value": "[parameters('noSentinel')]"
             }
           ],
           "primaryScriptUri": "https://raw.githubusercontent.com/Azure/missionlz/main/src/build/arm_quickstart/arm_deploy.sh",

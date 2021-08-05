@@ -33,3 +33,9 @@ This method of executing MLZ will only deploy to a single subscription and is no
 ### Errors
 
 The deployment script option from ARM Templates is a relatively new option ([Use Deployment scripts in ARM templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deployment-script-template)), we are using the capability with a remote installation of Terraform to roll out MLZ.  Sometimes this can lead to mysterious errors.  When these errors occur, before attempting to re-run the deployment check your subscription to see if resources have been created. If these resources have been created, it is unlikely that you need to re-run the deployment.   However if they have not, simply try to run the quickstart deployment again, often times this will self resolve and deploy the landing zone.
+
+  > Example Benign Error:
+
+  ```JSON
+    {"code":"DeploymentFailed","message":"At least one resource deployment operation failed. Please list deployment operations for details. Please see https://aka.ms/DeployOperations for usage details.","details":[{"code":"DeploymentScriptOperationFailed","message":"Object reference not set to an instance of an object."}]}
+  ```
