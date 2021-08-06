@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 terraform {
   backend "azurerm" {}
-  required_version = "= 1.0.4"
+  required_version = ">= 1.0.3"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
