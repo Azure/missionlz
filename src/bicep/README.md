@@ -16,7 +16,7 @@ However, you don't need Bicep to deploy the compiled `mlz.json` in this reposito
 You can deploy with the Azure Portal, the Azure CLI, or with both in an Air-Gapped Cloud. But first, you'll need these pre-requisites:
 
 1. An Azure Subscription
-1. That subscription added to a [Management Group](https://docs.microsoft.com/en-us/azure/governance/management-groups/create-management-group-portal)
+1. Contributor RBAC permissions to that subscription
 
 ### Azure Portal
 
