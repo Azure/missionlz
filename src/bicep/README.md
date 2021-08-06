@@ -28,20 +28,20 @@ You can deploy with the Azure Portal, the Azure CLI, or with both in an Air-Gapp
 
 ### Azure CLI
 
-Use `az deployment mg` to deploy MLZ across 1:M subscriptions (and `az deployment mg create --help` for more information):
+Use `az deployment sub` to deploy MLZ across 1:M subscriptions (and `az deployment sub create --help` for more information):
 
 ```plaintext
 # az bicep install
 
-# the minimum needed to deploy:
-az deployment mg create \
+# the minimum needed to deploy (deployment will occur in your default subscription):
+az deployment sub create \
   --location eastus \
   --name test \
   --template-file ./mlz.bicep
 
 # to deploy into multiple subscriptions specify the `--parameters` flag and pass `key=value` arguments:
-az deployment mg create \
-  --management-group-id mymanagementgroup
+az deployment sub create \
+  --subscription $deploymentSubscription \
   --location eastus \
   --name multisubtest \
   --template-file ./mlz.bicep \
@@ -53,8 +53,8 @@ az deployment mg create \
 
 # if I were deploying into AzureUSGovernment for example:
 az cloud set -n AzureUsGovernment
-az deployment mg create \
-  --management-group-id mymanagementgroup
+az deployment sub create \
+  --subscription $deploymentSubscription \
   --location usgovvirginia \
   --name multisubtest \
   --template-file ./mlz.bicep \
@@ -88,8 +88,8 @@ az bicep build -f ./mlz.bicep --outfile mlz.json
 
 az cloud set -n AzureUsGovernment
 
-az deployment mg create \
-  --management-group-id mymanagementgroup
+az deployment sub create \
+  --subscription $deploymentSubscription \
   --location usgovvirginia \
   --name multisubtest \
   --template-file ./mlz.json \

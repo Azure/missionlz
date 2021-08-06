@@ -33,15 +33,13 @@ One way to retreive these values is with the Azure CLI:
 ```bash
 # after a Mission LZ deployment
 #
-# az deployment mg create \
-#   --management-group-id "myManagementGroupId" \
+# az deployment sub create \
+#   --subscription $deploymentSubscription \
 #   --name "myDeploymentName" \
 #   --template-file ./mlz.bicep \
-#
-# cd examples/remoteAccess
 
-az deployment mg show \
-  --management-group-id "myManagementGroupId" \
+az deployment sub show \
+  --subscription $deploymentSubscription \
   --name "myDeploymentName" \
   --query properties.outputs
 ```
@@ -89,6 +87,8 @@ Once you have the Mission LZ output values, you can pass those in as parameters 
 For example, deploying using the `az deployment group create` command in the Azure CLI:
 
 ```bash
+cd examples/newWorkload
+
 workloadSubscriptionId="12345678-1234..."
 location="eastus"
 workloadName="myNewWorkload"

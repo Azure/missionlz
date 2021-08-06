@@ -34,13 +34,13 @@ One way to retreive these values is with the Azure CLI:
 ```bash
 # after a Mission LZ deployment
 #
-# az deployment mg create \
-#   --management-group-id "myManagementGroupId" \
+# az deployment sub create \
+#   --subscription $deploymentSubscription \
 #   --name "myDeploymentName" \
 #   --template-file ./mlz.bicep \
 
-az deployment mg show \
-  --management-group-id "myManagementGroupId" \
+az deployment sub show \
+  --subscription $deploymentSubscription \
   --name "myDeploymentName" \
   --query properties.outputs
 ```
@@ -77,6 +77,7 @@ You'll need to initialize Terraform in this directory:
 
 ```bash
 cd examples/sentinel
+
 terraform init
 ```
 
