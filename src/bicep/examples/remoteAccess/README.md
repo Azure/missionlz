@@ -77,6 +77,13 @@ az deployment sub show \
 }
 ```
 
+...and if you're on a BASH terminal, this command will export the values as environment variables:
+
+```bash
+mlzDeploymentName="test"
+export $(az deployment sub show --name "myDeploymentName" --query "properties.outputs.{ args: [ join('', ['hubResourceGroupName=', hubResourceGroupName.value]), join('', ['hubVirtualNetworkName=', hubVirtualNetworkName.value]), join('', ['hubSubnetResourceId=', hubSubnetResourceId.value]), join('', ['hubNetworkSecurityGroupResourceId=', hubNetworkSecurityGroupResourceId.value]) ] }.args" --output tsv | xargs)
+```
+
 ## Deploy the example
 
 Once you have the Mission LZ output values, you can pass those in as parameters to this deployment.

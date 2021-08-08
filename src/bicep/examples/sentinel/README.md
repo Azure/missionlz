@@ -71,6 +71,13 @@ az deployment sub show \
 }
 ```
 
+...and if you're on a BASH terminal, this command will export the values as environment variables:
+
+```bash
+mlzDeploymentName="test"
+export $(az deployment sub show --name "myDeploymentName" --query "properties.outputs.{ args: [ join('', ['operationsSubscriptionId=', operationsSubscriptionId.value]), join('', ['operationsResourceGroupName=', operationsResourceGroupName.value]), join('', ['logAnalyticsWorkspaceName=', logAnalyticsWorkspaceName.value]), join('', ['logAnalyticsWorkspaceResourceId=', logAnalyticsWorkspaceResourceId.value]) ] }.args" --output tsv | xargs)
+```
+
 ## Deploying Sentinel
 
 You'll need to initialize Terraform in this directory:
@@ -85,10 +92,6 @@ Then, using our MLZ deployment output [as input variables](https://www.terraform
 
 ```bash
 location="eastus"
-operationsSubscriptionId="0987654-3210..."
-operationsResourceGroupName="mlz-dev-operations"
-logAnalyticsWorkspaceName="mlz-dev-laws"
-logAnalyticsWorkspaceResourceId="/subscriptions/.../providers/Microsoft.OperationalInsights/workspaces/mlz-dev-laws"
 
 terraform apply \
   -var subscription_id="$operationsSubscriptionId" \

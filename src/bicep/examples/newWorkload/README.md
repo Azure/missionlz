@@ -80,11 +80,18 @@ az deployment sub show \
 }
 ```
 
+...and if you're on a BASH terminal, this command will export the values as environment variables:
+
+```bash
+mlzDeploymentName="test"
+export $(az deployment sub show --name "myDeploymentName" --query "properties.outputs.{ args: [ join('', ['hubSubscriptionId=', hubSubscriptionId.value]), join('', ['hubResourceGroupName=', hubResourceGroupName.value]), join('', ['hubVirtualNetworkName=', hubVirtualNetworkName.value]), join('', ['hubVirtualNetworkResourceId=', hubVirtualNetworkResourceId.value]), join('', ['logAnalyticsWorkspaceResourceId=', logAnalyticsWorkspaceResourceId.value]), join('', ['firewallPrivateIPAddress=', firewallPrivateIPAddress.value]) ] }.args" --output tsv | xargs)
+```
+
 ## Deploy the example
 
 Once you have the Mission LZ output values, you can pass those in as parameters to this deployment.
 
-For example, deploying using the `az deployment group create` command in the Azure CLI:
+And deploy with `az deployment group create` from the Azure CLI:
 
 ```bash
 cd examples/newWorkload
@@ -92,12 +99,6 @@ cd examples/newWorkload
 workloadSubscriptionId="12345678-1234..."
 location="eastus"
 workloadName="myNewWorkload"
-hubSubscriptionId="0987654-3210..."
-hubResourceGroupName="mlz-dev-hub"
-hubVirtualNetworkName="hub-vnet"
-hubVirtualNetworkResourceId="/subscriptions/.../providers/Microsoft.Network/virtualNetworks/hub-vnet"
-logAnalyticsWorkspaceResourceId="/subscriptions/.../providers/Microsoft.OperationalInsights/workspaces/mlz-dev-laws"
-firewallPrivateIPAddress="10.0.100.4"
 
 az deployment sub create \
   --subscription $workloadSubscriptionId \
