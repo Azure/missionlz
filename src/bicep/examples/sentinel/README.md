@@ -71,10 +71,9 @@ az deployment sub show \
 }
 ```
 
-...and if you're on a BASH terminal, this command will export the values as environment variables:
+...and if you're on a BASH terminal, this command (take note to replace "myDeploymentName" with your deployment name) will export the values as environment variables:
 
 ```bash
-mlzDeploymentName="test"
 export $(az deployment sub show --name "myDeploymentName" --query "properties.outputs.{ args: [ join('', ['operationsSubscriptionId=', operationsSubscriptionId.value]), join('', ['operationsResourceGroupName=', operationsResourceGroupName.value]), join('', ['logAnalyticsWorkspaceName=', logAnalyticsWorkspaceName.value]), join('', ['logAnalyticsWorkspaceResourceId=', logAnalyticsWorkspaceResourceId.value]) ] }.args" --output tsv | xargs)
 ```
 
