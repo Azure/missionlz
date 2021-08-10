@@ -9,6 +9,14 @@ terraform-provider-azurerm_v*
 terraform-provider-random_v*
 *.terraform.lock.hcl
 
+# Terraform logs
+crash.log
+
+# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
+# example: *tfplan*
+*plan*
+*.plan*
+
 # Setup config variables file
 mlz.config
 saca-hub.tfvars.json
