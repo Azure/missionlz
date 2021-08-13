@@ -53,6 +53,12 @@ variable "mlz_objectid" {
   sensitive   = true
 }
 
+variable "create_assignment" {
+  description = "Create an Azure Policy assignement for defaul NIST initiative."
+  type        = bool
+  default     = false
+}
+
 #################################
 # Hub Configuration
 #################################

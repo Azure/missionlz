@@ -101,6 +101,7 @@ deploy.sh: create all the configuration and deploy Terraform resources with mini
            --write-output -w [OPTIONAL] Tier 3 Deployment requires Terraform output, use this flag to write terraform output
              --no-bastion    [OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM
             --no-sentinel    [OPTIONAL] when present, do not create an Azure Sentinel solution
+                 --policy    [OPTIONAL] when present, create Policy Assignments for built-in NIST initiative
    --no-service-principal    [OPTIONAL] when present, do not create an Azure Service Principal, instead use the credentials in the environment variables '$ARM_CLIENT_ID' and '$ARM_CLIENT_SECRET'
               --help -h Print this message
 ```
