@@ -88,7 +88,7 @@ A draft PR can be used to request feedback from the team.
 
 #### Review Other PRs
 
-When PRs are requested, review each change and run full test deployment, specifically focused on the areas that have changed. Provide comments and feedback directly related to the PR.
+When PRs are requested, review each change and run a full test deployment, specifically focused on the areas that have changed. Provide comments and feedback directly related to the PR.
 
 #### Ensure Quality
 
