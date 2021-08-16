@@ -51,8 +51,8 @@ These roles demonstrate how we think about doing the work. A single person can o
 
 ### Artifacts
 
-- Product backlog: The product backlog is defined using GitHub issues. Issue templates are in the repo for Issues (new development) and bugs. Backlog items (issues and bugs) are grouped into releases and prioritized within each release. See the [product owner process](#product-owner-process) for more details.
-- Monthly releases: Each release is defined using a GitHub project. One release is finished each month. We plan major themes for each release, but the actual content of a finished release depends on what is accomplished using our Kanban process.
+- Product backlog: The product backlog is defined using GitHub issues. [Issue templates](.github/ISSUE_TEMPLATE) are in the repo for [backlog items (new development) and bugs](https://github.com/Azure/missionlz/issues/new/choose). Issues are grouped into releases and prioritized within each release. See the [product owner process](#product-owner-process) for more details.
+- Monthly releases: Each release is defined using a GitHub project. GitHub projects are visible on the [Projects](https://github.com/Azure/missionlz/projects) tab of the GitHub site. One release is finished each month. We plan major themes for each release, but the actual content of a finished release depends on what is accomplished using our Kanban process.
 - Software increment: Each change to the software is implemented as a git commit to the main branch. GitHub pull requests are used to define and review each commit to main as a squashed merge (all changes combined into a single commit.) See the [development process](#development-process) for more details.
 
 ### Events
@@ -88,7 +88,7 @@ A draft PR can be used to request feedback from the team.
 
 #### Review Other PRs
 
-When PRs are requested, review each change and run full test deployment, specifically focused on the areas that have changed. Provide comments and feedback directly related to the PR.
+When PRs are requested, review each change and run a full test deployment, specifically focused on the areas that have changed. Provide comments and feedback directly related to the PR.
 
 #### Ensure Quality
 
@@ -98,20 +98,20 @@ The main branch is always production quality. The PR reviewer is responsible for
 
 #### Product Backlog
 
-The backlog is defined in the form of GitHub issues, including bugs and regular issues. Any team member or external stakeholder can author a backlog item. The product owner is responsible for ensuring that all backlog items in a release meet the standards of being ready for development. The standards include:
+The backlog is defined in the form of GitHub issues, including bugs and backlog items. Any team member or external stakeholder can author a backlog item. The product owner is responsible for ensuring that all backlog items in a release meet the standards of being ready for development. The standards include:
 
 - A clear title
-- A concise benefit/result/outcome that defines the benefit someone would receive when the issue is completed.
+- A concise benefit/result/outcome that defines the benefit someone would receive when the issue is completed
 - An optional tag that defines who will benefit from the issue being completed
-- A detailed description that contains more context and may contain implementation details.
-- A full list of acceptance criteria that clearly define when the issue is complete.
-- Scope that is as small as possible and is also a complete and useful new feature for a stakeholder.
+- A detailed description that contains more context and may contain implementation details
+- A full list of acceptance criteria that clearly define when the issue is complete
+- Scope that is as small as possible and is also a complete and useful new feature for a stakeholder
 
 #### Triage
 
 The product owner is responsible for ensuring that each issue is fully triaged and is either closed or added to a release backlog. Triage with the team primarily happens at the weekly planning meeting and can also happen via GitHub as comments within an issue.
 
-When new issues are added to the GitHub issues list, the product owner makes sure that a `needs triage` label is added so that the issue will be discussed in the next planning meeting.
+When new issues are added to the GitHub issues list, the product owner ensures that a `needs triage` label is added so that the issue will be discussed in the next planning meeting.
 
 #### Release Definition
 
