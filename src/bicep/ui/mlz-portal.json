@@ -1226,7 +1226,9 @@
 				"logAnalyticsWorkspaceSkuName": "[steps('logSettings').logAnalyticsWorkspaceSkuName]",
 				"tags": "[steps('generalSettings').tags]",
 				"uniqueId": "[steps('generalSettings').uniqueId]"
-			}
-		}
-	}
+			},
+            "kind": "Tenant",
+            "location": "[steps('basics').resourceScope.location.name]"
+        }
+    }
 }
