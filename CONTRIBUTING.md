@@ -64,9 +64,9 @@ These roles demonstrate how we think about doing the work. A single person can o
 
 ### Development Process
 
-#### Select an Issue
+#### Select a Backlog Item
 
-Team members select issues to develop. More than one member can work on a single issue, and pair programming and other collaboration is encouraged. Generally, issues that have higher priority should be done before lower priority issues, but any issue may be selected from the backlog by any team member.
+Team members select backlog items or bugs to develop. More than one member can work on a single issue, and pair programming and other collaboration is encouraged. Generally, issues that have higher priority should be done before lower priority issues, but any issue may be selected from the backlog by any team member.
 
 #### Create a Branch
 
@@ -85,6 +85,8 @@ Keep short dev/test/commit cycles within a branch, and create many commits per d
 Multiple PRs can be created for an issue, but there is usually a single pull request per issue. Optionally ask specific teammates for a review. Carefully follow the checklist in the PR template. Ensure that at least one GitHub issue is associated with the PR and assigned to the current release. When the PR is completed/closed, make sure the GitHub issue is also closed.
 
 A draft PR can be used to request feedback from the team.
+
+A [`CODEOWNERS`](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-on-github/about-code-owners) file defines the set of default reviewers for PRs to main.
 
 #### Review Other PRs
 
@@ -113,10 +115,6 @@ The product owner is responsible for ensuring that each issue is fully triaged a
 
 When new issues are added to the GitHub issues list, the product owner ensures that a `needs triage` label is added so that the issue will be discussed in the next planning meeting.
 
-#### Release Definition
-
-The product owner defines the releases in the form of GitHub projects. One release is defined per month. Each release has one or more themes. The themes are reviewed and agreed upon by the team during the weekly planning meeting.
-
 #### Weekly Planning Meeting
 
 The product owner sets the agenda for the meeting. The agenda includes:
@@ -128,10 +126,14 @@ The product owner sets the agenda for the meeting. The agenda includes:
 
 #### Backlog Prioritization
 
-The product owner is responsible for ensuring that the backlog items are prioritized within each release. Setting priority is a collaborative effort by the team. Priority is defined by the stack rank order of the "To do" column in a release.
+The product owner is responsible for ensuring that the backlog items are prioritized within each release. Setting priority is a collaborative effort by the team and usually happens during the weekly planning meeting. Priority is defined by the stack rank order of the "To do" column in a release.
 
 #### Architecture
 
 The product owner is responsible for ensuring that enough architecture documentation exists for the development team and stakeholders. Developing the architecture is a collaborative effort with the rest of the team. Any team member may contribute to the architecture, and some issues may be added to the backlog for discovery and testing in order to determine the elements of the architecture.
+
+#### Release Definition
+
+The product owner defines the releases in the form of GitHub projects. One release is defined per month. Each release has one or more themes. The themes are reviewed and agreed upon by the team during the weekly planning meeting.
 
 **Thank You!** - Your contributions to open source, large or small, make projects like this possible. Thank you for taking the time to contribute.
