@@ -5,35 +5,51 @@
 #################################
 
 variable "tf_environment" {
-  description = "The Terraform backend environment e.g. public or usgovernment"
+  description = "The Terraform backend environment e.g. public or usgovernment. It defults to public."
+  type        = string
+  default     = "public"
 }
 
 variable "deploymentname" {
-  description = "A name for the deployment"
+  description = "A name for the deployment. It defaults to dev."
+  type        = string
+  default     = "dev"
 }
 
 variable "mlz_tenantid" {
-  description = "The Azure tenant for the deployment"
+  description = "The Azure Active Directory tenant ID that should be used for the deployment."
+  type        = string
+  sensitive   = true
 }
 
 variable "mlz_location" {
-  description = "The Azure region for most Mission LZ resources"
+  description = "The Azure region for most Mission LZ resources. It defaults to eastus."
+  type        = string
+  default     = "eastus"
 }
 
 variable "mlz_metadatahost" {
   description = "The metadata host for the Azure Cloud e.g. management.azure.com"
+  type        = string
+  default     = "management.azure.com"
 }
 
 variable "mlz_clientid" {
-  description = "The account to deploy with"
+  description = "The Client ID of the Service Principal to deploy with."
+  type        = string
+  sensitive   = true
 }
 
 variable "mlz_clientsecret" {
-  description = "The account to deploy with"
+  description = "The Client Secret of the Service Principal to deploy with."
+  type        = string
+  sensitive   = true
 }
 
 variable "mlz_objectid" {
-  description = "The account to deploy with"
+  description = "The object ID of a service principal in the Azure Active Directory tenant."
+  type        = string
+  sensitive   = true
 }
 
 #################################
@@ -41,19 +57,26 @@ variable "mlz_objectid" {
 #################################
 
 variable "hub_subid" {
-  description = "Subscription ID for the deployment"
+  description = "Subscription ID for the HUB deployment"
+  type        = string
+  sensitive   = true
 }
 
 variable "hub_rgname" {
   description = "Resource Group for the deployment"
+  type        = string
+  default     = "rg-saca-dev"
 }
 
 variable "hub_vnetname" {
   description = "Virtual Network Name for the deployment"
+  type        = string
+  default     = "vn-saca-dev"
 }
 
 variable "firewall_private_ip" {
   description = "Firewall IP to bind network to"
+  type        = string
 }
 
 #################################
@@ -62,14 +85,19 @@ variable "firewall_private_ip" {
 
 variable "tier1_subid" {
   description = "Subscription ID for the deployment"
+  type        = string
+  sensitive   = true
 }
 
 variable "laws_name" {
   description = "Log Analytics Workspace Name for the deployment"
+  type        = string
+  default     = "laws-dev"
 }
 
 variable "laws_rgname" {
   description = "The RG that laws was deployed to."
+  type        = string
 }
 
 #################################
@@ -77,14 +105,20 @@ variable "laws_rgname" {
 #################################
 variable "tier3_subid" {
   description = "Subscription ID for the deployment"
+  type        = string
+  sensitive   = true
 }
 
 variable "tier3_rgname" {
   description = "Resource Group for the deployment"
+  type        = string
+  default     = "rg-t3-dev"
 }
 
 variable "tier3_vnetname" {
   description = "Virtual Network Name for the deployment"
+  type        = string
+  default     = "vn-t3-dev"
 }
 
 variable "tier3_vnet_address_space" {
