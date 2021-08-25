@@ -12,7 +12,7 @@ variable "resource_group_name" {
 }
 
 variable "environment" {
-  description = "The Terraform backend environment e.g. public or usgovernment. It defults to public."
+  description = "The Terraform backend environment e.g. public or usgovernment. It defaults to public."
   type        = string
   default     = "public"
 }
