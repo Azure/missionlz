@@ -18,7 +18,7 @@ variable "environment" {
 }
 
 variable "laws_instance_id" {
-  description = "The log ananlytics workspace ID which will be privided to the underlying policy rules via the policy parameters."
+  description = "The log analytics workspace ID which will be provided to the underlying policy rules via the policy parameters."
   type        = string
 }
 
