@@ -167,9 +167,15 @@ else
         # Assign Contributor Role to Subscriptions
         for sub in "${subs[@]}"
         do
-            echo "INFO: setting Contributor role assignment for ${sp_client_id} on subscription ${sub}..."
+            echo "INFO: setting Contributor and Policy Contributor role assignments for ${sp_client_id} on subscription ${sub}..."
             az role assignment create \
                 --role Contributor \
+                --assignee-object-id "${sp_object_id}" \
+                --scope "/subscriptions/${sub}" \
+                --assignee-principal-type ServicePrincipal \
+                --output none
+            az role assignment create \
+                --role 'Resource Policy Contributor' \
                 --assignee-object-id "${sp_object_id}" \
                 --scope "/subscriptions/${sub}" \
                 --assignee-principal-type ServicePrincipal \

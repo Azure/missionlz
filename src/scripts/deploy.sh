@@ -36,6 +36,7 @@ show_help() {
   print_formatted "--no-bastion" "" "[OPTIONAL] when present, do not create a Bastion Host and Jumpbox VM"
   print_formatted "--no-sentinel" "" "[OPTIONAL] when present, do not create an Azure Sentinel solution"
   print_formatted "--no-service-principal" "" "[OPTIONAL] when present, do not create an Azure Service Principal, instead use the credentials in the environment variables '\$ARM_CLIENT_ID' and '\$ARM_CLIENT_SECRET'"
+  print_formatted "--policy" "" "[OPTIONAL] when present, create Policy Assignments for built-in NIST initiative"
   print_formatted "--help" "-h" "Print this message"
 }
 
@@ -155,7 +156,7 @@ create_mlz_resources() {
 
 create_terraform_variables() {
   echo "INFO: creating terraform variables at ${tfvars_file_path}..."
-  "${this_script_path}/terraform/create_tfvars_from_config.sh" "${tfvars_file_path}" "${mlz_config_file_path}" "${create_bastion_jumpbox}" "${create_sentinel}"
+  "${this_script_path}/terraform/create_tfvars_from_config.sh" "${tfvars_file_path}" "${mlz_config_file_path}" "${create_bastion_jumpbox}" "${create_sentinel}" "${create_assignment}"
 }
 
 apply_terraform() {
@@ -194,6 +195,7 @@ default_env_name="mlz${timestamp}"
 create_bastion_jumpbox=true
 create_sentinel=true
 create_service_principal=true
+create_assignment=false
 
 mlz_config_subid="${default_config_subid}"
 mlz_config_location="${default_config_location}"
@@ -239,6 +241,8 @@ while [ $# -gt 0 ] ; do
       create_sentinel=false ;;
     --no-service-principal)
       create_service_principal=false ;;
+    --policy)
+      create_assignment=true ;;
     -h | --help)
       show_help
       exit 0 ;;
