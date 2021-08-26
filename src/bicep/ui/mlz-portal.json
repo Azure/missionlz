@@ -1134,9 +1134,9 @@
 			"parameters": {
 				"resourcePrefix": "[steps('generalSettings').resourcePrefix]",
 				"hubSubscriptionId": "[steps('hubSettings').resourceScope.subscription.id]",
-				"identitySubscriptionId": "[steps('identitySettings').identitySubscriptionId.subscriptionId]]",
-				"operationsSubscriptionId": "[steps('operationsSettings').operationsSubscriptionId.subscriptionId]]",
-				"sharedServicesSubscriptionId": "[steps('sharedSettings').sharedServicesSubscriptionId.subscriptionId]]",
+				"identitySubscriptionId": "[steps('identitySettings').identitySubscriptionId.subscriptionId]",
+				"operationsSubscriptionId": "[steps('operationsSettings').operationsSubscriptionId.subscriptionId]",
+				"sharedServicesSubscriptionId": "[steps('sharedSettings').sharedServicesSubscriptionId.subscriptionId]",
 				"firewallSkuTier": "[steps('hubSettings').firewallSkuTier]",
 				"hubResourceGroupName": "[steps('hubSettings').hubResourceGroupName]",
 				"hubLocation": "[steps('hubSettings').hubLocation]",
