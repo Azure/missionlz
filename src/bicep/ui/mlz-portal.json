@@ -1133,7 +1133,7 @@
 		"outputs": {
 			"parameters": {
 				"resourcePrefix": "[steps('generalSettings').resourcePrefix]",
-				"hubSubscriptionId": "[steps('hubSettings').resourceScope.subscription.id]",
+				"hubSubscriptionId": "[steps('hubSettings').resourceScope.subscription.subscriptionId]",
 				"identitySubscriptionId": "[steps('identitySettings').identitySubscriptionId.subscriptionId]",
 				"operationsSubscriptionId": "[steps('operationsSettings').operationsSubscriptionId.subscriptionId]",
 				"sharedServicesSubscriptionId": "[steps('sharedSettings').sharedServicesSubscriptionId.subscriptionId]",
