@@ -63,20 +63,7 @@
 					"bladeTitle": "Hub Settings",
 					"elements": [{
 							"name": "resourceScope",
-							"type": "Microsoft.Common.ResourceScope",
-							"subscription": {
-								"constraints": {
-									"validations": [{
-											"isValid": "[expression for checking]",
-											"message": "Please select a valid subscription."
-										},
-										{
-											"permission": "<Resource Provider>/<Action>",
-											"message": "Must have correct permission to complete this step."
-										}
-									]
-								}
-							}
+							"type": "Microsoft.Common.ResourceScope"
 						},
 						{
 							"name": "hubResourceGroupName",
@@ -160,7 +147,7 @@
 							"name": "hubVirtualNetworkDiagnosticsLogs",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Hub Virtual Network Diagnostics Logs",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -173,7 +160,7 @@
 							"name": "hubVirtualNetworkDiagnosticsMetrics",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Hub Virtual Network Diagnostics Metrics",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -199,7 +186,7 @@
 							"name": "hubNetworkSecurityGroupRules",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Hub Network Security Group Rules",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -212,7 +199,7 @@
 							"name": "hubSubnetServiceEndpoints",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Hub Subnet Service Endpoints",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -349,7 +336,7 @@
 							"name": "firewallClientSubnetServiceEndpoints",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Firewall Client Subnet Service Endpoints",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -401,7 +388,7 @@
 							"name": "firewallClientPublicIPAddressAvailabilityZones",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Firewall Client Public IP Address Availability Zones",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -427,7 +414,7 @@
 							"name": "firewallManagementSubnetServiceEndpoints",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Firewall Management Subnet Service Endpoints",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -479,7 +466,7 @@
 							"name": "firewallManagementPublicIPAddressAvailabilityZones",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Firewall Management Public IP Address Availability Zones",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -593,7 +580,7 @@
 							"name": "identityVirtualNetworkDiagnosticsLogs",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Identity Virtual Network Diagnostics Logs",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -606,7 +593,7 @@
 							"name": "identityVirtualNetworkDiagnosticsMetrics",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Identity Virtual Network Diagnostics Metrics",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -632,7 +619,7 @@
 							"name": "identityNetworkSecurityGroupRules",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Identity Network Security Group Rules",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -645,7 +632,7 @@
 							"name": "identitySubnetServiceEndpoints",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Identity Subnet Service Endpoints",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -759,7 +746,7 @@
 							"name": "operationsVirtualNetworkDiagnosticsLogs",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Operations Virtual Network Diagnostics Logs",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -772,7 +759,7 @@
 							"name": "operationsVirtualNetworkDiagnosticsMetrics",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Operations Virtual Network Diagnostics Metrics",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -798,7 +785,7 @@
 							"name": "operationsNetworkSecurityGroupRules",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Operations Network Security Group Rules",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -837,7 +824,7 @@
 							"name": "operationsSubnetServiceEndpoints",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Operations Subnet Service Endpoints",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -977,7 +964,7 @@
 							"name": "sharedServicesVirtualNetworkDiagnosticsLogs",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Shared Services Virtual Network Diagnostics Logs",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -990,7 +977,7 @@
 							"name": "sharedServicesVirtualNetworkDiagnosticsMetrics",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Shared Services Virtual Network Diagnostics Metrics",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -1016,7 +1003,7 @@
 							"name": "sharedServicesNetworkSecurityGroupRules",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Shared Services Network Security Group Rules",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -1029,7 +1016,7 @@
 							"name": "sharedServicesSubnetServiceEndpoints",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Shared Services Subnet Service Endpoints",
-							"defaultValue": "",
+							"defaultValue": "[[]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
