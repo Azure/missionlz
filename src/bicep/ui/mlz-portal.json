@@ -63,9 +63,8 @@
 					"bladeTitle": "Hub Settings",
 					"elements": [{
 							"name": "hubSubscriptionId",
-							"type": "Microsoft.Common.TextBox",
+							"type": "Microsoft.Common.SubscriptionSelector",
 							"label": "Hub Subscription Id",
-							"defaultValue": "[[subscription().subscriptionId]",
 							"toolTip": "",
 							"constraints": {
 								"required": false,
@@ -496,7 +495,7 @@
 					"bladeTitle": "Identity Settings",
 					"elements": [{
 							"name": "identitySubscriptionId",
-							"type": "Microsoft.Common.TextBox",
+							"type": "Microsoft.Common.SubscriptionSelector",
 							"label": "Identity Subscription Id",
 							"defaultValue": "[[parameters('hubSubscriptionId')]",
 							"toolTip": "",
@@ -688,7 +687,7 @@
 					"bladeTitle": "Operations Settings",
 					"elements": [{
 							"name": "operationsSubscriptionId",
-							"type": "Microsoft.Common.TextBox",
+							"type": "Microsoft.Common.SubscriptionSelector",
 							"label": "Operations Subscription Id",
 							"defaultValue": "[[parameters('hubSubscriptionId')]",
 							"toolTip": "",
@@ -880,7 +879,7 @@
 					"bladeTitle": "General Settings",
 					"elements": [{
 							"name": "sharedServicesSubscriptionId",
-							"type": "Microsoft.Common.TextBox",
+							"type": "Microsoft.Common.SubscriptionSelector",
 							"label": "Shared Services Subscription Id",
 							"defaultValue": "[[parameters('hubSubscriptionId')]",
 							"toolTip": "",
