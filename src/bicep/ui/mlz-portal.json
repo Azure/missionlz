@@ -1234,7 +1234,6 @@
 				"tags": "[steps('generalSettings').tags]",
 				"uniqueId": "[steps('generalSettings').uniqueId]"
 			},
-			"kind": "Subscription",
             "location": "[steps('basics').resourceScope.location.name]"
 		}
 	}
