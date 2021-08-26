@@ -4,7 +4,18 @@
 		"kind": "Form",
 		"properties": {
 			"title": "Missing Landing Zone - AGC LZ",
-			"steps": [{
+			"steps": [
+				{
+                    "name": "basics",
+                    "label": "Deployment location",
+                    "elements": [
+                        {
+                            "name": "resourceScope",
+                            "type": "Microsoft.Common.ResourceScope"
+                        }
+                    ]
+                },
+				{
 					"name": "generalSettings",
 					"label": "General Settings",
 					"subLabel": {
@@ -1222,7 +1233,9 @@
 				"logAnalyticsWorkspaceSkuName": "[steps('logSettings').logAnalyticsWorkspaceSkuName]",
 				"tags": "[steps('generalSettings').tags]",
 				"uniqueId": "[steps('generalSettings').uniqueId]"
-			}
+			},
+			"kind": "Tenant",
+            "location": "[steps('basics').resourceScope.location.name]"
 		}
 	}
 }
