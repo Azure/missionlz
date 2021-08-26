@@ -1137,8 +1137,10 @@
 						}
 					]
 				}
-			],
-			"outputs": {
+			]
+		},
+		"outputs": {
+			"parameters": {
 				"resourcePrefix": "[steps('generalSettings').resourcePrefix]",
 				"hubSubscriptionId": "[steps('hubSettings').hubSubscriptionId]",
 				"identitySubscriptionId": "[steps('identitySettings').identitySubscriptionId]",
@@ -1222,8 +1224,8 @@
 				"tags": "[steps('generalSettings').tags]",
 				"uniqueId": "[steps('generalSettings').uniqueId]"
 			},
-            "kind": "Tenant",
-            "location": "[steps('basics').resourceScope.location.name]"
-        }
-    }
+			"kind": "Tenant",
+			"location": "[steps('basics').resourceScope.location.name]"
+		}
+	}
 }
