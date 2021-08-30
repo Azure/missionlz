@@ -9,7 +9,7 @@ Once you're comfortable with Terraform, ensure you have the Prerequisites below 
 ## Prerequisistes
 
 * Current version of the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
-* Version 1.04 of the [Terraform CLI](https://www.terraform.io/downloads.html)
+* The version of the [Terraform CLI](https://www.terraform.io/downloads.html) described in the [.devcontainer Dockerfile](../../../.devcontainer/Dockerfile)
 * An Azure Subscription where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
 
 ## Login to Azure CLI
