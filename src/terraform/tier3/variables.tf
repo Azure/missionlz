@@ -34,18 +34,6 @@ variable "mlz_metadatahost" {
   default     = "management.azure.com"
 }
 
-variable "mlz_clientid" {
-  description = "The Client ID of the Service Principal to deploy with."
-  type        = string
-  sensitive   = true
-}
-
-variable "mlz_clientsecret" {
-  description = "The Client Secret of the Service Principal to deploy with."
-  type        = string
-  sensitive   = true
-}
-
 variable "mlz_objectid" {
   description = "The object ID of a service principal in the Azure Active Directory tenant."
   type        = string

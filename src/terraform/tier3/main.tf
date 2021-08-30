@@ -16,8 +16,7 @@ provider "azurerm" {
   metadata_host   = var.mlz_metadatahost
   tenant_id       = var.mlz_tenantid
   subscription_id = var.hub_subid
-  client_id       = var.mlz_clientid
-  client_secret   = var.mlz_clientsecret
+
 
   features {
     log_analytics_workspace {
@@ -35,8 +34,7 @@ provider "azurerm" {
   metadata_host   = var.mlz_metadatahost
   tenant_id       = var.mlz_tenantid
   subscription_id = var.hub_subid
-  client_id       = var.mlz_clientid
-  client_secret   = var.mlz_clientsecret
+
 
   features {
     log_analytics_workspace {
@@ -54,8 +52,7 @@ provider "azurerm" {
   metadata_host   = var.mlz_metadatahost
   tenant_id       = var.mlz_tenantid
   subscription_id = var.tier1_subid
-  client_id       = var.mlz_clientid
-  client_secret   = var.mlz_clientsecret
+
 
   features {
     log_analytics_workspace {
@@ -73,8 +70,7 @@ provider "azurerm" {
   metadata_host   = var.mlz_metadatahost
   tenant_id       = var.mlz_tenantid
   subscription_id = var.tier3_subid
-  client_id       = var.mlz_clientid
-  client_secret   = var.mlz_clientsecret
+
 
   features {
     log_analytics_workspace {
