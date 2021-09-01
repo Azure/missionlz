@@ -4,7 +4,7 @@ param name string
 param location string
 param tags object = {}
 
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2019-05-01' = {
   name: name
   location: location
   tags: tags
