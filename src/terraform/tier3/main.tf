@@ -12,9 +12,9 @@ terraform {
 }
 
 provider "azurerm" {
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
+  environment   = var.tf_environment
+  metadata_host = var.mlz_metadatahost
+
   subscription_id = var.hub_subid
 
 
@@ -29,10 +29,10 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  alias           = "hub"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
+  alias         = "hub"
+  environment   = var.tf_environment
+  metadata_host = var.mlz_metadatahost
+
   subscription_id = var.hub_subid
 
 
@@ -47,10 +47,10 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  alias           = "tier1"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
+  alias         = "tier1"
+  environment   = var.tf_environment
+  metadata_host = var.mlz_metadatahost
+
   subscription_id = var.tier1_subid
 
 
@@ -65,10 +65,10 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  alias           = "tier3"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
+  alias         = "tier3"
+  environment   = var.tf_environment
+  metadata_host = var.mlz_metadatahost
+
   subscription_id = var.tier3_subid
 
 
