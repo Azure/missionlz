@@ -6,7 +6,7 @@ targetScope = 'subscription'
 //// scaffolding
 
 module hubResourceGroup './modules/resourceGroup.bicep' = {
-  name: 'hubResourceGroup'
+  name: 'deploy-hub-rg-${nowUtc}'
   scope: subscription(hubSubscriptionId)
   params: {
     name: hubResourceGroupName
@@ -16,7 +16,7 @@ module hubResourceGroup './modules/resourceGroup.bicep' = {
 }
 
 module identityResourceGroup './modules/resourceGroup.bicep' = {
-  name: 'identityResourceGroup'
+  name: 'deploy-identity-rg-${nowUtc}'
   scope: subscription(identitySubscriptionId)
   params: {
     name: identityResourceGroupName
@@ -26,7 +26,7 @@ module identityResourceGroup './modules/resourceGroup.bicep' = {
 }
 
 module operationsResourceGroup './modules/resourceGroup.bicep' = {
-  name: 'operationsResourceGroup'
+  name: 'deploy-operations-rg-${nowUtc}'
   scope: subscription(operationsSubscriptionId)
   params: {
     name: operationsResourceGroupName
@@ -36,7 +36,7 @@ module operationsResourceGroup './modules/resourceGroup.bicep' = {
 }
 
 module sharedServicesResourceGroup './modules/resourceGroup.bicep' = {
-  name: 'sharedServicesResourceGroup'
+  name: 'deploy-sharedServices-rg-${nowUtc}'
   scope: subscription(sharedServicesSubscriptionId)
   params: {
     name: sharedServicesResourceGroupName
@@ -48,7 +48,7 @@ module sharedServicesResourceGroup './modules/resourceGroup.bicep' = {
 //// logging
 
 module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
-  name: 'logAnalyticsWorkspace'
+  name: 'deploy-laws-${nowUtc}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
     name: logAnalyticsWorkspaceName
@@ -67,7 +67,7 @@ module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
 //// hub and spoke
 
 module hub './modules/hubNetwork.bicep' = {
-  name: '${resourcePrefix}-hub'
+  name: 'deploy-hub-${nowUtc}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     location: hubLocation
@@ -114,7 +114,7 @@ module hub './modules/hubNetwork.bicep' = {
 }
 
 module identity './modules/spokeNetwork.bicep' = {
-  name: '${resourcePrefix}-identity'
+  name: 'deploy-identity-spoke-${nowUtc}'
   scope: resourceGroup(identitySubscriptionId, identityResourceGroupName)
   params: {
     location: identityLocation
@@ -142,7 +142,7 @@ module identity './modules/spokeNetwork.bicep' = {
 }
 
 module operations './modules/spokeNetwork.bicep' = {
-  name: '${resourcePrefix}-operations'
+  name: 'deploy-operations-spoke-${nowUtc}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
     location: operationsLocation
@@ -170,7 +170,7 @@ module operations './modules/spokeNetwork.bicep' = {
 }
 
 module sharedServices './modules/spokeNetwork.bicep' = {
-  name: '${resourcePrefix}-sharedServices'
+  name: 'deploy-sharedServices-spoke-${nowUtc}'
   scope: resourceGroup(sharedServicesSubscriptionId, sharedServicesResourceGroupName)
   params: {
     location: sharedServicesLocation
@@ -200,7 +200,7 @@ module sharedServices './modules/spokeNetwork.bicep' = {
 // peering
 
 module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
-  name: '${resourcePrefix}-hubVirtualNetworkPeerings'
+  name: 'deploy-hub-peerings-${nowUtc}'
   scope: subscription(hubSubscriptionId)
   params: {
     hubResourceGroupName: hubResourceGroup.outputs.name
@@ -217,7 +217,7 @@ module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
 }
 
 module identityVirtualNetworkPeering './modules/spokeNetworkPeering.bicep' = {
-  name: '${resourcePrefix}-identityVirtualNetworkPeerings'
+  name: 'deploy-identity-peerings-${nowUtc}'
   scope: subscription(identitySubscriptionId)
   params: {
     spokeResourceGroupName: identityResourceGroup.outputs.name
@@ -229,7 +229,7 @@ module identityVirtualNetworkPeering './modules/spokeNetworkPeering.bicep' = {
 }
 
 module operationsVirtualNetworkPeering './modules/spokeNetworkPeering.bicep' = {
-  name: '${resourcePrefix}-operationsVirtualNetworkPeerings'
+  name: 'deploy-operations-peerings-${nowUtc}'
   scope: subscription(operationsSubscriptionId)
   params: {
     spokeResourceGroupName: operationsResourceGroup.outputs.name
@@ -241,7 +241,7 @@ module operationsVirtualNetworkPeering './modules/spokeNetworkPeering.bicep' = {
 }
 
 module sharedServicesVirtualNetworkPeering './modules/spokeNetworkPeering.bicep' = {
-  name: '${resourcePrefix}-sharedServicesVirtualNetworkPeerings'
+  name: 'deploy-sharedServices-peerings-${nowUtc}'
   scope: subscription(sharedServicesSubscriptionId)
   params: {
     spokeResourceGroupName: sharedServicesResourceGroup.outputs.name
@@ -356,6 +356,7 @@ param tags object = {
 }
 
 param uniqueId string = uniqueString(deployment().name)
+param nowUtc string = utcNow()
 
 // outputs
 output hubSubscriptionId string = hubSubscriptionId
