@@ -64,6 +64,18 @@ module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
   ]
 }
 
+//// sentinel
+module sentinelSolution './modules/sentinelSolution.bicep' = {
+  name: 'deploy-sentinel-${nowUtc}'
+  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
+  params: {
+    workspaceName: logAnalyticsWorkspaceName
+    workspaceLocation: logAnalyticsWorkspaceLocation
+    tags: tags
+    sentinelBool:false
+  }
+}
+
 //// hub and spoke
 
 module hub './modules/hubNetwork.bicep' = {

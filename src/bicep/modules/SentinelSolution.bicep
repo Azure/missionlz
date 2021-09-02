@@ -1,15 +1,21 @@
 param workspaceName  string
-param workspaceId string
-param location string = resourceGroup().location
+param workspaceLocation string
 param tags object = {}
+param sentinelBool bool
 
-resource azurerm_log_analytics_solution 'Microsoft.OperationsManagement/solutions@2015-11-01-preview'={
+resource workspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' existing = {
+  name: workspaceName
+}
+
+resource sentinelSolution 'Microsoft.OperationsManagement/solutions@2015-11-01-preview'= if(sentinelBool) {
   name: 'SecurityInsights(${workspaceName})'
-  location: location
+  location: workspaceLocation
   tags:tags
-  
+  dependsOn:[
+    workspace
+  ]
   properties: {
-    workspaceResourceId: workspaceId
+    workspaceResourceId: workspace.id
   }
   plan: {
     name: 'SecurityInsights(${workspaceName})'
