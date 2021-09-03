@@ -252,6 +252,62 @@ module sharedServicesVirtualNetworkPeering './modules/spokeNetworkPeering.bicep'
   }
 }
 
+module hubPolicyAssignment './modules/policyassignment.bicep' = {
+  name: 'policyAssignement'
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  dependsOn: [
+    hubResourceGroup
+    logAnalyticsWorkspace
+  ]
+  params: {
+    builtInAssignment: policy
+    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
+    workspaceResourceGroupName: operationsResourceGroupName
+  }
+}
+
+module operationsPolicyAssignment './modules/policyassignment.bicep' = {
+  name: 'policyAssignement'
+  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
+  dependsOn: [
+    operationsResourceGroup
+    logAnalyticsWorkspace
+  ]
+  params: {
+    builtInAssignment: policy
+    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
+    workspaceResourceGroupName: operationsResourceGroupName
+  }
+}
+
+module sharedServicesPolicyAssignment './modules/policyassignment.bicep' = {
+  name: 'policyAssignement'
+  scope: resourceGroup(sharedServicesSubscriptionId, sharedServicesResourceGroupName)
+  dependsOn: [
+    sharedServicesResourceGroup
+    logAnalyticsWorkspace
+  ]
+  params: {
+    builtInAssignment: policy
+    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
+    workspaceResourceGroupName: operationsResourceGroupName
+  }
+}
+
+module identityPolicyAssignment './modules/policyassignment.bicep' = {
+  name: 'policyAssignement'
+  scope: resourceGroup(identitySubscriptionId, identityResourceGroupName)
+  dependsOn: [
+    identityResourceGroup
+    logAnalyticsWorkspace
+  ]
+  params: {
+    builtInAssignment: policy
+    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
+    workspaceResourceGroupName: operationsResourceGroupName
+  }
+}
+
 // parameters
 @minLength(3)
 @maxLength(24)
@@ -350,6 +406,15 @@ param logAnalyticsWorkspaceLocation string = sharedServicesLocation
 param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
 param logAnalyticsWorkspaceRetentionInDays int = 30
 param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
+
+@allowed([
+  'NIST'
+  'IL5' // Gov cloud only, trying to deploy IL5 in AzureCloud will switch to NIST
+  'CMMC'
+  ''
+])
+@description('Built-in policy assignments to assign, default is none. [NIST/IL5/CMMC] IL5 is only availalbe for GOV cloud and will switch to NIST if tried in AzureCloud.')
+param policy string = ''
 
 param tags object = {
   'resourcePrefix': resourcePrefix
