@@ -17,7 +17,7 @@ error_log() {
 
 usage() {
   echo "create_tfvars_from_config.sh: generate a terraform tfvars file given an MLZ config and a desired tfvars file name"
-  echo "create_tfvars_from_config.sh: <destination file path> <mlz config file path> <create bastion host> <create sentinel>"
+  echo "create_tfvars_from_config.sh: <destination file path> <mlz config file path> <create bastion host> <create sentinel> <create_assignment>"
   show_help
 }
 
@@ -30,6 +30,7 @@ file_to_create=$1
 mlz_config=$2
 create_bastion_jumpbox=${3:-true}
 create_sentinel=${4:-true}
+create_assignment=${5:-false}
 
 # source config
 . "${mlz_config}"
@@ -55,6 +56,7 @@ append_kvp "mlz_cloud" "${mlz_cloudname}"
 append_kvp "mlz_tenantid" "${mlz_tenantid}"
 append_kvp "mlz_location" "${mlz_config_location}"
 append_kvp "mlz_metadatahost" "${mlz_metadatahost}"
+append_kvp "create_assignment" "${create_assignment}"
 
 append_kvp "hub_subid" "${mlz_saca_subid}"
 append_kvp "hub_rgname" "rg-saca-${mlz_env_name}"

@@ -3,11 +3,11 @@
 terraform {
   backend "azurerm" {}
 
-  required_version = "= 1.0.3"
+  required_version = ">= 1.0.3"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "= 2.69.0"
+      version = "= 2.73.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -205,8 +205,8 @@ resource "azurerm_log_analytics_workspace" "laws" {
 }
 
 resource "azurerm_log_analytics_solution" "laws_sentinel" {
-  provider   = azurerm.tier1
-  count = var.create_sentinel ? 1 : 0
+  provider = azurerm.tier1
+  count    = var.create_sentinel ? 1 : 0
 
   solution_name         = "SecurityInsights"
   location              = azurerm_resource_group.tier1.location
@@ -512,4 +512,56 @@ module "jumpbox" {
   tags = {
     DeploymentName = var.deploymentname
   }
+}
+
+#####################################
+### STAGE 4: Compliance example   ###
+#####################################
+
+module "hub-policy-assignment" {
+  count = var.create_assignment ? 1 : 0
+
+  providers                           = { azurerm = azurerm.hub }
+  source                              = "../modules/policy-assignments"
+  depends_on                          = [azurerm_resource_group.hub, azurerm_log_analytics_workspace.laws]
+  resource_group_name                 = azurerm_resource_group.hub.name
+  laws_instance_id                    = azurerm_log_analytics_workspace.laws.workspace_id
+  environment                         = var.tf_environment # Example "usgovernment"
+  log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
+}
+
+module "tier0-policy-assignment" {
+  count = var.create_assignment ? 1 : 0
+
+  providers                           = { azurerm = azurerm.tier0 }
+  source                              = "../modules/policy-assignments"
+  depends_on                          = [azurerm_resource_group.tier0, azurerm_log_analytics_workspace.laws]
+  resource_group_name                 = azurerm_resource_group.tier0.name
+  laws_instance_id                    = azurerm_log_analytics_workspace.laws.workspace_id
+  environment                         = var.tf_environment # Example "usgovernment"
+  log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
+}
+
+module "tier1-policy-assignment" {
+  count = var.create_assignment ? 1 : 0
+
+  providers                           = { azurerm = azurerm.tier1 }
+  source                              = "../modules/policy-assignments"
+  depends_on                          = [azurerm_resource_group.tier1, azurerm_log_analytics_workspace.laws]
+  resource_group_name                 = azurerm_resource_group.tier1.name
+  laws_instance_id                    = azurerm_log_analytics_workspace.laws.workspace_id
+  environment                         = var.tf_environment # Example "usgovernment"
+  log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
+}
+
+module "tier2-policy-assignment" {
+  count = var.create_assignment ? 1 : 0
+
+  providers                           = { azurerm = azurerm.tier2 }
+  source                              = "../modules/policy-assignments"
+  depends_on                          = [azurerm_resource_group.tier2, azurerm_log_analytics_workspace.laws]
+  resource_group_name                 = azurerm_resource_group.tier2.name
+  laws_instance_id                    = azurerm_log_analytics_workspace.laws.workspace_id
+  environment                         = var.tf_environment # Example "usgovernment"
+  log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
 }

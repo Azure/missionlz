@@ -1,6 +1,6 @@
 ---
-name: Issue
-about: Use issues for planned work
+name: Backlog item
+about: Use backlog items for planned work
 title: ''
 labels: ''
 assignees: ''
@@ -15,4 +15,4 @@ assignees: ''
 
 **Acceptance Criteria**
 - 
--
+- 
