@@ -58,22 +58,12 @@ module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
     retentionInDays: logAnalyticsWorkspaceRetentionInDays
     skuName: logAnalyticsWorkspaceSkuName
     workspaceCappingDailyQuotaGb: logAnalyticsWorkspaceCappingDailyQuotaGb
+
+    deploySentinel: deploySentinel
   }
   dependsOn: [
     operationsResourceGroup
   ]
-}
-
-//// sentinel
-module sentinelSolution './modules/sentinelSolution.bicep' = {
-  name: 'deploy-sentinel-${nowUtc}'
-  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
-  params: {
-    workspaceName: logAnalyticsWorkspaceName
-    workspaceLocation: logAnalyticsWorkspaceLocation
-    tags: tags
-    sentinelBool:false
-  }
 }
 
 //// hub and spoke
@@ -362,6 +352,7 @@ param logAnalyticsWorkspaceLocation string = sharedServicesLocation
 param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
 param logAnalyticsWorkspaceRetentionInDays int = 30
 param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
+param deploySentinel bool = true
 
 param tags object = {
   'resourcePrefix': resourcePrefix
