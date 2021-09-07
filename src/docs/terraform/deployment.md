@@ -133,7 +133,7 @@ The default templates write a state file directly to disk locally to where you a
 
 ```terraform
 terraform {
-  backend "azurerm" {
+  backend "local" {
     path = "relative/path/to/terraform.tfstate"
   }
 
