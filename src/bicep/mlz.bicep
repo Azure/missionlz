@@ -266,17 +266,13 @@ module hubPolicyAssignment './modules/policyAssignment.bicep' = {
   }
 }
 
-module operationsPolicyAssignment './modules/policyassignment.bicep' = {
-  name: 'policyAssignement'
+module operationsPolicyAssignment './modules/policyAssignment.bicep' = {
+  name: '${operationsResourceGroupName}-policyAssignment'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
-  dependsOn: [
-    operationsResourceGroup
-    logAnalyticsWorkspace
-  ]
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    workspaceResourceGroupName: operationsResourceGroupName
+    workspaceResourceGroupName: operationsResourceGroup.name
   }
 }
 
