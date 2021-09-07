@@ -127,6 +127,36 @@ The development container definition downloads the required Terraform plugin pro
 
 See the development container [README](/.devcontainer/README.md) for more details on building and running the container.
 
+## Terraform Backends
+
+The default templates write a state file directly to disk locally to where you are executing terraform from.  If you wish to change the output directory you can set the path directly in the terraform backend block located in the main.tf file via the path variable in the backend configuration block.
+
+```terraform
+terraform {
+  backend "local" {
+    path = "relative/path/to/terraform.tfstate"
+  }
+
+  required_version = ">= 1.0.3"
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "= 2.71.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "= 3.1.0"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = "0.7.2"
+    }
+  }
+}
+```
+
+To find more information about setting the backend see [Local Backend](https://www.terraform.io/docs/language/settings/backends/local.html),  if you wish to AzureRM backend please see [AzureRM Backend](https://www.terraform.io/docs/language/settings/backends/azurerm.html)
+
 ## Deploying to Other Clouds
 
 The `azurerm` Terraform provider provides a mechanism for changing the Azure cloud in which to deploy Terraform modules.
