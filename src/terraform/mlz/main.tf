@@ -23,7 +23,6 @@ terraform {
 provider "azurerm" {
   environment     = var.tf_environment
   metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
   subscription_id = var.hub_subid
 
 
@@ -41,7 +40,6 @@ provider "azurerm" {
   alias           = "hub"
   environment     = var.tf_environment
   metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
   subscription_id = var.hub_subid
 
 
@@ -59,7 +57,6 @@ provider "azurerm" {
   alias           = "tier0"
   environment     = var.tf_environment
   metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
   subscription_id = var.tier0_subid
 
 
@@ -77,7 +74,6 @@ provider "azurerm" {
   alias           = "tier1"
   environment     = var.tf_environment
   metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
   subscription_id = var.tier1_subid
 
 
@@ -95,7 +91,6 @@ provider "azurerm" {
   alias           = "tier2"
   environment     = var.tf_environment
   metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
   subscription_id = var.tier2_subid
 
 
@@ -487,7 +482,6 @@ module "jumpbox" {
   location             = var.mlz_location
 
   keyvault_name = var.jumpbox_keyvault_name
-  tenant_id     = var.mlz_tenantid
   object_id     = var.mlz_objectid
 
   windows_name          = var.jumpbox_windows_vm_name

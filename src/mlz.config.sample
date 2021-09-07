@@ -5,7 +5,6 @@ tf_environment="{TF_ENVIRONMENT}" # https://www.terraform.io/docs/language/setti
 mlz_env_name="{MLZ_ENV_NAME}" # Unique name for MLZ environment
 mlz_config_subid="{MLZ_CONFIG_SUBID}" # Subscription ID for MissionLZ configuration resources
 mlz_config_location="{MLZ_CONFIG_LOCATION}" # Azure Region for deploying Mission LZ configuration resources
-mlz_tenantid="{MLZ_TENANTID}"
 mlz_tier0_subid="{MLZ_TIER0_SUBID}"
 mlz_tier1_subid="{MLZ_TIER1_SUBID}"
 mlz_tier2_subid="{MLZ_TIER2_SUBID}"

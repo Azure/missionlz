@@ -17,12 +17,6 @@ variable "deploymentname" {
   default     = "dev"
 }
 
-variable "mlz_tenantid" {
-  description = "The Azure Active Directory tenant ID that should be used for the deployment."
-  type        = string
-  sensitive   = true
-}
-
 variable "mlz_location" {
   description = "The Azure region for most Mission LZ resources. It defaults to eastus."
   type        = string
