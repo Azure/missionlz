@@ -1,0 +1,22 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+name: validate-build-bicep
+on:
+  push:
+    paths:
+    - '**.bicep'
+    branches:
+      - bicep
+jobs:
+  validate-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          az bicep build --file src/bicep/mlz.bicep --outfile src/bicep/mlz.json
+          git add src/bicep/mlz.json
+          git commit -m "GitHub Action: Build Bicep to JSON"
+          git push
