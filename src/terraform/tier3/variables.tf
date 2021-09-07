@@ -12,24 +12,12 @@ variable "deploymentname" {
   description = "A name for the deployment"
 }
 
-variable "mlz_tenantid" {
-  description = "The Azure tenant for the deployment"
-}
-
 variable "mlz_location" {
   description = "The Azure region for most Mission LZ resources"
 }
 
 variable "mlz_metadatahost" {
   description = "The metadata host for the Azure Cloud e.g. management.azure.com"
-}
-
-variable "mlz_clientid" {
-  description = "The account to deploy with"
-}
-
-variable "mlz_clientsecret" {
-  description = "The account to deploy with"
 }
 
 variable "mlz_objectid" {

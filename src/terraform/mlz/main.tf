@@ -23,10 +23,7 @@ terraform {
 provider "azurerm" {
   environment     = var.tf_environment
   metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
   subscription_id = var.hub_subid
-  client_id       = var.mlz_clientid
-  client_secret   = var.mlz_clientsecret
 
   features {
     log_analytics_workspace {
@@ -42,10 +39,7 @@ provider "azurerm" {
   alias           = "hub"
   environment     = var.tf_environment
   metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
   subscription_id = var.hub_subid
-  client_id       = var.mlz_clientid
-  client_secret   = var.mlz_clientsecret
 
   features {
     log_analytics_workspace {
@@ -61,10 +55,7 @@ provider "azurerm" {
   alias           = "tier0"
   environment     = var.tf_environment
   metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
   subscription_id = var.tier0_subid
-  client_id       = var.mlz_clientid
-  client_secret   = var.mlz_clientsecret
 
   features {
     log_analytics_workspace {
@@ -80,10 +71,7 @@ provider "azurerm" {
   alias           = "tier1"
   environment     = var.tf_environment
   metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
   subscription_id = var.tier1_subid
-  client_id       = var.mlz_clientid
-  client_secret   = var.mlz_clientsecret
 
   features {
     log_analytics_workspace {
@@ -99,10 +87,7 @@ provider "azurerm" {
   alias           = "tier2"
   environment     = var.tf_environment
   metadata_host   = var.mlz_metadatahost
-  tenant_id       = var.mlz_tenantid
   subscription_id = var.tier2_subid
-  client_id       = var.mlz_clientid
-  client_secret   = var.mlz_clientsecret
 
   features {
     log_analytics_workspace {
@@ -205,8 +190,8 @@ resource "azurerm_log_analytics_workspace" "laws" {
 }
 
 resource "azurerm_log_analytics_solution" "laws_sentinel" {
-  provider   = azurerm.tier1
-  count = var.create_sentinel ? 1 : 0
+  provider = azurerm.tier1
+  count    = var.create_sentinel ? 1 : 0
 
   solution_name         = "SecurityInsights"
   location              = azurerm_resource_group.tier1.location
@@ -492,7 +477,6 @@ module "jumpbox" {
   location             = var.mlz_location
 
   keyvault_name = var.jumpbox_keyvault_name
-  tenant_id     = var.mlz_tenantid
   object_id     = var.mlz_objectid
 
   windows_name          = var.jumpbox_windows_vm_name
