@@ -1,4 +1,4 @@
-param workspaceName  string
+param workspaceName string
 param workspaceLocation string
 param tags object = {}
 
