@@ -17,6 +17,6 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           az bicep build --file src/bicep/mlz.bicep --outfile src/bicep/mlz.json
-          git add .
+          git add src/bicep/mlz.json
           git commit -m "GitHub Action: Build Bicep to JSON"
           git push
