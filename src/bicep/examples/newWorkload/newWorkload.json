@@ -1,0 +1,967 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.451.19169",
+      "templateHash": "12095444895814117883"
+    }
+  },
+  "parameters": {
+    "workloadName": {
+      "type": "string",
+      "maxLength": 24,
+      "minLength": 3
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-rg', parameters('workloadName'))]"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[deployment().location]"
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {
+        "resourceIdentifier": "[parameters('resourceIdentifier')]"
+      }
+    },
+    "hubSubscriptionId": {
+      "type": "string"
+    },
+    "hubResourceGroupName": {
+      "type": "string"
+    },
+    "hubVirtualNetworkName": {
+      "type": "string"
+    },
+    "hubVirtualNetworkResourceId": {
+      "type": "string"
+    },
+    "logAnalyticsWorkspaceResourceId": {
+      "type": "string"
+    },
+    "firewallPrivateIPAddress": {
+      "type": "string"
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-vnet', parameters('workloadName'))]"
+    },
+    "virtualNetworkAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.125.0/26"
+    },
+    "virtualNetworkDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "virtualNetworkDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "networkSecurityGroupName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-nsg', parameters('workloadName'))]"
+    },
+    "networkSecurityGroupRules": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-subnet', parameters('workloadName'))]"
+    },
+    "subnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.125.0/27"
+    },
+    "subnetServiceEndpoints": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "logStorageAccountName": {
+      "type": "string",
+      "defaultValue": "[toLower(take(format('logs{0}', uniqueString(parameters('workloadName'))), 24))]"
+    },
+    "logStorageSkuName": {
+      "type": "string",
+      "defaultValue": "Standard_GRS"
+    },
+    "resourceIdentifier": {
+      "type": "string",
+      "defaultValue": "[format('{0}{1}', parameters('workloadName'), uniqueString(parameters('workloadName')))]"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-04-01",
+      "name": "[parameters('resourceGroupName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "spokeNetwork",
+      "resourceGroup": "[parameters('resourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "logStorageAccountName": {
+            "value": "[parameters('logStorageAccountName')]"
+          },
+          "logStorageSkuName": {
+            "value": "[parameters('logStorageSkuName')]"
+          },
+          "logAnalyticsWorkspaceResourceId": {
+            "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+          },
+          "firewallPrivateIPAddress": {
+            "value": "[parameters('firewallPrivateIPAddress')]"
+          },
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          },
+          "virtualNetworkAddressPrefix": {
+            "value": "[parameters('virtualNetworkAddressPrefix')]"
+          },
+          "virtualNetworkDiagnosticsLogs": {
+            "value": "[parameters('virtualNetworkDiagnosticsLogs')]"
+          },
+          "virtualNetworkDiagnosticsMetrics": {
+            "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
+          },
+          "networkSecurityGroupName": {
+            "value": "[parameters('networkSecurityGroupName')]"
+          },
+          "networkSecurityGroupRules": {
+            "value": "[parameters('networkSecurityGroupRules')]"
+          },
+          "subnetName": {
+            "value": "[parameters('subnetName')]"
+          },
+          "subnetAddressPrefix": {
+            "value": "[parameters('subnetAddressPrefix')]"
+          },
+          "subnetServiceEndpoints": {
+            "value": "[parameters('subnetServiceEndpoints')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.451.19169",
+              "templateHash": "102664795413105394"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {}
+            },
+            "logStorageAccountName": {
+              "type": "string"
+            },
+            "logStorageSkuName": {
+              "type": "string"
+            },
+            "logAnalyticsWorkspaceResourceId": {
+              "type": "string"
+            },
+            "firewallPrivateIPAddress": {
+              "type": "string"
+            },
+            "virtualNetworkName": {
+              "type": "string"
+            },
+            "virtualNetworkAddressPrefix": {
+              "type": "string"
+            },
+            "virtualNetworkDiagnosticsLogs": {
+              "type": "array"
+            },
+            "virtualNetworkDiagnosticsMetrics": {
+              "type": "array"
+            },
+            "networkSecurityGroupName": {
+              "type": "string"
+            },
+            "networkSecurityGroupRules": {
+              "type": "array"
+            },
+            "subnetName": {
+              "type": "string"
+            },
+            "subnetAddressPrefix": {
+              "type": "string"
+            },
+            "subnetServiceEndpoints": {
+              "type": "array"
+            },
+            "routeTableName": {
+              "type": "string",
+              "defaultValue": "[format('{0}-routetable', parameters('subnetName'))]"
+            },
+            "routeTableRouteName": {
+              "type": "string",
+              "defaultValue": "default_route"
+            },
+            "routeTableRouteAddressPrefix": {
+              "type": "string",
+              "defaultValue": "0.0.0.0/0"
+            },
+            "routeTableRouteNextHopIpAddress": {
+              "type": "string",
+              "defaultValue": "[parameters('firewallPrivateIPAddress')]"
+            },
+            "routeTableRouteNextHopType": {
+              "type": "string",
+              "defaultValue": "VirtualAppliance"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "defaultVirtualNetworkDiagnosticsLogs": [],
+            "defaultVirtualNetworkDiagnosticsMetrics": [
+              {
+                "category": "AllMetrics",
+                "enabled": true
+              }
+            ],
+            "defaultSubnetServiceEndpoints": [
+              {
+                "service": "Microsoft.Storage"
+              }
+            ],
+            "defaultNetworkSecurityGroupRules": [
+              {
+                "name": "allow_ssh",
+                "properties": {
+                  "description": "Allow SSH access from anywhere",
+                  "access": "Allow",
+                  "priority": 100,
+                  "protocol": "Tcp",
+                  "direction": "Inbound",
+                  "sourcePortRange": "*",
+                  "sourceAddressPrefix": "*",
+                  "destinationPortRange": "22",
+                  "destinationAddressPrefix": "*"
+                }
+              },
+              {
+                "name": "allow_rdp",
+                "properties": {
+                  "description": "Allow RDP access from anywhere",
+                  "access": "Allow",
+                  "priority": 200,
+                  "protocol": "Tcp",
+                  "direction": "Inbound",
+                  "sourcePortRange": "*",
+                  "sourceAddressPrefix": "*",
+                  "destinationPortRange": "3389",
+                  "destinationAddressPrefix": "*"
+                }
+              }
+            ]
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "logStorage",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "storageAccountName": {
+                    "value": "[parameters('logStorageAccountName')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "skuName": {
+                    "value": "[parameters('logStorageSkuName')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.451.19169",
+                      "templateHash": "7478919688835670168"
+                    }
+                  },
+                  "parameters": {
+                    "storageAccountName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "skuName": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {}
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Storage/storageAccounts",
+                      "apiVersion": "2019-06-01",
+                      "name": "[parameters('storageAccountName')]",
+                      "location": "[parameters('location')]",
+                      "kind": "Storage",
+                      "sku": {
+                        "name": "[parameters('skuName')]"
+                      },
+                      "tags": "[parameters('tags')]"
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "networkSecurityGroup",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "name": {
+                    "value": "[parameters('networkSecurityGroupName')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "securityRules": {
+                    "value": "[if(empty(parameters('networkSecurityGroupRules')), variables('defaultNetworkSecurityGroupRules'), parameters('networkSecurityGroupRules'))]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.451.19169",
+                      "templateHash": "16344320883906419641"
+                    }
+                  },
+                  "parameters": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "securityRules": {
+                      "type": "array"
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/networkSecurityGroups",
+                      "apiVersion": "2021-02-01",
+                      "name": "[parameters('name')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "securityRules": "[parameters('securityRules')]"
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('name'))]"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "[parameters('name')]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "routeTable",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "name": {
+                    "value": "[parameters('routeTableName')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "routeName": {
+                    "value": "[parameters('routeTableRouteName')]"
+                  },
+                  "routeAddressPrefix": {
+                    "value": "[parameters('routeTableRouteAddressPrefix')]"
+                  },
+                  "routeNextHopIpAddress": {
+                    "value": "[parameters('routeTableRouteNextHopIpAddress')]"
+                  },
+                  "routeNextHopType": {
+                    "value": "[parameters('routeTableRouteNextHopType')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.451.19169",
+                      "templateHash": "9581615100111735872"
+                    }
+                  },
+                  "parameters": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "routeName": {
+                      "type": "string"
+                    },
+                    "routeAddressPrefix": {
+                      "type": "string"
+                    },
+                    "routeNextHopIpAddress": {
+                      "type": "string"
+                    },
+                    "routeNextHopType": {
+                      "type": "string"
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/routeTables",
+                      "apiVersion": "2021-02-01",
+                      "name": "[parameters('name')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "routes": [
+                          {
+                            "name": "[parameters('routeName')]",
+                            "properties": {
+                              "addressPrefix": "[parameters('routeAddressPrefix')]",
+                              "nextHopIpAddress": "[parameters('routeNextHopIpAddress')]",
+                              "nextHopType": "[parameters('routeNextHopType')]"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/routeTables', parameters('name'))]"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "[parameters('name')]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "virtualNetwork",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "name": {
+                    "value": "[parameters('virtualNetworkName')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "addressPrefix": {
+                    "value": "[parameters('virtualNetworkAddressPrefix')]"
+                  },
+                  "diagnosticsLogs": {
+                    "value": "[if(empty(parameters('virtualNetworkDiagnosticsLogs')), variables('defaultVirtualNetworkDiagnosticsLogs'), parameters('virtualNetworkDiagnosticsLogs'))]"
+                  },
+                  "diagnosticsMetrics": {
+                    "value": "[if(empty(parameters('virtualNetworkDiagnosticsMetrics')), variables('defaultVirtualNetworkDiagnosticsMetrics'), parameters('virtualNetworkDiagnosticsMetrics'))]"
+                  },
+                  "subnets": {
+                    "value": [
+                      {
+                        "name": "[parameters('subnetName')]",
+                        "properties": {
+                          "addressPrefix": "[parameters('subnetAddressPrefix')]",
+                          "networkSecurityGroup": {
+                            "id": "[reference(resourceId('Microsoft.Resources/deployments', 'networkSecurityGroup'), '2019-10-01').outputs.id.value]"
+                          },
+                          "routeTable": {
+                            "id": "[reference(resourceId('Microsoft.Resources/deployments', 'routeTable'), '2019-10-01').outputs.id.value]"
+                          },
+                          "serviceEndpoints": "[if(empty(parameters('subnetServiceEndpoints')), variables('defaultSubnetServiceEndpoints'), parameters('subnetServiceEndpoints'))]"
+                        }
+                      }
+                    ]
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "logStorageAccountResourceId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logStorage'), '2019-10-01').outputs.id.value]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.451.19169",
+                      "templateHash": "4251305185578211506"
+                    }
+                  },
+                  "parameters": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "addressPrefix": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "logStorageAccountResourceId": {
+                      "type": "string"
+                    },
+                    "subnets": {
+                      "type": "array"
+                    },
+                    "diagnosticsMetrics": {
+                      "type": "array"
+                    },
+                    "diagnosticsLogs": {
+                      "type": "array"
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/virtualNetworks",
+                      "apiVersion": "2021-02-01",
+                      "name": "[parameters('name')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "addressSpace": {
+                          "addressPrefixes": [
+                            "[parameters('addressPrefix')]"
+                          ]
+                        },
+                        "subnets": "[parameters('subnets')]"
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2017-05-01-preview",
+                      "scope": "[format('Microsoft.Network/virtualNetworks/{0}', parameters('name'))]",
+                      "name": "[format('{0}-diagnostics', parameters('name'))]",
+                      "properties": {
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
+                        "metrics": "[parameters('diagnosticsMetrics')]",
+                        "logs": "[parameters('diagnosticsLogs')]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/virtualNetworks', parameters('name'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "name": {
+                      "type": "string",
+                      "value": "[parameters('name')]"
+                    },
+                    "id": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('name'))]"
+                    },
+                    "subnets": {
+                      "type": "array",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name'))).subnets]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'logStorage')]",
+                "[resourceId('Microsoft.Resources/deployments', 'networkSecurityGroup')]",
+                "[resourceId('Microsoft.Resources/deployments', 'routeTable')]"
+              ]
+            }
+          ],
+          "outputs": {
+            "virtualNetworkName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'virtualNetwork'), '2019-10-01').outputs.name.value]"
+            },
+            "virtualNetworkResourceId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'virtualNetwork'), '2019-10-01').outputs.id.value]"
+            },
+            "subnetName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'virtualNetwork'), '2019-10-01').outputs.subnets.value[0].name]"
+            },
+            "subnetAddressPrefix": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'virtualNetwork'), '2019-10-01').outputs.subnets.value[0].properties.addressPrefix]"
+            },
+            "subnetResourceId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'virtualNetwork'), '2019-10-01').outputs.subnets.value[0].id]"
+            },
+            "networkSecurityGroupName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'networkSecurityGroup'), '2019-10-01').outputs.name.value]"
+            },
+            "networkSecurityGroupResourceId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'networkSecurityGroup'), '2019-10-01').outputs.id.value]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('{0}-{1}VirtualNetworkPeerings', parameters('resourceIdentifier'), parameters('workloadName'))]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "spokeResourceGroupName": {
+            "value": "[parameters('resourceGroupName')]"
+          },
+          "spokeVirtualNetworkName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2019-10-01').outputs.virtualNetworkName.value]"
+          },
+          "hubVirtualNetworkName": {
+            "value": "[parameters('hubVirtualNetworkName')]"
+          },
+          "hubVirtualNetworkResourceId": {
+            "value": "[parameters('hubVirtualNetworkResourceId')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.451.19169",
+              "templateHash": "13857954278136382775"
+            }
+          },
+          "parameters": {
+            "spokeResourceGroupName": {
+              "type": "string"
+            },
+            "spokeVirtualNetworkName": {
+              "type": "string"
+            },
+            "hubVirtualNetworkName": {
+              "type": "string"
+            },
+            "hubVirtualNetworkResourceId": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "spokeNetworkPeering",
+              "resourceGroup": "[parameters('spokeResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "name": {
+                    "value": "[format('{0}/to-{1}', parameters('spokeVirtualNetworkName'), parameters('hubVirtualNetworkName'))]"
+                  },
+                  "remoteVirtualNetworkResourceId": {
+                    "value": "[parameters('hubVirtualNetworkResourceId')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.451.19169",
+                      "templateHash": "16145505190701732004"
+                    }
+                  },
+                  "parameters": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "remoteVirtualNetworkResourceId": {
+                      "type": "string"
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                      "apiVersion": "2021-02-01",
+                      "name": "[parameters('name')]",
+                      "properties": {
+                        "remoteVirtualNetwork": {
+                          "id": "[parameters('remoteVirtualNetworkResourceId')]"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "hubToWorkloadVirtualNetworkPeering",
+      "subscriptionId": "[parameters('hubSubscriptionId')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "hubResourceGroupName": {
+            "value": "[parameters('hubResourceGroupName')]"
+          },
+          "hubVirtualNetworkName": {
+            "value": "[parameters('hubVirtualNetworkName')]"
+          },
+          "spokeVirtualNetworkName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2019-10-01').outputs.virtualNetworkName.value]"
+          },
+          "spokeVirtualNetworkResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2019-10-01').outputs.virtualNetworkResourceId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.451.19169",
+              "templateHash": "6333836552364681267"
+            }
+          },
+          "parameters": {
+            "hubResourceGroupName": {
+              "type": "string"
+            },
+            "hubVirtualNetworkName": {
+              "type": "string"
+            },
+            "spokeVirtualNetworkName": {
+              "type": "string"
+            },
+            "spokeVirtualNetworkResourceId": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "hubToSpokeVirtualNetworkPeering",
+              "resourceGroup": "[parameters('hubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "name": {
+                    "value": "[format('{0}/to-{1}', parameters('hubVirtualNetworkName'), parameters('spokeVirtualNetworkName'))]"
+                  },
+                  "remoteVirtualNetworkResourceId": {
+                    "value": "[parameters('spokeVirtualNetworkResourceId')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.451.19169",
+                      "templateHash": "16145505190701732004"
+                    }
+                  },
+                  "parameters": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "remoteVirtualNetworkResourceId": {
+                      "type": "string"
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                      "apiVersion": "2021-02-01",
+                      "name": "[parameters('name')]",
+                      "properties": {
+                        "remoteVirtualNetwork": {
+                          "id": "[parameters('remoteVirtualNetworkResourceId')]"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork')]"
+      ]
+    }
+  ],
+  "outputs": {
+    "virtualNetworkName": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2019-10-01').outputs.virtualNetworkName.value]"
+    },
+    "virtualNetworkResourceId": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2019-10-01').outputs.virtualNetworkResourceId.value]"
+    },
+    "subnetName": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2019-10-01').outputs.subnetName.value]"
+    },
+    "subnetAddressPrefix": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2019-10-01').outputs.subnetAddressPrefix.value]"
+    },
+    "subnetResourceId": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2019-10-01').outputs.subnetResourceId.value]"
+    },
+    "networkSecurityGroupName": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2019-10-01').outputs.networkSecurityGroupName.value]"
+    },
+    "networkSecurityGroupResourceId": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2019-10-01').outputs.networkSecurityGroupResourceId.value]"
+    }
+  }
+}
