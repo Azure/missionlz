@@ -65,6 +65,7 @@ module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
 }
 
 //// hub and spoke
+
 module hub './modules/hubNetwork.bicep' = {
   name: 'deploy-hub-${nowUtc}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
