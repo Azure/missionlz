@@ -4,6 +4,8 @@
 name: validate-build-bicep
 on:
   push:
+    paths:
+    - '**.bicep'
     branches:
       - bicep
 jobs:

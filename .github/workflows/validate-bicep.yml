@@ -2,7 +2,13 @@
 # Licensed under the MIT License.
 
 name: validate-bicep
-on: [pull_request, workflow_dispatch]
+on: 
+  pull_request:
+    paths: 
+    - '**.bicep'
+  workflow_dispatch:
+    paths:
+    - '**.bicep'
 jobs:
   validate-bicep:
     runs-on: ubuntu-latest
