@@ -2,7 +2,7 @@ targetScope = 'resourceGroup'
 
 param builtInAssignment string = ''
 param logAnalyticsWorkspaceName string
-param workspaceResourceGroupName string
+param logAnalyticsWorkspaceResourceGroupName string
 param policyAssignmentPrefix string = 'MLZ -'
 
 // Creating a symbolic name for an existing resource
