@@ -12,14 +12,11 @@ jobs:
   validate-build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Azure CLI script
-      uses: azure/CLI@v1
-      with:
-        azcliversion: 2.26.1
-        inlineScript: |
-          az bicep build --file src/bicep/mlz.bicep
-    - uses: EndBug/add-and-commit@v7
-      with:
-        add: 'src/bicep/mlz.json'
-        default_author: github_actions
+      - uses: actions/checkout@v2
+      - run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          az bicep build --file src/bicep/mlz.bicep --outfile src/bicep/mlz.json
+          git add .
+          git commit -m "GitHub Action: Build Bicep to JSON"
+          git push

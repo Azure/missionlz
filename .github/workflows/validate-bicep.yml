@@ -13,10 +13,6 @@ jobs:
   validate-bicep:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Azure CLI script
-      uses: azure/CLI@v1
-      with:
-        azcliversion: 2.26.1
-        inlineScript: |
+      - uses: actions/checkout@v2
+      - run: |
           az bicep build --file src/bicep/mlz.bicep
