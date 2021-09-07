@@ -252,7 +252,7 @@ module sharedServicesVirtualNetworkPeering './modules/spokeNetworkPeering.bicep'
   }
 }
 
-module hubPolicyAssignment './modules/policyassignment.bicep' = {
+module hubPolicyAssignment './modules/policyAssignment.bicep' = {
   name: 'policyAssignement'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   dependsOn: [
