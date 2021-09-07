@@ -7,17 +7,14 @@ resource workspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' existin
 }
 
 resource sentinelSolution 'Microsoft.OperationsManagement/solutions@2015-11-01-preview'= {
-  name: 'SecurityInsights(${workspaceName})'
+  name: 'SecurityInsights(${workspace.name})'
   location: workspaceLocation
   tags:tags
-  dependsOn:[
-    workspace
-  ]
   properties: {
     workspaceResourceId: workspace.id
   }
   plan: {
-    name: 'SecurityInsights(${workspaceName})'
+    name: 'SecurityInsights(${workspace.name})'
     publisher: 'Microsoft'
     product: 'OMSGallery/SecurityInsights'
     promotionCode: ''
