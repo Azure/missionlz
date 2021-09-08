@@ -78,7 +78,7 @@ az deployment group create \
   --resource-group <Resource Group to assign> \
   --name <original deployment name + descriptor> \
   --template-file ./src/bicep/modules/policyAssignment.bicep \
-  --parameters builtInAssignment=<one of 'CMMC', 'IL5', or 'NIST'> logAnalyticsWorkspaceName=<Log analytics workspace name>
+  --parameters builtInAssignment=<one of 'CMMC', 'IL5', or 'NIST'> logAnalyticsWorkspaceName=<Log analytics workspace name> workspaceResourceGroupName=<LA Workspace resource group name>
 ```
 
 Under the modules\policies directory are files named accordingly for the initiatives parameters with defaults  except for where a Log Analytics workspace ID is required we substitute that with the MLZ workspace ID, All others can be changed appropriately.
