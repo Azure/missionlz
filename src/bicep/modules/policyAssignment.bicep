@@ -26,7 +26,7 @@ var policyDefinitionID = {
   }  
 }
 
-var modifiedAssignment = ( environment().name =~ 'AzureCloud' && builtInAssignment =~ 'IL5' ) ? 'NIST' : builtInAssignment
+var modifiedAssignment = ( environment().name =~ 'AzureCloud' && builtInAssignment =~ 'IL5' ? 'NIST' : builtInAssignment}
 var assignmentName = '${policyAssignmentPrefix} ${modifiedAssignment} ${resourceGroup().name}'
 
 resource assignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = if (!empty(modifiedAssignment)){
