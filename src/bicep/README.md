@@ -65,13 +65,21 @@ az deployment sub create \
     sharedServicesSubscriptionId=$sharedServicesSubscriptionId
 ```
 ### Adding Azure Policy
-To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the parameter with one of the following, NIST, IL5 or CMMC. For example: 
+To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the parameter with one of the following, NIST, IL5 or CMMC. For example deploying with MLZ: 
 ```
 az deployment sub create \
   --location eastus \
   --template-file mlz.bicep \
   --parameters policy=<one of 'CMMC', 'IL5', or 'NIST'>
   ```
+For example deploying after MLZ:
+```
+az deployment group create \
+  --resource-group <Resource Group to assign> \
+  --name <original deployment name + descriptor> \
+  --template-file ./src/bicep/modules/policyAssignment.bicep \
+  --parameters builtInAssignment=<one of 'CMMC', 'IL5', or 'NIST'> logAnalyticsWorkspaceName=<Log analytics workspace name>
+```
 
 Under the modules\policies directory are files named accordingly for the initiatives parameters with defaults  except for where a Log Analytics workspace ID is required we substitute that with the MLZ workspace ID, All others can be changed appropriately.
 
