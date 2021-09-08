@@ -3,7 +3,6 @@ targetScope = 'resourceGroup'
 param builtInAssignment string = ''
 param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceResourceGroupName string
-param policyAssignmentPrefix string = 'MLZ -'
 
 // Creating a symbolic name for an existing resource
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
@@ -27,7 +26,7 @@ var policyDefinitionID = {
 }
 
 var modifiedAssignment = ( environment().name =~ 'AzureCloud' && builtInAssignment =~ 'IL5' ? 'NIST' : builtInAssignment}
-var assignmentName = '${policyAssignmentPrefix} ${modifiedAssignment} ${resourceGroup().name}'
+var assignmentName = '${modifiedAssignment} ${resourceGroup().name}'
 
 resource assignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = if (!empty(modifiedAssignment)){
   name: assignmentName
