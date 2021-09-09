@@ -262,7 +262,7 @@ module hubPolicyAssignment './modules/policyAssignment.bicep' = {
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    workspaceResourceGroupName: operationsResourceGroupName
+    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroupName
   }
 }
 
@@ -272,11 +272,11 @@ module operationsPolicyAssignment './modules/policyAssignment.bicep' = {
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    workspaceResourceGroupName: operationsResourceGroup.name
+    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.name
   }
 }
 
-module sharedServicesPolicyAssignment './modules/policyassignment.bicep' = {
+module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = {
   name: 'policyAssignement'
   scope: resourceGroup(sharedServicesSubscriptionId, sharedServicesResourceGroupName)
   dependsOn: [
@@ -286,11 +286,11 @@ module sharedServicesPolicyAssignment './modules/policyassignment.bicep' = {
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    workspaceResourceGroupName: operationsResourceGroupName
+    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroupName
   }
 }
 
-module identityPolicyAssignment './modules/policyassignment.bicep' = {
+module identityPolicyAssignment './modules/policyAssignment.bicep' = {
   name: 'policyAssignement'
   scope: resourceGroup(identitySubscriptionId, identityResourceGroupName)
   dependsOn: [
@@ -300,7 +300,7 @@ module identityPolicyAssignment './modules/policyassignment.bicep' = {
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    workspaceResourceGroupName: operationsResourceGroupName
+    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroupName
   }
 }
 
