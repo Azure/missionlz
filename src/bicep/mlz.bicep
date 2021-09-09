@@ -253,7 +253,7 @@ module sharedServicesVirtualNetworkPeering './modules/spokeNetworkPeering.bicep'
 }
 
 module hubPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'policyAssignement'
+  name: '${hubResourceGroupName}-policyAssignement'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   dependsOn: [
     hubResourceGroup
@@ -277,7 +277,7 @@ module operationsPolicyAssignment './modules/policyAssignment.bicep' = {
 }
 
 module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'policyAssignement'
+  name: '${sharedServicesResourceGroupName}-policyAssignement'
   scope: resourceGroup(sharedServicesSubscriptionId, sharedServicesResourceGroupName)
   dependsOn: [
     sharedServicesResourceGroup
@@ -291,7 +291,7 @@ module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = {
 }
 
 module identityPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'policyAssignement'
+  name: '${identityResourceGroupName}-policyAssignement'
   scope: resourceGroup(identitySubscriptionId, identityResourceGroupName)
   dependsOn: [
     identityResourceGroup
