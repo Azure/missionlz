@@ -1,0 +1,34 @@
+    {
+        "listOfMembersToExcludeFromWindowsVMAdministratorsGroup": 
+        {
+        "value": "admin"
+        },
+        "listOfMembersToIncludeInWindowsVMAdministratorsGroup": 
+        {
+        "value": "azureuser"
+        },
+        "logAnalyticsWorkspaceIdforVMReporting": 
+        {
+        "value": "<LAWORKSPACE>"
+        },
+        "IncludeArcMachines": 
+        {
+            "value": "true"
+        },
+        "MinimumTLSVersion-5752e6d6-1206-46d8-8ab1-ecc2f71a8112": 
+        {
+            "value": "1.2"
+        },
+        "NotAvailableMachineState-bed48b13-6647-468e-aa2f-1af1d3f4dd40": 
+        {
+            "value": "Compliant"
+        },
+        "requiredRetentionDays": 
+        {
+            "value": "365"
+        },
+        "resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6": 
+        {
+            "value": "NetworkWatcherRG"
+        }
+    }
