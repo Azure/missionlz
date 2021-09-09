@@ -7,7 +7,7 @@ param logAnalyticsWorkspaceResourceGroupName string
 // Creating a symbolic name for an existing resource
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
   name: logAnalyticsWorkspaceName
-  scope: resourceGroup(workspaceResourceGroupName)
+  scope: resourceGroup(logAnalyticsWorkspaceResourceGroupName)
 }
 
 var policyDefinitionID = {
