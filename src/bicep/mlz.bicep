@@ -262,7 +262,7 @@ module hubPolicyAssignment './modules/policyAssignment.bicep' = {
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroupName
+    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
   }
 }
 
@@ -272,7 +272,7 @@ module operationsPolicyAssignment './modules/policyAssignment.bicep' = {
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.name
+    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
   }
 }
 
@@ -286,7 +286,7 @@ module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = {
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroupName
+    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
   }
 }
 
@@ -300,7 +300,7 @@ module identityPolicyAssignment './modules/policyAssignment.bicep' = {
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroupName
+    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
   }
 }
 
