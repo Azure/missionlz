@@ -1,5 +1,3 @@
-targetScope = 'resourceGroup'
-
 param builtInAssignment string = ''
 param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceResourceGroupName string
