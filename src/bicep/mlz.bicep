@@ -197,7 +197,7 @@ module sharedServices './modules/spokeNetwork.bicep' = {
   }
 }
 
-// peering
+//// peering
 
 module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
   name: 'deploy-hub-peerings-${nowUtc}'
@@ -252,6 +252,8 @@ module sharedServicesVirtualNetworkPeering './modules/spokeNetworkPeering.bicep'
   }
 }
 
+//// policy
+
 module hubPolicyAssignment './modules/policyAssignment.bicep' = {
   name: '${hubResourceGroupName}-policyAssignement'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
@@ -304,7 +306,44 @@ module identityPolicyAssignment './modules/policyAssignment.bicep' = {
   }
 }
 
+//// remote access
+
+module remoteAccess './examples/remoteAccess/remoteAccess.bicep' = if(deployRemoteAccess) {
+  name: 'deploy-remote-access-${nowUtc}'
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+
+  params: {
+    hubVirtualNetworkName: hub.outputs.virtualNetworkName
+    hubSubnetResourceId: hub.outputs.subnetResourceId
+    hubNetworkSecurityGroupResourceId: hub.outputs.networkSecurityGroupResourceId
+
+    bastionHostName: bastionHostName
+    bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
+    bastionHostPublicIPAddressName: bastionHostPublicIPAddressName
+    bastionHostPublicIPAddressSkuName: bastionHostPublicIPAddressSkuName
+    bastionHostPublicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
+    bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
+    bastionHostIPConfigurationName: bastionHostIPConfigurationName
+
+    linuxVmName: linuxVmName
+    linuxVmSize: linuxVmSize
+    linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
+    linuxVmOsDiskType: linuxVmOsDiskType
+    linuxVmImagePublisher: linuxVmImagePublisher
+    linuxVmImageOffer: linuxVmImageOffer
+    linuxVmImageSku: linuxVmImageSku
+    linuxVmImageVersion: linuxVmImageVersion
+    linuxVmAdminUsername: linuxVmAdminUsername
+    linuxVmAuthenticationType: linuxVmAuthenticationType
+    linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
+    linuxVmNetworkInterfaceName: linuxVmNetworkInterfaceName
+    linuxVmNetworkInterfaceIpConfigurationName: linuxVmNetworkInterfaceIpConfigurationName
+    linuxVmNetworkInterfacePrivateIPAddressAllocationMethod: linuxVmNetworkInterfacePrivateIPAddressAllocationMethod
+  }
+}
+
 // parameters
+
 @minLength(3)
 @maxLength(24)
 @description('A name (3-24 alphanumeric characters in length without whitespace) used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
@@ -364,7 +403,6 @@ param identityVirtualNetworkDiagnosticsLogs array = []
 param identityVirtualNetworkDiagnosticsMetrics array = []
 param identityNetworkSecurityGroupName string = replace(hubNetworkSecurityGroupName, 'hub', 'identity')
 param identityNetworkSecurityGroupRules array = []
-
 param identitySubnetServiceEndpoints array = []
 param identityLogStorageAccountName string = toLower(take('idlogs${uniqueId}', 24))
 param identityLogStorageSkuName string = hubLogStorageSkuName
@@ -398,7 +436,7 @@ param sharedServicesLogStorageAccountName string = toLower(take('shrdSvclogs${un
 param sharedServicesLogStorageSkuName string = hubLogStorageSkuName
 
 param logAnalyticsWorkspaceName string = take('${resourcePrefix}-laws', 63)
-param logAnalyticsWorkspaceLocation string = sharedServicesLocation
+param logAnalyticsWorkspaceLocation string = operationsLocation
 param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
 param logAnalyticsWorkspaceRetentionInDays int = 30
 param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
@@ -412,6 +450,36 @@ param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
 @description('Built-in policy assignments to assign, default is none. [NIST/IL5/CMMC] IL5 is only availalbe for GOV cloud and will switch to NIST if tried in AzureCloud.')
 param policy string = ''
 
+@description('Provision Azure Bastion Host and jumpboxes in this deployment')
+param deployRemoteAccess bool = false
+param bastionHostName string = 'bastionHost'
+param bastionHostSubnetAddressPrefix string = '10.0.100.160/27'
+param bastionHostPublicIPAddressName string = 'bastionHostPublicIPAddress'
+param bastionHostPublicIPAddressSkuName string = 'Standard'
+param bastionHostPublicIPAddressAllocationMethod string = 'Static'
+param bastionHostPublicIPAddressAvailabilityZones array = []
+param bastionHostIPConfigurationName string = 'bastionHostIPConfiguration'
+param linuxVmName string = 'linuxVirtualMachine'
+param linuxVmSize string = 'Standard_B2s'
+param linuxVmOsDiskCreateOption string = 'FromImage'
+param linuxVmOsDiskType string = 'Standard_LRS'
+param linuxVmImagePublisher string = 'Canonical'
+param linuxVmImageOffer string = 'UbuntuServer'
+param linuxVmImageSku string = '18.04-LTS'
+param linuxVmImageVersion string = 'latest'
+param linuxVmAdminUsername string = 'azureuser'
+@allowed([
+  'sshPublicKey'
+  'password'
+])
+param linuxVmAuthenticationType string = 'password'
+@secure()
+@minLength(14)
+param linuxVmAdminPasswordOrKey string = deployRemoteAccess ? '' : newGuid()
+param linuxVmNetworkInterfaceName string = 'linuxVmNetworkInterface'
+param linuxVmNetworkInterfaceIpConfigurationName string = 'linuxVmIpConfiguration'
+param linuxVmNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
+
 param tags object = {
   'resourcePrefix': resourcePrefix
 }
@@ -420,6 +488,7 @@ param uniqueId string = uniqueString(deployment().name)
 param nowUtc string = utcNow()
 
 // outputs
+
 output hubSubscriptionId string = hubSubscriptionId
 output hubResourceGroupName string = hubResourceGroup.outputs.name
 output hubResourceGroupResourceId string = hubResourceGroup.outputs.id
