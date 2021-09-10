@@ -74,7 +74,7 @@ apply() {
   # (race conditions, transient errors etc.)
   apply_success="false"
   attempts=1
-  max_attempts=5
+  max_attempts=1
 
   apply_command="${scripts_dir}/terraform/apply_terraform.sh ${tf_dir} ${tf_vars} y"
   destroy_command="${scripts_dir}/terraform/destroy_terraform.sh ${tf_dir} ${tf_vars} y"
