@@ -74,7 +74,7 @@ destroy() {
   # (race conditions, transient errors etc.)
   destroy_success="false"
   attempts=1
-  max_attempts=5
+  max_attempts=1
 
   destroy_command="${scripts_dir}/terraform/destroy_terraform.sh ${tf_dir} ${tf_vars} y"
 

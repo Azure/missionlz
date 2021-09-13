@@ -32,5 +32,6 @@ variable "ipconfig_name" {
 }
 
 variable "tags" {
-  type = map(string)
+  description = "A mapping of tags which should be assigned to the resource."
+  type        = map(string)
 }
