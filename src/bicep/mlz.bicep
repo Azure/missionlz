@@ -253,54 +253,82 @@ module sharedServicesVirtualNetworkPeering './modules/spokeNetworkPeering.bicep'
 }
 
 module hubPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: '${hubResourceGroupName}-policyAssignement'
+  name: 'deploy-hub-policyAssignement'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  dependsOn: [
-    hubResourceGroup
-    logAnalyticsWorkspace
-  ]
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
+    opsSubscriptionId: operationsSubscriptionId
   }
 }
 
 module operationsPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: '${operationsResourceGroupName}-policyAssignment'
+  name: 'deploy-operations-policyAssignment'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
+    opsSubscriptionId: operationsSubscriptionId
   }
 }
 
 module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: '${sharedServicesResourceGroupName}-policyAssignement'
+  name: 'deploy-shareServices-policyAssignement'
   scope: resourceGroup(sharedServicesSubscriptionId, sharedServicesResourceGroupName)
-  dependsOn: [
-    sharedServicesResourceGroup
-    logAnalyticsWorkspace
-  ]
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
+    opsSubscriptionId: operationsSubscriptionId
   }
 }
 
 module identityPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: '${identityResourceGroupName}-policyAssignement'
+  name: 'deploy-identity-policyAssignement'
   scope: resourceGroup(identitySubscriptionId, identityResourceGroupName)
-  dependsOn: [
-    identityResourceGroup
-    logAnalyticsWorkspace
-  ]
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
+    opsSubscriptionId: operationsSubscriptionId
+  }
+}
+
+module hubSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = {
+  name: 'deploy-hub-sub-activity-logging'
+  scope: subscription(hubSubscriptionId)
+  params: {
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    deploymentName: resourcePrefix
+  }
+}
+
+module opsSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(!(hubSubscriptionId == operationsSubscriptionId)) {
+  name: 'deploy-ops-sub-activity-logging'
+  scope: subscription(operationsSubscriptionId)
+  params: {
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    deploymentName: resourcePrefix
+  }
+}
+
+module identSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(!(hubSubscriptionId == identitySubscriptionId)) {
+  name: 'deploy-ident-sub-activity-logging'
+  scope: subscription(identitySubscriptionId)
+  params: {
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    deploymentName: resourcePrefix
+  }
+}
+
+module sharedSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(!(hubSubscriptionId == sharedServicesSubscriptionId)) {
+  name: 'deploy-shared-sub-activity-logging'
+  scope: subscription(sharedServicesSubscriptionId)
+  params: {
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    deploymentName: resourcePrefix
   }
 }
 
