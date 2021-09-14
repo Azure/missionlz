@@ -65,6 +65,11 @@ Here's the docs on `terraform plan`: <https://www.terraform.io/docs/cli/commands
     terraform apply
     ```
 
+1. You'll be prompted for a deployment name and a subscription ID:
+
+  ```bash
+
+
 1. When prompted for your approval to create, modify, or destroy resources, supply `yes`:
 
     ```plaintext
@@ -161,14 +166,34 @@ To find more information about setting the backend see [Local Backend](https://w
 
 The `azurerm` Terraform provider provides a mechanism for changing the Azure cloud in which to deploy Terraform modules.
 
-When specifying your provider, pass in the correct value for `environment` and `metadata_host` for the cloud you're targeting:
+If you want to deploy to another cloud, pass in the correct value for `environment`,  `metadata_host`, and `location` for the cloud you're targeting to [variables.tf](../../terraform/mlz/variables.tf):
+
+```terraform
+variable "environment" {
+  description = "The Terraform backend environment e.g. public or usgovernment"
+  type        = string
+  default     = "usgovernment"
+}
+
+variable "metadata_host" {
+  description = "The metadata host for the Azure Cloud e.g. management.azure.com"
+  type        = string
+  default     = "management.azure.us"
+}
+
+variable "location" {
+  description = "The Azure region for most Mission LZ resources"
+  type        = string
+  default     = "usgovvirginia"
+}
+```
 
 ```terraform
 provider "azurerm" {
   features {}
   
-  environment     = var.tf_environment # e.g. 'public' or 'usgovernment'
-  metadata_host   = var.mlz_metadatahost # e.g. 'management.azure.com' or 'management.usgovcloudapi.net'
+  environment     = var.environment # e.g. 'public' or 'usgovernment'
+  metadata_host   = var.metadata_host # e.g. 'management.azure.com' or 'management.usgovcloudapi.net'
 }
 ```
 

@@ -201,7 +201,7 @@ First, clone the *.tfvars.sample file ([src/terraform/mlz/mlz.tfvars.sample](/sr
 For example:
 
 ```plaintext
-location="{MLZ_LOCATION}" # the templated value in src/terraform/mlz/mlz.tfvars.sample
+location="{location}" # the templated value in src/terraform/mlz/mlz.tfvars.sample
 ```
 
 Would become:

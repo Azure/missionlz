@@ -21,8 +21,8 @@ terraform {
 }
 
 provider "azurerm" {
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
+  environment     = var.environment
+  metadata_host   = var.metadata_host
   subscription_id = var.hub_subid
 
   features {
@@ -37,8 +37,8 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias           = "hub"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
+  environment     = var.environment
+  metadata_host   = var.metadata_host
   subscription_id = var.hub_subid
 
   features {
@@ -53,9 +53,9 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias           = "tier0"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
-  subscription_id = var.tier0_subid
+  environment     = var.environment
+  metadata_host   = var.metadata_host
+  subscription_id = var.tier0_subid == "" ? var.hub_subid : var.tier0_subid
 
   features {
     log_analytics_workspace {
@@ -69,9 +69,9 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias           = "tier1"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
-  subscription_id = var.tier1_subid
+  environment     = var.environment
+  metadata_host   = var.metadata_host
+  subscription_id = var.tier1_subid == "" ? var.hub_subid : var.tier1_subid
 
   features {
     log_analytics_workspace {
@@ -85,9 +85,9 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias           = "tier2"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
-  subscription_id = var.tier2_subid
+  environment     = var.environment
+  metadata_host   = var.metadata_host
+  subscription_id = var.tier2_subid == "" ? var.hub_subid : var.tier2_subid
 
   features {
     log_analytics_workspace {
@@ -105,13 +105,16 @@ provider "random" {
 provider "time" {
 }
 
+data "azurerm_client_config" "current_client" {
+}
+
 ################################
 ### GLOBAL VARIABLES         ###
 ################################
 
 locals {
   # azurerm terraform environments where Azure Firewall Premium is supported
-  firewall_premium_tf_environments = ["public"]
+  firewall_premium_environments = ["public"]
 }
 
 ################################
@@ -121,7 +124,7 @@ locals {
 resource "azurerm_resource_group" "hub" {
   provider = azurerm.hub
 
-  location = var.mlz_location
+  location = var.location
   name     = var.hub_rgname
 
   tags = {
@@ -132,7 +135,7 @@ resource "azurerm_resource_group" "hub" {
 resource "azurerm_resource_group" "tier0" {
   provider = azurerm.tier0
 
-  location = var.mlz_location
+  location = var.location
   name     = var.tier0_rgname
 
   tags = {
@@ -143,7 +146,7 @@ resource "azurerm_resource_group" "tier0" {
 resource "azurerm_resource_group" "tier1" {
   provider = azurerm.tier1
 
-  location = var.mlz_location
+  location = var.location
   name     = var.tier1_rgname
 
   tags = {
@@ -154,7 +157,7 @@ resource "azurerm_resource_group" "tier1" {
 resource "azurerm_resource_group" "tier2" {
   provider = azurerm.tier2
 
-  location = var.mlz_location
+  location = var.location
   name     = var.tier2_rgname
 
   tags = {
@@ -178,9 +181,9 @@ resource "azurerm_log_analytics_workspace" "laws" {
   provider   = azurerm.tier1
   depends_on = [random_id.laws]
 
-  name                = format("%.24s", lower(replace("${var.mlz_lawsname}${random_id.laws.hex}", "/[[:^alnum:]]/", "")))
-  resource_group_name = var.tier1_rgname
-  location            = var.mlz_location
+  name                = var.log_analytics_workspace_name == "" ? format("%.24s", lower(replace("logAnalyticsWorkspace${random_id.laws.hex}", "/[[:^alnum:]]/", ""))) : var.log_analytics_workspace_name
+  resource_group_name = azurerm_resource_group.tier1.name
+  location            = var.location
   sku                 = "PerGB2018"
   retention_in_days   = "30"
 
@@ -218,7 +221,7 @@ module "hub-network" {
   depends_on = [azurerm_resource_group.hub]
   source     = "../modules/hub"
 
-  location                 = var.mlz_location
+  location                 = var.location
   resource_group_name      = var.hub_rgname
   vnet_name                = var.hub_vnetname
   vnet_address_space       = var.hub_vnet_address_space
@@ -239,13 +242,13 @@ module "firewall" {
 
   sub_id               = var.hub_subid
   resource_group_name  = module.hub-network.resource_group_name
-  location             = var.mlz_location
+  location             = var.location
   vnet_name            = module.hub-network.virtual_network_name
   vnet_address_space   = module.hub-network.virtual_network_address_space
   client_address_space = var.hub_client_address_space
 
   firewall_name                   = var.firewall_name
-  firewall_sku                    = contains(local.firewall_premium_tf_environments, lower(var.tf_environment)) ? "Premium" : "Standard"
+  firewall_sku                    = contains(local.firewall_premium_environments, lower(var.environment)) ? "Premium" : "Standard"
   firewall_client_subnet_name     = module.hub-network.firewall_client_subnet_name
   firewall_management_subnet_name = module.hub-network.firewall_management_subnet_name
   firewall_policy_name            = var.firewall_policy_name
@@ -272,7 +275,7 @@ module "spoke-network-t0" {
 
   firewall_private_ip = module.firewall.firewall_private_ip
 
-  laws_location     = var.mlz_location
+  laws_location     = var.location
   laws_workspace_id = azurerm_log_analytics_workspace.laws.workspace_id
   laws_resource_id  = azurerm_log_analytics_workspace.laws.id
 
@@ -319,7 +322,7 @@ module "spoke-network-t1" {
 
   firewall_private_ip = module.firewall.firewall_private_ip
 
-  laws_location     = var.mlz_location
+  laws_location     = var.location
   laws_workspace_id = azurerm_log_analytics_workspace.laws.workspace_id
   laws_resource_id  = azurerm_log_analytics_workspace.laws.id
 
@@ -366,7 +369,7 @@ module "spoke-network-t2" {
 
   firewall_private_ip = module.firewall.firewall_private_ip
 
-  laws_location     = var.mlz_location
+  laws_location     = var.location
   laws_workspace_id = azurerm_log_analytics_workspace.laws.workspace_id
   laws_resource_id  = azurerm_log_analytics_workspace.laws.id
 
@@ -420,7 +423,7 @@ module "jumpbox-subnet" {
   source     = "../modules/subnet"
 
   name                 = var.jumpbox_subnet.name
-  location             = var.mlz_location
+  location             = var.location
   resource_group_name  = var.hub_rgname
   virtual_network_name = var.hub_vnetname
   address_prefixes     = var.jumpbox_subnet.address_prefixes
@@ -437,7 +440,7 @@ module "jumpbox-subnet" {
 
   log_analytics_storage_id            = module.hub-network.log_analytics_storage_id
   log_analytics_workspace_id          = azurerm_log_analytics_workspace.laws.workspace_id
-  log_analytics_workspace_location    = var.mlz_location
+  log_analytics_workspace_location    = var.location
   log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
 
   tags = {
@@ -474,10 +477,12 @@ module "jumpbox" {
   resource_group_name  = var.hub_rgname
   virtual_network_name = var.hub_vnetname
   subnet_name          = var.jumpbox_subnet.name
-  location             = var.mlz_location
+  location             = var.location
 
   keyvault_name = var.jumpbox_keyvault_name
-  object_id     = var.mlz_objectid
+
+  tenant_id = data.azurerm_client_config.current_client.tenant_id
+  object_id = data.azurerm_client_config.current_client.object_id
 
   windows_name          = var.jumpbox_windows_vm_name
   windows_size          = var.jumpbox_windows_vm_size

@@ -13,8 +13,8 @@ terraform {
 }
 
 provider "azurerm" {
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
+  environment     = var.environment
+  metadata_host   = var.metadata_host
   subscription_id = var.hub_subid
 
   features {
@@ -29,8 +29,8 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias           = "hub"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
+  environment     = var.environment
+  metadata_host   = var.metadata_host
   subscription_id = var.hub_subid
 
   features {
@@ -45,8 +45,8 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias           = "tier1"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
+  environment     = var.environment
+  metadata_host   = var.metadata_host
   subscription_id = var.tier1_subid
 
   features {
@@ -61,8 +61,8 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias           = "tier3"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
+  environment     = var.environment
+  metadata_host   = var.metadata_host
   subscription_id = var.tier3_subid
 
   features {
@@ -82,7 +82,7 @@ provider "azurerm" {
 resource "azurerm_resource_group" "tier3" {
   provider = azurerm.tier3
 
-  location = var.mlz_location
+  location = var.location
   name     = var.tier3_rgname
 
   tags = {
@@ -120,7 +120,7 @@ module "spoke-network-t3" {
 
   firewall_private_ip = var.firewall_private_ip.value
 
-  laws_location     = var.mlz_location
+  laws_location     = var.location
   laws_workspace_id = data.azurerm_log_analytics_workspace.laws.workspace_id
   laws_resource_id  = data.azurerm_log_analytics_workspace.laws.id
 

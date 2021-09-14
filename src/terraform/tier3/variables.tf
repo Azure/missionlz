@@ -4,7 +4,7 @@
 # Global Configuration
 #################################
 
-variable "tf_environment" {
+variable "environment" {
   description = "The Terraform backend environment e.g. public or usgovernment"
 }
 
@@ -12,15 +12,15 @@ variable "deploymentname" {
   description = "A name for the deployment"
 }
 
-variable "mlz_location" {
+variable "location" {
   description = "The Azure region for most Mission LZ resources"
 }
 
-variable "mlz_metadatahost" {
+variable "metadata_host" {
   description = "The metadata host for the Azure Cloud e.g. management.azure.com"
 }
 
-variable "mlz_objectid" {
+variable "object_id" {
   description = "The account to deploy with"
 }
 
