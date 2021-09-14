@@ -47,11 +47,23 @@ variable "nsg_name" {
 }
 
 variable "tags" {
-  type = map(string)
+  description = "A map of tags to add to all resources"
+  type        = map(string)
 }
 
 variable "nsg_rules" {
   description = "A collection of azurerm_network_security_rule"
+  type = map(object({
+    name                       = string
+    priority                   = string
+    direction                  = string
+    access                     = string
+    protocol                   = string
+    source_port_range          = string
+    destination_port_range     = string
+    source_address_prefix      = string
+    destination_address_prefix = string
+  }))
 }
 
 variable "routetable_name" {
@@ -66,21 +78,26 @@ variable "firewall_ip_address" {
 
 variable "log_analytics_storage_id" {
   description = "The id of the storage account that stores log analytics diagnostic logs"
+  type        = string
 }
 
 variable "log_analytics_workspace_id" {
   description = "The id of the log analytics workspace"
+  type        = string
 }
 
 variable "log_analytics_workspace_location" {
   description = "The location of the log analytics workspace"
+  type        = string
 }
 
 variable "log_analytics_workspace_resource_id" {
   description = "The resource id of the log analytics workspace"
+  type        = string
 }
 
 variable "flow_log_retention_in_days" {
   description = "The number of days to retain flow log data"
   default     = "7"
+  type        = number
 }

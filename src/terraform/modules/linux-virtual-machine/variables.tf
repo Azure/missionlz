@@ -34,6 +34,7 @@ variable "admin_username" {
 variable "admin_password" {
   description = "The admin password of the virtual machine"
   type        = string
+  sensitive   = true
 }
 
 variable "publisher" {
