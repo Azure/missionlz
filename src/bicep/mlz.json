@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "2402609681585036713"
+      "templateHash": "1757367047079281957"
     }
   },
   "parameters": {
@@ -439,11 +439,11 @@
       "type": "string",
       "defaultValue": "linuxVmNetworkInterface"
     },
-    "linuxVmNetworkInterfaceIpConfigurationName": {
+    "linuxNetworkInterfaceIpConfigurationName": {
       "type": "string",
       "defaultValue": "linuxVmIpConfiguration"
     },
-    "linuxVmNetworkInterfacePrivateIPAddressAllocationMethod": {
+    "linuxNetworkInterfacePrivateIPAddressAllocationMethod": {
       "type": "string",
       "defaultValue": "Dynamic"
     },
@@ -4723,6 +4723,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "location": {
+            "value": "[parameters('hubLocation')]"
+          },
           "hubVirtualNetworkName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-hub-{0}', parameters('nowUtc'))), '2019-10-01').outputs.virtualNetworkName.value]"
           },
@@ -4752,6 +4755,12 @@
           },
           "bastionHostIPConfigurationName": {
             "value": "[parameters('bastionHostIPConfigurationName')]"
+          },
+          "linuxNetworkInterfaceIpConfigurationName": {
+            "value": "[parameters('linuxNetworkInterfaceIpConfigurationName')]"
+          },
+          "linuxNetworkInterfacePrivateIPAddressAllocationMethod": {
+            "value": "[parameters('linuxNetworkInterfacePrivateIPAddressAllocationMethod')]"
           },
           "linuxVmName": {
             "value": "[parameters('linuxVmName')]"
@@ -4788,12 +4797,6 @@
           },
           "linuxVmNetworkInterfaceName": {
             "value": "[parameters('linuxVmNetworkInterfaceName')]"
-          },
-          "linuxVmNetworkInterfaceIpConfigurationName": {
-            "value": "[parameters('linuxVmNetworkInterfaceIpConfigurationName')]"
-          },
-          "linuxVmNetworkInterfacePrivateIPAddressAllocationMethod": {
-            "value": "[parameters('linuxVmNetworkInterfacePrivateIPAddressAllocationMethod')]"
           }
         },
         "template": {
@@ -4803,19 +4806,16 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "7042030914108748730"
+              "templateHash": "15146003623826486692"
             }
           },
           "parameters": {
             "location": {
-              "type": "string",
-              "defaultValue": "[resourceGroup().location]"
+              "type": "string"
             },
             "tags": {
               "type": "object",
-              "defaultValue": {
-                "resourceIdentifier": "[parameters('resourceIdentifier')]"
-              }
+              "defaultValue": {}
             },
             "hubVirtualNetworkName": {
               "type": "string"
@@ -4827,72 +4827,55 @@
               "type": "string"
             },
             "bastionHostName": {
-              "type": "string",
-              "defaultValue": "bastionHost"
+              "type": "string"
             },
             "bastionHostSubnetAddressPrefix": {
-              "type": "string",
-              "defaultValue": "10.0.100.160/27"
+              "type": "string"
             },
             "bastionHostPublicIPAddressName": {
-              "type": "string",
-              "defaultValue": "bastionHostPublicIPAddress"
+              "type": "string"
             },
             "bastionHostPublicIPAddressSkuName": {
-              "type": "string",
-              "defaultValue": "Standard"
+              "type": "string"
             },
             "bastionHostPublicIPAddressAllocationMethod": {
-              "type": "string",
-              "defaultValue": "Static"
+              "type": "string"
             },
             "bastionHostPublicIPAddressAvailabilityZones": {
-              "type": "array",
-              "defaultValue": []
+              "type": "array"
             },
             "bastionHostIPConfigurationName": {
-              "type": "string",
-              "defaultValue": "bastionHostIPConfiguration"
+              "type": "string"
             },
             "linuxVmName": {
-              "type": "string",
-              "defaultValue": "linuxVirtualMachine"
+              "type": "string"
             },
             "linuxVmSize": {
-              "type": "string",
-              "defaultValue": "Standard_B2s"
+              "type": "string"
             },
             "linuxVmOsDiskCreateOption": {
-              "type": "string",
-              "defaultValue": "FromImage"
+              "type": "string"
             },
             "linuxVmOsDiskType": {
-              "type": "string",
-              "defaultValue": "Standard_LRS"
+              "type": "string"
             },
             "linuxVmImagePublisher": {
-              "type": "string",
-              "defaultValue": "Canonical"
+              "type": "string"
             },
             "linuxVmImageOffer": {
-              "type": "string",
-              "defaultValue": "UbuntuServer"
+              "type": "string"
             },
             "linuxVmImageSku": {
-              "type": "string",
-              "defaultValue": "18.04-LTS"
+              "type": "string"
             },
             "linuxVmImageVersion": {
-              "type": "string",
-              "defaultValue": "latest"
+              "type": "string"
             },
             "linuxVmAdminUsername": {
-              "type": "string",
-              "defaultValue": "azureuser"
+              "type": "string"
             },
             "linuxVmAuthenticationType": {
               "type": "string",
-              "defaultValue": "password",
               "allowedValues": [
                 "sshPublicKey",
                 "password"
@@ -4902,20 +4885,13 @@
               "type": "secureString"
             },
             "linuxVmNetworkInterfaceName": {
-              "type": "string",
-              "defaultValue": "linuxVmNetworkInterface"
+              "type": "string"
             },
-            "linuxVmNetworkInterfaceIpConfigurationName": {
-              "type": "string",
-              "defaultValue": "linuxVmIpConfiguration"
+            "linuxNetworkInterfaceIpConfigurationName": {
+              "type": "string"
             },
-            "linuxVmNetworkInterfacePrivateIPAddressAllocationMethod": {
-              "type": "string",
-              "defaultValue": "Dynamic"
-            },
-            "resourceIdentifier": {
-              "type": "string",
-              "defaultValue": "[format('{0}{1}', parameters('bastionHostName'), uniqueString(parameters('bastionHostName')))]"
+            "linuxNetworkInterfacePrivateIPAddressAllocationMethod": {
+              "type": "string"
             }
           },
           "functions": [],
@@ -4923,7 +4899,7 @@
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2019-10-01",
-              "name": "bastionHost",
+              "name": "remoteAccess-bastionHost",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -5064,7 +5040,112 @@
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2019-10-01",
-              "name": "linuxVirtualMachine",
+              "name": "remoteAccess-linuxNetworkInterface",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "name": {
+                    "value": "[parameters('linuxVmNetworkInterfaceName')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "ipConfigurationName": {
+                    "value": "[parameters('linuxNetworkInterfaceIpConfigurationName')]"
+                  },
+                  "networkSecurityGroupId": {
+                    "value": "[parameters('hubNetworkSecurityGroupResourceId')]"
+                  },
+                  "privateIPAddressAllocationMethod": {
+                    "value": "[parameters('linuxNetworkInterfacePrivateIPAddressAllocationMethod')]"
+                  },
+                  "subnetId": {
+                    "value": "[parameters('hubSubnetResourceId')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.613.9944",
+                      "templateHash": "14459425343428091407"
+                    }
+                  },
+                  "parameters": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "ipConfigurationName": {
+                      "type": "string"
+                    },
+                    "subnetId": {
+                      "type": "string"
+                    },
+                    "networkSecurityGroupId": {
+                      "type": "string"
+                    },
+                    "privateIPAddressAllocationMethod": {
+                      "type": "string"
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/networkInterfaces",
+                      "apiVersion": "2021-02-01",
+                      "name": "[parameters('name')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "ipConfigurations": [
+                          {
+                            "name": "[parameters('ipConfigurationName')]",
+                            "properties": {
+                              "subnet": {
+                                "id": "[parameters('subnetId')]"
+                              },
+                              "privateIPAllocationMethod": "[parameters('privateIPAddressAllocationMethod')]"
+                            }
+                          }
+                        ],
+                        "networkSecurityGroup": {
+                          "id": "[parameters('networkSecurityGroupId')]"
+                        }
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('name'))]"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "[parameters('name')]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "remoteAccess-linuxVirtualMachine",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -5111,19 +5192,7 @@
                     "value": "[parameters('linuxVmAdminPasswordOrKey')]"
                   },
                   "networkInterfaceName": {
-                    "value": "[parameters('linuxVmNetworkInterfaceName')]"
-                  },
-                  "networkInterfaceIpConfigurationName": {
-                    "value": "[parameters('linuxVmNetworkInterfaceIpConfigurationName')]"
-                  },
-                  "networkInterfaceSubnetId": {
-                    "value": "[parameters('hubSubnetResourceId')]"
-                  },
-                  "networkInterfaceNetworkSecurityGroupId": {
-                    "value": "[parameters('hubNetworkSecurityGroupResourceId')]"
-                  },
-                  "networkInterfacePrivateIPAddressAllocationMethod": {
-                    "value": "[parameters('linuxVmNetworkInterfacePrivateIPAddressAllocationMethod')]"
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-linuxNetworkInterface'), '2019-10-01').outputs.name.value]"
                   }
                 },
                 "template": {
@@ -5133,7 +5202,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.613.9944",
-                      "templateHash": "14532193583174667348"
+                      "templateHash": "16223346466626986050"
                     }
                   },
                   "parameters": {
@@ -5146,6 +5215,9 @@
                     "tags": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "networkInterfaceName": {
+                      "type": "string"
                     },
                     "vmSize": {
                       "type": "string"
@@ -5173,7 +5245,6 @@
                     },
                     "authenticationType": {
                       "type": "string",
-                      "defaultValue": "password",
                       "allowedValues": [
                         "sshPublicKey",
                         "password"
@@ -5181,21 +5252,6 @@
                     },
                     "adminPasswordOrKey": {
                       "type": "secureString"
-                    },
-                    "networkInterfaceName": {
-                      "type": "string"
-                    },
-                    "networkInterfaceIpConfigurationName": {
-                      "type": "string"
-                    },
-                    "networkInterfaceSubnetId": {
-                      "type": "string"
-                    },
-                    "networkInterfaceNetworkSecurityGroupId": {
-                      "type": "string"
-                    },
-                    "networkInterfacePrivateIPAddressAllocationMethod": {
-                      "type": "string"
                     }
                   },
                   "functions": [],
@@ -5218,6 +5274,7 @@
                       "apiVersion": "2020-06-01",
                       "name": "[parameters('name')]",
                       "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
                       "properties": {
                         "hardwareProfile": {
                           "vmSize": "[parameters('vmSize')]"
@@ -5239,7 +5296,7 @@
                         "networkProfile": {
                           "networkInterfaces": [
                             {
-                              "id": "[reference(resourceId('Microsoft.Resources/deployments', 'networkInterface'), '2019-10-01').outputs.id.value]"
+                              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
                             }
                           ]
                         },
@@ -5248,110 +5305,6 @@
                           "adminUsername": "[parameters('adminUsername')]",
                           "adminPassword": "[parameters('adminPasswordOrKey')]",
                           "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Resources/deployments', 'networkInterface')]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2019-10-01",
-                      "name": "networkInterface",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "name": {
-                            "value": "[parameters('networkInterfaceName')]"
-                          },
-                          "location": {
-                            "value": "[parameters('location')]"
-                          },
-                          "tags": {
-                            "value": "[parameters('tags')]"
-                          },
-                          "ipConfigurationName": {
-                            "value": "[parameters('networkInterfaceIpConfigurationName')]"
-                          },
-                          "subnetId": {
-                            "value": "[parameters('networkInterfaceSubnetId')]"
-                          },
-                          "networkSecurityGroupId": {
-                            "value": "[parameters('networkInterfaceNetworkSecurityGroupId')]"
-                          },
-                          "privateIPAddressAllocationMethod": {
-                            "value": "[parameters('networkInterfacePrivateIPAddressAllocationMethod')]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.4.613.9944",
-                              "templateHash": "12762216372183596281"
-                            }
-                          },
-                          "parameters": {
-                            "name": {
-                              "type": "string"
-                            },
-                            "location": {
-                              "type": "string"
-                            },
-                            "tags": {
-                              "type": "object",
-                              "defaultValue": {}
-                            },
-                            "ipConfigurationName": {
-                              "type": "string"
-                            },
-                            "subnetId": {
-                              "type": "string"
-                            },
-                            "networkSecurityGroupId": {
-                              "type": "string"
-                            },
-                            "privateIPAddressAllocationMethod": {
-                              "type": "string"
-                            }
-                          },
-                          "functions": [],
-                          "resources": [
-                            {
-                              "type": "Microsoft.Network/networkInterfaces",
-                              "apiVersion": "2021-02-01",
-                              "name": "[parameters('name')]",
-                              "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
-                              "properties": {
-                                "ipConfigurations": [
-                                  {
-                                    "name": "[parameters('ipConfigurationName')]",
-                                    "properties": {
-                                      "subnet": {
-                                        "id": "[parameters('subnetId')]"
-                                      },
-                                      "privateIPAllocationMethod": "[parameters('privateIPAddressAllocationMethod')]"
-                                    }
-                                  }
-                                ],
-                                "networkSecurityGroup": {
-                                  "id": "[parameters('networkSecurityGroupId')]"
-                                }
-                              }
-                            }
-                          ],
-                          "outputs": {
-                            "id": {
-                              "type": "string",
-                              "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('name'))]"
-                            }
-                          }
                         }
                       }
                     }
@@ -5367,7 +5320,10 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'remoteAccess-linuxNetworkInterface')]"
+              ]
             }
           ]
         }

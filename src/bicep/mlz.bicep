@@ -308,11 +308,13 @@ module identityPolicyAssignment './modules/policyAssignment.bicep' = {
 
 //// remote access
 
-module remoteAccess './examples/remoteAccess/remoteAccess.bicep' = if(deployRemoteAccess) {
+module remoteAccess './modules/remoteAccess.bicep' = if(deployRemoteAccess) {
   name: 'deploy-remote-access-${nowUtc}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
 
   params: {
+    location: hubLocation
+    
     hubVirtualNetworkName: hub.outputs.virtualNetworkName
     hubSubnetResourceId: hub.outputs.subnetResourceId
     hubNetworkSecurityGroupResourceId: hub.outputs.networkSecurityGroupResourceId
@@ -324,6 +326,9 @@ module remoteAccess './examples/remoteAccess/remoteAccess.bicep' = if(deployRemo
     bastionHostPublicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
     bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
     bastionHostIPConfigurationName: bastionHostIPConfigurationName
+
+    linuxNetworkInterfaceIpConfigurationName: linuxNetworkInterfaceIpConfigurationName
+    linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
 
     linuxVmName: linuxVmName
     linuxVmSize: linuxVmSize
@@ -337,8 +342,6 @@ module remoteAccess './examples/remoteAccess/remoteAccess.bicep' = if(deployRemo
     linuxVmAuthenticationType: linuxVmAuthenticationType
     linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
     linuxVmNetworkInterfaceName: linuxVmNetworkInterfaceName
-    linuxVmNetworkInterfaceIpConfigurationName: linuxVmNetworkInterfaceIpConfigurationName
-    linuxVmNetworkInterfacePrivateIPAddressAllocationMethod: linuxVmNetworkInterfacePrivateIPAddressAllocationMethod
   }
 }
 
@@ -477,8 +480,8 @@ param linuxVmAuthenticationType string = 'password'
 @minLength(14)
 param linuxVmAdminPasswordOrKey string = deployRemoteAccess ? '' : newGuid()
 param linuxVmNetworkInterfaceName string = 'linuxVmNetworkInterface'
-param linuxVmNetworkInterfaceIpConfigurationName string = 'linuxVmIpConfiguration'
-param linuxVmNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
+param linuxNetworkInterfaceIpConfigurationName string = 'linuxVmIpConfiguration'
+param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 
 param tags object = {
   'resourcePrefix': resourcePrefix
