@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "1757367047079281957"
+      "templateHash": "6400581549389799646"
     }
   },
   "parameters": {
@@ -4422,7 +4422,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "[format('{0}-policyAssignement', parameters('hubResourceGroupName'))]",
+      "name": "[format('assign-policy-{0}', parameters('hubResourceGroupName'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "resourceGroup": "[parameters('hubResourceGroupName')]",
       "properties": {
@@ -4495,7 +4495,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "[format('{0}-policyAssignment', parameters('operationsResourceGroupName'))]",
+      "name": "[format('assign-policy-{0}', parameters('operationsResourceGroupName'))]",
       "subscriptionId": "[parameters('operationsSubscriptionId')]",
       "resourceGroup": "[parameters('operationsResourceGroupName')]",
       "properties": {
@@ -4567,7 +4567,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "[format('{0}-policyAssignement', parameters('sharedServicesResourceGroupName'))]",
+      "name": "[format('assign-policy-{0}', parameters('sharedServicesResourceGroupName'))]",
       "subscriptionId": "[parameters('sharedServicesSubscriptionId')]",
       "resourceGroup": "[parameters('sharedServicesResourceGroupName')]",
       "properties": {
@@ -4640,7 +4640,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "[format('{0}-policyAssignement', parameters('identityResourceGroupName'))]",
+      "name": "[format('assign-policy-{0}', parameters('identityResourceGroupName'))]",
       "subscriptionId": "[parameters('identitySubscriptionId')]",
       "resourceGroup": "[parameters('identityResourceGroupName')]",
       "properties": {
