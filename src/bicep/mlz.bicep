@@ -315,7 +315,7 @@ module operationsSubscriptionCreateActivityLogging './modules/centralLogging.bic
 }
 
 module identitySubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != identitySubscriptionId) {
-  name: 'deploy-ident-sub-activity-logging'
+  name: 'deploy-identity-sub-activity-logging'
   scope: subscription(identitySubscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
