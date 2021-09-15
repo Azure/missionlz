@@ -6,22 +6,25 @@
 
 variable "environment" {
   description = "The Terraform backend environment e.g. public or usgovernment"
-}
-
-variable "deploymentname" {
-  description = "A name for the deployment"
-}
-
-variable "location" {
-  description = "The Azure region for most Mission LZ resources"
+  type        = string
+  default     = "public"
 }
 
 variable "metadata_host" {
   description = "The metadata host for the Azure Cloud e.g. management.azure.com"
+  type        = string
+  default     = "management.azure.com"
 }
 
-variable "object_id" {
-  description = "The account to deploy with"
+variable "location" {
+  description = "The Azure region for most Mission LZ resources"
+  type        = string
+  default     = "East US"
+}
+
+variable "deploymentname" {
+  description = "A name for the deployment"
+  type        = string
 }
 
 #################################
@@ -30,18 +33,22 @@ variable "object_id" {
 
 variable "hub_subid" {
   description = "Subscription ID for the deployment"
+  type        = string
 }
 
 variable "hub_rgname" {
   description = "Resource Group for the deployment"
+  type        = string
 }
 
 variable "hub_vnetname" {
   description = "Virtual Network Name for the deployment"
+  type        = string
 }
 
 variable "firewall_private_ip" {
   description = "Firewall IP to bind network to"
+  type        = string
 }
 
 #################################
@@ -50,14 +57,17 @@ variable "firewall_private_ip" {
 
 variable "tier1_subid" {
   description = "Subscription ID for the deployment"
+  type        = string
 }
 
 variable "laws_name" {
   description = "Log Analytics Workspace Name for the deployment"
+  type        = string
 }
 
 variable "laws_rgname" {
   description = "The RG that laws was deployed to."
+  type        = string
 }
 
 #################################
@@ -65,14 +75,19 @@ variable "laws_rgname" {
 #################################
 variable "tier3_subid" {
   description = "Subscription ID for the deployment"
+  type        = string
 }
 
 variable "tier3_rgname" {
   description = "Resource Group for the deployment"
+  type        = string
+  default     = "tier3-rg"
 }
 
 variable "tier3_vnetname" {
   description = "Virtual Network Name for the deployment"
+  type        = string
+  default     = "tier3-vnet"
 }
 
 variable "tier3_vnet_address_space" {
@@ -107,15 +122,15 @@ variable "tier3_subnets" {
     routetable_name = string
   }))
   default = {
-    "tier3vms" = {
-      name              = "tier3vms"
+    "tier3subnet" = {
+      name              = "tier3Subnet"
       address_prefixes  = ["10.0.125.0/27"]
       service_endpoints = ["Microsoft.Storage"]
 
       enforce_private_link_endpoint_network_policies = false
       enforce_private_link_service_network_policies  = false
 
-      nsg_name = "tier3vmsnsg"
+      nsg_name = "tier3SubnetNsg"
       nsg_rules = {
         "allow_ssh" = {
           name                       = "allow_ssh"
@@ -141,7 +156,7 @@ variable "tier3_subnets" {
         }
       }
 
-      routetable_name = "tier3vmsrt"
+      routetable_name = "tier3RouteTable"
     }
   }
 }
