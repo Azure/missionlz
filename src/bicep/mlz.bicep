@@ -264,7 +264,7 @@ module hubPolicyAssignment './modules/policyAssignment.bicep' = {
 }
 
 module operationsPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'deploy-operations-policyAssignment'
+  name: '${operationsResourceGroupName}-policyAssignment'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
     builtInAssignment: policy
@@ -275,7 +275,7 @@ module operationsPolicyAssignment './modules/policyAssignment.bicep' = {
 }
 
 module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'deploy-shareServices-policyAssignement'
+  name: '${sharedServicesResourceGroupName}-policyAssignement'
   scope: resourceGroup(sharedServicesSubscriptionId, sharedServicesResourceGroupName)
   params: {
     builtInAssignment: policy
@@ -286,7 +286,7 @@ module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = {
 }
 
 module identityPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'deploy-identity-policyAssignement'
+  name: '${identityResourceGroupName}-policyAssignement'
   scope: resourceGroup(identitySubscriptionId, identityResourceGroupName)
   params: {
     builtInAssignment: policy
@@ -305,7 +305,7 @@ module hubSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = {
   }
 }
 
-module opsSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(!(hubSubscriptionId == operationsSubscriptionId)) {
+module opsSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != operationsSubscriptionId) {
   name: 'deploy-ops-sub-activity-logging'
   scope: subscription(operationsSubscriptionId)
   params: {
@@ -314,7 +314,7 @@ module opsSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = i
   }
 }
 
-module identSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(!(hubSubscriptionId == identitySubscriptionId)) {
+module identSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != identitySubscriptionId) {
   name: 'deploy-ident-sub-activity-logging'
   scope: subscription(identitySubscriptionId)
   params: {
@@ -323,7 +323,7 @@ module identSubscriptionCreateActivityLogging './modules/centralLogging.bicep' =
   }
 }
 
-module sharedSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(!(hubSubscriptionId == sharedServicesSubscriptionId)) {
+module sharedSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != sharedServicesSubscriptionId) {
   name: 'deploy-shared-sub-activity-logging'
   scope: subscription(sharedServicesSubscriptionId)
   params: {
