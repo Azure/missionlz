@@ -1,7 +1,7 @@
 param builtInAssignment string = ''
 param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceResourceGroupName string
-param opsSubscriptionId string
+param operationsSubscriptionId string
 
 // Creating a symbolic name for an existing resource
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
