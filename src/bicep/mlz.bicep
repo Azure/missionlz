@@ -253,7 +253,7 @@ module sharedServicesVirtualNetworkPeering './modules/spokeNetworkPeering.bicep'
 }
 
 module hubPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'deploy-hub-policyAssignement'
+  name: '${hubResourceGroupName}-policyAssignment'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     builtInAssignment: policy
