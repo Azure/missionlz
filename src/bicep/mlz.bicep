@@ -324,7 +324,7 @@ module identitySubscriptionCreateActivityLogging './modules/centralLogging.bicep
 }
 
 module sharedServicesSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != sharedServicesSubscriptionId) {
-  name: 'deploy-shared-sub-activity-logging'
+  name: 'deploy-sharedServices-sub-activity-logging'
   scope: subscription(sharedServicesSubscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
