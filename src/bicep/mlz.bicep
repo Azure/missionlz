@@ -305,7 +305,7 @@ module hubSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = {
   }
 }
 
-module opsSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != operationsSubscriptionId) {
+module operationsSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != operationsSubscriptionId) {
   name: 'deploy-ops-sub-activity-logging'
   scope: subscription(operationsSubscriptionId)
   params: {
