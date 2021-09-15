@@ -306,7 +306,7 @@ module hubSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = {
 }
 
 module operationsSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != operationsSubscriptionId) {
-  name: 'deploy-ops-sub-activity-logging'
+  name: 'deploy-operations-sub-activity-logging'
   scope: subscription(operationsSubscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
