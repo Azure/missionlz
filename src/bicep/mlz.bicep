@@ -323,7 +323,7 @@ module identitySubscriptionCreateActivityLogging './modules/centralLogging.bicep
   }
 }
 
-module sharedSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != sharedServicesSubscriptionId) {
+module sharedServicesSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != sharedServicesSubscriptionId) {
   name: 'deploy-shared-sub-activity-logging'
   scope: subscription(sharedServicesSubscriptionId)
   params: {
