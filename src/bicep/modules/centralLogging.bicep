@@ -5,7 +5,7 @@ param logAnalyticsWorkspaceId string
 param deploymentName string
 
 //// Central activity logging to LAWS
-resource somethingNew 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource centralLoggingDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: 'LoggingToLA-${deploymentName}'
   properties: {
     workspaceId: logAnalyticsWorkspaceId
