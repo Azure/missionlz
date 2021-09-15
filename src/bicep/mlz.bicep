@@ -314,7 +314,7 @@ module opsSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = i
   }
 }
 
-module identSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != identitySubscriptionId) {
+module identitySubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != identitySubscriptionId) {
   name: 'deploy-ident-sub-activity-logging'
   scope: subscription(identitySubscriptionId)
   params: {
