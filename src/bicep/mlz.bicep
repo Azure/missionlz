@@ -197,7 +197,7 @@ module sharedServices './modules/spokeNetwork.bicep' = {
   }
 }
 
-// peering
+//// peering
 
 module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
   name: 'deploy-hub-peerings-${nowUtc}'
@@ -252,59 +252,129 @@ module sharedServicesVirtualNetworkPeering './modules/spokeNetworkPeering.bicep'
   }
 }
 
+//// policy
+
 module hubPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: '${hubResourceGroupName}-policyAssignement'
+  name: 'assign-policy-${hubResourceGroupName}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  dependsOn: [
-    hubResourceGroup
-    logAnalyticsWorkspace
-  ]
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
+    operationsSubscriptionId: operationsSubscriptionId
   }
 }
 
 module operationsPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: '${operationsResourceGroupName}-policyAssignment'
+  name: 'assign-policy-${operationsResourceGroupName}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
+    operationsSubscriptionId: operationsSubscriptionId
   }
 }
 
 module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: '${sharedServicesResourceGroupName}-policyAssignement'
+  name: 'assign-policy-${sharedServicesResourceGroupName}'
   scope: resourceGroup(sharedServicesSubscriptionId, sharedServicesResourceGroupName)
-  dependsOn: [
-    sharedServicesResourceGroup
-    logAnalyticsWorkspace
-  ]
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
+    operationsSubscriptionId: operationsSubscriptionId
   }
 }
 
 module identityPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: '${identityResourceGroupName}-policyAssignement'
+  name: 'assign-policy-${identityResourceGroupName}'
   scope: resourceGroup(identitySubscriptionId, identityResourceGroupName)
-  dependsOn: [
-    identityResourceGroup
-    logAnalyticsWorkspace
-  ]
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
+    operationsSubscriptionId: operationsSubscriptionId
+  }
+}
+
+module hubSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = {
+  name: 'deploy-hub-sub-activity-logging'
+  scope: subscription(hubSubscriptionId)
+  params: {
+    diagnosticSettingName: 'log-hub-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+  }
+}
+
+module operationsSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != operationsSubscriptionId) {
+  name: 'deploy-operations-sub-activity-logging'
+  scope: subscription(operationsSubscriptionId)
+  params: {
+    diagnosticSettingName: 'log-operations-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+  }
+}
+
+module identitySubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != identitySubscriptionId) {
+  name: 'deploy-identity-sub-activity-logging'
+  scope: subscription(identitySubscriptionId)
+  params: {
+    diagnosticSettingName: 'log-identity-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+  }
+}
+
+module sharedServicesSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != sharedServicesSubscriptionId) {
+  name: 'deploy-sharedServices-sub-activity-logging'
+  scope: subscription(sharedServicesSubscriptionId)
+  params: {
+    diagnosticSettingName: 'log-sharedServices-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+  }
+}
+
+//// remote access
+
+module remoteAccess './modules/remoteAccess.bicep' = if(deployRemoteAccess) {
+  name: 'deploy-remote-access-${nowUtc}'
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+
+  params: {
+    location: hubLocation
+    
+    hubVirtualNetworkName: hub.outputs.virtualNetworkName
+    hubSubnetResourceId: hub.outputs.subnetResourceId
+    hubNetworkSecurityGroupResourceId: hub.outputs.networkSecurityGroupResourceId
+
+    bastionHostName: bastionHostName
+    bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
+    bastionHostPublicIPAddressName: bastionHostPublicIPAddressName
+    bastionHostPublicIPAddressSkuName: bastionHostPublicIPAddressSkuName
+    bastionHostPublicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
+    bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
+    bastionHostIPConfigurationName: bastionHostIPConfigurationName
+
+    linuxNetworkInterfaceIpConfigurationName: linuxNetworkInterfaceIpConfigurationName
+    linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
+
+    linuxVmName: linuxVmName
+    linuxVmSize: linuxVmSize
+    linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
+    linuxVmOsDiskType: linuxVmOsDiskType
+    linuxVmImagePublisher: linuxVmImagePublisher
+    linuxVmImageOffer: linuxVmImageOffer
+    linuxVmImageSku: linuxVmImageSku
+    linuxVmImageVersion: linuxVmImageVersion
+    linuxVmAdminUsername: linuxVmAdminUsername
+    linuxVmAuthenticationType: linuxVmAuthenticationType
+    linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
+    linuxVmNetworkInterfaceName: linuxVmNetworkInterfaceName
   }
 }
 
 // parameters
+
 @minLength(3)
 @maxLength(24)
 @description('A name (3-24 alphanumeric characters in length without whitespace) used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
@@ -364,7 +434,6 @@ param identityVirtualNetworkDiagnosticsLogs array = []
 param identityVirtualNetworkDiagnosticsMetrics array = []
 param identityNetworkSecurityGroupName string = replace(hubNetworkSecurityGroupName, 'hub', 'identity')
 param identityNetworkSecurityGroupRules array = []
-
 param identitySubnetServiceEndpoints array = []
 param identityLogStorageAccountName string = toLower(take('idlogs${uniqueId}', 24))
 param identityLogStorageSkuName string = hubLogStorageSkuName
@@ -398,7 +467,7 @@ param sharedServicesLogStorageAccountName string = toLower(take('shrdSvclogs${un
 param sharedServicesLogStorageSkuName string = hubLogStorageSkuName
 
 param logAnalyticsWorkspaceName string = take('${resourcePrefix}-laws', 63)
-param logAnalyticsWorkspaceLocation string = sharedServicesLocation
+param logAnalyticsWorkspaceLocation string = operationsLocation
 param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
 param logAnalyticsWorkspaceRetentionInDays int = 30
 param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
@@ -412,6 +481,36 @@ param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
 @description('Built-in policy assignments to assign, default is none. [NIST/IL5/CMMC] IL5 is only availalbe for GOV cloud and will switch to NIST if tried in AzureCloud.')
 param policy string = ''
 
+@description('Provision Azure Bastion Host and jumpboxes in this deployment')
+param deployRemoteAccess bool = false
+param bastionHostName string = 'bastionHost'
+param bastionHostSubnetAddressPrefix string = '10.0.100.160/27'
+param bastionHostPublicIPAddressName string = 'bastionHostPublicIPAddress'
+param bastionHostPublicIPAddressSkuName string = 'Standard'
+param bastionHostPublicIPAddressAllocationMethod string = 'Static'
+param bastionHostPublicIPAddressAvailabilityZones array = []
+param bastionHostIPConfigurationName string = 'bastionHostIPConfiguration'
+param linuxVmName string = 'linuxVirtualMachine'
+param linuxVmSize string = 'Standard_B2s'
+param linuxVmOsDiskCreateOption string = 'FromImage'
+param linuxVmOsDiskType string = 'Standard_LRS'
+param linuxVmImagePublisher string = 'Canonical'
+param linuxVmImageOffer string = 'UbuntuServer'
+param linuxVmImageSku string = '18.04-LTS'
+param linuxVmImageVersion string = 'latest'
+param linuxVmAdminUsername string = 'azureuser'
+@allowed([
+  'sshPublicKey'
+  'password'
+])
+param linuxVmAuthenticationType string = 'password'
+@secure()
+@minLength(14)
+param linuxVmAdminPasswordOrKey string = deployRemoteAccess ? '' : newGuid()
+param linuxVmNetworkInterfaceName string = 'linuxVmNetworkInterface'
+param linuxNetworkInterfaceIpConfigurationName string = 'linuxVmIpConfiguration'
+param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
+
 param tags object = {
   'resourcePrefix': resourcePrefix
 }
@@ -420,6 +519,7 @@ param uniqueId string = uniqueString(deployment().name)
 param nowUtc string = utcNow()
 
 // outputs
+
 output hubSubscriptionId string = hubSubscriptionId
 output hubResourceGroupName string = hubResourceGroup.outputs.name
 output hubResourceGroupResourceId string = hubResourceGroup.outputs.id
