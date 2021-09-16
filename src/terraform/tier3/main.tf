@@ -76,6 +76,14 @@ provider "azurerm" {
 }
 
 ################################
+### GLOBAL VARIABLES         ###
+################################
+
+locals {
+  deploymentname_default = "mlz-tier3-${formatdate("YYYYMMDD'T'hhmmssZ", timestamp())}"
+}
+
+################################
 ### STAGE 0: Scaffolding     ###
 ################################
 
@@ -86,7 +94,7 @@ resource "azurerm_resource_group" "tier3" {
   name     = var.tier3_rgname
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -129,7 +137,7 @@ module "spoke-network-t3" {
   subnets                  = var.tier3_subnets
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 

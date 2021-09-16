@@ -23,7 +23,7 @@ output "firewall_private_ip" {
 
 output "tier1_subid" {
   description = "Subscription ID where the Tier 1 Resource Group is provisioned"
-  value       = var.tier1_subid == "" ? var.hub_subid : var.tier1_subid
+  value       = coalesce(var.tier1_subid, var.hub_subid)
 }
 
 output "laws_name" {

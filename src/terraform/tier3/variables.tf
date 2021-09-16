@@ -25,6 +25,7 @@ variable "location" {
 variable "deploymentname" {
   description = "A name for the deployment"
   type        = string
+  default     = ""
 }
 
 #################################
@@ -32,17 +33,17 @@ variable "deploymentname" {
 #################################
 
 variable "hub_subid" {
-  description = "Subscription ID for the deployment"
+  description = "Subscription ID for the Hub deployment"
   type        = string
 }
 
 variable "hub_rgname" {
-  description = "Resource Group for the deployment"
+  description = "Resource Group for the Hub deployment"
   type        = string
 }
 
 variable "hub_vnetname" {
-  description = "Virtual Network Name for the deployment"
+  description = "Virtual Network Name for the Hub deployment"
   type        = string
 }
 
@@ -56,7 +57,7 @@ variable "firewall_private_ip" {
 #################################
 
 variable "tier1_subid" {
-  description = "Subscription ID for the deployment"
+  description = "Subscription ID for the Tier 1 deployment"
   type        = string
 }
 
@@ -66,7 +67,7 @@ variable "laws_name" {
 }
 
 variable "laws_rgname" {
-  description = "The RG that laws was deployed to."
+  description = "The resource group that Log Analytics Workspace was deployed to"
   type        = string
 }
 
@@ -74,18 +75,18 @@ variable "laws_rgname" {
 # Tier 3 Configuration
 #################################
 variable "tier3_subid" {
-  description = "Subscription ID for the deployment"
+  description = "Subscription ID for this Tier 3 deployment"
   type        = string
 }
 
 variable "tier3_rgname" {
-  description = "Resource Group for the deployment"
+  description = "Resource Group for this Tier 3 deployment"
   type        = string
   default     = "tier3-rg"
 }
 
 variable "tier3_vnetname" {
-  description = "Virtual Network Name for the deployment"
+  description = "Virtual Network Name for this Tier 3 deployment"
   type        = string
   default     = "tier3-vnet"
 }

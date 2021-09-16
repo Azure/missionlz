@@ -26,6 +26,7 @@ variable "location" {
 variable "deploymentname" {
   description = "A name for the deployment"
   type        = string
+  default     = ""
 }
 
 #################################

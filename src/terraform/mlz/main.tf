@@ -55,7 +55,7 @@ provider "azurerm" {
   alias           = "tier0"
   environment     = var.environment
   metadata_host   = var.metadata_host
-  subscription_id = var.tier0_subid == "" ? var.hub_subid : var.tier0_subid
+  subscription_id = coalesce(var.tier0_subid, var.hub_subid)
 
   features {
     log_analytics_workspace {
@@ -71,7 +71,7 @@ provider "azurerm" {
   alias           = "tier1"
   environment     = var.environment
   metadata_host   = var.metadata_host
-  subscription_id = var.tier1_subid == "" ? var.hub_subid : var.tier1_subid
+  subscription_id = coalesce(var.tier1_subid, var.hub_subid)
 
   features {
     log_analytics_workspace {
@@ -87,7 +87,7 @@ provider "azurerm" {
   alias           = "tier2"
   environment     = var.environment
   metadata_host   = var.metadata_host
-  subscription_id = var.tier2_subid == "" ? var.hub_subid : var.tier2_subid
+  subscription_id = coalesce(var.hub_subid, var.tier2_subid)
 
   features {
     log_analytics_workspace {
@@ -113,8 +113,8 @@ data "azurerm_client_config" "current_client" {
 ################################
 
 locals {
-  # azurerm terraform environments where Azure Firewall Premium is supported
-  firewall_premium_environments = ["public"]
+  firewall_premium_environments = ["public"] # terraform azurerm environments where Azure Firewall Premium is supported
+  deploymentname_default        = "mlz-${formatdate("YYYYMMDD'T'hhmmssZ", timestamp())}"
 }
 
 ################################
@@ -128,7 +128,7 @@ resource "azurerm_resource_group" "hub" {
   name     = var.hub_rgname
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -139,7 +139,7 @@ resource "azurerm_resource_group" "tier0" {
   name     = var.tier0_rgname
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -150,7 +150,7 @@ resource "azurerm_resource_group" "tier1" {
   name     = var.tier1_rgname
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -161,7 +161,7 @@ resource "azurerm_resource_group" "tier2" {
   name     = var.tier2_rgname
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -181,14 +181,14 @@ resource "azurerm_log_analytics_workspace" "laws" {
   provider   = azurerm.tier1
   depends_on = [random_id.laws]
 
-  name                = var.log_analytics_workspace_name == "" ? format("%.24s", lower(replace("logAnalyticsWorkspace${random_id.laws.hex}", "/[[:^alnum:]]/", ""))) : var.log_analytics_workspace_name
+  name                = coalesce(var.log_analytics_workspace_name, format("%.24s", lower(replace("logAnalyticsWorkspace${random_id.laws.hex}", "/[[:^alnum:]]/", ""))))
   resource_group_name = azurerm_resource_group.tier1.name
   location            = var.location
   sku                 = "PerGB2018"
   retention_in_days   = "30"
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -208,7 +208,7 @@ resource "azurerm_log_analytics_solution" "laws_sentinel" {
   }
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -231,7 +231,7 @@ module "hub-network" {
   log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -262,7 +262,7 @@ module "firewall" {
   log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -285,7 +285,7 @@ module "spoke-network-t0" {
   subnets                  = var.tier0_subnets
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -332,7 +332,7 @@ module "spoke-network-t1" {
   subnets                  = var.tier1_subnets
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -379,7 +379,7 @@ module "spoke-network-t2" {
   subnets                  = var.tier2_subnets
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -444,7 +444,7 @@ module "jumpbox-subnet" {
   log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -463,7 +463,7 @@ module "bastion-host" {
   ipconfig_name         = var.bastion_ipconfig_name
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -499,6 +499,6 @@ module "jumpbox" {
   linux_image_version = var.jumpbox_linux_vm_version
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
