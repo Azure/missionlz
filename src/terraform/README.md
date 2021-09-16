@@ -66,7 +66,7 @@ Here's the docs on `terraform init`: <https://www.terraform.io/docs/cli/commands
     terraform init
     ```
 
-### Terrafrom apply
+### Terraform apply
 
 After intializing the directory, use `terraform apply` to provision the resources described in `mlz/main.tf` and its referenced modules at `mlz/modules/*`.
 
