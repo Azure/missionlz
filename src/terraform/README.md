@@ -1,4 +1,4 @@
-# Terraform Deployment
+# Mission LZ Terraform
 
 Mission LZ also deploys the Hub and Spoke network architecture using [Terraform](https://www.terraform.io/).
 
