@@ -2,11 +2,11 @@ param name string
 param location string
 param tags object = {}
 
-param vmSize string
+param networkInterfaceName string
 
+param vmSize string
 param osDiskCreateOption string
 param osDiskType string
-
 param vmImagePublisher string
 param vmImageOffer string
 param vmImageSku string
@@ -17,15 +17,9 @@ param adminUsername string
   'sshPublicKey'
   'password'
 ])
-param authenticationType string = 'password'
+param authenticationType string
 @secure()
 param adminPasswordOrKey string
-
-param networkInterfaceName string
-param networkInterfaceIpConfigurationName string
-param networkInterfaceSubnetId string
-param networkInterfaceNetworkSecurityGroupId string
-param networkInterfacePrivateIPAddressAllocationMethod string
 
 var linuxConfiguration = {
   disablePasswordAuthentication: true
@@ -39,24 +33,15 @@ var linuxConfiguration = {
   }
 }
 
-module networkInterface './networkInterface.bicep' = {
-  name: 'networkInterface'
-
-  params: {
-    name: networkInterfaceName
-    location: location
-    tags: tags
-
-    ipConfigurationName: networkInterfaceIpConfigurationName
-    subnetId: networkInterfaceSubnetId
-    networkSecurityGroupId: networkInterfaceNetworkSecurityGroupId
-    privateIPAddressAllocationMethod: networkInterfacePrivateIPAddressAllocationMethod
-  }
+resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' existing = {
+  name: networkInterfaceName
 }
 
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   name: name
   location: location
+  tags: tags
+
   properties: {
     hardwareProfile: {
       vmSize: vmSize
@@ -78,7 +63,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = {
     networkProfile: {
       networkInterfaces: [
         {
-          id: networkInterface.outputs.id
+          id: networkInterface.id
         }
       ]
     }

@@ -8,7 +8,7 @@ Read on to understand what this example does, and when you're ready, collect all
 
 ### Deploys Azure Bastion Host
 
-The docs on Azure Bastion: https://docs.microsoft.com/en-us/azure/bastion/bastion-overview
+The docs on Azure Bastion: <https://docs.microsoft.com/en-us/azure/bastion/bastion-overview>
 
 Some particulars about Bastion:
 
@@ -20,7 +20,7 @@ Some particulars about Bastion:
 
 This example deploys two virtual machines into a new subnet in the existing Hub virtual network to serve as jumpboxes.
 
-The docs on Virtual Machines: https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?tabs=json
+The docs on Virtual Machines: <https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?tabs=json>
 
 ## Pre-requisites
 
@@ -97,20 +97,25 @@ hubVirtualNetworkName="hub-vnet"
 hubSubnetResourceId="/subscriptions/.../providers/Microsoft.Network/virtualNetworks/hub-vnet/subnets/hub-subnet"
 hubNetworkSecurityGroupResourceId="/subscriptions/.../providers/Microsoft.Network/networkSecurityGroups/hub-nsg"
 
+linuxPassword=$(openssl rand -base64 14) # generate a random 14 character password
+
 az deployment group create \
   --name "RemoteAccessExample" \
   --resource-group $hubResourceGroupName \
-  --template-file "./remoteAccess.bicep" \
+  --template-file "./main.bicep" \
   --parameters \
   hubVirtualNetworkName="$hubVirtualNetworkName" \
   hubSubnetResourceId="$hubSubnetResourceId" \
-  hubNetworkSecurityGroupResourceId="$hubNetworkSecurityGroupResourceId"
+  hubNetworkSecurityGroupResourceId="$hubNetworkSecurityGroupResourceId" \
+  linuxVmAdminPasswordOrKey="$linuxPassword"
 ```
 
 Or, completely experimentally, try the Portal:
 
-#### AzureCloud
-[![Deploy To Azure](../../docs/imgs/deploytoazure.svg?sanitze=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fglennmusa%2Fmissionlz%2Fglennmusa%2Fbicep%2Fsrc%2Fbicep%2Fexamples%2FremoteAccess%2FremoteAccess.json)
+### AzureCloud
 
-#### AzureUSGovernment
-[![Deploy To Azure US Gov](../../docs/imgs/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fglennmusa%2Fmissionlz%2Fglennmusa%2Fbicep%2Fexamples%2FremoteAccess%2FremoteAccess.json)
+[![Deploy To Azure](../../docs/imgs/deploytoazure.svg?sanitze=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fglennmusa%2Fmissionlz%2Fglennmusa%2Fbicep%2Fsrc%2Fbicep%2Fexamples%2FremoteAccess%2Fmain.json)
+
+### AzureUSGovernment
+
+[![Deploy To Azure US Gov](../../docs/imgs/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fglennmusa%2Fmissionlz%2Fglennmusa%2Fbicep%2Fexamples%2FremoteAccess%2Fmain.json)
