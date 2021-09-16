@@ -300,8 +300,8 @@ module hubSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = {
   name: 'deploy-hub-sub-activity-logging'
   scope: subscription(hubSubscriptionId)
   params: {
+    diagnosticSettingName: 'log-hub-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
-    deploymentName: resourcePrefix
   }
 }
 
@@ -309,8 +309,8 @@ module operationsSubscriptionCreateActivityLogging './modules/centralLogging.bic
   name: 'deploy-operations-sub-activity-logging'
   scope: subscription(operationsSubscriptionId)
   params: {
+    diagnosticSettingName: 'log-operations-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
-    deploymentName: resourcePrefix
   }
 }
 
@@ -318,8 +318,8 @@ module identitySubscriptionCreateActivityLogging './modules/centralLogging.bicep
   name: 'deploy-identity-sub-activity-logging'
   scope: subscription(identitySubscriptionId)
   params: {
+    diagnosticSettingName: 'log-identity-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
-    deploymentName: resourcePrefix
   }
 }
 
@@ -327,8 +327,8 @@ module sharedServicesSubscriptionCreateActivityLogging './modules/centralLogging
   name: 'deploy-sharedServices-sub-activity-logging'
   scope: subscription(sharedServicesSubscriptionId)
   params: {
+    diagnosticSettingName: 'log-sharedServices-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
-    deploymentName: resourcePrefix
   }
 }
 
