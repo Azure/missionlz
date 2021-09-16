@@ -327,7 +327,7 @@ variable "environment" {
 variable "metadata_host" {
   description = "The metadata host for the Azure Cloud e.g. management.azure.com"
   type        = string
-  default     = "management.azure.us"
+  default     = "management.usgovcloudapi.net"
 }
 
 variable "location" {
