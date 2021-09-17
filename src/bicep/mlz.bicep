@@ -355,6 +355,7 @@ module remoteAccess './modules/remoteAccess.bicep' = if(deployRemoteAccess) {
     bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
     bastionHostIPConfigurationName: bastionHostIPConfigurationName
 
+    linuxNetworkInterfaceName: linuxNetworkInterfaceName
     linuxNetworkInterfaceIpConfigurationName: linuxNetworkInterfaceIpConfigurationName
     linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
 
@@ -369,7 +370,21 @@ module remoteAccess './modules/remoteAccess.bicep' = if(deployRemoteAccess) {
     linuxVmAdminUsername: linuxVmAdminUsername
     linuxVmAuthenticationType: linuxVmAuthenticationType
     linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
-    linuxVmNetworkInterfaceName: linuxVmNetworkInterfaceName
+
+    windowsNetworkInterfaceName: windowsNetworkInterfaceName
+    windowsNetworkInterfaceIpConfigurationName: windowsNetworkInterfaceIpConfigurationName
+    windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
+
+    windowsVmName: windowsVmName
+    windowsVmSize: windowsVmSize
+    windowsVmAdminUsername: windowsVmAdminUsername
+    windowsVmAdminPassword: windowsVmAdminPassword
+    windowsVmPublisher: windowsVmPublisher
+    windowsVmOffer: windowsVmOffer
+    windowsVmSku: windowsVmSku
+    windowsVmVersion: windowsVmVersion
+    windowsVmCreateOption: windowsVmCreateOption
+    windowsVmStorageAccountType: windowsVmStorageAccountType
   }
 }
 
@@ -490,6 +505,9 @@ param bastionHostPublicIPAddressSkuName string = 'Standard'
 param bastionHostPublicIPAddressAllocationMethod string = 'Static'
 param bastionHostPublicIPAddressAvailabilityZones array = []
 param bastionHostIPConfigurationName string = 'bastionHostIPConfiguration'
+param linuxNetworkInterfaceName string = 'linuxVmNetworkInterface'
+param linuxNetworkInterfaceIpConfigurationName string = 'linuxVmIpConfiguration'
+param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 param linuxVmName string = 'linuxVirtualMachine'
 param linuxVmSize string = 'Standard_B2s'
 param linuxVmOsDiskCreateOption string = 'FromImage'
@@ -507,9 +525,21 @@ param linuxVmAuthenticationType string = 'password'
 @secure()
 @minLength(14)
 param linuxVmAdminPasswordOrKey string = deployRemoteAccess ? '' : newGuid()
-param linuxVmNetworkInterfaceName string = 'linuxVmNetworkInterface'
-param linuxNetworkInterfaceIpConfigurationName string = 'linuxVmIpConfiguration'
-param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
+param windowsNetworkInterfaceName string = 'windowsVmNetworkInterface'
+param windowsNetworkInterfaceIpConfigurationName string = 'windowsVmIpConfiguration'
+param windowsNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
+param windowsVmName string = 'windowsVm'
+param windowsVmSize string = 'Standard_DS1_v2'
+param windowsVmAdminUsername string = 'azureuser'
+@secure()
+@minLength(14)
+param windowsVmAdminPassword string = deployRemoteAccess ? '' : newGuid()
+param windowsVmPublisher string = 'MicrosoftWindowsServer'
+param windowsVmOffer string = 'WindowsServer'
+param windowsVmSku string = '2019-datacenter-gensecond'
+param windowsVmVersion string = 'latest'
+param windowsVmCreateOption string = 'FromImage'
+param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
 param tags object = {
   'resourcePrefix': resourcePrefix

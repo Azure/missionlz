@@ -137,7 +137,7 @@ The result will be a policy assignment created for each resource group deployed 
 
 ## Adding Remote Access via Bastion Host
 
-To deploy a virtual machine as a jumpbox into the network without a Public IP Address using Azure Bastion Host, provide two parameters `deployRemoteAccess=true` and `linuxVmAdminPasswordOrKey=<your password>` to the deployment. A quick and easy way to generate a secure password from the .devcontainer is the command `openssl rand -base64 14`.
+To deploy a virtual machine as a jumpbox into the network without a Public IP Address using Azure Bastion Host, provide two parameters `deployRemoteAccess=true` and `linuxVmAdminPasswordOrKey=<your password>` and `windowsVmAdminPassword=<your password>` to the deployment. A quick and easy way to generate a secure password from the .devcontainer is the command `openssl rand -base64 14`.
 
 ```plaintext
 my_password=$(openssl rand -base64 14)
@@ -147,5 +147,6 @@ az deployment sub create \
   --location "eastus" \
   --template-file "src/bicep/mlz.bicep" \
   --parameters deployRemoteAccess="true" \
-  --parameters linuxVmAdminPasswordOrKey="$my_password"
+  --parameters linuxVmAdminPasswordOrKey="$my_password" \
+  --parameters windowsVmAdminPassword="$my_password"
 ```
