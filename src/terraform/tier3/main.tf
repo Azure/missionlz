@@ -13,8 +13,8 @@ terraform {
 }
 
 provider "azurerm" {
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
+  environment     = var.environment
+  metadata_host   = var.metadata_host
   subscription_id = var.hub_subid
 
   features {
@@ -29,8 +29,8 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias           = "hub"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
+  environment     = var.environment
+  metadata_host   = var.metadata_host
   subscription_id = var.hub_subid
 
   features {
@@ -45,8 +45,8 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias           = "tier1"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
+  environment     = var.environment
+  metadata_host   = var.metadata_host
   subscription_id = var.tier1_subid
 
   features {
@@ -61,8 +61,8 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias           = "tier3"
-  environment     = var.tf_environment
-  metadata_host   = var.mlz_metadatahost
+  environment     = var.environment
+  metadata_host   = var.metadata_host
   subscription_id = var.tier3_subid
 
   features {
@@ -76,17 +76,25 @@ provider "azurerm" {
 }
 
 ################################
+### GLOBAL VARIABLES         ###
+################################
+
+locals {
+  deploymentname_default = "mlz-tier3-${formatdate("YYYYMMDD'T'hhmmssZ", timestamp())}"
+}
+
+################################
 ### STAGE 0: Scaffolding     ###
 ################################
 
 resource "azurerm_resource_group" "tier3" {
   provider = azurerm.tier3
 
-  location = var.mlz_location
+  location = var.location
   name     = var.tier3_rgname
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 
@@ -97,8 +105,8 @@ resource "azurerm_resource_group" "tier3" {
 data "azurerm_log_analytics_workspace" "laws" {
   provider = azurerm.tier1
 
-  name                = var.laws_name.value
-  resource_group_name = var.laws_rgname.value
+  name                = var.laws_name
+  resource_group_name = var.laws_rgname
 }
 
 ################################
@@ -110,7 +118,6 @@ data "azurerm_virtual_network" "hub" {
   resource_group_name = var.hub_rgname
 }
 
-
 module "spoke-network-t3" {
   providers  = { azurerm = azurerm.tier3 }
   depends_on = [azurerm_resource_group.tier3]
@@ -118,9 +125,9 @@ module "spoke-network-t3" {
 
   location = azurerm_resource_group.tier3.location
 
-  firewall_private_ip = var.firewall_private_ip.value
+  firewall_private_ip = var.firewall_private_ip
 
-  laws_location     = var.mlz_location
+  laws_location     = var.location
   laws_workspace_id = data.azurerm_log_analytics_workspace.laws.workspace_id
   laws_resource_id  = data.azurerm_log_analytics_workspace.laws.id
 
@@ -130,7 +137,7 @@ module "spoke-network-t3" {
   subnets                  = var.tier3_subnets
 
   tags = {
-    DeploymentName = var.deploymentname
+    DeploymentName = coalesce(var.deploymentname, local.deploymentname_default)
   }
 }
 

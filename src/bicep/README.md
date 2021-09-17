@@ -4,8 +4,8 @@
 
 If you want to develop with Bicep you'll need these:
 
-1. Install Azure CLI https://docs.microsoft.com/en-us/cli/azure/install-azure-cli#install
-1. Install Bicep https://github.com/Azure/bicep/blob/main/docs/installing.md#install-and-manage-via-azure-cli-easiest
+1. Install Azure CLI <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli#install>
+1. Install Bicep <https://github.com/Azure/bicep/blob/main/docs/installing.md#install-and-manage-via-azure-cli-easiest>
 
 However, you don't need Bicep to deploy the compiled `mlz.json` in this repository.
 
@@ -21,10 +21,12 @@ You can deploy with the Azure Portal, the Azure CLI, or with both in an Air-Gapp
 ### Azure Portal
 
 #### AzureCloud
-[![Deploy To Azure](docs/imgs/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fglennmusa%2Fmissionlz%2Fglennmusa%2Fbicep%2Fsrc%2Fbicep%2Fmlz.json)
+
+[![Deploy To Azure](../../docs/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazure%2Fmissionlz%2Fbicep%2Fsrc%2Fbicep%2Fmlz.json)
 
 #### AzureUSGovernment
-[![Deploy To Azure US Gov](docs/imgs/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fglennmusa%2Fmissionlz%2Fglennmusa%2Fbicep%2Fsrc%2Fbicep%2Fmlz.json)
+
+[![Deploy To Azure US Gov](../../docs/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazure%2Fmissionlz%2Fbicep%2Fsrc%2Fbicep%2Fmlz.json)
 
 ### Azure CLI
 
@@ -50,7 +52,13 @@ az deployment sub create \
     identitySubscriptionId=$identitySubscriptionId \
     operationsSubscriptionId=$operationsSubscriptionId \
     sharedServicesSubscriptionId=$sharedServicesSubscriptionId
+```
 
+#### Deploying to Other Clouds
+
+Supply a different deployment `--location` or override variables with the `--parameters` options:
+
+```plaintext
 # if I were deploying into AzureUSGovernment for example:
 az cloud set -n AzureUsGovernment
 az deployment sub create \
@@ -69,15 +77,15 @@ az deployment sub create \
 
 #### Manually upload and deploy from Portal
 
-1. Save `mlz.json` to disk: https://raw.githubusercontent.com/glennmusa/missionlz/glennmusa/bicep/src/bicep/mlz.json
-1. Create a deployment using the 'Custom Deployment' feature: https://portal.azure.com/#create/Microsoft.Template or https://portal.azure.us/#create/Microsoft.Template
+1. Save `mlz.json` to disk: <https://github.com/Azure/missionlz/blob/bicep/src/bicep/mlz.json>
+1. Create a deployment using the 'Custom Deployment' feature: <https://portal.azure.com/#create/Microsoft.Template> or <https://portal.azure.us/#create/Microsoft.Template>
 1. Click 'Build your own template in the editor'
 1. Click 'Load file'
 1. Select the 'mlz.json' file you saved
 1. Click 'Save'
 1. Click 'Review + Create'
 
-Check out this GIF in the docs to see a visual explanation: [docs/imgs/custom_template_deployment.gif](docs/imgs/custom_template_deployment.gif)
+Check out this GIF in the docs to see a visual explanation: [../../docs/images/custom_template_deployment.gif](../../docs/images/custom_template_deployment.gif)
 
 #### Deploy with Azure CLI
 

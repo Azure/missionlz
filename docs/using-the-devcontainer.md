@@ -1,27 +1,11 @@
-# Getting Started
+# Using the devcontainer
 
-## Concepts
-
-### Command Line Deployments
-
-You can deploy Mission LZ from your workstation using the command line. Some other configurations are possible, but these are the two simplest paths.
-
-The command-line deployments involve (1) defining configuration settings (we have examples and defaults to make this easier), and (2) running shell scripts that consolidate and wrap the Terraform commands. We strongly recommend using these scripts because they were designed to be usable, but you could also run the Terraform templates directly using the `terraform` command line tool.
-
-### Use the Development Container for Command Line Deployments
-
-If you are planning to deploy from your local workstation, we recommend using the VS Code development container specified in this repository. The container includes all the tools and pre-requisites, but you have to build and run the container. If you have Docker Desktop installed, then VS Code makes the rest of it easy. See the [README](../../.devcontainer/README.md) document in the `.devcontainer` folder for details.
-
-If you want to deploy from the command line on your workstation but do not want to use the development container, take a look at the [`Dockerfile`](../../.devcontainer/Dockerfile) and the [`devcontainer.json`](../../.devcontainer/Dockerfile) file for examples on how to configure your environment.
-
-## Pre-Requisites
+## Prerequisites
 
 * **Operating system:** Mac OS, Linux, or [Windows 10 with Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
   >*We developed this on Windows 10/WSL running Ubuntu 20.04*
 * **Docker:** Docker Desktop or Docker CE
   >*We use [Docker Desktop on Windows 10](https://docs.docker.com/docker-for-windows/install/), integrated with WSL*
-* Current version of the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
-* An Azure Subscription where you have ['Owner' RBAC permissions].
 
 All other tools and resources are in the development container. The simplest path is to deploy from one of these containers, but it is not required if you want to configure your own deployment environment.
 
@@ -46,27 +30,3 @@ All other tools and resources are in the development container. The simplest pat
      ```BASH
           git config --global credential.helper "/mnt/c/Program\ Files/Git/mingw64/libexec/git-core/git-credential-manager.exe"
      ```
-
-## Deployment paths
-
-* (*Optional*) For details and pre-requisites for the development container, see the [README](../../.devcontainer/README.md) document in the `.devcontainer` folder.
-
-## Next steps
-
-### 1. Deploy the Hub and Spoke
-
-With the environment pre-requisites out of the way, deploy the hub and spoke using the [Command Line Deployment](command-line-deployment.md) for step-by-step instructions:
-
-* [Command Line Deployment](command-line-deployment.md)
-
-### 2. Deploy Your Workloads
-
-Now that you have the core hub and spoke tiers deployed (tier 0, tier 1, tier 2), the next step is to deploy one or more workload tiers. Misson LZ supports multiple workload tiers. See [Workload Deployment](workload-deployment.md) for details and step-by-step instructions:
-
-* [Workload Deployment](workload-deployment.md)
-
-### 3. Manage Your Deployment
-
-Once you have a lab deployment of Mission Landing Zone established and have decided to move forward, you will want to start planning your production deployment. We recommend reviewing the following pages during your planning phase.
-
-* [Using Management Groups with Mission Landing Zone](management-groups.md)
