@@ -134,21 +134,21 @@ Once you're happy with the deployment output and want to modify Mission LZ or ju
 
 Here's the docs on `terraform destroy`: <https://www.terraform.io/docs/cli/commands/destroy.html>
 
-1. From the directoy in which you executed `terraform init` and `terraform apply` execute `terraform destroy`:
+1. From the directory in which you executed `terraform init` and `terraform apply` execute `terraform destroy`:
 
     ```bash
     terraform destroy
     ```
 
-1. You'll be prompted for a subscription ID. Supply the subscription ID you originally deployed with:
+1. You'll be prompted for a subscription ID. Supply the subscription ID you want to used previously:
 
-  ```bash
-    > terraform apply
+    ```plaintext
+    > terraform destroy
     var.hub_subid
     Subscription ID for the deployment
 
     Enter a value: 
-  ```
+    ```
 
 1. Terraform will then inspect the state of your Azure environment and compare it with what is described in Terraform state. Eventually, you'll be prompted for your approval to destroy resources. Supply `yes`:
 
@@ -327,7 +327,7 @@ variable "environment" {
 variable "metadata_host" {
   description = "The metadata host for the Azure Cloud e.g. management.azure.com"
   type        = string
-  default     = "management.azure.us"
+  default     = "management.usgovcloudapi.net"
 }
 
 variable "location" {
