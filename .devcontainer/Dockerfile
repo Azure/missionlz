@@ -6,15 +6,15 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Terraform, providers and tflint versions
-ARG TERRAFORM_VERSION=1.0.5
-ARG AZURERM_VERSION=2.73.0
+ARG TERRAFORM_VERSION=1.0.6
+ARG AZURERM_VERSION=2.76.0
 ARG RANDOM_VERSION=3.1.0
 ARG TIME_VERSION=0.7.2
-ARG TFLINT_VERSION=0.31.0
-ARG TFLINT_AZURERM=0.12.0
+ARG TFLINT_VERSION=0.32.1
+ARG TFLINT_AZURERM=0.13.1
 
 # Azure CLI version
-ARG AZURE_CLI_VERSION=2.27.2-1~focal
+ARG AZURE_CLI_VERSION=2.28.0-1~focal
 
 # Update distro (software-properties-common installs the add-apt-repository command)
 RUN apt-get update \
