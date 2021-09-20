@@ -2,7 +2,11 @@
 # Licensed under the MIT License.
 
 name: validate-terraform
-on: [pull_request, workflow_dispatch]
+on: 
+  pull_request:
+    paths: 
+    - '**.tf'
+  workflow_dispatch:
 jobs:
   validate-terraform:
     runs-on: ubuntu-latest
@@ -18,4 +22,9 @@ jobs:
     - shell: bash
       name: validate and lint terraform
       run: |
-        src/build/validate_tf.sh
+        src/build/validate_tf.sh src/terraform/mlz src/terraform/tier3
+    - shell: bash
+      name: check terraform formatting
+      run: |
+        src/build/check_tf_format.sh src/terraform
+

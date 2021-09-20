@@ -78,5 +78,5 @@ variable "tags" {
 variable "disable_snat_ip_range" {
   description = "The address space to be used to ensure that SNAT is disabled."
   default     = ["0.0.0.0/0"]
-  type        = list
+  type        = list(any)
 }
