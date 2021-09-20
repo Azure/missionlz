@@ -150,3 +150,25 @@ az deployment sub create \
   --parameters linuxVmAdminPasswordOrKey="$my_password" \
   --parameters windowsVmAdminPassword="$my_password"
 ```
+
+### Using an SSH Key with Remote Access via Bastion Host
+
+If you have a key pair you'd like to use for SSH connections to the Linux virtual machine that is deployed with `deployRemoteAccess=true`, specify the `linuxVmAuthenticationType` parameter to `sshPublicKey` like so:
+
+```plaintext
+my_sshkey=$(cat ~/.ssh/id_rsa.pub) # or, however you source your public key
+my_password=$(openssl rand -base64 14)
+
+az deployment sub create \
+  --name "myRemoteAccessDeployment" \
+  --location "eastus" \
+  --template-file "src/bicep/mlz.bicep" \
+  --parameters deployRemoteAccess="true" \
+  --parameters linuxVmAuthenticationType="sshPublicKey" \
+  --parameters linuxVmAdminPasswordOrKey="$my_sshkey" \
+  --parameters windowsVmAdminPassword="$my_password"
+```
+
+For more information on generating a public/private key pair see <https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-ssh-keys-detailed#generate-keys-with-ssh-keygen>.
+
+Then, once you've deployed the virtual machine and Bastion Host, use these docs to connect: <https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-ssh#privatekey>
