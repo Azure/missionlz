@@ -5,7 +5,7 @@ name: validate-terraform
 on: 
   pull_request:
     paths: 
-    - '**.tf'
+    - 'src/terraform'
   workflow_dispatch:
 jobs:
   validate-terraform:
