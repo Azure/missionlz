@@ -59,6 +59,11 @@ variable "create_assignment" {
   default     = false
 }
 
+variable "deploymenttype" {
+  description = "Metadata corresponding with the deployment method."
+  type        = string
+  default     = "MissionLandingZoneTF"
+}
 #################################
 # Hub Configuration
 #################################

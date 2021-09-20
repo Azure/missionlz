@@ -138,20 +138,20 @@ resource "azurerm_resource_group" "hub" {
 
   location = var.mlz_location
   name     = var.hub_rgname
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
-}
+} 
 
 resource "azurerm_resource_group" "tier0" {
   provider = azurerm.tier0
 
   location = var.mlz_location
   name     = var.tier0_rgname
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
 }
 
@@ -160,9 +160,9 @@ resource "azurerm_resource_group" "tier1" {
 
   location = var.mlz_location
   name     = var.tier1_rgname
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
 }
 
@@ -171,9 +171,9 @@ resource "azurerm_resource_group" "tier2" {
 
   location = var.mlz_location
   name     = var.tier2_rgname
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
 }
 
@@ -198,9 +198,9 @@ resource "azurerm_log_analytics_workspace" "laws" {
   location            = var.mlz_location
   sku                 = "PerGB2018"
   retention_in_days   = "30"
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
 }
 
@@ -218,9 +218,9 @@ resource "azurerm_log_analytics_solution" "laws_sentinel" {
     publisher = "Microsoft"
     product   = "OMSGallery/SecurityInsights"
   }
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
 }
 
@@ -241,9 +241,9 @@ module "hub-network" {
   management_address_space = var.hub_management_address_space
 
   log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
 }
 
@@ -272,9 +272,9 @@ module "firewall" {
   management_publicip_name = var.management_publicip_name
 
   log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
 }
 
@@ -295,9 +295,9 @@ module "spoke-network-t0" {
   spoke_vnetname           = var.tier0_vnetname
   spoke_vnet_address_space = var.tier0_vnet_address_space
   subnets                  = var.tier0_subnets
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
 }
 
@@ -342,9 +342,9 @@ module "spoke-network-t1" {
   spoke_vnetname           = var.tier1_vnetname
   spoke_vnet_address_space = var.tier1_vnet_address_space
   subnets                  = var.tier1_subnets
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
 }
 
@@ -389,9 +389,9 @@ module "spoke-network-t2" {
   spoke_vnetname           = var.tier2_vnetname
   spoke_vnet_address_space = var.tier2_vnet_address_space
   subnets                  = var.tier2_subnets
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
 }
 
@@ -454,9 +454,9 @@ module "jumpbox-subnet" {
   log_analytics_workspace_id          = azurerm_log_analytics_workspace.laws.workspace_id
   log_analytics_workspace_location    = var.mlz_location
   log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
 }
 
@@ -473,9 +473,9 @@ module "bastion-host" {
   subnet_address_prefix = var.bastion_address_space
   public_ip_name        = var.bastion_public_ip_name
   ipconfig_name         = var.bastion_ipconfig_name
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
 }
 
@@ -508,9 +508,9 @@ module "jumpbox" {
   linux_offer         = var.jumpbox_linux_vm_offer
   linux_sku           = var.jumpbox_linux_vm_sku
   linux_image_version = var.jumpbox_linux_vm_version
-
-  tags = {
-    DeploymentName = var.deploymentname
+ tags = {
+    DeploymentName = var.deploymentname,
+    DeploymentType = var.deploymenttype
   }
 }
 
