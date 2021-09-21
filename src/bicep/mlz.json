@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "11713630127386255235"
+      "templateHash": "10197699490604004243"
     }
   },
   "parameters": {
@@ -4475,7 +4475,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "[format('assign-policy-{0}', parameters('hubResourceGroupName'))]",
+      "name": "[format('assign-policy-hub-{0}', parameters('nowUtc'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "resourceGroup": "[parameters('hubResourceGroupName')]",
       "properties": {
@@ -4553,7 +4553,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "[format('assign-policy-{0}', parameters('operationsResourceGroupName'))]",
+      "name": "[format('assign-policy-operations-{0}', parameters('nowUtc'))]",
       "subscriptionId": "[parameters('operationsSubscriptionId')]",
       "resourceGroup": "[parameters('operationsResourceGroupName')]",
       "properties": {
@@ -4631,7 +4631,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "[format('assign-policy-{0}', parameters('sharedServicesResourceGroupName'))]",
+      "name": "[format('assign-policy-sharedServices-{0}', parameters('nowUtc'))]",
       "subscriptionId": "[parameters('sharedServicesSubscriptionId')]",
       "resourceGroup": "[parameters('sharedServicesResourceGroupName')]",
       "properties": {
@@ -4709,7 +4709,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "[format('assign-policy-{0}', parameters('identityResourceGroupName'))]",
+      "name": "[format('assign-policy-identity-{0}', parameters('nowUtc'))]",
       "subscriptionId": "[parameters('identitySubscriptionId')]",
       "resourceGroup": "[parameters('identityResourceGroupName')]",
       "properties": {
@@ -4787,7 +4787,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "deploy-hub-sub-activity-logging",
+      "name": "[format('activity-logs-hub-{0}', parameters('nowUtc'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
@@ -4876,7 +4876,7 @@
       "condition": "[not(equals(parameters('hubSubscriptionId'), parameters('operationsSubscriptionId')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "deploy-operations-sub-activity-logging",
+      "name": "[format('activity-logs-operations-{0}', parameters('nowUtc'))]",
       "subscriptionId": "[parameters('operationsSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
@@ -4965,7 +4965,7 @@
       "condition": "[not(equals(parameters('hubSubscriptionId'), parameters('identitySubscriptionId')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "deploy-identity-sub-activity-logging",
+      "name": "[format('activity-logs-identity-{0}', parameters('nowUtc'))]",
       "subscriptionId": "[parameters('identitySubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
@@ -5054,7 +5054,7 @@
       "condition": "[not(equals(parameters('hubSubscriptionId'), parameters('sharedServicesSubscriptionId')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "deploy-sharedServices-sub-activity-logging",
+      "name": "[format('activity-logs-sharedServices-{0}', parameters('nowUtc'))]",
       "subscriptionId": "[parameters('sharedServicesSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
