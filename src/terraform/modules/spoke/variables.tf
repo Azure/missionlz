@@ -3,30 +3,37 @@
 
 variable "location" {
   description = "The region for spoke network deployment"
+  type        = string
 }
 
 variable "laws_location" {
   description = "Log Analytics Workspace location"
+  type        = string
 }
 
 variable "laws_workspace_id" {
   description = "Log Analytics Workspace workspace ID"
+  type        = string
 }
 
 variable "laws_resource_id" {
   description = "Log Analytics Workspace Azure Resource ID"
+  type        = string
 }
 
 variable "firewall_private_ip" {
   description = "Private IP of the Firewall"
+  type        = string
 }
 
 variable "spoke_rgname" {
   description = "Resource Group for the spoke network deployment"
+  type        = string
 }
 
 variable "spoke_vnetname" {
   description = "Virtual Network Name for the spoke network deployment"
+  type        = string
 }
 
 #################################
@@ -65,5 +72,6 @@ variable "subnets" {
 }
 
 variable "tags" {
-  type = map(string)
+  description = "A map of tags to add to all resources"
+  type        = map(string)
 }
