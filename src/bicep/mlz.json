@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "3895776258968515169"
+      "templateHash": "11713630127386255235"
     }
   },
   "parameters": {
@@ -386,6 +386,18 @@
       "type": "string",
       "defaultValue": "bastionHostIPConfiguration"
     },
+    "linuxNetworkInterfaceName": {
+      "type": "string",
+      "defaultValue": "linuxVmNetworkInterface"
+    },
+    "linuxNetworkInterfaceIpConfigurationName": {
+      "type": "string",
+      "defaultValue": "linuxVmIpConfiguration"
+    },
+    "linuxNetworkInterfacePrivateIPAddressAllocationMethod": {
+      "type": "string",
+      "defaultValue": "Dynamic"
+    },
     "linuxVmName": {
       "type": "string",
       "defaultValue": "linuxVirtualMachine"
@@ -435,17 +447,58 @@
       "defaultValue": "[if(parameters('deployRemoteAccess'), '', newGuid())]",
       "minLength": 14
     },
-    "linuxVmNetworkInterfaceName": {
+    "windowsNetworkInterfaceName": {
       "type": "string",
-      "defaultValue": "linuxVmNetworkInterface"
+      "defaultValue": "windowsVmNetworkInterface"
     },
-    "linuxNetworkInterfaceIpConfigurationName": {
+    "windowsNetworkInterfaceIpConfigurationName": {
       "type": "string",
-      "defaultValue": "linuxVmIpConfiguration"
+      "defaultValue": "windowsVmIpConfiguration"
     },
-    "linuxNetworkInterfacePrivateIPAddressAllocationMethod": {
+    "windowsNetworkInterfacePrivateIPAddressAllocationMethod": {
       "type": "string",
       "defaultValue": "Dynamic"
+    },
+    "windowsVmName": {
+      "type": "string",
+      "defaultValue": "windowsVm"
+    },
+    "windowsVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS1_v2"
+    },
+    "windowsVmAdminUsername": {
+      "type": "string",
+      "defaultValue": "azureuser"
+    },
+    "windowsVmAdminPassword": {
+      "type": "secureString",
+      "defaultValue": "[if(parameters('deployRemoteAccess'), '', newGuid())]",
+      "minLength": 14
+    },
+    "windowsVmPublisher": {
+      "type": "string",
+      "defaultValue": "MicrosoftWindowsServer"
+    },
+    "windowsVmOffer": {
+      "type": "string",
+      "defaultValue": "WindowsServer"
+    },
+    "windowsVmSku": {
+      "type": "string",
+      "defaultValue": "2019-datacenter-gensecond"
+    },
+    "windowsVmVersion": {
+      "type": "string",
+      "defaultValue": "latest"
+    },
+    "windowsVmCreateOption": {
+      "type": "string",
+      "defaultValue": "FromImage"
+    },
+    "windowsVmStorageAccountType": {
+      "type": "string",
+      "defaultValue": "StandardSSD_LRS"
     },
     "tags": {
       "type": "object",
@@ -5132,6 +5185,9 @@
           "bastionHostIPConfigurationName": {
             "value": "[parameters('bastionHostIPConfigurationName')]"
           },
+          "linuxNetworkInterfaceName": {
+            "value": "[parameters('linuxNetworkInterfaceName')]"
+          },
           "linuxNetworkInterfaceIpConfigurationName": {
             "value": "[parameters('linuxNetworkInterfaceIpConfigurationName')]"
           },
@@ -5171,8 +5227,44 @@
           "linuxVmAdminPasswordOrKey": {
             "value": "[parameters('linuxVmAdminPasswordOrKey')]"
           },
-          "linuxVmNetworkInterfaceName": {
-            "value": "[parameters('linuxVmNetworkInterfaceName')]"
+          "windowsNetworkInterfaceName": {
+            "value": "[parameters('windowsNetworkInterfaceName')]"
+          },
+          "windowsNetworkInterfaceIpConfigurationName": {
+            "value": "[parameters('windowsNetworkInterfaceIpConfigurationName')]"
+          },
+          "windowsNetworkInterfacePrivateIPAddressAllocationMethod": {
+            "value": "[parameters('windowsNetworkInterfacePrivateIPAddressAllocationMethod')]"
+          },
+          "windowsVmName": {
+            "value": "[parameters('windowsVmName')]"
+          },
+          "windowsVmSize": {
+            "value": "[parameters('windowsVmSize')]"
+          },
+          "windowsVmAdminUsername": {
+            "value": "[parameters('windowsVmAdminUsername')]"
+          },
+          "windowsVmAdminPassword": {
+            "value": "[parameters('windowsVmAdminPassword')]"
+          },
+          "windowsVmPublisher": {
+            "value": "[parameters('windowsVmPublisher')]"
+          },
+          "windowsVmOffer": {
+            "value": "[parameters('windowsVmOffer')]"
+          },
+          "windowsVmSku": {
+            "value": "[parameters('windowsVmSku')]"
+          },
+          "windowsVmVersion": {
+            "value": "[parameters('windowsVmVersion')]"
+          },
+          "windowsVmCreateOption": {
+            "value": "[parameters('windowsVmCreateOption')]"
+          },
+          "windowsVmStorageAccountType": {
+            "value": "[parameters('windowsVmStorageAccountType')]"
           }
         },
         "template": {
@@ -5182,7 +5274,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "15146003623826486692"
+              "templateHash": "9206703012100649755"
             }
           },
           "parameters": {
@@ -5223,6 +5315,15 @@
             "bastionHostIPConfigurationName": {
               "type": "string"
             },
+            "linuxNetworkInterfaceName": {
+              "type": "string"
+            },
+            "linuxNetworkInterfaceIpConfigurationName": {
+              "type": "string"
+            },
+            "linuxNetworkInterfacePrivateIPAddressAllocationMethod": {
+              "type": "string"
+            },
             "linuxVmName": {
               "type": "string"
             },
@@ -5258,15 +5359,47 @@
               ]
             },
             "linuxVmAdminPasswordOrKey": {
-              "type": "secureString"
+              "type": "secureString",
+              "minLength": 14
             },
-            "linuxVmNetworkInterfaceName": {
+            "windowsNetworkInterfaceName": {
               "type": "string"
             },
-            "linuxNetworkInterfaceIpConfigurationName": {
+            "windowsNetworkInterfaceIpConfigurationName": {
               "type": "string"
             },
-            "linuxNetworkInterfacePrivateIPAddressAllocationMethod": {
+            "windowsNetworkInterfacePrivateIPAddressAllocationMethod": {
+              "type": "string"
+            },
+            "windowsVmName": {
+              "type": "string"
+            },
+            "windowsVmSize": {
+              "type": "string"
+            },
+            "windowsVmAdminUsername": {
+              "type": "string"
+            },
+            "windowsVmAdminPassword": {
+              "type": "secureString",
+              "minLength": 14
+            },
+            "windowsVmPublisher": {
+              "type": "string"
+            },
+            "windowsVmOffer": {
+              "type": "string"
+            },
+            "windowsVmSku": {
+              "type": "string"
+            },
+            "windowsVmVersion": {
+              "type": "string"
+            },
+            "windowsVmCreateOption": {
+              "type": "string"
+            },
+            "windowsVmStorageAccountType": {
               "type": "string"
             }
           },
@@ -5424,7 +5557,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "name": {
-                    "value": "[parameters('linuxVmNetworkInterfaceName')]"
+                    "value": "[parameters('linuxNetworkInterfaceName')]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -5578,7 +5711,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.613.9944",
-                      "templateHash": "16223346466626986050"
+                      "templateHash": "9484732926763055555"
                     }
                   },
                   "parameters": {
@@ -5627,7 +5760,8 @@
                       ]
                     },
                     "adminPasswordOrKey": {
-                      "type": "secureString"
+                      "type": "secureString",
+                      "minLength": 14
                     }
                   },
                   "functions": [],
@@ -5699,6 +5833,261 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'remoteAccess-linuxNetworkInterface')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "remoteAccess-windowsNetworkInterface",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "name": {
+                    "value": "[parameters('windowsNetworkInterfaceName')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "ipConfigurationName": {
+                    "value": "[parameters('windowsNetworkInterfaceIpConfigurationName')]"
+                  },
+                  "networkSecurityGroupId": {
+                    "value": "[parameters('hubNetworkSecurityGroupResourceId')]"
+                  },
+                  "privateIPAddressAllocationMethod": {
+                    "value": "[parameters('windowsNetworkInterfacePrivateIPAddressAllocationMethod')]"
+                  },
+                  "subnetId": {
+                    "value": "[parameters('hubSubnetResourceId')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.613.9944",
+                      "templateHash": "14459425343428091407"
+                    }
+                  },
+                  "parameters": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "ipConfigurationName": {
+                      "type": "string"
+                    },
+                    "subnetId": {
+                      "type": "string"
+                    },
+                    "networkSecurityGroupId": {
+                      "type": "string"
+                    },
+                    "privateIPAddressAllocationMethod": {
+                      "type": "string"
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/networkInterfaces",
+                      "apiVersion": "2021-02-01",
+                      "name": "[parameters('name')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "ipConfigurations": [
+                          {
+                            "name": "[parameters('ipConfigurationName')]",
+                            "properties": {
+                              "subnet": {
+                                "id": "[parameters('subnetId')]"
+                              },
+                              "privateIPAllocationMethod": "[parameters('privateIPAddressAllocationMethod')]"
+                            }
+                          }
+                        ],
+                        "networkSecurityGroup": {
+                          "id": "[parameters('networkSecurityGroupId')]"
+                        }
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('name'))]"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "[parameters('name')]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "remoteAccess-windowsVirtualMachine",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "name": {
+                    "value": "[parameters('windowsVmName')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "size": {
+                    "value": "[parameters('windowsVmSize')]"
+                  },
+                  "adminUsername": {
+                    "value": "[parameters('windowsVmAdminUsername')]"
+                  },
+                  "adminPassword": {
+                    "value": "[parameters('windowsVmAdminPassword')]"
+                  },
+                  "publisher": {
+                    "value": "[parameters('windowsVmPublisher')]"
+                  },
+                  "offer": {
+                    "value": "[parameters('windowsVmOffer')]"
+                  },
+                  "sku": {
+                    "value": "[parameters('windowsVmSku')]"
+                  },
+                  "version": {
+                    "value": "[parameters('windowsVmVersion')]"
+                  },
+                  "createOption": {
+                    "value": "[parameters('windowsVmCreateOption')]"
+                  },
+                  "storageAccountType": {
+                    "value": "[parameters('windowsVmStorageAccountType')]"
+                  },
+                  "networkInterfaceName": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-windowsNetworkInterface'), '2019-10-01').outputs.name.value]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.613.9944",
+                      "templateHash": "13028397952765670280"
+                    }
+                  },
+                  "parameters": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "networkInterfaceName": {
+                      "type": "string"
+                    },
+                    "size": {
+                      "type": "string"
+                    },
+                    "adminUsername": {
+                      "type": "string"
+                    },
+                    "adminPassword": {
+                      "type": "secureString",
+                      "minLength": 14
+                    },
+                    "publisher": {
+                      "type": "string"
+                    },
+                    "offer": {
+                      "type": "string"
+                    },
+                    "sku": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
+                    "createOption": {
+                      "type": "string"
+                    },
+                    "storageAccountType": {
+                      "type": "string"
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Compute/virtualMachines",
+                      "apiVersion": "2021-04-01",
+                      "name": "[parameters('name')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "hardwareProfile": {
+                          "vmSize": "[parameters('size')]"
+                        },
+                        "osProfile": {
+                          "computerName": "[take(parameters('name'), 15)]",
+                          "adminUsername": "[parameters('adminUsername')]",
+                          "adminPassword": "[parameters('adminPassword')]"
+                        },
+                        "storageProfile": {
+                          "imageReference": {
+                            "publisher": "[parameters('publisher')]",
+                            "offer": "[parameters('offer')]",
+                            "sku": "[parameters('sku')]",
+                            "version": "[parameters('version')]"
+                          },
+                          "osDisk": {
+                            "createOption": "[parameters('createOption')]",
+                            "managedDisk": {
+                              "storageAccountType": "[parameters('storageAccountType')]"
+                            }
+                          }
+                        },
+                        "networkProfile": {
+                          "networkInterfaces": [
+                            {
+                              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'remoteAccess-windowsNetworkInterface')]"
               ]
             }
           ]

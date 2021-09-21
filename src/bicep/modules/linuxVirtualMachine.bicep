@@ -11,7 +11,6 @@ param vmImagePublisher string
 param vmImageOffer string
 param vmImageSku string
 param vmImageVersion string
-
 param adminUsername string
 @allowed([
   'sshPublicKey'
@@ -19,6 +18,7 @@ param adminUsername string
 ])
 param authenticationType string
 @secure()
+@minLength(14)
 param adminPasswordOrKey string
 
 var linuxConfiguration = {
