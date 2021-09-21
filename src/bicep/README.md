@@ -1,24 +1,15 @@
 # MLZ Bicep
 
-## Development Pre-requisites
-
-If you want to develop with Bicep you'll need these:
-
-1. Install Azure CLI <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli#install>
-1. Install Bicep <https://github.com/Azure/bicep/blob/main/docs/installing.md#install-and-manage-via-azure-cli-easiest>
-
-However, you don't need to develop with Bicep to deploy the compiled `mlz.json` in this repository.
-
 ## Deployment
 
 ### Deployment Pre-requisites
 
-You can deploy with the Azure Portal, the Azure CLI, or with both in an Air-Gapped Cloud. But first, you'll need these pre-requisites:
+You can deploy with the Azure Portal, the Azure CLI, or with both in a Azure Commercial, Azure for Government, or Air-Gapped Clouds. But first, you'll need these pre-requisites:
 
-1. An Azure Subscription
-1. Contributor RBAC permissions to that subscription
+1. At least one Azure Subscription
+1. At least [Contributor RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#all) to that subscription
 
-Looking to deploy into another cloud than `AzureCloud` like say `AzureUsGovernment`? See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
+Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`? See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
 
 Want to add Azure Policies to this deployment? See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
 
@@ -26,22 +17,27 @@ Want to remotely access the network without exposing it via Public IP Addresses?
 
 ### Azure CLI
 
-Use `az deployment sub` to deploy MLZ across 1:M subscriptions (and `az deployment sub create --help` for more information):
+Use `az deployment sub` to deploy MLZ across 1:M subscriptions (and `az deployment sub create --help` for more information).
+
+#### Single subscription deployment
+
+This is the minimum command necessary to deploy Mission LZ (replacing `mlz.bicep` with `mlz.json` if I'm disconnected from the internet or do not have an installation of [Bicep](https://aka.ms/bicep) available):
 
 ```plaintext
-# az bicep install
-
-# the minimum needed to deploy (deployment will occur in your default subscription):
 az deployment sub create \
   --location eastus \
-  --name test \
   --template-file ./mlz.bicep
+```
 
-# to deploy into multiple subscriptions specify the `--parameters` flag and pass `key=value` arguments:
+#### Multiple subscription deployment
+
+I can deploy into multiple subscriptions by specifying the `--parameters` flag and passing `key=value` arguments:
+
+```plaintext
 az deployment sub create \
   --subscription $deploymentSubscription \
   --location eastus \
-  --name multisubtest \
+  --name multiSubscriptionTest \
   --template-file ./mlz.bicep \
   --parameters \
     hubSubscriptionId=$hubSubscriptionId \
@@ -49,27 +45,35 @@ az deployment sub create \
     operationsSubscriptionId=$operationsSubscriptionId \
     sharedServicesSubscriptionId=$sharedServicesSubscriptionId
 ```
+
+When deploying to multiple subscriptions, you must have at least [Contributor RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#all) to those subscriptions.
 
 #### Deploying to Other Clouds
 
-Supply a different deployment `--location` or override variables with the `--parameters` options:
+If I'm deploying to another cloud, say Azure Government, I will first login to that cloud...
+
+Logging into `AzureUsGovernment`:
 
 ```plaintext
-# if I were deploying into AzureUSGovernment for example:
 az cloud set -n AzureUsGovernment
-az deployment sub create \
-  --subscription $deploymentSubscription \
-  --location usgovvirginia \
-  --name multisubtest \
-  --template-file ./mlz.bicep \
-  --parameters \
-    hubSubscriptionId=$hubSubscriptionId \
-    identitySubscriptionId=$identitySubscriptionId \
-    operationsSubscriptionId=$operationsSubscriptionId \
-    sharedServicesSubscriptionId=$sharedServicesSubscriptionId
+az login
 ```
 
+...and supply a different value for the deployment `--location` argument:
+
+```plaintext
+az deployment sub create \
+  --location usgovvirginia \
+  --template-file ./mlz.bicep
+```
+
+And if I need to deploy into multiple subscriptions, I would pass the relevant subscription IDs as `parameters` as described in [Multiple subscription deployment](#Multiple-subscription-deployment).
+
 ### Azure Portal
+
+You can also deploy Mission LZ from the Azure Portal. The compiled JSON ARM template of `mlz.bicep` can be executed from the Custom Deployment feature.
+
+There is work in progress to provide a more elegant user-interface, but today, with the compiled output of `mlz.bicep`, you can set the deployment subscription and a deployment region and click 'Create' to start deployment.
 
 #### AzureCloud
 
@@ -81,9 +85,9 @@ az deployment sub create \
 
 ### Air-Gapped Clouds
 
-#### Manually upload and deploy from Portal
+#### Air-Gapped Clouds Deployment from the Azure Portal
 
-1. Save `mlz.json` to disk: <https://github.com/Azure/missionlz/blob/bicep/src/bicep/mlz.json>
+1. Save `mlz.json` to disk: <https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/mlz.json>
 1. Create a deployment using the 'Custom Deployment' feature: <https://portal.azure.com/#create/Microsoft.Template> or <https://portal.azure.us/#create/Microsoft.Template>
 1. Click 'Build your own template in the editor'
 1. Click 'Load file'
@@ -93,18 +97,16 @@ az deployment sub create \
 
 Check out this GIF in the docs to see a visual explanation: [../../docs/images/custom_template_deployment.gif](../../docs/images/custom_template_deployment.gif)
 
-#### Deploy with Azure CLI
+#### Air-Gapped Clouds Deployment with Azure CLI
 
-If I were in an environment that didn't have a bicep installation available (like an air-gapped cloud), I could always deploy the `az bicep build` generated ARM template `mlz.json`:
+If I were in an offline environment that didn't have a Bicep installation available (like an air-gapped cloud), I could always deploy the `az bicep build` output ARM template **`mlz.json`**:
 
 ```plaintext
-az bicep build -f ./mlz.bicep --outfile mlz.json
-
-az cloud set -n AzureUsGovernment
+az cloud set -n <my cloud name>
 
 az deployment sub create \
   --subscription $deploymentSubscription \
-  --location usgovvirginia \
+  --location <my location> \
   --name multisubtest \
   --template-file ./mlz.json \
   --parameters \
@@ -182,3 +184,12 @@ az deployment sub create \
 For more information on generating a public/private key pair see <https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-ssh-keys-detailed#generate-keys-with-ssh-keygen>.
 
 Then, once you've deployed the virtual machines and Bastion Host, use these docs to connect with an SSH Key: <https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-ssh#privatekey>
+
+## Development Pre-requisites
+
+If you want to develop with Bicep you'll need these:
+
+1. Install Azure CLI <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli#install>
+1. Install Bicep <https://github.com/Azure/bicep/blob/main/docs/installing.md#install-and-manage-via-azure-cli-easiest>
+
+However, you don't need to develop with Bicep to deploy the compiled `mlz.json` in this repository.
