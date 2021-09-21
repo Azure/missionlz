@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+
 # Terraform artifacts
 *.tfvars
 *.terraform
@@ -9,48 +10,13 @@ terraform-provider-azurerm_v*
 terraform-provider-random_v*
 *.terraform.lock.hcl
 
-# Setup config variables file
-mlz.config
-saca-hub.tfvars.json
-tier-0.tfvars.json
-tier-1.tfvars.json
-tier-2.tfvars.json
-globals.tfvars.json
-*.tfvars.json
-!*.orig.tfvars.json
+# Terraform logs
+crash.log
 
-# Bash artifacts
-*.vars
+# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
+# example: *tfplan*
+*plan*
+*.plan*
 
 # Mac files
 .DS_Store
-
-# .NET Core
-project.lock.json
-project.fragment.lock.json
-artifacts/
-**/Properties/launchSettings.json
-
-# NuGet Packages
-*.nupkg
-# The packages folder can be ignored because of Package Restore
-**/[Pp]ackages/*
-# except build/, which is used as an MSBuild target.
-!**/[Pp]ackages/build/
-# Uncomment if necessary however generally it will be regenerated when needed
-#!**/[Pp]ackages/repositories.config
-# NuGet v3's project.json files produces more ignorable files
-*.nuget.props
-*.nuget.targets
-
-# Python Tools for Visual Studio (PTVS)
-__pycache__/
-*.pyc
-**/.idea/
-**/config_output/
-**/exec_output
-
-# ignore generated output
-**/generated-configurations/*
-mlz.zip
-mlz.tar

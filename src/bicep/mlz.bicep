@@ -255,7 +255,7 @@ module sharedServicesVirtualNetworkPeering './modules/spokeNetworkPeering.bicep'
 //// policy
 
 module hubPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'assign-policy-${hubResourceGroupName}'
+  name: 'assign-policy-hub-${nowUtc}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     builtInAssignment: policy
@@ -266,7 +266,7 @@ module hubPolicyAssignment './modules/policyAssignment.bicep' = {
 }
 
 module operationsPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'assign-policy-${operationsResourceGroupName}'
+  name: 'assign-policy-operations-${nowUtc}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
     builtInAssignment: policy
@@ -277,7 +277,7 @@ module operationsPolicyAssignment './modules/policyAssignment.bicep' = {
 }
 
 module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'assign-policy-${sharedServicesResourceGroupName}'
+  name: 'assign-policy-sharedServices-${nowUtc}'
   scope: resourceGroup(sharedServicesSubscriptionId, sharedServicesResourceGroupName)
   params: {
     builtInAssignment: policy
@@ -288,7 +288,7 @@ module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = {
 }
 
 module identityPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'assign-policy-${identityResourceGroupName}'
+  name: 'assign-policy-identity-${nowUtc}'
   scope: resourceGroup(identitySubscriptionId, identityResourceGroupName)
   params: {
     builtInAssignment: policy
@@ -299,7 +299,7 @@ module identityPolicyAssignment './modules/policyAssignment.bicep' = {
 }
 
 module hubSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = {
-  name: 'deploy-hub-sub-activity-logging'
+  name: 'activity-logs-hub-${nowUtc}'
   scope: subscription(hubSubscriptionId)
   params: {
     diagnosticSettingName: 'log-hub-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
@@ -308,7 +308,7 @@ module hubSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = {
 }
 
 module operationsSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != operationsSubscriptionId) {
-  name: 'deploy-operations-sub-activity-logging'
+  name: 'activity-logs-operations-${nowUtc}'
   scope: subscription(operationsSubscriptionId)
   params: {
     diagnosticSettingName: 'log-operations-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
@@ -317,7 +317,7 @@ module operationsSubscriptionCreateActivityLogging './modules/centralLogging.bic
 }
 
 module identitySubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != identitySubscriptionId) {
-  name: 'deploy-identity-sub-activity-logging'
+  name: 'activity-logs-identity-${nowUtc}'
   scope: subscription(identitySubscriptionId)
   params: {
     diagnosticSettingName: 'log-identity-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
@@ -326,7 +326,7 @@ module identitySubscriptionCreateActivityLogging './modules/centralLogging.bicep
 }
 
 module sharedServicesSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = if(hubSubscriptionId != sharedServicesSubscriptionId) {
-  name: 'deploy-sharedServices-sub-activity-logging'
+  name: 'activity-logs-sharedServices-${nowUtc}'
   scope: subscription(sharedServicesSubscriptionId)
   params: {
     diagnosticSettingName: 'log-sharedServices-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'

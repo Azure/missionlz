@@ -26,21 +26,26 @@ output "virtual_network_id" {
 }
 
 output "firewall_client_subnet_name" {
-  value = azurerm_subnet.fw_client.name
+  description = "Firewall client subnet name."
+  value       = azurerm_subnet.fw_client.name
 }
 
 output "firewall_management_subnet_name" {
-  value = azurerm_subnet.fw_mgmt.name
+  description = "Firewall management subnet name."
+  value       = azurerm_subnet.fw_mgmt.name
 }
 
 output "firewall_client_subnet_id" {
-  value = azurerm_subnet.fw_client.id
+  description = "Firewall client subnet ID."
+  value       = azurerm_subnet.fw_client.id
 }
 
 output "firewall_mgmt_subnet_id" {
-  value = azurerm_subnet.fw_mgmt.id
+  description = "Firewall management subnet ID."
+  value       = azurerm_subnet.fw_mgmt.id
 }
 
 output "log_analytics_storage_id" {
-  value = module.hub-network.log_analytics_storage_id
+  description = "Log Analytics Storage ID."
+  value       = module.hub-network.log_analytics_storage_id
 }
