@@ -34,7 +34,7 @@ variable "deploymentname" {
 #################################
 
 variable "hub_subid" {
-  description = "Subscription ID for the deployment"
+  description = "Subscription ID for the Hub deployment"
   type        = string
 }
 
@@ -285,6 +285,16 @@ variable "jumpbox_linux_vm_version" {
   description = "The version of the Linux jumpbox virtual machine source image"
   type        = string
   default     = "latest"
+}
+
+################################
+# Policy Configuration
+################################
+
+variable "create_policy_assignment" {
+  description = "Assign Policy to deployed resources?"
+  type        = bool
+  default     = true
 }
 
 #################################

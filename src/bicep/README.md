@@ -7,7 +7,7 @@ If you want to develop with Bicep you'll need these:
 1. Install Azure CLI <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli#install>
 1. Install Bicep <https://github.com/Azure/bicep/blob/main/docs/installing.md#install-and-manage-via-azure-cli-easiest>
 
-However, you don't need Bicep to deploy the compiled `mlz.json` in this repository.
+However, you don't need to develop with Bicep to deploy the compiled `mlz.json` in this repository.
 
 ## Deployment
 
@@ -18,15 +18,11 @@ You can deploy with the Azure Portal, the Azure CLI, or with both in an Air-Gapp
 1. An Azure Subscription
 1. Contributor RBAC permissions to that subscription
 
-### Azure Portal
+Looking to deploy into another cloud than `AzureCloud` like say `AzureUsGovernment`? See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
 
-#### AzureCloud
+Want to add Azure Policies to this deployment? See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
 
-[![Deploy To Azure](../../docs/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazure%2Fmissionlz%2Fbicep%2Fsrc%2Fbicep%2Fmlz.json)
-
-#### AzureUSGovernment
-
-[![Deploy To Azure US Gov](../../docs/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazure%2Fmissionlz%2Fbicep%2Fsrc%2Fbicep%2Fmlz.json)
+Want to remotely access the network without exposing it via Public IP Addresses? See [Adding Remote Access via Bastion Host](#Adding-Remote-Access-via-Bastion-Host) to add virtual machines inside the network that you can access from an authenticated session in the Azure Portal with Azure Bastion.
 
 ### Azure CLI
 
@@ -72,6 +68,16 @@ az deployment sub create \
     operationsSubscriptionId=$operationsSubscriptionId \
     sharedServicesSubscriptionId=$sharedServicesSubscriptionId
 ```
+
+### Azure Portal
+
+#### AzureCloud
+
+[![Deploy To Azure](../../docs/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazure%2Fmissionlz%2Fbicep%2Fsrc%2Fbicep%2Fmlz.json)
+
+#### AzureUSGovernment
+
+[![Deploy To Azure US Gov](../../docs/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazure%2Fmissionlz%2Fbicep%2Fsrc%2Fbicep%2Fmlz.json)
 
 ### Air-Gapped Clouds
 
@@ -131,11 +137,13 @@ az deployment group create \
   --parameters logAnalyticsWorkspaceResourceGroupName=<Log Analytics Workspace Resource Group Name>
 ```
 
-Under the [modules/policies](modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
-
 The result will be a policy assignment created for each resource group deployed by MLZ that can be viewed in the 'Compliance' view of Azure Policy in the Azure Portal.
 
+Under the [modules/policies](modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
+
 ## Adding Remote Access via Bastion Host
+
+Want to remotely access the network and the resources you've deployed into it? You can use [Azure Bastion](https://docs.microsoft.com/en-us/azure/bastion/) to remotely access virtual machines within the network without exposing them via Public IP Addresses.
 
 To deploy a virtual machine as a jumpbox into the network without a Public IP Address using Azure Bastion Host, provide two parameters `deployRemoteAccess=true` and `linuxVmAdminPasswordOrKey=<your password>` and `windowsVmAdminPassword=<your password>` to the deployment. A quick and easy way to generate a secure password from the .devcontainer is the command `openssl rand -base64 14`.
 
@@ -150,6 +158,8 @@ az deployment sub create \
   --parameters linuxVmAdminPasswordOrKey="$my_password" \
   --parameters windowsVmAdminPassword="$my_password"
 ```
+
+Then, once you've deployed the virtual machines and Bastion Host, use these docs to connect with the provided password: <https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-rdp-windows#rdp>
 
 ### Using an SSH Key with Remote Access via Bastion Host
 
@@ -171,4 +181,4 @@ az deployment sub create \
 
 For more information on generating a public/private key pair see <https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-ssh-keys-detailed#generate-keys-with-ssh-keygen>.
 
-Then, once you've deployed the virtual machine and Bastion Host, use these docs to connect: <https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-ssh#privatekey>
+Then, once you've deployed the virtual machines and Bastion Host, use these docs to connect with an SSH Key: <https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-ssh#privatekey>
