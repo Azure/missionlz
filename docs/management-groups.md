@@ -4,13 +4,19 @@
 
 ### MLZ Structure
 
-The base Mission Landing Zone (MLZ) tiers (SACA Hub, Tier 0, Tier1, Tier 2) can be deployed across one or more Azure subscriptions.  The  mission workloads (Tier 3) can be deployed into separate subscriptions per workload, consolidated into a single subscription, or a combination of these approaches can be used based on your needs.  So from a management perspective, there is usually one SACA Hub subscription, one Tier 0 (Identity and Authorization) subscription, one Tier 1 (Infrastructure Operations) subscription, one Tier 2 (DevSecOps and Shared Services) subscription and one or more Tier 3 (Workload) subscriptions.  
+The base Mission Landing Zone (MLZ) tiers (SACA Hub, Tier 0, Tier1, Tier 2) can be deployed across one or more Azure subscriptions.
+
+The mission workloads (Tier 3) can be deployed into separate subscriptions per workload, consolidated into a single subscription, or a combination of these approaches can be used based on your needs.
+
+So, from a management perspective, there is usually one SACA Hub subscription, one Tier 0 (Identity and Authorization) subscription, one Tier 1 (Infrastructure Operations) subscription, one Tier 2 (DevSecOps and Shared Services) subscription and one or more Tier 3 (Workload) subscriptions.
 
 ### Management Groups
 
-You can manage the role-based access (RBAC) and policies for these subscriptions in a number of tools (portal, CLI, PS, etc.), but at the core, you can either manage them individually or as a group.  In an Enterprise setting, Microsoft recommends managing groups of subscriptions with Management Groups. Management Groups are "containers" of subscriptions that let you apply your governance conditions (RBAC, policies, and compliance) to a set of subscriptions as a single operation.
+You can manage the role-based access (RBAC) and policies for these subscriptions in a number of tools (portal, CLI, PS, etc.), but at the core, you can either manage them individually or as a group.
 
-Management Groups can be created in a hierarchy where the policies, RBAC, and compliance settings of parent management groups are inherited by child management groups.  This provides a way to manage common governance settings at an appropriate level for each subscription.  
+In an Enterprise setting, Microsoft recommends managing groups of subscriptions with Management Groups. Management Groups are "containers" of subscriptions that let you apply your governance conditions (RBAC, policies, and compliance) to a set of subscriptions as a single operation.
+
+Management Groups can be created in a hierarchy where the policies, RBAC, and compliance settings of parent management groups are inherited by child management groups.  This provides a way to manage common governance settings at an appropriate level for each subscription.
 
 > For more information on Management Groups please see:  
 [What are Azure Management Groups?](https://docs.microsoft.com/en-us/azure/governance/management-groups/overview)
@@ -19,9 +25,13 @@ Management Groups can be created in a hierarchy where the policies, RBAC, and co
 
 ### Basics
 
-If you are just kicking the tires on Mission Landing Zone, then there's no need to implement Management Groups.  If you have gone beyond the investigation phase and want to use MLZ in a production setting, then Management Groups are something that we recommend, especially if you have many Tier 3 workload subscriptions that all share similar governance characteristics.
+If you are just kicking the tires on Mission Landing Zone, then there's no need to implement Management Groups.
 
-If your MLZ management tiers (SACA Hub, Tier 0, Tier 1, and Tier 2) are all managed by the same group or share similar governance controls, then you can create a single management group for that set, otherwise a hierarchy of management groups may serve you better.  The Tier 3 (workload) subscriptions would probably have different management controls. If so, these subscriptions should be in a separate management group/hierarchy from the MLZ management tiers.
+If you have gone beyond the investigation phase and want to use MLZ in a production setting, then Management Groups are something that we recommend, especially if you have many Tier 3 workload subscriptions that all share similar governance characteristics.
+
+If your MLZ management tiers (SACA Hub, Tier 0, Tier 1, and Tier 2) are all managed by the same group or share similar governance controls, then you can create a single management group for that set, otherwise a hierarchy of management groups may serve you better.
+
+The Tier 3 (workload) subscriptions would probably have different management controls. If so, these subscriptions should be in a separate management group/hierarchy from the MLZ management tiers.
 
 ### Management group design
 
@@ -72,4 +82,4 @@ When setting up your management group hierarchy there are a number of critical d
 Azure Docs: [Manage your resources with management groups](https://docs.microsoft.com/en-us/azure/governance/management-groups/manage)  
 Video: [Azure Management Groups Overview 1/10/2019](https://www.youtube.com/watch?v=jOprhCxnEAg)  
 Video: Management groups in [Azure Governance #1 - Overview](https://youtu.be/NxcwCwc_wmM?t=238) at [Azure Academy](https://www.youtube.com/channel/UC-MXgaFhsYU8PkqgKBdnusQ)
-Microsoft Docs: [Azure management groups documentation](https://docs.microsoft.com/en-us/azure/governance/management-groups/)  
+Microsoft Docs: [Azure management groups documentation](https://docs.microsoft.com/en-us/azure/governance/management-groups/)

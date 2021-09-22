@@ -35,12 +35,12 @@ One way to retreive these values is with the Azure CLI:
 #
 # az deployment sub create \
 #   --subscription $deploymentSubscription \
-#   --name "myDeploymentName" \
+#   --name "myMlzDeployment" \
 #   --template-file ./mlz.bicep \
 
 az deployment sub show \
   --subscription $deploymentSubscription \
-  --name "myDeploymentName" \
+  --name "myMlzDeployment" \
   --query properties.outputs
 ```
 
@@ -80,11 +80,13 @@ az deployment sub show \
 }
 ```
 
-...and if you're on a BASH terminal, this command (take note to replace "myDeploymentName" with your deployment name) will export the values as environment variables:
+...and if you're on a BASH terminal, this command (take note to replace "myMlzDeployment" with your deployment name) will export the values as environment variables:
 
+<!-- markdownlint-disable MD013 -->
 ```bash
-export $(az deployment sub show --name "myDeploymentName" --query "properties.outputs.{ args: [ join('', ['hubSubscriptionId=', hubSubscriptionId.value]), join('', ['hubResourceGroupName=', hubResourceGroupName.value]), join('', ['hubVirtualNetworkName=', hubVirtualNetworkName.value]), join('', ['hubVirtualNetworkResourceId=', hubVirtualNetworkResourceId.value]), join('', ['logAnalyticsWorkspaceResourceId=', logAnalyticsWorkspaceResourceId.value]), join('', ['firewallPrivateIPAddress=', firewallPrivateIPAddress.value]) ] }.args" --output tsv | xargs)
+export $(az deployment sub show --name "myMlzDeployment" --query "properties.outputs.{ args: [ join('', ['hubSubscriptionId=', hubSubscriptionId.value]), join('', ['hubResourceGroupName=', hubResourceGroupName.value]), join('', ['hubVirtualNetworkName=', hubVirtualNetworkName.value]), join('', ['hubVirtualNetworkResourceId=', hubVirtualNetworkResourceId.value]), join('', ['logAnalyticsWorkspaceResourceId=', logAnalyticsWorkspaceResourceId.value]), join('', ['firewallPrivateIPAddress=', firewallPrivateIPAddress.value]) ] }.args" --output tsv | xargs)
 ```
+<!-- markdownlint-enable MD013 -->
 
 ## Deploy the example
 
@@ -116,8 +118,10 @@ az deployment sub create \
 
 Or, completely experimentally, try the Portal:
 
-#### AzureCloud
+### AzureCloud
+
 [![Deploy To Azure](../../../../docs/images/deploytoazure.svg?sanitze=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fexamples%2FnewWorkload%2FnewWorkload.json)
 
-#### AzureUSGovernment
+### AzureUSGovernment
+
 [![Deploy To Azure US Gov](../../../../docs/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fexamples%2FnewWorkload%2FnewWorkload.json)

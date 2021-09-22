@@ -7,24 +7,22 @@ assignees: ''
 
 ---
 
-**Description**
+## Description
 
+## Steps to Reproduce
 
-**Steps to Reproduce**
 Steps to reproduce the behavior:
-1. 
-2. 
+1.  
+2.  
 
-**Expected behavior**
+## Expected behavior
 
+## Actual behavior
 
-**Actual behavior**
+## Screenshots
 
+## Additional context
 
-**Screenshots**
-
-
-**Additional context**
 Operating System:
 Terraform Version:
 Cloud (public, Azure Government, etc.):

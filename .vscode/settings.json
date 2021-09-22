@@ -4,5 +4,10 @@
     "[terraform]": {
         "editor.formatOnSave": true
     },
-    "shellcheck.enableQuickFix": true
+    "shellcheck.enableQuickFix": true,
+    "markdownlint.config": {
+        "default": true,
+        "MD013": { "line_length": 400 },
+        "MD029": false
+    }
 }

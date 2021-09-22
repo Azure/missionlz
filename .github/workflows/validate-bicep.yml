@@ -1,14 +1,16 @@
+---
+
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
 name: validate-bicep
 on: 
   pull_request:
+    branches: [main]
     paths: 
-    - '**.bicep'
+    - 'src/bicep/**'
+    - '!src/bicep/**.md'
   workflow_dispatch:
-    paths:
-    - '**.bicep'
 jobs:
   validate-bicep:
     runs-on: ubuntu-latest
