@@ -4,15 +4,13 @@ _Please explain the changes you've made_
 
 ## Issue reference
 
-The issue this PR will close: #_[issue number]_
+The issue this PR will close: #[issue number]
 
 ## Checklist
 
-Please make sure you've  completed the relevant tasks for this PR, out of the following list:
+Please make sure you've completed the relevant tasks for this PR out of the following list:
 
-* [ ] Code compiles or validates correctly
-* [ ] BASH scripts have been validated using `shellcheck`
-* [ ] All tests pass (manual and automated)
+* [ ] All acceptance criteria in the backlog item are met
 * [ ] The documentation is updated to cover any new or changed features
-* [ ] Markdown files have been linted using the recommended linter. (See `.vscode/extensions.json`.)
+* [ ] Manual tests have passed
 * [ ] Relevant issues are linked to this PR
