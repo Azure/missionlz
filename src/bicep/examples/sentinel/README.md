@@ -8,7 +8,7 @@ Read on to understand what this example does, and when you're ready, collect all
 
 ### Deploys Sentinel
 
-The docs on Azure Sentinel: https://docs.microsoft.com/en-us/azure/sentinel/overview
+The docs on Azure Sentinel: <https://docs.microsoft.com/en-us/azure/sentinel/overview>
 
 ## Pre-requisites
 
@@ -36,12 +36,12 @@ One way to retreive these values is with the Azure CLI:
 #
 # az deployment sub create \
 #   --subscription $deploymentSubscription \
-#   --name "myDeploymentName" \
+#   --name "myMlzDeployment" \
 #   --template-file ./mlz.bicep \
 
 az deployment sub show \
   --subscription $deploymentSubscription \
-  --name "myDeploymentName" \
+  --name "myMlzDeployment" \
   --query properties.outputs
 ```
 
@@ -71,11 +71,13 @@ az deployment sub show \
 }
 ```
 
-...and if you're on a BASH terminal, this command (take note to replace "myDeploymentName" with your deployment name) will export the values as environment variables:
+...and if you're on a BASH terminal, this command (take note to replace "myMlzDeployment" with your deployment name) will export the values as environment variables:
 
+<!-- markdownlint-disable MD013 -->
 ```bash
-export $(az deployment sub show --name "myDeploymentName" --query "properties.outputs.{ args: [ join('', ['operationsSubscriptionId=', operationsSubscriptionId.value]), join('', ['operationsResourceGroupName=', operationsResourceGroupName.value]), join('', ['logAnalyticsWorkspaceName=', logAnalyticsWorkspaceName.value]), join('', ['logAnalyticsWorkspaceResourceId=', logAnalyticsWorkspaceResourceId.value]) ] }.args" --output tsv | xargs)
+export $(az deployment sub show --name "myMlzDeployment" --query "properties.outputs.{ args: [ join('', ['operationsSubscriptionId=', operationsSubscriptionId.value]), join('', ['operationsResourceGroupName=', operationsResourceGroupName.value]), join('', ['logAnalyticsWorkspaceName=', logAnalyticsWorkspaceName.value]), join('', ['logAnalyticsWorkspaceResourceId=', logAnalyticsWorkspaceResourceId.value]) ] }.args" --output tsv | xargs)
 ```
+<!-- markdownlint-enable MD013 -->
 
 ## Deploying Sentinel
 
@@ -98,4 +100,4 @@ terraform apply \
   -var resource_group_name="$operationsResourceGroupName" \
   -var workspace_resource_id="$logAnalyticsWorkspaceResourceId" \
   -var workspace_name="$logAnalyticsWorkspaceName"
-````
+```

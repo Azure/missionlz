@@ -1,13 +1,11 @@
+---
+
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
 name: validate-build-bicep
 on:
-  push:
-    paths:
-    - '**.bicep'
-    branches:
-      - bicep
+  workflow_dispatch:
 jobs:
   validate-build:
     runs-on: ubuntu-latest

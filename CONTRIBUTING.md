@@ -23,7 +23,11 @@ Third-party code must include the associated license in the [`NOTICE`](NOTICE) f
 
 ### Summary
 
-We follow a [Kanban](https://en.wikipedia.org/wiki/Kanban_(development)) process. A product owner is responsible defining and prioritizing work in the product backlog. Each item in the backlog is a self-contained piece of work, finished to production quality and merged to the main branch. Releases are monthly and prioritization is set within releases. New priorities come from our stakeholders and from information we gather while doing the technical work.
+We follow a [Kanban](https://en.wikipedia.org/wiki/Kanban_(development)) process.
+
+- A product owner is responsible defining and prioritizing work in the product backlog.
+- Each item in the backlog is a self-contained piece of work, finished to production quality and merged to the main branch.
+- Releases are monthly and prioritization is set within releases. New priorities come from our stakeholders and from information we gather while doing the technical work.
 
 ### Why Kanban
 

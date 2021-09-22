@@ -1,0 +1,36 @@
+---
+
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+name: super-linter
+
+#
+# Documentation:
+# https://help.github.com/en/articles/workflow-syntax-for-github-actions
+#
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: lint-codebase
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:          
+          fetch-depth: 0 # Full git history is needed to get a proper list of changed files within `super-linter`
+      - uses: github/super-linter/slim@v4 # use the slim linter since we don't use rust, dotenv, armttk, pwsh, or c#
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_BASH: true
+          VALIDATE_GITHUB_ACTIONS: true
+          VALIDATE_MARKDOWN: true
+          VALIDATE_TERRAFORM_TFLINT: true
+          VALIDATE_YAML: true
+          DEFAULT_BRANCH: main
+          FILTER_REGEX_EXCLUDE: ".github/dependabot.yml"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

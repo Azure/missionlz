@@ -1,11 +1,15 @@
+---
+
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
 name: validate-terraform
 on: 
   pull_request:
+    branches: [main]
     paths: 
     - 'src/terraform/**'
+    - '!src/terraform/**.md'
   workflow_dispatch:
 jobs:
   validate-terraform:

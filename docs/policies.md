@@ -1,18 +1,38 @@
 # Mission Landing Zone Regulatory Compliance - NIST Policies
 
-As part of Mission Landing Zone (MLZ) it's been a goal to ensure deployments have the tools and resources available that allow it to be compliant with most regulations across industries. This does not mean that workloads are compliant, but it does mean that the technologies in use can be compliant. This is caused by not only the varying number of compliance bodies involved and and the regulations they mandate but also caused by the decisions required by how and what controls are followed.
+A goal of Mission Landing Zone (MLZ) is to ensure deployments have the tools and resources available that allow it to be compliant with most regulations across most industries.
 
-For the purposes of this documentation we created an example method in which the MLZ deployment can be audited for current National Institute of Standards and Technology (NIST) controls and requirements using [Azure Policies built in initiative](https://docs.microsoft.com/en-us/azure/governance/policy/samples/nist-sp-800-53-r4) for NIST 800-53. _Note: this is focused on NIST controls that have built in policies in Azure clouds._
+This does not mean that workloads are compliant, but it does mean that the technologies in use can be compliant. This is caused by not only the varying number of compliance bodies involved and and the regulations they mandate but also caused by the decisions required by how and what controls are followed.
+
+We created an example in the MLZ deployment that can be audited for current National Institute of Standards and Technology (NIST) controls and requirements using the [Azure Policies built in initiative for NIST 800-53](https://docs.microsoft.com/en-us/azure/governance/policy/samples/nist-sp-800-53-r4).
+
+_Note: this is focused on NIST controls that have built in policies in Azure clouds._
 
 ![Policy and the MLZ deployment footprint](images/20210419_missionlz_as_of_Aug2021_Policy.png)
 
 ## Known Issues
 
-Currently there are a set of known issues with this approach. The first and somewhat important detail is that these policies are based on built in policies available in the different Azure environments. There are some variances currently between clouds. This will always happen when separate isolated environments have different deployment cycles but also can be based on preview testing versus generally available components in one cloud environment versus another.
+There are a set of known issues with this approach:
 
-A secondary issue comes from the method in which the assignment is deployed. This results in 'out of band' requirements for customers. In particular, the current built-in NIST initiative has a couple policies attached that modify and/or deploy if a resource doesn't exist. Example, VM extensions for guest policy configuration would be deployed if they don't exist in the VM. These types of policies require a managed identity be created that the Policy engine can use to take these actions. This managed identity must have contributor access to the resources but deploying as a contributor and not owner limits the ability. The terraform MLZ deployment as it is today using service principles with contributor rights cannot make this role assignment but the managed identity is created. This is by design for security purposes.
+1. The first and important detail is that these policies are based on built-in policies available in the different Azure environments.
 
-The final note is that these are audits based on NIST controls and recommendations that will require out of band work. As an example, storage account redundancy and encryption will require a decision process on what MLZ is using as temporary storage for logs versus requirements for the workloads. For example, encryption can be accomplished with multiple key models, which one is required for what category of data?
+There are some variances in policy availability between clouds. This will always happen when separate isolated environments have different deployment cycles but also can be based on preview testing versus generally available components in one cloud environment versus another.
+
+2. A secondary issue comes from the method in which the assignment is deployed.
+
+This results in 'out of band' requirements for customers.
+
+In particular, the current built-in NIST initiative has a couple policies attached that modify and/or deploy if a resource doesn't exist. For example, VM extensions for guest policy configuration would be deployed if they don't exist in the VM.
+
+These types of policies require a managed identity be created that the Policy engine can use to take these actions. This managed identity must have Contributor access to the resources but deploying as a Contributor and not owner limits the ability.
+
+The Terraform MLZ deployment cannot make this role assignment but the managed identity is created. This is by design for security purposes.
+
+3. The final note is that these are audits based on NIST controls and recommendations that will require out of band work.
+
+For example, storage account redundancy and encryption will require a decision process on what MLZ is using as temporary storage for logs versus requirements for the workloads.
+
+For example, encryption can be accomplished with multiple key models, but which one is required for what category of data?
 
 ## Deploying
 
@@ -89,4 +109,6 @@ In the above example the 'logAnalyticsWorkspaceIdforVMReporting' is retrieved fr
 
 ## What's Next
 
-While this is only a start, the NIST controls included in the built-in initiatives are a good start to understanding requirements on top of MLZ for compliance. In the near future the hopes are for this to be expanded with additional built-in initiatives as well as offering an option to create your own initiative and custom policies. Potential additions will be server baselines, IL compliances, and custom policies.
+While this is only a start, the NIST controls included in the built-in initiatives are a good start to understanding requirements on top of MLZ for compliance.
+
+In the near future the hopes are for this to be expanded with additional built-in initiatives as well as offering an option to create your own initiative and custom policies. Potential additions will be server baselines, IL compliances, and custom policies.

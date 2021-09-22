@@ -41,12 +41,12 @@ One way to retreive these values is with the Azure CLI:
 #
 # az deployment sub create \
 #   --subscription $deploymentSubscription \
-#   --name "myDeploymentName" \
+#   --name "myMlzDeployment" \
 #   --template-file ./mlz.bicep \
 
 az deployment sub show \
   --subscription $deploymentSubscription \
-  --name "myDeploymentName" \
+  --name "myMlzDeployment" \
   --query properties.outputs
 ```
 
@@ -77,11 +77,13 @@ az deployment sub show \
 }
 ```
 
-...and if you're on a BASH terminal, this command (take note to replace "myDeploymentName" with your deployment name) will export the values as environment variables:
+...and if you're on a BASH terminal, this command (take note to replace "myMlzDeployment" with your deployment name) will export the values as environment variables:
 
+<!-- markdownlint-disable MD013 -->
 ```bash
-export $(az deployment sub show --name "myDeploymentName" --query "properties.outputs.{ args: [ join('', ['hubResourceGroupName=', hubResourceGroupName.value]), join('', ['hubVirtualNetworkName=', hubVirtualNetworkName.value]), join('', ['hubSubnetResourceId=', hubSubnetResourceId.value]), join('', ['hubNetworkSecurityGroupResourceId=', hubNetworkSecurityGroupResourceId.value]) ] }.args" --output tsv | xargs)
+export $(az deployment sub show --name "myMlzDeployment" --query "properties.outputs.{ args: [ join('', ['hubResourceGroupName=', hubResourceGroupName.value]), join('', ['hubVirtualNetworkName=', hubVirtualNetworkName.value]), join('', ['hubSubnetResourceId=', hubSubnetResourceId.value]), join('', ['hubNetworkSecurityGroupResourceId=', hubNetworkSecurityGroupResourceId.value]) ] }.args" --output tsv | xargs)
 ```
+<!-- markdownlint-enable MD013 -->
 
 ## Deploy the example
 

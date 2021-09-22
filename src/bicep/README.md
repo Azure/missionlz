@@ -1,4 +1,4 @@
-# MLZ Bicep
+# Mission LZ Bicep
 
 ## Deployment
 
@@ -21,10 +21,11 @@ Use `az deployment sub` to deploy MLZ across 1:M subscriptions (and `az deployme
 
 #### Single subscription deployment
 
-This is the minimum command necessary to deploy Mission LZ (replacing `mlz.bicep` with `mlz.json` if I'm disconnected from the internet or do not have an installation of [Bicep](https://aka.ms/bicep) available):
+To deploy Mission LZ into a single subscription, give your deployment a name and a location and specify the `./mlz.bicep` template file (replacing `mlz.bicep` with `mlz.json` if I'm disconnected from the internet or do not have an installation of [Bicep](https://aka.ms/bicep) available):
 
 ```plaintext
 az deployment sub create \
+  --name myMlzDeployment \
   --location eastus \
   --template-file ./mlz.bicep
 ```
@@ -63,6 +64,7 @@ az login
 
 ```plaintext
 az deployment sub create \
+  --name myMlzDeployment \
   --location usgovvirginia \
   --template-file ./mlz.bicep
 ```
