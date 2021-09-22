@@ -22,10 +22,12 @@ variable "location" {
   default     = "East US"
 }
 
-variable "deploymentname" {
-  description = "A name for the deployment"
-  type        = string
-  default     = ""
+variable "tags" {
+  description = "A map of key value pairs to apply as tags to resources provisioned in this deployment"
+  type        = map(string)
+  default = {
+    "DeploymentType" : "MissionLandingZoneTF"
+  }
 }
 
 #################################
