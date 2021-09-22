@@ -109,6 +109,14 @@ data "azurerm_client_config" "current_client" {
 }
 
 ################################
+### GLOBAL VARIABLES         ###
+################################
+
+locals {
+  firewall_premium_environments = ["public"] # terraform azurerm environments where Azure Firewall Premium is supported
+}
+
+################################
 ### STAGE 0: Scaffolding     ###
 ################################
 
