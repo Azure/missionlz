@@ -57,7 +57,6 @@ variable "tags" {
  description = "A map of key value pairs to apply as tags to resources provisioned in this deployment"
  type        = map(string)
  default = {
-  "DeploymentName" : "mlz-dev",
   "DeploymentType" : "MissionLandingZoneTF"
   }
 }

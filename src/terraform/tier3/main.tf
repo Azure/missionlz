@@ -95,10 +95,7 @@ resource "azurerm_resource_group" "tier3" {
 
   location = var.mlz_location
   name     = var.tier3_rgname
-
-  tags = {
-    DeploymentName = var.deploymentname
-  }
+  tags     = var.tags
 }
 
 ################################
@@ -139,10 +136,7 @@ module "spoke-network-t3" {
   spoke_vnetname           = var.tier3_vnetname
   spoke_vnet_address_space = var.tier3_vnet_address_space
   subnets                  = var.tier3_subnets
-
-  tags = {
-    DeploymentName = var.deploymentname
-  }
+  tags                     = var.tags
 }
 
 resource "azurerm_virtual_network_peering" "t3-to-hub" {
