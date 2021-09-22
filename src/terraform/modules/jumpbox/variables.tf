@@ -29,7 +29,6 @@ variable "keyvault_name" {
 variable "tenant_id" {
   description = "The tenant ID of the keyvault to store jumpbox credentials in"
   type        = string
-  sensitive   = true
 }
 
 variable "object_id" {

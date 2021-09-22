@@ -35,13 +35,6 @@ RUN add-apt-repository ppa:git-core/ppa \
     sudo \
     shellcheck
 
-# Install Python 3
-RUN apt-get update \
-    && apt-get install -y \
-    python3 \
-    python3-pip \
-    && ln -s /usr/bin/python3 /usr/bin/python 
-
 # Install Terraform and tflint
 RUN wget -O terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
     && wget -O tflint.zip https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_linux_amd64.zip \
@@ -94,6 +87,10 @@ RUN AZ_REPO=$(lsb_release -cs) \
 
 # Install AZ CLI
 RUN apt-get update && apt-get install -y azure-cli=${AZURE_CLI_VERSION}
+
+# Install Bicep
+RUN curl -Lo /usr/local/bin/bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 \
+    && chmod +x /usr/local/bin/bicep
 
 # Clean up
 RUN apt-get autoremove -y \

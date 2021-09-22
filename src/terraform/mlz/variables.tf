@@ -5,87 +5,57 @@
 # Global Configuration
 #################################
 
-variable "tf_environment" {
-  description = "The Terraform backend environment e.g. public or usgovernment. It defults to public."
+variable "environment" {
+  description = "The Terraform backend environment e.g. public or usgovernment"
   type        = string
   default     = "public"
 }
 
-variable "mlz_tenantid" {
-  description = "The Azure Active Directory tenant ID that should be used for the deployment."
-  type        = string
-  sensitive   = true
-}
-
-variable "mlz_location" {
-  description = "The Azure region for most Mission LZ resources. It defaults to eastus."
-  type        = string
-  default     = "eastus"
-}
-
-variable "mlz_metadatahost" {
+variable "metadata_host" {
   description = "The metadata host for the Azure Cloud e.g. management.azure.com"
   type        = string
   default     = "management.azure.com"
 }
 
-variable "mlz_clientid" {
-  description = "The Client ID of the Service Principal to deploy with."
+variable "location" {
+  description = "The Azure region for most Mission LZ resources"
   type        = string
-  sensitive   = true
-}
-
-variable "mlz_clientsecret" {
-  description = "The Client Secret of the Service Principal to deploy with."
-  type        = string
-  sensitive   = true
-}
-
-variable "mlz_objectid" {
-  description = "The object ID of a service principal in the Azure Active Directory tenant."
-  type        = string
-  sensitive   = true
-}
-
-variable "create_assignment" {
-  description = "Create an Azure Policy assignement for defaul NIST initiative."
-  type        = bool
-  default     = false
+  default     = "East US"
 }
 
 variable "tags" {
- description = "A map of key value pairs to apply as tags to resources provisioned in this deployment"
- type        = map(string)
- default = {
-  "DeploymentType" : "MissionLandingZoneTF"
+  description = "A map of key value pairs to apply as tags to resources provisioned in this deployment"
+  type        = map(string)
+  default = {
+    "DeploymentType" : "MissionLandingZoneTF"
   }
 }
+
 #################################
 # Hub Configuration
 #################################
 
 variable "hub_subid" {
-  description = "Subscription ID for the HUB deployment"
+  description = "Subscription ID for the Hub deployment"
   type        = string
-  sensitive   = true
 }
 
 variable "hub_rgname" {
   description = "Resource Group for the deployment"
   type        = string
-  default     = "rg-saca-dev"
+  default     = "hub-rg"
 }
 
 variable "hub_vnetname" {
   description = "Virtual Network Name for the deployment"
   type        = string
-  default     = "vn-saca-dev"
+  default     = "hub-vnet"
 }
 
 variable "hub_vnet_address_space" {
   description = "The address space to be used for the virtual network."
-  default     = ["10.0.100.0/24"]
   type        = list(string)
+  default     = ["10.0.100.0/24"]
 }
 
 #################################
@@ -94,50 +64,50 @@ variable "hub_vnet_address_space" {
 
 variable "hub_client_address_space" {
   description = "The address space to be used for the Firewall virtual network."
-  default     = "10.0.100.0/26"
   type        = string
+  default     = "10.0.100.0/26"
 }
 
 variable "hub_management_address_space" {
   description = "The address space to be used for the Firewall virtual network subnet used for management traffic."
-  default     = "10.0.100.64/26"
   type        = string
+  default     = "10.0.100.64/26"
 }
 
 variable "firewall_name" {
   description = "Name of the Hub Firewall"
-  default     = "mlzFirewall"
   type        = string
+  default     = "firewall"
 }
 
 variable "firewall_policy_name" {
   description = "Name of the firewall policy to apply to the hub firewall"
-  default     = "firewallpolicy"
   type        = string
+  default     = "firewall-policy"
 }
 
 variable "client_ipconfig_name" {
   description = "The name of the Firewall Client IP Configuration"
-  default     = "mlzFWClientIpCfg"
   type        = string
+  default     = "firewall-client-ip-config"
 }
 
 variable "client_publicip_name" {
   description = "The name of the Firewall Client Public IP"
-  default     = "mlzFWClientPip"
   type        = string
+  default     = "firewall-client-public-ip"
 }
 
 variable "management_ipconfig_name" {
   description = "The name of the Firewall Management IP Configuration"
-  default     = "mlzFWMgmtIpCfg"
   type        = string
+  default     = "firewall-management-ip-config"
 }
 
 variable "management_publicip_name" {
   description = "The name of the Firewall Management Public IP"
-  default     = "mlzFWMgmtPip"
   type        = string
+  default     = "firewall-management-public-ip"
 }
 
 #################################
@@ -152,26 +122,26 @@ variable "create_bastion_jumpbox" {
 
 variable "bastion_host_name" {
   description = "The name of the Bastion Host"
-  default     = "mlzBastionHost"
   type        = string
+  default     = "bastionHost"
 }
 
 variable "bastion_address_space" {
   description = "The address space to be used for the Bastion Host subnet (must be /27 or larger)."
-  default     = "10.0.100.128/27"
   type        = string
+  default     = "10.0.100.128/27"
 }
 
 variable "bastion_public_ip_name" {
   description = "The name of the Bastion Host Public IP"
-  default     = "mlzBastionHostPip"
   type        = string
+  default     = "bastionHostPublicIPAddress"
 }
 
 variable "bastion_ipconfig_name" {
   description = "The name of the Bastion Host IP Configuration"
-  default     = "mlzBastionHostIpCfg"
   type        = string
+  default     = "bastionHostIPConfiguration"
 }
 
 #################################
@@ -204,14 +174,14 @@ variable "jumpbox_subnet" {
     routetable_name = string
   })
   default = {
-    name              = "mlzJumpboxSubnet"
+    name              = "jumpbox-subnet"
     address_prefixes  = ["10.0.100.160/27"]
     service_endpoints = ["Microsoft.Storage"]
 
     enforce_private_link_endpoint_network_policies = false
     enforce_private_link_service_network_policies  = false
 
-    nsg_name = "mlzJumpboxSubnetNsg"
+    nsg_name = "jumpbox-subnet-nsg"
     nsg_rules = {
       "allow_ssh" = {
         name                       = "allow_ssh"
@@ -237,86 +207,96 @@ variable "jumpbox_subnet" {
       }
     }
 
-    routetable_name = "mlzJumpboxSubnetRt"
+    routetable_name = "jumpbox-routetable"
   }
 }
 
 variable "jumpbox_keyvault_name" {
   description = "The name of the jumpbox virtual machine keyvault"
-  default     = "mlzJumpboxVmKv"
   type        = string
+  default     = "jumpboxKeyvault"
 }
 
 variable "jumpbox_windows_vm_name" {
   description = "The name of the Windows jumpbox virtual machine"
-  default     = "mlzJumpboxWindowsVm"
   type        = string
+  default     = "jumpboxWindowsVm"
 }
 
 variable "jumpbox_windows_vm_size" {
   description = "The size of the Windows jumpbox virtual machine"
-  default     = "Standard_DS1_v2"
   type        = string
+  default     = "Standard_DS1_v2"
 }
 
 variable "jumpbox_windows_vm_publisher" {
   description = "The publisher of the Windows jumpbox virtual machine source image"
-  default     = "MicrosoftWindowsServer"
   type        = string
+  default     = "MicrosoftWindowsServer"
 }
 
 variable "jumpbox_windows_vm_offer" {
   description = "The offer of the Windows jumpbox virtual machine source image"
-  default     = "WindowsServer"
   type        = string
+  default     = "WindowsServer"
 }
 
 variable "jumpbox_windows_vm_sku" {
   description = "The SKU of the Windows jumpbox virtual machine source image"
-  default     = "2019-datacenter-gensecond"
   type        = string
+  default     = "2019-datacenter-gensecond"
 }
 
 variable "jumpbox_windows_vm_version" {
   description = "The version of the Windows jumpbox virtual machine source image"
-  default     = "latest"
   type        = string
+  default     = "latest"
 }
 
 variable "jumpbox_linux_vm_name" {
   description = "The name of the Linux jumpbox virtual machine"
-  default     = "mlzJumpboxLinuxVm"
   type        = string
+  default     = "jumpboxLinuxVm"
 }
 
 variable "jumpbox_linux_vm_size" {
   description = "The size of the Linux jumpbox virtual machine"
-  default     = "Standard_DS1_v2"
   type        = string
+  default     = "Standard_DS1_v2"
 }
 
 variable "jumpbox_linux_vm_publisher" {
   description = "The publisher of the Linux jumpbox virtual machine source image"
-  default     = "Canonical"
   type        = string
+  default     = "Canonical"
 }
 
 variable "jumpbox_linux_vm_offer" {
   description = "The offer of the Linux jumpbox virtual machine source image"
-  default     = "UbuntuServer"
   type        = string
+  default     = "UbuntuServer"
 }
 
 variable "jumpbox_linux_vm_sku" {
   description = "The SKU of the Linux jumpbox virtual machine source image"
-  default     = "18.04-LTS"
   type        = string
+  default     = "18.04-LTS"
 }
 
 variable "jumpbox_linux_vm_version" {
   description = "The version of the Linux jumpbox virtual machine source image"
-  default     = "latest"
   type        = string
+  default     = "latest"
+}
+
+################################
+# Policy Configuration
+################################
+
+variable "create_policy_assignment" {
+  description = "Assign Policy to deployed resources?"
+  type        = bool
+  default     = true
 }
 
 #################################
@@ -326,19 +306,19 @@ variable "jumpbox_linux_vm_version" {
 variable "tier0_subid" {
   description = "Subscription ID for the deployment"
   type        = string
-  sensitive   = true
+  default     = ""
 }
 
 variable "tier0_rgname" {
   description = "Resource Group for the deployment"
   type        = string
-  default     = "rg-t0-dev"
+  default     = "identity-rg"
 }
 
 variable "tier0_vnetname" {
   description = "Virtual Network Name for the deployment"
   type        = string
-  default     = "vn-t0-dev"
+  default     = "identity-vnet"
 }
 
 variable "tier0_vnet_address_space" {
@@ -373,15 +353,15 @@ variable "tier0_subnets" {
     routetable_name = string
   }))
   default = {
-    "tier0vms" = {
-      name              = "tier0vms"
+    "identitySubnet" = {
+      name              = "identitySubnet"
       address_prefixes  = ["10.0.110.0/27"]
       service_endpoints = ["Microsoft.Storage"]
 
       enforce_private_link_endpoint_network_policies = false
       enforce_private_link_service_network_policies  = false
 
-      nsg_name = "tier0vmsnsg"
+      nsg_name = "identitySubnetNsg"
       nsg_rules = {
         "allow_ssh" = {
           name                       = "allow_ssh"
@@ -407,7 +387,7 @@ variable "tier0_subnets" {
         }
       }
 
-      routetable_name = "tier0vmsrt"
+      routetable_name = "identityRouteTable"
     }
   }
 }
@@ -419,25 +399,25 @@ variable "tier0_subnets" {
 variable "tier1_subid" {
   description = "Subscription ID for the deployment"
   type        = string
-  sensitive   = true
+  default     = ""
 }
 
 variable "tier1_rgname" {
   description = "Resource Group for the deployment"
   type        = string
-  default     = "rg-t1-dev"
+  default     = "operations-rg"
 }
 
 variable "tier1_vnetname" {
   description = "Virtual Network Name for the deployment"
   type        = string
-  default     = "vn-t1-dev"
+  default     = "operations-vnet"
 }
 
-variable "mlz_lawsname" {
+variable "log_analytics_workspace_name" {
   description = "Log Analytics Workspace Name for the deployment"
   type        = string
-  default     = "laws-dev"
+  default     = ""
 }
 
 variable "create_sentinel" {
@@ -478,15 +458,15 @@ variable "tier1_subnets" {
     routetable_name = string
   }))
   default = {
-    "tier1vms" = {
-      name              = "tier1vms"
+    "operationsSubnet" = {
+      name              = "operationsSubnet"
       address_prefixes  = ["10.0.115.0/27"]
       service_endpoints = ["Microsoft.Storage"]
 
       enforce_private_link_endpoint_network_policies = false
       enforce_private_link_service_network_policies  = false
 
-      nsg_name = "tier1vmsnsg"
+      nsg_name = "operationsSubnetNsg"
       nsg_rules = {
         "allow_ssh" = {
           name                       = "allow_ssh"
@@ -512,7 +492,7 @@ variable "tier1_subnets" {
         }
       }
 
-      routetable_name = "tier1vmsrt"
+      routetable_name = "operationsRouteTable"
     }
   }
 }
@@ -524,19 +504,19 @@ variable "tier1_subnets" {
 variable "tier2_subid" {
   description = "Subscription ID for the deployment"
   type        = string
-  sensitive   = true
+  default     = ""
 }
 
 variable "tier2_rgname" {
   description = "Resource Group for the deployment"
   type        = string
-  default     = "rg-t2-dev"
+  default     = "sharedServices-rg"
 }
 
 variable "tier2_vnetname" {
   description = "Virtual Network Name for the deployment"
   type        = string
-  default     = "vn-t2-dev"
+  default     = "sharedServices-vnet"
 }
 
 variable "tier2_vnet_address_space" {
@@ -571,15 +551,15 @@ variable "tier2_subnets" {
     routetable_name = string
   }))
   default = {
-    "tier2vms" = {
-      name              = "tier2vms"
+    "sharedServicesSubnet" = {
+      name              = "sharedServicesSubnet"
       address_prefixes  = ["10.0.120.0/27"]
       service_endpoints = ["Microsoft.Storage"]
 
       enforce_private_link_endpoint_network_policies = false
       enforce_private_link_service_network_policies  = false
 
-      nsg_name = "tier2vmsnsg"
+      nsg_name = "sharedServicesSubnetNsg"
       nsg_rules = {
         "allow_ssh" = {
           name                       = "allow_ssh"
@@ -605,7 +585,7 @@ variable "tier2_subnets" {
         }
       }
 
-      routetable_name = "tier2vmsrt"
+      routetable_name = "sharedServicesRouteTable"
     }
   }
 }

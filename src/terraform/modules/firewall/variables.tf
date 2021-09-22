@@ -4,7 +4,6 @@
 variable "sub_id" {
   description = "The subscription ID to deploy the Firewall into"
   type        = string
-  sensitive   = true
 }
 
 variable "location" {

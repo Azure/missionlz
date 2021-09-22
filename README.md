@@ -45,7 +45,7 @@ Mission LZ has the following scope:
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="src/docs/images/scope.png" alt="Mission LZ Scope" width="600" />
+<img src="docs/images/scope.png" alt="Mission LZ Scope" width="600" />
 <!-- markdownlint-enable MD033 -->
 
 ## Networking
@@ -53,12 +53,12 @@ Mission LZ has the following scope:
 Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity and Authorization), T1 (Infrastructure Operations), T2 (DevSecOps and Shared Services), and multiple T3s (Workloads). Security can be configured to allow separation of duties between all tiers. Most customers will deploy each tier to a separate Azure subscription, but multiple subscriptions are not required.
 
 <!-- markdownlint-disable MD033 -->
-<img src="src/docs/images/networking.png" alt="Mission LZ Networking" width="600" />
+<img src="docs/images/networking.png" alt="Mission LZ Networking" width="600" />
 <!-- markdownlint-enable MD033 -->
 
 ## Getting Started using Mission LZ
 
-See our [Getting Started Guide](src/docs/getting-started.md) in the docs.
+See our [Getting Started Guide](docs/getting-started.md) in the docs.
 
 ## Product Roadmap
 
@@ -67,7 +67,7 @@ See the [Projects](https://github.com/Azure/missionlz/projects) page for the rel
 Here's what the repo consists of as of May 2021:
 
 <!-- markdownlint-disable MD033 -->
-<img src="src/docs/images/missionlz_as_of_july2021.jpg" alt="Mission LZ as of July 2021" width="600" />
+<img src="docs/images/missionlz_as_of_may2021.png" alt="Mission LZ as of April 2021" width="600" />
 <!-- markdownlint-enable MD033 -->
 
 ## Contributing

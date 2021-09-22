@@ -4,74 +4,49 @@
 # Global Configuration
 #################################
 
-variable "tf_environment" {
-  description = "The Terraform backend environment e.g. public or usgovernment. It defults to public."
+variable "environment" {
+  description = "The Terraform backend environment e.g. public or usgovernment"
   type        = string
   default     = "public"
 }
 
-variable "mlz_tenantid" {
-  description = "The Azure Active Directory tenant ID that should be used for the deployment."
-  type        = string
-  sensitive   = true
-}
-
-variable "mlz_location" {
-  description = "The Azure region for most Mission LZ resources. It defaults to eastus."
-  type        = string
-  default     = "eastus"
-}
-
-variable "mlz_metadatahost" {
+variable "metadata_host" {
   description = "The metadata host for the Azure Cloud e.g. management.azure.com"
   type        = string
   default     = "management.azure.com"
 }
 
-variable "mlz_clientid" {
-  description = "The Client ID of the Service Principal to deploy with."
+variable "location" {
+  description = "The Azure region for most Mission LZ resources"
   type        = string
-  sensitive   = true
+  default     = "East US"
 }
 
-variable "mlz_clientsecret" {
-  description = "The Client Secret of the Service Principal to deploy with."
-  type        = string
-  sensitive   = true
-}
-
-variable "mlz_objectid" {
-  description = "The object ID of a service principal in the Azure Active Directory tenant."
-  type        = string
-  sensitive   = true
-}
 variable "tags" {
- description = "A map of key value pairs to apply as tags to resources provisioned in this deployment"
- type        = map(string)
- default = {
-  "DeploymentType" : "MissionLandingZoneTF"
+  description = "A map of key value pairs to apply as tags to resources provisioned in this deployment"
+  type        = map(string)
+  default = {
+    "DeploymentType" : "MissionLandingZoneTF"
   }
 }
+
 #################################
 # Hub Configuration
 #################################
 
 variable "hub_subid" {
-  description = "Subscription ID for the HUB deployment"
+  description = "Subscription ID for the Hub deployment"
   type        = string
-  sensitive   = true
 }
 
 variable "hub_rgname" {
-  description = "Resource Group for the deployment"
+  description = "Resource Group for the Hub deployment"
   type        = string
-  default     = "rg-saca-dev"
 }
 
 variable "hub_vnetname" {
-  description = "Virtual Network Name for the deployment"
+  description = "Virtual Network Name for the Hub deployment"
   type        = string
-  default     = "vn-saca-dev"
 }
 
 variable "firewall_private_ip" {
@@ -84,19 +59,17 @@ variable "firewall_private_ip" {
 #################################
 
 variable "tier1_subid" {
-  description = "Subscription ID for the deployment"
+  description = "Subscription ID for the Tier 1 deployment"
   type        = string
-  sensitive   = true
 }
 
 variable "laws_name" {
   description = "Log Analytics Workspace Name for the deployment"
   type        = string
-  default     = "laws-dev"
 }
 
 variable "laws_rgname" {
-  description = "The RG that laws was deployed to."
+  description = "The resource group that Log Analytics Workspace was deployed to"
   type        = string
 }
 
@@ -104,21 +77,20 @@ variable "laws_rgname" {
 # Tier 3 Configuration
 #################################
 variable "tier3_subid" {
-  description = "Subscription ID for the deployment"
+  description = "Subscription ID for this Tier 3 deployment"
   type        = string
-  sensitive   = true
 }
 
 variable "tier3_rgname" {
-  description = "Resource Group for the deployment"
+  description = "Resource Group for this Tier 3 deployment"
   type        = string
-  default     = "rg-t3-dev"
+  default     = "tier3-rg"
 }
 
 variable "tier3_vnetname" {
-  description = "Virtual Network Name for the deployment"
+  description = "Virtual Network Name for this Tier 3 deployment"
   type        = string
-  default     = "vn-t3-dev"
+  default     = "tier3-vnet"
 }
 
 variable "tier3_vnet_address_space" {
@@ -153,15 +125,15 @@ variable "tier3_subnets" {
     routetable_name = string
   }))
   default = {
-    "tier3vms" = {
-      name              = "tier3vms"
+    "tier3subnet" = {
+      name              = "tier3Subnet"
       address_prefixes  = ["10.0.125.0/27"]
       service_endpoints = ["Microsoft.Storage"]
 
       enforce_private_link_endpoint_network_policies = false
       enforce_private_link_service_network_policies  = false
 
-      nsg_name = "tier3vmsnsg"
+      nsg_name = "tier3SubnetNsg"
       nsg_rules = {
         "allow_ssh" = {
           name                       = "allow_ssh"
@@ -187,7 +159,7 @@ variable "tier3_subnets" {
         }
       }
 
-      routetable_name = "tier3vmsrt"
+      routetable_name = "tier3RouteTable"
     }
   }
 }

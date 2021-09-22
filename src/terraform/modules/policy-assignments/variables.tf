@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+
 variable "policy_id" {
   description = "The Azure policy ID for the NIST 800-53 R4 policy initiative."
   type        = string
