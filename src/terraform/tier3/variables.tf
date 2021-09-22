@@ -10,12 +10,6 @@ variable "tf_environment" {
   default     = "public"
 }
 
-variable "deploymentname" {
-  description = "A name for the deployment. It defaults to dev."
-  type        = string
-  default     = "dev"
-}
-
 variable "mlz_tenantid" {
   description = "The Azure Active Directory tenant ID that should be used for the deployment."
   type        = string
@@ -51,7 +45,13 @@ variable "mlz_objectid" {
   type        = string
   sensitive   = true
 }
-
+variable "tags" {
+ description = "A map of key value pairs to apply as tags to resources provisioned in this deployment"
+ type        = map(string)
+ default = {
+  "DeploymentType" : "MissionLandingZoneTF"
+  }
+}
 #################################
 # Hub Configuration
 #################################
