@@ -398,7 +398,7 @@ param hubSubscriptionId string = subscription().subscriptionId
 param identitySubscriptionId string = hubSubscriptionId
 param operationsSubscriptionId string = hubSubscriptionId
 param sharedServicesSubscriptionId string = hubSubscriptionId
-
+param deploymentType string = 'MissionLandingZoneARM'
 @allowed([
   'Standard'
   'Premium'
@@ -543,6 +543,7 @@ param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
 param tags object = {
   'resourcePrefix': resourcePrefix
+  'deploymentType': deploymentType
 }
 
 param uniqueId string = uniqueString(deployment().name)

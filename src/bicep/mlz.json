@@ -18,6 +18,10 @@
       "maxLength": 24,
       "minLength": 3
     },
+"deploymentType": {
+      "type": "string",
+      "defaultValue": "MissionLandingZoneARM"
+    },
     "hubSubscriptionId": {
       "type": "string",
       "defaultValue": "[subscription().subscriptionId]"
@@ -503,7 +507,8 @@
     "tags": {
       "type": "object",
       "defaultValue": {
-        "resourcePrefix": "[parameters('resourcePrefix')]"
+        "resourcePrefix": "[parameters('resourcePrefix')]",
+	"deploymentType": "[parameters('deploymentType')]"
       }
     },
     "uniqueId": {
