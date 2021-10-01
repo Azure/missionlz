@@ -32,6 +32,7 @@ var linuxConfiguration = {
     ]
   }
 }
+param workspaceId string
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' existing = {
   name: networkInterfaceName
@@ -74,6 +75,57 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = {
       linuxConfiguration: ((authenticationType == 'password') ? null : linuxConfiguration)
     }
   }
+}
+
+resource vmName_Microsoft_Azure_NetworkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  name: '${virtualMachine.name}/Microsoft.Azure.NetworkWatcher'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.NetworkWatcher'
+    type: 'NetworkWatcherAgentLinux'
+    typeHandlerVersion: '1.4'
+    autoUpgradeMinorVersion: true
+  }
+  dependsOn: [
+    virtualMachine
+  ]
+}
+
+resource vmName_OMSExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  name: '${virtualMachine.name}/OMSExtension'
+  location: location
+  properties: {
+    publisher: 'Microsoft.EnterpriseCloud.Monitoring'
+    type: 'OmsAgentForLinux'
+    typeHandlerVersion: '1.4'
+    autoUpgradeMinorVersion: true
+    settings: {
+      workspaceId: reference(workspaceId, '2015-11-01-preview').customerId
+      stopOnMultipleConnections: true
+    }
+    protectedSettings: {
+      workspaceKey: listKeys(workspaceId, '2015-11-01-preview').primarySharedKey
+    }
+  }
+  dependsOn: [
+    virtualMachine
+    vmName_Microsoft_Azure_NetworkWatcher
+  ]
+}
+
+resource vmName_DependencyAgentLinux 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  name: '${virtualMachine.name}/DependencyAgentLinux'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
+    type: 'DependencyAgentLinux'
+    typeHandlerVersion: '9.5'
+    autoUpgradeMinorVersion: true
+  }
+  dependsOn: [
+    virtualMachine
+    vmName_OMSExtension
+  ]
 }
 
 output adminUsername string = adminUsername

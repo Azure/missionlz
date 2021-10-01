@@ -76,6 +76,7 @@ module hub './modules/hubNetwork.bicep' = {
     logStorageAccountName: hubLogStorageAccountName
     logStorageSkuName: hubLogStorageSkuName
 
+    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
 
     virtualNetworkName: hubVirtualNetworkName
@@ -334,6 +335,59 @@ module sharedServicesSubscriptionCreateActivityLogging './modules/centralLogging
   }
 }
 
+// operations' log analytic workspace diagnostic logging
+
+module logAnalyticsDiagnosticLogging './modules/logAnalyticsDiagnosticLogging.bicep' = {
+  name: 'delpoy-diagnostic-logging-LAWS'
+  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
+  params: {
+    diagnosticStorageAccountName: operationsLogStorageAccountName
+    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
+    enableDiagnostics: true
+  }
+  dependsOn: [
+    operations
+  ]
+}
+
+// security center per subscription if different per hub/spoke
+
+module hubSecurityCenter './modules/securityCenter.bicep' = if(deployASC){
+  name: 'set-hub-sub-security-center'
+  scope: subscription(hubSubscriptionId)
+  params: {
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    emailSecurityContact: emailSecurityContact
+  }
+}
+
+module operationsSecurityCenter './modules/securityCenter.bicep' = if(deployASC && hubSubscriptionId != operationsSubscriptionId) {
+  name: 'set-operations-sub-security-center'
+  scope: subscription(operationsSubscriptionId)
+  params: {
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    emailSecurityContact: emailSecurityContact
+  }
+}
+
+module identitySecurityCenter './modules/securityCenter.bicep' = if(deployASC && hubSubscriptionId != identitySubscriptionId) {
+  name: 'set-identity-sub-security-center'
+  scope: subscription(identitySubscriptionId)
+  params: {
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    emailSecurityContact: emailSecurityContact
+  }
+}
+
+module sharedServicesSecurityCenter './modules/securityCenter.bicep' = if(deployASC && hubSubscriptionId != sharedServicesSubscriptionId) {
+  name: 'set-sharedServices-sub-security-center'
+  scope: subscription(sharedServicesSubscriptionId)
+  params: {
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    emailSecurityContact: emailSecurityContact
+  }
+}
+
 //// remote access
 
 module remoteAccess './modules/remoteAccess.bicep' = if(deployRemoteAccess) {
@@ -385,6 +439,8 @@ module remoteAccess './modules/remoteAccess.bicep' = if(deployRemoteAccess) {
     windowsVmVersion: windowsVmVersion
     windowsVmCreateOption: windowsVmCreateOption
     windowsVmStorageAccountType: windowsVmStorageAccountType
+
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
   }
 }
 
@@ -393,7 +449,7 @@ module remoteAccess './modules/remoteAccess.bicep' = if(deployRemoteAccess) {
 @minLength(3)
 @maxLength(24)
 @description('A name (3-24 alphanumeric characters in length without whitespace) used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
-param resourcePrefix string = 'mlz-${uniqueId}'
+param resourcePrefix string = 'mlz-'
 param hubSubscriptionId string = subscription().subscriptionId
 param identitySubscriptionId string = hubSubscriptionId
 param operationsSubscriptionId string = hubSubscriptionId
@@ -405,7 +461,7 @@ param sharedServicesSubscriptionId string = hubSubscriptionId
 ])
 param firewallSkuTier string = 'Premium'
 
-param hubResourceGroupName string = '${resourcePrefix}-hub'
+param hubResourceGroupName string = '${resourcePrefix}-${uniqueId}-hub'
 param hubLocation string = deployment().location
 param hubVirtualNetworkName string = 'hub-vnet'
 param hubSubnetName string = 'hub-subnet'
@@ -481,7 +537,7 @@ param sharedServicesSubnetServiceEndpoints array = []
 param sharedServicesLogStorageAccountName string = toLower(take('shrdSvclogs${uniqueId}', 24))
 param sharedServicesLogStorageSkuName string = hubLogStorageSkuName
 
-param logAnalyticsWorkspaceName string = take('${resourcePrefix}-laws', 63)
+param logAnalyticsWorkspaceName string = take('${resourcePrefix}-${uniqueId}-laws', 63)
 param logAnalyticsWorkspaceLocation string = operationsLocation
 param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
 param logAnalyticsWorkspaceRetentionInDays int = 30
@@ -495,6 +551,10 @@ param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
 ])
 @description('Built-in policy assignments to assign, default is none. [NIST/IL5/CMMC] IL5 is only availalbe for GOV cloud and will switch to NIST if tried in AzureCloud.')
 param policy string = ''
+
+@description('Email address of the contact, in the form of john@doe.com')
+param emailSecurityContact string = ''
+param deployASC bool = true
 
 @description('Provision Azure Bastion Host and jumpboxes in this deployment')
 param deployRemoteAccess bool = false
@@ -536,13 +596,13 @@ param windowsVmAdminUsername string = 'azureuser'
 param windowsVmAdminPassword string = deployRemoteAccess ? '' : newGuid()
 param windowsVmPublisher string = 'MicrosoftWindowsServer'
 param windowsVmOffer string = 'WindowsServer'
-param windowsVmSku string = '2019-datacenter-gensecond'
+param windowsVmSku string = '2019-datacenter'
 param windowsVmVersion string = 'latest'
 param windowsVmCreateOption string = 'FromImage'
 param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
 param tags object = {
-  'resourcePrefix': resourcePrefix
+  'resourcePrefix': '${resourcePrefix}-${uniqueId}'
 }
 
 param uniqueId string = uniqueString(deployment().name)

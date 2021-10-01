@@ -15,6 +15,7 @@ param sku string
 param version string
 param createOption string
 param storageAccountType string
+param workspaceId string
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' existing = {
   name: networkInterfaceName
@@ -56,4 +57,53 @@ resource windowsVirtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = 
       ]
     }
   }
+}
+
+resource vmName_DependencyAgentWindows 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+  name: '${windowsVirtualMachine.name}/DependencyAgentWindows'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
+    type: 'DependencyAgentWindows'
+    typeHandlerVersion: '9.5'
+    autoUpgradeMinorVersion: true
+  }
+  dependsOn: [
+    windowsVirtualMachine
+  ]
+}
+
+resource vmName_MMAExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+  name: '${windowsVirtualMachine.name}/MMAExtension'
+  location: location
+  properties: {
+    publisher: 'Microsoft.EnterpriseCloud.Monitoring'
+    type: 'MicrosoftMonitoringAgent'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    settings: {
+      workspaceId: reference(workspaceId, '2015-11-01-preview').customerId
+      stopOnMultipleConnections: true
+    }
+    protectedSettings: {
+      workspaceKey: listKeys(workspaceId, '2015-11-01-preview').primarySharedKey
+    }
+  }
+  dependsOn: [
+    windowsVirtualMachine
+  ]
+}
+
+resource vmName_Microsoft_Azure_NetworkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  name: '${windowsVirtualMachine.name}/Microsoft.Azure.NetworkWatcher'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.NetworkWatcher'
+    type: 'NetworkWatcherAgentWindows'
+    typeHandlerVersion: '1.4'
+    autoUpgradeMinorVersion: true
+  }
+  dependsOn: [
+    windowsVirtualMachine
+  ]
 }
