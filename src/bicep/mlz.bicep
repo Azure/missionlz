@@ -554,7 +554,7 @@ param policy string = ''
 
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string = ''
-param deployASC bool = true
+param deployASC bool = false
 
 @description('Provision Azure Bastion Host and jumpboxes in this deployment')
 param deployRemoteAccess bool = false

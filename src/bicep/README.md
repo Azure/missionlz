@@ -120,7 +120,7 @@ az deployment sub create \
 
 ## Adding Azure Policy
 
-To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the parameter with one of the following, NIST, IL5 or CMMC. For example deploying with MLZ:
+To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the `policy` parameter with one of the following, NIST, IL5 or CMMC. For example deploying with MLZ:
 
 ```plaintext
 az deployment sub create \
@@ -144,6 +144,21 @@ az deployment group create \
 The result will be a policy assignment created for each resource group deployed by MLZ that can be viewed in the 'Compliance' view of Azure Policy in the Azure Portal.
 
 Under the [modules/policies](modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
+
+## Adding Azure Security Center
+
+By default [Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/security-center-introduction) offers a free set of monitoring capabilities that are enabled via an Azure policy when your first set up a subscription and view Azure Security Center portal blade.
+
+Azure Security Center offers a standard/defender sku which enables a greater depth of awareness including more reccomendations and threat analytics. You can enable this higher depth level of security in MLZ by setting the parameter `deployASC` during deployment. In addition you can include the `emailSecurityContact` parameter to set a contact email for alerts.  
+
+```plaintext
+az deployment sub create \
+  --location eastus \
+  --template-file mlz.bicep \
+  --parameters policy=<one of 'CMMC', 'IL5', or 'NIST'> \
+  --parameters deployASC=true \
+  --parameters emailSecurityContact=<user#domain.com>
+```
 
 ## Adding Remote Access via Bastion Host
 
