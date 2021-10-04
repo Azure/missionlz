@@ -449,7 +449,7 @@ module remoteAccess './modules/remoteAccess.bicep' = if(deployRemoteAccess) {
 @minLength(3)
 @maxLength(24)
 @description('A name (3-24 alphanumeric characters in length without whitespace) used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
-param resourcePrefix string = 'mlz-'
+param resourcePrefix string = 'mlz-${uniqueId}'
 param hubSubscriptionId string = subscription().subscriptionId
 param identitySubscriptionId string = hubSubscriptionId
 param operationsSubscriptionId string = hubSubscriptionId
@@ -461,7 +461,7 @@ param sharedServicesSubscriptionId string = hubSubscriptionId
 ])
 param firewallSkuTier string = 'Premium'
 
-param hubResourceGroupName string = '${resourcePrefix}-${uniqueId}-hub'
+param hubResourceGroupName string = '${resourcePrefix}-hub'
 param hubLocation string = deployment().location
 param hubVirtualNetworkName string = 'hub-vnet'
 param hubSubnetName string = 'hub-subnet'
@@ -537,7 +537,7 @@ param sharedServicesSubnetServiceEndpoints array = []
 param sharedServicesLogStorageAccountName string = toLower(take('shrdSvclogs${uniqueId}', 24))
 param sharedServicesLogStorageSkuName string = hubLogStorageSkuName
 
-param logAnalyticsWorkspaceName string = take('${resourcePrefix}-${uniqueId}-laws', 63)
+param logAnalyticsWorkspaceName string = take('${resourcePrefix}-laws', 63)
 param logAnalyticsWorkspaceLocation string = operationsLocation
 param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
 param logAnalyticsWorkspaceRetentionInDays int = 30
