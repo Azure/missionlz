@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "10197699490604004243"
+      "templateHash": "927222700136740996"
     }
   },
   "parameters": {
@@ -17,10 +17,6 @@
       },
       "maxLength": 24,
       "minLength": 3
-    },
-"deploymentType": {
-      "type": "string",
-      "defaultValue": "MissionLandingZoneARM"
     },
     "hubSubscriptionId": {
       "type": "string",
@@ -508,7 +504,7 @@
       "type": "object",
       "defaultValue": {
         "resourcePrefix": "[parameters('resourcePrefix')]",
-	"deploymentType": "[parameters('deploymentType')]"
+        "deploymentType": "MissionLandingZoneARM"
       }
     },
     "uniqueId": {
