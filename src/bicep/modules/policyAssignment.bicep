@@ -112,7 +112,7 @@ resource vmPolicyRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04
     }
   }
 
-module roleAssignment './modules/roleAssignment.bicep' = {
+module roleAssignment '../modules/roleAssignment.bicep' = {
   name: 'Assign-Laws-Role-Policy-${resourceGroup().name}'
   scope: resourceGroup(operationsSubscriptionId, logAnalyticsWorkspaceResourceGroupName)
     params: {

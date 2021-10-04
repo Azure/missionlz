@@ -73,6 +73,18 @@ resource vmName_DependencyAgentWindows 'Microsoft.Compute/virtualMachines/extens
   ]
 }
 
+resource vmName_AzurePolicyforWindows 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+  name: '${windowsVirtualMachine.name}/AzurePolicyforWindows'
+  location: location
+  properties: {
+    publisher: 'Microsoft.GuestConfiguration'
+    type: 'ConfigurationforWindows'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
+  }
+}
+
 resource vmName_MMAExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   name: '${windowsVirtualMachine.name}/MMAExtension'
   location: location
@@ -80,7 +92,6 @@ resource vmName_MMAExtension 'Microsoft.Compute/virtualMachines/extensions@2021-
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
     type: 'MicrosoftMonitoringAgent'
     typeHandlerVersion: '1.0'
-    autoUpgradeMinorVersion: true
     settings: {
       workspaceId: reference(workspaceId, '2015-11-01-preview').customerId
       stopOnMultipleConnections: true
@@ -101,7 +112,6 @@ resource vmName_Microsoft_Azure_NetworkWatcher 'Microsoft.Compute/virtualMachine
     publisher: 'Microsoft.Azure.NetworkWatcher'
     type: 'NetworkWatcherAgentWindows'
     typeHandlerVersion: '1.4'
-    autoUpgradeMinorVersion: true
   }
   dependsOn: [
     windowsVirtualMachine

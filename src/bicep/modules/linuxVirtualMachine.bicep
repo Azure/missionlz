@@ -84,7 +84,21 @@ resource vmName_Microsoft_Azure_NetworkWatcher 'Microsoft.Compute/virtualMachine
     publisher: 'Microsoft.Azure.NetworkWatcher'
     type: 'NetworkWatcherAgentLinux'
     typeHandlerVersion: '1.4'
+  }
+  dependsOn: [
+    virtualMachine
+  ]
+}
+
+resource vmName_Microsoft_AzurePolicyforWindows'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  name: '${virtualMachine.name}/Microsoft.Azure.AzurePolicyforWindows'
+  location: location
+  properties: {
+    publisher: 'Microsoft.GuestConfiguration'
+    type: 'ConfigurationforLinux'
+    typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
   }
   dependsOn: [
     virtualMachine
@@ -98,7 +112,6 @@ resource vmName_OMSExtension 'Microsoft.Compute/virtualMachines/extensions@2020-
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
     type: 'OmsAgentForLinux'
     typeHandlerVersion: '1.4'
-    autoUpgradeMinorVersion: true
     settings: {
       workspaceId: reference(workspaceId, '2015-11-01-preview').customerId
       stopOnMultipleConnections: true
