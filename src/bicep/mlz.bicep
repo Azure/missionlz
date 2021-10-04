@@ -542,7 +542,7 @@ param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
 param tags object = {
   'resourcePrefix': resourcePrefix
-  'deploymentType': 'MissionLandingZoneARM'
+  'DeploymentType': 'MissionLandingZoneARM'
 }
 
 param uniqueId string = uniqueString(deployment().name)
