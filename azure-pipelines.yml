@@ -4,16 +4,37 @@
 # https://aka.ms/yaml
 
 trigger:
-- vidbala-cicd
+- main
 
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+variables:
+  ServiceConnectionName: $(CAzureConnection)
+  GServiceConnectionName: $(GAzureConnection)
+  
+jobs:
+- job: CommercialCloud
+  steps:
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: $(ServiceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az deployment sub create \
+          --name $(DeploymentName) \
+          --location $(Location) \
+          --template-file $(TemplateFile)
+- job: GovCloud
+  steps:
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: $(GServiceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az deployment sub create \
+          --name $(DeploymentName) \
+          --location $(GLocation) \
+          --template-file $(TemplateFile)
