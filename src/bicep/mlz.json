@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "10197699490604004243"
+      "templateHash": "927222700136740996"
     }
   },
   "parameters": {
@@ -503,7 +503,8 @@
     "tags": {
       "type": "object",
       "defaultValue": {
-        "resourcePrefix": "[parameters('resourcePrefix')]"
+        "resourcePrefix": "[parameters('resourcePrefix')]",
+        "DeploymentType": "MissionLandingZoneARM"
       }
     },
     "uniqueId": {
