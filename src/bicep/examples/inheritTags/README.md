@@ -6,10 +6,10 @@ This example adds a virtual machine adds ia policy to a given resource group tha
 
 ### Deploys Inherit Tag Policy to a Resource
 
-Deploys an assignment resource that will assign a tag of the users choosing to be applied to a resource group' s child resources. 
+Deploys an assignment resource that will assign a tag of the users choosing to be applied to a resource group' s child resources.
 
 Please pay special attention to the fact that this policy applies to new or updated resources within the group, you will need to trigger an update or remediation.  Remediation can be kicked off via the Azure Portal in the Policy Section.  
-For guidance in creating a remediation with the appropriate permissions and applying to all existing resources please see:  [Remediate non-compliant resources with Azure Policy](https://docs.microsoft.com/en-us/azure/governance/policy/how-to/remediate-resources) 
+For guidance in creating a remediation with the appropriate permissions and applying to all existing resources please see:  [Remediate non-compliant resources with Azure Policy](https://docs.microsoft.com/en-us/azure/governance/policy/how-to/remediate-resources)
 
 For further reading please consult the following documentation:
 
@@ -21,7 +21,6 @@ For further reading please consult the following documentation:
 
 1. A Mission LZ deployment (a deployment of mlz.bicep)70
 2. The output from your deployment, or previously retrieved resource group names as well as which tag you would like to be inherited by all of the resource groups items. (Note: The assumption is that you've already added your tag to the resource group)
-
 
 ## Deploy the example
 
