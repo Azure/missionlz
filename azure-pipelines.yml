@@ -38,3 +38,17 @@ jobs:
           --name $(DeploymentName) \
           --location $(GLocation) \
           --template-file $(TemplateFile)
+- job: CommercialCloud_TF
+  steps:
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: '0.12.3'
+    - task: TerraformTaskV2@2
+      inputs:
+            provider: 'azurerm'
+            command: 'init'
+            backendServiceArm: 'CAzureConnection'
+            backendAzureRmResourceGroupName: 'mlzcicdtf'
+            backendAzureRmStorageAccountName: 'mlzcicdtfstore'
+            backendAzureRmContainerName: 'mlzcicdtfstorcontainer'
+            backendAzureRmKey: 'tf/terraform.tfstate'
