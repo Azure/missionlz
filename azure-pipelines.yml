@@ -50,3 +50,10 @@ jobs:
             scriptLocation: 'inlineScript'
             inlineScript: 'terraform init'
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+    - task: AzureCLI@2
+      inputs:
+            azureSubscription: 'CAzureConnection'
+            scriptType: 'bash'
+            scriptLocation: 'inlineScript'
+            inlineScript: 'terraform apply'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
