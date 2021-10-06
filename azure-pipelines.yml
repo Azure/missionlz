@@ -42,7 +42,7 @@ jobs:
   steps:
     - task: TerraformInstaller@0
       inputs:
-        terraformVersion: '2.71.0'
+        terraformVersion: '1.0.8'
     - task: AzureCLI@2
       inputs:
             azureSubscription: 'CAzureConnection'
