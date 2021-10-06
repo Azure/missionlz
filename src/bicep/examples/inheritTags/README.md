@@ -36,7 +36,7 @@ tagInherit="yourTaghere"
 az deployment group create \
   --name "InheritTagExample" \
   --template-file "./inherit.bicep" \
-  --resource-group = "resourceGroupName" \
+  --resource-group "resourceGroupName" \
   --parameters \
   tagNameInherit=$tagInherit
 ```
