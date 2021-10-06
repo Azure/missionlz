@@ -14,7 +14,7 @@ variables:
   GServiceConnectionName: $(GAzureConnection)
   
 jobs:
-- job: biCommercialCloud
+- job: bicepCommercialCloud
   steps:
   - task: AzureCLI@2
     inputs:
@@ -23,10 +23,10 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: |
         az deployment sub create \
-          --name $(DeploymentName) \
+          --name $(bDeploymentName) \
           --location $(Location) \
           --template-file $(TemplateFile)
-- job: biGovCloud
+- job: bicepGovCloud
   steps:
   - task: AzureCLI@2
     inputs:
@@ -35,20 +35,18 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: |
         az deployment sub create \
-          --name $(DeploymentName) \
+          --name $(bDeploymentName) \
           --location $(GLocation) \
           --template-file $(TemplateFile)
 - job: CommercialCloud_TF
   steps:
     - task: TerraformInstaller@0
       inputs:
-        terraformVersion: '0.12.3'
-    - task: TerraformTaskV2@2
+        terraformVersion: 'latest'
+    - task: AzureCLI@2
       inputs:
-            provider: 'azurerm'
-            command: 'init'
-            backendServiceArm: 'CAzureConnection'
-            backendAzureRmResourceGroupName: 'mlzcicdtf'
-            backendAzureRmStorageAccountName: 'mlzcicdtfstore'
-            backendAzureRmContainerName: 'mlzcicdtfstorcontainer'
-            backendAzureRmKey: 'tf/terraform.tfstate'
+            azureSubscription: 'CAzureConnection'
+            scriptType: 'bash'
+            scriptLocation: 'inlineScript'
+            inlineScript: 'terraform init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
