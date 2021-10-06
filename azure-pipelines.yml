@@ -14,7 +14,7 @@ variables:
   GServiceConnectionName: $(GAzureConnection)
   
 jobs:
-- job: CommercialCloud_bicep
+- job: biCommercialCloud
   steps:
   - task: AzureCLI@2
     inputs:
@@ -26,7 +26,7 @@ jobs:
           --name $(DeploymentName) \
           --location $(Location) \
           --template-file $(TemplateFile)
-- job: GovCloud_bicep
+- job: biGovCloud
   steps:
   - task: AzureCLI@2
     inputs:
@@ -38,23 +38,3 @@ jobs:
           --name $(DeploymentName) \
           --location $(GLocation) \
           --template-file $(TemplateFile)
-- job: CommercialCloud_TF
-  steps:
-    - task: TerraformInstaller@0
-      inputs:
-        terraformVersion: '0.12.3'
-    - task: TerraformTaskV2@2
-      inputs:
-            provider: 'azurerm'
-            command: 'init'
-            backendServiceArm: 'CAzureConnection'
-            backendAzureRmResourceGroupName: 'mlzcicdtf'
-            backendAzureRmStorageAccountName: 'mlzcicdtfstore'
-            backendAzureRmContainerName: 'mlzcicdtfstorcontainer'
-            backendAzureRmKey: 'tf/terraform.tfstate'
-    - task: TerraformTaskV2@2
-      inputs:
-        provider: 'azurerm'
-        command: 'apply'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
-        environmentServiceNameAzureRM: 'CAzureConnection'
