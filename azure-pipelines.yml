@@ -55,5 +55,5 @@ jobs:
             azureSubscription: 'CAzureConnection'
             scriptType: 'bash'
             scriptLocation: 'inlineScript'
-            inlineScript: 'terraform apply'
+            inlineScript: 'terraform apply -var "hub_subid=$(subid)" -auto-approve -input=false'
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
