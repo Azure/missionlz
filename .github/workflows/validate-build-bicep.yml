@@ -22,5 +22,5 @@ jobs:
           if [[ 'git status --porcelain' ]]; then
             git add src/bicep/mlz.json
             git commit -m "GitHub Action: Build Bicep to JSON"
-            git push origin HEAD:$GITHUB_HEAD_REF
+            git push origin HEAD:"$GITHUB_HEAD_REF"
           fi
