@@ -18,7 +18,6 @@ jobs:
       - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          rm src/bicep/mlz.json
           az bicep build --file src/bicep/mlz.bicep --outfile src/bicep/mlz.json
           if [[ `git status --porcelain` ]]; then
             git add src/bicep/mlz.json
