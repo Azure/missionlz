@@ -55,7 +55,7 @@ jobs:
                export ARM_CLIENT_SECRET=$(ClientSecret) `
                export ARM_SUBSCRIPTION_ID=$(subId) `
                export ARM_TENANT_ID=$(tenantId) `
-               terraform init `
+               terraform init 
                terraform apply -var "hub_subid=$(subid)" -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
             
