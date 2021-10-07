@@ -4,16 +4,25 @@
 # https://aka.ms/yaml
 
 trigger:
-- main
+- azure-pipelines-tf
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: TerraformTaskV2@2
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+    backendServiceArm: 'CAzureConnection'
+    backendAzureRmResourceGroupName: 'missionlz-cicd'
+    backendAzureRmStorageAccountName: 'missionlzstoracc'
+    backendAzureRmContainerName: 'mlztfcontainer'
+    backendAzureRmKey: 'terraform.tfstate'
+- task: TerraformTaskV2@2
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    commandOptions: 'hub_id=$subid'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
