@@ -47,14 +47,14 @@ jobs:
       displayName: "Terraform"
       inputs:
             azureSubscription: 'CAzureConnection'
-            scriptType: 'batch'
+            scriptType: 'bash'
             scriptLocation: 'inlineScript'
             addSpnToEnvironment: true
             inlineScript: |
-               export ARM_CLIENT_ID=$(ClientId) 
-               export ARM_CLIENT_SECRET=$(ClientSecret) 
-               export ARM_SUBSCRIPTION_ID=$(subId) 
-               export ARM_TENANT_ID=$(tenantId) 
+               export ARM_CLIENT_ID=$(ClientId) `
+               export ARM_CLIENT_SECRET=$(ClientSecret) `
+               export ARM_SUBSCRIPTION_ID=$(subId) `
+               export ARM_TENANT_ID=$(tenantId) `
                terraform init
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
             
@@ -75,14 +75,14 @@ jobs:
     - task: AzureCLI@2
       inputs:
             azureSubscription: 'GAzureConnection'
-            scriptType: 'batch'
+            scriptType: 'bash'
             scriptLocation: 'inlineScript'
             addSpnToEnvironment: true
             inlineScript: |
-              export ARM_CLIENT_ID=$(GClientId) 
-              export ARM_CLIENT_SECRET=$(GClientSecret) 
-              export ARM_SUBSCRIPTION_ID=$(GSubId) 
-              export ARM_TENANT_ID=$(GTenantId) 
+              export ARM_CLIENT_ID=$(GClientId) `
+              export ARM_CLIENT_SECRET=$(GClientSecret) `
+              export ARM_SUBSCRIPTION_ID=$(GSubId) `
+              export ARM_TENANT_ID=$(GTenantId) `
               terraform init
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
     - task: AzureCLI@2
