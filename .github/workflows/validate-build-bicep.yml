@@ -19,7 +19,7 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           az bicep build --file src/bicep/mlz.bicep --outfile src/bicep/mlz.json
-          if [[ 'git status --porcelain' ]]; then
+          if [[ $(git status --porcelain) ]]; then
             git add src/bicep/mlz.json
             git commit -m "GitHub Action: Build Bicep to JSON"
             git push origin HEAD:"$GITHUB_HEAD_REF"
