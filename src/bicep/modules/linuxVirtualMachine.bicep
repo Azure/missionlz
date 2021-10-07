@@ -32,7 +32,7 @@ var linuxConfiguration = {
     ]
   }
 }
-param workspaceId string
+param logAnalyticsWorkspaceId string
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' existing = {
   name: networkInterfaceName
@@ -77,7 +77,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   }
 }
 
-resource vmName_Microsoft_Azure_NetworkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
   name: '${virtualMachine.name}/Microsoft.Azure.NetworkWatcher'
   location: location
   properties: {
@@ -87,11 +87,12 @@ resource vmName_Microsoft_Azure_NetworkWatcher 'Microsoft.Compute/virtualMachine
   }
   dependsOn: [
     virtualMachine
+    policyExtension
   ]
 }
 
-resource vmName_Microsoft_AzurePolicyforWindows'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-  name: '${virtualMachine.name}/Microsoft.Azure.AzurePolicyforWindows'
+resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  name: '${virtualMachine.name}/Microsoft.Azure.AzurePolicyforLinux'
   location: location
   properties: {
     publisher: 'Microsoft.GuestConfiguration'
@@ -105,28 +106,28 @@ resource vmName_Microsoft_AzurePolicyforWindows'Microsoft.Compute/virtualMachine
   ]
 }
 
-resource vmName_OMSExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
   name: '${virtualMachine.name}/OMSExtension'
   location: location
   properties: {
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
     type: 'OmsAgentForLinux'
-    typeHandlerVersion: '1.4'
+    typeHandlerVersion: '1.13'
     settings: {
-      workspaceId: reference(workspaceId, '2015-11-01-preview').customerId
+      workspaceId: reference(logAnalyticsWorkspaceId , '2015-11-01-preview').customerId
       stopOnMultipleConnections: true
     }
     protectedSettings: {
-      workspaceKey: listKeys(workspaceId, '2015-11-01-preview').primarySharedKey
+      workspaceKey: listKeys(logAnalyticsWorkspaceId , '2015-11-01-preview').primarySharedKey
     }
   }
   dependsOn: [
     virtualMachine
-    vmName_Microsoft_Azure_NetworkWatcher
+    networkWatcher
   ]
 }
 
-resource vmName_DependencyAgentLinux 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
   name: '${virtualMachine.name}/DependencyAgentLinux'
   location: location
   properties: {
@@ -137,7 +138,7 @@ resource vmName_DependencyAgentLinux 'Microsoft.Compute/virtualMachines/extensio
   }
   dependsOn: [
     virtualMachine
-    vmName_OMSExtension
+    omsExtension
   ]
 }
 

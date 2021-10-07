@@ -237,8 +237,8 @@ module firewall './firewall.bicep' = {
 module azureMonitorPrivateLink './privateLink.bicep' = {
   name: 'azure-monitor-private-link'
   params: {
-    laWorkspaceName: logAnalyticsWorkspaceName
-    laWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     privateEndpointSubnetName: subnetName
     privateEndpointVnetName: virtualNetwork.outputs.name
     tags: tags

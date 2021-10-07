@@ -64,7 +64,7 @@ var solutions = [
 @description('Enable lock to prevent accidental deletion')
 param enableDeleteLock bool = false
 
-var lockName = '${logAnalyticsWorkspace.name}-lck'
+var lockName = '${logAnalyticsWorkspace.name}-lock'
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
   name: name

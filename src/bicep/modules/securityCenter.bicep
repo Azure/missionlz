@@ -22,18 +22,12 @@ var bundle = (environment().name != 'AzureUSGovernment' ? [
 ])
 
 @description('Turn automatic deployment by ASC of the MMA (OMS VM extension) on or off')
-@allowed([
-  'On'
-  'Off'
-])
-param autoProvisioning string = 'On'
+param enableAutoProvisioning bool = true
+var autoProvisioning = enableAutoProvisioning ? 'On' : 'Off'
 
 @description('Turn security policy settings On or Off.')
-@allowed([
-  'On'
-  'Off'
-])
-param securitySettings string = 'On'
+param enableSecuritySettings bool = true
+var securitySettings = enableSecuritySettings ? 'On' : 'Off'
 
 @description('Specify the ID of your custom Log Analytics workspace to collect ASC data.')
 param logAnalyticsWorkspaceId string
@@ -59,7 +53,7 @@ resource autoProvision 'Microsoft.Security/autoProvisioningSettings@2017-08-01-p
   }
 }
 
-resource Microsoft_Security_workspaceSettings_default 'Microsoft.Security/workspaceSettings@2017-08-01-preview' = {
+resource securityWorkspaceSettings  'Microsoft.Security/workspaceSettings@2017-08-01-preview' = {
   name: 'default'
   properties: {
     workspaceId: logAnalyticsWorkspaceId

@@ -108,7 +108,7 @@ module linuxVirtualMachine './linuxVirtualMachine.bicep' = {
     authenticationType: linuxVmAuthenticationType
     adminPasswordOrKey: linuxVmAdminPasswordOrKey
     networkInterfaceName: linuxNetworkInterface.outputs.name
-    workspaceId: logAnalyticsWorkspaceId
+    logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
   }
 }
 
@@ -143,6 +143,6 @@ module windowsVirtualMachine './windowsVirtualMachine.bicep' = {
     createOption: windowsVmCreateOption
     storageAccountType: windowsVmStorageAccountType
     networkInterfaceName: windowsNetworkInterface.outputs.name
-    workspaceId: logAnalyticsWorkspaceId
+    logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
   }
 }

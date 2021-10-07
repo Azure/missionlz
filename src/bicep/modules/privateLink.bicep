@@ -1,11 +1,8 @@
 @description('The name of the resource the private endpoint is being created for')
-param laWorkspaceName string
+param logAnalyticsWorkspaceName  string
 
 @description('The resource id of the resoure the private endpoint is being created for')
-param laWorkspaceResourceId string
-
-@description('The region the private endpoint will be created in')
-param privateEndpointLocation string = resourceGroup().location
+param logAnalyticsWorkspaceResourceId  string
 
 @description('The name of the subnet in the virtual network where the private endpoint will be placed')
 param privateEndpointSubnetName string
@@ -25,30 +22,30 @@ param vnetResourceGroup string = resourceGroup().name
 @description('The subscription id of the subscription the virtual network exists in')
 param vnetSubscriptionId string = subscription().subscriptionId
 
-var privateLinkConnName = substring('plconn${laWorkspaceName}${uniqueData}', 0, 16)
-var privateLinkEndpointName_var = substring('pl${laWorkspaceName}${uniqueData}', 0, 16)
-var privateLinkScopeName_var = substring('plscope${laWorkspaceName}${uniqueData}', 0, 16)
-var privateLinkScopeResourceName = substring('plscres${laWorkspaceName}${uniqueData}', 0, 16)
+var privateLinkConnectionName  = substring('plconn${logAnalyticsWorkspaceName }${uniqueData}', 0, 16)
+var privateLinkEndpointName = substring('pl${logAnalyticsWorkspaceName }${uniqueData}', 0, 16)
+var privateLinkScopeName = substring('plscope${logAnalyticsWorkspaceName }${uniqueData}', 0, 16)
+var privateLinkScopeResourceName = substring('plscres${logAnalyticsWorkspaceName }${uniqueData}', 0, 16)
 
-resource privateLinkScopeName 'microsoft.insights/privateLinkScopes@2019-10-17-preview' = {
-  name: privateLinkScopeName_var
+resource globalPrivateLinkScope 'microsoft.insights/privateLinkScopes@2019-10-17-preview' = {
+  name: privateLinkScopeName
   location: 'global'
   properties: {}
 }
 
-resource privateLinkScopeName_privateLinkScopeResourceName 'microsoft.insights/privateLinkScopes/scopedResources@2019-10-17-preview' = {
-  name: '${privateLinkScopeName_var}/${privateLinkScopeResourceName}'
+resource logAnalyticsWorkspacePrivateLinkScope  'microsoft.insights/privateLinkScopes/scopedResources@2019-10-17-preview' = {
+  name: '${privateLinkScopeName}/${privateLinkScopeResourceName}'
   properties: {
-    linkedResourceId: laWorkspaceResourceId
+    linkedResourceId: logAnalyticsWorkspaceResourceId
   }
   dependsOn: [
-    privateLinkScopeName
+    globalPrivateLinkScope 
   ]
 }
 
-resource privateLinkEndpointName 'Microsoft.Network/privateEndpoints@2020-07-01' = {
-  name: privateLinkEndpointName_var
-  location: privateEndpointLocation
+resource subnetPrivateEndpoint  'Microsoft.Network/privateEndpoints@2020-07-01' = {
+  name: privateLinkEndpointName
+  location: resourceGroup().location
   tags: tags
   properties: {
     subnet: {
@@ -56,9 +53,9 @@ resource privateLinkEndpointName 'Microsoft.Network/privateEndpoints@2020-07-01'
     }
     privateLinkServiceConnections: [
       {
-        name: privateLinkConnName
+        name: privateLinkConnectionName 
         properties: {
-          privateLinkServiceId: privateLinkScopeName.id
+          privateLinkServiceId: globalPrivateLinkScope.id
           groupIds: [
             'azuremonitor'
           ]
@@ -67,12 +64,12 @@ resource privateLinkEndpointName 'Microsoft.Network/privateEndpoints@2020-07-01'
     ]
   }
   dependsOn: [
-    privateLinkScopeName_privateLinkScopeResourceName
+    logAnalyticsWorkspacePrivateLinkScope 
   ]
 }
 
-resource privateLinkEndpointName_default 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-07-01' = {
-  name: '${privateLinkEndpointName_var}/default'
+resource dnsZonePrivateLinkEndpoint 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-07-01' = {
+  name: '${privateLinkEndpointName}/default'
   properties: {
     privateDnsZoneConfigs: [
       {
@@ -102,7 +99,7 @@ resource privateLinkEndpointName_default 'Microsoft.Network/privateEndpoints/pri
     ]
   }
   dependsOn: [
-    privateLinkEndpointName
+    subnetPrivateEndpoint 
   ]
 }
 var privateDnsZones_privatelink_monitor_azure_name = ( environment().name =~ 'AzureCloud' ? 'privatelink.monitor.azure.com' : 'privatelink.monitor.azure.us' ) 

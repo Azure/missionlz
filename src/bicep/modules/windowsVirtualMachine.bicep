@@ -15,7 +15,7 @@ param sku string
 param version string
 param createOption string
 param storageAccountType string
-param workspaceId string
+param logAnalyticsWorkspaceId  string
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' existing = {
   name: networkInterfaceName
@@ -59,7 +59,7 @@ resource windowsVirtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = 
   }
 }
 
-resource vmName_DependencyAgentWindows 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   name: '${windowsVirtualMachine.name}/DependencyAgentWindows'
   location: location
   properties: {
@@ -73,7 +73,7 @@ resource vmName_DependencyAgentWindows 'Microsoft.Compute/virtualMachines/extens
   ]
 }
 
-resource vmName_AzurePolicyforWindows 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   name: '${windowsVirtualMachine.name}/AzurePolicyforWindows'
   location: location
   properties: {
@@ -85,7 +85,7 @@ resource vmName_AzurePolicyforWindows 'Microsoft.Compute/virtualMachines/extensi
   }
 }
 
-resource vmName_MMAExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+resource mmaExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   name: '${windowsVirtualMachine.name}/MMAExtension'
   location: location
   properties: {
@@ -93,11 +93,11 @@ resource vmName_MMAExtension 'Microsoft.Compute/virtualMachines/extensions@2021-
     type: 'MicrosoftMonitoringAgent'
     typeHandlerVersion: '1.0'
     settings: {
-      workspaceId: reference(workspaceId, '2015-11-01-preview').customerId
+      workspaceId: reference(logAnalyticsWorkspaceId , '2015-11-01-preview').customerId
       stopOnMultipleConnections: true
     }
     protectedSettings: {
-      workspaceKey: listKeys(workspaceId, '2015-11-01-preview').primarySharedKey
+      workspaceKey: listKeys(logAnalyticsWorkspaceId , '2015-11-01-preview').primarySharedKey
     }
   }
   dependsOn: [
@@ -105,7 +105,7 @@ resource vmName_MMAExtension 'Microsoft.Compute/virtualMachines/extensions@2021-
   ]
 }
 
-resource vmName_Microsoft_Azure_NetworkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
   name: '${windowsVirtualMachine.name}/Microsoft.Azure.NetworkWatcher'
   location: location
   properties: {

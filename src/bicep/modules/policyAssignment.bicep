@@ -29,7 +29,7 @@ var policyDefinitionID = {
 
 var modifiedAssignment = ( environment().name =~ 'AzureCloud' && builtInAssignment =~ 'IL5' ? 'NIST' : builtInAssignment )
 var assignmentName = '${modifiedAssignment} ${resourceGroup().name}'
-var agentVmmsAssignmentName = 'Deploy VMSS Agents ${resourceGroup().name}'
+var agentVmssAssignmentName = 'Deploy VMSS Agents ${resourceGroup().name}'
 var agentVmAssignmentName = 'Deploy VM Agents ${resourceGroup().name}'
 var contributorRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
 var lawsReaderRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', '92aaf0da-9dab-42b6-94a3-d43ce8d16293')
@@ -48,8 +48,8 @@ resource assignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = if 
   }
 }
 
-resource vmmsAgentAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
-  name: agentVmmsAssignmentName
+resource vmssAgentAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
+  name: agentVmssAssignmentName
   location: resourceGroup().location
   properties: {
     policyDefinitionId: '/providers/Microsoft.Authorization/policySetDefinitions/75714362-cae7-409e-9b99-a8e5075b7fad'
@@ -93,11 +93,11 @@ resource policyRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-0
   }
 
 resource vmmsPolicyRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(contributorRoleDefinitionId,agentVmmsAssignmentName)
+  name: guid(contributorRoleDefinitionId,agentVmssAssignmentName)
   scope: resourceGroup()
   properties: {
     roleDefinitionId: contributorRoleDefinitionId
-    principalId: vmmsAgentAssignment.identity.principalId
+    principalId: vmssAgentAssignment.identity.principalId
     principalType: 'ServicePrincipal'
     }
   }
