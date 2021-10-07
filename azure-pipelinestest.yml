@@ -9,7 +9,11 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
+
 steps:
+- task: TerraformInstaller@0
+  inputs:
+    terraformVersion: '0.12.3'
 - task: TerraformTaskV2@2
   inputs:
     provider: 'azurerm'
