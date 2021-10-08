@@ -192,6 +192,6 @@ Then, once you've deployed the virtual machines and Bastion Host, use these docs
 If you want to develop with Bicep you'll need these:
 
 1. Install Azure CLI <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli#install>
-1. Install Bicep <https://github.com/Azure/bicep/blob/main/docs/installing.md#install-and-manage-via-azure-cli-easiest>
+1. Install Bicep https://github.com/Azure/bicep/blob/main/docs/installing.md#install-and-manage-via-azure-cli-easiest
 
 However, you don't need to develop with Bicep to deploy the compiled `mlz.json` in this repository.
