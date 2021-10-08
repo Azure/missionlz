@@ -602,7 +602,7 @@ param windowsVmCreateOption string = 'FromImage'
 param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
 param tags object = {
-  'resourcePrefix': '${resourcePrefix}-${uniqueId}'
+  'resourcePrefix': resourcePrefix
 }
 
 param uniqueId string = uniqueString(deployment().name)
