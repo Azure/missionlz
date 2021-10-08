@@ -19,6 +19,7 @@ steps:
     provider: 'azurerm'
     command: 'init'
     workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+    backendServiceArm: 'CAzureConnection'
     environmentServiceNameAzureRM: 'CAzureConnection'
 - task: TerraformTaskV2@2
   inputs:
