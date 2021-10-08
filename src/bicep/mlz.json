@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "3126123976395455135"
+      "templateHash": "11510952573722587231"
     }
   },
   "parameters": {
@@ -551,7 +551,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "4565404424555951403"
+              "templateHash": "2597065260920167442"
             }
           },
           "parameters": {
@@ -570,7 +570,7 @@
           "resources": [
             {
               "type": "Microsoft.Resources/resourceGroups",
-              "apiVersion": "2021-04-01",
+              "apiVersion": "2019-05-01",
               "name": "[parameters('name')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('tags')]"
@@ -618,7 +618,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "4565404424555951403"
+              "templateHash": "2597065260920167442"
             }
           },
           "parameters": {
@@ -637,7 +637,7 @@
           "resources": [
             {
               "type": "Microsoft.Resources/resourceGroups",
-              "apiVersion": "2021-04-01",
+              "apiVersion": "2019-05-01",
               "name": "[parameters('name')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('tags')]"
@@ -685,7 +685,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "4565404424555951403"
+              "templateHash": "2597065260920167442"
             }
           },
           "parameters": {
@@ -704,7 +704,7 @@
           "resources": [
             {
               "type": "Microsoft.Resources/resourceGroups",
-              "apiVersion": "2021-04-01",
+              "apiVersion": "2019-05-01",
               "name": "[parameters('name')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('tags')]"
@@ -752,7 +752,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "4565404424555951403"
+              "templateHash": "2597065260920167442"
             }
           },
           "parameters": {
@@ -771,7 +771,7 @@
           "resources": [
             {
               "type": "Microsoft.Resources/resourceGroups",
-              "apiVersion": "2021-04-01",
+              "apiVersion": "2019-05-01",
               "name": "[parameters('name')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('tags')]"
