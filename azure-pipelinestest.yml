@@ -20,6 +20,10 @@ steps:
     command: 'init'
     workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
     backendServiceArm: 'CAzureConnection'
+    backendAzureRmResourceGroupName: 'missionlz-cicd'
+    backendAzureRmStorageAccountName: 'missionlzstoracc'
+    backendAzureRmContainerName: 'mlztfcontainer'
+    backendAzureRmKey: 'terraformstate.key'
     environmentServiceNameAzureRM: 'CAzureConnection'
 - task: TerraformTaskV2@2
   inputs:
