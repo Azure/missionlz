@@ -9,7 +9,7 @@ Mission LZ is:
 - Deployable in commercial, government, and air-gapped Azure clouds
 - A narrow scope for a specific common need​
 - A simple solution with low configuration​
-- Written in Terraform and Linux shell scripts
+- Written in Terraform and Bicep
 
 Mission Landing Zone is the right solution when:
 
