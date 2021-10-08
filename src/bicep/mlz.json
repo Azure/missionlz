@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "11510952573722587231"
+      "templateHash": "2544027836620234303"
     }
   },
   "parameters": {
@@ -351,6 +351,17 @@
         ""
       ]
     },
+    "emailSecurityContact": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Email address of the contact, in the form of john@doe.com"
+      }
+    },
+    "deployASC": {
+      "type": "bool",
+      "defaultValue": false
+    },
     "deployRemoteAccess": {
       "type": "bool",
       "defaultValue": false,
@@ -486,7 +497,7 @@
     },
     "windowsVmSku": {
       "type": "string",
-      "defaultValue": "2019-datacenter-gensecond"
+      "defaultValue": "2019-datacenter"
     },
     "windowsVmVersion": {
       "type": "string",
@@ -828,7 +839,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "1135244664014368490"
+              "templateHash": "3901464812424812071"
             }
           },
           "parameters": {
@@ -856,10 +867,74 @@
             },
             "deploySentinel": {
               "type": "bool",
-              "defaultValue": false
+              "defaultValue": false,
+              "metadata": {
+                "description": "Whether or not to deploy Sentinel solution to workspace."
+              }
+            },
+            "enableDeleteLock": {
+              "type": "bool",
+              "defaultValue": false,
+              "metadata": {
+                "description": "Enable lock to prevent accidental deletion"
+              }
             }
           },
           "functions": [],
+          "variables": {
+            "solutions": [
+              {
+                "deploy": true,
+                "name": "AzureActivity",
+                "product": "OMSGallery/AzureActivity",
+                "publisher": "Microsoft",
+                "promotionCode": ""
+              },
+              {
+                "deploy": "[parameters('deploySentinel')]",
+                "name": "SecurityInsights",
+                "product": "OMSGallery/SecurityInsights",
+                "publisher": "Microsoft",
+                "promotionCode": ""
+              },
+              {
+                "deploy": true,
+                "name": "VMInsights",
+                "product": "OMSGallery/VMInsights",
+                "publisher": "Microsoft",
+                "promotionCode": ""
+              },
+              {
+                "deploy": true,
+                "name": "Security",
+                "product": "OMSGallery/Security",
+                "publisher": "Microsoft",
+                "promotionCode": ""
+              },
+              {
+                "deploy": true,
+                "name": "ServiceMap",
+                "publisher": "Microsoft",
+                "product": "OMSGallery/ServiceMap",
+                "promotionCode": ""
+              },
+              {
+                "deploy": true,
+                "name": "ContainerInsights",
+                "publisher": "Microsoft",
+                "product": "OMSGallery/ContainerInsights",
+                "promotionCode": ""
+              },
+              {
+                "deploy": true,
+                "name": "KeyVaultAnalytics",
+                "publisher": "Microsoft",
+                "product": "OMSGallery/KeyVaultAnalytics",
+                "promotionCode": ""
+              }
+            ],
+            "lockName": "[format('{0}-lock', parameters('name'))]"
+          },
           "resources": [
             {
               "type": "Microsoft.OperationalInsights/workspaces",
@@ -874,72 +949,42 @@
                 },
                 "workspaceCapping": {
                   "dailyQuotaGb": "[parameters('workspaceCappingDailyQuotaGb')]"
-                }
+                },
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
               }
             },
             {
-              "condition": "[parameters('deploySentinel')]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
-              "name": "sentinelSolution",
+              "condition": "[variables('solutions')[copyIndex()].deploy]",
+              "copy": {
+                "name": "logAnalyticsSolutions",
+                "count": "[length(variables('solutions'))]"
+              },
+              "type": "Microsoft.OperationsManagement/solutions",
+              "apiVersion": "2015-11-01-preview",
+              "name": "[format('{0}({1})', variables('solutions')[copyIndex()].name, parameters('name'))]",
+              "location": "[parameters('location')]",
               "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "workspaceName": {
-                    "value": "[parameters('name')]"
-                  },
-                  "workspaceLocation": {
-                    "value": "[parameters('location')]"
-                  },
-                  "tags": {
-                    "value": "[parameters('tags')]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.4.613.9944",
-                      "templateHash": "13919557056268320158"
-                    }
-                  },
-                  "parameters": {
-                    "workspaceName": {
-                      "type": "string"
-                    },
-                    "workspaceLocation": {
-                      "type": "string"
-                    },
-                    "tags": {
-                      "type": "object",
-                      "defaultValue": {}
-                    }
-                  },
-                  "functions": [],
-                  "resources": [
-                    {
-                      "type": "Microsoft.OperationsManagement/solutions",
-                      "apiVersion": "2015-11-01-preview",
-                      "name": "[format('SecurityInsights({0})', parameters('workspaceName'))]",
-                      "location": "[parameters('workspaceLocation')]",
-                      "tags": "[parameters('tags')]",
-                      "properties": {
-                        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
-                      },
-                      "plan": {
-                        "name": "[format('SecurityInsights({0})', parameters('workspaceName'))]",
-                        "publisher": "Microsoft",
-                        "product": "OMSGallery/SecurityInsights",
-                        "promotionCode": ""
-                      }
-                    }
-                  ]
-                }
+                "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
+              },
+              "plan": {
+                "name": "[format('{0}({1})', variables('solutions')[copyIndex()].name, parameters('name'))]",
+                "product": "[variables('solutions')[copyIndex()].product]",
+                "publisher": "[variables('solutions')[copyIndex()].publisher]",
+                "promotionCode": "[variables('solutions')[copyIndex()].promotionCode]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
+              ]
+            },
+            {
+              "condition": "[parameters('enableDeleteLock')]",
+              "type": "Microsoft.Authorization/locks",
+              "apiVersion": "2016-09-01",
+              "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('name'))]",
+              "name": "[variables('lockName')]",
+              "properties": {
+                "level": "CanNotDelete"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
@@ -985,6 +1030,9 @@
           },
           "logStorageSkuName": {
             "value": "[parameters('hubLogStorageSkuName')]"
+          },
+          "logAnalyticsWorkspaceName": {
+            "value": "[parameters('logAnalyticsWorkspaceName')]"
           },
           "logAnalyticsWorkspaceResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2019-10-01').outputs.id.value]"
@@ -1084,7 +1132,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "16313594886672708691"
+              "templateHash": "8982145644698605186"
             }
           },
           "parameters": {
@@ -1100,6 +1148,9 @@
               "type": "string"
             },
             "logStorageSkuName": {
+              "type": "string"
+            },
+            "logAnalyticsWorkspaceName": {
               "type": "string"
             },
             "logAnalyticsWorkspaceResourceId": {
@@ -1267,7 +1318,9 @@
                 "routeTable": {
                   "id": "[reference(resourceId('Microsoft.Resources/deployments', 'routeTable'), '2019-10-01').outputs.id.value]"
                 },
-                "serviceEndpoints": "[if(empty(parameters('subnetServiceEndpoints')), variables('defaultSubnetServiceEndpoints'), parameters('subnetServiceEndpoints'))]"
+                "serviceEndpoints": "[if(empty(parameters('subnetServiceEndpoints')), variables('defaultSubnetServiceEndpoints'), parameters('subnetServiceEndpoints'))]",
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'firewall')]",
@@ -2100,6 +2153,310 @@
               "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'firewallClientPublicIPAddress')]",
                 "[resourceId('Microsoft.Resources/deployments', 'firewallManagementPublicIPAddress')]",
+                "[resourceId('Microsoft.Resources/deployments', 'virtualNetwork')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "azure-monitor-private-link",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "logAnalyticsWorkspaceName": {
+                    "value": "[parameters('logAnalyticsWorkspaceName')]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "privateEndpointSubnetName": {
+                    "value": "[parameters('subnetName')]"
+                  },
+                  "privateEndpointVnetName": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'virtualNetwork'), '2019-10-01').outputs.name.value]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.613.9944",
+                      "templateHash": "7167288005848584233"
+                    }
+                  },
+                  "parameters": {
+                    "logAnalyticsWorkspaceName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "The name of the resource the private endpoint is being created for"
+                      }
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "The resource id of the resoure the private endpoint is being created for"
+                      }
+                    },
+                    "privateEndpointSubnetName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "The name of the subnet in the virtual network where the private endpoint will be placed"
+                      }
+                    },
+                    "privateEndpointVnetName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "The name of the virtual network where the private endpoint will be placed"
+                      }
+                    },
+                    "tags": {
+                      "type": "object",
+                      "metadata": {
+                        "description": "The tags that will be associated to the VM"
+                      }
+                    },
+                    "uniqueData": {
+                      "type": "string",
+                      "defaultValue": "[substring(newGuid(), 0, 8)]",
+                      "metadata": {
+                        "description": "Data used to append to resources to ensure uniqueness"
+                      }
+                    },
+                    "vnetResourceGroup": {
+                      "type": "string",
+                      "defaultValue": "[resourceGroup().name]",
+                      "metadata": {
+                        "description": "The name of the the resource group where the virtual network exists"
+                      }
+                    },
+                    "vnetSubscriptionId": {
+                      "type": "string",
+                      "defaultValue": "[subscription().subscriptionId]",
+                      "metadata": {
+                        "description": "The subscription id of the subscription the virtual network exists in"
+                      }
+                    }
+                  },
+                  "functions": [],
+                  "variables": {
+                    "privateLinkConnectionName": "[substring(format('plconn{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 0, 16)]",
+                    "privateLinkEndpointName": "[substring(format('pl{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 0, 16)]",
+                    "privateLinkScopeName": "[substring(format('plscope{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 0, 16)]",
+                    "privateLinkScopeResourceName": "[substring(format('plscres{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 0, 16)]",
+                    "privateDnsZones_privatelink_monitor_azure_name": "[if(equals(toLower(environment().name), toLower('AzureCloud')), 'privatelink.monitor.azure.com', 'privatelink.monitor.azure.us')]",
+                    "privateDnsZones_privatelink_ods_opinsights_azure_name": "[if(equals(toLower(environment().name), toLower('AzureCloud')), 'privatelink.ods.opinsights.azure.com', 'privatelink.ods.opinsights.azure.us')]",
+                    "privateDnsZones_privatelink_oms_opinsights_azure_name": "[if(equals(toLower(environment().name), toLower('AzureCloud')), 'privatelink.oms.opinsights.azure.com', 'privatelink.oms.opinsights.azure.us')]",
+                    "privateDnsZones_privatelink_blob_core_cloudapi_net_name": "[if(equals(toLower(environment().name), toLower('AzureCloud')), format('privatelink.blob.{0}', environment().suffixes.storage), 'privatelink.blob.core.usgovcloudapi.net')]",
+                    "privateDnsZones_privatelink_agentsvc_azure_automation_name": "[if(equals(toLower(environment().name), toLower('AzureCloud')), 'privatelink.agentsvc.azure-automation.net', 'privatelink.agentsvc.azure-automation.us')]"
+                  },
+                  "resources": [
+                    {
+                      "type": "microsoft.insights/privateLinkScopes",
+                      "apiVersion": "2019-10-17-preview",
+                      "name": "[variables('privateLinkScopeName')]",
+                      "location": "global",
+                      "properties": {}
+                    },
+                    {
+                      "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                      "apiVersion": "2019-10-17-preview",
+                      "name": "[format('{0}/{1}', variables('privateLinkScopeName'), variables('privateLinkScopeResourceName'))]",
+                      "properties": {
+                        "linkedResourceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('microsoft.insights/privateLinkScopes', variables('privateLinkScopeName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints",
+                      "apiVersion": "2020-07-01",
+                      "name": "[variables('privateLinkEndpointName')]",
+                      "location": "[resourceGroup().location]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "subnet": {
+                          "id": "[resourceId(parameters('vnetSubscriptionId'), parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('privateEndpointVnetName'), parameters('privateEndpointSubnetName'))]"
+                        },
+                        "privateLinkServiceConnections": [
+                          {
+                            "name": "[variables('privateLinkConnectionName')]",
+                            "properties": {
+                              "privateLinkServiceId": "[resourceId('microsoft.insights/privateLinkScopes', variables('privateLinkScopeName'))]",
+                              "groupIds": [
+                                "azuremonitor"
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('microsoft.insights/privateLinkScopes', variables('privateLinkScopeName'))]",
+                        "[resourceId('Microsoft.Insights/privateLinkScopes/scopedResources', split(format('{0}/{1}', variables('privateLinkScopeName'), variables('privateLinkScopeResourceName')), '/')[0], split(format('{0}/{1}', variables('privateLinkScopeName'), variables('privateLinkScopeResourceName')), '/')[1])]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                      "apiVersion": "2020-07-01",
+                      "name": "[format('{0}/default', variables('privateLinkEndpointName'))]",
+                      "properties": {
+                        "privateDnsZoneConfigs": [
+                          {
+                            "name": "monitor",
+                            "properties": {
+                              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_monitor_azure_name'))]"
+                            }
+                          },
+                          {
+                            "name": "oms",
+                            "properties": {
+                              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_oms_opinsights_azure_name'))]"
+                            }
+                          },
+                          {
+                            "name": "ods",
+                            "properties": {
+                              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_ods_opinsights_azure_name'))]"
+                            }
+                          },
+                          {
+                            "name": "agentsvc",
+                            "properties": {
+                              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_agentsvc_azure_automation_name'))]"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_agentsvc_azure_automation_name'))]",
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_monitor_azure_name'))]",
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_ods_opinsights_azure_name'))]",
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_oms_opinsights_azure_name'))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateLinkEndpointName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones",
+                      "apiVersion": "2018-09-01",
+                      "name": "[variables('privateDnsZones_privatelink_monitor_azure_name')]",
+                      "location": "global"
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones",
+                      "apiVersion": "2018-09-01",
+                      "name": "[variables('privateDnsZones_privatelink_oms_opinsights_azure_name')]",
+                      "location": "global"
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones",
+                      "apiVersion": "2018-09-01",
+                      "name": "[variables('privateDnsZones_privatelink_ods_opinsights_azure_name')]",
+                      "location": "global"
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones",
+                      "apiVersion": "2018-09-01",
+                      "name": "[variables('privateDnsZones_privatelink_agentsvc_azure_automation_name')]",
+                      "location": "global"
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones",
+                      "apiVersion": "2018-09-01",
+                      "name": "[variables('privateDnsZones_privatelink_blob_core_cloudapi_net_name')]",
+                      "location": "global"
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                      "apiVersion": "2018-09-01",
+                      "name": "[format('{0}/{1}-link', variables('privateDnsZones_privatelink_monitor_azure_name'), variables('privateDnsZones_privatelink_monitor_azure_name'))]",
+                      "location": "global",
+                      "properties": {
+                        "registrationEnabled": false,
+                        "virtualNetwork": {
+                          "id": "[resourceId(parameters('vnetSubscriptionId'), parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('privateEndpointVnetName'))]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_monitor_azure_name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                      "apiVersion": "2018-09-01",
+                      "name": "[format('{0}/{1}-link', variables('privateDnsZones_privatelink_oms_opinsights_azure_name'), variables('privateDnsZones_privatelink_oms_opinsights_azure_name'))]",
+                      "location": "global",
+                      "properties": {
+                        "registrationEnabled": false,
+                        "virtualNetwork": {
+                          "id": "[resourceId(parameters('vnetSubscriptionId'), parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('privateEndpointVnetName'))]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', split(format('{0}/{1}-link', variables('privateDnsZones_privatelink_monitor_azure_name'), variables('privateDnsZones_privatelink_monitor_azure_name')), '/')[0], split(format('{0}/{1}-link', variables('privateDnsZones_privatelink_monitor_azure_name'), variables('privateDnsZones_privatelink_monitor_azure_name')), '/')[1])]",
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_oms_opinsights_azure_name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                      "apiVersion": "2018-09-01",
+                      "name": "[format('{0}/{1}-link', variables('privateDnsZones_privatelink_ods_opinsights_azure_name'), variables('privateDnsZones_privatelink_ods_opinsights_azure_name'))]",
+                      "location": "global",
+                      "properties": {
+                        "registrationEnabled": false,
+                        "virtualNetwork": {
+                          "id": "[resourceId(parameters('vnetSubscriptionId'), parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('privateEndpointVnetName'))]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_ods_opinsights_azure_name'))]",
+                        "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', split(format('{0}/{1}-link', variables('privateDnsZones_privatelink_oms_opinsights_azure_name'), variables('privateDnsZones_privatelink_oms_opinsights_azure_name')), '/')[0], split(format('{0}/{1}-link', variables('privateDnsZones_privatelink_oms_opinsights_azure_name'), variables('privateDnsZones_privatelink_oms_opinsights_azure_name')), '/')[1])]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                      "apiVersion": "2018-09-01",
+                      "name": "[format('{0}/{1}-link', variables('privateDnsZones_privatelink_agentsvc_azure_automation_name'), variables('privateDnsZones_privatelink_agentsvc_azure_automation_name'))]",
+                      "location": "global",
+                      "properties": {
+                        "registrationEnabled": false,
+                        "virtualNetwork": {
+                          "id": "[resourceId(parameters('vnetSubscriptionId'), parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('privateEndpointVnetName'))]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_agentsvc_azure_automation_name'))]",
+                        "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', split(format('{0}/{1}-link', variables('privateDnsZones_privatelink_ods_opinsights_azure_name'), variables('privateDnsZones_privatelink_ods_opinsights_azure_name')), '/')[0], split(format('{0}/{1}-link', variables('privateDnsZones_privatelink_ods_opinsights_azure_name'), variables('privateDnsZones_privatelink_ods_opinsights_azure_name')), '/')[1])]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                      "apiVersion": "2018-09-01",
+                      "name": "[format('{0}/{1}-link', variables('privateDnsZones_privatelink_blob_core_cloudapi_net_name'), variables('privateDnsZones_privatelink_blob_core_cloudapi_net_name'))]",
+                      "location": "global",
+                      "properties": {
+                        "registrationEnabled": false,
+                        "virtualNetwork": {
+                          "id": "[resourceId(parameters('vnetSubscriptionId'), parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('privateEndpointVnetName'))]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', split(format('{0}/{1}-link', variables('privateDnsZones_privatelink_agentsvc_azure_automation_name'), variables('privateDnsZones_privatelink_agentsvc_azure_automation_name')), '/')[0], split(format('{0}/{1}-link', variables('privateDnsZones_privatelink_agentsvc_azure_automation_name'), variables('privateDnsZones_privatelink_agentsvc_azure_automation_name')), '/')[1])]",
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_blob_core_cloudapi_net_name'))]"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnetName')), '/')[0], split(format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnetName')), '/')[1])]",
                 "[resourceId('Microsoft.Resources/deployments', 'virtualNetwork')]"
               ]
             }
@@ -4596,7 +4953,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "3675806177489000536"
+              "templateHash": "13398958093172010600"
             }
           },
           "parameters": {
@@ -4612,12 +4969,23 @@
             },
             "operationsSubscriptionId": {
               "type": "string"
+            },
+            "deployRemediation": {
+              "type": "bool",
+              "defaultValue": false,
+              "metadata": {
+                "description": "Starts a policy remediation for the VM Agent policies in hub RG. Set to false by default since this is time consuming in deployment."
+              }
             }
           },
           "functions": [],
           "variables": {
             "modifiedAssignment": "[if(and(equals(toLower(environment().name), toLower('AzureCloud')), equals(toLower(parameters('builtInAssignment')), toLower('IL5'))), 'NIST', parameters('builtInAssignment'))]",
-            "assignmentName": "[format('{0} {1}', variables('modifiedAssignment'), resourceGroup().name)]"
+            "assignmentName": "[format('{0} {1}', variables('modifiedAssignment'), resourceGroup().name)]",
+            "agentVmssAssignmentName": "[format('Deploy VMSS Agents {0}', resourceGroup().name)]",
+            "agentVmAssignmentName": "[format('Deploy VM Agents {0}', resourceGroup().name)]",
+            "contributorRoleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+            "lawsReaderRoleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '92aaf0da-9dab-42b6-94a3-d43ce8d16293')]"
           },
           "resources": [
             {
@@ -4633,6 +5001,176 @@
               "identity": {
                 "type": "SystemAssigned"
               }
+            },
+            {
+              "type": "Microsoft.Authorization/policyAssignments",
+              "apiVersion": "2020-09-01",
+              "name": "[variables('agentVmssAssignmentName')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/75714362-cae7-409e-9b99-a8e5075b7fad",
+                "parameters": {
+                  "logAnalytics_1": {
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                  }
+                }
+              },
+              "identity": {
+                "type": "SystemAssigned"
+              }
+            },
+            {
+              "type": "Microsoft.Authorization/policyAssignments",
+              "apiVersion": "2020-09-01",
+              "name": "[variables('agentVmAssignmentName')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/55f3eceb-5573-4f18-9695-226972c6d74a",
+                "parameters": {
+                  "logAnalytics_1": {
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                  }
+                }
+              },
+              "identity": {
+                "type": "SystemAssigned"
+              }
+            },
+            {
+              "condition": "[not(empty(variables('modifiedAssignment')))]",
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(variables('contributorRoleDefinitionId'), variables('assignmentName'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "principalId": "[if(empty(variables('modifiedAssignment')), '', reference(resourceId('Microsoft.Authorization/policyAssignments', variables('assignmentName')), '2020-09-01', 'full').identity.principalId)]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('assignmentName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(variables('contributorRoleDefinitionId'), variables('agentVmssAssignmentName'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "principalId": "[reference(resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmssAssignmentName')), '2020-09-01', 'full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmssAssignmentName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(variables('contributorRoleDefinitionId'), variables('agentVmAssignmentName'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "principalId": "[reference(resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName')), '2020-09-01', 'full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployRemediation')]",
+              "type": "Microsoft.PolicyInsights/remediations",
+              "apiVersion": "2019-07-01",
+              "name": "VM-Agent-Policy-Remediation",
+              "properties": {
+                "policyAssignmentId": "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]",
+                "resourceDiscoveryMode": "ReEvaluateCompliance"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "[format('Assign-Laws-Role-Policy-{0}', resourceGroup().name)]",
+              "subscriptionId": "[parameters('operationsSubscriptionId')]",
+              "resourceGroup": "[parameters('logAnalyticsWorkspaceResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "targetResourceId": {
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                  },
+                  "roleDefinitionId": {
+                    "value": "[variables('lawsReaderRoleDefinitionId')]"
+                  },
+                  "principalId": {
+                    "value": "[reference(resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName')), '2020-09-01', 'full').identity.principalId]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.613.9944",
+                      "templateHash": "17389676814182046745"
+                    }
+                  },
+                  "parameters": {
+                    "targetResourceId": {
+                      "type": "string"
+                    },
+                    "roleDefinitionId": {
+                      "type": "string"
+                    },
+                    "principalId": {
+                      "type": "string"
+                    },
+                    "principalType": {
+                      "type": "string",
+                      "defaultValue": "ServicePrincipal",
+                      "allowedValues": [
+                        "User",
+                        "Group",
+                        "ServicePrincipal",
+                        "Unknown",
+                        "DirectoryRoleTemplate",
+                        "ForeignGroup",
+                        "Application",
+                        "MSI",
+                        "DirectoryObjectOrGroup",
+                        "Everyone"
+                      ]
+                    },
+                    "description": {
+                      "type": "string",
+                      "defaultValue": ""
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2020-04-01-preview",
+                      "name": "[guid(parameters('targetResourceId'), parameters('roleDefinitionId'), parameters('principalId'))]",
+                      "properties": {
+                        "principalId": "[parameters('principalId')]",
+                        "principalType": "[parameters('principalType')]",
+                        "roleDefinitionId": "[parameters('roleDefinitionId')]",
+                        "description": "[parameters('description')]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]"
+              ]
             }
           ]
         }
@@ -4674,7 +5212,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "3675806177489000536"
+              "templateHash": "13398958093172010600"
             }
           },
           "parameters": {
@@ -4690,12 +5228,23 @@
             },
             "operationsSubscriptionId": {
               "type": "string"
+            },
+            "deployRemediation": {
+              "type": "bool",
+              "defaultValue": false,
+              "metadata": {
+                "description": "Starts a policy remediation for the VM Agent policies in hub RG. Set to false by default since this is time consuming in deployment."
+              }
             }
           },
           "functions": [],
           "variables": {
             "modifiedAssignment": "[if(and(equals(toLower(environment().name), toLower('AzureCloud')), equals(toLower(parameters('builtInAssignment')), toLower('IL5'))), 'NIST', parameters('builtInAssignment'))]",
-            "assignmentName": "[format('{0} {1}', variables('modifiedAssignment'), resourceGroup().name)]"
+            "assignmentName": "[format('{0} {1}', variables('modifiedAssignment'), resourceGroup().name)]",
+            "agentVmssAssignmentName": "[format('Deploy VMSS Agents {0}', resourceGroup().name)]",
+            "agentVmAssignmentName": "[format('Deploy VM Agents {0}', resourceGroup().name)]",
+            "contributorRoleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+            "lawsReaderRoleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '92aaf0da-9dab-42b6-94a3-d43ce8d16293')]"
           },
           "resources": [
             {
@@ -4711,6 +5260,176 @@
               "identity": {
                 "type": "SystemAssigned"
               }
+            },
+            {
+              "type": "Microsoft.Authorization/policyAssignments",
+              "apiVersion": "2020-09-01",
+              "name": "[variables('agentVmssAssignmentName')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/75714362-cae7-409e-9b99-a8e5075b7fad",
+                "parameters": {
+                  "logAnalytics_1": {
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                  }
+                }
+              },
+              "identity": {
+                "type": "SystemAssigned"
+              }
+            },
+            {
+              "type": "Microsoft.Authorization/policyAssignments",
+              "apiVersion": "2020-09-01",
+              "name": "[variables('agentVmAssignmentName')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/55f3eceb-5573-4f18-9695-226972c6d74a",
+                "parameters": {
+                  "logAnalytics_1": {
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                  }
+                }
+              },
+              "identity": {
+                "type": "SystemAssigned"
+              }
+            },
+            {
+              "condition": "[not(empty(variables('modifiedAssignment')))]",
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(variables('contributorRoleDefinitionId'), variables('assignmentName'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "principalId": "[if(empty(variables('modifiedAssignment')), '', reference(resourceId('Microsoft.Authorization/policyAssignments', variables('assignmentName')), '2020-09-01', 'full').identity.principalId)]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('assignmentName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(variables('contributorRoleDefinitionId'), variables('agentVmssAssignmentName'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "principalId": "[reference(resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmssAssignmentName')), '2020-09-01', 'full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmssAssignmentName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(variables('contributorRoleDefinitionId'), variables('agentVmAssignmentName'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "principalId": "[reference(resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName')), '2020-09-01', 'full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployRemediation')]",
+              "type": "Microsoft.PolicyInsights/remediations",
+              "apiVersion": "2019-07-01",
+              "name": "VM-Agent-Policy-Remediation",
+              "properties": {
+                "policyAssignmentId": "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]",
+                "resourceDiscoveryMode": "ReEvaluateCompliance"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "[format('Assign-Laws-Role-Policy-{0}', resourceGroup().name)]",
+              "subscriptionId": "[parameters('operationsSubscriptionId')]",
+              "resourceGroup": "[parameters('logAnalyticsWorkspaceResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "targetResourceId": {
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                  },
+                  "roleDefinitionId": {
+                    "value": "[variables('lawsReaderRoleDefinitionId')]"
+                  },
+                  "principalId": {
+                    "value": "[reference(resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName')), '2020-09-01', 'full').identity.principalId]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.613.9944",
+                      "templateHash": "17389676814182046745"
+                    }
+                  },
+                  "parameters": {
+                    "targetResourceId": {
+                      "type": "string"
+                    },
+                    "roleDefinitionId": {
+                      "type": "string"
+                    },
+                    "principalId": {
+                      "type": "string"
+                    },
+                    "principalType": {
+                      "type": "string",
+                      "defaultValue": "ServicePrincipal",
+                      "allowedValues": [
+                        "User",
+                        "Group",
+                        "ServicePrincipal",
+                        "Unknown",
+                        "DirectoryRoleTemplate",
+                        "ForeignGroup",
+                        "Application",
+                        "MSI",
+                        "DirectoryObjectOrGroup",
+                        "Everyone"
+                      ]
+                    },
+                    "description": {
+                      "type": "string",
+                      "defaultValue": ""
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2020-04-01-preview",
+                      "name": "[guid(parameters('targetResourceId'), parameters('roleDefinitionId'), parameters('principalId'))]",
+                      "properties": {
+                        "principalId": "[parameters('principalId')]",
+                        "principalType": "[parameters('principalType')]",
+                        "roleDefinitionId": "[parameters('roleDefinitionId')]",
+                        "description": "[parameters('description')]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]"
+              ]
             }
           ]
         }
@@ -4752,7 +5471,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "3675806177489000536"
+              "templateHash": "13398958093172010600"
             }
           },
           "parameters": {
@@ -4768,12 +5487,23 @@
             },
             "operationsSubscriptionId": {
               "type": "string"
+            },
+            "deployRemediation": {
+              "type": "bool",
+              "defaultValue": false,
+              "metadata": {
+                "description": "Starts a policy remediation for the VM Agent policies in hub RG. Set to false by default since this is time consuming in deployment."
+              }
             }
           },
           "functions": [],
           "variables": {
             "modifiedAssignment": "[if(and(equals(toLower(environment().name), toLower('AzureCloud')), equals(toLower(parameters('builtInAssignment')), toLower('IL5'))), 'NIST', parameters('builtInAssignment'))]",
-            "assignmentName": "[format('{0} {1}', variables('modifiedAssignment'), resourceGroup().name)]"
+            "assignmentName": "[format('{0} {1}', variables('modifiedAssignment'), resourceGroup().name)]",
+            "agentVmssAssignmentName": "[format('Deploy VMSS Agents {0}', resourceGroup().name)]",
+            "agentVmAssignmentName": "[format('Deploy VM Agents {0}', resourceGroup().name)]",
+            "contributorRoleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+            "lawsReaderRoleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '92aaf0da-9dab-42b6-94a3-d43ce8d16293')]"
           },
           "resources": [
             {
@@ -4789,6 +5519,176 @@
               "identity": {
                 "type": "SystemAssigned"
               }
+            },
+            {
+              "type": "Microsoft.Authorization/policyAssignments",
+              "apiVersion": "2020-09-01",
+              "name": "[variables('agentVmssAssignmentName')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/75714362-cae7-409e-9b99-a8e5075b7fad",
+                "parameters": {
+                  "logAnalytics_1": {
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                  }
+                }
+              },
+              "identity": {
+                "type": "SystemAssigned"
+              }
+            },
+            {
+              "type": "Microsoft.Authorization/policyAssignments",
+              "apiVersion": "2020-09-01",
+              "name": "[variables('agentVmAssignmentName')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/55f3eceb-5573-4f18-9695-226972c6d74a",
+                "parameters": {
+                  "logAnalytics_1": {
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                  }
+                }
+              },
+              "identity": {
+                "type": "SystemAssigned"
+              }
+            },
+            {
+              "condition": "[not(empty(variables('modifiedAssignment')))]",
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(variables('contributorRoleDefinitionId'), variables('assignmentName'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "principalId": "[if(empty(variables('modifiedAssignment')), '', reference(resourceId('Microsoft.Authorization/policyAssignments', variables('assignmentName')), '2020-09-01', 'full').identity.principalId)]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('assignmentName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(variables('contributorRoleDefinitionId'), variables('agentVmssAssignmentName'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "principalId": "[reference(resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmssAssignmentName')), '2020-09-01', 'full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmssAssignmentName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(variables('contributorRoleDefinitionId'), variables('agentVmAssignmentName'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "principalId": "[reference(resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName')), '2020-09-01', 'full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployRemediation')]",
+              "type": "Microsoft.PolicyInsights/remediations",
+              "apiVersion": "2019-07-01",
+              "name": "VM-Agent-Policy-Remediation",
+              "properties": {
+                "policyAssignmentId": "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]",
+                "resourceDiscoveryMode": "ReEvaluateCompliance"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "[format('Assign-Laws-Role-Policy-{0}', resourceGroup().name)]",
+              "subscriptionId": "[parameters('operationsSubscriptionId')]",
+              "resourceGroup": "[parameters('logAnalyticsWorkspaceResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "targetResourceId": {
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                  },
+                  "roleDefinitionId": {
+                    "value": "[variables('lawsReaderRoleDefinitionId')]"
+                  },
+                  "principalId": {
+                    "value": "[reference(resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName')), '2020-09-01', 'full').identity.principalId]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.613.9944",
+                      "templateHash": "17389676814182046745"
+                    }
+                  },
+                  "parameters": {
+                    "targetResourceId": {
+                      "type": "string"
+                    },
+                    "roleDefinitionId": {
+                      "type": "string"
+                    },
+                    "principalId": {
+                      "type": "string"
+                    },
+                    "principalType": {
+                      "type": "string",
+                      "defaultValue": "ServicePrincipal",
+                      "allowedValues": [
+                        "User",
+                        "Group",
+                        "ServicePrincipal",
+                        "Unknown",
+                        "DirectoryRoleTemplate",
+                        "ForeignGroup",
+                        "Application",
+                        "MSI",
+                        "DirectoryObjectOrGroup",
+                        "Everyone"
+                      ]
+                    },
+                    "description": {
+                      "type": "string",
+                      "defaultValue": ""
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2020-04-01-preview",
+                      "name": "[guid(parameters('targetResourceId'), parameters('roleDefinitionId'), parameters('principalId'))]",
+                      "properties": {
+                        "principalId": "[parameters('principalId')]",
+                        "principalType": "[parameters('principalType')]",
+                        "roleDefinitionId": "[parameters('roleDefinitionId')]",
+                        "description": "[parameters('description')]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]"
+              ]
             }
           ]
         }
@@ -4830,7 +5730,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "3675806177489000536"
+              "templateHash": "13398958093172010600"
             }
           },
           "parameters": {
@@ -4846,12 +5746,23 @@
             },
             "operationsSubscriptionId": {
               "type": "string"
+            },
+            "deployRemediation": {
+              "type": "bool",
+              "defaultValue": false,
+              "metadata": {
+                "description": "Starts a policy remediation for the VM Agent policies in hub RG. Set to false by default since this is time consuming in deployment."
+              }
             }
           },
           "functions": [],
           "variables": {
             "modifiedAssignment": "[if(and(equals(toLower(environment().name), toLower('AzureCloud')), equals(toLower(parameters('builtInAssignment')), toLower('IL5'))), 'NIST', parameters('builtInAssignment'))]",
-            "assignmentName": "[format('{0} {1}', variables('modifiedAssignment'), resourceGroup().name)]"
+            "assignmentName": "[format('{0} {1}', variables('modifiedAssignment'), resourceGroup().name)]",
+            "agentVmssAssignmentName": "[format('Deploy VMSS Agents {0}', resourceGroup().name)]",
+            "agentVmAssignmentName": "[format('Deploy VM Agents {0}', resourceGroup().name)]",
+            "contributorRoleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+            "lawsReaderRoleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '92aaf0da-9dab-42b6-94a3-d43ce8d16293')]"
           },
           "resources": [
             {
@@ -4867,6 +5778,176 @@
               "identity": {
                 "type": "SystemAssigned"
               }
+            },
+            {
+              "type": "Microsoft.Authorization/policyAssignments",
+              "apiVersion": "2020-09-01",
+              "name": "[variables('agentVmssAssignmentName')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/75714362-cae7-409e-9b99-a8e5075b7fad",
+                "parameters": {
+                  "logAnalytics_1": {
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                  }
+                }
+              },
+              "identity": {
+                "type": "SystemAssigned"
+              }
+            },
+            {
+              "type": "Microsoft.Authorization/policyAssignments",
+              "apiVersion": "2020-09-01",
+              "name": "[variables('agentVmAssignmentName')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/55f3eceb-5573-4f18-9695-226972c6d74a",
+                "parameters": {
+                  "logAnalytics_1": {
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                  }
+                }
+              },
+              "identity": {
+                "type": "SystemAssigned"
+              }
+            },
+            {
+              "condition": "[not(empty(variables('modifiedAssignment')))]",
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(variables('contributorRoleDefinitionId'), variables('assignmentName'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "principalId": "[if(empty(variables('modifiedAssignment')), '', reference(resourceId('Microsoft.Authorization/policyAssignments', variables('assignmentName')), '2020-09-01', 'full').identity.principalId)]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('assignmentName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(variables('contributorRoleDefinitionId'), variables('agentVmssAssignmentName'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "principalId": "[reference(resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmssAssignmentName')), '2020-09-01', 'full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmssAssignmentName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(variables('contributorRoleDefinitionId'), variables('agentVmAssignmentName'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "principalId": "[reference(resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName')), '2020-09-01', 'full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployRemediation')]",
+              "type": "Microsoft.PolicyInsights/remediations",
+              "apiVersion": "2019-07-01",
+              "name": "VM-Agent-Policy-Remediation",
+              "properties": {
+                "policyAssignmentId": "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]",
+                "resourceDiscoveryMode": "ReEvaluateCompliance"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "[format('Assign-Laws-Role-Policy-{0}', resourceGroup().name)]",
+              "subscriptionId": "[parameters('operationsSubscriptionId')]",
+              "resourceGroup": "[parameters('logAnalyticsWorkspaceResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "targetResourceId": {
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                  },
+                  "roleDefinitionId": {
+                    "value": "[variables('lawsReaderRoleDefinitionId')]"
+                  },
+                  "principalId": {
+                    "value": "[reference(resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName')), '2020-09-01', 'full').identity.principalId]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.613.9944",
+                      "templateHash": "17389676814182046745"
+                    }
+                  },
+                  "parameters": {
+                    "targetResourceId": {
+                      "type": "string"
+                    },
+                    "roleDefinitionId": {
+                      "type": "string"
+                    },
+                    "principalId": {
+                      "type": "string"
+                    },
+                    "principalType": {
+                      "type": "string",
+                      "defaultValue": "ServicePrincipal",
+                      "allowedValues": [
+                        "User",
+                        "Group",
+                        "ServicePrincipal",
+                        "Unknown",
+                        "DirectoryRoleTemplate",
+                        "ForeignGroup",
+                        "Application",
+                        "MSI",
+                        "DirectoryObjectOrGroup",
+                        "Everyone"
+                      ]
+                    },
+                    "description": {
+                      "type": "string",
+                      "defaultValue": ""
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2020-04-01-preview",
+                      "name": "[guid(parameters('targetResourceId'), parameters('roleDefinitionId'), parameters('principalId'))]",
+                      "properties": {
+                        "principalId": "[parameters('principalId')]",
+                        "principalType": "[parameters('principalType')]",
+                        "roleDefinitionId": "[parameters('roleDefinitionId')]",
+                        "description": "[parameters('description')]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyAssignments', variables('agentVmAssignmentName'))]"
+              ]
             }
           ]
         }
@@ -5232,6 +6313,647 @@
       ]
     },
     {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "delpoy-diagnostic-logging-LAWS",
+      "subscriptionId": "[parameters('operationsSubscriptionId')]",
+      "resourceGroup": "[parameters('operationsResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "diagnosticStorageAccountName": {
+            "value": "[parameters('operationsLogStorageAccountName')]"
+          },
+          "logAnalyticsWorkspaceName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2019-10-01').outputs.name.value]"
+          },
+          "enableDiagnostics": {
+            "value": true
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "3635961517443972162"
+            }
+          },
+          "parameters": {
+            "diagnosticStorageAccountName": {
+              "type": "string"
+            },
+            "logAnalyticsWorkspaceName": {
+              "type": "string"
+            },
+            "enableDiagnostics": {
+              "type": "bool",
+              "defaultValue": true
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "condition": "[parameters('enableDiagnostics')]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2017-05-01-preview",
+              "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('logAnalyticsWorkspaceName'))]",
+              "name": "enable-log-analytics-diagnostics",
+              "properties": {
+                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+                "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('diagnosticStorageAccountName'))]",
+                "logs": [
+                  {
+                    "category": "Audit",
+                    "enabled": true
+                  }
+                ],
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-operations-spoke-{0}', parameters('nowUtc')))]"
+      ]
+    },
+    {
+      "condition": "[parameters('deployASC')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "set-hub-sub-security-center",
+      "subscriptionId": "[parameters('hubSubscriptionId')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2019-10-01').outputs.id.value]"
+          },
+          "emailSecurityContact": {
+            "value": "[parameters('emailSecurityContact')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "11766174527795289437"
+            }
+          },
+          "parameters": {
+            "enableAutoProvisioning": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Turn automatic deployment by ASC of the MMA (OMS VM extension) on or off"
+              }
+            },
+            "enableSecuritySettings": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Turn security policy settings On or Off."
+              }
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string",
+              "metadata": {
+                "description": "Specify the ID of your custom Log Analytics workspace to collect ASC data."
+              }
+            },
+            "emailSecurityContact": {
+              "type": "string",
+              "metadata": {
+                "description": "Email address of the contact, in the form of john@doe.com"
+              }
+            }
+          },
+          "functions": [],
+          "variables": {
+            "bundle": "[if(not(equals(environment().name, 'AzureUSGovernment')), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'))]",
+            "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]",
+            "securitySettings": "[if(parameters('enableSecuritySettings'), 'On', 'Off')]"
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "securityCenterPricing",
+                "count": "[length(variables('bundle'))]"
+              },
+              "type": "Microsoft.Security/pricings",
+              "apiVersion": "2018-06-01",
+              "name": "[variables('bundle')[copyIndex()]]",
+              "properties": {
+                "pricingTier": "Standard"
+              }
+            },
+            {
+              "type": "Microsoft.Security/autoProvisioningSettings",
+              "apiVersion": "2017-08-01-preview",
+              "name": "default",
+              "properties": {
+                "autoProvision": "[variables('autoProvisioning')]"
+              }
+            },
+            {
+              "type": "Microsoft.Security/workspaceSettings",
+              "apiVersion": "2017-08-01-preview",
+              "name": "default",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "scope": "[subscription().id]"
+              }
+            },
+            {
+              "condition": "[not(empty(parameters('emailSecurityContact')))]",
+              "type": "Microsoft.Security/securityContacts",
+              "apiVersion": "2017-08-01-preview",
+              "name": "securityNotifications",
+              "properties": {
+                "alertsToAdmins": "On",
+                "alertNotifications": "On",
+                "email": "[parameters('emailSecurityContact')]"
+              }
+            },
+            {
+              "type": "Microsoft.Security/policies",
+              "apiVersion": "2015-06-01-preview",
+              "name": "default",
+              "properties": {
+                "policyLevel": "Subscription",
+                "name": "default",
+                "unique": "Off",
+                "logCollection": "On",
+                "recommendations": {
+                  "patch": "[variables('securitySettings')]",
+                  "baseline": "[variables('securitySettings')]",
+                  "antimalware": "[variables('securitySettings')]",
+                  "diskEncryption": "[variables('securitySettings')]",
+                  "acls": "[variables('securitySettings')]",
+                  "nsgs": "[variables('securitySettings')]",
+                  "waf": "[variables('securitySettings')]",
+                  "sqlAuditing": "[variables('securitySettings')]",
+                  "sqlTde": "[variables('securitySettings')]",
+                  "ngfw": "[variables('securitySettings')]",
+                  "vulnerabilityAssessment": "[variables('securitySettings')]",
+                  "storageEncryption": "[variables('securitySettings')]",
+                  "jitNetworkAccess": "[variables('securitySettings')]"
+                },
+                "pricingConfiguration": {
+                  "selectedPricingTier": "Standard"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]"
+      ]
+    },
+    {
+      "condition": "[and(parameters('deployASC'), not(equals(parameters('hubSubscriptionId'), parameters('operationsSubscriptionId'))))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "set-operations-sub-security-center",
+      "subscriptionId": "[parameters('operationsSubscriptionId')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2019-10-01').outputs.id.value]"
+          },
+          "emailSecurityContact": {
+            "value": "[parameters('emailSecurityContact')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "11766174527795289437"
+            }
+          },
+          "parameters": {
+            "enableAutoProvisioning": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Turn automatic deployment by ASC of the MMA (OMS VM extension) on or off"
+              }
+            },
+            "enableSecuritySettings": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Turn security policy settings On or Off."
+              }
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string",
+              "metadata": {
+                "description": "Specify the ID of your custom Log Analytics workspace to collect ASC data."
+              }
+            },
+            "emailSecurityContact": {
+              "type": "string",
+              "metadata": {
+                "description": "Email address of the contact, in the form of john@doe.com"
+              }
+            }
+          },
+          "functions": [],
+          "variables": {
+            "bundle": "[if(not(equals(environment().name, 'AzureUSGovernment')), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'))]",
+            "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]",
+            "securitySettings": "[if(parameters('enableSecuritySettings'), 'On', 'Off')]"
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "securityCenterPricing",
+                "count": "[length(variables('bundle'))]"
+              },
+              "type": "Microsoft.Security/pricings",
+              "apiVersion": "2018-06-01",
+              "name": "[variables('bundle')[copyIndex()]]",
+              "properties": {
+                "pricingTier": "Standard"
+              }
+            },
+            {
+              "type": "Microsoft.Security/autoProvisioningSettings",
+              "apiVersion": "2017-08-01-preview",
+              "name": "default",
+              "properties": {
+                "autoProvision": "[variables('autoProvisioning')]"
+              }
+            },
+            {
+              "type": "Microsoft.Security/workspaceSettings",
+              "apiVersion": "2017-08-01-preview",
+              "name": "default",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "scope": "[subscription().id]"
+              }
+            },
+            {
+              "condition": "[not(empty(parameters('emailSecurityContact')))]",
+              "type": "Microsoft.Security/securityContacts",
+              "apiVersion": "2017-08-01-preview",
+              "name": "securityNotifications",
+              "properties": {
+                "alertsToAdmins": "On",
+                "alertNotifications": "On",
+                "email": "[parameters('emailSecurityContact')]"
+              }
+            },
+            {
+              "type": "Microsoft.Security/policies",
+              "apiVersion": "2015-06-01-preview",
+              "name": "default",
+              "properties": {
+                "policyLevel": "Subscription",
+                "name": "default",
+                "unique": "Off",
+                "logCollection": "On",
+                "recommendations": {
+                  "patch": "[variables('securitySettings')]",
+                  "baseline": "[variables('securitySettings')]",
+                  "antimalware": "[variables('securitySettings')]",
+                  "diskEncryption": "[variables('securitySettings')]",
+                  "acls": "[variables('securitySettings')]",
+                  "nsgs": "[variables('securitySettings')]",
+                  "waf": "[variables('securitySettings')]",
+                  "sqlAuditing": "[variables('securitySettings')]",
+                  "sqlTde": "[variables('securitySettings')]",
+                  "ngfw": "[variables('securitySettings')]",
+                  "vulnerabilityAssessment": "[variables('securitySettings')]",
+                  "storageEncryption": "[variables('securitySettings')]",
+                  "jitNetworkAccess": "[variables('securitySettings')]"
+                },
+                "pricingConfiguration": {
+                  "selectedPricingTier": "Standard"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]"
+      ]
+    },
+    {
+      "condition": "[and(parameters('deployASC'), not(equals(parameters('hubSubscriptionId'), parameters('identitySubscriptionId'))))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "set-identity-sub-security-center",
+      "subscriptionId": "[parameters('identitySubscriptionId')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2019-10-01').outputs.id.value]"
+          },
+          "emailSecurityContact": {
+            "value": "[parameters('emailSecurityContact')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "11766174527795289437"
+            }
+          },
+          "parameters": {
+            "enableAutoProvisioning": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Turn automatic deployment by ASC of the MMA (OMS VM extension) on or off"
+              }
+            },
+            "enableSecuritySettings": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Turn security policy settings On or Off."
+              }
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string",
+              "metadata": {
+                "description": "Specify the ID of your custom Log Analytics workspace to collect ASC data."
+              }
+            },
+            "emailSecurityContact": {
+              "type": "string",
+              "metadata": {
+                "description": "Email address of the contact, in the form of john@doe.com"
+              }
+            }
+          },
+          "functions": [],
+          "variables": {
+            "bundle": "[if(not(equals(environment().name, 'AzureUSGovernment')), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'))]",
+            "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]",
+            "securitySettings": "[if(parameters('enableSecuritySettings'), 'On', 'Off')]"
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "securityCenterPricing",
+                "count": "[length(variables('bundle'))]"
+              },
+              "type": "Microsoft.Security/pricings",
+              "apiVersion": "2018-06-01",
+              "name": "[variables('bundle')[copyIndex()]]",
+              "properties": {
+                "pricingTier": "Standard"
+              }
+            },
+            {
+              "type": "Microsoft.Security/autoProvisioningSettings",
+              "apiVersion": "2017-08-01-preview",
+              "name": "default",
+              "properties": {
+                "autoProvision": "[variables('autoProvisioning')]"
+              }
+            },
+            {
+              "type": "Microsoft.Security/workspaceSettings",
+              "apiVersion": "2017-08-01-preview",
+              "name": "default",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "scope": "[subscription().id]"
+              }
+            },
+            {
+              "condition": "[not(empty(parameters('emailSecurityContact')))]",
+              "type": "Microsoft.Security/securityContacts",
+              "apiVersion": "2017-08-01-preview",
+              "name": "securityNotifications",
+              "properties": {
+                "alertsToAdmins": "On",
+                "alertNotifications": "On",
+                "email": "[parameters('emailSecurityContact')]"
+              }
+            },
+            {
+              "type": "Microsoft.Security/policies",
+              "apiVersion": "2015-06-01-preview",
+              "name": "default",
+              "properties": {
+                "policyLevel": "Subscription",
+                "name": "default",
+                "unique": "Off",
+                "logCollection": "On",
+                "recommendations": {
+                  "patch": "[variables('securitySettings')]",
+                  "baseline": "[variables('securitySettings')]",
+                  "antimalware": "[variables('securitySettings')]",
+                  "diskEncryption": "[variables('securitySettings')]",
+                  "acls": "[variables('securitySettings')]",
+                  "nsgs": "[variables('securitySettings')]",
+                  "waf": "[variables('securitySettings')]",
+                  "sqlAuditing": "[variables('securitySettings')]",
+                  "sqlTde": "[variables('securitySettings')]",
+                  "ngfw": "[variables('securitySettings')]",
+                  "vulnerabilityAssessment": "[variables('securitySettings')]",
+                  "storageEncryption": "[variables('securitySettings')]",
+                  "jitNetworkAccess": "[variables('securitySettings')]"
+                },
+                "pricingConfiguration": {
+                  "selectedPricingTier": "Standard"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]"
+      ]
+    },
+    {
+      "condition": "[and(parameters('deployASC'), not(equals(parameters('hubSubscriptionId'), parameters('sharedServicesSubscriptionId'))))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "set-sharedServices-sub-security-center",
+      "subscriptionId": "[parameters('sharedServicesSubscriptionId')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2019-10-01').outputs.id.value]"
+          },
+          "emailSecurityContact": {
+            "value": "[parameters('emailSecurityContact')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "11766174527795289437"
+            }
+          },
+          "parameters": {
+            "enableAutoProvisioning": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Turn automatic deployment by ASC of the MMA (OMS VM extension) on or off"
+              }
+            },
+            "enableSecuritySettings": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Turn security policy settings On or Off."
+              }
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string",
+              "metadata": {
+                "description": "Specify the ID of your custom Log Analytics workspace to collect ASC data."
+              }
+            },
+            "emailSecurityContact": {
+              "type": "string",
+              "metadata": {
+                "description": "Email address of the contact, in the form of john@doe.com"
+              }
+            }
+          },
+          "functions": [],
+          "variables": {
+            "bundle": "[if(not(equals(environment().name, 'AzureUSGovernment')), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'))]",
+            "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]",
+            "securitySettings": "[if(parameters('enableSecuritySettings'), 'On', 'Off')]"
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "securityCenterPricing",
+                "count": "[length(variables('bundle'))]"
+              },
+              "type": "Microsoft.Security/pricings",
+              "apiVersion": "2018-06-01",
+              "name": "[variables('bundle')[copyIndex()]]",
+              "properties": {
+                "pricingTier": "Standard"
+              }
+            },
+            {
+              "type": "Microsoft.Security/autoProvisioningSettings",
+              "apiVersion": "2017-08-01-preview",
+              "name": "default",
+              "properties": {
+                "autoProvision": "[variables('autoProvisioning')]"
+              }
+            },
+            {
+              "type": "Microsoft.Security/workspaceSettings",
+              "apiVersion": "2017-08-01-preview",
+              "name": "default",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "scope": "[subscription().id]"
+              }
+            },
+            {
+              "condition": "[not(empty(parameters('emailSecurityContact')))]",
+              "type": "Microsoft.Security/securityContacts",
+              "apiVersion": "2017-08-01-preview",
+              "name": "securityNotifications",
+              "properties": {
+                "alertsToAdmins": "On",
+                "alertNotifications": "On",
+                "email": "[parameters('emailSecurityContact')]"
+              }
+            },
+            {
+              "type": "Microsoft.Security/policies",
+              "apiVersion": "2015-06-01-preview",
+              "name": "default",
+              "properties": {
+                "policyLevel": "Subscription",
+                "name": "default",
+                "unique": "Off",
+                "logCollection": "On",
+                "recommendations": {
+                  "patch": "[variables('securitySettings')]",
+                  "baseline": "[variables('securitySettings')]",
+                  "antimalware": "[variables('securitySettings')]",
+                  "diskEncryption": "[variables('securitySettings')]",
+                  "acls": "[variables('securitySettings')]",
+                  "nsgs": "[variables('securitySettings')]",
+                  "waf": "[variables('securitySettings')]",
+                  "sqlAuditing": "[variables('securitySettings')]",
+                  "sqlTde": "[variables('securitySettings')]",
+                  "ngfw": "[variables('securitySettings')]",
+                  "vulnerabilityAssessment": "[variables('securitySettings')]",
+                  "storageEncryption": "[variables('securitySettings')]",
+                  "jitNetworkAccess": "[variables('securitySettings')]"
+                },
+                "pricingConfiguration": {
+                  "selectedPricingTier": "Standard"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]"
+      ]
+    },
+    {
       "condition": "[parameters('deployRemoteAccess')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
@@ -5357,6 +7079,9 @@
           },
           "windowsVmStorageAccountType": {
             "value": "[parameters('windowsVmStorageAccountType')]"
+          },
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2019-10-01').outputs.id.value]"
           }
         },
         "template": {
@@ -5366,7 +7091,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "9206703012100649755"
+              "templateHash": "15471301360164399460"
             }
           },
           "parameters": {
@@ -5492,6 +7217,9 @@
               "type": "string"
             },
             "windowsVmStorageAccountType": {
+              "type": "string"
+            },
+            "logAnalyticsWorkspaceId": {
               "type": "string"
             }
           },
@@ -5794,6 +7522,9 @@
                   },
                   "networkInterfaceName": {
                     "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-linuxNetworkInterface'), '2019-10-01').outputs.name.value]"
+                  },
+                  "logAnalyticsWorkspaceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -5803,7 +7534,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.613.9944",
-                      "templateHash": "9484732926763055555"
+                      "templateHash": "3862382619989520319"
                     }
                   },
                   "parameters": {
@@ -5854,6 +7585,9 @@
                     "adminPasswordOrKey": {
                       "type": "secureString",
                       "minLength": 14
+                    },
+                    "logAnalyticsWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "functions": [],
@@ -5909,6 +7643,75 @@
                           "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
                         }
                       }
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/Microsoft.Azure.NetworkWatcher', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.NetworkWatcher",
+                        "type": "NetworkWatcherAgentLinux",
+                        "typeHandlerVersion": "1.4"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', split(format('{0}/Microsoft.Azure.AzurePolicyforLinux', parameters('name')), '/')[0], split(format('{0}/Microsoft.Azure.AzurePolicyforLinux', parameters('name')), '/')[1])]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/Microsoft.Azure.AzurePolicyforLinux', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.GuestConfiguration",
+                        "type": "ConfigurationforLinux",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "enableAutomaticUpgrade": true
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/OMSExtension', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                        "type": "OmsAgentForLinux",
+                        "typeHandlerVersion": "1.13",
+                        "settings": {
+                          "workspaceId": "[reference(parameters('logAnalyticsWorkspaceId'), '2015-11-01-preview').customerId]",
+                          "stopOnMultipleConnections": true
+                        },
+                        "protectedSettings": {
+                          "workspaceKey": "[listKeys(parameters('logAnalyticsWorkspaceId'), '2015-11-01-preview').primarySharedKey]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', split(format('{0}/Microsoft.Azure.NetworkWatcher', parameters('name')), '/')[0], split(format('{0}/Microsoft.Azure.NetworkWatcher', parameters('name')), '/')[1])]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/DependencyAgentLinux', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+                        "type": "DependencyAgentLinux",
+                        "typeHandlerVersion": "9.5",
+                        "autoUpgradeMinorVersion": true
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', split(format('{0}/OMSExtension', parameters('name')), '/')[0], split(format('{0}/OMSExtension', parameters('name')), '/')[1])]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -6080,6 +7883,9 @@
                   },
                   "networkInterfaceName": {
                     "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-windowsNetworkInterface'), '2019-10-01').outputs.name.value]"
+                  },
+                  "logAnalyticsWorkspaceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -6089,7 +7895,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.613.9944",
-                      "templateHash": "13028397952765670280"
+                      "templateHash": "7803267989541942846"
                     }
                   },
                   "parameters": {
@@ -6133,6 +7939,9 @@
                     },
                     "storageAccountType": {
                       "type": "string"
+                    },
+                    "logAnalyticsWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "functions": [],
@@ -6174,6 +7983,72 @@
                           ]
                         }
                       }
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-04-01",
+                      "name": "[format('{0}/DependencyAgentWindows', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+                        "type": "DependencyAgentWindows",
+                        "typeHandlerVersion": "9.5",
+                        "autoUpgradeMinorVersion": true
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-04-01",
+                      "name": "[format('{0}/AzurePolicyforWindows', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.GuestConfiguration",
+                        "type": "ConfigurationforWindows",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "enableAutomaticUpgrade": true
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-04-01",
+                      "name": "[format('{0}/MMAExtension', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                        "type": "MicrosoftMonitoringAgent",
+                        "typeHandlerVersion": "1.0",
+                        "settings": {
+                          "workspaceId": "[reference(parameters('logAnalyticsWorkspaceId'), '2015-11-01-preview').customerId]",
+                          "stopOnMultipleConnections": true
+                        },
+                        "protectedSettings": {
+                          "workspaceKey": "[listKeys(parameters('logAnalyticsWorkspaceId'), '2015-11-01-preview').primarySharedKey]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/Microsoft.Azure.NetworkWatcher', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.NetworkWatcher",
+                        "type": "NetworkWatcherAgentWindows",
+                        "typeHandlerVersion": "1.4"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
                     }
                   ]
                 }
@@ -6186,7 +8061,8 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-hub-{0}', parameters('nowUtc')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-hub-{0}', parameters('nowUtc')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]"
       ]
     }
   ],

@@ -4,6 +4,7 @@ param tags object = {}
 param logStorageAccountName string
 param logStorageSkuName string
 
+param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceResourceId string
 
 param virtualNetworkName string
@@ -175,7 +176,9 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = {
     routeTable: {
       id: routeTable.outputs.id
     }
-    serviceEndpoints: empty(subnetServiceEndpoints) ? defaultSubnetServiceEndpoints : subnetServiceEndpoints
+    serviceEndpoints: empty(subnetServiceEndpoints) ? defaultSubnetServiceEndpoints : subnetServiceEndpoints    
+    privateEndpointNetworkPolicies: 'Disabled'
+    privateLinkServiceNetworkPolicies: 'Enabled'
   }
   dependsOn: [
     virtualNetwork
@@ -229,6 +232,20 @@ module firewall './firewall.bicep' = {
     managementIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/${firewallManagementSubnetName}'
     managementIpConfigurationPublicIPAddressResourceId: firewallManagementPublicIPAddress.outputs.id
   }
+}
+
+module azureMonitorPrivateLink './privateLink.bicep' = {
+  name: 'azure-monitor-private-link'
+  params: {
+    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    privateEndpointSubnetName: subnetName
+    privateEndpointVnetName: virtualNetwork.outputs.name
+    tags: tags
+  }
+  dependsOn: [
+    subnet
+  ]
 }
 
 output virtualNetworkName string = virtualNetwork.outputs.name

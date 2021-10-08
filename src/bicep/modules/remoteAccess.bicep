@@ -52,6 +52,8 @@ param windowsVmVersion string
 param windowsVmCreateOption string
 param windowsVmStorageAccountType string
 
+param logAnalyticsWorkspaceId string
+
 resource hubVirtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
   name: hubVirtualNetworkName
 }
@@ -106,6 +108,7 @@ module linuxVirtualMachine './linuxVirtualMachine.bicep' = {
     authenticationType: linuxVmAuthenticationType
     adminPasswordOrKey: linuxVmAdminPasswordOrKey
     networkInterfaceName: linuxNetworkInterface.outputs.name
+    logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
   }
 }
 
@@ -140,5 +143,6 @@ module windowsVirtualMachine './windowsVirtualMachine.bicep' = {
     createOption: windowsVmCreateOption
     storageAccountType: windowsVmStorageAccountType
     networkInterfaceName: windowsNetworkInterface.outputs.name
+    logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
   }
 }
