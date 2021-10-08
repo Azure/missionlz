@@ -199,7 +199,7 @@ module sharedServices './modules/spokeNetwork.bicep' = {
 
 //// peering
 
-module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
+module aChangeThatDoesntRebuildTheJson './modules/hubNetworkPeerings.bicep' = {
   name: 'deploy-hub-peerings-${nowUtc}'
   scope: subscription(hubSubscriptionId)
   params: {
@@ -342,7 +342,7 @@ module remoteAccess './modules/remoteAccess.bicep' = if(deployRemoteAccess) {
 
   params: {
     location: hubLocation
-    
+
     hubVirtualNetworkName: hub.outputs.virtualNetworkName
     hubSubnetResourceId: hub.outputs.subnetResourceId
     hubNetworkSecurityGroupResourceId: hub.outputs.networkSecurityGroupResourceId
