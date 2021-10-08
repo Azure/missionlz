@@ -24,6 +24,7 @@ steps:
     backendAzureRmStorageAccountName: 'missionlzstoracc'
     backendAzureRmContainerName: 'mlztfcontainer'
     backendAzureRmKey: 'terraform.tfstate'
+    environmentServiceNameAzureRM: 'CAzureConnection'
 - task: TerraformTaskV2@2
   inputs:
     provider: 'azurerm'
