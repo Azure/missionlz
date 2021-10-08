@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "927222700136740996"
+      "templateHash": "11510952573722587231"
     }
   },
   "parameters": {
@@ -1084,7 +1084,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "11367184292724438005"
+              "templateHash": "16313594886672708691"
             }
           },
           "parameters": {
@@ -1897,7 +1897,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.613.9944",
-                      "templateHash": "14377085769738688639"
+                      "templateHash": "16747839851109173015"
                     }
                   },
                   "parameters": {
@@ -1956,6 +1956,95 @@
                       }
                     },
                     {
+                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                      "apiVersion": "2021-02-01",
+                      "name": "[format('{0}/DefaultApplicationRuleCollectionGroup', parameters('firewallPolicyName'))]",
+                      "properties": {
+                        "priority": 300,
+                        "ruleCollections": [
+                          {
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "rules": [
+                              {
+                                "ruleType": "ApplicationRule",
+                                "name": "msftauth",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "webCategories": [],
+                                "targetFqdns": [
+                                  "aadcdn.msftauth.net",
+                                  "aadcdn.msauth.net"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": []
+                              }
+                            ],
+                            "name": "AzureAuth",
+                            "priority": 110
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                      "apiVersion": "2021-02-01",
+                      "name": "[format('{0}/DefaultNetworkRuleCollectionGroup', parameters('firewallPolicyName'))]",
+                      "properties": {
+                        "priority": 200,
+                        "ruleCollections": [
+                          {
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "rules": [
+                              {
+                                "ruleType": "NetworkRule",
+                                "name": "AzureCloud",
+                                "ipProtocols": [
+                                  "Any"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "AzureCloud"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "*"
+                                ]
+                              }
+                            ],
+                            "name": "AllowAzureCloud",
+                            "priority": 100
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', split(format('{0}/DefaultApplicationRuleCollectionGroup', parameters('firewallPolicyName')), '/')[0], split(format('{0}/DefaultApplicationRuleCollectionGroup', parameters('firewallPolicyName')), '/')[1])]",
+                        "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
+                      ]
+                    },
+                    {
                       "type": "Microsoft.Network/azureFirewalls",
                       "apiVersion": "2021-02-01",
                       "name": "[parameters('name')]",
@@ -1994,6 +2083,8 @@
                         }
                       },
                       "dependsOn": [
+                        "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', split(format('{0}/DefaultApplicationRuleCollectionGroup', parameters('firewallPolicyName')), '/')[0], split(format('{0}/DefaultApplicationRuleCollectionGroup', parameters('firewallPolicyName')), '/')[1])]",
+                        "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', split(format('{0}/DefaultNetworkRuleCollectionGroup', parameters('firewallPolicyName')), '/')[0], split(format('{0}/DefaultNetworkRuleCollectionGroup', parameters('firewallPolicyName')), '/')[1])]",
                         "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
                       ]
                     }
