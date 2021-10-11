@@ -212,8 +212,8 @@ module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
     sharedServicesVirtualNetworkName: sharedServices.outputs.virtualNetworkName
 
     identityVirtualNetworkResourceId: identity.outputs.virtualNetworkResourceId
-    operationsVirtualNetworkResourceId: sharedServices.outputs.virtualNetworkResourceId
-    sharedServicesVirtualNetworkResourceId: operations.outputs.virtualNetworkResourceId
+    operationsVirtualNetworkResourceId: operations.outputs.virtualNetworkResourceId
+    sharedServicesVirtualNetworkResourceId: sharedServices.outputs.virtualNetworkResourceId
   }
 }
 
@@ -396,7 +396,7 @@ module remoteAccess './modules/remoteAccess.bicep' = if(deployRemoteAccess) {
 
   params: {
     location: hubLocation
-    
+
     hubVirtualNetworkName: hub.outputs.virtualNetworkName
     hubSubnetResourceId: hub.outputs.subnetResourceId
     hubNetworkSecurityGroupResourceId: hub.outputs.networkSecurityGroupResourceId
