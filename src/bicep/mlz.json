@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "2544027836620234303"
+      "templateHash": "11625881222170284328"
     }
   },
   "parameters": {
@@ -4374,10 +4374,10 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('identitySubscriptionId'), parameters('identityResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-identity-spoke-{0}', parameters('nowUtc'))), '2019-10-01').outputs.virtualNetworkResourceId.value]"
           },
           "operationsVirtualNetworkResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('sharedServicesSubscriptionId'), parameters('sharedServicesResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-sharedServices-spoke-{0}', parameters('nowUtc'))), '2019-10-01').outputs.virtualNetworkResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-operations-spoke-{0}', parameters('nowUtc'))), '2019-10-01').outputs.virtualNetworkResourceId.value]"
           },
           "sharedServicesVirtualNetworkResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-operations-spoke-{0}', parameters('nowUtc'))), '2019-10-01').outputs.virtualNetworkResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('sharedServicesSubscriptionId'), parameters('sharedServicesResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-sharedServices-spoke-{0}', parameters('nowUtc'))), '2019-10-01').outputs.virtualNetworkResourceId.value]"
           }
         },
         "template": {
