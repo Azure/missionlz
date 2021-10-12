@@ -62,7 +62,7 @@ jobs:
                terraform init         
                terraform plan  -var "hub_subid=$(subid)"  -input=false      
                terraform apply -var "hub_subid=$(subid)" -auto-approve -input=false
-               terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
+#               terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
             
 #    - task: AzureCLI@2
