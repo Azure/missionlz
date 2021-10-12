@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "11625881222170284328"
+      "templateHash": "12997432989008627632"
     }
   },
   "parameters": {
@@ -5983,7 +5983,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "10501865331857601559"
+              "templateHash": "8810160807544413438"
             }
           },
           "parameters": {
@@ -5998,7 +5998,7 @@
           "resources": [
             {
               "type": "Microsoft.Insights/diagnosticSettings",
-              "apiVersion": "2021-05-01-preview",
+              "apiVersion": "2017-05-01-preview",
               "name": "[parameters('diagnosticSettingName')]",
               "properties": {
                 "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
@@ -6072,7 +6072,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "10501865331857601559"
+              "templateHash": "8810160807544413438"
             }
           },
           "parameters": {
@@ -6087,7 +6087,7 @@
           "resources": [
             {
               "type": "Microsoft.Insights/diagnosticSettings",
-              "apiVersion": "2021-05-01-preview",
+              "apiVersion": "2017-05-01-preview",
               "name": "[parameters('diagnosticSettingName')]",
               "properties": {
                 "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
@@ -6161,7 +6161,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "10501865331857601559"
+              "templateHash": "8810160807544413438"
             }
           },
           "parameters": {
@@ -6176,7 +6176,7 @@
           "resources": [
             {
               "type": "Microsoft.Insights/diagnosticSettings",
-              "apiVersion": "2021-05-01-preview",
+              "apiVersion": "2017-05-01-preview",
               "name": "[parameters('diagnosticSettingName')]",
               "properties": {
                 "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
@@ -6250,7 +6250,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "10501865331857601559"
+              "templateHash": "8810160807544413438"
             }
           },
           "parameters": {
@@ -6265,7 +6265,7 @@
           "resources": [
             {
               "type": "Microsoft.Insights/diagnosticSettings",
-              "apiVersion": "2021-05-01-preview",
+              "apiVersion": "2017-05-01-preview",
               "name": "[parameters('diagnosticSettingName')]",
               "properties": {
                 "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
