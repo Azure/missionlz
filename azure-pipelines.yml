@@ -59,6 +59,7 @@ jobs:
                echo $ARM_SUBSCRIPTION_ID `
                export ARM_TENANT_ID=$(tenantId) `
                echo $ARM_TENANT_ID `              
+               terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
                terraform init         
                terraform plan  -var "hub_subid=$(subid)"  -input=false      
                terraform apply -var "hub_subid=$(subid)" -auto-approve -input=false
