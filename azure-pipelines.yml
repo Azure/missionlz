@@ -58,9 +58,10 @@ jobs:
                export ARM_SUBSCRIPTION_ID=$(subId) `
                echo $ARM_SUBSCRIPTION_ID `
                export ARM_TENANT_ID=$(tenantId) `
-               echo $ARM_TENANT_ID `
-               terraform init 
+               echo $ARM_TENANT_ID `              
+               terraform init                
                terraform apply -var "hub_subid=$(subid)" -auto-approve -input=false
+               terraform destroy -auto-approve 
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
             
 #    - task: AzureCLI@2
