@@ -51,6 +51,11 @@ jobs:
             scriptLocation: 'inlineScript'
             addSpnToEnvironment: true
             inlineScript: |
+               az group delete --name hub-rg
+               az group delete --name identity-rg
+               az group delete --name operations-rg
+               az group delete --name sharedServices-rg
+               az group delete --name NetworkWatcherRG
                export ARM_CLIENT_ID=$(ClientId) `
                echo $ARM_CLIENT_ID `
                export ARM_CLIENT_SECRET=$(ClientSecret1) `
@@ -60,7 +65,6 @@ jobs:
                export ARM_TENANT_ID=$(tenantId) `
                echo $ARM_TENANT_ID `              
                terraform init         
-               terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
                terraform plan  -var "hub_subid=$(subid)"  -input=false      
                terraform apply -var "hub_subid=$(subid)" -auto-approve -input=false
 #               terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
