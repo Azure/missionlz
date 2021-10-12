@@ -52,12 +52,23 @@ jobs:
           --template-file $(TemplateFile)
 - job: CommercialCloud_TF
   steps:
-    - task: TerraformInstaller@0
-      inputs:
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'CAzureConnection'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az group delete --name hub-rg -y
+        az group delete --name identity-rg -y
+        az group delete --name operations-rg -y
+        az group delete --name sharedServices-rg -y
+        az group delete --name NetworkWatcherRG -y
+  - task: TerraformInstaller@0
+    inputs:
         terraformVersion: '1.0.8'
-    - task: AzureCLI@2
-      displayName: "Terraform"
-      inputs:
+  - task: AzureCLI@2
+    displayName: "Terraform"
+    inputs:
             azureSubscription: 'CAzureConnection'
             scriptType: 'bash'
             scriptLocation: 'inlineScript'
@@ -79,24 +90,22 @@ jobs:
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
 - job: GovCloud_TF
   steps:
-    - task: TerraformInstaller@0
-      inputs:
+   - task: AzureCLI@2
+     inputs:
+      azureSubscription: 'GAzureConnection'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az group delete --name hub-rg -y
+        az group delete --name identity-rg -y
+        az group delete --name operations-rg -y
+        az group delete --name sharedServices-rg -y
+        az group delete --name NetworkWatcherRG -y
+   - task: TerraformInstaller@0
+     inputs:
         terraformVersion: '1.0.8'
-    - task: AzureCLI@2
-      inputs:
-            azureSubscription: 'GAzureConnection'
-            scriptType: 'bash'
-            scriptLocation: 'inlineScript'
-            addSpnToEnvironment: true
-            inlineScript: |
-              export ARM_CLIENT_ID=$(GClientId) `
-              export ARM_CLIENT_SECRET=$(GClientSecret) `
-              export ARM_SUBSCRIPTION_ID=$(GSubId) `
-              export ARM_TENANT_ID=$(GTenantId) `
-              terraform init
-            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
-    - task: AzureCLI@2
-      inputs:
+   - task: AzureCLI@2
+     inputs:
             azureSubscription: 'GAzureConnection'
             scriptType: 'bash'
             addSpnToEnvironment: true
