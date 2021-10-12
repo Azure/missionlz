@@ -18,6 +18,12 @@ jobs:
   steps:
   - task: AzureCLI@2
     inputs:
+      azureSubscription: 'CAzureConnection'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az group list -o table | grep ''mlz'' | awk ''{system("az group delete -y --no-wait -g "$1)}'''
+  - task: AzureCLI@2
+    inputs:
       azureSubscription: $(ServiceConnectionName)
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
@@ -28,6 +34,12 @@ jobs:
           --template-file $(TemplateFile)
 - job: bicepGovCloud
   steps:
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'GAzureConnection'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az group list -o table | grep ''mlz'' | awk ''{system("az group delete -y --no-wait -g "$1)}'''  
   - task: AzureCLI@2
     inputs:
       azureSubscription: $(GServiceConnectionName)
