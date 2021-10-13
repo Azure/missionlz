@@ -118,7 +118,6 @@ jobs:
             addSpnToEnvironment: true
             scriptLocation: 'inlineScript'
             inlineScript: |
-               export ARM_ENVIRONMENT=$(CloudEnv) `
                export ARM_CLIENT_ID=$(GClientId) `
                echo $ARM_CLIENT_ID `
                export ARM_CLIENT_SECRET=$(GClientSecret) `
@@ -126,10 +125,12 @@ jobs:
                export ARM_SUBSCRIPTION_ID=$(GSubId) `
                echo $ARM_SUBSCRIPTION_ID `
                export ARM_TENANT_ID=$(GTenantId) `
-               echo $ARM_TENANT_ID `              
-               terraform init         
-               terraform plan  -var "hub_subid=$(GSubid)"  -input=false      
-               terraform apply -var "hub_subid=$(GSubid)" -auto-approve -input=false
+               echo $ARM_TENANT_ID `
+               export ARM_ENVIRONMENT=$(CloudEnv) `
+               echo $ARM_ENVIRONMENT `
+               terraform init
+               terraform plan  -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -input=false      
+               terraform apply -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -auto-approve -input=false
                sleep 30
                terraform destroy -var "hub_subid=$(GSubid)" -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
