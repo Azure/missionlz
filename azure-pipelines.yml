@@ -118,7 +118,8 @@ jobs:
             addSpnToEnvironment: true
             scriptLocation: 'inlineScript'
             inlineScript: |
-              export ARM_CLIENT_ID=$(GClientId) `
+               export ARM_ENVIRONMENT=$(CloudEnv) `
+               export ARM_CLIENT_ID=$(GClientId) `
                echo $ARM_CLIENT_ID `
                export ARM_CLIENT_SECRET=$(GClientSecret) `
                echo $ARM_CLIENT_SECRET `
