@@ -22,6 +22,7 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az monitor diagnostic-settings subscription list --query "value[? contains(@.name, ''$1'')].name" -o table  |grep ''mlz''| awk ''{system(" az monitor diagnostic-settings  delete  --resource  ''"/subscriptions/$(subId)"'' --name "$1)}'''
+    enabled: false
   - task: AzureCLI@2
     displayName: "Cleanup Resources"
     inputs:
@@ -29,6 +30,7 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az group list -o table | grep ''mlz'' | awk ''{system("az group delete -y --no-wait -g "$1)}'''
+    enabled: false
   - task: AzureCLI@2
     displayName: "Deploy MLZ Bicep"
     inputs:
@@ -40,7 +42,7 @@ jobs:
           --name $(bDeploymentName) \
           --location $(Location) \
           --template-file $(TemplateFile)
-
+    enabled: false
 - job: bicepGovCloud
   steps:
   - task: AzureCLI@2
@@ -49,7 +51,7 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az monitor diagnostic-settings subscription list --query "value[? contains(@.name, ''$1'')].name" -o table  |grep ''mlz''| awk ''{system(" az monitor diagnostic-settings  delete  --resource  ''"/subscriptions/$(GSubId)"'' --name "$1)}'''
-
+    enabled: false
   - task: AzureCLI@2
     displayName: "Cleanup Resources"
     inputs:
@@ -57,6 +59,7 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az group list -o table | grep ''mlz'' | awk ''{system("az group delete -y --no-wait -g "$1)}'''  
+    enabled: false
   - task: AzureCLI@2
     displayName: "Deploy MLZ Bicep"
     inputs:
@@ -68,6 +71,7 @@ jobs:
           --name $(bDeploymentName) \
           --location $(GLocation) \
           --template-file $(TemplateFile)
+    enabled: false
 - job: CommercialCloud_TF
   steps:
   - task: TerraformInstaller@0
@@ -92,7 +96,7 @@ jobs:
                terraform init         
                terraform plan  -var "hub_subid=$(subid)"  -input=false      
                terraform apply -var "hub_subid=$(subid)" -auto-approve -input=false
-               terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
+#               terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
   - task: AzureCLI@2
     displayName: "Teardown MLZ Terraform"
@@ -111,7 +115,6 @@ jobs:
                export ARM_TENANT_ID=$(tenantId) `
                echo $ARM_TENANT_ID `              
                terraform init         
-               terraform plan  -var "hub_subid=$(subid)"  -input=false      
                terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
 - job: GovCloud_TF
@@ -142,6 +145,7 @@ jobs:
                terraform plan  -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -input=false      
                terraform apply -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'        
+     enabled: false
    - task: AzureCLI@2
      name: TerraformTeardonwGov
      displayName: "Teardown MLZ Terraform"
@@ -162,8 +166,8 @@ jobs:
                export ARM_ENVIRONMENT=$(CloudEnv) `
                echo $ARM_ENVIRONMENT `
                terraform init
-               terraform plan  -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -input=false      
                terraform destroy -var "hub_subid=$(GSubid)" -auto-approve -input=false
-            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'        
+            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+     enabled: false                   
 
 
