@@ -17,6 +17,12 @@ jobs:
 - job: bicepCommercialCloud
   steps:
   - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'CAzureConnection'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az monitor diagnostic-settings subscription list --query "value[? contains(@.name, ''$1'')].name" -o table  |grep ''mlz''| awk ''{system(" az monitor diagnostic-settings  delete  --resource  ''"/subscriptions/$(subId)"'' --name "$1)}'''
+  - task: AzureCLI@2
     displayName: "Cleanup Resources"
     inputs:
       azureSubscription: 'CAzureConnection'
@@ -34,8 +40,16 @@ jobs:
           --name $(bDeploymentName) \
           --location $(Location) \
           --template-file $(TemplateFile)
+
 - job: bicepGovCloud
   steps:
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'GAzureConnection'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az monitor diagnostic-settings subscription list --query "value[? contains(@.name, ''$1'')].name" -o table  |grep ''mlz''| awk ''{system(" az monitor diagnostic-settings  delete  --resource  ''"/subscriptions/$(GSubId)"'' --name "$1)}'''
+
   - task: AzureCLI@2
     displayName: "Cleanup Resources"
     inputs:
@@ -111,6 +125,7 @@ jobs:
      inputs:
         terraformVersion: '1.0.8'
    - task: AzureCLI@2
+     name: TerraformApplyGov
      displayName: "Deploy MLZ Terraform"
      inputs:
             azureSubscription: 'GAzureConnection'
@@ -133,4 +148,4 @@ jobs:
                terraform apply -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -auto-approve -input=false
                sleep 30
                terraform destroy -var "hub_subid=$(GSubid)" -auto-approve -input=false
-            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'        
