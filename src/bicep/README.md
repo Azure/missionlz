@@ -2,12 +2,11 @@
 
 ## Deployment
 
-### Deployment Pre-requisites
+### Prerequisistes
 
 You can deploy with the Azure Portal, the Azure CLI, or with both in a Azure Commercial, Azure for Government, or Air-Gapped Clouds. But first, you'll need these pre-requisites:
 
-1. At least one Azure Subscription
-1. At least [Contributor RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#all) to that subscription
+1. An Azure Subscription(s) where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
 
 Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`? See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
 
