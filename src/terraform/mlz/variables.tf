@@ -296,7 +296,7 @@ variable "jumpbox_linux_vm_version" {
 variable "create_policy_assignment" {
   description = "Assign Policy to deployed resources?"
   type        = bool
-  default     = true
+  default     = false
 }
 
 #################################
