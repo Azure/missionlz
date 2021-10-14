@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "12997432989008627632"
+      "templateHash": "14582104704175091068"
     }
   },
   "parameters": {
@@ -36,7 +36,7 @@
     },
     "firewallSkuTier": {
       "type": "string",
-      "defaultValue": "Premium",
+      "defaultValue": "[if(or(equals(toLower(environment().name), toLower('AzureCloud')), equals(toLower(environment().name), toLower('AzureUSGovernment'))), 'Premium', 'Standard')]",
       "allowedValues": [
         "Standard",
         "Premium"
