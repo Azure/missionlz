@@ -29,6 +29,8 @@ Read on to understand the [prerequisites](#Prerequisistes), how to get started, 
 
 Deploying to a Cloud other than Azure Commercial? This requires updating the `azurerm` provider block `environment` and `metadata_host` values. Checkout the [Deploying to Other Clouds](#Deploying-to-Other-Clouds) documentation.
 
+Looking to assign Azure Policy? This template supports assigning NIST 800-53 policies. See the [policies documentation](../../docs/policies.md) for more information.
+
 ### Login to Azure CLI
 
 1. Log in using the Azure CLI
@@ -161,6 +163,28 @@ Here's the docs on `terraform destroy`: <https://www.terraform.io/docs/cli/comma
     ```
 
 This command will attempt to remove all the resources that were created by `terraform apply` and could take up to 45 minutes.
+
+## Assigning Azure Policy
+
+This template supports assigning NIST 800-53 policies. See the [policies documentation](../../docs/policies.md) for more information.
+
+You can enable this by providing a `true` value to the `create_policy_assignment` variable.
+
+At `apply` time:
+
+```plaintext
+terraform apply -var="create_policy_assignment=true"
+```
+
+Or, by updating `src/terraform/mlz/variables.tf`:
+
+```terraform
+variable "create_policy_assignment" {
+  description = "Assign Policy to deployed resources?"
+  type        = bool
+  default     = true
+}
+```
 
 ## Deploying new Spoke Networks
 
