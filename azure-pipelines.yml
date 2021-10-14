@@ -70,18 +70,18 @@ jobs:
           --template-file $(TemplateFile)
 - job: CommercialCloud_TF
   steps:
-  - task: AzureCLI@2
-    displayName: "Cleanup Resources"
-    inputs:
-      azureSubscription: 'CAzureConnection'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az group delete --name hub-rg -y
-        az group delete --name identity-rg -y
-        az group delete --name operations-rg -y
-        az group delete --name sharedServices-rg -y
-        az group delete --name NetworkWatcherRG -y
+#  - task: AzureCLI@2
+#    displayName: "Cleanup Resources"
+#    inputs:
+#      azureSubscription: 'CAzureConnection'
+#      scriptType: 'bash'
+#      scriptLocation: 'inlineScript'
+#      inlineScript: |
+#        az group delete --name hub-rg -y
+#        az group delete --name identity-rg -y
+#        az group delete --name operations-rg -y
+#        az group delete --name sharedServices-rg -y
+#        az group delete --name NetworkWatcherRG -y
   - task: TerraformInstaller@0
     inputs:
         terraformVersion: '1.0.8'
@@ -109,18 +109,18 @@ jobs:
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
 - job: GovCloud_TF
   steps:
-   - task: AzureCLI@2
-     displayName: "Cleanup Resources"
-     inputs:
-      azureSubscription: 'GAzureConnection'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az group delete --name hub-rg -y
-        az group delete --name identity-rg -y
-        az group delete --name operations-rg -y
-        az group delete --name sharedServices-rg -y
-        az group delete --name NetworkWatcherRG -y
+#   - task: AzureCLI@2
+#     displayName: "Cleanup Resources"
+#     inputs:
+#      azureSubscription: 'GAzureConnection'
+#      scriptType: 'bash'
+#      scriptLocation: 'inlineScript'
+#      inlineScript: |
+#        az group delete --name hub-rg -y
+#        az group delete --name identity-rg -y
+#        az group delete --name operations-rg -y
+#        az group delete --name sharedServices-rg -y
+#        az group delete --name NetworkWatcherRG -y
    - task: TerraformInstaller@0
      inputs:
         terraformVersion: '1.0.8'
