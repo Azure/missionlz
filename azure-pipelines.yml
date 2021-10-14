@@ -70,18 +70,6 @@ jobs:
           --template-file $(TemplateFile)
 - job: CommercialCloud_TF
   steps:
-#  - task: AzureCLI@2
-#    displayName: "Cleanup Resources"
-#    inputs:
-#      azureSubscription: 'CAzureConnection'
-#      scriptType: 'bash'
-#      scriptLocation: 'inlineScript'
-#      inlineScript: |
-#        az group delete --name hub-rg -y
-#        az group delete --name identity-rg -y
-#        az group delete --name operations-rg -y
-#        az group delete --name sharedServices-rg -y
-#        az group delete --name NetworkWatcherRG -y
   - task: TerraformInstaller@0
     inputs:
         terraformVersion: '1.0.8'
@@ -104,23 +92,30 @@ jobs:
                terraform init         
                terraform plan  -var "hub_subid=$(subid)"  -input=false      
                terraform apply -var "hub_subid=$(subid)" -auto-approve -input=false
-               sleep 30
+               terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
+            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+  - task: AzureCLI@2
+    displayName: "Teardown MLZ Terraform"
+    inputs:
+            azureSubscription: 'CAzureConnection'
+            scriptType: 'bash'
+            scriptLocation: 'inlineScript'
+            addSpnToEnvironment: true
+            inlineScript: |
+               export ARM_CLIENT_ID=$(ClientId) `
+               echo $ARM_CLIENT_ID `
+               export ARM_CLIENT_SECRET=$(ClientSecret1) `
+               echo $ARM_CLIENT_SECRET `
+               export ARM_SUBSCRIPTION_ID=$(subId) `
+               echo $ARM_SUBSCRIPTION_ID `
+               export ARM_TENANT_ID=$(tenantId) `
+               echo $ARM_TENANT_ID `              
+               terraform init         
+               terraform plan  -var "hub_subid=$(subid)"  -input=false      
                terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
 - job: GovCloud_TF
   steps:
-#   - task: AzureCLI@2
-#     displayName: "Cleanup Resources"
-#     inputs:
-#      azureSubscription: 'GAzureConnection'
-#      scriptType: 'bash'
-#      scriptLocation: 'inlineScript'
-#      inlineScript: |
-#        az group delete --name hub-rg -y
-#        az group delete --name identity-rg -y
-#        az group delete --name operations-rg -y
-#        az group delete --name sharedServices-rg -y
-#        az group delete --name NetworkWatcherRG -y
    - task: TerraformInstaller@0
      inputs:
         terraformVersion: '1.0.8'
@@ -146,6 +141,29 @@ jobs:
                terraform init
                terraform plan  -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -input=false      
                terraform apply -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -auto-approve -input=false
-               sleep 30
+            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'        
+   - task: AzureCLI@2
+     name: TerraformTeardonwGov
+     displayName: "Teardown MLZ Terraform"
+     inputs:
+            azureSubscription: 'GAzureConnection'
+            scriptType: 'bash'
+            addSpnToEnvironment: true
+            scriptLocation: 'inlineScript'
+            inlineScript: |
+               export ARM_CLIENT_ID=$(GClientId) `
+               echo $ARM_CLIENT_ID `
+               export ARM_CLIENT_SECRET=$(GClientSecret) `
+               echo $ARM_CLIENT_SECRET `
+               export ARM_SUBSCRIPTION_ID=$(GSubId) `
+               echo $ARM_SUBSCRIPTION_ID `
+               export ARM_TENANT_ID=$(GTenantId) `
+               echo $ARM_TENANT_ID `
+               export ARM_ENVIRONMENT=$(CloudEnv) `
+               echo $ARM_ENVIRONMENT `
+               terraform init
+               terraform plan  -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -input=false      
                terraform destroy -var "hub_subid=$(GSubid)" -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'        
+
+
