@@ -150,6 +150,7 @@ jobs:
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
             useGlobalConfig: true        
      enabled: true
+     continueOnError: true
    - task: AzureCLI@2
      name: TerraformTeardonwGov
      displayName: "Teardown MLZ Terraform"
