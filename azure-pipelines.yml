@@ -159,6 +159,7 @@ jobs:
             addSpnToEnvironment: true
             scriptLocation: 'inlineScript'
             inlineScript: |
+               az ad signed-in-user show
                export ARM_CLIENT_ID=$(GClientId) `
                echo $ARM_CLIENT_ID `
                export ARM_CLIENT_SECRET=$(GClientSecret) `
@@ -170,7 +171,7 @@ jobs:
                export ARM_ENVIRONMENT=$(CloudEnv) `
                echo $ARM_ENVIRONMENT `
                terraform init
-               terraform destroy -var "hub_subid=$(GSubid)" -auto-approve -input=false
+               terraform destroy -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
             useGlobalConfig: true
      enabled: true                   
