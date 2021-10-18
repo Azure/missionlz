@@ -1,5 +1,5 @@
 param name string
-param location string = resourceGroup().location
+param location string
 param tags object = {}
 
 param skuTier string

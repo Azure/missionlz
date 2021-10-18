@@ -92,6 +92,7 @@ module hub './modules/hubNetwork.bicep' = {
     subnetServiceEndpoints: hubSubnetServiceEndpoints
 
     firewallName: firewallName
+    firewallLocation: firewallLocation
     firewallSkuTier: firewallSkuTier
     firewallPolicyName: firewallPolicyName
     firewallThreatIntelMode: firewallThreatIntelMode
@@ -476,6 +477,7 @@ param hubLogStorageAccountName string = toLower(take('hublogs${uniqueId}', 24))
 param hubLogStorageSkuName string = 'Standard_GRS'
 
 param firewallName string = 'firewall'
+param firewallLocation string = hubLocation
 param firewallManagementSubnetAddressPrefix string = '10.0.100.64/26'
 param firewallClientSubnetAddressPrefix string = '10.0.100.0/26'
 param firewallPolicyName string = 'firewall-policy'

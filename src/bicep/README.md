@@ -23,6 +23,7 @@ Want to remotely access the network without exposing it via Public IP Addresses?
 By default, this template deploys [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features) in the `AzureCloud` and `AzureUsGovernment` clouds.
 
 - If this doesn't fit your needs, see [Setting the Firewall SKU](#Setting-the-Firewall-SKU) for steps on how to use the Standard SKU instead.
+- Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions)
 
 ### Azure CLI
 
@@ -225,6 +226,18 @@ az deployment sub create \
   --location "eastus" \
   --template-file "src/bicep/mlz.bicep" \
   --parameters firewallSkuTier="Standard"
+```
+
+If you'd like to specify a different region to deploy your Azure Firewall resource into, by default it deploys into the region the `az deployment sub create` deployment `--location` argument specifies, you can specify the `firewallLocation` parameter.
+
+See the [Azure Firewall Premium supported regions](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions) docs to see where you can deploy Firewall Premium.
+
+```plaintext
+az deployment sub create \
+  --name "myCustomFirewallLocationDeployment" \
+  --location "eastus" \
+  --template-file "src/bicep/mlz.bicep" \
+  --parameters firewallLocation="South Central US"
 ```
 
 ## Development Pre-requisites
