@@ -18,7 +18,7 @@ var solutions = [
     promotionCode: ''
   }
   {
-    deploy: '${deploySentinel}'
+    deploy: deploySentinel
     name: 'SecurityInsights'
     product: 'OMSGallery/SecurityInsights'
     publisher: 'Microsoft'
