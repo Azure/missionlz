@@ -12,13 +12,13 @@ variable "environment" {
 }
 
 variable "metadata_host" {
-  description = "The metadata host for the Azure Cloud e.g. management.azure.com"
+  description = "The metadata host for the Azure Cloud e.g. management.azure.com or management.usgovcloudapi.net."
   type        = string
   default     = "management.azure.com"
 }
 
 variable "location" {
-  description = "The Azure region for most Mission LZ resources"
+  description = "The Azure region for most Mission LZ resources. e.g. for government usgovvirginia"
   type        = string
   default     = "East US"
 }
