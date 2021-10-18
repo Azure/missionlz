@@ -22,8 +22,10 @@ Want to remotely access the network without exposing it via Public IP Addresses?
 
 By default, this template deploys [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features) in the `AzureCloud` and `AzureUsGovernment` clouds.
 
-- If this doesn't fit your needs, see [Setting the Firewall SKU](#Setting-the-Firewall-SKU) for steps on how to use the Standard SKU instead.
-- Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions)
+Not all regions support Azure Firewall Premium. Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If this doesn't fit your needs:
+
+- See [Setting the Firewall SKU](#Setting-the-Firewall-SKU) for steps on how to use the Standard SKU instead.
+- See [Setting the Firewall Location](#Setting-the-Firewall-Location) for steps on how to deploy the Firewall into a different region.
 
 ### Azure CLI
 
@@ -212,7 +214,9 @@ For more information on generating a public/private key pair see <https://docs.m
 
 Then, once you've deployed the virtual machines and Bastion Host, use these docs to connect with an SSH Key: <https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-ssh#privatekey>
 
-## Setting the Firewall SKU
+## Configuring the Firewall
+
+### Setting the Firewall SKU
 
 By default, this template deploys [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features) in the `AzureCloud` and `AzureUsGovernment` clouds.
 
@@ -228,9 +232,9 @@ az deployment sub create \
   --parameters firewallSkuTier="Standard"
 ```
 
-If you'd like to specify a different region to deploy your Azure Firewall resource into, by default it deploys into the region the `az deployment sub create` deployment `--location` argument specifies, you can specify the `firewallLocation` parameter.
+### Setting the Firewall Location
 
-See the [Azure Firewall Premium supported regions](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions) docs to see where you can deploy Firewall Premium.
+If you'd like to specify a different region to deploy your Azure Firewall resource into, by default it deploys into the region the `az deployment sub create` deployment `--location` argument specifies, you can specify the `firewallLocation` parameter.
 
 ```plaintext
 az deployment sub create \
