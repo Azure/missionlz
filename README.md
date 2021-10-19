@@ -32,6 +32,25 @@ Our intent is to enable IT Admins to use this software to:
 - Optionally, customize the Terraform deployment configuration to suit specific needs
 - Deploy multiple customer workloads in production
 
+## Quickstart
+
+To get up and running quickly execute the following code from Azure Cloud Shell, or from your local bash CLI
+
+```bash
+git clone https://github.com/Azure/missionlz.git
+az deployment sub create \
+  --name myMlzDeployment \
+  --location eastus \
+  --template-file ./missionlz/src/bicep/mlz.bicep
+```
+
+To quickly deploy with Azure Portal:
+
+[![Deploy To Azure](docs/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fbicep%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fui%2Fmlz-portal.json)
+
+[![Deploy To Azure Gov](docs/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fbicep%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fui%2Fmlz-portal.json)
+
+
 ## Scope
 
 Mission LZ has the following scope:
