@@ -25,7 +25,7 @@ By default, this template deploys [Azure Firewall Premium](https://docs.microsof
 Not all regions support Azure Firewall Premium. Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If this doesn't fit your needs:
 
 - See [Setting the Firewall SKU](#Setting-the-Firewall-SKU) for steps on how to use the Standard SKU instead.
-- See [Setting the Firewall Location](#Setting-the-Firewall-Location) for steps on how to deploy the Firewall into a different region.
+- See [Setting the Firewall Location](#Setting-the-Firewall-Location) for steps on how to deploy into a different region.
 
 ### Azure CLI
 
@@ -234,14 +234,13 @@ az deployment sub create \
 
 ### Setting the Firewall Location
 
-If you'd like to specify a different region to deploy your Azure Firewall resource into, by default it deploys into the region the `az deployment sub create` deployment `--location` argument specifies, you can specify the `firewallLocation` parameter.
+If you'd like to specify a different region to deploy your resources into, just change the location of the deployment in the `az deployment sub create` command's `--location` argument:
 
 ```plaintext
 az deployment sub create \
-  --name "myCustomFirewallLocationDeployment" \
-  --location "eastus" \
-  --template-file "src/bicep/mlz.bicep" \
-  --parameters firewallLocation="South Central US"
+  --name "SouthCentralUsDeployment" \
+  --location "South Central US" \
+  --template-file "src/bicep/mlz.bicep"
 ```
 
 ## Development Pre-requisites

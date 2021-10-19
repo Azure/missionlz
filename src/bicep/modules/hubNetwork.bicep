@@ -25,7 +25,6 @@ param routeTableRouteAddressPrefix string = '0.0.0.0/0'
 param routeTableRouteNextHopType string = 'VirtualAppliance'
 
 param firewallName string
-param firewallLocation string
 param firewallSkuTier string
 param firewallPolicyName string
 param firewallThreatIntelMode string
@@ -217,7 +216,7 @@ module firewall './firewall.bicep' = {
   name: 'firewall'
   params: {
     name: firewallName
-    location: firewallLocation
+    location: location
     tags: tags
 
     skuTier: firewallSkuTier
