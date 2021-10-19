@@ -34,7 +34,9 @@ Our intent is to enable IT Admins to use this software to:
 
 ## Quickstart
 
-To get up and running quickly execute the following code from Azure Cloud Shell, or from your local bash CLI
+To get up and running quickly execute the following code from Azure Cloud Shell, or from wherever you have Azure CLI installed.
+
+Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your browser: <https://docs.microsoft.com/en-us/azure/cloud-shell/overview>
 
 ```bash
 git clone https://github.com/Azure/missionlz.git
