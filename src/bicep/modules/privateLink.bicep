@@ -96,6 +96,12 @@ resource dnsZonePrivateLinkEndpoint 'Microsoft.Network/privateEndpoints/privateD
           privateDnsZoneId: privatelink_agentsvc_azure_automation_net .id
         }
       }
+      {
+        name: 'storage'
+        properties: {
+          privateDnsZoneId: privatelink_blob_core_cloudapi_net.id
+        }
+      }
     ]
   }
   dependsOn: [
