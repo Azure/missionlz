@@ -466,11 +466,58 @@ param hubVirtualNetworkName string = 'hub-vnet'
 param hubSubnetName string = 'hub-subnet'
 param hubVirtualNetworkAddressPrefix string = '10.0.100.0/24'
 param hubSubnetAddressPrefix string = '10.0.100.128/27'
-param hubVirtualNetworkDiagnosticsLogs array = []
-param hubVirtualNetworkDiagnosticsMetrics array = []
+param hubVirtualNetworkDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+param hubVirtualNetworkDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
 param hubNetworkSecurityGroupName string = 'hub-nsg'
-param hubNetworkSecurityGroupRules array = []
-param hubSubnetServiceEndpoints array = []
+param hubNetworkSecurityGroupRules array = [
+  {
+    name: 'allow_ssh'
+    properties: {
+      description: 'Allow SSH access from anywhere'
+      access: 'Allow'
+      priority: 100
+      protocol: 'Tcp'
+      direction: 'Inbound'
+      sourcePortRange: '*'
+      sourceAddressPrefix: '*'
+      destinationPortRange: '22'
+      destinationAddressPrefix: '*'
+    }
+  }
+  {
+    name: 'allow_rdp'
+    properties: {
+      description: 'Allow RDP access from anywhere'
+      access: 'Allow'
+      priority: 200
+      protocol: 'Tcp'
+      direction: 'Inbound'
+      sourcePortRange: '*'
+      sourceAddressPrefix: '*'
+      destinationPortRange: '3389'
+      destinationAddressPrefix: '*'
+    }
+  }
+]
+param hubSubnetServiceEndpoints array = [
+  {
+    service: 'Microsoft.Storage'
+  }
+]
 param hubLogStorageAccountName string = toLower(take('hublogs${uniqueId}', 24))
 param hubLogStorageSkuName string = 'Standard_GRS'
 
@@ -500,11 +547,11 @@ param identityVirtualNetworkName string = replace(hubVirtualNetworkName, 'hub', 
 param identitySubnetName string = replace(hubSubnetName, 'hub', 'identity')
 param identityVirtualNetworkAddressPrefix string = '10.0.110.0/26'
 param identitySubnetAddressPrefix string = '10.0.110.0/27'
-param identityVirtualNetworkDiagnosticsLogs array = []
-param identityVirtualNetworkDiagnosticsMetrics array = []
+param identityVirtualNetworkDiagnosticsLogs array = hubVirtualNetworkDiagnosticsLogs
+param identityVirtualNetworkDiagnosticsMetrics array = hubVirtualNetworkDiagnosticsMetrics
 param identityNetworkSecurityGroupName string = replace(hubNetworkSecurityGroupName, 'hub', 'identity')
-param identityNetworkSecurityGroupRules array = []
-param identitySubnetServiceEndpoints array = []
+param identityNetworkSecurityGroupRules array = hubNetworkSecurityGroupRules
+param identitySubnetServiceEndpoints array = hubSubnetServiceEndpoints
 param identityLogStorageAccountName string = toLower(take('idlogs${uniqueId}', 24))
 param identityLogStorageSkuName string = hubLogStorageSkuName
 
@@ -512,13 +559,13 @@ param operationsResourceGroupName string = replace(hubResourceGroupName, 'hub', 
 param operationsLocation string = hubLocation
 param operationsVirtualNetworkName string = replace(hubVirtualNetworkName, 'hub', 'operations')
 param operationsVirtualNetworkAddressPrefix string = '10.0.115.0/26'
-param operationsVirtualNetworkDiagnosticsLogs array = []
-param operationsVirtualNetworkDiagnosticsMetrics array = []
+param operationsVirtualNetworkDiagnosticsLogs array = hubVirtualNetworkDiagnosticsLogs
+param operationsVirtualNetworkDiagnosticsMetrics array = hubVirtualNetworkDiagnosticsMetrics
 param operationsNetworkSecurityGroupName string = replace(hubNetworkSecurityGroupName, 'hub', 'operations')
-param operationsNetworkSecurityGroupRules array = []
+param operationsNetworkSecurityGroupRules array = hubNetworkSecurityGroupRules
 param operationsSubnetName string = replace(hubSubnetName, 'hub', 'operations')
 param operationsSubnetAddressPrefix string = '10.0.115.0/27'
-param operationsSubnetServiceEndpoints array = []
+param operationsSubnetServiceEndpoints array = hubSubnetServiceEndpoints
 param operationsLogStorageAccountName string = toLower(take('opslogs${uniqueId}', 24))
 param operationsLogStorageSkuName string = hubLogStorageSkuName
 
@@ -528,11 +575,11 @@ param sharedServicesVirtualNetworkName string = replace(hubVirtualNetworkName, '
 param sharedServicesSubnetName string = replace(hubSubnetName, 'hub', 'sharedServices')
 param sharedServicesVirtualNetworkAddressPrefix string = '10.0.120.0/26'
 param sharedServicesSubnetAddressPrefix string = '10.0.120.0/27'
-param sharedServicesVirtualNetworkDiagnosticsLogs array = []
-param sharedServicesVirtualNetworkDiagnosticsMetrics array = []
+param sharedServicesVirtualNetworkDiagnosticsLogs array = hubVirtualNetworkDiagnosticsLogs
+param sharedServicesVirtualNetworkDiagnosticsMetrics array = hubVirtualNetworkDiagnosticsMetrics
 param sharedServicesNetworkSecurityGroupName string = replace(hubNetworkSecurityGroupName, 'hub', 'sharedServices')
-param sharedServicesNetworkSecurityGroupRules array = []
-param sharedServicesSubnetServiceEndpoints array = []
+param sharedServicesNetworkSecurityGroupRules array = hubNetworkSecurityGroupRules
+param sharedServicesSubnetServiceEndpoints array = hubSubnetServiceEndpoints
 param sharedServicesLogStorageAccountName string = toLower(take('shrdSvclogs${uniqueId}', 24))
 param sharedServicesLogStorageSkuName string = hubLogStorageSkuName
 
