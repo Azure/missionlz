@@ -527,12 +527,7 @@ param hubNetworkSecurityGroupDiagnosticsLogs array = [
     enabled: true
   }
 ]
-param hubNetworkSecurityGroupDiagnosticsMetrics array = [
-  {
-    category: 'AllMetrics'
-    enabled: true
-  }
-]
+param hubNetworkSecurityGroupDiagnosticsMetrics array = []
 param hubSubnetServiceEndpoints array = [
   {
     service: 'Microsoft.Storage'

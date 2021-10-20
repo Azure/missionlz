@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "18242851584802728088"
+      "templateHash": "6098859535836188364"
     }
   },
   "parameters": {
@@ -131,12 +131,7 @@
     },
     "hubNetworkSecurityGroupDiagnosticsMetrics": {
       "type": "array",
-      "defaultValue": [
-        {
-          "category": "AllMetrics",
-          "enabled": true
-        }
-      ]
+      "defaultValue": []
     },
     "hubSubnetServiceEndpoints": {
       "type": "array",
