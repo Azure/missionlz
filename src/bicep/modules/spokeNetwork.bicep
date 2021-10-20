@@ -48,11 +48,11 @@ module networkSecurityGroup './networkSecurityGroup.bicep' = {
 
     securityRules: networkSecurityGroupRules
     
-    logs: networkSecurityGroupDiagnosticsLogs
-    metrics: networkSecurityGroupDiagnosticsMetrics
-    
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logStorageAccountResourceId: logStorage.outputs.id
+
+    logs: networkSecurityGroupDiagnosticsLogs
+    metrics: networkSecurityGroupDiagnosticsMetrics
   }
 }
 
@@ -95,11 +95,11 @@ module virtualNetwork './virtualNetwork.bicep' = {
       }
     ]
 
-    logs: virtualNetworkDiagnosticsLogs
-    metrics: virtualNetworkDiagnosticsMetrics
-
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logStorageAccountResourceId: logStorage.outputs.id
+
+    logs: virtualNetworkDiagnosticsLogs
+    metrics: virtualNetworkDiagnosticsMetrics
   }
 }
 
