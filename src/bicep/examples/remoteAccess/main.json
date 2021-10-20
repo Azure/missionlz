@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.613.9944",
-      "templateHash": "10649862739162036164"
+      "version": "0.4.1008.15138",
+      "templateHash": "10398940261016449040"
     }
   },
   "parameters": {
@@ -20,6 +20,9 @@
       "type": "string"
     },
     "hubNetworkSecurityGroupResourceId": {
+      "type": "string"
+    },
+    "logAnalyticsWorkspaceId": {
       "type": "string"
     },
     "bastionHostName": {
@@ -171,7 +174,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('deploy-remoteAccess-Example-{0}', parameters('nowUtc'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -292,6 +295,9 @@
           },
           "windowsVmStorageAccountType": {
             "value": "[parameters('windowsVmStorageAccountType')]"
+          },
+          "logAnalyticsWorkspaceId": {
+            "value": "[parameters('logAnalyticsWorkspaceId')]"
           }
         },
         "template": {
@@ -300,8 +306,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "9206703012100649755"
+              "version": "0.4.1008.15138",
+              "templateHash": "1148831067271080103"
             }
           },
           "parameters": {
@@ -428,13 +434,16 @@
             },
             "windowsVmStorageAccountType": {
               "type": "string"
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string"
             }
           },
           "functions": [],
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-06-01",
               "name": "remoteAccess-bastionHost",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -479,8 +488,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.4.613.9944",
-                      "templateHash": "10497818437168204965"
+                      "version": "0.4.1008.15138",
+                      "templateHash": "8312671392588769494"
                     }
                   },
                   "parameters": {
@@ -575,7 +584,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-06-01",
               "name": "remoteAccess-linuxNetworkInterface",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -611,8 +620,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.4.613.9944",
-                      "templateHash": "14459425343428091407"
+                      "version": "0.4.1008.15138",
+                      "templateHash": "15767041695622422511"
                     }
                   },
                   "parameters": {
@@ -680,7 +689,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-06-01",
               "name": "remoteAccess-linuxVirtualMachine",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -728,7 +737,10 @@
                     "value": "[parameters('linuxVmAdminPasswordOrKey')]"
                   },
                   "networkInterfaceName": {
-                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-linuxNetworkInterface'), '2019-10-01').outputs.name.value]"
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-linuxNetworkInterface'), '2020-06-01').outputs.name.value]"
+                  },
+                  "logAnalyticsWorkspaceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -737,8 +749,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.4.613.9944",
-                      "templateHash": "9484732926763055555"
+                      "version": "0.4.1008.15138",
+                      "templateHash": "16381556259285133052"
                     }
                   },
                   "parameters": {
@@ -789,6 +801,9 @@
                     "adminPasswordOrKey": {
                       "type": "secureString",
                       "minLength": 14
+                    },
+                    "logAnalyticsWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "functions": [],
@@ -844,6 +859,75 @@
                           "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
                         }
                       }
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/Microsoft.Azure.NetworkWatcher', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.NetworkWatcher",
+                        "type": "NetworkWatcherAgentLinux",
+                        "typeHandlerVersion": "1.4"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', split(format('{0}/Microsoft.Azure.AzurePolicyforLinux', parameters('name')), '/')[0], split(format('{0}/Microsoft.Azure.AzurePolicyforLinux', parameters('name')), '/')[1])]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/Microsoft.Azure.AzurePolicyforLinux', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.GuestConfiguration",
+                        "type": "ConfigurationforLinux",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "enableAutomaticUpgrade": true
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/OMSExtension', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                        "type": "OmsAgentForLinux",
+                        "typeHandlerVersion": "1.13",
+                        "settings": {
+                          "workspaceId": "[reference(parameters('logAnalyticsWorkspaceId'), '2015-11-01-preview').customerId]",
+                          "stopOnMultipleConnections": true
+                        },
+                        "protectedSettings": {
+                          "workspaceKey": "[listKeys(parameters('logAnalyticsWorkspaceId'), '2015-11-01-preview').primarySharedKey]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', split(format('{0}/Microsoft.Azure.NetworkWatcher', parameters('name')), '/')[0], split(format('{0}/Microsoft.Azure.NetworkWatcher', parameters('name')), '/')[1])]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/DependencyAgentLinux', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+                        "type": "DependencyAgentLinux",
+                        "typeHandlerVersion": "9.5",
+                        "autoUpgradeMinorVersion": true
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', split(format('{0}/OMSExtension', parameters('name')), '/')[0], split(format('{0}/OMSExtension', parameters('name')), '/')[1])]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -864,7 +948,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-06-01",
               "name": "remoteAccess-windowsNetworkInterface",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -900,8 +984,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.4.613.9944",
-                      "templateHash": "14459425343428091407"
+                      "version": "0.4.1008.15138",
+                      "templateHash": "15767041695622422511"
                     }
                   },
                   "parameters": {
@@ -969,7 +1053,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-06-01",
               "name": "remoteAccess-windowsVirtualMachine",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -1014,7 +1098,10 @@
                     "value": "[parameters('windowsVmStorageAccountType')]"
                   },
                   "networkInterfaceName": {
-                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-windowsNetworkInterface'), '2019-10-01').outputs.name.value]"
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-windowsNetworkInterface'), '2020-06-01').outputs.name.value]"
+                  },
+                  "logAnalyticsWorkspaceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -1023,8 +1110,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.4.613.9944",
-                      "templateHash": "13028397952765670280"
+                      "version": "0.4.1008.15138",
+                      "templateHash": "5398822015781472627"
                     }
                   },
                   "parameters": {
@@ -1068,6 +1155,9 @@
                     },
                     "storageAccountType": {
                       "type": "string"
+                    },
+                    "logAnalyticsWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "functions": [],
@@ -1109,6 +1199,72 @@
                           ]
                         }
                       }
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-04-01",
+                      "name": "[format('{0}/DependencyAgentWindows', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+                        "type": "DependencyAgentWindows",
+                        "typeHandlerVersion": "9.5",
+                        "autoUpgradeMinorVersion": true
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-04-01",
+                      "name": "[format('{0}/AzurePolicyforWindows', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.GuestConfiguration",
+                        "type": "ConfigurationforWindows",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "enableAutomaticUpgrade": true
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-04-01",
+                      "name": "[format('{0}/MMAExtension', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                        "type": "MicrosoftMonitoringAgent",
+                        "typeHandlerVersion": "1.0",
+                        "settings": {
+                          "workspaceId": "[reference(parameters('logAnalyticsWorkspaceId'), '2015-11-01-preview').customerId]",
+                          "stopOnMultipleConnections": true
+                        },
+                        "protectedSettings": {
+                          "workspaceKey": "[listKeys(parameters('logAnalyticsWorkspaceId'), '2015-11-01-preview').primarySharedKey]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/Microsoft.Azure.NetworkWatcher', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.NetworkWatcher",
+                        "type": "NetworkWatcherAgentWindows",
+                        "typeHandlerVersion": "1.4"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
                     }
                   ]
                 }
