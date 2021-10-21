@@ -218,11 +218,11 @@ Then, once you've deployed the virtual machines and Bastion Host, use these docs
 
 ### Setting the Firewall SKU
 
-By default, this template deploys [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features) in the `AzureCloud` and `AzureUsGovernment` clouds.
+By default, this template deploys [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features).
 
-If you're deploying to any other cloud the `Standard` Azure Firewall SKU will be used.
+Not all regions support Azure Firewall Premium. Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions).
 
-However, you can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Standard` or `Premium`:
+You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Standard` or `Premium`:
 
 ```plaintext
 az deployment sub create \
