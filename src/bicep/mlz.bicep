@@ -459,7 +459,7 @@ param sharedServicesSubscriptionId string = hubSubscriptionId
   'Standard'
   'Premium'
 ])
-param firewallSkuTier string = (environment().name =~ 'AzureCloud' || environment().name =~ 'AzureUSGovernment') ? 'Premium' : 'Standard'
+param firewallSkuTier string = 'Premium'
 
 param hubResourceGroupName string = '${resourcePrefix}-hub'
 param hubLocation string = deployment().location
