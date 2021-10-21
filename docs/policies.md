@@ -63,12 +63,12 @@ az deployment group create \
 
 ### Deploying with Terraform
 
-By default, the Terraform implementaiton at `src/terraform/mlz/main.tf` will assign the NIST 800-53 policies. You can disable this by providing a `false` value to the `create_policy_assignment` variable:
+The Terraform implementaiton at `src/terraform/mlz/main.tf` supports assigning NIST 800-53 policies. You can enable this by providing a `true` value to the `create_policy_assignment` variable:
 
 ```plaintext
 cd src/terraform/mlz
 terraform init
-terraform apply -var="create_policy_assignment=false"
+terraform apply -var="create_policy_assignment=true"
 ```
 
 After the resources are deployed, you will need to go into go into each assignment and retrieve the managed identity and modify its role access to contributor scoped to the associated resource group. This is due to the initiative including modify and deploy policies that act on resources, like deploying the require policy guest configuration extensions to VMs.

@@ -32,6 +32,20 @@ Our intent is to enable IT Admins to use this software to:
 - Optionally, customize the Terraform deployment configuration to suit specific needs
 - Deploy multiple customer workloads in production
 
+## Quickstart
+
+To get up and running quickly execute the following code from Azure Cloud Shell, or from wherever you have Azure CLI installed.
+
+Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your browser: <https://docs.microsoft.com/en-us/azure/cloud-shell/overview>
+
+```bash
+git clone https://github.com/Azure/missionlz.git
+az deployment sub create \
+  --name myMlzDeployment \
+  --location eastus \
+  --template-file ./missionlz/src/bicep/mlz.bicep
+```
+
 ## Scope
 
 Mission LZ has the following scope:
