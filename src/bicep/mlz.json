@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "1945358306611262395"
+      "templateHash": "4139258334243862843"
     }
   },
   "parameters": {
@@ -80,11 +80,61 @@
     },
     "hubNetworkSecurityGroupRules": {
       "type": "array",
+      "defaultValue": [
+        {
+          "name": "allow_ssh",
+          "properties": {
+            "description": "Allow SSH access from anywhere",
+            "access": "Allow",
+            "priority": 100,
+            "protocol": "Tcp",
+            "direction": "Inbound",
+            "sourcePortRange": "*",
+            "sourceAddressPrefix": "*",
+            "destinationPortRange": "22",
+            "destinationAddressPrefix": "*"
+          }
+        },
+        {
+          "name": "allow_rdp",
+          "properties": {
+            "description": "Allow RDP access from anywhere",
+            "access": "Allow",
+            "priority": 200,
+            "protocol": "Tcp",
+            "direction": "Inbound",
+            "sourcePortRange": "*",
+            "sourceAddressPrefix": "*",
+            "destinationPortRange": "3389",
+            "destinationAddressPrefix": "*"
+          }
+        }
+      ]
+    },
+    "hubNetworkSecurityGroupDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "NetworkSecurityGroupEvent",
+          "enabled": true
+        },
+        {
+          "category": "NetworkSecurityGroupRuleCounter",
+          "enabled": true
+        }
+      ]
+    },
+    "hubNetworkSecurityGroupDiagnosticsMetrics": {
+      "type": "array",
       "defaultValue": []
     },
     "hubSubnetServiceEndpoints": {
       "type": "array",
-      "defaultValue": []
+      "defaultValue": [
+        {
+          "service": "Microsoft.Storage"
+        }
+      ]
     },
     "hubLogStorageAccountName": {
       "type": "string",
@@ -113,6 +163,32 @@
     "firewallThreatIntelMode": {
       "type": "string",
       "defaultValue": "Alert"
+    },
+    "firewallDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "AzureFirewallApplicationRule",
+          "enabled": true
+        },
+        {
+          "category": "AzureFirewallNetworkRule",
+          "enabled": true
+        },
+        {
+          "category": "AzureFirewallDnsProxy",
+          "enabled": true
+        }
+      ]
+    },
+    "firewallDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "AllMetrics",
+          "enabled": true
+        }
+      ]
     },
     "firewallClientIpConfigurationName": {
       "type": "string",
@@ -162,6 +238,32 @@
       "type": "array",
       "defaultValue": []
     },
+    "publicIPAddressDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "DDoSProtectionNotifications",
+          "enabled": true
+        },
+        {
+          "category": "DDoSMitigationFlowLogs",
+          "enabled": true
+        },
+        {
+          "category": "DDoSMitigationReports",
+          "enabled": true
+        }
+      ]
+    },
+    "publicIPAddressDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "AllMetrics",
+          "enabled": true
+        }
+      ]
+    },
     "identityResourceGroupName": {
       "type": "string",
       "defaultValue": "[replace(parameters('hubResourceGroupName'), 'hub', 'identity')]"
@@ -188,11 +290,11 @@
     },
     "identityVirtualNetworkDiagnosticsLogs": {
       "type": "array",
-      "defaultValue": []
+      "defaultValue": "[parameters('hubVirtualNetworkDiagnosticsLogs')]"
     },
     "identityVirtualNetworkDiagnosticsMetrics": {
       "type": "array",
-      "defaultValue": []
+      "defaultValue": "[parameters('hubVirtualNetworkDiagnosticsMetrics')]"
     },
     "identityNetworkSecurityGroupName": {
       "type": "string",
@@ -200,11 +302,19 @@
     },
     "identityNetworkSecurityGroupRules": {
       "type": "array",
-      "defaultValue": []
+      "defaultValue": "[parameters('hubNetworkSecurityGroupRules')]"
+    },
+    "identityNetworkSecurityGroupDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": "[parameters('hubNetworkSecurityGroupDiagnosticsLogs')]"
+    },
+    "identityNetworkSecurityGroupDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": "[parameters('hubNetworkSecurityGroupDiagnosticsMetrics')]"
     },
     "identitySubnetServiceEndpoints": {
       "type": "array",
-      "defaultValue": []
+      "defaultValue": "[parameters('hubSubnetServiceEndpoints')]"
     },
     "identityLogStorageAccountName": {
       "type": "string",
@@ -232,11 +342,11 @@
     },
     "operationsVirtualNetworkDiagnosticsLogs": {
       "type": "array",
-      "defaultValue": []
+      "defaultValue": "[parameters('hubVirtualNetworkDiagnosticsLogs')]"
     },
     "operationsVirtualNetworkDiagnosticsMetrics": {
       "type": "array",
-      "defaultValue": []
+      "defaultValue": "[parameters('hubVirtualNetworkDiagnosticsMetrics')]"
     },
     "operationsNetworkSecurityGroupName": {
       "type": "string",
@@ -244,7 +354,15 @@
     },
     "operationsNetworkSecurityGroupRules": {
       "type": "array",
-      "defaultValue": []
+      "defaultValue": "[parameters('hubNetworkSecurityGroupRules')]"
+    },
+    "operationsNetworkSecurityGroupDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": "[parameters('hubNetworkSecurityGroupDiagnosticsLogs')]"
+    },
+    "operationsNetworkSecurityGroupDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": "[parameters('hubNetworkSecurityGroupDiagnosticsMetrics')]"
     },
     "operationsSubnetName": {
       "type": "string",
@@ -256,7 +374,7 @@
     },
     "operationsSubnetServiceEndpoints": {
       "type": "array",
-      "defaultValue": []
+      "defaultValue": "[parameters('hubSubnetServiceEndpoints')]"
     },
     "operationsLogStorageAccountName": {
       "type": "string",
@@ -292,11 +410,11 @@
     },
     "sharedServicesVirtualNetworkDiagnosticsLogs": {
       "type": "array",
-      "defaultValue": []
+      "defaultValue": "[parameters('hubVirtualNetworkDiagnosticsLogs')]"
     },
     "sharedServicesVirtualNetworkDiagnosticsMetrics": {
       "type": "array",
-      "defaultValue": []
+      "defaultValue": "[parameters('hubVirtualNetworkDiagnosticsMetrics')]"
     },
     "sharedServicesNetworkSecurityGroupName": {
       "type": "string",
@@ -304,11 +422,19 @@
     },
     "sharedServicesNetworkSecurityGroupRules": {
       "type": "array",
-      "defaultValue": []
+      "defaultValue": "[parameters('hubNetworkSecurityGroupRules')]"
+    },
+    "sharedServicesNetworkSecurityGroupDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": "[parameters('hubNetworkSecurityGroupDiagnosticsLogs')]"
+    },
+    "sharedServicesNetworkSecurityGroupDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": "[parameters('hubNetworkSecurityGroupDiagnosticsMetrics')]"
     },
     "sharedServicesSubnetServiceEndpoints": {
       "type": "array",
-      "defaultValue": []
+      "defaultValue": "[parameters('hubSubnetServiceEndpoints')]"
     },
     "sharedServicesLogStorageAccountName": {
       "type": "string",
@@ -1055,6 +1181,12 @@
           "networkSecurityGroupRules": {
             "value": "[parameters('hubNetworkSecurityGroupRules')]"
           },
+          "networkSecurityGroupDiagnosticsLogs": {
+            "value": "[parameters('hubNetworkSecurityGroupDiagnosticsLogs')]"
+          },
+          "networkSecurityGroupDiagnosticsMetrics": {
+            "value": "[parameters('hubNetworkSecurityGroupDiagnosticsMetrics')]"
+          },
           "subnetName": {
             "value": "[parameters('hubSubnetName')]"
           },
@@ -1075,6 +1207,12 @@
           },
           "firewallThreatIntelMode": {
             "value": "[parameters('firewallThreatIntelMode')]"
+          },
+          "firewallDiagnosticsLogs": {
+            "value": "[parameters('firewallDiagnosticsLogs')]"
+          },
+          "firewallDiagnosticsMetrics": {
+            "value": "[parameters('firewallDiagnosticsMetrics')]"
           },
           "firewallClientIpConfigurationName": {
             "value": "[parameters('firewallClientIpConfigurationName')]"
@@ -1123,6 +1261,12 @@
           },
           "firewallManagementPublicIPAddressAvailabilityZones": {
             "value": "[parameters('firewallManagementPublicIPAddressAvailabilityZones')]"
+          },
+          "publicIPAddressDiagnosticsLogs": {
+            "value": "[parameters('publicIPAddressDiagnosticsLogs')]"
+          },
+          "publicIPAddressDiagnosticsMetrics": {
+            "value": "[parameters('publicIPAddressDiagnosticsMetrics')]"
           }
         },
         "template": {
@@ -1132,7 +1276,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "1009610201033923691"
+              "templateHash": "5930925695818856846"
             }
           },
           "parameters": {
@@ -1174,6 +1318,12 @@
             "networkSecurityGroupRules": {
               "type": "array"
             },
+            "networkSecurityGroupDiagnosticsLogs": {
+              "type": "array"
+            },
+            "networkSecurityGroupDiagnosticsMetrics": {
+              "type": "array"
+            },
             "subnetName": {
               "type": "string"
             },
@@ -1210,6 +1360,12 @@
             },
             "firewallThreatIntelMode": {
               "type": "string"
+            },
+            "firewallDiagnosticsLogs": {
+              "type": "array"
+            },
+            "firewallDiagnosticsMetrics": {
+              "type": "array"
             },
             "firewallClientIpConfigurationName": {
               "type": "string"
@@ -1258,53 +1414,15 @@
             },
             "firewallManagementPublicIPAddressAvailabilityZones": {
               "type": "array"
+            },
+            "publicIPAddressDiagnosticsLogs": {
+              "type": "array"
+            },
+            "publicIPAddressDiagnosticsMetrics": {
+              "type": "array"
             }
           },
           "functions": [],
-          "variables": {
-            "defaultVirtualNewtorkDiagnosticsLogs": [],
-            "defaultVirtualNetworkDiagnosticsMetrics": [
-              {
-                "category": "AllMetrics",
-                "enabled": true
-              }
-            ],
-            "defaultSubnetServiceEndpoints": [
-              {
-                "service": "Microsoft.Storage"
-              }
-            ],
-            "defaultNetworkSecurityGroupRules": [
-              {
-                "name": "allow_ssh",
-                "properties": {
-                  "description": "Allow SSH access from anywhere",
-                  "access": "Allow",
-                  "priority": 100,
-                  "protocol": "Tcp",
-                  "direction": "Inbound",
-                  "sourcePortRange": "*",
-                  "sourceAddressPrefix": "*",
-                  "destinationPortRange": "22",
-                  "destinationAddressPrefix": "*"
-                }
-              },
-              {
-                "name": "allow_rdp",
-                "properties": {
-                  "description": "Allow RDP access from anywhere",
-                  "access": "Allow",
-                  "priority": 200,
-                  "protocol": "Tcp",
-                  "direction": "Inbound",
-                  "sourcePortRange": "*",
-                  "sourceAddressPrefix": "*",
-                  "destinationPortRange": "3389",
-                  "destinationAddressPrefix": "*"
-                }
-              }
-            ]
-          },
           "resources": [
             {
               "type": "Microsoft.Network/virtualNetworks/subnets",
@@ -1318,7 +1436,7 @@
                 "routeTable": {
                   "id": "[reference(resourceId('Microsoft.Resources/deployments', 'routeTable'), '2020-06-01').outputs.id.value]"
                 },
-                "serviceEndpoints": "[if(empty(parameters('subnetServiceEndpoints')), variables('defaultSubnetServiceEndpoints'), parameters('subnetServiceEndpoints'))]",
+                "serviceEndpoints": "[parameters('subnetServiceEndpoints')]",
                 "privateEndpointNetworkPolicies": "Disabled",
                 "privateLinkServiceNetworkPolicies": "Enabled"
               },
@@ -1420,7 +1538,19 @@
                     "value": "[parameters('tags')]"
                   },
                   "securityRules": {
-                    "value": "[if(empty(parameters('networkSecurityGroupRules')), variables('defaultNetworkSecurityGroupRules'), parameters('networkSecurityGroupRules'))]"
+                    "value": "[parameters('networkSecurityGroupRules')]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "logStorageAccountResourceId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logStorage'), '2020-06-01').outputs.id.value]"
+                  },
+                  "logs": {
+                    "value": "[parameters('networkSecurityGroupDiagnosticsLogs')]"
+                  },
+                  "metrics": {
+                    "value": "[parameters('networkSecurityGroupDiagnosticsMetrics')]"
                   }
                 },
                 "template": {
@@ -1430,7 +1560,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "9304664949671097450"
+                      "templateHash": "4497555273030729522"
                     }
                   },
                   "parameters": {
@@ -1446,6 +1576,18 @@
                     },
                     "securityRules": {
                       "type": "array"
+                    },
+                    "logStorageAccountResourceId": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "logs": {
+                      "type": "array"
+                    },
+                    "metrics": {
+                      "type": "array"
                     }
                   },
                   "functions": [],
@@ -1459,6 +1601,21 @@
                       "properties": {
                         "securityRules": "[parameters('securityRules')]"
                       }
+                    },
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2017-05-01-preview",
+                      "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', parameters('name'))]",
+                      "name": "[format('{0}-diagnostics', parameters('name'))]",
+                      "properties": {
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
+                        "logs": "[parameters('logs')]",
+                        "metrics": "[parameters('metrics')]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('name'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -1472,7 +1629,10 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'logStorage')]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -1495,12 +1655,6 @@
                   },
                   "addressPrefix": {
                     "value": "[parameters('virtualNetworkAddressPrefix')]"
-                  },
-                  "diagnosticsLogs": {
-                    "value": "[if(empty(parameters('virtualNetworkDiagnosticsLogs')), variables('defaultVirtualNewtorkDiagnosticsLogs'), parameters('virtualNetworkDiagnosticsLogs'))]"
-                  },
-                  "diagnosticsMetrics": {
-                    "value": "[if(empty(parameters('virtualNetworkDiagnosticsMetrics')), variables('defaultVirtualNetworkDiagnosticsMetrics'), parameters('virtualNetworkDiagnosticsMetrics'))]"
                   },
                   "subnets": {
                     "value": [
@@ -1525,6 +1679,12 @@
                   },
                   "logStorageAccountResourceId": {
                     "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logStorage'), '2020-06-01').outputs.id.value]"
+                  },
+                  "logs": {
+                    "value": "[parameters('virtualNetworkDiagnosticsLogs')]"
+                  },
+                  "metrics": {
+                    "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
                   }
                 },
                 "template": {
@@ -1534,7 +1694,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "14686239955820792027"
+                      "templateHash": "12119421388421560495"
                     }
                   },
                   "parameters": {
@@ -1560,10 +1720,10 @@
                     "subnets": {
                       "type": "array"
                     },
-                    "diagnosticsMetrics": {
+                    "logs": {
                       "type": "array"
                     },
-                    "diagnosticsLogs": {
+                    "metrics": {
                       "type": "array"
                     }
                   },
@@ -1592,8 +1752,8 @@
                       "properties": {
                         "storageAccountId": "[parameters('logStorageAccountResourceId')]",
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
-                        "metrics": "[parameters('diagnosticsMetrics')]",
-                        "logs": "[parameters('diagnosticsLogs')]"
+                        "logs": "[parameters('logs')]",
+                        "metrics": "[parameters('metrics')]"
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/virtualNetworks', parameters('name'))]"
@@ -1751,6 +1911,18 @@
                   },
                   "availabilityZones": {
                     "value": "[parameters('firewallClientPublicIPAddressAvailabilityZones')]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "logStorageAccountResourceId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logStorage'), '2020-06-01').outputs.id.value]"
+                  },
+                  "logs": {
+                    "value": "[parameters('publicIPAddressDiagnosticsLogs')]"
+                  },
+                  "metrics": {
+                    "value": "[parameters('publicIPAddressDiagnosticsMetrics')]"
                   }
                 },
                 "template": {
@@ -1760,7 +1932,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "9471207349099328587"
+                      "templateHash": "9624598078084769254"
                     }
                   },
                   "parameters": {
@@ -1782,6 +1954,18 @@
                     },
                     "availabilityZones": {
                       "type": "array"
+                    },
+                    "logStorageAccountResourceId": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "logs": {
+                      "type": "array"
+                    },
+                    "metrics": {
+                      "type": "array"
                     }
                   },
                   "functions": [],
@@ -1799,6 +1983,21 @@
                         "publicIPAllocationMethod": "[parameters('publicIpAllocationMethod')]"
                       },
                       "zones": "[parameters('availabilityZones')]"
+                    },
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2017-05-01-preview",
+                      "scope": "[format('Microsoft.Network/publicIPAddresses/{0}', parameters('name'))]",
+                      "name": "[format('{0}-diagnostics', parameters('name'))]",
+                      "properties": {
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
+                        "logs": "[parameters('logs')]",
+                        "metrics": "[parameters('metrics')]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('name'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -1808,7 +2007,10 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'logStorage')]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -1837,6 +2039,18 @@
                   },
                   "availabilityZones": {
                     "value": "[parameters('firewallManagementPublicIPAddressAvailabilityZones')]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "logStorageAccountResourceId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logStorage'), '2020-06-01').outputs.id.value]"
+                  },
+                  "logs": {
+                    "value": "[parameters('publicIPAddressDiagnosticsLogs')]"
+                  },
+                  "metrics": {
+                    "value": "[parameters('publicIPAddressDiagnosticsMetrics')]"
                   }
                 },
                 "template": {
@@ -1846,7 +2060,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "9471207349099328587"
+                      "templateHash": "9624598078084769254"
                     }
                   },
                   "parameters": {
@@ -1868,6 +2082,18 @@
                     },
                     "availabilityZones": {
                       "type": "array"
+                    },
+                    "logStorageAccountResourceId": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "logs": {
+                      "type": "array"
+                    },
+                    "metrics": {
+                      "type": "array"
                     }
                   },
                   "functions": [],
@@ -1885,6 +2111,21 @@
                         "publicIPAllocationMethod": "[parameters('publicIpAllocationMethod')]"
                       },
                       "zones": "[parameters('availabilityZones')]"
+                    },
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2017-05-01-preview",
+                      "scope": "[format('Microsoft.Network/publicIPAddresses/{0}', parameters('name'))]",
+                      "name": "[format('{0}-diagnostics', parameters('name'))]",
+                      "properties": {
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
+                        "logs": "[parameters('logs')]",
+                        "metrics": "[parameters('metrics')]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('name'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -1894,7 +2135,10 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'logStorage')]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -1941,6 +2185,18 @@
                   },
                   "managementIpConfigurationPublicIPAddressResourceId": {
                     "value": "[reference(resourceId('Microsoft.Resources/deployments', 'firewallManagementPublicIPAddress'), '2020-06-01').outputs.id.value]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "logStorageAccountResourceId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logStorage'), '2020-06-01').outputs.id.value]"
+                  },
+                  "logs": {
+                    "value": "[parameters('firewallDiagnosticsLogs')]"
+                  },
+                  "metrics": {
+                    "value": "[parameters('firewallDiagnosticsMetrics')]"
                   }
                 },
                 "template": {
@@ -1950,7 +2206,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "8821707208863806383"
+                      "templateHash": "16515753424142002553"
                     }
                   },
                   "parameters": {
@@ -1991,6 +2247,18 @@
                     },
                     "firewallPolicyName": {
                       "type": "string"
+                    },
+                    "logStorageAccountResourceId": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "logs": {
+                      "type": "array"
+                    },
+                    "metrics": {
+                      "type": "array"
                     }
                   },
                   "functions": [],
@@ -2140,6 +2408,21 @@
                         "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', split(format('{0}/DefaultNetworkRuleCollectionGroup', parameters('firewallPolicyName')), '/')[0], split(format('{0}/DefaultNetworkRuleCollectionGroup', parameters('firewallPolicyName')), '/')[1])]",
                         "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
                       ]
+                    },
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2017-05-01-preview",
+                      "scope": "[format('Microsoft.Network/azureFirewalls/{0}', parameters('name'))]",
+                      "name": "[format('{0}-diagnostics', parameters('name'))]",
+                      "properties": {
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
+                        "logs": "[parameters('logs')]",
+                        "metrics": "[parameters('metrics')]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/azureFirewalls', parameters('name'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -2153,6 +2436,7 @@
               "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'firewallClientPublicIPAddress')]",
                 "[resourceId('Microsoft.Resources/deployments', 'firewallManagementPublicIPAddress')]",
+                "[resourceId('Microsoft.Resources/deployments', 'logStorage')]",
                 "[resourceId('Microsoft.Resources/deployments', 'virtualNetwork')]"
               ]
             },
@@ -2556,6 +2840,12 @@
           "networkSecurityGroupRules": {
             "value": "[parameters('identityNetworkSecurityGroupRules')]"
           },
+          "networkSecurityGroupDiagnosticsLogs": {
+            "value": "[parameters('identityNetworkSecurityGroupDiagnosticsLogs')]"
+          },
+          "networkSecurityGroupDiagnosticsMetrics": {
+            "value": "[parameters('identityNetworkSecurityGroupDiagnosticsMetrics')]"
+          },
           "subnetName": {
             "value": "[parameters('identitySubnetName')]"
           },
@@ -2573,7 +2863,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "13423908076245323056"
+              "templateHash": "17180259987553481892"
             }
           },
           "parameters": {
@@ -2615,6 +2905,12 @@
             "networkSecurityGroupRules": {
               "type": "array"
             },
+            "networkSecurityGroupDiagnosticsLogs": {
+              "type": "array"
+            },
+            "networkSecurityGroupDiagnosticsMetrics": {
+              "type": "array"
+            },
             "subnetName": {
               "type": "string"
             },
@@ -2646,50 +2942,6 @@
             }
           },
           "functions": [],
-          "variables": {
-            "defaultVirtualNetworkDiagnosticsLogs": [],
-            "defaultVirtualNetworkDiagnosticsMetrics": [
-              {
-                "category": "AllMetrics",
-                "enabled": true
-              }
-            ],
-            "defaultSubnetServiceEndpoints": [
-              {
-                "service": "Microsoft.Storage"
-              }
-            ],
-            "defaultNetworkSecurityGroupRules": [
-              {
-                "name": "allow_ssh",
-                "properties": {
-                  "description": "Allow SSH access from anywhere",
-                  "access": "Allow",
-                  "priority": 100,
-                  "protocol": "Tcp",
-                  "direction": "Inbound",
-                  "sourcePortRange": "*",
-                  "sourceAddressPrefix": "*",
-                  "destinationPortRange": "22",
-                  "destinationAddressPrefix": "*"
-                }
-              },
-              {
-                "name": "allow_rdp",
-                "properties": {
-                  "description": "Allow RDP access from anywhere",
-                  "access": "Allow",
-                  "priority": 200,
-                  "protocol": "Tcp",
-                  "direction": "Inbound",
-                  "sourcePortRange": "*",
-                  "sourceAddressPrefix": "*",
-                  "destinationPortRange": "3389",
-                  "destinationAddressPrefix": "*"
-                }
-              }
-            ]
-          },
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
@@ -2782,7 +3034,19 @@
                     "value": "[parameters('tags')]"
                   },
                   "securityRules": {
-                    "value": "[if(empty(parameters('networkSecurityGroupRules')), variables('defaultNetworkSecurityGroupRules'), parameters('networkSecurityGroupRules'))]"
+                    "value": "[parameters('networkSecurityGroupRules')]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "logStorageAccountResourceId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logStorage'), '2020-06-01').outputs.id.value]"
+                  },
+                  "logs": {
+                    "value": "[parameters('networkSecurityGroupDiagnosticsLogs')]"
+                  },
+                  "metrics": {
+                    "value": "[parameters('networkSecurityGroupDiagnosticsMetrics')]"
                   }
                 },
                 "template": {
@@ -2792,7 +3056,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "9304664949671097450"
+                      "templateHash": "4497555273030729522"
                     }
                   },
                   "parameters": {
@@ -2808,6 +3072,18 @@
                     },
                     "securityRules": {
                       "type": "array"
+                    },
+                    "logStorageAccountResourceId": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "logs": {
+                      "type": "array"
+                    },
+                    "metrics": {
+                      "type": "array"
                     }
                   },
                   "functions": [],
@@ -2821,6 +3097,21 @@
                       "properties": {
                         "securityRules": "[parameters('securityRules')]"
                       }
+                    },
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2017-05-01-preview",
+                      "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', parameters('name'))]",
+                      "name": "[format('{0}-diagnostics', parameters('name'))]",
+                      "properties": {
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
+                        "logs": "[parameters('logs')]",
+                        "metrics": "[parameters('metrics')]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('name'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -2834,7 +3125,10 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'logStorage')]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -2959,12 +3253,6 @@
                   "addressPrefix": {
                     "value": "[parameters('virtualNetworkAddressPrefix')]"
                   },
-                  "diagnosticsLogs": {
-                    "value": "[if(empty(parameters('virtualNetworkDiagnosticsLogs')), variables('defaultVirtualNetworkDiagnosticsLogs'), parameters('virtualNetworkDiagnosticsLogs'))]"
-                  },
-                  "diagnosticsMetrics": {
-                    "value": "[if(empty(parameters('virtualNetworkDiagnosticsMetrics')), variables('defaultVirtualNetworkDiagnosticsMetrics'), parameters('virtualNetworkDiagnosticsMetrics'))]"
-                  },
                   "subnets": {
                     "value": [
                       {
@@ -2977,7 +3265,7 @@
                           "routeTable": {
                             "id": "[reference(resourceId('Microsoft.Resources/deployments', 'routeTable'), '2020-06-01').outputs.id.value]"
                           },
-                          "serviceEndpoints": "[if(empty(parameters('subnetServiceEndpoints')), variables('defaultSubnetServiceEndpoints'), parameters('subnetServiceEndpoints'))]"
+                          "serviceEndpoints": "[parameters('subnetServiceEndpoints')]"
                         }
                       }
                     ]
@@ -2987,6 +3275,12 @@
                   },
                   "logStorageAccountResourceId": {
                     "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logStorage'), '2020-06-01').outputs.id.value]"
+                  },
+                  "logs": {
+                    "value": "[parameters('virtualNetworkDiagnosticsLogs')]"
+                  },
+                  "metrics": {
+                    "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
                   }
                 },
                 "template": {
@@ -2996,7 +3290,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "14686239955820792027"
+                      "templateHash": "12119421388421560495"
                     }
                   },
                   "parameters": {
@@ -3022,10 +3316,10 @@
                     "subnets": {
                       "type": "array"
                     },
-                    "diagnosticsMetrics": {
+                    "logs": {
                       "type": "array"
                     },
-                    "diagnosticsLogs": {
+                    "metrics": {
                       "type": "array"
                     }
                   },
@@ -3054,8 +3348,8 @@
                       "properties": {
                         "storageAccountId": "[parameters('logStorageAccountResourceId')]",
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
-                        "metrics": "[parameters('diagnosticsMetrics')]",
-                        "logs": "[parameters('diagnosticsLogs')]"
+                        "logs": "[parameters('logs')]",
+                        "metrics": "[parameters('metrics')]"
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/virtualNetworks', parameters('name'))]"
@@ -3170,6 +3464,12 @@
           "networkSecurityGroupRules": {
             "value": "[parameters('operationsNetworkSecurityGroupRules')]"
           },
+          "networkSecurityGroupDiagnosticsLogs": {
+            "value": "[parameters('operationsNetworkSecurityGroupDiagnosticsLogs')]"
+          },
+          "networkSecurityGroupDiagnosticsMetrics": {
+            "value": "[parameters('operationsNetworkSecurityGroupDiagnosticsMetrics')]"
+          },
           "subnetName": {
             "value": "[parameters('operationsSubnetName')]"
           },
@@ -3187,7 +3487,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "13423908076245323056"
+              "templateHash": "17180259987553481892"
             }
           },
           "parameters": {
@@ -3229,6 +3529,12 @@
             "networkSecurityGroupRules": {
               "type": "array"
             },
+            "networkSecurityGroupDiagnosticsLogs": {
+              "type": "array"
+            },
+            "networkSecurityGroupDiagnosticsMetrics": {
+              "type": "array"
+            },
             "subnetName": {
               "type": "string"
             },
@@ -3260,50 +3566,6 @@
             }
           },
           "functions": [],
-          "variables": {
-            "defaultVirtualNetworkDiagnosticsLogs": [],
-            "defaultVirtualNetworkDiagnosticsMetrics": [
-              {
-                "category": "AllMetrics",
-                "enabled": true
-              }
-            ],
-            "defaultSubnetServiceEndpoints": [
-              {
-                "service": "Microsoft.Storage"
-              }
-            ],
-            "defaultNetworkSecurityGroupRules": [
-              {
-                "name": "allow_ssh",
-                "properties": {
-                  "description": "Allow SSH access from anywhere",
-                  "access": "Allow",
-                  "priority": 100,
-                  "protocol": "Tcp",
-                  "direction": "Inbound",
-                  "sourcePortRange": "*",
-                  "sourceAddressPrefix": "*",
-                  "destinationPortRange": "22",
-                  "destinationAddressPrefix": "*"
-                }
-              },
-              {
-                "name": "allow_rdp",
-                "properties": {
-                  "description": "Allow RDP access from anywhere",
-                  "access": "Allow",
-                  "priority": 200,
-                  "protocol": "Tcp",
-                  "direction": "Inbound",
-                  "sourcePortRange": "*",
-                  "sourceAddressPrefix": "*",
-                  "destinationPortRange": "3389",
-                  "destinationAddressPrefix": "*"
-                }
-              }
-            ]
-          },
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
@@ -3396,7 +3658,19 @@
                     "value": "[parameters('tags')]"
                   },
                   "securityRules": {
-                    "value": "[if(empty(parameters('networkSecurityGroupRules')), variables('defaultNetworkSecurityGroupRules'), parameters('networkSecurityGroupRules'))]"
+                    "value": "[parameters('networkSecurityGroupRules')]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "logStorageAccountResourceId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logStorage'), '2020-06-01').outputs.id.value]"
+                  },
+                  "logs": {
+                    "value": "[parameters('networkSecurityGroupDiagnosticsLogs')]"
+                  },
+                  "metrics": {
+                    "value": "[parameters('networkSecurityGroupDiagnosticsMetrics')]"
                   }
                 },
                 "template": {
@@ -3406,7 +3680,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "9304664949671097450"
+                      "templateHash": "4497555273030729522"
                     }
                   },
                   "parameters": {
@@ -3422,6 +3696,18 @@
                     },
                     "securityRules": {
                       "type": "array"
+                    },
+                    "logStorageAccountResourceId": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "logs": {
+                      "type": "array"
+                    },
+                    "metrics": {
+                      "type": "array"
                     }
                   },
                   "functions": [],
@@ -3435,6 +3721,21 @@
                       "properties": {
                         "securityRules": "[parameters('securityRules')]"
                       }
+                    },
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2017-05-01-preview",
+                      "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', parameters('name'))]",
+                      "name": "[format('{0}-diagnostics', parameters('name'))]",
+                      "properties": {
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
+                        "logs": "[parameters('logs')]",
+                        "metrics": "[parameters('metrics')]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('name'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -3448,7 +3749,10 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'logStorage')]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -3573,12 +3877,6 @@
                   "addressPrefix": {
                     "value": "[parameters('virtualNetworkAddressPrefix')]"
                   },
-                  "diagnosticsLogs": {
-                    "value": "[if(empty(parameters('virtualNetworkDiagnosticsLogs')), variables('defaultVirtualNetworkDiagnosticsLogs'), parameters('virtualNetworkDiagnosticsLogs'))]"
-                  },
-                  "diagnosticsMetrics": {
-                    "value": "[if(empty(parameters('virtualNetworkDiagnosticsMetrics')), variables('defaultVirtualNetworkDiagnosticsMetrics'), parameters('virtualNetworkDiagnosticsMetrics'))]"
-                  },
                   "subnets": {
                     "value": [
                       {
@@ -3591,7 +3889,7 @@
                           "routeTable": {
                             "id": "[reference(resourceId('Microsoft.Resources/deployments', 'routeTable'), '2020-06-01').outputs.id.value]"
                           },
-                          "serviceEndpoints": "[if(empty(parameters('subnetServiceEndpoints')), variables('defaultSubnetServiceEndpoints'), parameters('subnetServiceEndpoints'))]"
+                          "serviceEndpoints": "[parameters('subnetServiceEndpoints')]"
                         }
                       }
                     ]
@@ -3601,6 +3899,12 @@
                   },
                   "logStorageAccountResourceId": {
                     "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logStorage'), '2020-06-01').outputs.id.value]"
+                  },
+                  "logs": {
+                    "value": "[parameters('virtualNetworkDiagnosticsLogs')]"
+                  },
+                  "metrics": {
+                    "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
                   }
                 },
                 "template": {
@@ -3610,7 +3914,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "14686239955820792027"
+                      "templateHash": "12119421388421560495"
                     }
                   },
                   "parameters": {
@@ -3636,10 +3940,10 @@
                     "subnets": {
                       "type": "array"
                     },
-                    "diagnosticsMetrics": {
+                    "logs": {
                       "type": "array"
                     },
-                    "diagnosticsLogs": {
+                    "metrics": {
                       "type": "array"
                     }
                   },
@@ -3668,8 +3972,8 @@
                       "properties": {
                         "storageAccountId": "[parameters('logStorageAccountResourceId')]",
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
-                        "metrics": "[parameters('diagnosticsMetrics')]",
-                        "logs": "[parameters('diagnosticsLogs')]"
+                        "logs": "[parameters('logs')]",
+                        "metrics": "[parameters('metrics')]"
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/virtualNetworks', parameters('name'))]"
@@ -3784,6 +4088,12 @@
           "networkSecurityGroupRules": {
             "value": "[parameters('sharedServicesNetworkSecurityGroupRules')]"
           },
+          "networkSecurityGroupDiagnosticsLogs": {
+            "value": "[parameters('sharedServicesNetworkSecurityGroupDiagnosticsLogs')]"
+          },
+          "networkSecurityGroupDiagnosticsMetrics": {
+            "value": "[parameters('sharedServicesNetworkSecurityGroupDiagnosticsMetrics')]"
+          },
           "subnetName": {
             "value": "[parameters('sharedServicesSubnetName')]"
           },
@@ -3801,7 +4111,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "13423908076245323056"
+              "templateHash": "17180259987553481892"
             }
           },
           "parameters": {
@@ -3843,6 +4153,12 @@
             "networkSecurityGroupRules": {
               "type": "array"
             },
+            "networkSecurityGroupDiagnosticsLogs": {
+              "type": "array"
+            },
+            "networkSecurityGroupDiagnosticsMetrics": {
+              "type": "array"
+            },
             "subnetName": {
               "type": "string"
             },
@@ -3874,50 +4190,6 @@
             }
           },
           "functions": [],
-          "variables": {
-            "defaultVirtualNetworkDiagnosticsLogs": [],
-            "defaultVirtualNetworkDiagnosticsMetrics": [
-              {
-                "category": "AllMetrics",
-                "enabled": true
-              }
-            ],
-            "defaultSubnetServiceEndpoints": [
-              {
-                "service": "Microsoft.Storage"
-              }
-            ],
-            "defaultNetworkSecurityGroupRules": [
-              {
-                "name": "allow_ssh",
-                "properties": {
-                  "description": "Allow SSH access from anywhere",
-                  "access": "Allow",
-                  "priority": 100,
-                  "protocol": "Tcp",
-                  "direction": "Inbound",
-                  "sourcePortRange": "*",
-                  "sourceAddressPrefix": "*",
-                  "destinationPortRange": "22",
-                  "destinationAddressPrefix": "*"
-                }
-              },
-              {
-                "name": "allow_rdp",
-                "properties": {
-                  "description": "Allow RDP access from anywhere",
-                  "access": "Allow",
-                  "priority": 200,
-                  "protocol": "Tcp",
-                  "direction": "Inbound",
-                  "sourcePortRange": "*",
-                  "sourceAddressPrefix": "*",
-                  "destinationPortRange": "3389",
-                  "destinationAddressPrefix": "*"
-                }
-              }
-            ]
-          },
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
@@ -4010,7 +4282,19 @@
                     "value": "[parameters('tags')]"
                   },
                   "securityRules": {
-                    "value": "[if(empty(parameters('networkSecurityGroupRules')), variables('defaultNetworkSecurityGroupRules'), parameters('networkSecurityGroupRules'))]"
+                    "value": "[parameters('networkSecurityGroupRules')]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "logStorageAccountResourceId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logStorage'), '2020-06-01').outputs.id.value]"
+                  },
+                  "logs": {
+                    "value": "[parameters('networkSecurityGroupDiagnosticsLogs')]"
+                  },
+                  "metrics": {
+                    "value": "[parameters('networkSecurityGroupDiagnosticsMetrics')]"
                   }
                 },
                 "template": {
@@ -4020,7 +4304,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "9304664949671097450"
+                      "templateHash": "4497555273030729522"
                     }
                   },
                   "parameters": {
@@ -4036,6 +4320,18 @@
                     },
                     "securityRules": {
                       "type": "array"
+                    },
+                    "logStorageAccountResourceId": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "logs": {
+                      "type": "array"
+                    },
+                    "metrics": {
+                      "type": "array"
                     }
                   },
                   "functions": [],
@@ -4049,6 +4345,21 @@
                       "properties": {
                         "securityRules": "[parameters('securityRules')]"
                       }
+                    },
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2017-05-01-preview",
+                      "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', parameters('name'))]",
+                      "name": "[format('{0}-diagnostics', parameters('name'))]",
+                      "properties": {
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
+                        "logs": "[parameters('logs')]",
+                        "metrics": "[parameters('metrics')]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('name'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -4062,7 +4373,10 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'logStorage')]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -4187,12 +4501,6 @@
                   "addressPrefix": {
                     "value": "[parameters('virtualNetworkAddressPrefix')]"
                   },
-                  "diagnosticsLogs": {
-                    "value": "[if(empty(parameters('virtualNetworkDiagnosticsLogs')), variables('defaultVirtualNetworkDiagnosticsLogs'), parameters('virtualNetworkDiagnosticsLogs'))]"
-                  },
-                  "diagnosticsMetrics": {
-                    "value": "[if(empty(parameters('virtualNetworkDiagnosticsMetrics')), variables('defaultVirtualNetworkDiagnosticsMetrics'), parameters('virtualNetworkDiagnosticsMetrics'))]"
-                  },
                   "subnets": {
                     "value": [
                       {
@@ -4205,7 +4513,7 @@
                           "routeTable": {
                             "id": "[reference(resourceId('Microsoft.Resources/deployments', 'routeTable'), '2020-06-01').outputs.id.value]"
                           },
-                          "serviceEndpoints": "[if(empty(parameters('subnetServiceEndpoints')), variables('defaultSubnetServiceEndpoints'), parameters('subnetServiceEndpoints'))]"
+                          "serviceEndpoints": "[parameters('subnetServiceEndpoints')]"
                         }
                       }
                     ]
@@ -4215,6 +4523,12 @@
                   },
                   "logStorageAccountResourceId": {
                     "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logStorage'), '2020-06-01').outputs.id.value]"
+                  },
+                  "logs": {
+                    "value": "[parameters('virtualNetworkDiagnosticsLogs')]"
+                  },
+                  "metrics": {
+                    "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
                   }
                 },
                 "template": {
@@ -4224,7 +4538,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "14686239955820792027"
+                      "templateHash": "12119421388421560495"
                     }
                   },
                   "parameters": {
@@ -4250,10 +4564,10 @@
                     "subnets": {
                       "type": "array"
                     },
-                    "diagnosticsMetrics": {
+                    "logs": {
                       "type": "array"
                     },
-                    "diagnosticsLogs": {
+                    "metrics": {
                       "type": "array"
                     }
                   },
@@ -4282,8 +4596,8 @@
                       "properties": {
                         "storageAccountId": "[parameters('logStorageAccountResourceId')]",
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
-                        "metrics": "[parameters('diagnosticsMetrics')]",
-                        "logs": "[parameters('diagnosticsLogs')]"
+                        "logs": "[parameters('logs')]",
+                        "metrics": "[parameters('metrics')]"
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/virtualNetworks', parameters('name'))]"

@@ -15,6 +15,12 @@ param managementIpConfigurationPublicIPAddressResourceId string
 
 param firewallPolicyName string
 
+param logStorageAccountResourceId string
+param logAnalyticsWorkspaceResourceId string
+
+param logs array
+param metrics array
+
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   name: firewallPolicyName
   location: location
@@ -153,6 +159,17 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' = {
     sku: {
       tier: skuTier
     }
+  }
+}
+
+resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
+  scope: firewall
+  name: '${firewall.name}-diagnostics'
+  properties: {
+    storageAccountId: logStorageAccountResourceId
+    workspaceId: logAnalyticsWorkspaceResourceId
+    logs: logs
+    metrics: metrics
   }
 }
 
