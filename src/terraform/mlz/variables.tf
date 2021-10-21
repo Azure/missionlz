@@ -12,13 +12,13 @@ variable "environment" {
 }
 
 variable "metadata_host" {
-  description = "The metadata host for the Azure Cloud e.g. management.azure.com"
+  description = "The metadata host for the Azure Cloud e.g. management.azure.com or management.usgovcloudapi.net."
   type        = string
   default     = "management.azure.com"
 }
 
 variable "location" {
-  description = "The Azure region for most Mission LZ resources"
+  description = "The Azure region for most Mission LZ resources. e.g. for government usgovvirginia"
   type        = string
   default     = "East US"
 }
@@ -296,7 +296,7 @@ variable "jumpbox_linux_vm_version" {
 variable "create_policy_assignment" {
   description = "Assign Policy to deployed resources?"
   type        = bool
-  default     = true
+  default     = false
 }
 
 #################################

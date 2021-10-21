@@ -86,6 +86,8 @@ module hub './modules/hubNetwork.bicep' = {
 
     networkSecurityGroupName: hubNetworkSecurityGroupName
     networkSecurityGroupRules: hubNetworkSecurityGroupRules
+    networkSecurityGroupDiagnosticsLogs: hubNetworkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: hubNetworkSecurityGroupDiagnosticsMetrics
 
     subnetName: hubSubnetName
     subnetAddressPrefix: hubSubnetAddressPrefix
@@ -95,6 +97,8 @@ module hub './modules/hubNetwork.bicep' = {
     firewallSkuTier: firewallSkuTier
     firewallPolicyName: firewallPolicyName
     firewallThreatIntelMode: firewallThreatIntelMode
+    firewallDiagnosticsLogs: firewallDiagnosticsLogs
+    firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
     firewallClientIpConfigurationName: firewallClientIpConfigurationName
     firewallClientSubnetName: firewallClientSubnetName
     firewallClientSubnetAddressPrefix: firewallClientSubnetAddressPrefix
@@ -111,6 +115,9 @@ module hub './modules/hubNetwork.bicep' = {
     firewallManagementPublicIPAddressSkuName: firewallManagementPublicIPAddressSkuName
     firewallManagementPublicIpAllocationMethod: firewallManagementPublicIpAllocationMethod
     firewallManagementPublicIPAddressAvailabilityZones: firewallManagementPublicIPAddressAvailabilityZones
+
+    publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
+    publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
   }
 }
 
@@ -135,6 +142,8 @@ module identity './modules/spokeNetwork.bicep' = {
 
     networkSecurityGroupName: identityNetworkSecurityGroupName
     networkSecurityGroupRules: identityNetworkSecurityGroupRules
+    networkSecurityGroupDiagnosticsLogs: identityNetworkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
 
     subnetName: identitySubnetName
     subnetAddressPrefix: identitySubnetAddressPrefix
@@ -163,6 +172,8 @@ module operations './modules/spokeNetwork.bicep' = {
 
     networkSecurityGroupName: operationsNetworkSecurityGroupName
     networkSecurityGroupRules: operationsNetworkSecurityGroupRules
+    networkSecurityGroupDiagnosticsLogs: operationsNetworkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: operationsNetworkSecurityGroupDiagnosticsMetrics
 
     subnetName: operationsSubnetName
     subnetAddressPrefix: operationsSubnetAddressPrefix
@@ -191,6 +202,8 @@ module sharedServices './modules/spokeNetwork.bicep' = {
 
     networkSecurityGroupName: sharedServicesNetworkSecurityGroupName
     networkSecurityGroupRules: sharedServicesNetworkSecurityGroupRules
+    networkSecurityGroupDiagnosticsLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: sharedServicesNetworkSecurityGroupDiagnosticsMetrics
 
     subnetName: sharedServicesSubnetName
     subnetAddressPrefix: sharedServicesSubnetAddressPrefix
@@ -469,8 +482,52 @@ param hubSubnetAddressPrefix string = '10.0.100.128/27'
 param hubVirtualNetworkDiagnosticsLogs array = []
 param hubVirtualNetworkDiagnosticsMetrics array = []
 param hubNetworkSecurityGroupName string = 'hub-nsg'
-param hubNetworkSecurityGroupRules array = []
-param hubSubnetServiceEndpoints array = []
+param hubNetworkSecurityGroupRules array = [
+  {
+    name: 'allow_ssh'
+    properties: {
+      description: 'Allow SSH access from anywhere'
+      access: 'Allow'
+      priority: 100
+      protocol: 'Tcp'
+      direction: 'Inbound'
+      sourcePortRange: '*'
+      sourceAddressPrefix: '*'
+      destinationPortRange: '22'
+      destinationAddressPrefix: '*'
+    }
+  }
+  {
+    name: 'allow_rdp'
+    properties: {
+      description: 'Allow RDP access from anywhere'
+      access: 'Allow'
+      priority: 200
+      protocol: 'Tcp'
+      direction: 'Inbound'
+      sourcePortRange: '*'
+      sourceAddressPrefix: '*'
+      destinationPortRange: '3389'
+      destinationAddressPrefix: '*'
+    }
+  }
+]
+param hubNetworkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+param hubNetworkSecurityGroupDiagnosticsMetrics array = []
+param hubSubnetServiceEndpoints array = [
+  {
+    service: 'Microsoft.Storage'
+  }
+]
 param hubLogStorageAccountName string = toLower(take('hublogs${uniqueId}', 24))
 param hubLogStorageSkuName string = 'Standard_GRS'
 
@@ -479,6 +536,26 @@ param firewallManagementSubnetAddressPrefix string = '10.0.100.64/26'
 param firewallClientSubnetAddressPrefix string = '10.0.100.0/26'
 param firewallPolicyName string = 'firewall-policy'
 param firewallThreatIntelMode string = 'Alert'
+param firewallDiagnosticsLogs array = [
+  {
+    category: 'AzureFirewallApplicationRule'
+    enabled: true
+  }
+  {
+    category: 'AzureFirewallNetworkRule'
+    enabled: true
+  }
+  {
+    category: 'AzureFirewallDnsProxy'
+    enabled: true
+  }
+]
+param firewallDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
 var firewallClientSubnetName = 'AzureFirewallSubnet' //this must be 'AzureFirewallSubnet'
 param firewallClientIpConfigurationName string = 'firewall-client-ip-config'
 param firewallClientSubnetServiceEndpoints array = []
@@ -493,6 +570,26 @@ param firewallManagementPublicIPAddressName string = 'firewall-management-public
 param firewallManagementPublicIPAddressSkuName string = 'Standard'
 param firewallManagementPublicIpAllocationMethod string = 'Static'
 param firewallManagementPublicIPAddressAvailabilityZones array = []
+param publicIPAddressDiagnosticsLogs array = [
+  {
+    category: 'DDoSProtectionNotifications'
+    enabled: true
+  }
+  {
+    category: 'DDoSMitigationFlowLogs'
+    enabled: true
+  }
+  {
+    category: 'DDoSMitigationReports'
+    enabled: true
+  }
+]
+param publicIPAddressDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
 
 param identityResourceGroupName string = replace(hubResourceGroupName, 'hub', 'identity')
 param identityLocation string = hubLocation
@@ -500,11 +597,13 @@ param identityVirtualNetworkName string = replace(hubVirtualNetworkName, 'hub', 
 param identitySubnetName string = replace(hubSubnetName, 'hub', 'identity')
 param identityVirtualNetworkAddressPrefix string = '10.0.110.0/26'
 param identitySubnetAddressPrefix string = '10.0.110.0/27'
-param identityVirtualNetworkDiagnosticsLogs array = []
-param identityVirtualNetworkDiagnosticsMetrics array = []
+param identityVirtualNetworkDiagnosticsLogs array = hubVirtualNetworkDiagnosticsLogs
+param identityVirtualNetworkDiagnosticsMetrics array = hubVirtualNetworkDiagnosticsMetrics
 param identityNetworkSecurityGroupName string = replace(hubNetworkSecurityGroupName, 'hub', 'identity')
-param identityNetworkSecurityGroupRules array = []
-param identitySubnetServiceEndpoints array = []
+param identityNetworkSecurityGroupRules array = hubNetworkSecurityGroupRules
+param identityNetworkSecurityGroupDiagnosticsLogs array = hubNetworkSecurityGroupDiagnosticsLogs
+param identityNetworkSecurityGroupDiagnosticsMetrics array = hubNetworkSecurityGroupDiagnosticsMetrics
+param identitySubnetServiceEndpoints array = hubSubnetServiceEndpoints
 param identityLogStorageAccountName string = toLower(take('idlogs${uniqueId}', 24))
 param identityLogStorageSkuName string = hubLogStorageSkuName
 
@@ -512,13 +611,15 @@ param operationsResourceGroupName string = replace(hubResourceGroupName, 'hub', 
 param operationsLocation string = hubLocation
 param operationsVirtualNetworkName string = replace(hubVirtualNetworkName, 'hub', 'operations')
 param operationsVirtualNetworkAddressPrefix string = '10.0.115.0/26'
-param operationsVirtualNetworkDiagnosticsLogs array = []
-param operationsVirtualNetworkDiagnosticsMetrics array = []
+param operationsVirtualNetworkDiagnosticsLogs array = hubVirtualNetworkDiagnosticsLogs
+param operationsVirtualNetworkDiagnosticsMetrics array = hubVirtualNetworkDiagnosticsMetrics
 param operationsNetworkSecurityGroupName string = replace(hubNetworkSecurityGroupName, 'hub', 'operations')
-param operationsNetworkSecurityGroupRules array = []
+param operationsNetworkSecurityGroupRules array = hubNetworkSecurityGroupRules
+param operationsNetworkSecurityGroupDiagnosticsLogs array = hubNetworkSecurityGroupDiagnosticsLogs
+param operationsNetworkSecurityGroupDiagnosticsMetrics array = hubNetworkSecurityGroupDiagnosticsMetrics
 param operationsSubnetName string = replace(hubSubnetName, 'hub', 'operations')
 param operationsSubnetAddressPrefix string = '10.0.115.0/27'
-param operationsSubnetServiceEndpoints array = []
+param operationsSubnetServiceEndpoints array = hubSubnetServiceEndpoints
 param operationsLogStorageAccountName string = toLower(take('opslogs${uniqueId}', 24))
 param operationsLogStorageSkuName string = hubLogStorageSkuName
 
@@ -528,11 +629,13 @@ param sharedServicesVirtualNetworkName string = replace(hubVirtualNetworkName, '
 param sharedServicesSubnetName string = replace(hubSubnetName, 'hub', 'sharedServices')
 param sharedServicesVirtualNetworkAddressPrefix string = '10.0.120.0/26'
 param sharedServicesSubnetAddressPrefix string = '10.0.120.0/27'
-param sharedServicesVirtualNetworkDiagnosticsLogs array = []
-param sharedServicesVirtualNetworkDiagnosticsMetrics array = []
+param sharedServicesVirtualNetworkDiagnosticsLogs array = hubVirtualNetworkDiagnosticsLogs
+param sharedServicesVirtualNetworkDiagnosticsMetrics array = hubVirtualNetworkDiagnosticsMetrics
 param sharedServicesNetworkSecurityGroupName string = replace(hubNetworkSecurityGroupName, 'hub', 'sharedServices')
-param sharedServicesNetworkSecurityGroupRules array = []
-param sharedServicesSubnetServiceEndpoints array = []
+param sharedServicesNetworkSecurityGroupRules array = hubNetworkSecurityGroupRules
+param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = hubNetworkSecurityGroupDiagnosticsLogs
+param sharedServicesNetworkSecurityGroupDiagnosticsMetrics array = hubNetworkSecurityGroupDiagnosticsMetrics
+param sharedServicesSubnetServiceEndpoints array = hubSubnetServiceEndpoints
 param sharedServicesLogStorageAccountName string = toLower(take('shrdSvclogs${uniqueId}', 24))
 param sharedServicesLogStorageSkuName string = hubLogStorageSkuName
 
