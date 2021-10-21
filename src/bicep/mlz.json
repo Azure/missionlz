@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "13476760732826675507"
+      "templateHash": "1945358306611262395"
     }
   },
   "parameters": {
@@ -1132,7 +1132,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "12334361858927907885"
+              "templateHash": "1009610201033923691"
             }
           },
           "parameters": {
@@ -2189,7 +2189,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "13842549561263775660"
+                      "templateHash": "18251381868621303940"
                     }
                   },
                   "parameters": {
@@ -2332,11 +2332,18 @@
                             "properties": {
                               "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_agentsvc_azure_automation_name'))]"
                             }
+                          },
+                          {
+                            "name": "storage",
+                            "properties": {
+                              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_blob_core_cloudapi_net_name'))]"
+                            }
                           }
                         ]
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_agentsvc_azure_automation_name'))]",
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_blob_core_cloudapi_net_name'))]",
                         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_monitor_azure_name'))]",
                         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_ods_opinsights_azure_name'))]",
                         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones_privatelink_oms_opinsights_azure_name'))]",
