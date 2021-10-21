@@ -74,6 +74,11 @@ az deployment sub show \
     "type": "String",
     "value": "/subscriptions/.../providers/Microsoft.Network/networkSecurityGroups/hub-nsg"
   },
+  ...
+  "logAnalyticsWorkspaceResourceId": {
+    "type": "String",
+    "value": "/subscriptions/.../providers/Microsoft.OperationalInsights/workspaces/mlz-dev-laws"
+  },
 }
 ```
 
@@ -81,7 +86,7 @@ az deployment sub show \
 
 <!-- markdownlint-disable MD013 -->
 ```bash
-export $(az deployment sub show --name "myMlzDeployment" --query "properties.outputs.{ args: [ join('', ['hubResourceGroupName=', hubResourceGroupName.value]), join('', ['hubVirtualNetworkName=', hubVirtualNetworkName.value]), join('', ['hubSubnetResourceId=', hubSubnetResourceId.value]), join('', ['hubNetworkSecurityGroupResourceId=', hubNetworkSecurityGroupResourceId.value]) ] }.args" --output tsv | xargs)
+export $(az deployment sub show --name "myMlzDeployment" --query "properties.outputs.{ args: [ join('', ['hubResourceGroupName=', hubResourceGroupName.value]), join('', ['hubVirtualNetworkName=', hubVirtualNetworkName.value]), join('', ['hubSubnetResourceId=', hubSubnetResourceId.value]), join('', ['hubNetworkSecurityGroupResourceId=', hubNetworkSecurityGroupResourceId.value]), join('', ['logAnalyticsWorkspaceResourceId=', logAnalyticsWorkspaceResourceId.value]) ] }.args" --output tsv | xargs)
 ```
 <!-- markdownlint-enable MD013 -->
 
@@ -98,8 +103,9 @@ hubResourceGroupName="mlz-dev-hub"
 hubVirtualNetworkName="hub-vnet"
 hubSubnetResourceId="/subscriptions/.../providers/Microsoft.Network/virtualNetworks/hub-vnet/subnets/hub-subnet"
 hubNetworkSecurityGroupResourceId="/subscriptions/.../providers/Microsoft.Network/networkSecurityGroups/hub-nsg"
+logAnalyticsWorkspaceResourceId="/subscriptions/.../providers/Microsoft.OperationalInsights/workspaces/mlz-dev-laws"
 
-linuxPassword=$(openssl rand -base64 14) # generate a random 14 character password
+my_password=$(openssl rand -base64 14) # generate a random 14 character password
 
 az deployment group create \
   --name "RemoteAccessExample" \
@@ -109,7 +115,9 @@ az deployment group create \
   hubVirtualNetworkName="$hubVirtualNetworkName" \
   hubSubnetResourceId="$hubSubnetResourceId" \
   hubNetworkSecurityGroupResourceId="$hubNetworkSecurityGroupResourceId" \
-  linuxVmAdminPasswordOrKey="$linuxPassword"
+  logAnalyticsWorkspaceResourceId="$logAnalyticsWorkspaceResourceId" \
+  linuxVmAdminPasswordOrKey="$my_password" \
+  windowsVmAdminPassword="$my_password"
 ```
 
 Or, completely experimentally, try the Portal:
