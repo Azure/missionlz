@@ -7,9 +7,8 @@ param logAnalyticsWorkspaceResourceId string
 param logStorageAccountResourceId string
 param subnets array
 
-param diagnosticsMetrics array
-
-param diagnosticsLogs array
+param logs array
+param metrics array
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' = {
   name: name
@@ -32,8 +31,8 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' 
   properties: {
     storageAccountId: logStorageAccountResourceId
     workspaceId: logAnalyticsWorkspaceResourceId
-    metrics: diagnosticsMetrics
-    logs: diagnosticsLogs
+    logs: logs
+    metrics: metrics
   }
 }
 

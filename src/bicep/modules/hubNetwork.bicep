@@ -14,6 +14,8 @@ param virtualNetworkDiagnosticsMetrics array
 
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
+param networkSecurityGroupDiagnosticsLogs array
+param networkSecurityGroupDiagnosticsMetrics array
 
 param subnetName string
 param subnetAddressPrefix string
@@ -28,6 +30,8 @@ param firewallName string
 param firewallSkuTier string
 param firewallPolicyName string
 param firewallThreatIntelMode string
+param firewallDiagnosticsLogs array
+param firewallDiagnosticsMetrics array
 param firewallClientIpConfigurationName string
 param firewallClientSubnetName string
 param firewallClientSubnetAddressPrefix string
@@ -45,57 +49,8 @@ param firewallManagementPublicIPAddressSkuName string
 param firewallManagementPublicIpAllocationMethod string
 param firewallManagementPublicIPAddressAvailabilityZones array
 
-var defaultVirtualNewtorkDiagnosticsLogs = [
-  // TODO: 'VMProtectionAlerts' is not supported in AzureUsGovernment
-  // {
-  //   category: 'VMProtectionAlerts'
-  //   enabled: true
-  // }
-]
-
-var defaultVirtualNetworkDiagnosticsMetrics = [
-  {
-    category: 'AllMetrics'
-    enabled: true
-  }
-]
-
-var defaultSubnetServiceEndpoints = [
-  {
-    service: 'Microsoft.Storage'
-  }
-]
-
-var defaultNetworkSecurityGroupRules = [
-  {
-    name: 'allow_ssh'
-    properties: {
-      description: 'Allow SSH access from anywhere'
-      access: 'Allow'
-      priority: 100
-      protocol: 'Tcp'
-      direction: 'Inbound'
-      sourcePortRange: '*'
-      sourceAddressPrefix: '*'
-      destinationPortRange: '22'
-      destinationAddressPrefix: '*'
-    }
-  }
-  {
-    name: 'allow_rdp'
-    properties: {
-      description: 'Allow RDP access from anywhere'
-      access: 'Allow'
-      priority: 200
-      protocol: 'Tcp'
-      direction: 'Inbound'
-      sourcePortRange: '*'
-      sourceAddressPrefix: '*'
-      destinationPortRange: '3389'
-      destinationAddressPrefix: '*'
-    }
-  }
-]
+param publicIPAddressDiagnosticsLogs array
+param publicIPAddressDiagnosticsMetrics array
 
 module logStorage './storageAccount.bicep' = {
   name: 'logStorage'
@@ -114,7 +69,13 @@ module networkSecurityGroup './networkSecurityGroup.bicep' = {
     location: location
     tags: tags
 
-    securityRules: empty(networkSecurityGroupRules) ? defaultNetworkSecurityGroupRules : networkSecurityGroupRules
+    securityRules: networkSecurityGroupRules
+
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logStorageAccountResourceId: logStorage.outputs.id
+
+    logs: networkSecurityGroupDiagnosticsLogs
+    metrics: networkSecurityGroupDiagnosticsMetrics
   }
 }
 
@@ -126,9 +87,6 @@ module virtualNetwork './virtualNetwork.bicep' = {
     tags: tags
 
     addressPrefix: virtualNetworkAddressPrefix
-
-    diagnosticsLogs: empty(virtualNetworkDiagnosticsLogs) ? defaultVirtualNewtorkDiagnosticsLogs : virtualNetworkDiagnosticsLogs
-    diagnosticsMetrics: empty(virtualNetworkDiagnosticsMetrics) ? defaultVirtualNetworkDiagnosticsMetrics : virtualNetworkDiagnosticsMetrics
 
     subnets: [
       {
@@ -149,6 +107,9 @@ module virtualNetwork './virtualNetwork.bicep' = {
 
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logStorageAccountResourceId: logStorage.outputs.id
+
+    logs: virtualNetworkDiagnosticsLogs
+    metrics: virtualNetworkDiagnosticsMetrics
   }
 }
 
@@ -176,7 +137,7 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = {
     routeTable: {
       id: routeTable.outputs.id
     }
-    serviceEndpoints: empty(subnetServiceEndpoints) ? defaultSubnetServiceEndpoints : subnetServiceEndpoints    
+    serviceEndpoints: subnetServiceEndpoints    
     privateEndpointNetworkPolicies: 'Disabled'
     privateLinkServiceNetworkPolicies: 'Enabled'
   }
@@ -196,6 +157,12 @@ module firewallClientPublicIPAddress './publicIPAddress.bicep' = {
     skuName: firewallClientPublicIPAddressSkuName
     publicIpAllocationMethod: firewallClientPublicIpAllocationMethod
     availabilityZones: firewallClientPublicIPAddressAvailabilityZones
+
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logStorageAccountResourceId: logStorage.outputs.id
+
+    logs: publicIPAddressDiagnosticsLogs
+    metrics: publicIPAddressDiagnosticsMetrics
   }
 }
 
@@ -209,6 +176,12 @@ module firewallManagementPublicIPAddress './publicIPAddress.bicep' = {
     skuName: firewallManagementPublicIPAddressSkuName
     publicIpAllocationMethod: firewallManagementPublicIpAllocationMethod
     availabilityZones: firewallManagementPublicIPAddressAvailabilityZones
+
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logStorageAccountResourceId: logStorage.outputs.id
+
+    logs: publicIPAddressDiagnosticsLogs
+    metrics: publicIPAddressDiagnosticsMetrics
   }
 }
 
@@ -231,6 +204,12 @@ module firewall './firewall.bicep' = {
     managementIpConfigurationName: firewallManagementIpConfigurationName
     managementIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/${firewallManagementSubnetName}'
     managementIpConfigurationPublicIPAddressResourceId: firewallManagementPublicIPAddress.outputs.id
+    
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logStorageAccountResourceId: logStorage.outputs.id
+
+    logs: firewallDiagnosticsLogs
+    metrics: firewallDiagnosticsMetrics
   }
 }
 
