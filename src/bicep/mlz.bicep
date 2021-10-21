@@ -480,12 +480,7 @@ param hubSubnetName string = 'hub-subnet'
 param hubVirtualNetworkAddressPrefix string = '10.0.100.0/24'
 param hubSubnetAddressPrefix string = '10.0.100.128/27'
 param hubVirtualNetworkDiagnosticsLogs array = []
-param hubVirtualNetworkDiagnosticsMetrics array = [
-  {
-    category: 'AllMetrics'
-    enabled: true
-  }
-]
+param hubVirtualNetworkDiagnosticsMetrics array = []
 param hubNetworkSecurityGroupName string = 'hub-nsg'
 param hubNetworkSecurityGroupRules array = [
   {
