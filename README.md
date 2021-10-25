@@ -78,7 +78,7 @@ All network traffic is directed through the firewall residing in the Network Hub
 |-------------|--------------|-----------------|-----------------|
 |default_route| 0.0.0.0/0    |Virtual Appliance|10.0.100.4       |
 
-The default firewall conigured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#:~:text=%20Azure%20Firewall%20Premium%20includes%20the%20following%20features%3A,Azure%20Firewall%E2%80%99s%20FQDN%20filtering%20capability%20to...%20More%20) to allow for enhanced security posturing.  
+The default firewall conigured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features) to allow for enhanced security posturing.  
 Presently, there are two firewall rules configured, all other traffic is restricted by default. Below are the collection of rules configured for Azure public cloud:  
 
 |Rule Collection Priority | Rule Collection Name | Rule name | Source | Port     | Protocol                               |
