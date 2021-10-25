@@ -1,0 +1,24 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+pr:
+- main
+
+pool:
+  vmImage: windows-latest
+
+jobs:
+- job: ADOPoliCredScanCheck
+  steps:
+  - task: PoliCheck@1
+    inputs:
+      inputType: 'Basic'
+      targetType: 'F'
+      targetArgument: '$(System.DefaultWorkingDirectory)'
+      result: 'PoliCheck.xml'
+  - publish: D:\a\1\_sdt\logs\PoliCheck\PoliCheck.xml
+    artifact: PoliCheck.xml
+  - task: CredScan@2
+    inputs:
+      toolMajorVersion: 'V2'
+      scanFolder: '$(System.DefaultWorkingDirectory)'
