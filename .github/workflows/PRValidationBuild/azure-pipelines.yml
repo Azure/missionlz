@@ -56,7 +56,7 @@ jobs:
             addSpnToEnvironment: true
             inlineScript: |
                export ARM_CLIENT_ID=$(ClientId) `
-               export ARM_CLIENT_SECRET=$(ClientSecret1) `
+               export ARM_CLIENT_SECRET=$(ClientSecret) `
                export ARM_SUBSCRIPTION_ID=$(subId) `
                export ARM_TENANT_ID=$(tenantId) `
                terraform init         
