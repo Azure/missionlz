@@ -17,7 +17,7 @@ jobs:
 - job: bicepCommercialCloud
   steps:
   - task: AzureCLI@2
-    displayName: "Commercial Cloud Deployments Bicep"
+    displayName: "Deploy MLZ Bicep"
     inputs:
       azureSubscription: $(ServiceConnectionName)
       scriptType: 'bash'
@@ -27,11 +27,11 @@ jobs:
           --name $(bDeploymentName) \
           --location $(Location) \
           --template-file $(TemplateFile)
-
+    enabled: true
 - job: bicepGovCloud
-  steps:  
+  steps:
   - task: AzureCLI@2
-    displayName: "Gov Cloud Deployments Bicep"
+    displayName: "Deploy MLZ Bicep"
     inputs:
       azureSubscription: $(GServiceConnectionName)
       scriptType: 'bash'
@@ -41,47 +41,63 @@ jobs:
           --name $(bDeploymentName) \
           --location $(GLocation) \
           --template-file $(TemplateFile)
-          
+    enabled: true
 - job: CommercialCloud_TF
   steps:
-    - task: TerraformInstaller@0
-      inputs:
+  - task: TerraformInstaller@0
+    inputs:
         terraformVersion: '1.0.8'
-    - task: AzureCLI@2
-      displayName: "Commercial Cloud Deployments Terraform"
-      inputs:
+  - task: AzureCLI@2
+    displayName: "Deploy MLZ Terraform"
+    inputs:
             azureSubscription: 'CAzureConnection'
             scriptType: 'bash'
             scriptLocation: 'inlineScript'
             addSpnToEnvironment: true
             inlineScript: |
                export ARM_CLIENT_ID=$(ClientId) `
+               echo $ARM_CLIENT_ID `
                export ARM_CLIENT_SECRET=$(ClientSecret) `
+               echo $ARM_CLIENT_SECRET `
                export ARM_SUBSCRIPTION_ID=$(subId) `
+               echo $ARM_SUBSCRIPTION_ID `
                export ARM_TENANT_ID=$(tenantId) `
+               echo $ARM_TENANT_ID `              
                terraform init         
                terraform plan  -var "hub_subid=$(subid)"  -input=false      
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
-            
-           
+            useGlobalConfig: true
+    enabled: true
+
+   
 - job: GovCloud_TF
   steps:
-   
-    - task: TerraformInstaller@0
-      inputs:
+   - task: TerraformInstaller@0
+     inputs:
         terraformVersion: '1.0.8'
-    - task: AzureCLI@2
-      inputs:
+   - task: AzureCLI@2
+     name: TerraformApplyGov
+     displayName: "Deploy MLZ Terraform"
+     inputs:
             azureSubscription: 'GAzureConnection'
             scriptType: 'bash'
-            scriptLocation: 'inlineScript'
             addSpnToEnvironment: true
+            scriptLocation: 'inlineScript'
             inlineScript: |
                export ARM_CLIENT_ID=$(GClientId) `
+               echo $ARM_CLIENT_ID `
                export ARM_CLIENT_SECRET=$(GClientSecret) `
+               echo $ARM_CLIENT_SECRET `
                export ARM_SUBSCRIPTION_ID=$(GSubId) `
+               echo $ARM_SUBSCRIPTION_ID `
                export ARM_TENANT_ID=$(GTenantId) `
-               terraform init         
-               terraform plan  -var "hub_subid=$(GSubid)"  -input=false      
+               echo $ARM_TENANT_ID `
+               export ARM_ENVIRONMENT=$(CloudEnv) `
+               echo $ARM_ENVIRONMENT `
+               terraform init
+               terraform plan  -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -input=false                     
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+            useGlobalConfig: true        
+     enabled: true
 
+   
