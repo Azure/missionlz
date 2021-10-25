@@ -1,0 +1,138 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- mlz-azure-pipelines
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  ServiceConnectionName: $(CAzureConnection)
+  GServiceConnectionName: $(GAzureConnection)
+  
+jobs:
+- job: bicepCommercialCloud
+  steps:
+  - task: AzureCLI@2
+    displayName: " Cleanup Resources"
+    inputs:
+      azureSubscription: 'CAzureConnection'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az group list -o table | grep ''mlz'' | awk ''{system("az group delete -y --no-wait -g "$1)}'''
+  - task: AzureCLI@2
+    displayName: "Commercial Cloud Deployments Bicep"
+    inputs:
+      azureSubscription: $(ServiceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az deployment sub create \
+          --name $(bDeploymentName) \
+          --location $(Location) \
+          --template-file $(TemplateFile)
+
+- job: bicepGovCloud
+  steps:  
+  - task: AzureCLI@2
+    displayName: " Cleanup Gov Cloud Resources bicep"
+    inputs:
+      azureSubscription: 'GAzureConnection'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az group list -o table | grep ''mlz'' | awk ''{system("az group delete -y --no-wait -g "$1)}'''
+  - task: AzureCLI@2
+    displayName: "Gov Cloud Deployments Bicep"
+    inputs:
+      azureSubscription: $(GServiceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az deployment sub create \
+          --name $(bDeploymentName) \
+          --location $(GLocation) \
+          --template-file $(TemplateFile)
+
+- job: CommercialCloud_TF
+  steps:
+    - task: AzureCLI@2
+      displayName: "Cleanup Commercial Resources"
+      inputs:
+        azureSubscription: 'CAzureConnection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az group delete --name hub-rg -y
+                        az group delete --name identity-rg -y
+                        az group delete --name operations-rg -y
+                        az group delete --name sharedServices-rg -y
+                        az group delete --name NetworkWatcherRG -y
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: '1.0.8'
+    - task: AzureCLI@2
+      displayName: "Commercial Cloud Deployments Terraform"
+      inputs:
+            azureSubscription: 'CAzureConnection'
+            scriptType: 'bash'
+            scriptLocation: 'inlineScript'
+            addSpnToEnvironment: true
+            inlineScript: |
+               export ARM_CLIENT_ID=$(ClientId) `
+               echo $ARM_CLIENT_ID `
+               export ARM_CLIENT_SECRET=$(ClientSecret1) `
+               echo $ARM_CLIENT_SECRET `
+               export ARM_SUBSCRIPTION_ID=$(subId) `
+               echo $ARM_SUBSCRIPTION_ID `
+               export ARM_TENANT_ID=$(tenantId) `
+               echo $ARM_TENANT_ID `              
+               terraform init         
+               terraform plan  -var "hub_subid=$(subid)"  -input=false      
+               terraform apply -var "hub_subid=$(subid)" -auto-approve -input=false
+               sleep 30
+               terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
+            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+            
+           
+- job: GovCloud_TF
+  steps:
+    - task: AzureCLI@2
+      displayName: "Cleanup Resources"
+      inputs:
+            azureSubscription: 'CAzureConnection'
+            scriptType: 'bash'
+            scriptLocation: 'inlineScript'
+            inlineScript: |
+              az group delete --name hub-rg -y
+                            az group delete --name identity-rg -y
+                            az group delete --name operations-rg -y
+                            az group delete --name sharedServices-rg -y
+                            az group delete --name NetworkWatcherRG -y
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: '1.0.8'
+    - task: AzureCLI@2
+      inputs:
+            azureSubscription: 'GAzureConnection'
+            scriptType: 'bash'
+            scriptLocation: 'inlineScript'
+            addSpnToEnvironment: true
+            inlineScript: |
+               export ARM_CLIENT_ID=$(GClientId) `
+               echo $ARM_CLIENT_ID `
+               export ARM_CLIENT_SECRET=$(GClientSecret) `
+               echo $ARM_CLIENT_SECRET `
+               export ARM_SUBSCRIPTION_ID=$(GSubId) `
+               echo $ARM_SUBSCRIPTION_ID `
+               export ARM_TENANT_ID=$(GTenantId) `
+               echo $ARM_TENANT_ID `              
+               terraform init         
+               terraform plan  -var "hub_subid=$(GSubid)"  -input=false      
+               terraform apply -var "hub_subid=$(GSubid)" -auto-approve -input=false
+               sleep 30
+               terraform destroy -var "hub_subid=$(GSubid)" -auto-approve -input=false
+            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+
