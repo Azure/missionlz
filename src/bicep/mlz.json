@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "4139258334243862843"
+      "templateHash": "17543931080454177897"
     }
   },
   "parameters": {
@@ -6304,7 +6304,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "9699313624576487890"
+              "templateHash": "14308840348818246166"
             }
           },
           "parameters": {
@@ -6313,11 +6313,19 @@
             },
             "logAnalyticsWorkspaceId": {
               "type": "string"
+            },
+            "supportedClouds": {
+              "type": "array",
+              "defaultValue": [
+                "AzureCloud",
+                "AzureUSGovernment"
+              ]
             }
           },
           "functions": [],
           "resources": [
             {
+              "condition": "[contains(parameters('supportedClouds'), environment().name)]",
               "type": "Microsoft.Insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
               "name": "[parameters('diagnosticSettingName')]",
@@ -6393,7 +6401,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "9699313624576487890"
+              "templateHash": "14308840348818246166"
             }
           },
           "parameters": {
@@ -6402,11 +6410,19 @@
             },
             "logAnalyticsWorkspaceId": {
               "type": "string"
+            },
+            "supportedClouds": {
+              "type": "array",
+              "defaultValue": [
+                "AzureCloud",
+                "AzureUSGovernment"
+              ]
             }
           },
           "functions": [],
           "resources": [
             {
+              "condition": "[contains(parameters('supportedClouds'), environment().name)]",
               "type": "Microsoft.Insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
               "name": "[parameters('diagnosticSettingName')]",
@@ -6482,7 +6498,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "9699313624576487890"
+              "templateHash": "14308840348818246166"
             }
           },
           "parameters": {
@@ -6491,11 +6507,19 @@
             },
             "logAnalyticsWorkspaceId": {
               "type": "string"
+            },
+            "supportedClouds": {
+              "type": "array",
+              "defaultValue": [
+                "AzureCloud",
+                "AzureUSGovernment"
+              ]
             }
           },
           "functions": [],
           "resources": [
             {
+              "condition": "[contains(parameters('supportedClouds'), environment().name)]",
               "type": "Microsoft.Insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
               "name": "[parameters('diagnosticSettingName')]",
@@ -6571,7 +6595,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "9699313624576487890"
+              "templateHash": "14308840348818246166"
             }
           },
           "parameters": {
@@ -6580,11 +6604,19 @@
             },
             "logAnalyticsWorkspaceId": {
               "type": "string"
+            },
+            "supportedClouds": {
+              "type": "array",
+              "defaultValue": [
+                "AzureCloud",
+                "AzureUSGovernment"
+              ]
             }
           },
           "functions": [],
           "resources": [
             {
+              "condition": "[contains(parameters('supportedClouds'), environment().name)]",
               "type": "Microsoft.Insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
               "name": "[parameters('diagnosticSettingName')]",

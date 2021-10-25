@@ -3,9 +3,13 @@ targetScope = 'subscription'
 
 param diagnosticSettingName string
 param logAnalyticsWorkspaceId string
+param supportedClouds array = [
+  'AzureCloud'
+  'AzureUSGovernment'
+]
 
 //// Central activity logging to LAWS
-resource centralLoggingDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
+resource centralLoggingDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = if ( contains(supportedClouds, environment().name) ) {
   name: diagnosticSettingName
   properties: {
     workspaceId: logAnalyticsWorkspaceId
