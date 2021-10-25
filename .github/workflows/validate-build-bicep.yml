@@ -7,7 +7,9 @@ on:
     branches: [main]
     paths: 
     - 'src/bicep/**'
+    - 'src/stack/bicep/**'
     - '!src/bicep/**.md'
+    - '!src/stack/bicep/**.md'
 jobs:
   validate-build:
     runs-on: ubuntu-latest
@@ -21,6 +23,12 @@ jobs:
           az bicep build --file src/bicep/mlz.bicep --outfile src/bicep/mlz.json
           if [[ $(git status --porcelain) ]]; then
             git add src/bicep/mlz.json
+            git commit -m "GitHub Action: Build Bicep to JSON"
+            git push origin HEAD:"$GITHUB_HEAD_REF"
+          fi
+          az bicep build --file src/stack/bicep/mlzstack.bicep --outfile src/stack/bicep/mlzstack.json
+          if [[ $(git status --porcelain) ]]; then
+            git add src/stack/bicep/mlzstack.json
             git commit -m "GitHub Action: Build Bicep to JSON"
             git push origin HEAD:"$GITHUB_HEAD_REF"
           fi
