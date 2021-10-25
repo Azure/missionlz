@@ -8,11 +8,24 @@ You can deploy with the Azure Portal, the Azure CLI, or with both in a Azure Com
 
 1. An Azure Subscription(s) where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
 
-Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`? See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
+Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`?
 
-Want to add Azure Policies to this deployment? See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
+- See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
 
-Want to remotely access the network without exposing it via Public IP Addresses? See [Adding Remote Access via Bastion Host](#Adding-Remote-Access-via-Bastion-Host) to add virtual machines inside the network that you can access from an authenticated session in the Azure Portal with Azure Bastion.
+Want to add Azure Policies to this deployment?
+
+- See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
+
+Want to remotely access the network without exposing it via Public IP Addresses?
+
+- See [Adding Remote Access via Bastion Host](#Adding-Remote-Access-via-Bastion-Host) to add virtual machines inside the network that you can access from an authenticated session in the Azure Portal with Azure Bastion.
+
+By default, this template deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features)**.
+
+**Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If this doesn't fit your needs:
+
+- See [Setting the Firewall SKU](#Setting-the-Firewall-SKU) for steps on how to use the Standard SKU instead.
+- See [Setting the Firewall Location](#Setting-the-Firewall-Location) for steps on how to deploy into a different region.
 
 ### Azure CLI
 
@@ -200,6 +213,35 @@ az deployment sub create \
 For more information on generating a public/private key pair see <https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-ssh-keys-detailed#generate-keys-with-ssh-keygen>.
 
 Then, once you've deployed the virtual machines and Bastion Host, use these docs to connect with an SSH Key: <https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-ssh#privatekey>
+
+## Configuring the Firewall
+
+### Setting the Firewall SKU
+
+By default, this template deploys [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features).
+
+Not all regions support Azure Firewall Premium. Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions).
+
+You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Standard` or `Premium`:
+
+```plaintext
+az deployment sub create \
+  --name "myFirewallStandardDeployment" \
+  --location "eastus" \
+  --template-file "src/bicep/mlz.bicep" \
+  --parameters firewallSkuTier="Standard"
+```
+
+### Setting the Firewall Location
+
+If you'd like to specify a different region to deploy your resources into, just change the location of the deployment in the `az deployment sub create` command's `--location` argument:
+
+```plaintext
+az deployment sub create \
+  --name "SouthCentralUsDeployment" \
+  --location "South Central US" \
+  --template-file "src/bicep/mlz.bicep"
+```
 
 ## Development Pre-requisites
 
