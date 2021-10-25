@@ -467,6 +467,7 @@ param hubSubscriptionId string = subscription().subscriptionId
 param identitySubscriptionId string = hubSubscriptionId
 param operationsSubscriptionId string = hubSubscriptionId
 param sharedServicesSubscriptionId string = hubSubscriptionId
+
 @allowed([
   'Standard'
   'Premium'
