@@ -27,7 +27,6 @@ jobs:
           --name $(bDeploymentName) \
           --location $(Location) \
           --template-file $(TemplateFile)
-          --result-format
 
 - job: bicepGovCloud
   steps:  
@@ -42,8 +41,7 @@ jobs:
           --name $(bDeploymentName) \
           --location $(GLocation) \
           --template-file $(TemplateFile)
-          --result-format
-
+          
 - job: CommercialCloud_TF
   steps:
     - task: TerraformInstaller@0
