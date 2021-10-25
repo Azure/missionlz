@@ -26,7 +26,7 @@ jobs:
         az deployment sub create \
           --name $(bDeploymentName) \
           --location $(Location) \
-          --template-file $(TemplateFile)
+          --template-file $(TemplateFile)\
           --parameters resourcePrefix="cicdbicep"
     enabled: true    
   - task: AzureCLI@2
@@ -56,7 +56,7 @@ jobs:
         az deployment sub create \
           --name $(bDeploymentName) \
           --location $(GLocation) \
-          --template-file $(TemplateFile)
+          --template-file $(TemplateFile)\
           --parameters resourcePrefix="cicdbicep"
     enabled: true
   - task: AzureCLI@2
