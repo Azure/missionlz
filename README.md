@@ -70,6 +70,22 @@ Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity
 <img src="docs/images/networking.png" alt="Mission LZ Networking" width="600" />
 <!-- markdownlint-enable MD033 -->
 
+## Firewall
+
+All network traffic is directed through the firewall residing in the Network Hub resource group in this architecture. The firewall is configured as the default route for all the T0 (Identity and Authorization) through T3(n) (Team Environments) resource groups as follows:  
+
+|Name         |Address prefix| Next hop type| Next hop IP address|
+|-------------|--------------|-----------------|-----------------|
+|default_route| 0.0.0.0/0    |Virtual Appliance|10.0.100.4       |
+
+The default firewall conigured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features) to allow for enhanced security posturing.  
+Presently, there are two firewall rules configured to ensure access to the Azure Portal and to facilitate interactive logon via PowerShell and Azure CLI, all other traffic is restricted by default. Below are the collection of rules configured for Azure public cloud:
+
+|Rule Collection Priority | Rule Collection Name | Rule name | Source | Port     | Protocol                               |
+|-------------------------|----------------------|-----------|--------|----------|----------------------------------------|
+|100                      | AllowAzureCloud      | AzureCloud|*       |   *      |Any                                     |
+|110                      | AzureAuth            | msftauth  |  *     | Https:443| aadcdn.msftauth.net, aadcdn.msauth.net |
+
 ## Getting Started using Mission LZ
 
 See our [Getting Started Guide](docs/getting-started.md) in the docs.
