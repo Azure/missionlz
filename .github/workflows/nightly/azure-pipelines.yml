@@ -111,7 +111,7 @@ jobs:
             inlineScript: |
                export ARM_CLIENT_ID=$(ClientId) `
                echo $ARM_CLIENT_ID `
-               export ARM_CLIENT_SECRET=$(ClientSecret1) `
+               export ARM_CLIENT_SECRET=$(ClientSecret) `
                echo $ARM_CLIENT_SECRET `
                export ARM_SUBSCRIPTION_ID=$(subId) `
                echo $ARM_SUBSCRIPTION_ID `
