@@ -46,6 +46,7 @@ To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Le
 az deployment sub create \
   --location eastus \
   --template-file mlz.bicep \
+  --parameters deployPolicy=true \
   --parameters policy=<one of 'CMMC', 'IL5', or 'NIST'>
 ```
 
@@ -87,19 +88,19 @@ Example parameters file snippet:
 
 ```arm
 {
-    "listOfMembersToExcludeFromWindowsVMAdministratorsGroup": 
+    "listOfMembersToExcludeFromWindowsVMAdministratorsGroup":
     {
       "value": "admin"
     },
-    "listOfMembersToIncludeInWindowsVMAdministratorsGroup": 
+    "listOfMembersToIncludeInWindowsVMAdministratorsGroup":
     {
       "value": "azureuser"
     },
-    "logAnalyticsWorkspaceIdforVMReporting": 
+    "logAnalyticsWorkspaceIdforVMReporting":
     {
       "value": ${jsonencode(laws_instance_id)}
     },
-    "IncludeArcMachines": 
+    "IncludeArcMachines":
     {
         "value": "true"
     }

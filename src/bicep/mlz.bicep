@@ -190,6 +190,9 @@ module hubSubscriptionActivityLogging './modules/centralLogging.bicep' = {
     diagnosticSettingName: 'log-hub-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
   }
+  dependsOn: [
+    hubNetwork
+  ]
 }
 
 module spokeSubscriptionActivityLogging './modules/centralLogging.bicep' = [ for spoke in spokes: if(spoke.subscriptionId != hubSubscriptionId) {
@@ -199,6 +202,9 @@ module spokeSubscriptionActivityLogging './modules/centralLogging.bicep' = [ for
     diagnosticSettingName: 'log-${spoke.type}-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
   }
+  dependsOn: [
+    spokeNetworks
+  ]
 }]
 
 //// log analytics workspace diagnostic logging
@@ -211,6 +217,10 @@ module logAnalyticsDiagnosticLogging './modules/logAnalyticsDiagnosticLogging.bi
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     enableDiagnostics: true
   }
+  dependsOn: [
+    hubNetwork
+    spokeNetworks
+  ]
 }
 
 // security center per subscription if different per hub/spoke
@@ -606,51 +616,51 @@ var spokes = [
 
 // outputs
 
-// output hubSubscriptionId string = hubSubscriptionId
-// output hubResourceGroupName string = hubResourceGroup.outputs.name
-// output hubResourceGroupResourceId string = hubResourceGroup.outputs.id
-// output hubVirtualNetworkName string = hub.outputs.virtualNetworkName
-// output hubVirtualNetworkResourceId string = hub.outputs.virtualNetworkResourceId
-// output hubSubnetName string = hub.outputs.subnetName
-// output hubSubnetResourceId string = hub.outputs.subnetResourceId
-// output hubSubnetAddressPrefix string = hub.outputs.subnetAddressPrefix
-// output hubNetworkSecurityGroupName string = hub.outputs.networkSecurityGroupName
-// output hubNetworkSecurityGroupResourceId string = hub.outputs.networkSecurityGroupResourceId
-// output hubFirewallPrivateIPAddress string = hub.outputs.firewallPrivateIPAddress
+output hubSubscriptionId string = hubSubscriptionId
+output hubResourceGroupName string = hubResourceGroup.outputs.name
+output hubResourceGroupResourceId string = hubResourceGroup.outputs.id
+output hubVirtualNetworkName string = hubVirtualNetworkName
+output hubVirtualNetworkResourceId string = hubNetwork.outputs.virtualNetworkResourceId
+output hubSubnetName string = hubNetwork.outputs.subnetName
+output hubSubnetResourceId string = hubNetwork.outputs.subnetResourceId
+output hubSubnetAddressPrefix string = hubNetwork.outputs.subnetAddressPrefix
+output hubNetworkSecurityGroupName string = hubNetwork.outputs.networkSecurityGroupName
+output hubNetworkSecurityGroupResourceId string = hubNetwork.outputs.networkSecurityGroupResourceId
+output hubFirewallPrivateIPAddress string = hubNetwork.outputs.firewallPrivateIPAddress
 
-// output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.outputs.name
-// output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.outputs.id
-// output firewallPrivateIPAddress string = hub.outputs.firewallPrivateIPAddress
+output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.outputs.name
+output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.outputs.id
+output firewallPrivateIPAddress string = hubNetwork.outputs.firewallPrivateIPAddress
 
-// output identitySubscriptionId string = identitySubscriptionId
-// output identityResourceGroupName string = identityResourceGroup.outputs.name
-// output identityResourceGroupResourceId string = identityResourceGroup.outputs.id
-// output identityVirtualNetworkName string = identity.outputs.virtualNetworkName
-// output identityVirtualNetworkResourceId string = identity.outputs.virtualNetworkResourceId
-// output identitySubnetName string = identity.outputs.subnetName
-// output identitySubnetResourceId string = identity.outputs.subnetResourceId
-// output identitySubnetAddressPrefix string = identity.outputs.subnetAddressPrefix
-// output identityNetworkSecurityGroupName string = identity.outputs.networkSecurityGroupName
-// output identityNetworkSecurityGroupResourceId string = identity.outputs.networkSecurityGroupResourceId
+output identitySubscriptionId string = identitySubscriptionId
+output identityResourceGroupName string = identityResourceGroupName
+output identityResourceGroupResourceId string = resourceId(identitySubscriptionId, identityResourceGroupName, 'Microsoft.Resource/resourceGroups', identityResourceGroupName)
+output identityVirtualNetworkName string = identityVirtualNetworkName
+output identityVirtualNetworkResourceId string = resourceId(identitySubscriptionId, identityResourceGroupName, 'Microsoft.Network/virtualNetworks', identityVirtualNetworkName)
+output identitySubnetName string = identitySubnetName
+output identitySubnetResourceId string = resourceId(identitySubscriptionId, identityResourceGroupName, 'Microsoft.Network/Virtualnetworks/subnets', '${identityVirtualNetworkName}/${identitySubnetName}')
+output identitySubnetAddressPrefix string = identitySubnetAddressPrefix
+output identityNetworkSecurityGroupName string = identityNetworkSecurityGroupName
+output identityNetworkSecurityGroupResourceId string = resourceId(identitySubscriptionId, identityResourceGroupName, 'Microsoft.Network/networkSecurityGroups', identityNetworkSecurityGroupName)
 
-// output operationsSubscriptionId string = operationsSubscriptionId
-// output operationsResourceGroupName string = operationsResourceGroupName
-// output operationsResourceGroupResourceId string = operationsResourceGroup.outputs.id
-// output operationsVirtualNetworkName string = operations.outputs.virtualNetworkName
-// output operationsVirtualNetworkResourceId string = operations.outputs.virtualNetworkResourceId
-// output operationsSubnetName string = operations.outputs.subnetName
-// output operationsSubnetResourceId string = operations.outputs.subnetResourceId
-// output operationsSubnetAddressPrefix string = operations.outputs.subnetAddressPrefix
-// output operationsNetworkSecurityGroupName string = operations.outputs.networkSecurityGroupName
-// output operationsNetworkSecurityGroupResourceId string = operations.outputs.networkSecurityGroupResourceId
+output operationsSubscriptionId string = operationsSubscriptionId
+output operationsResourceGroupName string = operationsResourceGroupName
+output operationsResourceGroupResourceId string = resourceId(operationsSubscriptionId, operationsResourceGroupName, 'Microsoft.Resource/resourceGroups', operationsResourceGroupName)
+output operationsVirtualNetworkName string = operationsVirtualNetworkName
+output operationsVirtualNetworkResourceId string = resourceId(operationsSubscriptionId, operationsResourceGroupName, 'Microsoft.Network/virtualNetworks', operationsVirtualNetworkName)
+output operationsSubnetName string = operationsSubnetName
+output operationsSubnetResourceId string = resourceId(operationsSubscriptionId, operationsResourceGroupName, 'Microsoft.Network/Virtualnetworks/subnets', '${operationsVirtualNetworkName}/${operationsSubnetName}')
+output operationsSubnetAddressPrefix string = operationsSubnetAddressPrefix
+output operationsNetworkSecurityGroupName string = operationsNetworkSecurityGroupName
+output operationsNetworkSecurityGroupResourceId string = resourceId(operationsSubscriptionId, operationsResourceGroupName, 'Microsoft.Network/networkSecurityGroups', operationsNetworkSecurityGroupName)
 
-// output sharedServicesSubscriptionId string = sharedServicesSubscriptionId
-// output sharedServicesResourceGroupName string = sharedServicesResourceGroup.outputs.name
-// output sharedServicesResourceGroupResourceId string = sharedServicesResourceGroup.outputs.id
-// output sharedServicesVirtualNetworkName string = sharedServices.outputs.virtualNetworkName
-// output sharedServicesVirtualNetworkResourceId string = sharedServices.outputs.virtualNetworkResourceId
-// output sharedServicesSubnetName string = sharedServices.outputs.subnetName
-// output sharedServicesSubnetResourceId string = sharedServices.outputs.subnetResourceId
-// output sharedServicesSubnetAddressPrefix string = sharedServices.outputs.subnetAddressPrefix
-// output sharedServicesNetworkSecurityGroupName string = sharedServices.outputs.networkSecurityGroupName
-// output sharedServicesNetworkSecurityGroupResourceId string = sharedServices.outputs.networkSecurityGroupResourceId
+output sharedServicesSubscriptionId string = sharedServicesSubscriptionId
+output sharedServicesResourceGroupName string = sharedServicesResourceGroupName
+output sharedServicesResourceGroupResourceId string = resourceId(sharedServicesSubscriptionId, sharedServicesResourceGroupName, 'Microsoft.Resource/resourceGroups', sharedServicesResourceGroupName)
+output sharedServicesVirtualNetworkName string = sharedServicesVirtualNetworkName
+output sharedServicesVirtualNetworkResourceId string = resourceId(sharedServicesSubscriptionId, sharedServicesResourceGroupName, 'Microsoft.Network/virtualNetworks', sharedServicesVirtualNetworkName)
+output sharedServicesSubnetName string = sharedServicesSubnetName
+output sharedServicesSubnetResourceId string = resourceId(sharedServicesSubscriptionId, sharedServicesResourceGroupName, 'Microsoft.Network/Virtualnetworks/subnets', '${sharedServicesVirtualNetworkName}/${sharedServicesSubnetName}')
+output sharedServicesSubnetAddressPrefix string = sharedServicesSubnetAddressPrefix
+output sharedServicesNetworkSecurityGroupName string = sharedServicesNetworkSecurityGroupName
+output sharedServicesNetworkSecurityGroupResourceId string = resourceId(sharedServicesSubscriptionId, sharedServicesResourceGroupName, 'Microsoft.Network/networkSecurityGroups', sharedServicesNetworkSecurityGroupName)
