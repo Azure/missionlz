@@ -5,45 +5,109 @@ targetScope = 'subscription'
 
 //// scaffolding
 
-module hubResourceGroup './modules/resourceGroup.bicep' = {
-  name: 'deploy-hub-rg-${nowUtc}'
-  scope: subscription(hubSubscriptionId)
-  params: {
-    name: hubResourceGroupName
-    location: hubLocation
-    tags: tags
-  }
+var hub = {
+  subscriptionId: hubSubscriptionId
+  resourceGroupName: hubResourceGroupName
+  location: hubLocation
+  logStorageAccountName: hubLogStorageAccountName
+  logStorageSkuName: hubLogStorageSkuName
+  virtualNetworkName: hubVirtualNetworkName
+  virtualNetworkAddressPrefix: hubVirtualNetworkAddressPrefix
+  virtualNetworkDiagnosticsLogs: hubVirtualNetworkDiagnosticsLogs
+  virtualNetworkDiagnosticsMetrics: hubVirtualNetworkDiagnosticsMetrics
+  networkSecurityGroupName: hubNetworkSecurityGroupName
+  networkSecurityGroupRules: hubNetworkSecurityGroupRules
+  networkSecurityGroupDiagnosticsLogs: hubNetworkSecurityGroupDiagnosticsLogs
+  networkSecurityGroupDiagnosticsMetrics: hubNetworkSecurityGroupDiagnosticsMetrics
+  subnetName: hubSubnetName
+  subnetAddressPrefix: hubSubnetAddressPrefix
+  subnetServiceEndpoints: hubSubnetServiceEndpoints
 }
 
-module identityResourceGroup './modules/resourceGroup.bicep' = {
-  name: 'deploy-identity-rg-${nowUtc}'
-  scope: subscription(identitySubscriptionId)
-  params: {
-    name: identityResourceGroupName
-    location: identityLocation
-    tags: tags
-  }
-}
-
-module operationsResourceGroup './modules/resourceGroup.bicep' = {
-  name: 'deploy-operations-rg-${nowUtc}'
-  scope: subscription(operationsSubscriptionId)
-  params: {
-    name: operationsResourceGroupName
+var spokes = [
+  {
+    type: 'spoke'
+    subscriptionId: operationsSubscriptionId
+    resourceGroupName: operationsResourceGroupName
     location: operationsLocation
+    logStorageAccountName: operationsLogStorageAccountName
+    logStorageSkuName: operationsLogStorageSkuName
+    virtualNetworkName: operationsVirtualNetworkName
+    virtualNetworkAddressPrefix: operationsVirtualNetworkAddressPrefix
+    virtualNetworkDiagnosticsLogs: operationsVirtualNetworkDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: operationsVirtualNetworkDiagnosticsMetrics
+    networkSecurityGroupName: operationsNetworkSecurityGroupName
+    networkSecurityGroupRules: operationsNetworkSecurityGroupRules
+    networkSecurityGroupDiagnosticsLogs: operationsNetworkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: operationsNetworkSecurityGroupDiagnosticsMetrics
+    subnetName: operationsSubnetName
+    subnetAddressPrefix: operationsSubnetAddressPrefix
+    subnetServiceEndpoints: operationsSubnetServiceEndpoints
+  }
+  {
+    type: 'spoke'
+    subscriptionId: identitySubscriptionId
+    resourceGroupName: identityResourceGroupName
+    location: identityLocation
+    logStorageAccountName: identityLogStorageAccountName
+    logStorageSkuName: identityLogStorageSkuName
+    virtualNetworkName: identityVirtualNetworkName
+    virtualNetworkAddressPrefix: identityVirtualNetworkAddressPrefix
+    virtualNetworkDiagnosticsLogs: identityVirtualNetworkDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: identityVirtualNetworkDiagnosticsMetrics
+    networkSecurityGroupName: identityNetworkSecurityGroupName
+    networkSecurityGroupRules: identityNetworkSecurityGroupRules
+    networkSecurityGroupDiagnosticsLogs: identityNetworkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
+    subnetName: identitySubnetName
+    subnetAddressPrefix: identitySubnetAddressPrefix
+    subnetServiceEndpoints: identitySubnetServiceEndpoints
+  }
+  {
+    type: 'spoke'
+    subscriptionId: sharedServicesSubscriptionId
+    resourceGroupName: sharedServicesResourceGroupName
+    location: sharedServicesLocation
+    logStorageAccountName: sharedServicesLogStorageAccountName
+    logStorageSkuName: sharedServicesLogStorageSkuName
+    virtualNetworkName: sharedServicesVirtualNetworkName
+    virtualNetworkAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
+    virtualNetworkDiagnosticsLogs: sharedServicesVirtualNetworkDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: sharedServicesVirtualNetworkDiagnosticsMetrics
+    networkSecurityGroupName: sharedServicesNetworkSecurityGroupName
+    networkSecurityGroupRules: sharedServicesNetworkSecurityGroupRules
+    networkSecurityGroupDiagnosticsLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: sharedServicesNetworkSecurityGroupDiagnosticsMetrics
+    subnetName: sharedServicesSubnetName
+    subnetAddressPrefix: sharedServicesSubnetAddressPrefix
+    subnetServiceEndpoints: sharedServicesSubnetServiceEndpoints
+  }
+]
+
+module hubResourceGroup './modules/resourceGroup.bicep' = {
+  name: 'deploy-rg-${hub.resourceGroupName}-${nowUtc}'
+  scope: subscription(hub.subscriptionId)
+  params: {
+    name: hub.resourceGroupName
+    location: hub.location
     tags: tags
   }
 }
 
-module sharedServicesResourceGroup './modules/resourceGroup.bicep' = {
-  name: 'deploy-sharedServices-rg-${nowUtc}'
-  scope: subscription(sharedServicesSubscriptionId)
+module spokeResourceGroup './modules/resourceGroup.bicep' = [for spoke in spokes: {
+  name: 'deploy-rg-${spoke.resourceGroupName}-${nowUtc}'
+  scope: subscription(spoke.subscriptionId)
   params: {
-    name: sharedServicesResourceGroupName
-    location: sharedServicesLocation
+    name: spoke.resourceGroupName
+    location: spoke.location
     tags: tags
   }
-}
+}]
+
+output spokeResourceGroups array = [for (name, i) in spokes: {
+  name: spokeResourceGroup[i].name
+  id: spokeResourceGroup[i].outputs.id
+}]
 
 //// logging
 
@@ -60,13 +124,13 @@ module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
     workspaceCappingDailyQuotaGb: logAnalyticsWorkspaceCappingDailyQuotaGb
   }
   dependsOn: [
-    operationsResourceGroup
+    spokeResourceGroup
   ]
 }
 
 //// hub and spoke
 
-module hub './modules/hubNetwork.bicep' = {
+module hubNetwork './modules/hubNetwork.bicep' = {
   name: 'deploy-hub-${nowUtc}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
@@ -121,113 +185,60 @@ module hub './modules/hubNetwork.bicep' = {
   }
 }
 
-module identity './modules/spokeNetwork.bicep' = {
-  name: 'deploy-identity-spoke-${nowUtc}'
-  scope: resourceGroup(identitySubscriptionId, identityResourceGroupName)
+module spokeNetwork './modules/spokeNetwork.bicep' = [ for spoke in spokes: {
+  name: 'deploy-${spoke.virtualNetworkName}-${nowUtc}'
+  scope: resourceGroup(spoke.subscription, spoke.resourceGroupName)
   params: {
-    location: identityLocation
+    location: spoke.location
     tags: tags
 
-    logStorageAccountName: identityLogStorageAccountName
-    logStorageSkuName: identityLogStorageSkuName
+    logStorageAccountName: spoke.logStorageAccountName
+    logStorageSkuName: spoke.logStorageSkuName
 
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
 
-    firewallPrivateIPAddress: hub.outputs.firewallPrivateIPAddress
+    firewallPrivateIPAddress: hubNetwork.outputs.firewallPrivateIPAddress
 
-    virtualNetworkName: identityVirtualNetworkName
-    virtualNetworkAddressPrefix: identityVirtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: identityVirtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: identityVirtualNetworkDiagnosticsMetrics
+    virtualNetworkName: spoke.virtualNetworkName
+    virtualNetworkAddressPrefix: spoke.virtualNetworkAddressPrefix
+    virtualNetworkDiagnosticsLogs: spoke.virtualNetworkDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: spoke.virtualNetworkDiagnosticsMetrics
 
-    networkSecurityGroupName: identityNetworkSecurityGroupName
-    networkSecurityGroupRules: identityNetworkSecurityGroupRules
-    networkSecurityGroupDiagnosticsLogs: identityNetworkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
+    networkSecurityGroupName: spoke.networkSecurityGroupName
+    networkSecurityGroupRules: spoke.networkSecurityGroupRules
+    networkSecurityGroupDiagnosticsLogs: spoke.networkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: spoke.networkSecurityGroupDiagnosticsMetrics
 
-    subnetName: identitySubnetName
-    subnetAddressPrefix: identitySubnetAddressPrefix
-    subnetServiceEndpoints: identitySubnetServiceEndpoints
+    subnetName: spoke.subnetName
+    subnetAddressPrefix: spoke.subnetAddressPrefix
+    subnetServiceEndpoints: spoke.subnetServiceEndpoints
   }
-}
+}]
 
-module operations './modules/spokeNetwork.bicep' = {
-  name: 'deploy-operations-spoke-${nowUtc}'
-  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
-  params: {
-    location: operationsLocation
-    tags: tags
+output spokeNetworks array = [ for spoke in spokeNetwork: {
 
-    logStorageAccountName: operationsLogStorageAccountName
-    logStorageSkuName: operationsLogStorageSkuName
-
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
-
-    firewallPrivateIPAddress: hub.outputs.firewallPrivateIPAddress
-
-    virtualNetworkName: operationsVirtualNetworkName
-    virtualNetworkAddressPrefix: operationsVirtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: operationsVirtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: operationsVirtualNetworkDiagnosticsMetrics
-
-    networkSecurityGroupName: operationsNetworkSecurityGroupName
-    networkSecurityGroupRules: operationsNetworkSecurityGroupRules
-    networkSecurityGroupDiagnosticsLogs: operationsNetworkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: operationsNetworkSecurityGroupDiagnosticsMetrics
-
-    subnetName: operationsSubnetName
-    subnetAddressPrefix: operationsSubnetAddressPrefix
-    subnetServiceEndpoints: operationsSubnetServiceEndpoints
-  }
-}
-
-module sharedServices './modules/spokeNetwork.bicep' = {
-  name: 'deploy-sharedServices-spoke-${nowUtc}'
-  scope: resourceGroup(sharedServicesSubscriptionId, sharedServicesResourceGroupName)
-  params: {
-    location: sharedServicesLocation
-    tags: tags
-
-    logStorageAccountName: sharedServicesLogStorageAccountName
-    logStorageSkuName: sharedServicesLogStorageSkuName
-
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
-
-    firewallPrivateIPAddress: hub.outputs.firewallPrivateIPAddress
-
-    virtualNetworkName: sharedServicesVirtualNetworkName
-    virtualNetworkAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: sharedServicesVirtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: sharedServicesVirtualNetworkDiagnosticsMetrics
-
-    networkSecurityGroupName: sharedServicesNetworkSecurityGroupName
-    networkSecurityGroupRules: sharedServicesNetworkSecurityGroupRules
-    networkSecurityGroupDiagnosticsLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: sharedServicesNetworkSecurityGroupDiagnosticsMetrics
-
-    subnetName: sharedServicesSubnetName
-    subnetAddressPrefix: sharedServicesSubnetAddressPrefix
-    subnetServiceEndpoints: sharedServicesSubnetServiceEndpoints
-  }
-}
-
+}]
 //// peering
 
 module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
   name: 'deploy-hub-peerings-${nowUtc}'
   scope: subscription(hubSubscriptionId)
   params: {
-    hubResourceGroupName: hubResourceGroup.outputs.name
+    hubResourceGroupName: hubResourceGroupName
     hubVirtualNetworkName: hub.outputs.virtualNetworkName
 
-    identityVirtualNetworkName: identity.outputs.virtualNetworkName
-    operationsVirtualNetworkName: operations.outputs.virtualNetworkName
-    sharedServicesVirtualNetworkName: sharedServices.outputs.virtualNetworkName
+    identityVirtualNetworkName: identityVirtualNetworkName
+    operationsVirtualNetworkName: operationsVirtualNetworkName
+    sharedServicesVirtualNetworkName: sharedServicesVirtualNetworkName
 
     identityVirtualNetworkResourceId: identity.outputs.virtualNetworkResourceId
     operationsVirtualNetworkResourceId: operations.outputs.virtualNetworkResourceId
     sharedServicesVirtualNetworkResourceId: sharedServices.outputs.virtualNetworkResourceId
   }
+  dependsOn: [
+    hub
+    spokes
+  ]
 }
 
 module identityVirtualNetworkPeering './modules/spokeNetworkPeering.bicep' = {
@@ -268,49 +279,18 @@ module sharedServicesVirtualNetworkPeering './modules/spokeNetworkPeering.bicep'
 
 //// policy
 
-module hubPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'assign-policy-hub-${nowUtc}'
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+module policyAssignment './modules/policyAssignment.bicep' = [ for resourceGroup in resourceGroups: if(deployPolicy) {
+  name: 'assign-policy-${resourceGroup.name}-${nowUtc}'
+  scope: resourceGroup(resourceGroup.subscription, resourceGroup.name)
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
     operationsSubscriptionId: operationsSubscriptionId
   }
-}
+}]
 
-module operationsPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'assign-policy-operations-${nowUtc}'
-  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
-  params: {
-    builtInAssignment: policy
-    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
-    operationsSubscriptionId: operationsSubscriptionId
-  }
-}
-
-module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'assign-policy-sharedServices-${nowUtc}'
-  scope: resourceGroup(sharedServicesSubscriptionId, sharedServicesResourceGroupName)
-  params: {
-    builtInAssignment: policy
-    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
-    operationsSubscriptionId: operationsSubscriptionId
-  }
-}
-
-module identityPolicyAssignment './modules/policyAssignment.bicep' = {
-  name: 'assign-policy-identity-${nowUtc}'
-  scope: resourceGroup(identitySubscriptionId, identityResourceGroupName)
-  params: {
-    builtInAssignment: policy
-    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    logAnalyticsWorkspaceResourceGroupName: operationsResourceGroup.outputs.name
-    operationsSubscriptionId: operationsSubscriptionId
-  }
-}
+// central logging
 
 module hubSubscriptionCreateActivityLogging './modules/centralLogging.bicep' = {
   name: 'activity-logs-hub-${nowUtc}'
@@ -648,12 +628,12 @@ param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
 
 @allowed([
   'NIST'
-  'IL5' // Gov cloud only, trying to deploy IL5 in AzureCloud will switch to NIST
+  'IL5' // AzureUsGovernment only, trying to deploy IL5 in AzureCloud will switch to NIST
   'CMMC'
-  ''
 ])
-@description('Built-in policy assignments to assign, default is none. [NIST/IL5/CMMC] IL5 is only availalbe for GOV cloud and will switch to NIST if tried in AzureCloud.')
-param policy string = ''
+@description('[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only availalbe for GOV cloud and will switch to NIST if tried in AzureCloud.')
+param policy string = 'NIST'
+param deployPolicy bool = false
 
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string = ''
