@@ -106,7 +106,6 @@ resource lock 'Microsoft.Authorization/locks@2016-09-01' = if (enableDeleteLock)
   }
 }
 
-
 output id string = logAnalyticsWorkspace.id
 output name string = logAnalyticsWorkspace.name
-
+output resourceGroupName string = resourceGroup().name
