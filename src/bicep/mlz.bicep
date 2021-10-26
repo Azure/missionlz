@@ -102,7 +102,7 @@ module hubNetwork './modules/hubNetwork.bicep' = {
 
 module spokeNetworks './modules/spokeNetwork.bicep' = [ for spoke in spokes: {
   name: 'deploy-vnet-${spoke.type}-${nowUtc}'
-  scope: resourceGroup(spoke.subscription, spoke.resourceGroupName)
+  scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
     location: spoke.location
     tags: tags
@@ -134,13 +134,12 @@ module spokeNetworks './modules/spokeNetwork.bicep' = [ for spoke in spokes: {
 
 module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
   name: 'deploy-vnet-peerings-hub-${nowUtc}'
-  scope: subscription(hubSubscriptionId)
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
-    hubResourceGroupName: hubResourceGroupName
     hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
-    spokeNetworks: [ for (spoke, i) in spokes: {
+    spokes: [ for (spoke, i) in spokes: {
       type: spoke.type
-      name: spokeNetworks[i].outputs.virtualNetworkName
+      virtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
       virtualNetworkResourceId: spokeNetworks[i].outputs.virtualNetworkResourceId
     }]
   }
@@ -150,6 +149,7 @@ module spokeVirtualNetworkPeerings './modules/spokeNetworkPeering.bicep' = [ for
   name: 'deploy-vnet-peerings-${spoke.type}-${nowUtc}'
   scope: subscription(spoke.subscriptionId)
   params: {
+    spokeType: spoke.type
     spokeResourceGroupName: spoke.resourceGroupName
     spokeVirtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
     hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName

@@ -1,12 +1,8 @@
-targetScope = 'subscription'
-
-param hubResourceGroupName string
 param hubVirtualNetworkName string
-param spokeNetworks array
+param spokes array
 
-module hubToSpokePeering './virtualNetworkPeering.bicep' = [ for spoke in spokeNetworks: {
-  scope: resourceGroup(hubResourceGroupName)
-  name: 'hubTo${spoke.type}VirtualNetworkPeering'
+module hubToSpokePeering './virtualNetworkPeering.bicep' = [ for spoke in spokes: {
+  name: 'hub-to-${spoke.type}-vnet-peering'
   params: {
     name: '${hubVirtualNetworkName}/to-${spoke.virtualNetworkName}'
     remoteVirtualNetworkResourceId: spoke.virtualNetworkResourceId

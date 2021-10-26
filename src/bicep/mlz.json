@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "15239738373058366803"
+      "templateHash": "16140145053270604410"
     }
   },
   "parameters": {
@@ -3366,16 +3366,13 @@
       "apiVersion": "2020-06-01",
       "name": "[format('deploy-vnet-peerings-hub-{0}', parameters('nowUtc'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
-      "location": "[deployment().location]",
+      "resourceGroup": "[parameters('hubResourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
         },
         "mode": "Incremental",
         "parameters": {
-          "hubResourceGroupName": {
-            "value": "[parameters('hubResourceGroupName')]"
-          },
           "hubVirtualNetworkName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkName.value]"
           },
@@ -3384,25 +3381,22 @@
               {
                 "name": "value",
                 "count": "[length(variables('spokes'))]",
-                "input": "[createObject('type', variables('spokes')[copyIndex('value')].type, 'name', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex('value')].subscription, variables('spokes')[copyIndex('value')].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex('value')].type, parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkName.value, 'virtualNetworkResourceId', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex('value')].subscription, variables('spokes')[copyIndex('value')].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex('value')].type, parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkResourceId.value)]"
+                "input": "[createObject('type', variables('spokes')[copyIndex('value')].type, 'virtualNetworkName', variables('spokes')[copyIndex('value')].virtualNetworkName, 'virtualNetworkResourceId', resourceId(variables('spokes')[copyIndex('value')].subscriptionId, variables('spokes')[copyIndex('value')].resourceGroupName, 'Microsoft.Network/virtualNetworks@2021-02-01', variables('spokes')[copyIndex('value')].virtualNetworkName))]"
               }
             ]
           }
         },
         "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "4265705882628417745"
+              "templateHash": "5598014082902284098"
             }
           },
           "parameters": {
-            "hubResourceGroupName": {
-              "type": "string"
-            },
             "hubVirtualNetworkName": {
               "type": "string"
             },
@@ -3420,7 +3414,6 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-06-01",
               "name": "[format('hubTo{0}VirtualNetworkPeering', parameters('spokeNetworks')[copyIndex()].type)]",
-              "resourceGroup": "[parameters('hubResourceGroupName')]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
