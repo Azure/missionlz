@@ -3,6 +3,7 @@ param location string = resourceGroup().location
 param hubVirtualNetworkName string
 param hubSubnetResourceId string
 param hubNetworkSecurityGroupResourceId string
+param logAnalyticsWorkspaceResourceId string
 
 param bastionHostName string = 'bastionHost'
 param bastionHostSubnetAddressPrefix string = '10.0.100.160/27'
@@ -99,5 +100,7 @@ module remoteAccess '../../modules/remoteAccess.bicep' = {
     windowsVmVersion: windowsVmVersion
     windowsVmCreateOption: windowsVmCreateOption
     windowsVmStorageAccountType: windowsVmStorageAccountType
+
+    logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
   }
 }

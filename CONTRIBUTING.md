@@ -136,8 +136,21 @@ The product owner is responsible for ensuring that the backlog items are priorit
 
 The product owner is responsible for ensuring that enough architecture documentation exists for the development team and stakeholders. Developing the architecture is a collaborative effort with the rest of the team. Any team member may contribute to the architecture, and some issues may be added to the backlog for discovery and testing in order to determine the elements of the architecture.
 
+### Releases
+
 #### Release Definition
 
 The product owner defines the releases in the form of GitHub projects. One release is defined per month. Each release has one or more themes. The themes are reviewed and agreed upon by the team during the weekly planning meeting.
+
+#### Creating a Release
+
+1. On the [Releases](https://github.com/Azure/missionlz/releases) page, click the button titled "Draft a new release".
+1. Click "Choose a tag", and type in a new tag name using the naming convention of "v\<year\>.\<month\>.\<revision\>". For example, `v2021.09.0`. (If this is an interim release, like a bug fix release, use the previous build label and add a revision number, like `v2021.09.1`.)
+1. Click the "+ Create new tag" button.
+1. Provide a title using this naming convention: "MLZ - \<build tag\>". For example, "MLZ - v2021.09.0".
+1. Click the button to auto-generate release notes, which will populate the description box with the titles of all pull requests merged to main.
+1. Edit the release notes for consistency, e.g., normalizing verb tense and capitalization.
+1. Add a summary description at the top of the release notes.
+1. Click the "Save draft" button to generate a draft release, or click "Publish release" if you are ready to publish.
 
 **Thank You!** - Your contributions to open source, large or small, make projects like this possible. Thank you for taking the time to contribute.

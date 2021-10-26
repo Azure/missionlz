@@ -15,6 +15,12 @@ param managementIpConfigurationPublicIPAddressResourceId string
 
 param firewallPolicyName string
 
+param logStorageAccountResourceId string
+param logAnalyticsWorkspaceResourceId string
+
+param logs array
+param metrics array
+
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   name: firewallPolicyName
   location: location
@@ -27,11 +33,101 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   }
 }
 
+resource firewallAppRuleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-02-01' = {
+  name: '${firewallPolicyName}/DefaultApplicationRuleCollectionGroup'
+  dependsOn: [
+    firewallPolicy
+  ]
+  properties: {
+    priority: 300
+    ruleCollections: [
+      {
+        ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+        action: {
+          type: 'Allow'
+        }
+        rules: [
+          {
+            ruleType: 'ApplicationRule'
+            name: 'msftauth'
+            protocols: [
+              {
+                protocolType: 'Https'
+                port: 443
+              }
+            ]
+            fqdnTags: []
+            webCategories: []
+            targetFqdns: [
+              'aadcdn.msftauth.net'
+              'aadcdn.msauth.net'
+            ]
+            targetUrls: []
+            terminateTLS: false
+            sourceAddresses: [
+              '*'
+            ]
+            destinationAddresses: []
+            sourceIpGroups: []
+          }
+        ]
+        name: 'AzureAuth'
+        priority: 110
+      }
+    ]
+  }
+}
+
+resource firewallNetworkRuleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-02-01' = {
+  name: '${firewallPolicyName}/DefaultNetworkRuleCollectionGroup'
+  dependsOn: [
+    firewallPolicy
+    firewallAppRuleCollectionGroup
+  ]
+  properties: {
+    priority: 200
+    ruleCollections: [
+      {
+        ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+        action: {
+          type: 'Allow'
+        }
+        rules: [
+          {
+            ruleType: 'NetworkRule'
+            name: 'AzureCloud'
+            ipProtocols: [
+              'Any'
+            ]
+            sourceAddresses: [
+              '*'
+            ]
+            sourceIpGroups: []
+            destinationAddresses: [
+              'AzureCloud'
+            ]
+            destinationIpGroups: []
+            destinationFqdns: []
+            destinationPorts: [
+              '*'
+            ]
+          }
+        ]
+        name: 'AllowAzureCloud'
+        priority: 100
+      }
+    ]
+  }
+}
+
 resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' = {
   name: name
   location: location
   tags: tags
-
+  dependsOn: [
+    firewallNetworkRuleCollectionGroup
+    firewallAppRuleCollectionGroup
+  ]
   properties: {
     ipConfigurations: [
       {
@@ -63,6 +159,17 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' = {
     sku: {
       tier: skuTier
     }
+  }
+}
+
+resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
+  scope: firewall
+  name: '${firewall.name}-diagnostics'
+  properties: {
+    storageAccountId: logStorageAccountResourceId
+    workspaceId: logAnalyticsWorkspaceResourceId
+    logs: logs
+    metrics: metrics
   }
 }
 
