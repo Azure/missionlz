@@ -24,6 +24,17 @@ param virtualNetworkDiagnosticsMetrics array = []
 
 param networkSecurityGroupName string = '${workloadName}-nsg'
 param networkSecurityGroupRules array = []
+param networkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+param networkSecurityGroupDiagnosticsMetrics array = []
 
 param subnetName string = '${workloadName}-subnet'
 param subnetAddressPrefix string = '10.0.125.0/27'
@@ -60,6 +71,8 @@ module spokeNetwork '../../modules/spokeNetwork.bicep' = {
 
     networkSecurityGroupName: networkSecurityGroupName
     networkSecurityGroupRules: networkSecurityGroupRules
+    networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
 
     subnetName: subnetName
     subnetAddressPrefix: subnetAddressPrefix
