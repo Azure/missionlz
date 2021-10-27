@@ -15,7 +15,7 @@ module hubResourceGroup './modules/resourceGroup.bicep' = {
 }
 
 module spokeResourceGroups './modules/resourceGroup.bicep' = [for spoke in spokes: {
-  name: 'deploy-rg-${spoke.type}-${nowUtc}'
+  name: 'deploy-rg-${spoke.name}-${nowUtc}'
   scope: subscription(spoke.subscriptionId)
   params: {
     name: spoke.resourceGroupName
@@ -101,7 +101,7 @@ module hubNetwork './modules/hubNetwork.bicep' = {
 }
 
 module spokeNetworks './modules/spokeNetwork.bicep' = [ for spoke in spokes: {
-  name: 'deploy-vnet-${spoke.type}-${nowUtc}'
+  name: 'deploy-vnet-${spoke.name}-${nowUtc}'
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
     location: spoke.location
@@ -138,7 +138,7 @@ module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
   params: {
     hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
     spokes: [ for (spoke, i) in spokes: {
-      type: spoke.type
+      type: spoke.name
       virtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
       virtualNetworkResourceId: spokeNetworks[i].outputs.virtualNetworkResourceId
     }]
@@ -146,10 +146,10 @@ module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
 }
 
 module spokeVirtualNetworkPeerings './modules/spokeNetworkPeering.bicep' = [ for (spoke, i) in spokes: {
-  name: 'deploy-vnet-peerings-${spoke.type}-${nowUtc}'
+  name: 'deploy-vnet-peerings-${spoke.name}-${nowUtc}'
   scope: subscription(spoke.subscriptionId)
   params: {
-    spokeType: spoke.type
+    spokeType: spoke.name
     spokeResourceGroupName: spoke.resourceGroupName
     spokeVirtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
     hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
@@ -170,8 +170,8 @@ module hubPolicyAssignment './modules/policyAssignment.bicep' = if(deployPolicy)
   }
 }
 
-module spokePolicyAssignment './modules/policyAssignment.bicep' = [ for spoke in spokes: if(deployPolicy) {
-  name: 'assign-policy-${spoke.type}-${nowUtc}'
+module spokePolicyAssignments './modules/policyAssignment.bicep' = [ for spoke in spokes: if(deployPolicy) {
+  name: 'assign-policy-${spoke.name}-${nowUtc}'
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
     builtInAssignment: policy
@@ -196,10 +196,10 @@ module hubSubscriptionActivityLogging './modules/centralLogging.bicep' = {
 }
 
 module spokeSubscriptionActivityLogging './modules/centralLogging.bicep' = [ for spoke in spokes: if(spoke.subscriptionId != hubSubscriptionId) {
-  name: 'activity-logs-${spoke.type}-${nowUtc}'
+  name: 'activity-logs-${spoke.name}-${nowUtc}'
   scope: subscription(spoke.subscriptionId)
   params: {
-    diagnosticSettingName: 'log-${spoke.type}-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
+    diagnosticSettingName: 'log-${spoke.name}-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
   }
   dependsOn: [
@@ -235,7 +235,7 @@ module hubSecurityCenter './modules/securityCenter.bicep' = if(deployASC) {
 }
 
 module spokeSecurityCenter './modules/securityCenter.bicep' = [ for spoke in spokes: if( (deployASC) && (spoke.subscriptionId != hubSubscriptionId) ) {
-  name: 'set-${spoke.type}-sub-security-center'
+  name: 'set-${spoke.name}-sub-security-center'
   scope: subscription(operationsSubscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
@@ -556,7 +556,7 @@ param nowUtc string = utcNow()
 
 var spokes = [
   {
-    type: 'operations'
+    name: 'operations'
     subscriptionId: operationsSubscriptionId
     resourceGroupName: operationsResourceGroupName
     location: operationsLocation
@@ -575,7 +575,7 @@ var spokes = [
     subnetServiceEndpoints: operationsSubnetServiceEndpoints
   }
   {
-    type: 'identity'
+    name: 'identity'
     subscriptionId: identitySubscriptionId
     resourceGroupName: identityResourceGroupName
     location: identityLocation
@@ -594,7 +594,7 @@ var spokes = [
     subnetServiceEndpoints: identitySubnetServiceEndpoints
   }
   {
-    type: 'sharedServices'
+    name: 'sharedServices'
     subscriptionId: sharedServicesSubscriptionId
     resourceGroupName: sharedServicesResourceGroupName
     location: sharedServicesLocation
@@ -616,51 +616,33 @@ var spokes = [
 
 // outputs
 
-output hubSubscriptionId string = hubSubscriptionId
-output hubResourceGroupName string = hubResourceGroup.outputs.name
-output hubResourceGroupResourceId string = hubResourceGroup.outputs.id
-output hubVirtualNetworkName string = hubVirtualNetworkName
-output hubVirtualNetworkResourceId string = hubNetwork.outputs.virtualNetworkResourceId
-output hubSubnetName string = hubNetwork.outputs.subnetName
-output hubSubnetResourceId string = hubNetwork.outputs.subnetResourceId
-output hubSubnetAddressPrefix string = hubNetwork.outputs.subnetAddressPrefix
-output hubNetworkSecurityGroupName string = hubNetwork.outputs.networkSecurityGroupName
-output hubNetworkSecurityGroupResourceId string = hubNetwork.outputs.networkSecurityGroupResourceId
-output hubFirewallPrivateIPAddress string = hubNetwork.outputs.firewallPrivateIPAddress
+output hub object = {
+  subscriptionId: hubSubscriptionId
+  resourceGroupName: hubResourceGroup.outputs.name
+  resourceGroupResourceId: hubResourceGroup.outputs.id
+  virtualNetworkName: hubNetwork.outputs.virtualNetworkName
+  virtualNetworkResourceId: hubNetwork.outputs.virtualNetworkResourceId
+  subnetName: hubNetwork.outputs.subnetName
+  subnetResourceId: hubNetwork.outputs.subnetResourceId
+  subnetAddressPrefix: hubNetwork.outputs.subnetAddressPrefix
+  networkSecurityGroupName: hubNetwork.outputs.networkSecurityGroupName
+  networkSecurityGroupResourceId: hubNetwork.outputs.networkSecurityGroupResourceId
+  firewallPrivateIPAddress: hubNetwork.outputs.firewallPrivateIPAddress
+}
+
+output spokes array = [for (spoke, i) in spokes: {
+  name: spoke.name
+  subscriptionId: spoke.subscriptionId
+  resourceGroupName: spokeResourceGroups[i].outputs.name
+  resourceGroupId: spokeResourceGroups[i].outputs.id
+  virtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
+  virtualNetworkResourceId: spokeNetworks[i].outputs.virtualNetworkResourceId
+  subnetName: spokeNetworks[i].outputs.subnetName
+  subnetAddressPrefix: spokeNetworks[i].outputs.subnetAddressPrefix
+  networkSecurityGroupName: spokeNetworks[i].outputs.networkSecurityGroupName
+  networkSecurityGroupResourceId: spokeNetworks[i].outputs.networkSecurityGroupResourceId
+}]
 
 output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.outputs.name
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.outputs.id
 output firewallPrivateIPAddress string = hubNetwork.outputs.firewallPrivateIPAddress
-
-output identitySubscriptionId string = identitySubscriptionId
-output identityResourceGroupName string = identityResourceGroupName
-output identityResourceGroupResourceId string = resourceId(identitySubscriptionId, identityResourceGroupName, 'Microsoft.Resource/resourceGroups', identityResourceGroupName)
-output identityVirtualNetworkName string = identityVirtualNetworkName
-output identityVirtualNetworkResourceId string = resourceId(identitySubscriptionId, identityResourceGroupName, 'Microsoft.Network/virtualNetworks', identityVirtualNetworkName)
-output identitySubnetName string = identitySubnetName
-output identitySubnetResourceId string = resourceId(identitySubscriptionId, identityResourceGroupName, 'Microsoft.Network/Virtualnetworks/subnets', '${identityVirtualNetworkName}/${identitySubnetName}')
-output identitySubnetAddressPrefix string = identitySubnetAddressPrefix
-output identityNetworkSecurityGroupName string = identityNetworkSecurityGroupName
-output identityNetworkSecurityGroupResourceId string = resourceId(identitySubscriptionId, identityResourceGroupName, 'Microsoft.Network/networkSecurityGroups', identityNetworkSecurityGroupName)
-
-output operationsSubscriptionId string = operationsSubscriptionId
-output operationsResourceGroupName string = operationsResourceGroupName
-output operationsResourceGroupResourceId string = resourceId(operationsSubscriptionId, operationsResourceGroupName, 'Microsoft.Resource/resourceGroups', operationsResourceGroupName)
-output operationsVirtualNetworkName string = operationsVirtualNetworkName
-output operationsVirtualNetworkResourceId string = resourceId(operationsSubscriptionId, operationsResourceGroupName, 'Microsoft.Network/virtualNetworks', operationsVirtualNetworkName)
-output operationsSubnetName string = operationsSubnetName
-output operationsSubnetResourceId string = resourceId(operationsSubscriptionId, operationsResourceGroupName, 'Microsoft.Network/Virtualnetworks/subnets', '${operationsVirtualNetworkName}/${operationsSubnetName}')
-output operationsSubnetAddressPrefix string = operationsSubnetAddressPrefix
-output operationsNetworkSecurityGroupName string = operationsNetworkSecurityGroupName
-output operationsNetworkSecurityGroupResourceId string = resourceId(operationsSubscriptionId, operationsResourceGroupName, 'Microsoft.Network/networkSecurityGroups', operationsNetworkSecurityGroupName)
-
-output sharedServicesSubscriptionId string = sharedServicesSubscriptionId
-output sharedServicesResourceGroupName string = sharedServicesResourceGroupName
-output sharedServicesResourceGroupResourceId string = resourceId(sharedServicesSubscriptionId, sharedServicesResourceGroupName, 'Microsoft.Resource/resourceGroups', sharedServicesResourceGroupName)
-output sharedServicesVirtualNetworkName string = sharedServicesVirtualNetworkName
-output sharedServicesVirtualNetworkResourceId string = resourceId(sharedServicesSubscriptionId, sharedServicesResourceGroupName, 'Microsoft.Network/virtualNetworks', sharedServicesVirtualNetworkName)
-output sharedServicesSubnetName string = sharedServicesSubnetName
-output sharedServicesSubnetResourceId string = resourceId(sharedServicesSubscriptionId, sharedServicesResourceGroupName, 'Microsoft.Network/Virtualnetworks/subnets', '${sharedServicesVirtualNetworkName}/${sharedServicesSubnetName}')
-output sharedServicesSubnetAddressPrefix string = sharedServicesSubnetAddressPrefix
-output sharedServicesNetworkSecurityGroupName string = sharedServicesNetworkSecurityGroupName
-output sharedServicesNetworkSecurityGroupResourceId string = resourceId(sharedServicesSubscriptionId, sharedServicesResourceGroupName, 'Microsoft.Network/networkSecurityGroups', sharedServicesNetworkSecurityGroupName)
