@@ -268,7 +268,7 @@ module sharedServicesVirtualNetworkPeering './modules/spokeNetworkPeering.bicep'
 
 //// policy
 
-module hubPolicyAssignment './modules/policyAssignment.bicep' = {
+module hubPolicyAssignment './modules/policyAssignment.bicep' = if(deployPolicy) {
   name: 'assign-policy-hub-${nowUtc}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
@@ -279,7 +279,7 @@ module hubPolicyAssignment './modules/policyAssignment.bicep' = {
   }
 }
 
-module operationsPolicyAssignment './modules/policyAssignment.bicep' = {
+module operationsPolicyAssignment './modules/policyAssignment.bicep' = if(deployPolicy) {
   name: 'assign-policy-operations-${nowUtc}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
@@ -290,7 +290,7 @@ module operationsPolicyAssignment './modules/policyAssignment.bicep' = {
   }
 }
 
-module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = {
+module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = if(deployPolicy) {
   name: 'assign-policy-sharedServices-${nowUtc}'
   scope: resourceGroup(sharedServicesSubscriptionId, sharedServicesResourceGroupName)
   params: {
@@ -301,7 +301,7 @@ module sharedServicesPolicyAssignment './modules/policyAssignment.bicep' = {
   }
 }
 
-module identityPolicyAssignment './modules/policyAssignment.bicep' = {
+module identityPolicyAssignment './modules/policyAssignment.bicep' = if(deployPolicy) {
   name: 'assign-policy-identity-${nowUtc}'
   scope: resourceGroup(identitySubscriptionId, identityResourceGroupName)
   params: {
@@ -648,12 +648,12 @@ param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
 
 @allowed([
   'NIST'
-  'IL5' // Gov cloud only, trying to deploy IL5 in AzureCloud will switch to NIST
+  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NIST
   'CMMC'
-  ''
 ])
-@description('Built-in policy assignments to assign, default is none. [NIST/IL5/CMMC] IL5 is only availalbe for GOV cloud and will switch to NIST if tried in AzureCloud.')
-param policy string = ''
+@description('[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only availalbe for AzureUsGovernment and will switch to NIST if tried in AzureCloud.')
+param policy string = 'NIST'
+param deployPolicy bool = false
 
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string = ''

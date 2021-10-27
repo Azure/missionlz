@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "17543931080454177897"
+      "templateHash": "2567988781251247508"
     }
   },
   "parameters": {
@@ -466,16 +466,19 @@
     },
     "policy": {
       "type": "string",
-      "defaultValue": "",
+      "defaultValue": "NIST",
       "metadata": {
-        "description": "Built-in policy assignments to assign, default is none. [NIST/IL5/CMMC] IL5 is only availalbe for GOV cloud and will switch to NIST if tried in AzureCloud."
+        "description": "[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only availalbe for AzureUsGovernment and will switch to NIST if tried in AzureCloud."
       },
       "allowedValues": [
         "NIST",
         "IL5",
-        "CMMC",
-        ""
+        "CMMC"
       ]
+    },
+    "deployPolicy": {
+      "type": "bool",
+      "defaultValue": false
     },
     "emailSecurityContact": {
       "type": "string",
@@ -5243,6 +5246,7 @@
       ]
     },
     {
+      "condition": "[parameters('deployPolicy')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "[format('assign-policy-hub-{0}', parameters('nowUtc'))]",
@@ -5274,13 +5278,21 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "943351948581975691"
+              "templateHash": "15253340858169279894"
             }
           },
           "parameters": {
             "builtInAssignment": {
               "type": "string",
-              "defaultValue": ""
+              "defaultValue": "NIST",
+              "metadata": {
+                "description": "[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only availalbe for AzureUsGovernment and will switch to NIST if tried in AzureCloud."
+              },
+              "allowedValues": [
+                "NIST",
+                "IL5",
+                "CMMC"
+              ]
             },
             "logAnalyticsWorkspaceName": {
               "type": "string"
@@ -5502,6 +5514,7 @@
       ]
     },
     {
+      "condition": "[parameters('deployPolicy')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "[format('assign-policy-operations-{0}', parameters('nowUtc'))]",
@@ -5533,13 +5546,21 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "943351948581975691"
+              "templateHash": "15253340858169279894"
             }
           },
           "parameters": {
             "builtInAssignment": {
               "type": "string",
-              "defaultValue": ""
+              "defaultValue": "NIST",
+              "metadata": {
+                "description": "[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only availalbe for AzureUsGovernment and will switch to NIST if tried in AzureCloud."
+              },
+              "allowedValues": [
+                "NIST",
+                "IL5",
+                "CMMC"
+              ]
             },
             "logAnalyticsWorkspaceName": {
               "type": "string"
@@ -5761,6 +5782,7 @@
       ]
     },
     {
+      "condition": "[parameters('deployPolicy')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "[format('assign-policy-sharedServices-{0}', parameters('nowUtc'))]",
@@ -5792,13 +5814,21 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "943351948581975691"
+              "templateHash": "15253340858169279894"
             }
           },
           "parameters": {
             "builtInAssignment": {
               "type": "string",
-              "defaultValue": ""
+              "defaultValue": "NIST",
+              "metadata": {
+                "description": "[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only availalbe for AzureUsGovernment and will switch to NIST if tried in AzureCloud."
+              },
+              "allowedValues": [
+                "NIST",
+                "IL5",
+                "CMMC"
+              ]
             },
             "logAnalyticsWorkspaceName": {
               "type": "string"
@@ -6020,6 +6050,7 @@
       ]
     },
     {
+      "condition": "[parameters('deployPolicy')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "[format('assign-policy-identity-{0}', parameters('nowUtc'))]",
@@ -6051,13 +6082,21 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "943351948581975691"
+              "templateHash": "15253340858169279894"
             }
           },
           "parameters": {
             "builtInAssignment": {
               "type": "string",
-              "defaultValue": ""
+              "defaultValue": "NIST",
+              "metadata": {
+                "description": "[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only availalbe for AzureUsGovernment and will switch to NIST if tried in AzureCloud."
+              },
+              "allowedValues": [
+                "NIST",
+                "IL5",
+                "CMMC"
+              ]
             },
             "logAnalyticsWorkspaceName": {
               "type": "string"
