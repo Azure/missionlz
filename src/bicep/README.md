@@ -132,16 +132,19 @@ az deployment sub create \
 
 ## Adding Azure Policy
 
-To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the `policy` parameter with one of the following, NIST, IL5 or CMMC. For example deploying with MLZ:
+To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the `deployPolicy=true` parameter with `policy` assigned to one of the following: `NIST`, `IL5`, or `CMMC`.
+
+For example, deploying with MLZ:
 
 ```plaintext
 az deployment sub create \
   --location eastus \
   --template-file mlz.bicep \
+  --parameters deployPolicy=true \
   --parameters policy=<one of 'CMMC', 'IL5', or 'NIST'>
 ```
 
-Or, apply policy after deploying MLZ:
+Or, apply policy to a resource group after deploying MLZ:
 
 ```plaintext
 az deployment group create \
@@ -161,7 +164,7 @@ Under the [modules/policies](modules/policies) directory are JSON files named fo
 
 By default [Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/security-center-introduction) offers a free set of monitoring capabilities that are enabled via an Azure policy when your first set up a subscription and view Azure Security Center portal blade.
 
-Azure Security Center offers a standard/defender sku which enables a greater depth of awareness including more reccomendations and threat analytics. You can enable this higher depth level of security in MLZ by setting the parameter `deployASC` during deployment. In addition you can include the `emailSecurityContact` parameter to set a contact email for alerts.  
+Azure Security Center offers a standard/defender sku which enables a greater depth of awareness including more reccomendations and threat analytics. You can enable this higher depth level of security in MLZ by setting the parameter `deployASC` during deployment. In addition you can include the `emailSecurityContact` parameter to set a contact email for alerts.
 
 ```plaintext
 az deployment sub create \
