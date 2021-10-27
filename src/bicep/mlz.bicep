@@ -616,6 +616,8 @@ var spokes = [
 
 // outputs
 
+output firewallPrivateIPAddress string = hubNetwork.outputs.firewallPrivateIPAddress
+
 output hub object = {
   subscriptionId: hubSubscriptionId
   resourceGroupName: hubResourceGroup.outputs.name
@@ -627,8 +629,11 @@ output hub object = {
   subnetAddressPrefix: hubNetwork.outputs.subnetAddressPrefix
   networkSecurityGroupName: hubNetwork.outputs.networkSecurityGroupName
   networkSecurityGroupResourceId: hubNetwork.outputs.networkSecurityGroupResourceId
-  firewallPrivateIPAddress: hubNetwork.outputs.firewallPrivateIPAddress
 }
+
+output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.outputs.name
+
+output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.outputs.id
 
 output spokes array = [for (spoke, i) in spokes: {
   name: spoke.name
@@ -638,11 +643,8 @@ output spokes array = [for (spoke, i) in spokes: {
   virtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
   virtualNetworkResourceId: spokeNetworks[i].outputs.virtualNetworkResourceId
   subnetName: spokeNetworks[i].outputs.subnetName
+  subnetResourceId: spokeNetworks[i].outputs.subnetResourceId
   subnetAddressPrefix: spokeNetworks[i].outputs.subnetAddressPrefix
   networkSecurityGroupName: spokeNetworks[i].outputs.networkSecurityGroupName
   networkSecurityGroupResourceId: spokeNetworks[i].outputs.networkSecurityGroupResourceId
 }]
-
-output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.outputs.name
-output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.outputs.id
-output firewallPrivateIPAddress string = hubNetwork.outputs.firewallPrivateIPAddress
