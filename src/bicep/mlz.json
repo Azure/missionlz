@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "10064184964306816737"
+      "templateHash": "2369337694531344795"
     }
   },
   "parameters": {
@@ -468,7 +468,7 @@
       "type": "string",
       "defaultValue": "NIST",
       "metadata": {
-        "description": "[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only availalbe for GOV cloud and will switch to NIST if tried in AzureCloud."
+        "description": "[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud."
       },
       "allowedValues": [
         "NIST",
@@ -3623,7 +3623,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "15589676685182392061"
+              "templateHash": "952073574871017813"
             }
           },
           "parameters": {
@@ -3631,7 +3631,7 @@
               "type": "string",
               "defaultValue": "NIST",
               "metadata": {
-                "description": "[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only availalbe for GOV cloud and will switch to NIST if tried in AzureCloud."
+                "description": "[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud."
               },
               "allowedValues": [
                 "NIST",
@@ -3892,7 +3892,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "15589676685182392061"
+              "templateHash": "952073574871017813"
             }
           },
           "parameters": {
@@ -3900,7 +3900,7 @@
               "type": "string",
               "defaultValue": "NIST",
               "metadata": {
-                "description": "[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only availalbe for GOV cloud and will switch to NIST if tried in AzureCloud."
+                "description": "[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud."
               },
               "allowedValues": [
                 "NIST",

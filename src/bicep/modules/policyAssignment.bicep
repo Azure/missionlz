@@ -1,9 +1,9 @@
 @allowed([
   'NIST'
-  'IL5' // AzureUsGovernment only, trying to deploy IL5 in AzureCloud will switch to NIST
+  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NIST
   'CMMC'
 ])
-@description('[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only availalbe for GOV cloud and will switch to NIST if tried in AzureCloud.')
+@description('[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.')
 param builtInAssignment string = 'NIST'
 param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceResourceGroupName string
