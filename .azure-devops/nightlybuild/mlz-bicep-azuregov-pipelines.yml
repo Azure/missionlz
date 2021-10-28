@@ -8,7 +8,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  GServiceConnectionName: $(GAzureConnection)
+  GServiceConnectionName: $(GovConnection)
   
 jobs:
 - job: bicepGovCloud
@@ -28,7 +28,7 @@ jobs:
     
   - task: AzureCLI@2
     inputs:
-      azureSubscription: 'GAzureConnection'
+      azureSubscription: $(GServiceConnectionName)
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az monitor diagnostic-settings subscription list --query "value[? contains(@.name, ''$1'')].name" -o table  |grep ''cicdbicep''| awk ''{system(" az monitor diagnostic-settings  delete  --resource  ''"/subscriptions/$(GSubId)"'' --name "$1)}'''
@@ -36,7 +36,7 @@ jobs:
   - task: AzureCLI@2
     displayName: "Cleanup Resources"
     inputs:
-      azureSubscription: 'GAzureConnection'
+      azureSubscription: $(GServiceConnectionName)
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az group list -o table | grep ''cicdbicep'' | awk ''{system("az group delete -y --no-wait -g "$1)}'''  
