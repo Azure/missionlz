@@ -8,7 +8,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  GServiceConnectionName: $(GovConnection)
+  GServiceConnectionName: $(GAzureConnection)
   
 jobs:
 - job: bicepGovCloud
