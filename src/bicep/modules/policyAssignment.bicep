@@ -1,4 +1,10 @@
-param builtInAssignment string = ''
+@allowed([
+  'NIST'
+  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NIST
+  'CMMC'
+])
+@description('[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only availalbe for AzureUsGovernment and will switch to NIST if tried in AzureCloud.')
+param builtInAssignment string = 'NIST'
 param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceResourceGroupName string
 param operationsSubscriptionId string
@@ -16,7 +22,7 @@ var policyDefinitionID = {
   NIST: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f'
     parameters: json(replace(loadTextContent('policies/NIST-policyAssignmentParameters.json'),'<LAWORKSPACE>', logAnalyticsWorkspace.id))
-  }  
+  }
   IL5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197'
     parameters: json(replace(loadTextContent('policies/IL5-policyAssignmentParameters.json'),'<LAWORKSPACE>', logAnalyticsWorkspace.id))
@@ -24,7 +30,7 @@ var policyDefinitionID = {
   CMMC: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de'
     parameters: json(replace(loadTextContent('policies/CMMC-policyAssignmentParameters.json'),'<LAWORKSPACE>', logAnalyticsWorkspace.properties.customerId))
-  }  
+  }
 }
 
 var modifiedAssignment = ( environment().name =~ 'AzureCloud' && builtInAssignment =~ 'IL5' ? 'NIST' : builtInAssignment )
@@ -34,7 +40,7 @@ var agentVmAssignmentName = 'Deploy VM Agents ${resourceGroup().name}'
 var contributorRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
 var lawsReaderRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', '92aaf0da-9dab-42b6-94a3-d43ce8d16293')
 
-// assign policy to resource group 
+// assign policy to resource group
 
 resource assignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = if (!empty(modifiedAssignment)){
   name: assignmentName
