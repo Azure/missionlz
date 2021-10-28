@@ -25,7 +25,6 @@ jobs:
           --location $(Location) \
           --template-file $(TemplateFile)\
           --parameters resourcePrefix="cicdbicep"
-    enabled: false
       
   - task: AzureCLI@2
     inputs:
