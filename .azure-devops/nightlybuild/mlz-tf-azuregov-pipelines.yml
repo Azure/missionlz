@@ -20,7 +20,7 @@ jobs:
      name: TerraformApplyGov
      displayName: "Deploy MLZ Terraform"
      inputs:
-            azureSubscription: 'GAzureConnection'
+            azureSubscription: $(GAzureConnection)
             scriptType: 'bash'
             addSpnToEnvironment: true
             scriptLocation: 'inlineScript'
@@ -40,7 +40,7 @@ jobs:
      name: TerraformTeardonwGov
      displayName: "Teardown MLZ Terraform"
      inputs:
-            azureSubscription: 'GAzureConnection'
+            azureSubscription: $(GAzureConnection)
             scriptType: 'bash'
             addSpnToEnvironment: true
             scriptLocation: 'inlineScript'
