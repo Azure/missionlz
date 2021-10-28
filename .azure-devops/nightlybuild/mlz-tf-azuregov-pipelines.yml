@@ -36,8 +36,7 @@ jobs:
                terraform plan  -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -input=false      
                terraform apply -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
-            useGlobalConfig: true        
-    
+            useGlobalConfig: true
      continueOnError: true
    - task: AzureCLI@2
      name: TerraformTeardonwGov
@@ -58,4 +57,3 @@ jobs:
                terraform destroy -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
             useGlobalConfig: true
-               
