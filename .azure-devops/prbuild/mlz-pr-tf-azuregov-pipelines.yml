@@ -1,0 +1,47 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- mlz-azure-pipelines
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  GServiceConnectionName: $(GAzureConnection)
+  
+jobs:
+ 
+- job: GovCloud_TF
+  steps:
+   - task: TerraformInstaller@0
+     inputs:
+        terraformVersion: '1.0.8'
+   - task: AzureCLI@2
+     name: TerraformApplyGov
+     displayName: "Deploy MLZ Terraform"
+     inputs:
+            azureSubscription: 'GAzureConnection'
+            scriptType: 'bash'
+            addSpnToEnvironment: true
+            scriptLocation: 'inlineScript'
+            inlineScript: |
+               export ARM_CLIENT_ID=$(GClientId) `
+               echo $ARM_CLIENT_ID `
+               export ARM_CLIENT_SECRET=$(GClientSecret) `
+               echo $ARM_CLIENT_SECRET `
+               export ARM_SUBSCRIPTION_ID=$(GSubId) `
+               echo $ARM_SUBSCRIPTION_ID `
+               export ARM_TENANT_ID=$(GTenantId) `
+               echo $ARM_TENANT_ID `
+               export ARM_ENVIRONMENT=$(CloudEnv) `
+               echo $ARM_ENVIRONMENT `
+               terraform init
+               terraform plan  -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost)  -var environment=$(CloudEnv)  -var location=$(GLocation) -input=false                     
+            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+            useGlobalConfig: true        
+
+
+   

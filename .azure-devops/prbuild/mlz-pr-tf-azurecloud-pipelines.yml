@@ -1,0 +1,43 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- mlz-azure-pipelines
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  ServiceConnectionName: $(CAzureConnection)
+  
+jobs:
+- job: CommercialCloud_TF
+  steps:
+  - task: TerraformInstaller@0
+    inputs:
+        terraformVersion: '1.0.8'
+  - task: AzureCLI@2
+    displayName: "Deploy MLZ Terraform"
+    inputs:
+            azureSubscription: 'CAzureConnection'
+            scriptType: 'bash'
+            scriptLocation: 'inlineScript'
+            addSpnToEnvironment: true
+            inlineScript: |
+               export ARM_CLIENT_ID=$(ClientId) `
+               echo $ARM_CLIENT_ID `
+               export ARM_CLIENT_SECRET=$(ClientSecret) `
+               echo $ARM_CLIENT_SECRET `
+               export ARM_SUBSCRIPTION_ID=$(subId) `
+               echo $ARM_SUBSCRIPTION_ID `
+               export ARM_TENANT_ID=$(tenantId) `
+               echo $ARM_TENANT_ID `              
+               terraform init         
+               terraform plan  -var "hub_subid=$(subid)"  -input=false      
+            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+            useGlobalConfig: true
+    
+
+   
