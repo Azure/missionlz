@@ -21,7 +21,7 @@ jobs:
   - task: AzureCLI@2
     displayName: "Deploy MLZ Terraform"
     inputs:
-            azureSubscription: 'CAzureConnection'
+            azureSubscription: $(CAzureConnection)
             scriptType: 'bash'
             scriptLocation: 'inlineScript'
             addSpnToEnvironment: true
