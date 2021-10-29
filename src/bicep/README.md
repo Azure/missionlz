@@ -260,7 +260,7 @@ Before giving this a try, it's probably a good idea to [review the Azure CLI's d
 
 First off, let's say you deployed Mission Landing Zone with a deployment name of `myMissionLandingZone`:
 
-```azcli
+```plaintext
 az deployment sub create \
   --name "myMissionLandingZone" \
   --location "East US" \
@@ -269,7 +269,7 @@ az deployment sub create \
 
 Once it's complete, you could see all the resources provisioned by that deployment querying the `properties.outputResources` property:
 
-```azcli
+```plaintext
 az deployment sub show \
   --name "myMissionLandingZone" \
   --query "properties.outputResources"
@@ -277,7 +277,7 @@ az deployment sub show \
 
 That's a lot of resources. Thankfully, the template produces outputs for just the things you probably need at `properties.outputs`:
 
-```azcli
+```plaintext
 az deployment sub show \
   --name "myMissionLandingZone" \
   --query "properties.outputs"
@@ -285,7 +285,7 @@ az deployment sub show \
 
 For example, if you need just the Firewall Private IP address you could retrieve it like this:
 
-```azcli
+```plaintext
 az deployment sub show \
   --name "myMissionLandingZone" \
   --query "properties.outputs.firewallPrivateIPAddress.value"
@@ -293,7 +293,7 @@ az deployment sub show \
 
 Or, if you need just the Log Analytics Workspace that performs central logging you could retrieve it like this:
 
-```azcli
+```plaintext
 az deployment sub show \
   --name "myMissionLandingZone" \
   --query "properties.outputs.logAnalyticsWorkspaceResourceId.value"
@@ -301,7 +301,7 @@ az deployment sub show \
 
 Or, say you wanted to deploy resources into the Identity spoke. You could retrieve information about the Identity spoke by querying it from the `properties.outputs.spokes` array like this:
 
-```azcli
+```plaintext
 az deployment sub show \
   --name "myMissionLandingZone" \
   --query "properties.outputs.spokes.value[?name=='identity']"
