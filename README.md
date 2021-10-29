@@ -99,3 +99,37 @@ trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
+
+<hr>
+<h1>Nightly Build Status</h1>
+
+<table>
+  <tr>
+    <td><b>Deployment Type<b>
+    </td>
+    <td> <b>Azure Cloud<b>
+    </td>
+    <td>
+      <b>Azure Government<b>
+    </td>
+  </tr>
+  <tr>
+    <td><b>bicep<b>
+    </td>
+    <td> <img src="https://dev.azure.com/AZGlobal/Azure%20Global%20CAT%20Engineering/_apis/build/status/missionlz/mlz.bicep.azurecloud.nightly.build?branchName=mlz-azure-pipelines" alt="bicep Azure Cloud" width ="200" />
+    </td>
+    <td>
+      <img src="https://dev.azure.com/AZGlobal/Azure%20Global%20CAT%20Engineering/_apis/build/status/missionlz/mlz.bicep.azuregov.nightly.build?branchName=mlz-azure-pipelines" alt="bicep Azure Cloud" width ="200" />
+    </td>
+  </tr>
+  <tr>
+    <td><b>Terraform<b>
+    </td>
+    <td> <img src="https://dev.azure.com/AZGlobal/Azure%20Global%20CAT%20Engineering/_apis/build/status/missionlz/mlz.tf.azurecloud.nightly.build?branchName=mlz-azure-pipelines" alt="bicep Azure Cloud" width ="200" />
+    </td>
+    <td>
+      <img src="https://dev.azure.com/AZGlobal/Azure%20Global%20CAT%20Engineering/_apis/build/status/missionlz/mlz.tf.azuregov.nightly.build?branchName=mlz-azure-pipelines" alt="bicep Azure Cloud" width ="200" />
+    </td>
+  </tr>
+  </table>
+
