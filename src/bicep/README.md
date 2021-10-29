@@ -254,9 +254,9 @@ az deployment sub create \
 
 After you've deployed Mission Landing Zone you'll probably want to integrate additional services or infrastructure.
 
-Once Mission Landing Zone is deployed and you're ready to start plugging things in, you can use the `az deployment sub show` command with a `--query` argument to retrieve information about the resources you deployed.
+You can use the `az deployment sub show` command with a `--query` argument to retrieve information about the resources you deployed.
 
-Before giving this a try, it's probably a good idea to [review the Azure CLI's documentation on querying with JMESPath](https://docs.microsoft.com/en-us/cli/azure/query-azure-cli).
+Before giving the next steps a try, it's probably a good idea to [review the Azure CLI's documentation on querying with JMESPath](https://docs.microsoft.com/en-us/cli/azure/query-azure-cli).
 
 First off, let's say you deployed Mission Landing Zone with a deployment name of `myMissionLandingZone`:
 
@@ -267,7 +267,7 @@ az deployment sub create \
   --template-file "src/bicep/mlz.bicep"
 ```
 
-Once it's complete, you could see all the resources provisioned by that deployment querying the `properties.outputResources` property:
+Once it's complete, you could see all the resources provisioned in that deployment by querying the `properties.outputResources` property:
 
 ```plaintext
 az deployment sub show \
@@ -275,7 +275,7 @@ az deployment sub show \
   --query "properties.outputResources"
 ```
 
-That's a lot of resources. Thankfully, the template produces outputs for just the things you probably need at `properties.outputs`:
+That's a lot of resources. Thankfully, the template produces outputs for just the things you _probably_ need at `properties.outputs`:
 
 ```plaintext
 az deployment sub show \
@@ -326,7 +326,7 @@ Which would return an output similar to:
 ]
 ```
 
-Bicep templates paired with the Azure CLI and JMESpath queries allow you to build flexible infrastructure that can build on-top of each other in an automated fashion, passing output from one template as input to another.
+Bicep templates, the Azure CLI, and JMESpath queries allows you to manually, or in an automated fashion, compose infrastructure incrementally and pass output from one template as input to another.
 
 Read more about `az deployment` at: [https://docs.microsoft.com](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
 
