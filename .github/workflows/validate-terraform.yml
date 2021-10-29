@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: hashicorp/setup-terraform@v1
       with:
-        terraform_version: 1.0.3
+        terraform_version: 1.0.8
     - shell: bash
       name: check tooling versions
       run: |
