@@ -113,7 +113,7 @@ data "azurerm_client_config" "current_client" {
 ################################
 
 locals {
-  firewall_premium_environments = ["public"] # terraform azurerm environments where Azure Firewall Premium is supported
+  firewall_premium_environments = ["public", "usgovernment"] # terraform azurerm environments where Azure Firewall Premium is supported
 }
 
 ################################
