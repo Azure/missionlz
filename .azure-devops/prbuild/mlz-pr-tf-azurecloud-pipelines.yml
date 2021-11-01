@@ -28,6 +28,7 @@ jobs:
                export ARM_CLIENT_SECRET=$(ClientSecret) \
                export ARM_SUBSCRIPTION_ID=$(subId) \
                export ARM_TENANT_ID=$(tenantId) \
+               echo
                terraform init          
                terraform plan  -var "hub_subid=$(subid)"  -input=false      
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
