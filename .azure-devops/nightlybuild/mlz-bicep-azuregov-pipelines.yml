@@ -1,8 +1,13 @@
  # Copyright (c) Microsoft Corporation. 
  # Licensed under the MIT License.
 
-trigger:
-- mlz-azure-pipelines
+schedules:
+  - cron: "0 0 * * *"
+    displayName: "Nightly - mlz bicep azure US Gov Cloud" 
+    branches:
+      include:
+        - main
+
 
 pool:
   vmImage: ubuntu-latest
