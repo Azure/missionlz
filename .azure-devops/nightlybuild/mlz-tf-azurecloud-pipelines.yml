@@ -29,14 +29,14 @@ jobs:
             scriptLocation: 'inlineScript'
             addSpnToEnvironment: true
             inlineScript: |
-               export ARM_CLIENT_ID=$(ClientId) `
-               echo $ARM_CLIENT_ID `
-               export ARM_CLIENT_SECRET=$(ClientSecret) `
-               echo $ARM_CLIENT_SECRET `
-               export ARM_SUBSCRIPTION_ID=$(subId) `
-               echo $ARM_SUBSCRIPTION_ID `
-               export ARM_TENANT_ID=$(tenantId) `
-               echo $ARM_TENANT_ID `
+               export ARM_CLIENT_ID=$(ClientId) \
+               echo 
+               export ARM_CLIENT_SECRET=$(ClientSecret)\
+               echo 
+               export ARM_SUBSCRIPTION_ID=$(subId) \
+               echo 
+               export ARM_TENANT_ID=$(tenantId) \
+               echo 
                terraform init         
                terraform plan  -var "hub_subid=$(subid)"  -input=false      
                terraform apply -var "hub_subid=$(subid)" -auto-approve -input=false
@@ -51,14 +51,14 @@ jobs:
             scriptLocation: 'inlineScript'
             addSpnToEnvironment: true
             inlineScript: |
-               export ARM_CLIENT_ID=$(ClientId) `
-               echo $ARM_CLIENT_ID `
-               export ARM_CLIENT_SECRET=$(ClientSecret) `
-               echo $ARM_CLIENT_SECRET `
-               export ARM_SUBSCRIPTION_ID=$(subId) `
-               echo $ARM_SUBSCRIPTION_ID `
-               export ARM_TENANT_ID=$(tenantId) `
-               echo $ARM_TENANT_ID `
+               export ARM_CLIENT_ID=$(ClientId) \
+               echo 
+               export ARM_CLIENT_SECRET=$(ClientSecret) \
+               echo 
+               export ARM_SUBSCRIPTION_ID=$(subId) \
+               echo 
+               export ARM_TENANT_ID=$(tenantId) \
+               echo 
                terraform init         
                terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
