@@ -1,8 +1,11 @@
  # Copyright (c) Microsoft Corporation. 
  # Licensed under the MIT License.
-
-trigger:
-- mlz-azure-pipelines
+schedules:
+  - cron: "0 3 * * *"
+    displayName: "Nightly - mlz Terraform azure US Gov cloud" 
+    branches:
+      include:
+        - main
 
 pool:
   vmImage: ubuntu-latest
