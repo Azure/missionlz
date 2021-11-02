@@ -2,12 +2,12 @@
  # Licensed under the MIT License.
 
 schedules:
-  - cron: "0 0 * * *"
+  - cron: "30 13 * * *"
     displayName: "Nightly - mlz bicep azure US Gov Cloud" 
     branches:
       include:
         - main
-
+    always: true
 
 pool:
   vmImage: ubuntu-latest
