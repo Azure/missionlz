@@ -1,4 +1,4 @@
- # Copyright (c) Microsoft Corporation. 
+ # Copyright (c) Microsoft Corporation.
  # Licensed under the MIT License.
 
 schedules:
@@ -14,7 +14,7 @@ pool:
 
 variables:
   ServiceConnectionName: $(CAzureConnection)
-  
+
 jobs:
 - job: CommercialCloud_TF
   steps:
@@ -29,16 +29,12 @@ jobs:
             scriptLocation: 'inlineScript'
             addSpnToEnvironment: true
             inlineScript: |
-               export ARM_CLIENT_ID=$(ClientId) `
-               echo `
-               export ARM_CLIENT_SECRET=$(ClientSecret) `
-               echo `
-               export ARM_SUBSCRIPTION_ID=$(subId) `
-               echo `
-               export ARM_TENANT_ID=$(tenantId) `
-               echo `
-               terraform init         
-               terraform plan  -var "hub_subid=$(subid)"  -input=false      
+               export ARM_CLIENT_ID=$(ClientId)               
+               export ARM_CLIENT_SECRET=$(ClientSecret)
+               export ARM_SUBSCRIPTION_ID=$(subId)
+               export ARM_TENANT_ID=$(tenantId)
+               terraform init
+               terraform plan  -var "hub_subid=$(subid)"  -input=false   
                terraform apply -var "hub_subid=$(subid)" -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
             useGlobalConfig: true
@@ -51,16 +47,11 @@ jobs:
             scriptLocation: 'inlineScript'
             addSpnToEnvironment: true
             inlineScript: |
-               export ARM_CLIENT_ID=$(ClientId) `
-               echo `
-               export ARM_CLIENT_SECRET=$(ClientSecret) `
-               echo `
-               export ARM_SUBSCRIPTION_ID=$(subId) `
-               echo `
-               export ARM_TENANT_ID=$(tenantId) `
-               echo `
-               terraform init         
+               export ARM_CLIENT_ID=$(ClientId)    
+               export ARM_CLIENT_SECRET=$(ClientSecret)
+               export ARM_SUBSCRIPTION_ID=$(subId)          
+               export ARM_TENANT_ID=$(tenantId)
+               terraform init
                terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
             useGlobalConfig: true
-
