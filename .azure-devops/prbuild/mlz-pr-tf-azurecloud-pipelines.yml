@@ -2,14 +2,16 @@
  # Licensed under the MIT License.
 
 trigger:
-- mlz-azure-pipelines
+  branches:
+    include:
+    - glenn/mlz-azure-pipelines
 
 pool:
   vmImage: ubuntu-latest
 
 variables:
   ServiceConnectionName: $(CAzureConnection)
-  
+
 jobs:
 - job: CommercialCloud_TF
   steps:
@@ -17,22 +19,18 @@ jobs:
     inputs:
         terraformVersion: '1.0.8'
   - task: AzureCLI@2
-    displayName: "Deploy MLZ Terraform"
+    displayName: "Terraform Plan"
     inputs:
             azureSubscription: $(CAzureConnection)
             scriptType: 'bash'
             scriptLocation: 'inlineScript'
             addSpnToEnvironment: true
             inlineScript: |
-               export ARM_CLIENT_ID=$(ClientId) \
-               export ARM_CLIENT_SECRET=$(ClientSecret) \
-               export ARM_SUBSCRIPTION_ID=$(subId) \
-               export ARM_TENANT_ID=$(tenantId) \
-               echo
-               terraform init          
-               terraform plan  -var "hub_subid=$(subid)"  -input=false      
+               export ARM_CLIENT_ID=$(ClientId)
+               export ARM_CLIENT_SECRET=$(ClientSecret)
+               export ARM_SUBSCRIPTION_ID=$(subId)
+               export ARM_TENANT_ID=$(tenantId)
+               terraform init
+               terraform plan -var "hub_subid=$(subid)" -input=false
             workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
             useGlobalConfig: true
-    
-
-   
