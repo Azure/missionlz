@@ -2,12 +2,12 @@
  # Licensed under the MIT License.
 
 schedules:
-  - cron: "0 3 * * *"
+  - cron: "30 14 * * *"
     displayName: "Nightly - mlz Terraform azure cloud" 
     branches:
       include:
         - main
-
+    always: true
 
 pool:
   vmImage: ubuntu-latest
