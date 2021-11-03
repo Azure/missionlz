@@ -3,7 +3,7 @@
   'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NIST
   'CMMC'
 ])
-@description('[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only availalbe for AzureUsGovernment and will switch to NIST if tried in AzureCloud.')
+@description('[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.')
 param builtInAssignment string = 'NIST'
 param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceResourceGroupName string
@@ -12,7 +12,6 @@ param operationsSubscriptionId string
 @description('Starts a policy remediation for the VM Agent policies in hub RG. Set to false by default since this is time consuming in deployment.')
 param deployRemediation bool = false
 
-// Creating a symbolic name for an existing resource
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
   name: logAnalyticsWorkspaceName
   scope: resourceGroup(operationsSubscriptionId, logAnalyticsWorkspaceResourceGroupName)
@@ -41,8 +40,7 @@ var contributorRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefini
 var lawsReaderRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', '92aaf0da-9dab-42b6-94a3-d43ce8d16293')
 
 // assign policy to resource group
-
-resource assignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = if (!empty(modifiedAssignment)){
+resource assignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
   name: assignmentName
   location: resourceGroup().location
   properties: {
@@ -87,8 +85,7 @@ resource vmAgentAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01
 }
 
 // assign the policies assigned idenitity as contributor to each resource group for deploy if not exist and modify policiy remediation
-
-resource policyRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (!empty(modifiedAssignment)){
+resource policyRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(contributorRoleDefinitionId,assignmentName)
   scope: resourceGroup()
   properties: {
@@ -121,17 +118,17 @@ resource vmPolicyRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04
 module roleAssignment '../modules/roleAssignment.bicep' = {
   name: 'Assign-Laws-Role-Policy-${resourceGroup().name}'
   scope: resourceGroup(operationsSubscriptionId, logAnalyticsWorkspaceResourceGroupName)
-    params: {
-      targetResourceId: logAnalyticsWorkspace.id
-      roleDefinitionId: lawsReaderRoleDefinitionId
-      principalId: vmAgentAssignment.identity.principalId
-    }
+  params: {
+    targetResourceId: logAnalyticsWorkspace.id
+    roleDefinitionId: lawsReaderRoleDefinitionId
+    principalId: vmAgentAssignment.identity.principalId
   }
+}
 
-  resource vmPolicyRemediation 'Microsoft.PolicyInsights/remediations@2019-07-01' = if(deployRemediation) {
-    name: 'VM-Agent-Policy-Remediation'
-    properties: {
-      policyAssignmentId: vmAgentAssignment.id
-      resourceDiscoveryMode: 'ReEvaluateCompliance'
-    }
+resource vmPolicyRemediation 'Microsoft.PolicyInsights/remediations@2019-07-01' = if(deployRemediation) {
+  name: 'VM-Agent-Policy-Remediation'
+  properties: {
+    policyAssignmentId: vmAgentAssignment.id
+    resourceDiscoveryMode: 'ReEvaluateCompliance'
   }
+}

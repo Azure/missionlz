@@ -1,37 +1,10 @@
-targetScope = 'subscription'
-
-param hubResourceGroupName string
 param hubVirtualNetworkName string
-param identityVirtualNetworkName string
-param identityVirtualNetworkResourceId string
-param operationsVirtualNetworkName string
-param operationsVirtualNetworkResourceId string
-param sharedServicesVirtualNetworkName string
-param sharedServicesVirtualNetworkResourceId string
+param spokes array
 
-module hubToIdentityVirtualNetworkPeering './virtualNetworkPeering.bicep' = {
-  scope: resourceGroup(hubResourceGroupName)
-  name: 'hubToIdentityVirtualNetworkPeering'
+module hubToSpokePeering './virtualNetworkPeering.bicep' = [ for spoke in spokes: {
+  name: 'hub-to-${spoke.type}-vnet-peering'
   params: {
-    name: '${hubVirtualNetworkName}/to-${identityVirtualNetworkName}'
-    remoteVirtualNetworkResourceId: identityVirtualNetworkResourceId
+    name: '${hubVirtualNetworkName}/to-${spoke.virtualNetworkName}'
+    remoteVirtualNetworkResourceId: spoke.virtualNetworkResourceId
   }
-}
-
-module hubToOperationsVirtualNetworkPeering './virtualNetworkPeering.bicep' = {
-  scope: resourceGroup(hubResourceGroupName)
-  name: 'hubToOperationsVirtualNetworkPeering'
-  params: {
-    name: '${hubVirtualNetworkName}/to-${operationsVirtualNetworkName}'
-    remoteVirtualNetworkResourceId: operationsVirtualNetworkResourceId
-  }
-}
-
-module hubToSharedServicesVirtualNetworkPeering './virtualNetworkPeering.bicep' = {
-  scope: resourceGroup(hubResourceGroupName)
-  name: 'hubToSharedServicesVirtualNetworkPeering'
-  params: {
-    name: '${hubVirtualNetworkName}/to-${sharedServicesVirtualNetworkName}'
-    remoteVirtualNetworkResourceId: sharedServicesVirtualNetworkResourceId
-  }
-}
+}]

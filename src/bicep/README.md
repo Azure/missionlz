@@ -27,6 +27,10 @@ By default, this template deploys **[Azure Firewall Premium](https://docs.micros
 - See [Setting the Firewall SKU](#Setting-the-Firewall-SKU) for steps on how to use the Standard SKU instead.
 - See [Setting the Firewall Location](#Setting-the-Firewall-Location) for steps on how to deploy into a different region.
 
+After a deployment is complete, you can refer to the provisioned resources programmaticaly with the Azure CLI.
+
+- See [Reference Deployment Output](#Reference-Deployment-Output) for steps on how to use `az deployment` subcommands and JMESPath to query for specific properties.
+
 ### Azure CLI
 
 Use `az deployment sub` to deploy MLZ across 1:M subscriptions (and `az deployment sub create --help` for more information).
@@ -245,6 +249,88 @@ az deployment sub create \
   --location "South Central US" \
   --template-file "src/bicep/mlz.bicep"
 ```
+
+### Reference Deployment Output
+
+After you've deployed Mission Landing Zone you'll probably want to integrate additional services or infrastructure.
+
+You can use the `az deployment sub show` command with a `--query` argument to retrieve information about the resources you deployed.
+
+Before giving the next steps a try, it's probably a good idea to [review the Azure CLI's documentation on querying with JMESPath](https://docs.microsoft.com/en-us/cli/azure/query-azure-cli).
+
+First off, let's say you deployed Mission Landing Zone with a deployment name of `myMissionLandingZone`:
+
+```plaintext
+az deployment sub create \
+  --name "myMissionLandingZone" \
+  --location "East US" \
+  --template-file "src/bicep/mlz.bicep"
+```
+
+Once it's complete, you could see all the resources provisioned in that deployment by querying the `properties.outputResources` property:
+
+```plaintext
+az deployment sub show \
+  --name "myMissionLandingZone" \
+  --query "properties.outputResources"
+```
+
+That's a lot of resources. Thankfully, the template produces outputs for just the things you _probably_ need at `properties.outputs`:
+
+```plaintext
+az deployment sub show \
+  --name "myMissionLandingZone" \
+  --query "properties.outputs"
+```
+
+For example, if you need just the Firewall Private IP address you could retrieve it like this:
+
+```plaintext
+az deployment sub show \
+  --name "myMissionLandingZone" \
+  --query "properties.outputs.firewallPrivateIPAddress.value"
+```
+
+Or, if you need just the Log Analytics Workspace that performs central logging you could retrieve it like this:
+
+```plaintext
+az deployment sub show \
+  --name "myMissionLandingZone" \
+  --query "properties.outputs.logAnalyticsWorkspaceResourceId.value"
+```
+
+Or, say you wanted to deploy resources into the Identity spoke. You could retrieve information about the Identity spoke by querying it from the `properties.outputs.spokes` array like this:
+
+```plaintext
+az deployment sub show \
+  --name "myMissionLandingZone" \
+  --query "properties.outputs.spokes.value[?name=='identity']"
+```
+
+Which would return an output similar to:
+
+```json
+[
+  {
+    "name": "identity",
+    "networkSecurityGroupName": "identity-nsg",
+    "networkSecurityGroupResourceId": ".../providers/Microsoft.Network/networkSecurityGroups/identity-nsg",
+    "resourceGroupId": ".../resourceGroups/mlz-identity",
+    "resourceGroupName": "mlz-identity",
+    "subnetAddressPrefix": "10.0.110.0/27",
+    "subnetName": "identity-subnet",
+    "subscriptionId": "<A GUID>",
+    "virtualNetworkName": "identity-vnet",
+    "virtualNetworkResourceId": ".../providers/Microsoft.Network/virtualNetworks/identity-vnet"
+  }
+]
+```
+
+Bicep templates, the Azure CLI, and JMESpath queries allows you to manually, or in an automated fashion, compose infrastructure incrementally and pass output from one template as input to another.
+
+Read more about `az deployment` at: [https://docs.microsoft.com](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
+
+Read more about JMESPath queries at: <https://jmespath.org/>
 
 ## Development Pre-requisites
 
