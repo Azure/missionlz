@@ -2,7 +2,7 @@
  # Licensed under the MIT License.
 
 schedules:
-  - cron: "30 14 * * *"
+  - cron: "0 2 * * *"
     displayName: "Nightly - mlz Terraform azure cloud" 
     branches:
       include:
