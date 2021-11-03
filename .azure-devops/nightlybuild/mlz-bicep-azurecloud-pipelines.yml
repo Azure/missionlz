@@ -1,7 +1,7 @@
  # Copyright (c) Microsoft Corporation. 
  # Licensed under the MIT License.
 schedules:
-  - cron: "30 13 * * *"
+  - cron: "0 0 * * *"
     displayName: "Nightly - mlz bicep azure cloud" 
     branches:
       include:
