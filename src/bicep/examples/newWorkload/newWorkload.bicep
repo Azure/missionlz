@@ -83,6 +83,7 @@ module spokeNetwork '../../modules/spokeNetwork.bicep' = {
 module workloadVirtualNetworkPeerings '../../modules/spokeNetworkPeering.bicep' = {
   name: '${resourceIdentifier}-${workloadName}VirtualNetworkPeerings'
   params: {
+    spokeType: workloadName
     spokeResourceGroupName: resourceGroup.name
     spokeVirtualNetworkName: spokeNetwork.outputs.virtualNetworkName
 
