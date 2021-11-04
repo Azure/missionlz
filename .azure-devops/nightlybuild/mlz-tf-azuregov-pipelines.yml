@@ -2,11 +2,11 @@
  # Licensed under the MIT License.
 
 schedules:
-  - cron: '50 1 * * *'
+  - cron: '55 1 * * *'
     displayName: Nightly
     branches:
       include:
-        - main
+        - mlz-azure-pipelines
     always: 'true'
 pool:
   vmImage: ubuntu-latest
