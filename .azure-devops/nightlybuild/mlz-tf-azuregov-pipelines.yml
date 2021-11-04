@@ -1,7 +1,7 @@
  # Copyright (c) Microsoft Corporation. 
  # Licensed under the MIT License.
 schedules:
-  - cron: '40 1 * * *'
+  - cron: '50 1 * * *'
     displayName: Nightly mlz Terraform azure US Gov cloud
     branches:
       include:
