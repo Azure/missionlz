@@ -3,6 +3,7 @@
 # Then steps through each diagnostic setting at subscription level with similar filter, 
 #   resets az cli account to a specific subscription to be able to continue to use command line.
 #   Usage: ./delete.sh "<filter to use in RG name search>" "<subscription ID to end in>"
+#!/usr/bin/env bash
 for subscription in `az account list -o tsv`; do
     az account set --subscription $subscription
         for rgname in `az group list --query "[? contains(name,'$1')][].{name:name}" -o tsv`; do
