@@ -3,11 +3,11 @@
 terraform {
   backend "local" {}
 
-  required_version = ">= 1.0.3"
+  required_version = ">= 1.0.8"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "= 2.80.0"
+      version = "= 2.83.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -113,7 +113,7 @@ data "azurerm_client_config" "current_client" {
 ################################
 
 locals {
-  firewall_premium_environments = ["public"] # terraform azurerm environments where Azure Firewall Premium is supported
+  firewall_premium_environments = ["public", "usgovernment"] # terraform azurerm environments where Azure Firewall Premium is supported
 }
 
 ################################

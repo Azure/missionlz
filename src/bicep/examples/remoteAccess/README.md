@@ -55,40 +55,26 @@ az deployment sub show \
 ```plaintext
 {
   ...
-  "hubResourceGroupName": {
-    "type": "String",
-    "value": "mlz-dev-hub"
+  "hub": {
+    "type": "Object",
+    "value": {
+      ...
+      "resourceGroupName": "mlz-dev-hub",
+      ...
+      "networkSecurityGroupResourceId": "/subscriptions/.../providers/Microsoft.Network/networkSecurityGroups/hub-nsg
+      ...
+      "subnetResourceId": "/subscriptions/.../providers/Microsoft.Network/virtualNetworks/hub-vnet/subnets/hub-subnet",
+      ...
+      "virtualNetworkName": "hub-vnet"
+    }
   },
-  ...
-  "hubVirtualNetworkName": {
-    "type": "String",
-    "value": "hub-vnet"
-  },
-  ...
-  "hubSubnetResourceId": {
-    "type": "String",
-    "value": "/subscriptions/.../providers/Microsoft.Network/virtualNetworks/hub-vnet/subnets/hub-subnet"
-  },
-  ...
-  "hubNetworkSecurityGroupResourceId": {
-    "type": "String",
-    "value": "/subscriptions/.../providers/Microsoft.Network/networkSecurityGroups/hub-nsg"
-  },
-  ...
   "logAnalyticsWorkspaceResourceId": {
     "type": "String",
     "value": "/subscriptions/.../providers/Microsoft.OperationalInsights/workspaces/mlz-dev-laws"
   },
+  ...
 }
 ```
-
-...and if you're on a BASH terminal, this command (take note to replace "myMlzDeployment" with your deployment name) will export the values as environment variables:
-
-<!-- markdownlint-disable MD013 -->
-```bash
-export $(az deployment sub show --name "myMlzDeployment" --query "properties.outputs.{ args: [ join('', ['hubResourceGroupName=', hubResourceGroupName.value]), join('', ['hubVirtualNetworkName=', hubVirtualNetworkName.value]), join('', ['hubSubnetResourceId=', hubSubnetResourceId.value]), join('', ['hubNetworkSecurityGroupResourceId=', hubNetworkSecurityGroupResourceId.value]), join('', ['logAnalyticsWorkspaceResourceId=', logAnalyticsWorkspaceResourceId.value]) ] }.args" --output tsv | xargs)
-```
-<!-- markdownlint-enable MD013 -->
 
 ## Deploy the example
 

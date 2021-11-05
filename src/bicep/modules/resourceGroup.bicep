@@ -12,3 +12,4 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2019-05-01' = {
 
 output id string = resourceGroup.id
 output name string = resourceGroup.name
+output location string = resourceGroup.location
