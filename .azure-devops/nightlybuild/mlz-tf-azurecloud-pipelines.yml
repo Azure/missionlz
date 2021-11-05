@@ -6,6 +6,7 @@ schedules:
     displayName: "Nightly - mlz Terraform azure cloud" 
     branches:
       include:
+        - main
         - mlz-azure-pipelines
     always: true
 

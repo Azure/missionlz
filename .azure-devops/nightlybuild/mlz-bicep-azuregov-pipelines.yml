@@ -6,6 +6,7 @@ schedules:
     displayName: "Nightly - mlz bicep azure US Gov Cloud" 
     branches:
       include:
+        - main
         - mlz-azure-pipelines
     always: true
 

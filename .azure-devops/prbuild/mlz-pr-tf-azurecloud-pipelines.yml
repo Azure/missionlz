@@ -4,6 +4,7 @@
 trigger:
   branches:
     include:
+    - main
     - mlz-azure-pipelines
 
 pool:

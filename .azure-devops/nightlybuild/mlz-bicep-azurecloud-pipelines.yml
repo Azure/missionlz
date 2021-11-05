@@ -5,6 +5,7 @@ schedules:
     displayName: "Nightly - mlz bicep azure cloud" 
     branches:
       include:
+        - main
         - mlz-azure-pipelines
     always: true
 
