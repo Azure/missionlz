@@ -13,7 +13,7 @@ for subscription in $(az account list -o tsv); do
         done
         for setting in $(az monitor diagnostic-settings subscription list --query "value[? contains(@.name, '$1')].name" -o tsv); do
             echo Deleting "${setting}"
-            az monitor diagnostic-settings delete --name $setting --resource /subscriptions/"${subscription}"
+            az monitor diagnostic-settings delete --name "${setting}" --resource /subscriptions/"${subscription}"
         done    
 done
-# az account set --subscription $2
+az account set --subscription "$2"
