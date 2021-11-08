@@ -10,6 +10,9 @@ pr:
     include:
     - main
 
+pool:
+  vmImage: ubuntu-latest
+
 variables:
   GServiceConnectionName: $(GAzureConnection)
 
@@ -20,7 +23,7 @@ jobs:
     inputs:
       terraformVersion: '1.0.8'
   - task: AzureCLI@2
-    displayName: "Deploy MLZ Terraform"
+    displayName: "Terraform Plan"
     inputs:
       azureSubscription: $(GAzureConnection)
       scriptType: 'bash'

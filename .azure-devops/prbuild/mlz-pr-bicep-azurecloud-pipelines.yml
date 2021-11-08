@@ -20,7 +20,7 @@ jobs:
 - job: bicepCommercialCloud
   steps:
   - task: AzureCLI@2
-    displayName: "Deploy MLZ Bicep"
+    displayName: "What-if Bicep"
     inputs:
       azureSubscription: $(ServiceConnectionName)
       scriptType: 'bash'
