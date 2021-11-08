@@ -1,9 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-trigger:
-- main
-- mlz-azure-pipelines
+# disable CI per:
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/github?view=azure-devops&tabs=yaml#disabling-the-ci-trigger
+trigger: none
+
+pr:
+  branches:
+    include:
+    - main
 
 pool:
   vmImage: ubuntu-latest
@@ -18,7 +23,7 @@ jobs:
     inputs:
       terraformVersion: '1.0.8'
   - task: AzureCLI@2
-    displayName: "Deploy MLZ Terraform"
+    displayName: "Terraform Plan"
     inputs:
       azureSubscription: $(GAzureConnection)
       scriptType: 'bash'

@@ -5,9 +5,10 @@
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/github?view=azure-devops&tabs=yaml#disabling-the-ci-trigger
 trigger: none
 
-# pull request validation
 pr:
-- main
+  branches:
+    include:
+    - main
 
 pool:
   vmImage: windows-latest
