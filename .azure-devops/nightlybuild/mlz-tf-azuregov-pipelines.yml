@@ -1,0 +1,59 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+schedules:
+  - cron: '55 1 * * *'
+    displayName: "Nightly - mlz Terraform azure US Gov cloud"
+    branches:
+      include:
+        - main
+        - mlz-azure-pipelines
+    always: 'true'
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  GServiceConnectionName: $(GAzureConnection)
+
+jobs:
+- job: GovCloud_TF
+  steps:
+  - task: TerraformInstaller@0
+    inputs:
+      terraformVersion: '1.0.8'
+  - task: AzureCLI@2
+    displayName: "Apply MLZ Terraform"
+    continueOnError: true
+    inputs:
+    azureSubscription: $(GAzureConnection)
+    scriptType: 'bash'
+    addSpnToEnvironment: true
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      export ARM_CLIENT_ID=$(GClientId)
+      export ARM_CLIENT_SECRET=$(GClientSecret)
+      export ARM_SUBSCRIPTION_ID=$(GSubId)
+      export ARM_TENANT_ID=$(GTenantId)
+      export ARM_ENVIRONMENT=$(CloudEnv)
+      terraform init
+      terraform plan -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost) -var environment=$(CloudEnv) -var location=$(GLocation) -input=false
+      terraform apply -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost) -var environment=$(CloudEnv) -var location=$(GLocation) -auto-approve -input=false
+    workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+    useGlobalConfig: true
+  - task: AzureCLI@2
+    displayName: "Destroy MLZ Terraform"
+    inputs:
+    azureSubscription: $(GAzureConnection)
+    scriptType: 'bash'
+    addSpnToEnvironment: true
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      export ARM_CLIENT_ID=$(GClientId)
+      export ARM_CLIENT_SECRET=$(GClientSecret)
+      export ARM_SUBSCRIPTION_ID=$(GSubId)
+      export ARM_TENANT_ID=$(GTenantId)
+      export ARM_ENVIRONMENT=$(CloudEnv)
+      terraform init
+      terraform destroy -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost) -var environment=$(CloudEnv) -var location=$(GLocation) -auto-approve -input=false
+    workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+    useGlobalConfig: true

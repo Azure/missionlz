@@ -1,0 +1,58 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+schedules:
+  - cron: "0 2 * * *"
+    displayName: "Nightly - mlz Terraform azure cloud"
+    branches:
+      include:
+        - main
+        - mlz-azure-pipelines
+    always: true
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  ServiceConnectionName: $(CAzureConnection)
+
+jobs:
+- job: CommercialCloud_TF
+  steps:
+  - task: TerraformInstaller@0
+    inputs:
+        terraformVersion: '1.0.8'
+  - task: AzureCLI@2
+    displayName: "Apply MLZ Terraform"
+    continueOnError: true
+    inputs:
+      azureSubscription: $(CAzureConnection)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      addSpnToEnvironment: true
+      inlineScript: |
+        export ARM_CLIENT_ID=$(ClientId)
+        export ARM_CLIENT_SECRET=$(ClientSecret)
+        export ARM_SUBSCRIPTION_ID=$(subId)
+        export ARM_TENANT_ID=$(tenantId)
+        terraform init
+        terraform plan -var "hub_subid=$(subid)" -input=false
+        terraform apply -var "hub_subid=$(subid)" -auto-approve -input=false
+      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+      useGlobalConfig: true
+  - task: AzureCLI@2
+    displayName: "Destroy MLZ Terraform"
+    inputs:
+      azureSubscription: $(CAzureConnection)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      addSpnToEnvironment: true
+      inlineScript: |
+        export ARM_CLIENT_ID=$(ClientId)
+        export ARM_CLIENT_SECRET=$(ClientSecret)
+        export ARM_SUBSCRIPTION_ID=$(subId)
+        export ARM_TENANT_ID=$(tenantId)
+        terraform init
+        terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
+      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+      useGlobalConfig: true

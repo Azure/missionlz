@@ -23,6 +23,12 @@ variable "location" {
   default     = "East US"
 }
 
+variable "resourcePrefix" {
+  description = "A name for the deployment. It defaults to dev."
+  type        = string
+  default     = "mlz"
+}
+
 variable "tags" {
   description = "A map of key value pairs to apply as tags to resources provisioned in this deployment"
   type        = map(string)
@@ -43,7 +49,7 @@ variable "hub_subid" {
 variable "hub_rgname" {
   description = "Resource Group for the deployment"
   type        = string
-  default     = "hub-rg"
+  default     = "hub"
 }
 
 variable "hub_vnetname" {
@@ -312,7 +318,7 @@ variable "tier0_subid" {
 variable "tier0_rgname" {
   description = "Resource Group for the deployment"
   type        = string
-  default     = "identity-rg"
+  default     = "identity"
 }
 
 variable "tier0_vnetname" {
@@ -405,7 +411,7 @@ variable "tier1_subid" {
 variable "tier1_rgname" {
   description = "Resource Group for the deployment"
   type        = string
-  default     = "operations-rg"
+  default     = "operations"
 }
 
 variable "tier1_vnetname" {
@@ -510,7 +516,7 @@ variable "tier2_subid" {
 variable "tier2_rgname" {
   description = "Resource Group for the deployment"
   type        = string
-  default     = "sharedServices-rg"
+  default     = "sharedServices"
 }
 
 variable "tier2_vnetname" {

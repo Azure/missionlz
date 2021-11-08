@@ -1,0 +1,27 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+trigger:
+- main
+- mlz-azure-pipelines
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  ServiceConnectionName: $(CAzureConnection)
+
+jobs:
+- job: bicepCommercialCloud
+  steps:
+  - task: AzureCLI@2
+    displayName: "Deploy MLZ Bicep"
+    inputs:
+      azureSubscription: $(ServiceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az deployment sub what-if \
+          --name $(bDeploymentName) \
+          --location $(Location) \
+          --template-file $(TemplateFile)

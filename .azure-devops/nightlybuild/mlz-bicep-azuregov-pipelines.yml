@@ -1,0 +1,46 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+schedules:
+  - cron: "0 4 * * *"
+    displayName: "Nightly - mlz bicep azure US Gov Cloud"
+    branches:
+      include:
+        - main
+        - mlz-azure-pipelines
+    always: true
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  GServiceConnectionName: $(GAzureConnection)
+
+jobs:
+- job: bicepGovCloud
+  steps:
+  - task: AzureCLI@2
+    displayName: "Deploy MLZ Bicep"
+    inputs:
+      azureSubscription: $(GServiceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az deployment sub create \
+          --name $(bDeploymentName) \
+          --location $(GLocation) \
+          --template-file $(TemplateFile)
+  - task: AzureCLI@2
+    displayName: "Clean up Subscription Diagnostics Settings"
+    inputs:
+      azureSubscription: $(GServiceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az monitor diagnostic-settings subscription list --query "value[? contains(@.name, ''$1'')].name" -o table  |grep ''mlz''| awk ''{system(" az monitor diagnostic-settings  delete  --resource  ''"/subscriptions/$(GSubId)"'' --name "$1)}'''
+  - task: AzureCLI@2
+    displayName: "Clean up Resources"
+    inputs:
+      azureSubscription: $(GServiceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az group list -o table | grep ''mlz'' | awk ''{system("az group delete -y --no-wait -g "$1)}'''

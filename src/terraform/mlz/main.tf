@@ -119,37 +119,48 @@ locals {
 ################################
 ### STAGE 0: Scaffolding     ###
 ################################
+resource "random_id" "random" {
+  keepers = {
+    # Generate a new id each time we change resourePrefix variable
+    resourcePrefix = "${var.resourcePrefix}"
+  }
+  byte_length = 8
+}
 
 resource "azurerm_resource_group" "hub" {
-  provider = azurerm.hub
+  provider   = azurerm.hub
+  depends_on = [random_id.random]
 
   location = var.location
-  name     = var.hub_rgname
-  tags     = var.tags
+  name     = "${var.resourcePrefix}-${random_id.random.hex}-${var.hub_rgname}"
+  tags     = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 resource "azurerm_resource_group" "tier0" {
-  provider = azurerm.tier0
+  provider   = azurerm.tier0
+  depends_on = [random_id.random]
 
   location = var.location
-  name     = var.tier0_rgname
-  tags     = var.tags
+  name     = "${var.resourcePrefix}-${random_id.random.hex}-${var.tier0_rgname}"
+  tags     = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 resource "azurerm_resource_group" "tier1" {
-  provider = azurerm.tier1
+  provider   = azurerm.tier1
+  depends_on = [random_id.random]
 
   location = var.location
-  name     = var.tier1_rgname
-  tags     = var.tags
+  name     = "${var.resourcePrefix}-${random_id.random.hex}-${var.tier1_rgname}"
+  tags     = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 resource "azurerm_resource_group" "tier2" {
-  provider = azurerm.tier2
+  provider   = azurerm.tier2
+  depends_on = [random_id.random]
 
   location = var.location
-  name     = var.tier2_rgname
-  tags     = var.tags
+  name     = "${var.resourcePrefix}-${random_id.random.hex}-${var.tier2_rgname}"
+  tags     = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 ################################
@@ -173,7 +184,7 @@ resource "azurerm_log_analytics_workspace" "laws" {
   location            = var.location
   sku                 = "PerGB2018"
   retention_in_days   = "30"
-  tags                = var.tags
+  tags                = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 resource "azurerm_log_analytics_solution" "laws_sentinel" {
@@ -190,7 +201,7 @@ resource "azurerm_log_analytics_solution" "laws_sentinel" {
     publisher = "Microsoft"
     product   = "OMSGallery/SecurityInsights"
   }
-  tags = var.tags
+  tags = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 ###############################
@@ -203,14 +214,14 @@ module "hub-network" {
   source     = "../modules/hub"
 
   location                 = var.location
-  resource_group_name      = var.hub_rgname
+  resource_group_name      = azurerm_resource_group.hub.name
   vnet_name                = var.hub_vnetname
   vnet_address_space       = var.hub_vnet_address_space
   client_address_space     = var.hub_client_address_space
   management_address_space = var.hub_management_address_space
 
   log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
-  tags                                = var.tags
+  tags                                = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 module "firewall" {
@@ -238,7 +249,7 @@ module "firewall" {
   management_publicip_name = var.management_publicip_name
 
   log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
-  tags                                = var.tags
+  tags                                = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 module "spoke-network-t0" {
@@ -254,11 +265,11 @@ module "spoke-network-t0" {
   laws_workspace_id = azurerm_log_analytics_workspace.laws.workspace_id
   laws_resource_id  = azurerm_log_analytics_workspace.laws.id
 
-  spoke_rgname             = var.tier0_rgname
+  spoke_rgname             = azurerm_resource_group.tier0.name
   spoke_vnetname           = var.tier0_vnetname
   spoke_vnet_address_space = var.tier0_vnet_address_space
   subnets                  = var.tier0_subnets
-  tags                     = var.tags
+  tags                     = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 resource "azurerm_virtual_network_peering" "t0-to-hub" {
@@ -266,7 +277,7 @@ resource "azurerm_virtual_network_peering" "t0-to-hub" {
   depends_on = [azurerm_resource_group.tier0, module.spoke-network-t0, module.hub-network, module.firewall]
 
   name                         = "${var.tier0_vnetname}-to-${var.hub_vnetname}"
-  resource_group_name          = var.tier0_rgname
+  resource_group_name          = azurerm_resource_group.tier0.name
   virtual_network_name         = var.tier0_vnetname
   remote_virtual_network_id    = module.hub-network.virtual_network_id
   allow_virtual_network_access = true
@@ -278,7 +289,7 @@ resource "azurerm_virtual_network_peering" "hub-to-t0" {
   depends_on = [azurerm_resource_group.hub, module.spoke-network-t0, module.hub-network, module.firewall]
 
   name                         = "${var.hub_vnetname}-to-${var.tier0_vnetname}"
-  resource_group_name          = var.hub_rgname
+  resource_group_name          = azurerm_resource_group.hub.name
   virtual_network_name         = var.hub_vnetname
   remote_virtual_network_id    = module.spoke-network-t0.virtual_network_id
   allow_virtual_network_access = true
@@ -298,11 +309,11 @@ module "spoke-network-t1" {
   laws_workspace_id = azurerm_log_analytics_workspace.laws.workspace_id
   laws_resource_id  = azurerm_log_analytics_workspace.laws.id
 
-  spoke_rgname             = var.tier1_rgname
+  spoke_rgname             = azurerm_resource_group.tier1.name
   spoke_vnetname           = var.tier1_vnetname
   spoke_vnet_address_space = var.tier1_vnet_address_space
   subnets                  = var.tier1_subnets
-  tags                     = var.tags
+  tags                     = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 resource "azurerm_virtual_network_peering" "t1-to-hub" {
@@ -310,7 +321,7 @@ resource "azurerm_virtual_network_peering" "t1-to-hub" {
   depends_on = [azurerm_resource_group.tier1, module.spoke-network-t1, module.hub-network, module.firewall]
 
   name                         = "${var.tier1_vnetname}-to-${var.hub_vnetname}"
-  resource_group_name          = var.tier1_rgname
+  resource_group_name          = azurerm_resource_group.tier1.name
   virtual_network_name         = var.tier1_vnetname
   remote_virtual_network_id    = module.hub-network.virtual_network_id
   allow_virtual_network_access = true
@@ -322,7 +333,7 @@ resource "azurerm_virtual_network_peering" "hub-to-t1" {
   depends_on = [azurerm_resource_group.hub, module.spoke-network-t1, module.hub-network, module.firewall]
 
   name                         = "${var.hub_vnetname}-to-${var.tier1_vnetname}"
-  resource_group_name          = var.hub_rgname
+  resource_group_name          = azurerm_resource_group.hub.name
   virtual_network_name         = var.hub_vnetname
   remote_virtual_network_id    = module.spoke-network-t1.virtual_network_id
   allow_virtual_network_access = true
@@ -342,11 +353,11 @@ module "spoke-network-t2" {
   laws_workspace_id = azurerm_log_analytics_workspace.laws.workspace_id
   laws_resource_id  = azurerm_log_analytics_workspace.laws.id
 
-  spoke_rgname             = var.tier2_rgname
+  spoke_rgname             = azurerm_resource_group.tier2.name
   spoke_vnetname           = var.tier2_vnetname
   spoke_vnet_address_space = var.tier2_vnet_address_space
   subnets                  = var.tier2_subnets
-  tags                     = var.tags
+  tags                     = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 resource "azurerm_virtual_network_peering" "t2-to-hub" {
@@ -354,7 +365,7 @@ resource "azurerm_virtual_network_peering" "t2-to-hub" {
   depends_on = [azurerm_resource_group.tier2, module.spoke-network-t2, module.hub-network, module.firewall]
 
   name                         = "${var.tier2_vnetname}-to-${var.hub_vnetname}"
-  resource_group_name          = var.tier2_rgname
+  resource_group_name          = azurerm_resource_group.tier2.name
   virtual_network_name         = var.tier2_vnetname
   remote_virtual_network_id    = module.hub-network.virtual_network_id
   allow_virtual_network_access = true
@@ -366,7 +377,7 @@ resource "azurerm_virtual_network_peering" "hub-to-t2" {
   depends_on = [azurerm_resource_group.hub, module.spoke-network-t2, module.hub-network, module.firewall]
 
   name                         = "${var.hub_vnetname}-to-${var.tier2_vnetname}"
-  resource_group_name          = var.hub_rgname
+  resource_group_name          = azurerm_resource_group.hub.name
   virtual_network_name         = var.hub_vnetname
   remote_virtual_network_id    = module.spoke-network-t2.virtual_network_id
   allow_virtual_network_access = true
@@ -390,7 +401,7 @@ module "jumpbox-subnet" {
 
   name                 = var.jumpbox_subnet.name
   location             = var.location
-  resource_group_name  = var.hub_rgname
+  resource_group_name  = azurerm_resource_group.hub.name
   virtual_network_name = var.hub_vnetname
   address_prefixes     = var.jumpbox_subnet.address_prefixes
   service_endpoints    = lookup(var.jumpbox_subnet, "service_endpoints", [])
@@ -408,7 +419,7 @@ module "jumpbox-subnet" {
   log_analytics_workspace_id          = azurerm_log_analytics_workspace.laws.workspace_id
   log_analytics_workspace_location    = var.location
   log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.laws.id
-  tags                                = var.tags
+  tags                                = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 module "bastion-host" {
@@ -418,13 +429,13 @@ module "bastion-host" {
   depends_on = [azurerm_resource_group.hub, module.hub-network, module.firewall, module.jumpbox-subnet]
   source     = "../modules/bastion"
 
-  resource_group_name   = var.hub_rgname
+  resource_group_name   = azurerm_resource_group.hub.name
   virtual_network_name  = var.hub_vnetname
   bastion_host_name     = var.bastion_host_name
   subnet_address_prefix = var.bastion_address_space
   public_ip_name        = var.bastion_public_ip_name
   ipconfig_name         = var.bastion_ipconfig_name
-  tags                  = var.tags
+  tags                  = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 module "jumpbox" {
@@ -434,7 +445,7 @@ module "jumpbox" {
   depends_on = [azurerm_resource_group.hub, module.hub-network, module.firewall, module.jumpbox-subnet]
   source     = "../modules/jumpbox"
 
-  resource_group_name  = var.hub_rgname
+  resource_group_name  = azurerm_resource_group.hub.name
   virtual_network_name = var.hub_vnetname
   subnet_name          = var.jumpbox_subnet.name
   location             = var.location
@@ -457,7 +468,7 @@ module "jumpbox" {
   linux_offer         = var.jumpbox_linux_vm_offer
   linux_sku           = var.jumpbox_linux_vm_sku
   linux_image_version = var.jumpbox_linux_vm_version
-  tags                = var.tags
+  tags                = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
 #####################################

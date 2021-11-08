@@ -115,3 +115,12 @@ trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
+
+## Nightly Build Status
+
+<!-- markdownlint-disable MD033 -->
+|Deployment Type|Azure Cloud| Azure Government|
+|-------------|--------------|-----------------|
+|Bicep| [![Build Status](https://dev.azure.com/AZGlobal/Azure%20Global%20CAT%20Engineering/_apis/build/status/missionlz/mlz.bicep.azurecloud.nightly.build?branchName=mlz-azure-pipelines)](https://dev.azure.com/AZGlobal/Azure%20Global%20CAT%20Engineering/_build/latest?definitionId=470&branchName=mlz-azure-pipelines)|[![Build Status](https://dev.azure.com/AZGlobal/Azure%20Global%20CAT%20Engineering/_apis/build/status/missionlz/mlz.bicep.azuregov.nightly.build?branchName=mlz-azure-pipelines)](https://dev.azure.com/AZGlobal/Azure%20Global%20CAT%20Engineering/_build/latest?definitionId=483&branchName=mlz-azure-pipelines)|
+|Terraform| [![Build Status](https://dev.azure.com/AZGlobal/Azure%20Global%20CAT%20Engineering/_apis/build/status/missionlz/mlz.tf.azurecloud.nightly.build?branchName=mlz-azure-pipelines)](https://dev.azure.com/AZGlobal/Azure%20Global%20CAT%20Engineering/_build/latest?definitionId=484&branchName=mlz-azure-pipelines)  |[![Build Status](https://dev.azure.com/AZGlobal/Azure%20Global%20CAT%20Engineering/_apis/build/status/missionlz/mlz.tf.azuregov.nightly.build?branchName=mlz-azure-pipelines)](https://dev.azure.com/AZGlobal/Azure%20Global%20CAT%20Engineering/_build/latest?definitionId=485&branchName=mlz-azure-pipelines)|
+<!-- markdownlint-enable MD033 -->
