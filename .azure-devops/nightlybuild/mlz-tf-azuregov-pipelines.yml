@@ -7,7 +7,6 @@ schedules:
     branches:
       include:
         - main
-        - mlz-azure-pipelines
     always: 'true'
 pool:
   vmImage: ubuntu-latest

@@ -1,11 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-trigger:
+# disable CI per:
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/github?view=azure-devops&tabs=yaml#disabling-the-ci-trigger
+trigger: none
+
+pr:
   branches:
     include:
     - main
-    - mlz-azure-pipelines
 
 pool:
   vmImage: ubuntu-latest
