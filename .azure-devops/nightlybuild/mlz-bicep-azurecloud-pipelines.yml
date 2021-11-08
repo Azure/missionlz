@@ -1,8 +1,9 @@
- # Copyright (c) Microsoft Corporation. 
- # Licensed under the MIT License.
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 schedules:
   - cron: "0 4 * * *"
-    displayName: "Nightly - mlz bicep azure cloud" 
+    displayName: "Nightly - mlz bicep azure cloud"
     branches:
       include:
         - main
@@ -13,8 +14,8 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  ServiceConnectionName: $(CAzureConnection)  
-  
+  ServiceConnectionName: $(CAzureConnection)
+
 jobs:
 - job: bicepCommercialCloud
   steps:
@@ -29,19 +30,17 @@ jobs:
           --name $(bDeploymentName) \
           --location $(Location) \
           --template-file $(TemplateFile)
-      
   - task: AzureCLI@2
+    displayName: "Clean up Subscription Diagnostics Settings"
     inputs:
       azureSubscription: $(ServiceConnectionName)
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az monitor diagnostic-settings subscription list --query "value[? contains(@.name, ''$1'')].name" -o table  |grep ''mlz''| awk ''{system(" az monitor diagnostic-settings  delete  --resource  ''"/subscriptions/$(subId)"'' --name "$1)}'''
-  
   - task: AzureCLI@2
-    displayName: "Cleanup Resources"
+    displayName: "Clean up Resources"
     inputs:
       azureSubscription: $(ServiceConnectionName)
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az group list -o table | grep ''mlz'' | awk ''{system("az group delete -y --no-wait -g "$1)}'''
-   

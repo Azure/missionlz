@@ -1,5 +1,5 @@
- # Copyright (c) Microsoft Corporation. 
- # Licensed under the MIT License.
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
 trigger:
   branches:
@@ -22,16 +22,16 @@ jobs:
   - task: AzureCLI@2
     displayName: "Terraform Plan"
     inputs:
-            azureSubscription: $(CAzureConnection)
-            scriptType: 'bash'
-            scriptLocation: 'inlineScript'
-            addSpnToEnvironment: true
-            inlineScript: |
-               export ARM_CLIENT_ID=$(ClientId)
-               export ARM_CLIENT_SECRET=$(ClientSecret)
-               export ARM_SUBSCRIPTION_ID=$(subId)
-               export ARM_TENANT_ID=$(tenantId)
-               terraform init
-               terraform plan -var "hub_subid=$(subid)" -input=false
-            workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
-            useGlobalConfig: true
+      azureSubscription: $(CAzureConnection)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      addSpnToEnvironment: true
+      inlineScript: |
+          export ARM_CLIENT_ID=$(ClientId)
+          export ARM_CLIENT_SECRET=$(ClientSecret)
+          export ARM_SUBSCRIPTION_ID=$(subId)
+          export ARM_TENANT_ID=$(tenantId)
+          terraform init
+          terraform plan -var "hub_subid=$(subid)" -input=false
+      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+      useGlobalConfig: true
