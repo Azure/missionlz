@@ -149,7 +149,7 @@ module spokeVirtualNetworkPeerings './modules/spokeNetworkPeering.bicep' = [ for
   name: 'deploy-vnet-peerings-${spoke.name}-${nowUtc}'
   scope: subscription(spoke.subscriptionId)
   params: {
-    spokeType: spoke.name
+    spokeName: spoke.name
     spokeResourceGroupName: spoke.resourceGroupName
     spokeVirtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
     hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName

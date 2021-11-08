@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "13572668780282663954"
+      "templateHash": "10779161212039721035"
     }
   },
   "parameters": {
@@ -3485,7 +3485,7 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "spokeType": {
+          "spokeName": {
             "value": "[variables('spokes')[copyIndex()].name]"
           },
           "spokeResourceGroupName": {
@@ -3508,11 +3508,11 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "17578836695451833276"
+              "templateHash": "9292126827663520366"
             }
           },
           "parameters": {
-            "spokeType": {
+            "spokeName": {
               "type": "string"
             },
             "spokeResourceGroupName": {
@@ -3533,7 +3533,7 @@
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-06-01",
-              "name": "[format('{0}-to-hub-vnet-peering', parameters('spokeType'))]",
+              "name": "[format('{0}-to-hub-vnet-peering', parameters('spokeName'))]",
               "resourceGroup": "[parameters('spokeResourceGroupName')]",
               "properties": {
                 "expressionEvaluationOptions": {
