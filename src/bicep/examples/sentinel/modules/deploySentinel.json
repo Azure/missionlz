@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.613.9944",
+      "templateHash": "11023628893449650523"
+    }
+  },
+  "parameters": {
+    "sentinelSolutionName": {
+      "type": "string"
+    },
+    "logAnalyticsWorkspaceResourceId": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "product": "OMSGallery/SecurityInsights",
+    "publisher": "Microsoft"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationsManagement/solutions",
+      "apiVersion": "2015-11-01-preview",
+      "name": "[parameters('sentinelSolutionName')]",
+      "location": "[resourceGroup().location]",
+      "plan": {
+        "name": "[parameters('sentinelSolutionName')]",
+        "promotionCode": "",
+        "product": "[variables('product')]",
+        "publisher": "[variables('publisher')]"
+      },
+      "properties": {
+        "workspaceResourceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+      }
+    }
+  ]
+}
