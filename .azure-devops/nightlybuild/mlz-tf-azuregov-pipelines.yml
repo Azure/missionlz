@@ -24,35 +24,35 @@ jobs:
     displayName: "Apply MLZ Terraform"
     continueOnError: true
     inputs:
-    azureSubscription: $(GAzureConnection)
-    scriptType: 'bash'
-    addSpnToEnvironment: true
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      export ARM_CLIENT_ID=$(GClientId)
-      export ARM_CLIENT_SECRET=$(GClientSecret)
-      export ARM_SUBSCRIPTION_ID=$(GSubId)
-      export ARM_TENANT_ID=$(GTenantId)
-      export ARM_ENVIRONMENT=$(CloudEnv)
-      terraform init
-      terraform plan -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost) -var environment=$(CloudEnv) -var location=$(GLocation) -input=false
-      terraform apply -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost) -var environment=$(CloudEnv) -var location=$(GLocation) -auto-approve -input=false
-    workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
-    useGlobalConfig: true
+      azureSubscription: $(GAzureConnection)
+      scriptType: 'bash'
+      addSpnToEnvironment: true
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        export ARM_CLIENT_ID=$(GClientId)
+        export ARM_CLIENT_SECRET=$(GClientSecret)
+        export ARM_SUBSCRIPTION_ID=$(GSubId)
+        export ARM_TENANT_ID=$(GTenantId)
+        export ARM_ENVIRONMENT=$(CloudEnv)
+        terraform init
+        terraform plan -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost) -var environment=$(CloudEnv) -var location=$(GLocation) -input=false
+        terraform apply -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost) -var environment=$(CloudEnv) -var location=$(GLocation) -auto-approve -input=false
+      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+      useGlobalConfig: true
   - task: AzureCLI@2
     displayName: "Destroy MLZ Terraform"
     inputs:
-    azureSubscription: $(GAzureConnection)
-    scriptType: 'bash'
-    addSpnToEnvironment: true
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      export ARM_CLIENT_ID=$(GClientId)
-      export ARM_CLIENT_SECRET=$(GClientSecret)
-      export ARM_SUBSCRIPTION_ID=$(GSubId)
-      export ARM_TENANT_ID=$(GTenantId)
-      export ARM_ENVIRONMENT=$(CloudEnv)
-      terraform init
-      terraform destroy -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost) -var environment=$(CloudEnv) -var location=$(GLocation) -auto-approve -input=false
-    workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
-    useGlobalConfig: true
+      azureSubscription: $(GAzureConnection)
+      scriptType: 'bash'
+      addSpnToEnvironment: true
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        export ARM_CLIENT_ID=$(GClientId)
+        export ARM_CLIENT_SECRET=$(GClientSecret)
+        export ARM_SUBSCRIPTION_ID=$(GSubId)
+        export ARM_TENANT_ID=$(GTenantId)
+        export ARM_ENVIRONMENT=$(CloudEnv)
+        terraform init
+        terraform destroy -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost) -var environment=$(CloudEnv) -var location=$(GLocation) -auto-approve -input=false
+      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+      useGlobalConfig: true
