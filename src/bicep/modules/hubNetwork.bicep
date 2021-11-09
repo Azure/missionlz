@@ -52,6 +52,11 @@ param firewallManagementPublicIPAddressAvailabilityZones array
 param publicIPAddressDiagnosticsLogs array
 param publicIPAddressDiagnosticsMetrics array
 
+param supportedClouds array = [
+  'AzureCloud'
+  'AzureUSGovernment'
+]
+
 module logStorage './storageAccount.bicep' = {
   name: 'logStorage'
   params: {
@@ -213,7 +218,7 @@ module firewall './firewall.bicep' = {
   }
 }
 
-module azureMonitorPrivateLink './privateLink.bicep' = {
+module azureMonitorPrivateLink './privateLink.bicep' = if ( contains(supportedClouds, environment().name) ){
   name: 'azure-monitor-private-link'
   params: {
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
