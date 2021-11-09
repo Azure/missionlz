@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "10779161212039721035"
+      "templateHash": "5432467458779395437"
     }
   },
   "parameters": {
@@ -1217,7 +1217,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "5930925695818856846"
+              "templateHash": "2822522237557490106"
             }
           },
           "parameters": {
@@ -1361,6 +1361,13 @@
             },
             "publicIPAddressDiagnosticsMetrics": {
               "type": "array"
+            },
+            "supportedClouds": {
+              "type": "array",
+              "defaultValue": [
+                "AzureCloud",
+                "AzureUSGovernment"
+              ]
             }
           },
           "functions": [],
@@ -2382,6 +2389,7 @@
               ]
             },
             {
+              "condition": "[contains(parameters('supportedClouds'), environment().name)]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-06-01",
               "name": "azure-monitor-private-link",
