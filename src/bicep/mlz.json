@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "5432467458779395437"
+      "templateHash": "12775752022763865170"
     }
   },
   "parameters": {
@@ -464,6 +464,13 @@
       "type": "string",
       "defaultValue": "PerGB2018"
     },
+    "deploySentinel": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When set to \"True\", enables Microsoft Sentinel within the MLZ Log Analytics workspace."
+      }
+    },
     "policy": {
       "type": "string",
       "defaultValue": "NIST",
@@ -884,6 +891,9 @@
           },
           "tags": {
             "value": "[parameters('tags')]"
+          },
+          "deploySentinel": {
+            "value": "[parameters('deploySentinel')]"
           },
           "retentionInDays": {
             "value": "[parameters('logAnalyticsWorkspaceRetentionInDays')]"
