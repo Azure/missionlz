@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "12285853432861571993"
+      "templateHash": "12775752022763865170"
     }
   },
   "parameters": {
@@ -464,7 +464,7 @@
       "type": "string",
       "defaultValue": "PerGB2018"
     },
-    "enableSentinel": {
+    "deploySentinel": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
@@ -893,7 +893,7 @@
             "value": "[parameters('tags')]"
           },
           "deploySentinel": {
-            "value": "[parameters('enableSentinel')]"
+            "value": "[parameters('deploySentinel')]"
           },
           "retentionInDays": {
             "value": "[parameters('logAnalyticsWorkspaceRetentionInDays')]"
