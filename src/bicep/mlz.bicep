@@ -215,7 +215,6 @@ module logAnalyticsDiagnosticLogging './modules/logAnalyticsDiagnosticLogging.bi
   params: {
     diagnosticStorageAccountName: operationsLogStorageAccountName
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    enableDiagnostics: true
   }
   dependsOn: [
     hubNetwork

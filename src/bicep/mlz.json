@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "12775752022763865170"
+      "templateHash": "11544710405663054226"
     }
   },
   "parameters": {
@@ -4358,9 +4358,6 @@
           },
           "logAnalyticsWorkspaceName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.name.value]"
-          },
-          "enableDiagnostics": {
-            "value": true
           }
         },
         "template": {
@@ -4370,7 +4367,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "15160395873360351727"
+              "templateHash": "11315996337583372529"
             }
           },
           "parameters": {
@@ -4380,15 +4377,18 @@
             "logAnalyticsWorkspaceName": {
               "type": "string"
             },
-            "enableDiagnostics": {
-              "type": "bool",
-              "defaultValue": true
+            "supportedClouds": {
+              "type": "array",
+              "defaultValue": [
+                "AzureCloud",
+                "AzureUSGovernment"
+              ]
             }
           },
           "functions": [],
           "resources": [
             {
-              "condition": "[parameters('enableDiagnostics')]",
+              "condition": "[contains(parameters('supportedClouds'), environment().name)]",
               "type": "Microsoft.Insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
               "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('logAnalyticsWorkspaceName'))]",
