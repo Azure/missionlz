@@ -13,8 +13,8 @@ data "azurerm_subnet" "vm_subnet" {
 
 resource "azurerm_network_interface" "linux_vm" {
   name                = "${var.name}_NIC"
-  resource_group_name = data.azurerm_resource_group.vm_resource_group.name
-  location            = data.azurerm_resource_group.vm_resource_group.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
 
   ip_configuration {
     name                          = "${var.name}_IPCONFIG"
@@ -28,8 +28,8 @@ resource "azurerm_network_interface" "linux_vm" {
 resource "azurerm_linux_virtual_machine" "linux_vm" {
   name                            = var.name
   computer_name                   = substr(var.name, 0, 14) # computer_name can only be 15 characters maximum
-  resource_group_name             = data.azurerm_resource_group.vm_resource_group.name
-  location                        = data.azurerm_resource_group.vm_resource_group.location
+  resource_group_name             = var.resource_group_name
+  location                        = var.location
   size                            = var.size
   admin_username                  = var.admin_username
   admin_password                  = var.admin_password
