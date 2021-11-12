@@ -89,6 +89,7 @@ resource "azurerm_key_vault_secret" "linux-jumpbox-password" {
 module "windows-virtual-machine" {
   source               = "../windows-virtual-machine"
   resource_group_name  = var.resource_group_name
+  location             = var.location
   virtual_network_name = var.virtual_network_name
   subnet_name          = var.subnet_name
   name                 = var.windows_name
@@ -105,6 +106,7 @@ module "windows-virtual-machine" {
 module "linux-virtual-machine" {
   source               = "../linux-virtual-machine"
   resource_group_name  = var.resource_group_name
+  location             = var.location
   virtual_network_name = var.virtual_network_name
   subnet_name          = var.subnet_name
   name                 = var.linux_name

@@ -6,6 +6,11 @@ variable "resource_group_name" {
   type        = string
 }
 
+variable "location" {
+  description = "The location/region to keep all your network resources. To get the list of all locations with table format from azure cli, run 'az account list-locations -o table'"
+  type        = string
+}
+
 variable "virtual_network_name" {
   description = "The name of the virtual network the Bastion Host resides in"
   type        = string
