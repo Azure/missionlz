@@ -87,33 +87,7 @@ az deployment sub create \
 
 And if I need to deploy into multiple subscriptions, I would pass the relevant subscription IDs as `parameters` as described in [Multiple subscription deployment](#Multiple-subscription-deployment).
 
-### Azure Portal
-
-You can also deploy Mission LZ from the Azure Portal. The compiled JSON ARM template of `mlz.bicep` can be executed from the Custom Deployment feature.
-
-There is work in progress to provide a more elegant user-interface, but today, with the compiled output of `mlz.bicep`, you can set the deployment subscription and a deployment region and click 'Create' to start deployment.
-
-#### AzureCloud
-
-[![Deploy To Azure](../../docs/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json)
-
-#### AzureUSGovernment
-
-[![Deploy To Azure US Gov](../../docs/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json)
-
 ### Air-Gapped Clouds
-
-#### Air-Gapped Clouds Deployment from the Azure Portal
-
-1. Save `mlz.json` to disk: <https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/mlz.json>
-1. Create a deployment using the 'Custom Deployment' feature: <https://portal.azure.com/#create/Microsoft.Template> or <https://portal.azure.us/#create/Microsoft.Template>
-1. Click 'Build your own template in the editor'
-1. Click 'Load file'
-1. Select the 'mlz.json' file you saved
-1. Click 'Save'
-1. Click 'Review + Create'
-
-Check out this GIF in the docs to see a visual explanation: [../../docs/images/custom_template_deployment.gif](../../docs/images/custom_template_deployment.gif)
 
 #### Air-Gapped Clouds Deployment with Azure CLI
 
