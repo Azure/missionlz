@@ -173,6 +173,8 @@ az deployment sub create \
 
 Then, once you've deployed the virtual machines and Bastion Host, use these docs to connect with the provided password: <https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-rdp-windows#rdp>
 
+The default username is set to `azureuser`.
+
 ### Using an SSH Key with Remote Access via Bastion Host
 
 If you have a key pair you'd like to use for SSH connections to the Linux virtual machine that is deployed with `deployRemoteAccess=true`, specify the `linuxVmAuthenticationType` parameter to `sshPublicKey` like so:
@@ -194,6 +196,8 @@ az deployment sub create \
 For more information on generating a public/private key pair see <https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-ssh-keys-detailed#generate-keys-with-ssh-keygen>.
 
 Then, once you've deployed the virtual machines and Bastion Host, use these docs to connect with an SSH Key: <https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-ssh#privatekey>
+
+The default username is set to `azureuser`.
 
 ## Configuring the Firewall
 
