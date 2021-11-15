@@ -1,0 +1,349 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.613.9944",
+      "templateHash": "17774219961422028236"
+    }
+  },
+  "parameters": {
+    "appServicePlanName": {
+      "type": "string",
+      "defaultValue": "placeHolder",
+      "metadata": {
+        "description": "The name of the web server farm which will be created.  If unchanged or not specified, the MLZ resource prefix + \"--ASP\" will be utilized."
+      }
+    },
+    "targetResourceGroup": {
+      "type": "string",
+      "defaultValue": "placeHolder",
+      "metadata": {
+        "description": "The name of the resource group in which the app service plan will be deployed. If unchanged or not specified, the MLZ shared services resource group is used."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[deployment().location]",
+      "metadata": {
+        "description": "The Azure region where resrouces will be deployed, typically should be the same region as the base MLZ deployment"
+      }
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "premium",
+      "metadata": {
+        "description": "Defines the performance baseline for the environment"
+      }
+    },
+    "kind": {
+      "type": "string",
+      "defaultValue": "linux",
+      "allowedValues": [
+        "linux",
+        "windows"
+      ]
+    },
+    "capacity": {
+      "type": "int",
+      "defaultValue": 2
+    },
+    "enableAutoScale": {
+      "type": "bool",
+      "defaultValue": true
+    }
+  },
+  "functions": [],
+  "variables": {
+    "mlzDeploymentVariables": "[json('{\r\n  \"mlzResourcePrefix\": {\r\n    \"Type\": \"String\",\r\n    \"Value\": \"contoso\"\r\n  },\r\n  \"firewallPrivateIPAddress\": {\r\n    \"Type\": \"String\",\r\n    \"Value\": \"10.0.100.4\"\r\n  },\r\n  \"hub\": {\r\n    \"Type\": \"Object\",\r\n    \"Value\": {\r\n      \"subscriptionId\": \"ddf87969-a498-4676-a488-1932fbc5a306\",\r\n      \"resourceGroupName\": \"contoso-hub\",\r\n      \"resourceGroupResourceId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-hub\",\r\n      \"virtualNetworkName\": \"hub-vnet\",\r\n      \"virtualNetworkResourceId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-hub/providers/Microsoft.Network/virtualNetworks/hub-vnet\",\r\n      \"subnetName\": \"hub-vnet/hub-subnet\",\r\n      \"subnetResourceId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-hub/providers/Microsoft.Network/virtualNetworks/hub-vnet/subnets/hub-subnet\",\r\n      \"subnetAddressPrefix\": \"10.0.100.128/27\",\r\n      \"networkSecurityGroupName\": \"hub-nsg\",\r\n      \"networkSecurityGroupResourceId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-hub/providers/Microsoft.Network/networkSecurityGroups/hub-nsg\"\r\n    }\r\n  },\r\n  \"logAnalyticsWorkspaceName\": {\r\n    \"Type\": \"String\",\r\n    \"Value\": \"contoso-laws\"\r\n  },\r\n  \"logAnalyticsWorkspaceResourceId\": {\r\n    \"Type\": \"String\",\r\n    \"Value\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-operations/providers/Microsoft.OperationalInsights/workspaces/contoso-laws\"\r\n  },\r\n  \"spokes\": {\r\n    \"Type\": \"Array\",\r\n    \"Value\": [\r\n      {\r\n        \"name\": \"operations\",\r\n        \"subscriptionId\": \"ddf87969-a498-4676-a488-1932fbc5a306\",\r\n        \"resourceGroupName\": \"contoso-operations\",\r\n        \"resourceGroupId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-operations\",\r\n        \"virtualNetworkName\": \"operations-vnet\",\r\n        \"virtualNetworkResourceId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-operations/providers/Microsoft.Network/virtualNetworks/operations-vnet\",\r\n        \"subnetName\": \"operations-subnet\",\r\n        \"subnetResourceId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-operations/providers/Microsoft.Network/virtualNetworks/operations-vnet/subnets/operations-subnet\",\r\n        \"subnetAddressPrefix\": \"10.0.115.0/27\",\r\n        \"networkSecurityGroupName\": \"operations-nsg\",\r\n        \"networkSecurityGroupResourceId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-operations/providers/Microsoft.Network/networkSecurityGroups/operations-nsg\"\r\n      },\r\n      {\r\n        \"name\": \"identity\",\r\n        \"subscriptionId\": \"ddf87969-a498-4676-a488-1932fbc5a306\",\r\n        \"resourceGroupName\": \"contoso-identity\",\r\n        \"resourceGroupId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-identity\",\r\n        \"virtualNetworkName\": \"identity-vnet\",\r\n        \"virtualNetworkResourceId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-identity/providers/Microsoft.Network/virtualNetworks/identity-vnet\",\r\n        \"subnetName\": \"identity-subnet\",\r\n        \"subnetResourceId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-identity/providers/Microsoft.Network/virtualNetworks/identity-vnet/subnets/identity-subnet\",\r\n        \"subnetAddressPrefix\": \"10.0.110.0/27\",\r\n        \"networkSecurityGroupName\": \"identity-nsg\",\r\n        \"networkSecurityGroupResourceId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-identity/providers/Microsoft.Network/networkSecurityGroups/identity-nsg\"\r\n      },\r\n      {\r\n        \"name\": \"sharedServices\",\r\n        \"subscriptionId\": \"ddf87969-a498-4676-a488-1932fbc5a306\",\r\n        \"resourceGroupName\": \"contoso-sharedServices\",\r\n        \"resourceGroupId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-sharedServices\",\r\n        \"virtualNetworkName\": \"sharedServices-vnet\",\r\n        \"virtualNetworkResourceId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-sharedServices/providers/Microsoft.Network/virtualNetworks/sharedServices-vnet\",\r\n        \"subnetName\": \"sharedServices-subnet\",\r\n        \"subnetResourceId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-sharedServices/providers/Microsoft.Network/virtualNetworks/sharedServices-vnet/subnets/sharedServices-subnet\",\r\n        \"subnetAddressPrefix\": \"10.0.120.0/27\",\r\n        \"networkSecurityGroupName\": \"sharedServices-nsg\",\r\n        \"networkSecurityGroupResourceId\": \"/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-sharedServices/providers/Microsoft.Network/networkSecurityGroups/sharedServices-nsg\"\r\n      }\r\n    ]\r\n  }\r\n}\r\n')]",
+    "appServicePlanName_Var": "[if(contains(parameters('appServicePlanName'), 'placeHolder'), format('{0}--ASP', variables('mlzDeploymentVariables').mlzResourcePrefix.Value), parameters('appServicePlanName'))]",
+    "targetResourceGroup_Var": "[if(contains(parameters('targetResourceGroup'), 'placeHolder'), variables('mlzDeploymentVariables').spokes.Value[2].resourceGroupName, parameters('targetResourceGroup'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2020-10-01",
+      "name": "[variables('targetResourceGroup_Var')]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[variables('appServicePlanName_Var')]",
+      "subscriptionId": "[subscription().subscriptionId]",
+      "resourceGroup": "[variables('targetResourceGroup_Var')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "svcPlanName": {
+            "value": "[variables('appServicePlanName_Var')]"
+          },
+          "sku": {
+            "value": "[parameters('sku')]"
+          },
+          "capacity": {
+            "value": "[parameters('capacity')]"
+          },
+          "kind": {
+            "value": "[parameters('kind')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "16713401460526786718"
+            }
+          },
+          "parameters": {
+            "svcPlanName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "capacity": {
+              "type": "int",
+              "defaultValue": 2
+            },
+            "kind": {
+              "type": "string"
+            },
+            "sku": {
+              "type": "string"
+            },
+            "svcPlanSize": {
+              "type": "string",
+              "defaultValue": "P2v2",
+              "metadata": {
+                "description": "The instance size of the app."
+              }
+            }
+          },
+          "functions": [],
+          "variables": {
+            "reserved": "[if(equals(parameters('kind'), 'linux'), true(), false())]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2020-12-01",
+              "name": "[parameters('svcPlanName')]",
+              "location": "[parameters('location')]",
+              "kind": "[parameters('kind')]",
+              "sku": {
+                "name": "[parameters('svcPlanSize')]",
+                "tier": "[parameters('sku')]",
+                "capacity": "[parameters('capacity')]"
+              },
+              "properties": {
+                "reserved": "[variables('reserved')]"
+              }
+            }
+          ],
+          "outputs": {
+            "svcPlanName": {
+              "type": "string",
+              "value": "[parameters('svcPlanName')]"
+            },
+            "svcPlanID": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Web/serverfarms', parameters('svcPlanName'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('targetResourceGroup_Var'))]"
+      ]
+    },
+    {
+      "condition": "[parameters('enableAutoScale')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "appServicePlanSettingsName",
+      "subscriptionId": "[subscription().subscriptionId]",
+      "resourceGroup": "[variables('targetResourceGroup_Var')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "svcPlanName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('targetResourceGroup_Var')), 'Microsoft.Resources/deployments', variables('appServicePlanName_Var')), '2019-10-01').outputs.svcPlanName.value]"
+          },
+          "svcPlanNameID": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('targetResourceGroup_Var')), 'Microsoft.Resources/deployments', variables('appServicePlanName_Var')), '2019-10-01').outputs.svcPlanID.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "16539334076329566072"
+            }
+          },
+          "parameters": {
+            "svcPlanName": {
+              "type": "string"
+            },
+            "svcPlanNameID": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "minimumCapacity": {
+              "type": "int",
+              "defaultValue": 2,
+              "metadata": {
+                "description": "The minimum capacity.  Autoscale engine will ensure the instance count is at least this value."
+              }
+            },
+            "maximumCapacity": {
+              "type": "int",
+              "defaultValue": 10,
+              "metadata": {
+                "description": "The maximum capacity.  Autoscale engine will ensure the instance count is not greater than this value."
+              }
+            },
+            "defaultCapacity": {
+              "type": "int",
+              "defaultValue": 2,
+              "metadata": {
+                "description": "The default capacity.  Autoscale engine will preventively set the instance count to be this value if it can not find any metric data."
+              }
+            },
+            "metricName": {
+              "type": "string",
+              "defaultValue": "CpuPercentage",
+              "metadata": {
+                "description": "The metric name."
+              }
+            },
+            "metricThresholdToScaleOut": {
+              "type": "int",
+              "defaultValue": 70,
+              "metadata": {
+                "description": "The metric upper threshold.  If the metric value is above this threshold then autoscale engine will initiate scale out action."
+              }
+            },
+            "metricThresholdToScaleIn": {
+              "type": "int",
+              "defaultValue": 30,
+              "metadata": {
+                "description": "The metric lower threshold.  If the metric value is below this threshold then autoscale engine will initiate scale in action."
+              }
+            },
+            "changePercentScaleOut": {
+              "type": "int",
+              "defaultValue": 20,
+              "metadata": {
+                "description": "The percentage to increase the instance count when autoscale engine is initiating scale out action."
+              }
+            },
+            "changePercentScaleIn": {
+              "type": "int",
+              "defaultValue": 10,
+              "metadata": {
+                "description": "The percentage to decrease the instance count when autoscale engine is initiating scale in action."
+              }
+            },
+            "autoscaleEnabled": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "A boolean to indicate whether the autoscale policy is enabled or disabled."
+              }
+            }
+          },
+          "functions": [],
+          "variables": {
+            "settingName_var": "[format('{0}-setting', toLower(parameters('svcPlanName')))]",
+            "targetResourceId": "[parameters('svcPlanNameID')]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Insights/autoscalesettings",
+              "apiVersion": "2015-04-01",
+              "name": "[variables('settingName_var')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "profiles": [
+                  {
+                    "name": "DefaultAutoscaleProfile",
+                    "capacity": {
+                      "minimum": "[parameters('minimumCapacity')]",
+                      "maximum": "[parameters('maximumCapacity')]",
+                      "default": "[parameters('defaultCapacity')]"
+                    },
+                    "rules": [
+                      {
+                        "metricTrigger": {
+                          "metricName": "[parameters('metricName')]",
+                          "metricResourceUri": "[variables('targetResourceId')]",
+                          "timeGrain": "PT5M",
+                          "statistic": "Average",
+                          "timeWindow": "PT10M",
+                          "timeAggregation": "Average",
+                          "operator": "GreaterThan",
+                          "threshold": "[parameters('metricThresholdToScaleOut')]"
+                        },
+                        "scaleAction": {
+                          "direction": "Increase",
+                          "type": "PercentChangeCount",
+                          "value": "[parameters('changePercentScaleOut')]",
+                          "cooldown": "PT20M"
+                        }
+                      },
+                      {
+                        "metricTrigger": {
+                          "metricName": "[parameters('metricName')]",
+                          "metricResourceUri": "[variables('targetResourceId')]",
+                          "timeGrain": "PT5M",
+                          "statistic": "Average",
+                          "timeWindow": "PT10M",
+                          "timeAggregation": "Average",
+                          "operator": "LessThan",
+                          "threshold": "[parameters('metricThresholdToScaleIn')]"
+                        },
+                        "scaleAction": {
+                          "direction": "Decrease",
+                          "type": "PercentChangeCount",
+                          "value": "[parameters('changePercentScaleIn')]",
+                          "cooldown": "PT20M"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "enabled": "[parameters('autoscaleEnabled')]",
+                "targetResourceUri": "[variables('targetResourceId')]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('targetResourceGroup_Var')), 'Microsoft.Resources/deployments', variables('appServicePlanName_Var'))]"
+      ]
+    }
+  ]
+}
