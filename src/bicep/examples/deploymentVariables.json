@@ -10,16 +10,16 @@
   "hub": {
     "Type": "Object",
     "Value": {
-      "subscriptionId": "093847b0-f0dd-428f-a0b0-bd4245b99339",
+      "subscriptionId": "ddf87969-a498-4676-a488-1932fbc5a306",
       "resourceGroupName": "contoso-hub",
-      "resourceGroupResourceId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-hub",
+      "resourceGroupResourceId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-hub",
       "virtualNetworkName": "hub-vnet",
-      "virtualNetworkResourceId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-hub/providers/Microsoft.Network/virtualNetworks/hub-vnet",
+      "virtualNetworkResourceId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-hub/providers/Microsoft.Network/virtualNetworks/hub-vnet",
       "subnetName": "hub-vnet/hub-subnet",
-      "subnetResourceId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-hub/providers/Microsoft.Network/virtualNetworks/hub-vnet/subnets/hub-subnet",
+      "subnetResourceId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-hub/providers/Microsoft.Network/virtualNetworks/hub-vnet/subnets/hub-subnet",
       "subnetAddressPrefix": "10.0.100.128/27",
       "networkSecurityGroupName": "hub-nsg",
-      "networkSecurityGroupResourceId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-hub/providers/Microsoft.Network/networkSecurityGroups/hub-nsg"
+      "networkSecurityGroupResourceId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-hub/providers/Microsoft.Network/networkSecurityGroups/hub-nsg"
     }
   },
   "logAnalyticsWorkspaceName": {
@@ -28,49 +28,49 @@
   },
   "logAnalyticsWorkspaceResourceId": {
     "Type": "String",
-    "Value": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-operations/providers/Microsoft.OperationalInsights/workspaces/contoso-laws"
+    "Value": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-operations/providers/Microsoft.OperationalInsights/workspaces/contoso-laws"
   },
   "spokes": {
     "Type": "Array",
     "Value": [
       {
         "name": "operations",
-        "subscriptionId": "093847b0-f0dd-428f-a0b0-bd4245b99339",
+        "subscriptionId": "ddf87969-a498-4676-a488-1932fbc5a306",
         "resourceGroupName": "contoso-operations",
-        "resourceGroupId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-operations",
+        "resourceGroupId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-operations",
         "virtualNetworkName": "operations-vnet",
-        "virtualNetworkResourceId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-operations/providers/Microsoft.Network/virtualNetworks/operations-vnet",
+        "virtualNetworkResourceId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-operations/providers/Microsoft.Network/virtualNetworks/operations-vnet",
         "subnetName": "operations-subnet",
-        "subnetResourceId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-operations/providers/Microsoft.Network/virtualNetworks/operations-vnet/subnets/operations-subnet",
+        "subnetResourceId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-operations/providers/Microsoft.Network/virtualNetworks/operations-vnet/subnets/operations-subnet",
         "subnetAddressPrefix": "10.0.115.0/27",
         "networkSecurityGroupName": "operations-nsg",
-        "networkSecurityGroupResourceId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-operations/providers/Microsoft.Network/networkSecurityGroups/operations-nsg"
+        "networkSecurityGroupResourceId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-operations/providers/Microsoft.Network/networkSecurityGroups/operations-nsg"
       },
       {
         "name": "identity",
-        "subscriptionId": "093847b0-f0dd-428f-a0b0-bd4245b99339",
+        "subscriptionId": "ddf87969-a498-4676-a488-1932fbc5a306",
         "resourceGroupName": "contoso-identity",
-        "resourceGroupId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-identity",
+        "resourceGroupId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-identity",
         "virtualNetworkName": "identity-vnet",
-        "virtualNetworkResourceId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-identity/providers/Microsoft.Network/virtualNetworks/identity-vnet",
+        "virtualNetworkResourceId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-identity/providers/Microsoft.Network/virtualNetworks/identity-vnet",
         "subnetName": "identity-subnet",
-        "subnetResourceId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-identity/providers/Microsoft.Network/virtualNetworks/identity-vnet/subnets/identity-subnet",
+        "subnetResourceId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-identity/providers/Microsoft.Network/virtualNetworks/identity-vnet/subnets/identity-subnet",
         "subnetAddressPrefix": "10.0.110.0/27",
         "networkSecurityGroupName": "identity-nsg",
-        "networkSecurityGroupResourceId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-identity/providers/Microsoft.Network/networkSecurityGroups/identity-nsg"
+        "networkSecurityGroupResourceId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-identity/providers/Microsoft.Network/networkSecurityGroups/identity-nsg"
       },
       {
         "name": "sharedServices",
-        "subscriptionId": "093847b0-f0dd-428f-a0b0-bd4245b99339",
+        "subscriptionId": "ddf87969-a498-4676-a488-1932fbc5a306",
         "resourceGroupName": "contoso-sharedServices",
-        "resourceGroupId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-sharedServices",
+        "resourceGroupId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-sharedServices",
         "virtualNetworkName": "sharedServices-vnet",
-        "virtualNetworkResourceId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-sharedServices/providers/Microsoft.Network/virtualNetworks/sharedServices-vnet",
+        "virtualNetworkResourceId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-sharedServices/providers/Microsoft.Network/virtualNetworks/sharedServices-vnet",
         "subnetName": "sharedServices-subnet",
-        "subnetResourceId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-sharedServices/providers/Microsoft.Network/virtualNetworks/sharedServices-vnet/subnets/sharedServices-subnet",
+        "subnetResourceId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-sharedServices/providers/Microsoft.Network/virtualNetworks/sharedServices-vnet/subnets/sharedServices-subnet",
         "subnetAddressPrefix": "10.0.120.0/27",
         "networkSecurityGroupName": "sharedServices-nsg",
-        "networkSecurityGroupResourceId": "/subscriptions/093847b0-f0dd-428f-a0b0-bd4245b99339/resourceGroups/contoso-sharedServices/providers/Microsoft.Network/networkSecurityGroups/sharedServices-nsg"
+        "networkSecurityGroupResourceId": "/subscriptions/ddf87969-a498-4676-a488-1932fbc5a306/resourceGroups/contoso-sharedServices/providers/Microsoft.Network/networkSecurityGroups/sharedServices-nsg"
       }
     ]
   }

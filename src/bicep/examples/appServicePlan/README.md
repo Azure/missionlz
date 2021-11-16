@@ -17,7 +17,7 @@ The subscription and resource group can be changed by providing the resource gro
 1. A Mission LZ deployment (a deployment of mlz.bicep)
 2. The outputs from a deployment of mlz.bicep (./src/bicep/examples/deploymentVariables.json).  
 
-See below for information on how to create the appropriate file for use with this template.
+See below for information on how to create the appropriate deployment variables file for use with this template.
 
 ### Template Parameters
 

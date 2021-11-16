@@ -47,3 +47,5 @@ module appServicePlanSettings 'modules/appServiceSettings.bicep' = if (enableAut
     svcPlanNameID: appServicePlan.outputs.svcPlanID
   }
 }
+output appServicePlanName string = appServicePlanName_Var
+output resourceGroupName string = targetResourceGroup_Var
