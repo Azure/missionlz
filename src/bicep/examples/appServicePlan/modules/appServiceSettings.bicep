@@ -1,5 +1,3 @@
-
-
 param svcPlanName string
 param svcPlanNameID string
 param location string
@@ -42,9 +40,9 @@ resource settingName 'Microsoft.Insights/autoscalesettings@2015-04-01' = {
       {
         name: 'DefaultAutoscaleProfile'
         capacity: {
-          minimum: minimumCapacity
-          maximum: maximumCapacity
-          default: defaultCapacity
+          minimum: string(minimumCapacity)
+          maximum: string(maximumCapacity)
+          default: string(defaultCapacity)
         }
         rules: [
           {
@@ -61,7 +59,7 @@ resource settingName 'Microsoft.Insights/autoscalesettings@2015-04-01' = {
             scaleAction: {
               direction: 'Increase'
               type: 'PercentChangeCount'
-              value: changePercentScaleOut
+              value: string(changePercentScaleOut)
               cooldown: 'PT20M'
             }
           }
@@ -79,7 +77,7 @@ resource settingName 'Microsoft.Insights/autoscalesettings@2015-04-01' = {
             scaleAction: {
               direction: 'Decrease'
               type: 'PercentChangeCount'
-              value: changePercentScaleIn
+              value: string(changePercentScaleIn)
               cooldown: 'PT20M'
             }
           }

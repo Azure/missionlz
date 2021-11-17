@@ -4,35 +4,34 @@ Optionally enable dynamic auto scaling based on CPU Percentages using 'enableAut
 */
 targetScope = 'subscription'
 
+param mlzDeploymentVariables object = json(loadTextContent('../deploymentVariables.json'))
+
 @description('The name of the web server farm which will be created.  If unchanged or not specified, the MLZ resource prefix + "--ASP" will be utilized.')
-param appServicePlanName string = 'placeHolder'
+param appServicePlanName string = '${mlzDeploymentVariables.mlzResourcePrefix.Value}-asp'
 
 @description('The name of the resource group in which the app service plan will be deployed. If unchanged or not specified, the MLZ shared services resource group is used.')
-param targetResourceGroup string = 'placeHolder'
+param targetResourceGroup string = '${mlzDeploymentVariables.spokes.Value[2].resourceGroupName}'
 
 @description('If true, enables dynamic scale-in & scale-out based on CPU percentages.  If false, then compute instances remain static with 2 instances supporting all traffic')
 param enableAutoScale bool = true
 
-var mlzDeploymentVariables = json(loadTextContent('../deploymentVariables.json'))
-var appServicePlanName_Var = contains(appServicePlanName, 'placeHolder') ? '${mlzDeploymentVariables.mlzResourcePrefix.Value}--ASP' : appServicePlanName
-var targetResourceGroup_Var = contains(targetResourceGroup, 'placeHolder') ? '${mlzDeploymentVariables.spokes.Value[2].resourceGroupName}' : targetResourceGroup
-var targetSubscriptionId_Var = contains(targetResourceGroup, 'placeHolder') ? '${mlzDeploymentVariables.spokes.Value[2].subscriptionId}' : subscription().subscriptionId
+var targetSubscriptionId_Var = contains(targetResourceGroup, '${mlzDeploymentVariables.spokes.Value[2].resourceGroupName}') ? '${mlzDeploymentVariables.spokes.Value[2].subscriptionId}' : subscription().subscriptionId
 var location = deployment().location
 var kind = 'linux'
 var capacity = 2
 var sku = 'premium'
 
 resource targetASPResourceGroup 'Microsoft.Resources/resourceGroups@2020-10-01' = {
-  name: targetResourceGroup_Var
+  name: targetResourceGroup
   location: location
 }
 
 module appServicePlan 'modules/appServicePlan.bicep' = {
-  name: appServicePlanName_Var
+  name: appServicePlanName
   scope: resourceGroup(targetSubscriptionId_Var, targetASPResourceGroup.name)
   params: {
     location: location
-    svcPlanName: appServicePlanName_Var
+    svcPlanName: appServicePlanName
     sku: sku
     capacity: capacity
     kind: kind
@@ -47,5 +46,5 @@ module appServicePlanSettings 'modules/appServiceSettings.bicep' = if (enableAut
     svcPlanNameID: appServicePlan.outputs.svcPlanID
   }
 }
-output appServicePlanName string = appServicePlanName_Var
-output resourceGroupName string = targetResourceGroup_Var
+output appServicePlanName string = appServicePlanName
+output resourceGroupName string = targetResourceGroup
