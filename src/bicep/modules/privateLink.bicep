@@ -22,10 +22,10 @@ param vnetResourceGroup string = resourceGroup().name
 @description('The subscription id of the subscription the virtual network exists in')
 param vnetSubscriptionId string = subscription().subscriptionId
 
-var privateLinkConnectionName  = substring('plconn${logAnalyticsWorkspaceName }${uniqueData}', 0, 16)
-var privateLinkEndpointName = substring('pl${logAnalyticsWorkspaceName }${uniqueData}', 0, 16)
-var privateLinkScopeName = substring('plscope${logAnalyticsWorkspaceName }${uniqueData}', 0, 16)
-var privateLinkScopeResourceName = substring('plscres${logAnalyticsWorkspaceName }${uniqueData}', 0, 16)
+var privateLinkConnectionName  = take('plconn${logAnalyticsWorkspaceName }${uniqueData}', 80)
+var privateLinkEndpointName = take('pl${logAnalyticsWorkspaceName }${uniqueData}', 80)
+var privateLinkScopeName = take('plscope${logAnalyticsWorkspaceName }${uniqueData}', 80)
+var privateLinkScopeResourceName = take('plscres${logAnalyticsWorkspaceName }${uniqueData}', 80)
 
 resource globalPrivateLinkScope 'microsoft.insights/privateLinkScopes@2019-10-17-preview' = {
   name: privateLinkScopeName
