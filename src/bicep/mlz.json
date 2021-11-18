@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "11544710405663054226"
+      "templateHash": "14872453074866470779"
     }
   },
   "parameters": {
@@ -3641,7 +3641,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "952073574871017813"
+              "templateHash": "6972319702643019380"
             }
           },
           "parameters": {
@@ -3812,7 +3812,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "7736875138030857363"
+                      "templateHash": "8888166109063371770"
                     }
                   },
                   "parameters": {
@@ -3829,16 +3829,10 @@
                       "type": "string",
                       "defaultValue": "ServicePrincipal",
                       "allowedValues": [
-                        "User",
+                        "ForeignGroup",
                         "Group",
                         "ServicePrincipal",
-                        "Unknown",
-                        "DirectoryRoleTemplate",
-                        "ForeignGroup",
-                        "Application",
-                        "MSI",
-                        "DirectoryObjectOrGroup",
-                        "Everyone"
+                        "User"
                       ]
                     },
                     "description": {
@@ -3910,7 +3904,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "952073574871017813"
+              "templateHash": "6972319702643019380"
             }
           },
           "parameters": {
@@ -4081,7 +4075,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "7736875138030857363"
+                      "templateHash": "8888166109063371770"
                     }
                   },
                   "parameters": {
@@ -4098,16 +4092,10 @@
                       "type": "string",
                       "defaultValue": "ServicePrincipal",
                       "allowedValues": [
-                        "User",
+                        "ForeignGroup",
                         "Group",
                         "ServicePrincipal",
-                        "Unknown",
-                        "DirectoryRoleTemplate",
-                        "ForeignGroup",
-                        "Application",
-                        "MSI",
-                        "DirectoryObjectOrGroup",
-                        "Everyone"
+                        "User"
                       ]
                     },
                     "description": {
