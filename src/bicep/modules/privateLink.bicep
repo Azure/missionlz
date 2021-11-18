@@ -93,7 +93,7 @@ resource dnsZonePrivateLinkEndpoint 'Microsoft.Network/privateEndpoints/privateD
       {
         name: 'agentsvc'
         properties: {
-          privateDnsZoneId: privatelink_agentsvc_azure_automation_net .id
+          privateDnsZoneId: privatelink_agentsvc_azure_automation_net.id
         }
       }
       {
