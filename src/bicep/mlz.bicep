@@ -33,7 +33,7 @@ module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
     name: logAnalyticsWorkspaceName
     location: logAnalyticsWorkspaceLocation
     tags: tags
-
+    deploySentinel: deploySentinel
     retentionInDays: logAnalyticsWorkspaceRetentionInDays
     skuName: logAnalyticsWorkspaceSkuName
     workspaceCappingDailyQuotaGb: logAnalyticsWorkspaceCappingDailyQuotaGb
@@ -215,7 +215,6 @@ module logAnalyticsDiagnosticLogging './modules/logAnalyticsDiagnosticLogging.bi
   params: {
     diagnosticStorageAccountName: operationsLogStorageAccountName
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    enableDiagnostics: true
   }
   dependsOn: [
     hubNetwork
@@ -458,6 +457,8 @@ param logAnalyticsWorkspaceLocation string = operationsLocation
 param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
 param logAnalyticsWorkspaceRetentionInDays int = 30
 param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
+@description('When set to "True", enables Microsoft Sentinel within the MLZ Log Analytics workspace.')
+param deploySentinel bool = false
 
 @allowed([
   'NIST'

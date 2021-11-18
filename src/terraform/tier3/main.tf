@@ -1,6 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 terraform {
+  # It is recommended to use remote state instead of local
+  # If you are using Terraform Cloud, You can update these values in order to configure your remote state.
+  /*  backend "remote" {
+    organization = "{{ORGANIZATION_NAME}}"
+    workspaces {
+      name = "{{WORKSPACE_NAME}}"
+    }
+  }
+  */
   backend "local" {}
 
   required_version = ">= 1.0.8"

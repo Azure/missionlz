@@ -26,7 +26,7 @@ resource "azurerm_subnet" "fw_mgmt" {
 }
 
 resource "azurerm_route_table" "routetable" {
-  name                          = "FirewallDefaultRoute"
+  name                          = "FirewallRouteTable"
   resource_group_name           = azurerm_subnet.fw_mgmt.resource_group_name
   location                      = var.location
   disable_bgp_route_propagation = true
@@ -34,9 +34,9 @@ resource "azurerm_route_table" "routetable" {
 }
 
 resource "azurerm_route" "default_route" {
-  name                = "default_route"
+  name                = "FirewallDefaultRoute"
   resource_group_name = azurerm_route_table.routetable.resource_group_name
-  route_table_name    = "FirewallDefaultRoute"
+  route_table_name    = "FirewallRouteTable"
   address_prefix      = "0.0.0.0/0"
   next_hop_type       = "Internet"
 }

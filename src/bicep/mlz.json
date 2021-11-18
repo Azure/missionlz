@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "16071570185051393007"
+      "templateHash": "11074406747608602454"
     }
   },
   "parameters": {
@@ -435,6 +435,13 @@
       "type": "string",
       "defaultValue": "PerGB2018"
     },
+    "deploySentinel": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When set to \"True\", enables Microsoft Sentinel within the MLZ Log Analytics workspace."
+      }
+    },
     "policy": {
       "type": "string",
       "defaultValue": "NIST",
@@ -856,6 +863,9 @@
           "tags": {
             "value": "[parameters('tags')]"
           },
+          "deploySentinel": {
+            "value": "[parameters('deploySentinel')]"
+          },
           "retentionInDays": {
             "value": "[parameters('logAnalyticsWorkspaceRetentionInDays')]"
           },
@@ -1188,7 +1198,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "2822522237557490106"
+              "templateHash": "13599565970900573060"
             }
           },
           "parameters": {
@@ -2393,7 +2403,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "18251381868621303940"
+                      "templateHash": "7428452441585761239"
                     }
                   },
                   "parameters": {
@@ -2451,10 +2461,10 @@
                   },
                   "functions": [],
                   "variables": {
-                    "privateLinkConnectionName": "[substring(format('plconn{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 0, 16)]",
-                    "privateLinkEndpointName": "[substring(format('pl{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 0, 16)]",
-                    "privateLinkScopeName": "[substring(format('plscope{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 0, 16)]",
-                    "privateLinkScopeResourceName": "[substring(format('plscres{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 0, 16)]",
+                    "privateLinkConnectionName": "[take(format('plconn{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 80)]",
+                    "privateLinkEndpointName": "[take(format('pl{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 80)]",
+                    "privateLinkScopeName": "[take(format('plscope{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 80)]",
+                    "privateLinkScopeResourceName": "[take(format('plscres{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 80)]",
                     "privateDnsZones_privatelink_monitor_azure_name": "[if(equals(toLower(environment().name), toLower('AzureCloud')), 'privatelink.monitor.azure.com', 'privatelink.monitor.azure.us')]",
                     "privateDnsZones_privatelink_ods_opinsights_azure_name": "[if(equals(toLower(environment().name), toLower('AzureCloud')), 'privatelink.ods.opinsights.azure.com', 'privatelink.ods.opinsights.azure.us')]",
                     "privateDnsZones_privatelink_oms_opinsights_azure_name": "[if(equals(toLower(environment().name), toLower('AzureCloud')), 'privatelink.oms.opinsights.azure.com', 'privatelink.oms.opinsights.azure.us')]",
@@ -3602,7 +3612,11 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
+<<<<<<< HEAD
               "templateHash": "800042502323217766"
+=======
+              "templateHash": "6972319702643019380"
+>>>>>>> 9a3529b687889d63aea403dedfb0a798161242f1
             }
           },
           "parameters": {
@@ -3773,7 +3787,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "7736875138030857363"
+                      "templateHash": "8888166109063371770"
                     }
                   },
                   "parameters": {
@@ -3790,16 +3804,10 @@
                       "type": "string",
                       "defaultValue": "ServicePrincipal",
                       "allowedValues": [
-                        "User",
+                        "ForeignGroup",
                         "Group",
                         "ServicePrincipal",
-                        "Unknown",
-                        "DirectoryRoleTemplate",
-                        "ForeignGroup",
-                        "Application",
-                        "MSI",
-                        "DirectoryObjectOrGroup",
-                        "Everyone"
+                        "User"
                       ]
                     },
                     "description": {
@@ -3871,7 +3879,11 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
+<<<<<<< HEAD
               "templateHash": "800042502323217766"
+=======
+              "templateHash": "6972319702643019380"
+>>>>>>> 9a3529b687889d63aea403dedfb0a798161242f1
             }
           },
           "parameters": {
@@ -4042,7 +4054,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "7736875138030857363"
+                      "templateHash": "8888166109063371770"
                     }
                   },
                   "parameters": {
@@ -4059,16 +4071,10 @@
                       "type": "string",
                       "defaultValue": "ServicePrincipal",
                       "allowedValues": [
-                        "User",
+                        "ForeignGroup",
                         "Group",
                         "ServicePrincipal",
-                        "Unknown",
-                        "DirectoryRoleTemplate",
-                        "ForeignGroup",
-                        "Application",
-                        "MSI",
-                        "DirectoryObjectOrGroup",
-                        "Everyone"
+                        "User"
                       ]
                     },
                     "description": {
@@ -4319,9 +4325,6 @@
           },
           "logAnalyticsWorkspaceName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.name.value]"
-          },
-          "enableDiagnostics": {
-            "value": true
           }
         },
         "template": {
@@ -4331,7 +4334,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "15160395873360351727"
+              "templateHash": "11315996337583372529"
             }
           },
           "parameters": {
@@ -4341,15 +4344,18 @@
             "logAnalyticsWorkspaceName": {
               "type": "string"
             },
-            "enableDiagnostics": {
-              "type": "bool",
-              "defaultValue": true
+            "supportedClouds": {
+              "type": "array",
+              "defaultValue": [
+                "AzureCloud",
+                "AzureUSGovernment"
+              ]
             }
           },
           "functions": [],
           "resources": [
             {
-              "condition": "[parameters('enableDiagnostics')]",
+              "condition": "[contains(parameters('supportedClouds'), environment().name)]",
               "type": "Microsoft.Insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
               "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('logAnalyticsWorkspaceName'))]",
