@@ -20,7 +20,7 @@ module spokeResourceGroups './modules/resourceGroup.bicep' = [for spoke in spoke
   params: {
     name: spoke.resourceGroupName
     location: spoke.location
-    tags: tags
+    tags: tagging
   }
 }]
 
@@ -32,7 +32,7 @@ module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
   params: {
     name: logAnalyticsWorkspaceName
     location: logAnalyticsWorkspaceLocation
-    tags: tags
+    tags: tagging
     deploySentinel: deploySentinel
     retentionInDays: logAnalyticsWorkspaceRetentionInDays
     skuName: logAnalyticsWorkspaceSkuName
@@ -50,7 +50,7 @@ module hubNetwork './modules/hubNetwork.bicep' = {
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     location: hubLocation
-    tags: tags
+    tags: tagging
 
     logStorageAccountName: hubLogStorageAccountName
     logStorageSkuName: hubLogStorageSkuName
@@ -105,7 +105,7 @@ module spokeNetworks './modules/spokeNetwork.bicep' = [ for spoke in spokes: {
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
     location: spoke.location
-    tags: tags
+    tags: tagging
 
     logStorageAccountName: spoke.logStorageAccountName
     logStorageSkuName: spoke.logStorageSkuName
@@ -547,10 +547,12 @@ param windowsVmVersion string = 'latest'
 param windowsVmCreateOption string = 'FromImage'
 param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
-param tags object = {
+param tags object = {}
+var defaultTags = {
   'resourcePrefix': resourcePrefix
   'DeploymentType': 'MissionLandingZoneARM'
 }
+var tagging = union(tags,defaultTags)
 
 param uniqueId string = uniqueString(deployment().name)
 param nowUtc string = utcNow()
