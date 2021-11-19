@@ -5,7 +5,7 @@ targetScope = 'subscription'
 
 //// scaffolding
 
-module hubResourceGroup './modules/resourceGroup.bicep' = {
+module hubResourceGroupModification './modules/resourceGroup.bicep' = {
   name: 'deploy-rg-hub-${nowUtc}'
   scope: subscription(hubSubscriptionId)
   params: {
