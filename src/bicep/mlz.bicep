@@ -595,8 +595,8 @@ output firewallPrivateIPAddress string = hubNetwork.outputs.firewallPrivateIPAdd
 
 output hub object = {
   subscriptionId: hubSubscriptionId
-  resourceGroupName: hubResourceGroup.outputs.name
-  resourceGroupResourceId: hubResourceGroup.outputs.id
+  resourceGroupName: hubResourceGroupModification.outputs.name
+  resourceGroupResourceId: hubResourceGroupModification.outputs.id
   virtualNetworkName: hubNetwork.outputs.virtualNetworkName
   virtualNetworkResourceId: hubNetwork.outputs.virtualNetworkResourceId
   subnetName: hubNetwork.outputs.subnetName
