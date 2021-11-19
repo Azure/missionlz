@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "11074406747608602454"
+      "templateHash": "17151661725468237381"
     }
   },
   "parameters": {
@@ -649,10 +649,7 @@
     },
     "tags": {
       "type": "object",
-      "defaultValue": {
-        "resourcePrefix": "[parameters('resourcePrefix')]",
-        "DeploymentType": "MissionLandingZoneARM"
-      }
+      "defaultValue": {}
     },
     "uniqueId": {
       "type": "string",
@@ -667,6 +664,11 @@
   "variables": {
     "firewallClientSubnetName": "AzureFirewallSubnet",
     "firewallManagementSubnetName": "AzureFirewallManagementSubnet",
+    "defaultTags": {
+      "resourcePrefix": "[parameters('resourcePrefix')]",
+      "DeploymentType": "MissionLandingZoneARM"
+    },
+    "calculatedTags": "[union(parameters('tags'), variables('defaultTags'))]",
     "spokes": [
       {
         "name": "operations",
@@ -745,6 +747,9 @@
           },
           "location": {
             "value": "[parameters('hubLocation')]"
+          },
+          "tags": {
+            "value": "[variables('calculatedTags')]"
           }
         },
         "template": {
@@ -819,7 +824,7 @@
             "value": "[variables('spokes')[copyIndex()].location]"
           },
           "tags": {
-            "value": "[parameters('tags')]"
+            "value": "[variables('calculatedTags')]"
           }
         },
         "template": {
@@ -890,7 +895,7 @@
             "value": "[parameters('logAnalyticsWorkspaceLocation')]"
           },
           "tags": {
-            "value": "[parameters('tags')]"
+            "value": "[variables('calculatedTags')]"
           },
           "deploySentinel": {
             "value": "[parameters('deploySentinel')]"
@@ -1100,7 +1105,7 @@
             "value": "[parameters('hubLocation')]"
           },
           "tags": {
-            "value": "[parameters('tags')]"
+            "value": "[variables('calculatedTags')]"
           },
           "logStorageAccountName": {
             "value": "[parameters('hubLogStorageAccountName')]"
@@ -2771,7 +2776,7 @@
             "value": "[variables('spokes')[copyIndex()].location]"
           },
           "tags": {
-            "value": "[parameters('tags')]"
+            "value": "[variables('calculatedTags')]"
           },
           "logStorageAccountName": {
             "value": "[variables('spokes')[copyIndex()].logStorageAccountName]"
