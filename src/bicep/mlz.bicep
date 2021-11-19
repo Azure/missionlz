@@ -11,6 +11,7 @@ module hubResourceGroup './modules/resourceGroup.bicep' = {
   params: {
     name: hubResourceGroupName
     location: hubLocation
+    tags: calculatedTags
   }
 }
 
