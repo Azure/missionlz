@@ -21,7 +21,7 @@ See below for information on how to create the appropriate deployment variables 
 
 ### Template Parameters
 
-Deployment Output Name | Description
+Template Parameters Name | Description
 -----------------------| -----------
 appServicePlanName | The name of the App Service Plan.  If not specified, the name will default to the MLZ default naming pattern.  
 targetResourceGroup | The name of the resource group where the App Service Plan will be deployed.   If not specified, the resource group name will default to the shared services MLZ resource group name and subscription.
@@ -29,15 +29,9 @@ enableAutoScale | A true/false value that determines if dyname auto scale is ena
 
 ### Generate MLZ VAriable File (deploymentVariables.json)
 
-One way to generate the MLZ variable file(deploymentVariables.json) which contains all of the needed values for this examples and others as well is through PowerShell Core and the Azure PowerShell module.  Both PowerShell Core and the Azure PowerShell module are open source projects and avaliable for all major operating systems (Mac, Linux, Windows).
+For instructions on generating 'deploymentVariables.json' using both Azure PowerShell and Azure CLI, please see the [README at the root of the examples folder](..\README.md).
 
-* Get PowerShell Core:  <https://github.com/PowerShell/PowerShell/releases>
-* Get Azure PowerShell: <https://docs.microsoft.com/en-us/powershell/azure/install-az-ps>
-* Getting Started with Azure PowerShell: <https://docs.microsoft.com/en-us/powershell/azure/get-started-azureps>
-* Generate 'deploymentVariables.json': (Get-AzSubscriptionDeployment -Name MLZDeploymentName).outputs | ConvertTo-Json -Depth 10 | Out-File -FilePath .\deploymentVariables.json
-* Replace "MLZDeploymentName" with your deployment name:  Browse to 'Subscriptions', to the subscription MLZ was deployed into, and then look at 'Deployments'
-
-Place the 'deploymentVariables.json' file ./src/bicep/examples folder.  See the sample for reference.
+Place the resulting 'deploymentVariables.json' file within the ./src/bicep/examples folder.
 
 ### Deploying App Service Plan
 
@@ -48,9 +42,19 @@ cd .\src\bicep
 Connect-AzAccount
 New-AzSubscriptionDeployment -Name contoso -TemplateFile .\mlz.bicep -resourcePrefix 'contoso' -Location 'eastus'
 cd .\examples
-(Get-AzSubscriptionDeployment -Name contoso).outputs | ConvertTo-Json -Depth 10 | Out-File -FilePath .\deploymentVariables.json
+(Get-AzSubscriptionDeployment -Name contoso).outputs | ConvertTo-Json | Out-File -FilePath .\deploymentVariables.json
 cd .\AppServicePlan
 New-AzSubscriptionDeployment -DeploymentName deployAppServicePlan -TemplateFile .\appService.bicep -Location 'eastus'
+```
+
+```Azure CLI
+az login
+cd src/bicep
+az deployment sub create -n contoso -f mlz.bicep -l eastus --parameters resourcePrefix=contoso
+cd examples
+az deployment sub show -n contoso --query properties.outputs >> ./deploymentVariables.json
+cd appServicePlan
+az deployment sub create -n deployAppServicePlan -f appService.bicep -l eastus
 ```
 
 ### References

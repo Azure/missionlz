@@ -15,7 +15,7 @@ param targetResourceGroup string = '${mlzDeploymentVariables.spokes.Value[2].res
 @description('If true, enables dynamic scale-in & scale-out based on CPU percentages.  If false, then compute instances remain static with 2 instances supporting all traffic')
 param enableAutoScale bool = true
 
-var targetSubscriptionId_Var = contains(targetResourceGroup, '${mlzDeploymentVariables.spokes.Value[2].resourceGroupName}') ? '${mlzDeploymentVariables.spokes.Value[2].subscriptionId}' : subscription().subscriptionId
+var targetSubscriptionId_Var = targetResourceGroup == '${mlzDeploymentVariables.spokes.Value[2].resourceGroupName}' ? '${mlzDeploymentVariables.spokes.Value[2].subscriptionId}' : subscription().subscriptionId
 var location = deployment().location
 var kind = 'linux'
 var capacity = 2
