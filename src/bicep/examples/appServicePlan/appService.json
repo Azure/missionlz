@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.613.9944",
-      "templateHash": "12709251753508669530"
+      "version": "0.4.1008.15138",
+      "templateHash": "2691389334860595334"
     }
   },
   "parameters": {
@@ -22,7 +22,7 @@
     },
     "targetResourceGroup": {
       "type": "string",
-      "defaultValue": "[parameters('mlzDeploymentVariables').spokes.Value[2].resourceGroupName]",
+      "defaultValue": "[format('{0}', parameters('mlzDeploymentVariables').spokes.Value[2].resourceGroupName)]",
       "metadata": {
         "description": "The name of the resource group in which the app service plan will be deployed. If unchanged or not specified, the MLZ shared services resource group is used."
       }
@@ -37,7 +37,7 @@
   },
   "functions": [],
   "variables": {
-    "targetSubscriptionId_Var": "[if(equals(parameters('targetResourceGroup'), parameters('mlzDeploymentVariables').spokes.Value[2].resourceGroupName), parameters('mlzDeploymentVariables').spokes.Value[2].subscriptionId, subscription().subscriptionId)]",
+    "targetSubscriptionId_Var": "[if(equals(parameters('targetResourceGroup'), format('{0}', parameters('mlzDeploymentVariables').spokes.Value[2].resourceGroupName)), format('{0}', parameters('mlzDeploymentVariables').spokes.Value[2].subscriptionId), subscription().subscriptionId)]",
     "location": "[deployment().location]",
     "kind": "linux",
     "capacity": 2,
@@ -52,7 +52,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[parameters('appServicePlanName')]",
       "subscriptionId": "[variables('targetSubscriptionId_Var')]",
       "resourceGroup": "[parameters('targetResourceGroup')]",
@@ -84,8 +84,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "16713401460526786718"
+              "version": "0.4.1008.15138",
+              "templateHash": "14684044973590456081"
             }
           },
           "parameters": {
@@ -153,7 +153,7 @@
     {
       "condition": "[parameters('enableAutoScale')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "appServicePlanSettingsName",
       "subscriptionId": "[variables('targetSubscriptionId_Var')]",
       "resourceGroup": "[parameters('targetResourceGroup')]",
@@ -167,10 +167,10 @@
             "value": "[variables('location')]"
           },
           "svcPlanName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('targetSubscriptionId_Var'), parameters('targetResourceGroup')), 'Microsoft.Resources/deployments', parameters('appServicePlanName')), '2019-10-01').outputs.svcPlanName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('targetSubscriptionId_Var'), parameters('targetResourceGroup')), 'Microsoft.Resources/deployments', parameters('appServicePlanName')), '2020-06-01').outputs.svcPlanName.value]"
           },
           "svcPlanNameID": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('targetSubscriptionId_Var'), parameters('targetResourceGroup')), 'Microsoft.Resources/deployments', parameters('appServicePlanName')), '2019-10-01').outputs.svcPlanID.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('targetSubscriptionId_Var'), parameters('targetResourceGroup')), 'Microsoft.Resources/deployments', parameters('appServicePlanName')), '2020-06-01').outputs.svcPlanID.value]"
           }
         },
         "template": {
@@ -179,8 +179,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "15826535468196573326"
+              "version": "0.4.1008.15138",
+              "templateHash": "7636819529925623419"
             }
           },
           "parameters": {
