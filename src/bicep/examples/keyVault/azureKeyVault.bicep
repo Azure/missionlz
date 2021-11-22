@@ -29,5 +29,5 @@ module deployAzureKeyVault 'modules/keyVault.bicep' = {
   }
 }
 
-output azuyreKeyVaultName string = keyVaultName
+output azureKeyVaultName string = keyVaultName
 output resourceGroupName string = targetResourceGroup

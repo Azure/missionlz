@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "2084413185189959328"
+      "templateHash": "6558428922943348549"
     }
   },
   "parameters": {
@@ -110,7 +110,7 @@
     }
   ],
   "outputs": {
-    "azuyreKeyVaultName": {
+    "azureKeyVaultName": {
       "type": "string",
       "value": "[parameters('keyVaultName')]"
     },
