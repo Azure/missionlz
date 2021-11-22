@@ -6,7 +6,7 @@ targetScope = 'subscription'
 param mlzDeploymentVariables object = json(loadTextContent('../deploymentVariables.json'))
 
 @description('The name of the key vault which will be created. Must be clobally unique, between 3 and 24 characters and only single hyphens permitted. If unchanged or not specified, the MLZ resource prefix + "-akv" will be utilized.')
-param keyVaultName string = '${mlzDeploymentVariables.mlzResourcePrefix.Value}-jaiakv'
+param keyVaultName string = '${mlzDeploymentVariables.mlzResourcePrefix.Value}-akv'
 
 @description('The name of the resource group in which the key vault will be deployed. If unchanged or not specified, the MLZ shared services resource group is used.')
 param targetResourceGroup string = '${mlzDeploymentVariables.spokes.Value[2].resourceGroupName}'

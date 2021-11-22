@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "14896641165264382390"
+      "templateHash": "2084413185189959328"
     }
   },
   "parameters": {
@@ -15,7 +15,7 @@
     },
     "keyVaultName": {
       "type": "string",
-      "defaultValue": "[format('{0}-jaiakv', parameters('mlzDeploymentVariables').mlzResourcePrefix.Value)]",
+      "defaultValue": "[format('{0}-akv', parameters('mlzDeploymentVariables').mlzResourcePrefix.Value)]",
       "metadata": {
         "description": "The name of the key vault which will be created. Must be clobally unique, between 3 and 24 characters and only single hyphens permitted. If unchanged or not specified, the MLZ resource prefix + \"-akv\" will be utilized."
       }
