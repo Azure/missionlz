@@ -52,7 +52,7 @@ az login
 cd src/bicep
 az deployment sub create -n contoso -f mlz.bicep -l eastus --parameters resourcePrefix=contoso
 cd examples
-az deployment sub show -n contoso --query properties.outputs >> ./deploymentVariables.json
+az deployment sub show -n contoso --query properties.outputs > ./deploymentVariables.json
 cd appServicePlan
 az deployment sub create -n deployAppServicePlan -f appService.bicep -l eastus
 ```
