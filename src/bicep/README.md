@@ -2,7 +2,7 @@
 
 ## Deployment
 
-### Prerequisistes
+### Prerequisites
 
 You can deploy with the Azure Portal, the Azure CLI, or with both in a Azure Commercial, Azure for Government, or Air-Gapped Clouds. But first, you'll need these pre-requisites:
 
