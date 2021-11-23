@@ -1,6 +1,6 @@
 # App Service Plan Example
 
-This example deploys an App Service Plan (AKA: Web Server Cluster) to support simple web accessible linux docker containers.  It also optionally supports the use of dynamic(up and down) scale settings based on CPU percentage up to a max of 10 compute instances.
+This example deploys an App Service Plan (AKA: Web Server Cluster) to support simple web accessible linux docker containers.  It also optionally supports the use of dynamic (up and down) scale settings based on CPU percentage up to a max of 10 compute instances.
 
 Read on to understand what this example does, and when you're ready, collect all of the pre-requisites, then deploy the example.
 
