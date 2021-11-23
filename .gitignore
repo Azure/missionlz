@@ -21,3 +21,6 @@ crash.log
 
 # Mac files
 .DS_Store
+
+# Ignore deploymentVariables.json as it is specific to a single instantiation of MLZ
+src/bicep/examples/deploymentVariables.json
