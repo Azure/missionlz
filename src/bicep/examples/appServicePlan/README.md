@@ -25,7 +25,7 @@ Template Parameters Name | Description
 -----------------------| -----------
 appServicePlanName | The name of the App Service Plan.  If not specified, the name will default to the MLZ default naming pattern.  
 targetResourceGroup | The name of the resource group where the App Service Plan will be deployed.   If not specified, the resource group name will default to the shared services MLZ resource group name and subscription.
-enableAutoScale | A true/false value that determines if dyname auto scale is enabled.  If set to "true", dyanmic auto scale is enabled up to a maximum of 10 compute instances based on CPU percentage exceeding 70% for 10 minutes.   Will also scale in if CPU percentage is below 30% for 10 minutes.  If set to "false", the App Service Plan will statically maintain two compute instances indefinitely.
+enableAutoScale | A true/false value that determines if dynamic auto scale is enabled.  If set to "true", dynamic auto scale is enabled up to a maximum of 10 compute instances based on CPU percentage exceeding 70% for 10 minutes.   Will also scale down if CPU percentage is below 30% for 10 minutes.  If set to "false", the App Service Plan will statically maintain two compute instances indefinitely.
 
 ### Generate MLZ Variable File (deploymentVariables.json)
 
