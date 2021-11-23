@@ -15,11 +15,13 @@ param targetResourceGroup string = '${mlzDeploymentVariables.spokes.Value[2].res
 @description('If true, enables dynamic scale-in & scale-out based on CPU percentages.  If false, then compute instances remain static with 2 instances supporting all traffic')
 param enableAutoScale bool = true
 
+@description('Defines the performance tier of your web farm.  By default the performance scale will be premium 2nd generation version 2 "p2v2".  Another value would be standard generation 2 "s2".')
+param appServiceSkuName string = 'p2v2'
+
 var targetSubscriptionId_Var = targetResourceGroup == '${mlzDeploymentVariables.spokes.Value[2].resourceGroupName}' ? '${mlzDeploymentVariables.spokes.Value[2].subscriptionId}' : subscription().subscriptionId
 var location = deployment().location
 var kind = 'linux'
 var capacity = 2
-var sku = 'premium'
 
 resource targetASPResourceGroup 'Microsoft.Resources/resourceGroups@2020-10-01' = {
   name: targetResourceGroup
@@ -32,7 +34,7 @@ module appServicePlan 'modules/appServicePlan.bicep' = {
   params: {
     location: location
     svcPlanName: appServicePlanName
-    sku: sku
+    sku: appServiceSkuName
     capacity: capacity
     kind: kind
   }

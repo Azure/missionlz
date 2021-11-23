@@ -6,16 +6,12 @@ param sku string
 
 var reserved = kind == 'linux' ? true : false
 
-@description('The instance size of the app.')
-param svcPlanSize string = 'P2v2'
-
 resource svcPlanName_resource 'Microsoft.Web/serverfarms@2020-12-01' = {
   name: svcPlanName
   location: location
   kind: kind
   sku: {
-    name: svcPlanSize
-    tier: sku
+    name: sku
     capacity: capacity
   }
   properties: {
