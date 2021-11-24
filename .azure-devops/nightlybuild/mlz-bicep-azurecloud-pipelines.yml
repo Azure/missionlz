@@ -69,17 +69,6 @@ jobs:
         echo $hubSubscriptionId
 
   - task: AzureCLI@2
-    displayName: "Deploy MLZ T3 Bicep"
-    inputs:
-      azureSubscription: $(ServiceConnectionName)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az deployment sub create \
-          --name $(bDeploymentName) \
-          --location $(Location) \
-          --template-file $(T3TemplateFile)      
-  - task: AzureCLI@2
     displayName: "Clean up Subscription Diagnostics Settings"
     inputs:
       azureSubscription: $(ServiceConnectionName)
