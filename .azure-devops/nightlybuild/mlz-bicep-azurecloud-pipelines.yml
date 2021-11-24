@@ -64,26 +64,26 @@ jobs:
             echo $(firewallPrivateIPAddress)
 
   - task: AzureCLI@2
-    displayName: "Hydrate Variables for T3 Deployment"
+    displayName: "T3 Deployment"
     inputs:
       azureSubscription: $(ServiceConnectionName)
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        echo $deploymentoutput | jq '.hubSubscriptionId'
-        read hubSubId < <(echo $deploymentoutput | jq '.hubSubscriptionId')
-        read hubRGroupName < <(echo $deploymentoutput | jq '.hubResourceGroupName')
-        read hubVNetworkName < <(echo $deploymentoutput | jq '.hubVirtualNetworkName')
-        read hubVNetworkResourceId < <(echo $deploymentoutput | jq '.hubVirtualNetworkResourceId')
-        read logAWspaceResourceId < <(echo $deploymentoutput | jq '.logAnalyticsWorkspaceResourceId')
-        read firewallPrivateIP < <(echo $deploymentoutput | jq '.firewallPrivateIPAddress')
-        echo "##vso[task.setvariable variable=hubSubscriptionId;isOutput=true]'hubSubId'"
-        echo "##vso[task.setvariable variable=hubResourceGroupName;isOutput=true]$hubRGroupName"
-        echo "##vso[task.setvariable variable=hubVirtualNetworkName;isOutput=true]$hubVNetworkName"
-        echo "##vso[task.setvariable variable=hubVirtualNetworkResourceId;isOutput=true]$hubVNetworkResourceId"
-        echo "##vso[task.setvariable variable=logAnalyticsWorkspaceResourceId;isOutput=true]$logAWspaceResourceId"
-        echo "##vso[task.setvariable variable=firewallPrivateIPAddress;isOutput=true]$firewallPrivateIP"
-    enabled: false
+        az deployment sub create \
+           --subscription $workloadSubscriptionId \
+           --location $(Location) \
+           --name $workloadName \
+           --template-file $(TemplateFile) \
+           --parameters \
+              workloadName="$workloadName" \
+              hubSubscriptionId=$(hubSubscriptionId) \
+              hubResourceGroupName="$(hubResourceGroupName)" \
+              hubVirtualNetworkName="$hubVirtualNetworkName" \
+              hubVirtualNetworkResourceId="$(hubVirtualNetworkName)" \
+              logAnalyticsWorkspaceResourceId="$(logAnalyticsWorkspaceResourceId)" \
+              firewallPrivateIPAddress="$(firewallPrivateIPAddress)"
+   
 
   - task: AzureCLI@2
     displayName: "Clean up Subscription Diagnostics Settings"
