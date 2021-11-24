@@ -7,12 +7,7 @@ pool:
 
 variables:
   ServiceConnectionName: $(CAzureConnection)  
-  hubSubscriptionId: ''
-  hubResourceGroupName: ''
-  hubVirtualNetworkName: ''
-  hubVirtualNetworkResourceId: ''
-  logAnalyticsWorkspaceResourceId: ''
-  firewallPrivateIPAddress: ''
+  
 
 jobs:
 - job: bicepCommercialCloud
