@@ -23,6 +23,7 @@ jobs:
           --name $(bDeploymentName) \
           --location $(Location) \
           --template-file $(TemplateFile)
+    enabled: false
   - task: AzureCLI@2
     displayName: "Extract Values for T3 Deployment"
     inputs:
@@ -40,6 +41,9 @@ jobs:
         logAnalyticsWorkspaceResourceId:properties.outputs.logAnalyticsWorkspaceResourceId.value,
         firewallPrivateIPAddress:properties.outputs.firewallPrivateIPAddress.value
         }' -o json)
+        |
+        echo $deploymentoutput | jq '.hubSubscriptionId'
+        echo "##vso[task.setvariable variable=hubSubscriptionId;isOutput=true]$deploymentoutput | jq '.hubSubscriptionId'"
 
   - task: AzureCLI@2
     displayName: "Hydrate Variables for T3 Deployment"
