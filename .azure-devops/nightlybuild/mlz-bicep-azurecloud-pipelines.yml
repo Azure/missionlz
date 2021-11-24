@@ -62,6 +62,7 @@ jobs:
             echo $(hubVirtualNetworkResourceId)
             echo $(logAnalyticsWorkspaceResourceId)
             echo $(firewallPrivateIPAddress)
+            echo $(workloadName)
 
   - task: AzureCLI@2
     displayName: "T3 Deployment"
@@ -76,13 +77,13 @@ jobs:
            --name $(workloadName) \
            --template-file $(T3TemplateFile) \
            --parameters \
-              workloadName="$workloadName" \
+              workloadName=$(workloadName) \
               hubSubscriptionId=$(hubSubscriptionId) \
-              hubResourceGroupName="$(hubResourceGroupName)" \
-              hubVirtualNetworkName="$hubVirtualNetworkName" \
-              hubVirtualNetworkResourceId="$(hubVirtualNetworkName)" \
-              logAnalyticsWorkspaceResourceId="$(logAnalyticsWorkspaceResourceId)" \
-              firewallPrivateIPAddress="$(firewallPrivateIPAddress)"
+              hubResourceGroupName=$(hubResourceGroupName) \
+              hubVirtualNetworkName=$(hubVirtualNetworkName) \
+              hubVirtualNetworkResourceId=$(hubVirtualNetworkName) \
+              logAnalyticsWorkspaceResourceId=$(logAnalyticsWorkspaceResourceId) \
+              firewallPrivateIPAddress=$(firewallPrivateIPAddress)
    
 
   - task: AzureCLI@2
