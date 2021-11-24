@@ -48,6 +48,7 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
+        echo $deploymentoutput | jq '.hubSubscriptionId'
         read hubSubId < <(echo $deploymentoutput | jq '.hubSubscriptionId')
         read hubRGroupName < <(echo $deploymentoutput | jq '.hubResourceGroupName')
         read hubVNetworkName < <(echo $deploymentoutput | jq '.hubVirtualNetworkName')
@@ -68,6 +69,7 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az monitor diagnostic-settings subscription list --query "value[? contains(@.name, ''$1'')].name" -o table  |grep ''mlz''| awk ''{system(" az monitor diagnostic-settings  delete  --resource  ''"/subscriptions/$(subId)"'' --name "$1)}'''
+    enabled: false
   - task: AzureCLI@2
     displayName: "Clean up Resources"
     inputs:
@@ -75,3 +77,4 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az group list -o table | grep ''mlz'' | awk ''{system("az group delete -y --no-wait -g "$1)}'''
+    enabled: false
