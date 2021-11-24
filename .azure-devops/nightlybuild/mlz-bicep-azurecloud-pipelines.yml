@@ -37,7 +37,7 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: |
         deploymentoutput=$(az deployment sub show \
-        --name mytest \
+        --name $(bDeploymentName) \
         --query '{
         hubSubscriptionId:properties.outputs.hub.value.subscriptionId,
         hubResourceGroupName:properties.outputs.hub.value.resourceGroupName,
