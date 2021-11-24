@@ -54,7 +54,7 @@ jobs:
         read hubVNetworkResourceId < <(echo $deploymentoutput | jq '.hubVirtualNetworkResourceId')
         read logAWspaceResourceId < <(echo $deploymentoutput | jq '.logAnalyticsWorkspaceResourceId')
         read firewallPrivateIP < <(echo $deploymentoutput | jq '.firewallPrivateIPAddress')
-        echo "##vso[task.setvariable variable=hubSubscriptionId;isOutput=true]$hubSubId"
+        echo "##vso[task.setvariable variable=hubSubscriptionId;isOutput=true]'hubSubId'"
         echo "##vso[task.setvariable variable=hubResourceGroupName;isOutput=true]$hubRGroupName"
         echo "##vso[task.setvariable variable=hubVirtualNetworkName;isOutput=true]$hubVNetworkName"
         echo "##vso[task.setvariable variable=hubVirtualNetworkResourceId;isOutput=true]$hubVNetworkResourceId"
