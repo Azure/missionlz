@@ -81,7 +81,7 @@ jobs:
               hubSubscriptionId=$(hubSubscriptionId) \
               hubResourceGroupName=$(hubResourceGroupName) \
               hubVirtualNetworkName=$(hubVirtualNetworkName) \
-              hubVirtualNetworkResourceId=$(hubVirtualNetworkName) \
+              hubVirtualNetworkResourceId=$(hubVirtualNetworkResourceId) \
               logAnalyticsWorkspaceResourceId=$(logAnalyticsWorkspaceResourceId) \
               firewallPrivateIPAddress=$(firewallPrivateIPAddress)
    
