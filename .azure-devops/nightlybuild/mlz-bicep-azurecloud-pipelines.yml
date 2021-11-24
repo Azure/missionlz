@@ -76,7 +76,6 @@ jobs:
            --name $(workloadName) \
            --template-file $(TemplateFile) \
            --parameters \
-              workloadName="$(workloadName)" \
               hubSubscriptionId=$(hubSubscriptionId) \
               hubResourceGroupName="$(hubResourceGroupName)" \
               hubVirtualNetworkName="$hubVirtualNetworkName" \
