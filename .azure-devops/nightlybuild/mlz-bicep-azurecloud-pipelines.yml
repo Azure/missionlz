@@ -1,13 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-schedules:
-  - cron: "0 4 * * *"
-    displayName: "Nightly - mlz bicep azure cloud"
-    branches:
-      include:
-        - main
-    always: true
 
 pool:
   vmImage: ubuntu-latest
