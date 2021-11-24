@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "17151661725468237381"
+      "templateHash": "8860935919538003927"
     }
   },
   "parameters": {
@@ -5783,6 +5783,10 @@
     }
   ],
   "outputs": {
+    "mlzResourcePrefix": {
+      "type": "string",
+      "value": "[parameters('resourcePrefix')]"
+    },
     "firewallPrivateIPAddress": {
       "type": "string",
       "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.firewallPrivateIPAddress.value]"

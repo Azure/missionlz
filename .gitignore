@@ -16,7 +16,11 @@ crash.log
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
 # example: *tfplan*
 *plan*
+!src/bicep/**
 *.plan*
 
 # Mac files
 .DS_Store
+
+# Ignore deploymentVariables.json as it is specific to a single instantiation of MLZ
+src/bicep/examples/deploymentVariables.json
