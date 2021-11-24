@@ -74,8 +74,9 @@ jobs:
            --subscription $(workloadSubId) \
            --location $(Location) \
            --name $(workloadName) \
-           --template-file $(TemplateFile) \
+           --template-file $(T3TemplateFile) \
            --parameters \
+              workloadName="$workloadName" \
               hubSubscriptionId=$(hubSubscriptionId) \
               hubResourceGroupName="$(hubResourceGroupName)" \
               hubVirtualNetworkName="$hubVirtualNetworkName" \
