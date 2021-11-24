@@ -71,12 +71,12 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: |
         az deployment sub create \
-           --subscription $workloadSubscriptionId \
+           --subscription $(workloadSubId) \
            --location $(Location) \
-           --name $workloadName \
+           --name $(workloadName) \
            --template-file $(TemplateFile) \
            --parameters \
-              workloadName="$workloadName" \
+              workloadName="$(workloadName)" \
               hubSubscriptionId=$(hubSubscriptionId) \
               hubResourceGroupName="$(hubResourceGroupName)" \
               hubVirtualNetworkName="$hubVirtualNetworkName" \
