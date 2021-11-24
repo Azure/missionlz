@@ -7,7 +7,12 @@ pool:
 
 variables:
   ServiceConnectionName: $(CAzureConnection)  
-  hubId: ''
+  hubSubscriptionId: ''
+  hubResourceGroupName: ''
+  hubVirtualNetworkName: ''
+  hubVirtualNetworkResourceId: ''
+  logAnalyticsWorkspaceResourceId: ''
+  firewallPrivateIPAddress: ''
 
 jobs:
 - job: bicepCommercialCloud
@@ -42,16 +47,29 @@ jobs:
         firewallPrivateIPAddress:properties.outputs.firewallPrivateIPAddress.value
         }' -o json)
         read hubSubId < <(echo $deploymentoutput | jq '.hubSubscriptionId')
+        read hubRGroupName < <(echo $deploymentoutput | jq '.hubResourceGroupName')
+        read hubVNetworkName < <(echo $deploymentoutput | jq '.hubVirtualNetworkName')
+        read hubVNetworkResourceId < <(echo $deploymentoutput | jq '.hubVirtualNetworkResourceId')
+        read logAWspaceResourceId < <(echo $deploymentoutput | jq '.logAnalyticsWorkspaceResourceId')
+        read firewallPrivateIP < <(echo $deploymentoutput | jq '.firewallPrivateIPAddress')
         echo $deploymentoutput | jq '.hubSubscriptionId'
         echo $hubSubId
-        echo "##vso[task.setvariable variable=hubId;]$hubSubId"
         echo "##vso[task.setvariable variable=hubSubscriptionId;isOutput=true]$hubSubId"
+        echo "##vso[task.setvariable variable=hubResourceGroupName;isOutput=true]$hubRGroupName"
+        echo "##vso[task.setvariable variable=hubVirtualNetworkName;isOutput=true]$hubVNetworkName"
+        echo "##vso[task.setvariable variable=hubVirtualNetworkResourceId;isOutput=true]$hubVNetworkResourceId"
+        echo "##vso[task.setvariable variable=logAnalyticsWorkspaceResourceId;isOutput=true]$logAWspaceResourceId"
+        echo "##vso[task.setvariable variable=firewallPrivateIPAddress;isOutput=true]$firewallPrivateIP"
   - task: Bash@3
     inputs:
       targetType: 'inline'
       script: |
-            echo $(hubId)
             echo $(hubSubscriptionId)
+            echo $(hubResourceGroupName)
+            echo $(hubVirtualNetworkName)
+            echo $(hubVirtualNetworkResourceId)
+            echo $(logAnalyticsWorkspaceResourceId)
+            echo $(firewallPrivateIPAddress)
 
   - task: AzureCLI@2
     displayName: "Hydrate Variables for T3 Deployment"
