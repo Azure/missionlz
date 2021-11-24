@@ -7,7 +7,7 @@ pool:
 
 variables:
   ServiceConnectionName: $(CAzureConnection)  
-
+  hubId: ''
 
 jobs:
 - job: bicepCommercialCloud
@@ -44,8 +44,8 @@ jobs:
         read hubSubId < <(echo $deploymentoutput | jq '.hubSubscriptionId')
         echo $deploymentoutput | jq '.hubSubscriptionId'
         echo $hubSubId
-        echo "##vso[task.setvariable variable=hubSubscriptionId;isOutput=true]foo"
-        echo $(hubSubscriptionId)
+        echo "##vso[task.setvariable variable=hubId;isOutput=true]foo"
+        echo $(hubId)
 
   - task: AzureCLI@2
     displayName: "Hydrate Variables for T3 Deployment"
