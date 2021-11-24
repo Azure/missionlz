@@ -14,6 +14,13 @@ pool:
 
 variables:
   ServiceConnectionName: $(CAzureConnection)
+  hubSubscriptionId: 
+  hubResourceGroupName:
+  hubVirtualNetworkName:
+  hubVirtualNetworkResourceId:
+  logAnalyticsWorkspaceResourceId:
+  firewallPrivateIPAddress:
+
 
 jobs:
 - job: bicepCommercialCloud
@@ -29,6 +36,56 @@ jobs:
           --name $(bDeploymentName) \
           --location $(Location) \
           --template-file $(TemplateFile)
+  - task: AzureCLI@2
+    displayName: "Extract Values for T3 Deployment"
+    inputs:
+      azureSubscription: $(ServiceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        deploymentoutput=$(az deployment sub show \
+        --name mytest \
+        --query '{
+        hubSubscriptionId:properties.outputs.hub.value.subscriptionId,
+        hubResourceGroupName:properties.outputs.hub.value.resourceGroupName,
+        hubVirtualNetworkName:properties.outputs.hub.value.virtualNetworkName,
+        hubVirtualNetworkResourceId:properties.outputs.hub.value.virtualNetworkResourceId,
+        logAnalyticsWorkspaceResourceId:properties.outputs.logAnalyticsWorkspaceResourceId.value,
+        firewallPrivateIPAddress:properties.outputs.firewallPrivateIPAddress.value
+        }' -o json)
+
+  - task: AzureCLI@2
+    displayName: "Hydrate Variables for T3 Deployment"
+    inputs:
+      azureSubscription: $(ServiceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        read hubSubId < <(echo $deploymentoutput | jq '.hubSubscriptionId')
+        read hubRGroupName < <(echo $deploymentoutput | jq '.hubResourceGroupName')
+        read hubVNetworkName < <(echo $deploymentoutput | jq '.hubVirtualNetworkName')
+        read hubVNetworkResourceId < <(echo $deploymentoutput | jq '.hubVirtualNetworkResourceId')
+        read logAWspaceResourceId < <(echo $deploymentoutput | jq '.logAnalyticsWorkspaceResourceId')
+        read firewallPrivateIP < <(echo $deploymentoutput | jq '.firewallPrivateIPAddress')
+        echo "##vso[task.setvariable variable=hubSubscriptionId]$hubSubId"
+        echo "##vso[task.setvariable variable=hubResourceGroupName]$hubRGroupName"
+        echo "##vso[task.setvariable variable=hubVirtualNetworkName]$hubVNetworkName"
+        echo "##vso[task.setvariable variable=hubVirtualNetworkResourceId]$hubVNetworkResourceId"
+        echo "##vso[task.setvariable variable=logAnalyticsWorkspaceResourceId]$logAWspaceResourceId"
+        echo "##vso[task.setvariable variable=firewallPrivateIPAddress]$firewallPrivateIP"
+        echo $hubSubscriptionId
+
+  - task: AzureCLI@2
+    displayName: "Deploy MLZ T3 Bicep"
+    inputs:
+      azureSubscription: $(ServiceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az deployment sub create \
+          --name $(bDeploymentName) \
+          --location $(Location) \
+          --template-file $(T3TemplateFile)      
   - task: AzureCLI@2
     displayName: "Clean up Subscription Diagnostics Settings"
     inputs:
