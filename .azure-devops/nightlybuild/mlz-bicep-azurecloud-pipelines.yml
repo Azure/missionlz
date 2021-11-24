@@ -44,7 +44,7 @@ jobs:
         read hubSubId < <(echo $deploymentoutput | jq '.hubSubscriptionId')
         echo $deploymentoutput | jq '.hubSubscriptionId'
         echo $hubSubId
-        echo "##vso[task.setvariable variable=hubSubscriptionId;isOutput=true]$hubSubId"
+        echo "##vso[task.setvariable variable=hubSubscriptionId;isOutput=true]foo"
         echo $(hubSubscriptionId)
 
   - task: AzureCLI@2
