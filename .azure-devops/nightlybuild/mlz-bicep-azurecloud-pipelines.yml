@@ -34,18 +34,18 @@ jobs:
         deploymentoutput=$(az deployment sub show \
         --name $(bDeploymentName) \
         --query '{
-        hubSubscriptionId:properties.outputs.hub.value.subscriptionId,
-        hubResourceGroupName:properties.outputs.hub.value.resourceGroupName,
-        hubVirtualNetworkName:properties.outputs.hub.value.virtualNetworkName,
-        hubVirtualNetworkResourceId:properties.outputs.hub.value.virtualNetworkResourceId,
-        logAnalyticsWorkspaceResourceId:properties.outputs.logAnalyticsWorkspaceResourceId.value,
-        firewallPrivateIPAddress:properties.outputs.firewallPrivateIPAddress.value }' -o json)        
-        hubSubId=$(echo $deploymentoutput|jq  '.hubSubscriptionId') && echo "##vso[task.setvariable variable=hubSubscriptionId;]$hubSubId" 
-        hubRGroupName=$(echo $deploymentoutput |jq  '.hubResourceGroupName') && echo "##vso[task.setvariable variable=hubResourceGroupName;]$hubRGroupName"
-        hubVNetworkName=$(echo $deploymentoutput |jq  '.hubVirtualNetworkName') && echo "##vso[task.setvariable variable=hubVirtualNetworkName;]$hubVNetworkName"
-        hubVNetworkResourceId=$(echo $deploymentoutput |jq  '.hubVirtualNetworkResourceId') && echo "##vso[task.setvariable variable=hubVirtualNetworkResourceId;]$hubVNetworkResourceId"
-        logAWspaceResourceId=$(echo $deploymentoutput |jq  '.logAnalyticsWorkspaceResourceId') && echo "##vso[task.setvariable variable=logAnalyticsWorkspaceResourceId;]$logAWspaceResourceId"
-        firewallPrivateIP=$(echo $deploymentoutput |jq  '.firewallPrivateIPAddress') && echo "##vso[task.setvariable variable=firewallPrivateIPAddress;]$firewallPrivateIP"
+        hubSubId:properties.outputs.hub.value.subscriptionId,
+        hubRGroupName:properties.outputs.hub.value.resourceGroupName,
+        hubVNetworkName:properties.outputs.hub.value.virtualNetworkName,
+        hubVNetworkResourceId:properties.outputs.hub.value.virtualNetworkResourceId,
+        logAWspaceResourceId:properties.outputs.logAnalyticsWorkspaceResourceId.value,
+        firewallPrivateIP:properties.outputs.firewallPrivateIPAddress.value }' -o json)        
+        hubSubId=$(echo $deploymentoutput|jq  '.hubSubId') && echo "##vso[task.setvariable variable=hubSubscriptionId;]$hubSubId" 
+        hubRGroupName=$(echo $deploymentoutput |jq  '.hubRGroupName') && echo "##vso[task.setvariable variable=hubResourceGroupName;]$hubRGroupName"
+        hubVNetworkName=$(echo $deploymentoutput |jq  '.hubVNetworkName') && echo "##vso[task.setvariable variable=hubVirtualNetworkName;]$hubVNetworkName"
+        hubVNetworkResourceId=$(echo $deploymentoutput |jq  '.hubVNetworkResourceId') && echo "##vso[task.setvariable variable=hubVirtualNetworkResourceId;]$hubVNetworkResourceId"
+        logAWspaceResourceId=$(echo $deploymentoutput |jq  '.logAWspaceResourceId') && echo "##vso[task.setvariable variable=logAnalyticsWorkspaceResourceId;]$logAWspaceResourceId"
+        firewallPrivateIP=$(echo $deploymentoutput |jq  '.firewallPrivateIP') && echo "##vso[task.setvariable variable=firewallPrivateIPAddress;]$firewallPrivateIP"
         
         
   - task: Bash@3
