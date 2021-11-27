@@ -590,7 +590,7 @@ var spokes = [
 ]
 
 // outputs
-
+output mlzResourcePrefix string = resourcePrefix
 output firewallPrivateIPAddress string = hubNetwork.outputs.firewallPrivateIPAddress
 
 output hub object = {
