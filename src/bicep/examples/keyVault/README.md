@@ -26,7 +26,7 @@ Template Parameters Name | Description
 keyVaultName | The name of key vault.  If not specified, the name will default to the MLZ default naming pattern.  
 targetResourceGroup | The name of the resource group where the key vault will be deployed.   If not specified, the resource group name will default to the shared services MLZ resource group name and subscription.
 
-### Generate MLZ VAriable File (deploymentVariables.json)
+### Generate MLZ Variable File (deploymentVariables.json)
 
 For instructions on generating 'deploymentVariables.json' using both Azure PowerShell and Azure CLI, please see the [README at the root of the examples folder](../README.md).
 
