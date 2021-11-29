@@ -2,11 +2,14 @@
 
 ## Deployment
 
-### Prerequisistes
+### Prerequisites
 
 You can deploy with the Azure Portal, the Azure CLI, or with both in a Azure Commercial, Azure for Government, or Air-Gapped Clouds. But first, you'll need these pre-requisites:
 
 1. An Azure Subscription(s) where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
+1. A BASH or PowerShell terminal where you can run the Azure CLI. For example, [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview), the MLZ [development container](../../.devcontainer/README.md), or a command shell on your local machine with the [AZ CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
+
+> NOTE: The AZ CLI will automatically install the Bicep tools when a command is run that needs them, or you can manually install them following the [instructions here.](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#azure-cli)
 
 Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`?
 
