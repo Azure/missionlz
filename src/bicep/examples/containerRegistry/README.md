@@ -28,7 +28,7 @@ targetResourceGroup | The name of the resource group where the Container Registr
 
 ### Generate MLZ VAriable File (deploymentVariables.json)
 
-For instructions on generating 'deploymentVariables.json' using both Azure PowerShell and Azure CLI, please see the [README at the root of the examples folder](..\README.md).
+For instructions on generating 'deploymentVariables.json' using both Azure PowerShell and Azure CLI, please see the [README at the root of the examples folder](../README.md).
 
 Place the resulting 'deploymentVariables.json' file within the ./src/bicep/examples folder.
 
