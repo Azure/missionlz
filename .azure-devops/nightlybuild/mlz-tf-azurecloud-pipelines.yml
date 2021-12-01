@@ -32,6 +32,37 @@ jobs:
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
       useGlobalConfig: true
   - task: AzureCLI@2
+    displayName: "Terraform Output to Variable"
+    continueOnError: true
+    inputs:
+      azureSubscription: $(CAzureConnection)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      addSpnToEnvironment: true
+      inlineScript: |
+        echo "##vso[task.setvariable variable=hubSubscriptionId;]$(terraform output -raw hub_subid)" 
+        echo "##vso[task.setvariable variable=hubVirtualNetworkName;]$(terraform output -raw hub_vnetname)" 
+        echo "##vso[task.setvariable variable=hubResourceGroupName;]$(terraform output -raw hub_rgname)" 
+        echo "##vso[task.setvariable variable=firewallPrivateIPAddress;]$(terraform output -raw firewall_private_ip)" 
+        echo "##vso[task.setvariable variable=lawsName;]$(terraform output -raw laws_name)" 
+        echo "##vso[task.setvariable variable=lawsRgName;]$(terraform output -raw laws_rgname)" 
+        echo "##vso[task.setvariable variable=tier1SubId;]$(terraform output -raw tier1_subid)" 
+        echo "##vso[task.setvariable variable=tier3SubId;]$(terraform output -raw tier1_subid)"         
+      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+      useGlobalConfig: true
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+            echo $(hubSubscriptionId)
+            echo $(hubResourceGroupName)
+            echo $(hubVirtualNetworkName)
+            echo $(lawsName)
+            echo $(tier1SubId)
+            echo $(tier3SubId)
+            echo $(firewallPrivateIPAddress)
+            echo $(lawsRgName)
+  - task: AzureCLI@2
     displayName: "Destroy MLZ Terraform"
     inputs:
       azureSubscription: $(CAzureConnection)
