@@ -491,13 +491,13 @@
                   "label": "Firewall Client Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
                   "defaultValue": "10.0.100.64/26",
-                  "toolTip": "Specify a CIDR range for the Azure Firewall Client subnet within the Hub Virtual Network range [24,28].",
+                  "toolTip": "Specify a CIDR range for the Azure Firewall Client subnet within the Hub Virtual Network range [24,26].",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-6]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,26]."
                       },
                       {
                         "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
@@ -523,13 +523,13 @@
                   "label": "Firewall Management Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
                   "defaultValue": "10.0.100.0/26",
-                  "toolTip": "Specify a CIDR range for the Azure Firewall Management subnet within the Hub Virtual Network range [24,28].",
+                  "toolTip": "Specify a CIDR range for the Azure Firewall Management subnet within the Hub Virtual Network range [24,26].",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-6]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,26]."
                       },
                       {
                         "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').hubVirtualNetwork.firewallManagementSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
