@@ -10,12 +10,14 @@
           "label": "Basics",
           "elements": [
             {
-              "name": "infoBoxMissionLandingZone",
-              "type": "Microsoft.Common.InfoBox",
+              "name": "basicsDescriptionTextBlock",
+              "type": "Microsoft.Common.TextBlock",
               "options": {
-                "text": "Mission Landing Zone is a prescriptive reference architecture for data with reference implementation provided by Microsoft. Visit http://aka.ms/missionlz for more details about the solution pattern.",
-                "style": "Info",
-                "uri": "https://aka.ms/missionlz"
+                "text": "Mission Landing Zone is a prescriptive reference architecture with reference implementation of a SCCA compliant Hub and Spoke virtual network provided by Microsoft.",
+                "link": {
+                  "label": "https://aka.ms/missionlz",
+                  "uri": "https://aka.ms/missionlz"
+                }
               }
             },
             {
@@ -44,6 +46,13 @@
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
                     "text": "Select the subscription(s) and location for your Mission Landing Zone deployment."
+                  }
+                },
+                {
+                  "name": "subscriptionDetailsText",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Mission Landing Zone is configured for deployment into a single subscription or many subscriptions depending on your needs for resource counts, subscription boundaries, or billing."
                   }
                 },
                 {
@@ -262,12 +271,14 @@
           "label": "Compliance",
           "elements": [
             {
-              "name": "complianceDescriptionInfoBox",
-              "type": "Microsoft.Common.InfoBox",
+              "name": "complianceDescriptionTextBlock",
+              "type": "Microsoft.Common.TextBlock",
               "options": {
-                "text": "Mission Landing Zone comes bundled with built-in policies that can be applied to the resources it deploys and the ability to enable Azure Security Center: https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction",
-                "style": "Info",
-                "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
+                "text": "Mission Landing Zone comes bundled with built-in policies that can be applied to the resources it deploys and the ability to enable Azure Security Center for the subscriptions it is deployed into.",
+                "link": {
+                  "label": "Learn more",
+                  "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
+                }
               }
             },
             {
@@ -276,10 +287,17 @@
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "deploymentDetailsText",
+                  "name": "policyOptionalTextBlock",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Enabling policies is optional, but recommended. Mission Landing Zone comes bundled with some built-in policies."
+                    "text": "Enabling policies is optional, but recommended."
+                  }
+                },
+                {
+                  "name": "policySubsetDetailsTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Mission Landing Zone comes bundled with a subset of available Azure policies."
                   }
                 },
                 {
@@ -333,10 +351,17 @@
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "deploymentDetailsText",
+                  "name": "securityCenterOptionalDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Enabling Azure Security Center is optional, but recommended. Mission Landing Zone can enable Azure Security Center for the subscriptions it is deploying into."
+                    "text": "Enabling Azure Security Center is optional, but recommended."
+                  }
+                },
+                {
+                  "name": "securityCenterSubscriptionDetailsText",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Checking this box will activate Azure Security Center for subscription Mission Landing Zone is deployed into."
                   }
                 },
                 {
@@ -376,6 +401,24 @@
           "label": "Networking",
           "elements": [
             {
+              "name": "networkDescriptionTextBlock",
+              "type": "Microsoft.Common.TextBlock",
+              "options": {
+                "text": "Mission Landing Zone deploys virtual networks configured for SCCA compliance."
+              }
+            },
+            {
+              "name": "dodNeedsDescriptionTextBlock",
+              "type": "Microsoft.Common.TextBlock",
+              "options": {
+                "text": "SCCA guidance and architectures are specific to DoD customers, but they also help civilian customers comply with Trusted Internet Connections (TIC) guidance and help commercial customers that want to implement a secure DMZ to protect their Azure environments.",
+                "link": {
+                  "label": "Learn more",
+                  "uri": "https://docs.microsoft.com/en-us/azure/azure-government/compliance/secure-azure-computing-architecture"
+                }
+              }
+            },
+            {
               "name": "infoBoxVirtualNetworkOverlap",
               "type": "Microsoft.Common.InfoBox",
               "options": {
@@ -388,6 +431,13 @@
               "label": "Hub Virtual Network",
               "type": "Microsoft.Common.Section",
               "elements": [
+                {
+                  "name": "hubVirtualNetworkDetailsTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "All network traffic is directed through the Azure Firewall residing in the Hub Virtual Network. This network also houses the Azure Bastion hosts for remote access into the other networks."
+                  }
+                },
                 {
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Hub Virtual Network CIDR Range",
@@ -540,6 +590,13 @@
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
+                  "name": "hubVirtualNetworkDetailsTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "The Identity spoke virtual network can be used to house Active Directory and other AuthN and AuthZ solutions."
+                  }
+                },
+                {
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Identity Virtual Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
@@ -595,6 +652,13 @@
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
+                  "name": "hubVirtualNetworkDetailsTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "The Operations spoke virtual network can be used for operational tasks like logging and administration of workloads."
+                  }
+                },
+                {
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Operations Virtual Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
@@ -649,6 +713,13 @@
               "label": "Shared Services Virtual Network",
               "type": "Microsoft.Common.Section",
               "elements": [
+                {
+                  "name": "hubVirtualNetworkDetailsTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "The Shared Services spoke virtual network can be used for services that are used by multiple workloads like source control and container registries."
+                  }
+                },
                 {
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Shared Services Virtual Network CIDR Range",
@@ -706,12 +777,14 @@
           "label": "Remote Access",
           "elements": [
             {
-              "name": "remoteAccessDescriptionInfoBox",
-              "type": "Microsoft.Common.InfoBox",
+              "name": "complianceDescriptionTextBlock",
+              "type": "Microsoft.Common.TextBlock",
               "options": {
-                "text": "Mission Landing Zone provisions a Windows and a Linux virtual machine to remotely access the network using Azure Bastion hosts. For more information on how to use Azure Bastion check out: https://docs.microsoft.com/en-us/azure/bastion/bastion-overview",
-                "style": "Info",
-                "uri": "https://docs.microsoft.com/en-us/azure/bastion/bastion-overview"
+                "text": "Mission Landing Zone provisions a Windows and a Linux virtual machine to securely access the network remotely using Azure Bastion hosts.",
+                "link": {
+                  "label": "Learn more",
+                  "uri": "https://docs.microsoft.com/en-us/azure/bastion/bastion-overview"
+                }
               }
             },
             {
