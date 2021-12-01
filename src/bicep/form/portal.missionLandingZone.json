@@ -21,8 +21,8 @@
               }
             },
             {
-              "name": "deploymentDetails",
-              "label": "Deployment Details",
+              "name": "armApiControls",
+              "label": "",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
@@ -40,9 +40,16 @@
                     "method": "GET",
                     "path": "locations?api-version=2019-11-01"
                   }
-                },
+                }
+              ]
+            },
+            {
+              "name": "selectSubscriptions",
+              "label": "Select Subscription(s)",
+              "type": "Microsoft.Common.Section",
+              "elements": [
                 {
-                  "name": "deploymentDetailsText",
+                  "name": "selectSubscriptionsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
                     "text": "Select the subscription(s) and location for your Mission Landing Zone deployment."
@@ -53,6 +60,20 @@
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
                     "text": "Mission Landing Zone is configured for deployment into a single subscription or many subscriptions depending on your needs for resource counts, subscription boundaries, or billing."
+                  }
+                }
+              ]
+            },
+            {
+              "name": "hubDetails",
+              "label": "Hub",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "hubDetailsTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "All network traffic is directed through the Azure Firewall residing in the Hub Virtual Network. This network also houses the Azure Bastion hosts for remote access into the other networks."
                   }
                 },
                 {
@@ -67,8 +88,22 @@
                   "filterPlaceholder": "Filter items ...",
                   "multiLine": true,
                   "constraints": {
-                    "allowedValues": "[map(steps('basics').deploymentDetails.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "allowedValues": "[map(steps('basics').armApiControls.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
                     "required": true
+                  }
+                }
+              ]
+            },
+            {
+              "name": "identityDetails",
+              "label": "Identity",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "identityDetailsTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "The Identity spoke is used to house Active Directory and other AuthN and AuthZ solutions."
                   }
                 },
                 {
@@ -83,8 +118,22 @@
                   "filterPlaceholder": "Filter items ...",
                   "multiLine": true,
                   "constraints": {
-                    "allowedValues": "[map(steps('basics').deploymentDetails.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "allowedValues": "[map(steps('basics').armApiControls.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
                     "required": true
+                  }
+                }
+              ]
+            },
+            {
+              "name": "operationsDetails",
+              "label": "Operations",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "operationsDetailsTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "The Operations spoke can be used for operational tasks like logging and administration of workloads."
                   }
                 },
                 {
@@ -99,8 +148,22 @@
                   "filterPlaceholder": "Filter items ...",
                   "multiLine": true,
                   "constraints": {
-                    "allowedValues": "[map(steps('basics').deploymentDetails.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "allowedValues": "[map(steps('basics').armApiControls.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
                     "required": true
+                  }
+                }
+              ]
+            },
+            {
+              "name": "sharedServicesDetails",
+              "label": "Shared Services",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "sharedServicesDetailsTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "The Shared Services spoke can be used to host services that are used by multiple workloads like source control and container registries."
                   }
                 },
                 {
@@ -115,10 +178,17 @@
                   "filterPlaceholder": "Filter items ...",
                   "multiLine": true,
                   "constraints": {
-                    "allowedValues": "[map(steps('basics').deploymentDetails.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "allowedValues": "[map(steps('basics').armApiControls.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
                     "required": true
                   }
-                },
+                }
+              ]
+            },
+            {
+              "name": "missionLandingZoneLocation",
+              "label": "Location",
+              "type": "Microsoft.Common.Section",
+              "elements": [
                 {
                   "name": "infoBoxLocation",
                   "type": "Microsoft.Common.InfoBox",
@@ -139,8 +209,47 @@
                   "filterPlaceholder": "Filter items ...",
                   "multiLine": true,
                   "constraints": {
-                    "allowedValues": "[map(filter(steps('basics').deploymentDetails.locationsApi.value,(item) => contains(split('eastus,eastus2,southcentralus,westus,westus2,usgovvirginia,usgovarizona,ussec,usnat', ','), item.name)),(item) => parse(concat('{\"label\":\"', item.regionalDisplayName, '\",\"value\":\"', item.name, '\"}')))]",
+                    "allowedValues": "[map(filter(steps('basics').armApiControls.locationsApi.value,(item) => contains(split('eastus,eastus2,southcentralus,westus,westus2,usgovvirginia,usgovarizona,ussec,usnat', ','), item.name)),(item) => parse(concat('{\"label\":\"', item.regionalDisplayName, '\",\"value\":\"', item.name, '\"}')))]",
                     "required": true
+                  }
+                }
+              ]
+            },
+            {
+              "name": "missionLandingZoneName",
+              "label": "Mission Landing Zone Name",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "missionLandingZonePrefix",
+                  "label": "Resource Naming Prefix",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "",
+                  "toolTip": "Specify a prefix (min 1 and max 10 lowercase characters and numbers) to prepend to all resources.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[a-z0-9]{1,10}$",
+                        "message": "The prefix must be between 1-10 lowercase characters and numbers."
+                      },
+                      {
+                        "isValid": "[not(equals(steps('basics').missionLandingZoneName.hubStorageAccountApi.nameAvailable, false))]",
+                        "message": "Prefix currently unavailable. Please choose a different one."
+                      },
+                      {
+                        "isValid": "[not(equals(steps('basics').missionLandingZoneName.identityStorageAccountApi.nameAvailable, false))]",
+                        "message": "Prefix currently unavailable. Please choose a different one."
+                      },
+                      {
+                        "isValid": "[not(equals(steps('basics').missionLandingZoneName.operationsStorageAccountApi.nameAvailable, false))]",
+                        "message": "Prefix currently unavailable. Please choose a different one."
+                      },
+                      {
+                        "isValid": "[not(equals(steps('basics').missionLandingZoneName.sharedServicesStorageAccountApi.nameAvailable, false))]",
+                        "message": "Prefix currently unavailable. Please choose a different one."
+                      }
+                    ]
                   }
                 },
                 {
@@ -174,90 +283,51 @@
                     ],
                     "required": true
                   }
-                }
-              ]
-            },
-            {
-              "name": "missionLandingZoneName",
-              "label": "Mission Landing Zone Name",
-              "type": "Microsoft.Common.Section",
-              "elements": [
-                {
-                  "name": "missionLandingZonePrefix",
-                  "label": "Resource Naming Prefix",
-                  "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "",
-                  "toolTip": "Specify a prefix (min 1 and max 10 lowercase characters and numbers) to prepend to all resources.",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^[a-z0-9]{1,10}$",
-                        "message": "The prefix must be between 1-10 lowercase characters and numbers."
-                      },
-                      {
-                        "isValid": "[not(equals(steps('basics').missionLandingZoneName.storageAccountNameApi001.nameAvailable, false))]",
-                        "message": "Prefix currently unavailable. Please choose a different one."
-                      },
-                      {
-                        "isValid": "[not(equals(steps('basics').missionLandingZoneName.storageAccountNameApi002.nameAvailable, false))]",
-                        "message": "Prefix currently unavailable. Please choose a different one."
-                      },
-                      {
-                        "isValid": "[not(equals(steps('basics').missionLandingZoneName.storageAccountNameApi003.nameAvailable, false))]",
-                        "message": "Prefix currently unavailable. Please choose a different one."
-                      },
-                      {
-                        "isValid": "[not(equals(steps('basics').missionLandingZoneName.storageAccountNameApi004.nameAvailable, false))]",
-                        "message": "Prefix currently unavailable. Please choose a different one."
-                      }
-                    ]
-                  }
                 },
                 {
-                  "name": "storageAccountNameApi001",
+                  "name": "hubStorageAccountApi",
                   "type": "Microsoft.Solutions.ArmApiControl",
                   "request": {
                     "method": "POST",
-                    "path": "[concat(steps('basics').deploymentDetails.hubSubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
+                    "path": "[concat(steps('basics').hubDetails.hubSubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
                     "body": {
-                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').environment, 'hub')]",
+                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').missionLandingZoneName.environment, 'hub')]",
                       "type": "Microsoft.Storage/storageAccounts"
                     }
                   }
                 },
                 {
-                  "name": "storageAccountNameApi002",
+                  "name": "identityStorageAccountApi",
                   "type": "Microsoft.Solutions.ArmApiControl",
                   "request": {
                     "method": "POST",
-                    "path": "[concat(steps('basics').deploymentDetails.identitySubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
+                    "path": "[concat(steps('basics').identityDetails.identitySubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
                     "body": {
-                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').environment, 'id')]",
+                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').missionLandingZoneName.environment, 'id')]",
                       "type": "Microsoft.Storage/storageAccounts"
                     }
                   }
                 },
                 {
-                  "name": "storageAccountNameApi003",
+                  "name": "operationsStorageAccountApi",
                   "type": "Microsoft.Solutions.ArmApiControl",
                   "request": {
                     "method": "POST",
-                    "path": "[concat(steps('basics').deploymentDetails.operationsSubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
+                    "path": "[concat(steps('basics').operationsDetails.operationsSubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
                     "body": {
-                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').environment, 'op')]",
+                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').missionLandingZoneName.environment, 'op')]",
                       "type": "Microsoft.Storage/storageAccounts"
                     }
                   }
                 },
                 {
-                  "name": "storageAccountNameApi004",
+                  "name": "sharedServicesStorageAccountApi",
                   "type": "Microsoft.Solutions.ArmApiControl",
                   "request": {
                     "method": "POST",
-                    "path": "[concat(steps('basics').deploymentDetails.sharedServicesSubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
+                    "path": "[concat(steps('basics').sharedServicesDetails.sharedServicesSubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
                     "body": {
-                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').environment, 'svcs')]",
+                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').missionLandingZoneName.environment, 'svcs')]",
                       "type": "Microsoft.Storage/storageAccounts"
                     }
                   }
@@ -432,13 +502,6 @@
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "hubVirtualNetworkDetailsTextBlock",
-                  "type": "Microsoft.Common.TextBlock",
-                  "options": {
-                    "text": "All network traffic is directed through the Azure Firewall residing in the Hub Virtual Network. This network also houses the Azure Bastion hosts for remote access into the other networks."
-                  }
-                },
-                {
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Hub Virtual Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
@@ -590,13 +653,6 @@
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "hubVirtualNetworkDetailsTextBlock",
-                  "type": "Microsoft.Common.TextBlock",
-                  "options": {
-                    "text": "The Identity spoke virtual network can be used to house Active Directory and other AuthN and AuthZ solutions."
-                  }
-                },
-                {
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Identity Virtual Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
@@ -652,13 +708,6 @@
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "hubVirtualNetworkDetailsTextBlock",
-                  "type": "Microsoft.Common.TextBlock",
-                  "options": {
-                    "text": "The Operations spoke virtual network can be used for operational tasks like logging and administration of workloads."
-                  }
-                },
-                {
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Operations Virtual Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
@@ -713,13 +762,6 @@
               "label": "Shared Services Virtual Network",
               "type": "Microsoft.Common.Section",
               "elements": [
-                {
-                  "name": "hubVirtualNetworkDetailsTextBlock",
-                  "type": "Microsoft.Common.TextBlock",
-                  "options": {
-                    "text": "The Shared Services spoke virtual network can be used for services that are used by multiple workloads like source control and container registries."
-                  }
-                },
                 {
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Shared Services Virtual Network CIDR Range",
