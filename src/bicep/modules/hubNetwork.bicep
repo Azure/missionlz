@@ -29,7 +29,20 @@ param routeTableRouteNextHopType string = 'VirtualAppliance'
 param firewallName string
 param firewallSkuTier string
 param firewallPolicyName string
+
+@allowed([
+  'Alert'
+  'Deny'
+  'Off'
+])
 param firewallThreatIntelMode string
+
+@allowed([
+  'Alert'
+  'Deny'
+  'Off'
+])
+param firewallIntrustionDetectionMode string
 param firewallDiagnosticsLogs array
 param firewallDiagnosticsMetrics array
 param firewallClientIpConfigurationName string
@@ -201,7 +214,7 @@ module firewall './firewall.bicep' = {
 
     firewallPolicyName: firewallPolicyName
     threatIntelMode: firewallThreatIntelMode
-
+    intrustionDetectionMode: firewallIntrustionDetectionMode
     clientIpConfigurationName: firewallClientIpConfigurationName
     clientIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/${firewallClientSubnetName}'
     clientIpConfigurationPublicIPAddressResourceId: firewallClientPublicIPAddress.outputs.id
