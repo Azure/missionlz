@@ -22,7 +22,7 @@ jobs:
       targetType: 'F'
       targetArgument: '$(System.DefaultWorkingDirectory)'
       result: 'PoliCheck.xml'
-  - publish: D:\a\1\_sdt\logs\PoliCheck\PoliCheck.xml
+  - publish: D:\a\1\.gdn\.r\policheck\001\policheck.xml
     artifact: PoliCheck.xml
   - task: CredScan@3
     inputs:
