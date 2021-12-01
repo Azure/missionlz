@@ -13,7 +13,7 @@
               "name": "infoBoxMissionLandingZone",
               "type": "Microsoft.Common.InfoBox",
               "options": {
-                "text": "Mission Landing Zone is a prescriptive reference architecture for data with reference implementation provided by Microsoft. Visit 'aka.ms/missionlz' for more details about the solution pattern.",
+                "text": "Mission Landing Zone is a prescriptive reference architecture for data with reference implementation provided by Microsoft. Visit http://aka.ms/missionlz for more details about the solution pattern.",
                 "style": "Info",
                 "uri": "https://aka.ms/missionlz"
               }
@@ -212,7 +212,7 @@
                     "method": "POST",
                     "path": "[concat(steps('basics').deploymentDetails.hubSubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
                     "body": {
-                      "name": "[concat('stdiag', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').environment, 'hub')]",
+                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').environment, 'hub')]",
                       "type": "Microsoft.Storage/storageAccounts"
                     }
                   }
@@ -224,7 +224,7 @@
                     "method": "POST",
                     "path": "[concat(steps('basics').deploymentDetails.identitySubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
                     "body": {
-                      "name": "[concat('stdiag', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').environment, 'identity')]",
+                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').environment, 'id')]",
                       "type": "Microsoft.Storage/storageAccounts"
                     }
                   }
@@ -236,7 +236,7 @@
                     "method": "POST",
                     "path": "[concat(steps('basics').deploymentDetails.operationsSubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
                     "body": {
-                      "name": "[concat('stdiag', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').environment, 'operation')]",
+                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').environment, 'op')]",
                       "type": "Microsoft.Storage/storageAccounts"
                     }
                   }
@@ -248,7 +248,7 @@
                     "method": "POST",
                     "path": "[concat(steps('basics').deploymentDetails.sharedServicesSubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
                     "body": {
-                      "name": "[concat('stdiag', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').environment, 'sharesvc')]",
+                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').environment, 'svcs')]",
                       "type": "Microsoft.Storage/storageAccounts"
                     }
                   }
@@ -261,6 +261,15 @@
           "name": "compliance",
           "label": "Compliance",
           "elements": [
+            {
+              "name": "complianceDescriptionInfoBox",
+              "type": "Microsoft.Common.InfoBox",
+              "options": {
+                "text": "Mission Landing Zone comes bundled with built-in policies that can be applied to the resources it deploys and the ability to enable Azure Security Center: https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction",
+                "style": "Info",
+                "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
+              }
+            },
             {
               "name": "policy",
               "label": "Policy",
@@ -288,7 +297,7 @@
                   "label": "Policy Assignment",
                   "placeholder": "",
                   "defaultValue": "NIST SP 800-53",
-                  "toolTip": "IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.",
+                  "toolTip": "DoD IL5 is only available in AzureUsGovernment and will switch to NIST if tried in AzureCloud.",
                   "multiselect": false,
                   "selectAll": false,
                   "filter": true,
@@ -697,10 +706,26 @@
           "label": "Remote Access",
           "elements": [
             {
+              "name": "remoteAccessDescriptionInfoBox",
+              "type": "Microsoft.Common.InfoBox",
+              "options": {
+                "text": "Mission Landing Zone provisions a Windows and a Linux virtual machine to remotely access the network using Azure Bastion hosts. For more information on how to use Azure Bastion check out: https://docs.microsoft.com/en-us/azure/bastion/bastion-overview",
+                "style": "Info",
+                "uri": "https://docs.microsoft.com/en-us/azure/bastion/bastion-overview"
+              }
+            },
+            {
               "name": "windowsVmConfiguration",
-              "label": "Windows Virtual Machine Configuration",
+              "label": "Windows Virtual Machine",
               "type": "Microsoft.Common.Section",
               "elements": [
+                {
+                  "name": "windowsVmDescriptionTextblock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Provide an administrator username and password for the Windows virtual machine."
+                  }
+                },
                 {
                   "name": "windowsVmAdminUsername",
                   "type": "Microsoft.Compute.UserNameTextBox",
@@ -740,9 +765,16 @@
             },
             {
               "name": "linuxVmConfiguration",
-              "label": "Linux Virtual Machine Configuration",
+              "label": "Linux Virtual Machine",
               "type": "Microsoft.Common.Section",
               "elements": [
+                {
+                  "name": "windowsVmDescriptionTextblock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Provide an administrator username and password (or SSH public key) for the Linux virtual machine."
+                  }
+                },
                 {
                   "name": "linuxVmAdminUsername",
                   "type": "Microsoft.Compute.UserNameTextBox",
