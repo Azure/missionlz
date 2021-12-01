@@ -1,14 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-schedules:
-  - cron: "0 2 * * *"
-    displayName: "Nightly - mlz Terraform azure cloud"
-    branches:
-      include:
-        - main
-    always: true
-
 pool:
   vmImage: ubuntu-latest
 
