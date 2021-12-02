@@ -3,7 +3,7 @@
 
 schedules:
   - cron: "0 4 * * *"
-    displayName: "Nightly - mlz bicep azure US Gov Cloud"
+    displayName: "Nightly - mlz bicep azure Cloud"
     branches:
       include:
         - main

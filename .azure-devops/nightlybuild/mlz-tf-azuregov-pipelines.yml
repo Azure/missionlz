@@ -3,7 +3,7 @@
 
 schedules:
   - cron: "0 2 * * *"
-    displayName: "Nightly - mlz Terraform azure cloud"
+    displayName: "Nightly - mlz Terraform azure US Gov cloud"
     branches:
       include:
         - main
