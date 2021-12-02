@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "11074406747608602454"
+      "templateHash": "8860935919538003927"
     }
   },
   "parameters": {
@@ -80,36 +80,7 @@
     },
     "hubNetworkSecurityGroupRules": {
       "type": "array",
-      "defaultValue": [
-        {
-          "name": "allow_ssh",
-          "properties": {
-            "description": "Allow SSH access from anywhere",
-            "access": "Allow",
-            "priority": 100,
-            "protocol": "Tcp",
-            "direction": "Inbound",
-            "sourcePortRange": "*",
-            "sourceAddressPrefix": "*",
-            "destinationPortRange": "22",
-            "destinationAddressPrefix": "*"
-          }
-        },
-        {
-          "name": "allow_rdp",
-          "properties": {
-            "description": "Allow RDP access from anywhere",
-            "access": "Allow",
-            "priority": 200,
-            "protocol": "Tcp",
-            "direction": "Inbound",
-            "sourcePortRange": "*",
-            "sourceAddressPrefix": "*",
-            "destinationPortRange": "3389",
-            "destinationAddressPrefix": "*"
-          }
-        }
-      ]
+      "defaultValue": []
     },
     "hubNetworkSecurityGroupDiagnosticsLogs": {
       "type": "array",
@@ -649,10 +620,7 @@
     },
     "tags": {
       "type": "object",
-      "defaultValue": {
-        "resourcePrefix": "[parameters('resourcePrefix')]",
-        "DeploymentType": "MissionLandingZoneARM"
-      }
+      "defaultValue": {}
     },
     "uniqueId": {
       "type": "string",
@@ -667,6 +635,11 @@
   "variables": {
     "firewallClientSubnetName": "AzureFirewallSubnet",
     "firewallManagementSubnetName": "AzureFirewallManagementSubnet",
+    "defaultTags": {
+      "resourcePrefix": "[parameters('resourcePrefix')]",
+      "DeploymentType": "MissionLandingZoneARM"
+    },
+    "calculatedTags": "[union(parameters('tags'), variables('defaultTags'))]",
     "spokes": [
       {
         "name": "operations",
@@ -745,6 +718,9 @@
           },
           "location": {
             "value": "[parameters('hubLocation')]"
+          },
+          "tags": {
+            "value": "[variables('calculatedTags')]"
           }
         },
         "template": {
@@ -819,7 +795,7 @@
             "value": "[variables('spokes')[copyIndex()].location]"
           },
           "tags": {
-            "value": "[parameters('tags')]"
+            "value": "[variables('calculatedTags')]"
           }
         },
         "template": {
@@ -890,7 +866,7 @@
             "value": "[parameters('logAnalyticsWorkspaceLocation')]"
           },
           "tags": {
-            "value": "[parameters('tags')]"
+            "value": "[variables('calculatedTags')]"
           },
           "deploySentinel": {
             "value": "[parameters('deploySentinel')]"
@@ -1100,7 +1076,7 @@
             "value": "[parameters('hubLocation')]"
           },
           "tags": {
-            "value": "[parameters('tags')]"
+            "value": "[variables('calculatedTags')]"
           },
           "logStorageAccountName": {
             "value": "[parameters('hubLogStorageAccountName')]"
@@ -2771,7 +2747,7 @@
             "value": "[variables('spokes')[copyIndex()].location]"
           },
           "tags": {
-            "value": "[parameters('tags')]"
+            "value": "[variables('calculatedTags')]"
           },
           "logStorageAccountName": {
             "value": "[variables('spokes')[copyIndex()].logStorageAccountName]"
@@ -5807,6 +5783,10 @@
     }
   ],
   "outputs": {
+    "mlzResourcePrefix": {
+      "type": "string",
+      "value": "[parameters('resourcePrefix')]"
+    },
     "firewallPrivateIPAddress": {
       "type": "string",
       "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.firewallPrivateIPAddress.value]"

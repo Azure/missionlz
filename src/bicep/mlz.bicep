@@ -11,6 +11,7 @@ module hubResourceGroup './modules/resourceGroup.bicep' = {
   params: {
     name: hubResourceGroupName
     location: hubLocation
+    tags: calculatedTags
   }
 }
 
@@ -20,7 +21,7 @@ module spokeResourceGroups './modules/resourceGroup.bicep' = [for spoke in spoke
   params: {
     name: spoke.resourceGroupName
     location: spoke.location
-    tags: tags
+    tags: calculatedTags
   }
 }]
 
@@ -32,7 +33,7 @@ module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
   params: {
     name: logAnalyticsWorkspaceName
     location: logAnalyticsWorkspaceLocation
-    tags: tags
+    tags: calculatedTags
     deploySentinel: deploySentinel
     retentionInDays: logAnalyticsWorkspaceRetentionInDays
     skuName: logAnalyticsWorkspaceSkuName
@@ -50,7 +51,7 @@ module hubNetwork './modules/hubNetwork.bicep' = {
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     location: hubLocation
-    tags: tags
+    tags: calculatedTags
 
     logStorageAccountName: hubLogStorageAccountName
     logStorageSkuName: hubLogStorageSkuName
@@ -105,7 +106,7 @@ module spokeNetworks './modules/spokeNetwork.bicep' = [ for spoke in spokes: {
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
     location: spoke.location
-    tags: tags
+    tags: calculatedTags
 
     logStorageAccountName: spoke.logStorageAccountName
     logStorageSkuName: spoke.logStorageSkuName
@@ -324,36 +325,7 @@ param hubSubnetAddressPrefix string = '10.0.100.128/27'
 param hubVirtualNetworkDiagnosticsLogs array = []
 param hubVirtualNetworkDiagnosticsMetrics array = []
 param hubNetworkSecurityGroupName string = 'hub-nsg'
-param hubNetworkSecurityGroupRules array = [
-  {
-    name: 'allow_ssh'
-    properties: {
-      description: 'Allow SSH access from anywhere'
-      access: 'Allow'
-      priority: 100
-      protocol: 'Tcp'
-      direction: 'Inbound'
-      sourcePortRange: '*'
-      sourceAddressPrefix: '*'
-      destinationPortRange: '22'
-      destinationAddressPrefix: '*'
-    }
-  }
-  {
-    name: 'allow_rdp'
-    properties: {
-      description: 'Allow RDP access from anywhere'
-      access: 'Allow'
-      priority: 200
-      protocol: 'Tcp'
-      direction: 'Inbound'
-      sourcePortRange: '*'
-      sourceAddressPrefix: '*'
-      destinationPortRange: '3389'
-      destinationAddressPrefix: '*'
-    }
-  }
-]
+param hubNetworkSecurityGroupRules array = []
 param hubNetworkSecurityGroupDiagnosticsLogs array = [
   {
     category: 'NetworkSecurityGroupEvent'
@@ -547,10 +519,12 @@ param windowsVmVersion string = 'latest'
 param windowsVmCreateOption string = 'FromImage'
 param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
-param tags object = {
+param tags object = {}
+var defaultTags = {
   'resourcePrefix': resourcePrefix
   'DeploymentType': 'MissionLandingZoneARM'
 }
+var calculatedTags = union(tags,defaultTags)
 
 param uniqueId string = uniqueString(deployment().name)
 param nowUtc string = utcNow()
@@ -616,7 +590,7 @@ var spokes = [
 ]
 
 // outputs
-
+output mlzResourcePrefix string = resourcePrefix
 output firewallPrivateIPAddress string = hubNetwork.outputs.firewallPrivateIPAddress
 
 output hub object = {
