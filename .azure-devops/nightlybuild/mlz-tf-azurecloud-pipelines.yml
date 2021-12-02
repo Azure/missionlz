@@ -1,6 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+schedules:
+  - cron: "0 2 * * *"
+    displayName: "Nightly - mlz Terraform azure cloud"
+    branches:
+      include:
+        - main
+    always: true
 pool:
   vmImage: ubuntu-latest
 
@@ -32,7 +39,7 @@ jobs:
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
       useGlobalConfig: true
   - task: AzureCLI@2
-    displayName: "Terraform Output to Variable"
+    displayName: "Extract Values and Hydrate Variables for T3 Deployment"
     continueOnError: true
     inputs:
       azureSubscription: $(CAzureConnection)
@@ -50,18 +57,7 @@ jobs:
         echo "##vso[task.setvariable variable=tier3SubId;]$(terraform output -raw tier1_subid)"         
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
       useGlobalConfig: true
-  - task: Bash@3
-    inputs:
-      targetType: 'inline'
-      script: |
-            echo $(hubSubscriptionId)
-            echo $(hubResourceGroupName)
-            echo $(hubVirtualNetworkName)
-            echo $(lawsName)
-            echo $(tier1SubId)
-            echo $(tier3SubId)
-            echo $(firewallPrivateIPAddress)
-            echo $(lawsRgName)
+  
   - task: AzureCLI@2
     displayName: "Apply T3 Workload Terraform"
     continueOnError: true
