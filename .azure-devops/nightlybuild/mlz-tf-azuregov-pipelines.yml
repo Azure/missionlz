@@ -8,6 +8,7 @@ schedules:
       include:
         - main
     always: true
+
 pool:
   vmImage: ubuntu-latest
 
@@ -49,16 +50,17 @@ jobs:
       scriptLocation: 'inlineScript'
       addSpnToEnvironment: true
       inlineScript: |
-        echo "##vso[task.setvariable variable=hubSubscriptionId;]$(terraform output -raw hub_subid)" 
-        echo "##vso[task.setvariable variable=hubVirtualNetworkName;]$(terraform output -raw hub_vnetname)" 
-        echo "##vso[task.setvariable variable=hubResourceGroupName;]$(terraform output -raw hub_rgname)" 
-        echo "##vso[task.setvariable variable=firewallPrivateIPAddress;]$(terraform output -raw firewall_private_ip)" 
-        echo "##vso[task.setvariable variable=lawsName;]$(terraform output -raw laws_name)" 
-        echo "##vso[task.setvariable variable=lawsRgName;]$(terraform output -raw laws_rgname)" 
-        echo "##vso[task.setvariable variable=tier1SubId;]$(terraform output -raw tier1_subid)" 
-        echo "##vso[task.setvariable variable=tier3SubId;]$(terraform output -raw tier1_subid)"         
+        echo "##vso[task.setvariable variable=hubSubscriptionId;]$(terraform output -raw hub_subid)"
+        echo "##vso[task.setvariable variable=hubVirtualNetworkName;]$(terraform output -raw hub_vnetname)"
+        echo "##vso[task.setvariable variable=hubResourceGroupName;]$(terraform output -raw hub_rgname)"
+        echo "##vso[task.setvariable variable=firewallPrivateIPAddress;]$(terraform output -raw firewall_private_ip)"
+        echo "##vso[task.setvariable variable=lawsName;]$(terraform output -raw laws_name)"
+        echo "##vso[task.setvariable variable=lawsRgName;]$(terraform output -raw laws_rgname)"
+        echo "##vso[task.setvariable variable=tier1SubId;]$(terraform output -raw tier1_subid)"
+        echo "##vso[task.setvariable variable=tier3SubId;]$(terraform output -raw tier1_subid)"
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
       useGlobalConfig: true
+
   - task: AzureCLI@2
     displayName: "Apply T3 Workload Terraform"
     continueOnError: true
@@ -74,9 +76,19 @@ jobs:
         export ARM_TENANT_ID=$(GTenantId)
         export ARM_ENVIRONMENT=$(CloudEnv)
         terraform init
-        terraform apply -var "hub_subid=$(hubSubscriptionId)" -var "hub_rgname=$(hubResourceGroupName)" -var "firewall_private_ip=$(firewallPrivateIPAddress)" -var "hub_vnetname=$(hubVirtualNetworkName)" -var "laws_name=$(lawsName)" -var "laws_rgname=$(lawsRgName)" -var "tier1_subid=$(tier1SubId)" -var "tier3_subid=$(tier3SubId)" -auto-approve -input=false
+        terraform apply -var "hub_subid=$(hubSubscriptionId)" \
+          -var "hub_rgname=$(hubResourceGroupName)" \
+          -var "firewall_private_ip=$(firewallPrivateIPAddress)" \
+          -var "hub_vnetname=$(hubVirtualNetworkName)" \
+          -var "laws_name=$(lawsName)" \
+          -var "laws_rgname=$(lawsRgName)" \
+          -var "tier1_subid=$(tier1SubId)" \
+          -var "tier3_subid=$(tier3SubId)" \
+          -auto-approve \
+          -input=false
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/tier3'
       useGlobalConfig: true
+
   - task: AzureCLI@2
     displayName: "Destroy T3 Workload Terraform"
     inputs:
@@ -91,9 +103,19 @@ jobs:
         export ARM_TENANT_ID=$(GTenantId)
         export ARM_ENVIRONMENT=$(CloudEnv)
         terraform init
-        terraform destroy -var "hub_subid=$(hubSubscriptionId)" -var "hub_rgname=$(hubResourceGroupName)" -var "firewall_private_ip=$(firewallPrivateIPAddress)" -var "hub_vnetname=$(hubVirtualNetworkName)" -var "laws_name=$(lawsName)" -var "laws_rgname=$(lawsRgName)" -var "tier1_subid=$(tier1SubId)" -var "tier3_subid=$(tier3SubId)" -auto-approve -input=false
+        terraform destroy -var "hub_subid=$(hubSubscriptionId)" \
+          -var "hub_rgname=$(hubResourceGroupName)" \
+          -var "firewall_private_ip=$(firewallPrivateIPAddress)" \
+          -var "hub_vnetname=$(hubVirtualNetworkName)" \
+          -var "laws_name=$(lawsName)" \
+          -var "laws_rgname=$(lawsRgName)" \
+          -var "tier1_subid=$(tier1SubId)" \
+          -var "tier3_subid=$(tier3SubId)" \
+          -auto-approve \
+          -input=false
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/tier3'
       useGlobalConfig: true
+
   - task: AzureCLI@2
     displayName: "Destroy MLZ Terraform"
     inputs:
@@ -108,6 +130,11 @@ jobs:
         export ARM_TENANT_ID=$(GTenantId)
         export ARM_ENVIRONMENT=$(CloudEnv)
         terraform init
-        terraform destroy -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost) -var environment=$(CloudEnv) -var location=$(GLocation) -auto-approve -input=false
+        terraform destroy -var "hub_subid=$(GSubid)" \
+          -var metadata_host=$(MetadataHost) \
+          -var environment=$(CloudEnv) \
+          -var location=$(GLocation) \
+          -auto-approve \
+          -input=false
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
       useGlobalConfig: true
