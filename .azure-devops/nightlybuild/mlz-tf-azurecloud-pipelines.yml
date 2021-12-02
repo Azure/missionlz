@@ -80,22 +80,6 @@ jobs:
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/tier3'
       useGlobalConfig: true
   - task: AzureCLI@2
-    displayName: "Destroy MLZ Terraform"
-    inputs:
-      azureSubscription: $(CAzureConnection)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      addSpnToEnvironment: true
-      inlineScript: |
-        export ARM_CLIENT_ID=$(ClientId)
-        export ARM_CLIENT_SECRET=$(ClientSecret)
-        export ARM_SUBSCRIPTION_ID=$(subId)
-        export ARM_TENANT_ID=$(tenantId)
-        terraform init
-        terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
-      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
-      useGlobalConfig: true
-  - task: AzureCLI@2
     displayName: "Destroy T3 Workload Terraform"
     inputs:
       azureSubscription: $(CAzureConnection)
@@ -111,3 +95,20 @@ jobs:
         terraform destroy -var "hub_subid=$(hubSubscriptionId)" -var "hub_rgname=$(hubResourceGroupName)" -var "firewall_private_ip=$(firewallPrivateIPAddress)" -var "hub_vnetname=$(hubVirtualNetworkName)" -var "laws_name=$(lawsName)" -var "laws_rgname=$(lawsRgName)" -var "tier1_subid=$(tier1SubId)" -var "tier3_subid=$(tier3SubId)" -auto-approve -input=false
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/tier3'
       useGlobalConfig: true
+  - task: AzureCLI@2
+    displayName: "Destroy MLZ Terraform"
+    inputs:
+      azureSubscription: $(CAzureConnection)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      addSpnToEnvironment: true
+      inlineScript: |
+        export ARM_CLIENT_ID=$(ClientId)
+        export ARM_CLIENT_SECRET=$(ClientSecret)
+        export ARM_SUBSCRIPTION_ID=$(subId)
+        export ARM_TENANT_ID=$(tenantId)
+        terraform init
+        terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
+      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+      useGlobalConfig: true
+  
