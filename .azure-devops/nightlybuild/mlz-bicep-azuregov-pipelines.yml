@@ -88,6 +88,7 @@ jobs:
    
   - task: AzureCLI@2
     displayName: "Clean up Subscription Diagnostics Settings"
+    condition: always()
     inputs:
       azureSubscription: $(GServiceConnectionName)
       scriptType: 'bash'
@@ -96,6 +97,7 @@ jobs:
 
   - task: AzureCLI@2
     displayName: "Clean up Resources"
+    condition: always()
     inputs:
       azureSubscription: $(GServiceConnectionName)
       scriptType: 'bash'

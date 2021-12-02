@@ -21,9 +21,9 @@ jobs:
   - task: TerraformInstaller@0
     inputs:
         terraformVersion: '1.0.8'
+
   - task: AzureCLI@2
     displayName: "Apply MLZ Terraform"
-    continueOnError: true
     inputs:
       azureSubscription: $(CAzureConnection)
       scriptType: 'bash'
@@ -42,7 +42,6 @@ jobs:
 
   - task: AzureCLI@2
     displayName: "Extract Values and Hydrate Variables for T3 Deployment"
-    continueOnError: true
     inputs:
       azureSubscription: $(CAzureConnection)
       scriptType: 'bash'
@@ -59,10 +58,9 @@ jobs:
         echo "##vso[task.setvariable variable=tier3SubId;]$(terraform output -raw tier1_subid)"
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
       useGlobalConfig: true
-  
+
   - task: AzureCLI@2
     displayName: "Apply T3 Workload Terraform"
-    continueOnError: true
     inputs:
       azureSubscription: $(CAzureConnection)
       scriptType: 'bash'
@@ -85,8 +83,10 @@ jobs:
           -input=false
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/tier3'
       useGlobalConfig: true
+
   - task: AzureCLI@2
     displayName: "Destroy T3 Workload Terraform"
+    condition: always()
     inputs:
       azureSubscription: $(CAzureConnection)
       scriptType: 'bash'
@@ -112,6 +112,7 @@ jobs:
       useGlobalConfig: true
   - task: AzureCLI@2
     displayName: "Destroy MLZ Terraform"
+    condition: always()
     inputs:
       azureSubscription: $(CAzureConnection)
       scriptType: 'bash'
