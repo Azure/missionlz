@@ -63,7 +63,7 @@ jobs:
             echo $(firewallPrivateIPAddress)
             echo $(lawsRgName)
   - task: AzureCLI@2
-    displayName: "Apply MLZ Terraform"
+    displayName: "Apply T3 Workload Terraform"
     continueOnError: true
     inputs:
       azureSubscription: $(CAzureConnection)
@@ -94,4 +94,20 @@ jobs:
         terraform init
         terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
+      useGlobalConfig: true
+  - task: AzureCLI@2
+    displayName: "Destroy T3 Workload Terraform"
+    inputs:
+      azureSubscription: $(CAzureConnection)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      addSpnToEnvironment: true
+      inlineScript: |
+        export ARM_CLIENT_ID=$(ClientId)
+        export ARM_CLIENT_SECRET=$(ClientSecret)
+        export ARM_SUBSCRIPTION_ID=$(subId)
+        export ARM_TENANT_ID=$(tenantId)
+        terraform init
+        terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
+      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/tier3'
       useGlobalConfig: true
