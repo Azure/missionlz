@@ -16,15 +16,15 @@ pool:
 jobs:
 - job: ADOPoliCredScanCheck
   steps:
-  - task: PoliCheck@1
+  - task: PoliCheck@2
     inputs:
       inputType: 'Basic'
       targetType: 'F'
       targetArgument: '$(System.DefaultWorkingDirectory)'
       result: 'PoliCheck.xml'
-  - publish: D:\a\1\_sdt\logs\PoliCheck\PoliCheck.xml
+  - publish: D:\a\1\.gdn\.r\policheck\001\policheck.xml
     artifact: PoliCheck.xml
-  - task: CredScan@2
+  - task: CredScan@3
     inputs:
       toolMajorVersion: 'V2'
       scanFolder: '$(System.DefaultWorkingDirectory)'
