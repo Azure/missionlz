@@ -110,6 +110,7 @@ jobs:
           -input=false
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/tier3'
       useGlobalConfig: true
+
   - task: AzureCLI@2
     displayName: "Destroy MLZ Terraform"
     condition: always()

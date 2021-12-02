@@ -29,6 +29,7 @@ jobs:
           --name $(bDeploymentName) \
           --location $(GLocation) \
           --template-file $(TemplateFile)
+
   - task: AzureCLI@2
     displayName: "Extract Values and Hydrate Variables for T3 Deployment"
     inputs:

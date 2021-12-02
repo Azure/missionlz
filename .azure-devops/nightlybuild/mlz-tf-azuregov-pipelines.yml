@@ -116,6 +116,9 @@ jobs:
         export ARM_ENVIRONMENT=$(CloudEnv)
         terraform init
         terraform destroy -var "hub_subid=$(hubSubscriptionId)" \
+          -var metadata_host=$(MetadataHost) \
+          -var environment=$(CloudEnv) \
+          -var location=$(GLocation) \
           -var "hub_rgname=$(hubResourceGroupName)" \
           -var "firewall_private_ip=$(firewallPrivateIPAddress)" \
           -var "hub_vnetname=$(hubVirtualNetworkName)" \
