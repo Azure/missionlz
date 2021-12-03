@@ -42,7 +42,7 @@ param firewallThreatIntelMode string
   'Deny'
   'Off'
 ])
-param firewallIntrustionDetectionMode string
+param firewallIntrusionDetectionMode string
 param firewallDiagnosticsLogs array
 param firewallDiagnosticsMetrics array
 param firewallClientIpConfigurationName string
@@ -214,7 +214,7 @@ module firewall './firewall.bicep' = {
 
     firewallPolicyName: firewallPolicyName
     threatIntelMode: firewallThreatIntelMode
-    intrustionDetectionMode: firewallIntrustionDetectionMode
+    intrusionDetectionMode: firewallIntrusionDetectionMode
     clientIpConfigurationName: firewallClientIpConfigurationName
     clientIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/${firewallClientSubnetName}'
     clientIpConfigurationPublicIPAddressResourceId: firewallClientPublicIPAddress.outputs.id

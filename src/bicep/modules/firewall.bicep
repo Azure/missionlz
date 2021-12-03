@@ -16,7 +16,7 @@ param threatIntelMode string
   'Deny'
   'Off'
 ])
-param intrustionDetectionMode string
+param intrusionDetectionMode string
 
 param clientIpConfigurationName string
 param clientIpConfigurationSubnetResourceId string
@@ -41,7 +41,7 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   properties: {
     threatIntelMode: threatIntelMode
     intrusionDetection:{
-      mode: intrustionDetectionMode
+      mode: intrusionDetectionMode
     }
     sku: {
       tier: skuTier

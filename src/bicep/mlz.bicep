@@ -77,7 +77,7 @@ module hubNetwork './modules/hubNetwork.bicep' = {
     firewallSkuTier: firewallSkuTier
     firewallPolicyName: firewallPolicyName
     firewallThreatIntelMode: firewallThreatIntelMode
-    firewallIntrustionDetectionMode: firewallIntrustionDetectionMode
+    firewallIntrusionDetectionMode: firewallIntrusionDetectionMode
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
     firewallClientIpConfigurationName: firewallClientIpConfigurationName
@@ -363,7 +363,7 @@ param firewallThreatIntelMode string = 'Alert'
   'Deny'
   'Off'
 ])
-param firewallIntrustionDetectionMode string = 'Alert'
+param firewallIntrusionDetectionMode string = 'Alert'
 
 param firewallDiagnosticsLogs array = [
   {
