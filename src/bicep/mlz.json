@@ -5,17 +5,16 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "12403164256946992612"
+      "templateHash": "10286368957514163169"
     }
   },
   "parameters": {
     "resourcePrefix": {
       "type": "string",
-      "defaultValue": "[format('mlz-{0}', parameters('uniqueId'))]",
       "metadata": {
-        "description": "A name (3-24 alphanumeric characters in length without whitespace) used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces"
+        "description": "A name (3-10 alphanumeric characters without whitespace) used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces"
       },
-      "maxLength": 24,
+      "maxLength": 10,
       "minLength": 3
     },
     "hubSubscriptionId": {
@@ -638,7 +637,7 @@
     },
     "uniqueId": {
       "type": "string",
-      "defaultValue": "[uniqueString(deployment().name)]"
+      "defaultValue": "[uniqueString(parameters('resourcePrefix'), parameters('nowUtc'))]"
     },
     "nowUtc": {
       "type": "string",
