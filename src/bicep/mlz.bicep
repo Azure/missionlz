@@ -302,9 +302,9 @@ module remoteAccess './modules/remoteAccess.bicep' = if(deployRemoteAccess) {
 // parameters
 
 @minLength(3)
-@maxLength(24)
-@description('A name (3-24 alphanumeric characters in length without whitespace) used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
-param resourcePrefix string = 'mlz-${uniqueId}'
+@maxLength(10)
+@description('A name (3-10 alphanumeric characters without whitespace) used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
+param resourcePrefix string
 param hubSubscriptionId string = subscription().subscriptionId
 param identitySubscriptionId string = hubSubscriptionId
 param operationsSubscriptionId string = hubSubscriptionId
@@ -526,7 +526,7 @@ var defaultTags = {
 }
 var calculatedTags = union(tags,defaultTags)
 
-param uniqueId string = uniqueString(deployment().name)
+param uniqueId string = uniqueString(resourcePrefix, nowUtc)
 param nowUtc string = utcNow()
 
 var spokes = [
