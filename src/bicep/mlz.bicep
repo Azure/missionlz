@@ -77,6 +77,7 @@ module hubNetwork './modules/hubNetwork.bicep' = {
     firewallSkuTier: firewallSkuTier
     firewallPolicyName: firewallPolicyName
     firewallThreatIntelMode: firewallThreatIntelMode
+    firewallIntrusionDetectionMode: firewallIntrusionDetectionMode
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
     firewallClientIpConfigurationName: firewallClientIpConfigurationName
@@ -349,7 +350,21 @@ param firewallName string = 'firewall'
 param firewallManagementSubnetAddressPrefix string = '10.0.100.64/26'
 param firewallClientSubnetAddressPrefix string = '10.0.100.0/26'
 param firewallPolicyName string = 'firewall-policy'
+
+@allowed([
+  'Alert'
+  'Deny'
+  'Off'
+])
 param firewallThreatIntelMode string = 'Alert'
+
+@allowed([
+  'Alert'
+  'Deny'
+  'Off'
+])
+param firewallIntrusionDetectionMode string = 'Alert'
+
 param firewallDiagnosticsLogs array = [
   {
     category: 'AzureFirewallApplicationRule'
