@@ -26,7 +26,7 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        datetime=$(date +%s) # gets the current date time as a epoch
+        datetime=$(date +%s) # gets the current date time as an epoch
         az deployment sub what-if \
           --name $(bDeploymentName) \
           --location $(GLocation) \
