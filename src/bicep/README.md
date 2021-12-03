@@ -11,24 +11,33 @@ You can deploy with the Azure Portal, the Azure CLI, or with both in a Azure Com
 
 > NOTE: The AZ CLI will automatically install the Bicep tools when a command is run that needs them, or you can manually install them following the [instructions here.](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#azure-cli)
 
-Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`?
+#### Decide on a Resource Prefix
 
-- See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
+Resource Groups and resource names are derived from the mandatory parameter `resourcePrefix`.
 
-Want to add Azure Policies to this deployment?
+Pick a unqiue resource prefix that is 3-10 alphanumeric characters in length without whitespaces.
 
-- See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
+#### Pick your deployment options
 
-Want to remotely access the network without exposing it via Public IP Addresses?
+- Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`?
 
-- See [Adding Remote Access via Bastion Host](#Adding-Remote-Access-via-Bastion-Host) to add virtual machines inside the network that you can access from an authenticated session in the Azure Portal with Azure Bastion.
+  - See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
 
-By default, this template deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features)**.
+- Want to add Azure Policies to this deployment?
 
-**Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If this doesn't fit your needs:
+  - See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
 
-- See [Setting the Firewall SKU](#Setting-the-Firewall-SKU) for steps on how to use the Standard SKU instead.
-- See [Setting the Firewall Location](#Setting-the-Firewall-Location) for steps on how to deploy into a different region.
+- Want to remotely access the network without exposing it via Public IP Addresses?
+
+  - See [Adding Remote Access via Bastion Host](#Adding-Remote-Access-via-Bastion-Host) to add virtual machines inside the network that you can access from an authenticated session in the Azure Portal with Azure Bastion.
+
+- By default, this template deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features)**.
+
+  - **Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If this doesn't fit your needs:
+  - See [Setting the Firewall SKU](#Setting-the-Firewall-SKU) for steps on how to use the Standard SKU instead.
+  - See [Setting the Firewall Location](#Setting-the-Firewall-Location) for steps on how to deploy into a different region.
+
+#### Know where to find your deployment output
 
 After a deployment is complete, you can refer to the provisioned resources programmaticaly with the Azure CLI.
 
@@ -47,6 +56,12 @@ az deployment sub create \
   --name myMlzDeployment \
   --location eastus \
   --template-file ./mlz.bicep
+```
+
+You'll be prompted for the one required argument `resourcePrefix` (a unique alphanumeric string 3-10 characters in length), which is used to to generate names for your resource groups and resources:
+
+```plaintext
+> Please provide string value for 'resourcePrefix' (? for help): mymlz01
 ```
 
 #### Multiple subscription deployment

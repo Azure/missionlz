@@ -25,10 +25,12 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
+        datetime=$(date +%s) # gets the current date time as an epoch
         az deployment sub create \
           --name $(bDeploymentName) \
           --location $(Location) \
-          --template-file $(TemplateFile)
+          --template-file $(TemplateFile) \
+          --parameters resourcePrefix=$datetime
 
   - task: AzureCLI@2
     displayName: "Extract Values and Hydrate Variables for T3 Deployment"
