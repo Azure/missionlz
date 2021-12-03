@@ -263,7 +263,7 @@ module spokeNetworks './modules/spokeNetwork.bicep' = [ for spoke in spokes: {
   name: 'deploy-vnet-${spoke.name}-${nowUtc}'
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
-    location: spoke.location
+    location: location
     tags: calculatedTags
 
     logStorageAccountName: string(take(spoke.logStorageAccountName, 23))
