@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "8860935919538003927"
+      "templateHash": "17440136114433413151"
     }
   },
   "parameters": {
@@ -133,7 +133,21 @@
     },
     "firewallThreatIntelMode": {
       "type": "string",
-      "defaultValue": "Alert"
+      "defaultValue": "Alert",
+      "allowedValues": [
+        "Alert",
+        "Deny",
+        "Off"
+      ]
+    },
+    "firewallIntrustionDetectionMode": {
+      "type": "string",
+      "defaultValue": "Alert",
+      "allowedValues": [
+        "Alert",
+        "Deny",
+        "Off"
+      ]
     },
     "firewallDiagnosticsLogs": {
       "type": "array",
@@ -1135,6 +1149,9 @@
           "firewallThreatIntelMode": {
             "value": "[parameters('firewallThreatIntelMode')]"
           },
+          "firewallIntrustionDetectionMode": {
+            "value": "[parameters('firewallIntrustionDetectionMode')]"
+          },
           "firewallDiagnosticsLogs": {
             "value": "[parameters('firewallDiagnosticsLogs')]"
           },
@@ -1203,7 +1220,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "13599565970900573060"
+              "templateHash": "15778033927435118479"
             }
           },
           "parameters": {
@@ -1286,7 +1303,20 @@
               "type": "string"
             },
             "firewallThreatIntelMode": {
-              "type": "string"
+              "type": "string",
+              "allowedValues": [
+                "Alert",
+                "Deny",
+                "Off"
+              ]
+            },
+            "firewallIntrustionDetectionMode": {
+              "type": "string",
+              "allowedValues": [
+                "Alert",
+                "Deny",
+                "Off"
+              ]
             },
             "firewallDiagnosticsLogs": {
               "type": "array"
@@ -2102,6 +2132,9 @@
                   "threatIntelMode": {
                     "value": "[parameters('firewallThreatIntelMode')]"
                   },
+                  "intrustionDetectionMode": {
+                    "value": "[parameters('firewallIntrustionDetectionMode')]"
+                  },
                   "clientIpConfigurationName": {
                     "value": "[parameters('firewallClientIpConfigurationName')]"
                   },
@@ -2140,7 +2173,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "16515753424142002553"
+                      "templateHash": "18358175967941846549"
                     }
                   },
                   "parameters": {
@@ -2159,7 +2192,20 @@
                       "type": "string"
                     },
                     "threatIntelMode": {
-                      "type": "string"
+                      "type": "string",
+                      "allowedValues": [
+                        "Alert",
+                        "Deny",
+                        "Off"
+                      ]
+                    },
+                    "intrustionDetectionMode": {
+                      "type": "string",
+                      "allowedValues": [
+                        "Alert",
+                        "Deny",
+                        "Off"
+                      ]
                     },
                     "clientIpConfigurationName": {
                       "type": "string"
@@ -2205,6 +2251,9 @@
                       "tags": "[parameters('tags')]",
                       "properties": {
                         "threatIntelMode": "[parameters('threatIntelMode')]",
+                        "intrusionDetection": {
+                          "mode": "[parameters('intrustionDetectionMode')]"
+                        },
                         "sku": {
                           "tier": "[parameters('skuTier')]"
                         }
