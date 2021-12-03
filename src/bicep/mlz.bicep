@@ -26,7 +26,7 @@ var networkSecurityGroupNamingConvention = replace(namingConvention, 'resource_t
 var publicIpAddressNamingConvention = replace(namingConvention, 'resource_token', 'pip')
 var resourceGroupNamingConvention = replace(namingConvention, 'resource_token', 'rg')
 var storageAccountNamingConvention = '${resourcePrefix}stmlz_token${uniqueString(resourcePrefix, guid(nowUtc))}' // we use unique string here to generate uniqueness
-var subnetNamingConvention = replace(namingConvention, 'resource_token', 'subnet')
+var subnetNamingConvention = replace(namingConvention, 'resource_token', 'snet')
 var virtualMachineNamingConvention = replace(namingConvention, 'resource_token', 'vm')
 var virtualNetworkNamingConvention = replace(namingConvention, 'resource_token', 'vnet')
 
@@ -176,7 +176,7 @@ module spokeResourceGroups './modules/resourceGroup.bicep' = [for spoke in spoke
   scope: subscription(spoke.subscriptionId)
   params: {
     name: spoke.resourceGroupName
-    location: spoke.location
+    location: location
     tags: calculatedTags
   }
 }]
@@ -209,7 +209,7 @@ module hubNetwork './modules/hubNetwork.bicep' = {
     location: location
     tags: calculatedTags
 
-    logStorageAccountName: hubLogStorageAccountName
+    logStorageAccountName: take(hubLogStorageAccountName, 23)
     logStorageSkuName: logStorageSkuName
 
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
@@ -265,7 +265,7 @@ module spokeNetworks './modules/spokeNetwork.bicep' = [ for spoke in spokes: {
     location: spoke.location
     tags: calculatedTags
 
-    logStorageAccountName: string(take(spoke.logStorageAccountName, 24))
+    logStorageAccountName: string(take(spoke.logStorageAccountName, 23))
     logStorageSkuName: logStorageSkuName
 
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
