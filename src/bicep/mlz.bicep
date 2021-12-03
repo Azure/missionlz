@@ -79,8 +79,9 @@ var logAnalyticsWorkspaceName = replace(logAnalyticsWorkspaceNamingConvention, '
 
 var firewallName = replace(firewallNamingConvention, 'mlz_token', 'hub')
 var firewallPolicyName = replace(firewallPolicyNamingConvention, 'mlz_token', 'hub')
-var firewallClientIpConfigurationName = replace(firewallManagementIpConfigurationName, 'mlz_token', 'hub')
+var firewallClientIpConfigurationName = replace(ipConfigurationNamingConvention, 'mlz_token', 'afw-client')
 var firewallClientPublicIPAddressName = replace(publicIpAddressNamingConvention, 'mlz_token', 'afw-client')
+var firewallManagementIpConfigurationName = replace(ipConfigurationNamingConvention, 'mlz_token', 'afw-mgmt')
 var firewallManagementPublicIPAddressName = replace(publicIpAddressNamingConvention, 'mlz_token', 'afw-mgmt')
 
 // BASTION NAMES
@@ -557,7 +558,6 @@ param firewallClientSubnetServiceEndpoints array = []
 param firewallClientPublicIPAddressSkuName string = 'Standard'
 param firewallClientPublicIpAllocationMethod string = 'Static'
 param firewallClientPublicIPAddressAvailabilityZones array = []
-param firewallManagementIpConfigurationName string = 'firewall-management-ip-config'
 param firewallManagementSubnetServiceEndpoints array = []
 param firewallManagementPublicIPAddressSkuName string = 'Standard'
 param firewallManagementPublicIpAllocationMethod string = 'Static'
