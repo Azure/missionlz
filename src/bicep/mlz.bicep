@@ -367,7 +367,7 @@ module spokeSubscriptionActivityLogging './modules/centralLogging.bicep' = [ for
 }]
 
 module logAnalyticsDiagnosticLogging './modules/logAnalyticsDiagnosticLogging.bicep' = {
-  name: 'deploy-diagnostic-logging-LAWS'
+  name: 'deploy-diagnostic-logging-${nowUtc}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
     diagnosticStorageAccountName: operationsLogStorageAccountName
@@ -382,7 +382,7 @@ module logAnalyticsDiagnosticLogging './modules/logAnalyticsDiagnosticLogging.bi
 // SECURITY CENTER
 
 module hubSecurityCenter './modules/securityCenter.bicep' = if(deployASC) {
-  name: 'set-hub-sub-security-center'
+  name: 'set-hub-sub-security-center-${nowUtc}'
   scope: subscription(hubSubscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
