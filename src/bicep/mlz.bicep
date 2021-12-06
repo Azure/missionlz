@@ -671,6 +671,7 @@ param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 param tags object = {}
 var defaultTags = {
   'resourcePrefix': resourcePrefix
+  'resourceSuffix': resourceSuffix
   'DeploymentType': 'MissionLandingZoneARM'
 }
 var calculatedTags = union(tags,defaultTags)
