@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "16874199536811758509"
+      "templateHash": "1746974669922982108"
     }
   },
   "parameters": {
@@ -495,7 +495,7 @@
     "networkSecurityGroupNamingConvention": "[replace(variables('namingConvention'), 'resource_token', 'nsg')]",
     "publicIpAddressNamingConvention": "[replace(variables('namingConvention'), 'resource_token', 'pip')]",
     "resourceGroupNamingConvention": "[replace(variables('namingConvention'), 'resource_token', 'rg')]",
-    "storageAccountNamingConvention": "[format('{0}stmlz_token{1}', parameters('resourcePrefix'), uniqueString(parameters('resourcePrefix'), parameters('resourceSuffix')))]",
+    "storageAccountNamingConvention": "[toLower(format('{0}stmlz_token{1}', parameters('resourcePrefix'), uniqueString(parameters('resourcePrefix'), parameters('resourceSuffix'))))]",
     "subnetNamingConvention": "[replace(variables('namingConvention'), 'resource_token', 'snet')]",
     "virtualMachineNamingConvention": "[replace(variables('namingConvention'), 'resource_token', 'vm')]",
     "virtualNetworkNamingConvention": "[replace(variables('namingConvention'), 'resource_token', 'vnet')]",
