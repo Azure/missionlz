@@ -14,7 +14,7 @@ targetScope = 'subscription'
 
 */
 
-var namingConvention = '${resourcePrefix}-resource_token-mlz_token-${resourceSuffix}'
+var namingConvention = '${toLower(resourcePrefix)}-resource_token-mlz_token-${toLower(resourceSuffix)}'
 
 /*
 
@@ -25,7 +25,7 @@ var namingConvention = '${resourcePrefix}-resource_token-mlz_token-${resourceSuf
 
 */
 
-// RESOURCE ABBREVIATIONS
+// RESOURCE NAME CONVENTIONS WITH ABBREVIATIONS
 
 var bastionHostNamingConvention = replace(namingConvention, 'resource_token', 'bas')
 var firewallNamingConvention = replace(namingConvention, 'resource_token', 'afw')
@@ -36,7 +36,7 @@ var networkInterfaceNamingConvention = replace(namingConvention, 'resource_token
 var networkSecurityGroupNamingConvention = replace(namingConvention, 'resource_token', 'nsg')
 var publicIpAddressNamingConvention = replace(namingConvention, 'resource_token', 'pip')
 var resourceGroupNamingConvention = replace(namingConvention, 'resource_token', 'rg')
-var storageAccountNamingConvention = '${resourcePrefix}stmlz_token${uniqueString(resourcePrefix, guid(nowUtc))}' // we use unique string here to generate uniqueness
+var storageAccountNamingConvention = '${resourcePrefix}stmlz_token${uniqueString(resourcePrefix, guid(nowUtc))}' // we use uniqueString() here to generate uniqueness
 var subnetNamingConvention = replace(namingConvention, 'resource_token', 'snet')
 var virtualMachineNamingConvention = replace(namingConvention, 'resource_token', 'vm')
 var virtualNetworkNamingConvention = replace(namingConvention, 'resource_token', 'vnet')
