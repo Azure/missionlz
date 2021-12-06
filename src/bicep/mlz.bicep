@@ -113,7 +113,7 @@ var windowsVmName = replace(virtualMachineNamingConvention, nameToken, 'bas-wind
 
 var spokes = [
   {
-    name: 'identity'
+    name: identityName
     subscriptionId: identitySubscriptionId
     resourceGroupName: identityResourceGroupName
     logStorageAccountName: identityLogStorageAccountName
@@ -130,7 +130,7 @@ var spokes = [
     subnetServiceEndpoints: identitySubnetServiceEndpoints
   }
   {
-    name: 'operations'
+    name: operationsName
     subscriptionId: operationsSubscriptionId
     resourceGroupName: operationsResourceGroupName
     logStorageAccountName: operationsLogStorageAccountName
@@ -147,7 +147,7 @@ var spokes = [
     subnetServiceEndpoints: operationsSubnetServiceEndpoints
   }
   {
-    name: 'sharedServices'
+    name: sharedServicesName
     subscriptionId: sharedServicesSubscriptionId
     resourceGroupName: sharedServicesResourceGroupName
     logStorageAccountName: sharedServicesLogStorageAccountName

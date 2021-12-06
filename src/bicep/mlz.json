@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "6248387996406248854"
+      "templateHash": "8826751506579266901"
     }
   },
   "parameters": {
@@ -547,7 +547,7 @@
     "windowsVmName": "[replace(variables('virtualMachineNamingConvention'), variables('nameToken'), 'bas-windows')]",
     "spokes": [
       {
-        "name": "identity",
+        "name": "[variables('identityName')]",
         "subscriptionId": "[parameters('identitySubscriptionId')]",
         "resourceGroupName": "[variables('identityResourceGroupName')]",
         "logStorageAccountName": "[variables('identityLogStorageAccountName')]",
@@ -564,7 +564,7 @@
         "subnetServiceEndpoints": "[parameters('identitySubnetServiceEndpoints')]"
       },
       {
-        "name": "operations",
+        "name": "[variables('operationsName')]",
         "subscriptionId": "[parameters('operationsSubscriptionId')]",
         "resourceGroupName": "[variables('operationsResourceGroupName')]",
         "logStorageAccountName": "[variables('operationsLogStorageAccountName')]",
@@ -581,7 +581,7 @@
         "subnetServiceEndpoints": "[parameters('operationsSubnetServiceEndpoints')]"
       },
       {
-        "name": "sharedServices",
+        "name": "[variables('sharedServicesName')]",
         "subscriptionId": "[parameters('sharedServicesSubscriptionId')]",
         "resourceGroupName": "[variables('sharedServicesResourceGroupName')]",
         "logStorageAccountName": "[variables('sharedServicesLogStorageAccountName')]",
