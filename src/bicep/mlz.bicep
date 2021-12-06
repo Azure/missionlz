@@ -2,7 +2,7 @@ targetScope = 'subscription'
 
 /*
 
-  NAMING CONVENTIONS
+  NAMING CONVENTION
 
   Here we define some naming conventions for resources.
 
@@ -15,6 +15,17 @@ targetScope = 'subscription'
 */
 
 var namingConvention = '${resourcePrefix}-resource_token-mlz_token-${resourceSuffix}'
+
+/*
+
+  CALCULATED VALUES
+
+  Here, we reference the naming conventions described above,
+  then, use the replace() function to insert unique resource types and values into the naming convention.
+
+*/
+
+// RESOURCE ABBREVIATIONS
 
 var bastionHostNamingConvention = replace(namingConvention, 'resource_token', 'bas')
 var firewallNamingConvention = replace(namingConvention, 'resource_token', 'afw')
@@ -29,15 +40,6 @@ var storageAccountNamingConvention = '${resourcePrefix}stmlz_token${uniqueString
 var subnetNamingConvention = replace(namingConvention, 'resource_token', 'snet')
 var virtualMachineNamingConvention = replace(namingConvention, 'resource_token', 'vm')
 var virtualNetworkNamingConvention = replace(namingConvention, 'resource_token', 'vnet')
-
-/*
-
-  CALCULATED VALUES
-
-  Here, we reference the naming conventions described above.
-  Then, use the replace() function to insert unique resource types and values into the naming convention.
-
-*/
 
 // HUB NAMES
 
