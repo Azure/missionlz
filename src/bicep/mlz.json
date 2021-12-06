@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "5764672024815514663"
+      "templateHash": "6248387996406248854"
     }
   },
   "parameters": {
@@ -504,28 +504,28 @@
     "hubName": "hub",
     "hubShortName": "hub",
     "hubResourceGroupName": "[replace(variables('resourceGroupNamingConvention'), variables('nameToken'), variables('hubName'))]",
-    "hubLogStorageAccountName": "[replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('hubShortName'))]",
+    "hubLogStorageAccountName": "[take(replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('hubShortName')), 23)]",
     "hubVirtualNetworkName": "[replace(variables('virtualNetworkNamingConvention'), variables('nameToken'), variables('hubName'))]",
     "hubNetworkSecurityGroupName": "[replace(variables('networkSecurityGroupNamingConvention'), variables('nameToken'), variables('hubName'))]",
     "hubSubnetName": "[replace(variables('subnetNamingConvention'), variables('nameToken'), variables('hubName'))]",
     "identityName": "identity",
     "identityShortName": "id",
     "identityResourceGroupName": "[replace(variables('resourceGroupNamingConvention'), variables('nameToken'), variables('identityName'))]",
-    "identityLogStorageAccountName": "[replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('identityShortName'))]",
+    "identityLogStorageAccountName": "[take(replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('identityShortName')), 23)]",
     "identityVirtualNetworkName": "[replace(variables('virtualNetworkNamingConvention'), variables('nameToken'), variables('identityName'))]",
     "identityNetworkSecurityGroupName": "[replace(variables('networkSecurityGroupNamingConvention'), variables('nameToken'), variables('identityName'))]",
     "identitySubnetName": "[replace(variables('subnetNamingConvention'), variables('nameToken'), variables('identityName'))]",
     "operationsName": "operations",
     "operationsShortName": "ops",
     "operationsResourceGroupName": "[replace(variables('resourceGroupNamingConvention'), variables('nameToken'), variables('operationsName'))]",
-    "operationsLogStorageAccountName": "[replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('operationsShortName'))]",
+    "operationsLogStorageAccountName": "[take(replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('operationsShortName')), 23)]",
     "operationsVirtualNetworkName": "[replace(variables('virtualNetworkNamingConvention'), variables('nameToken'), variables('operationsName'))]",
     "operationsNetworkSecurityGroupName": "[replace(variables('networkSecurityGroupNamingConvention'), variables('nameToken'), variables('operationsName'))]",
     "operationsSubnetName": "[replace(variables('subnetNamingConvention'), variables('nameToken'), variables('operationsName'))]",
     "sharedServicesName": "sharedServices",
     "sharedServicesShortName": "svcs",
     "sharedServicesResourceGroupName": "[replace(variables('resourceGroupNamingConvention'), variables('nameToken'), variables('sharedServicesName'))]",
-    "sharedServicesLogStorageAccountName": "[replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('sharedServicesShortName'))]",
+    "sharedServicesLogStorageAccountName": "[take(replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('sharedServicesShortName')), 23)]",
     "sharedServicesVirtualNetworkName": "[replace(variables('virtualNetworkNamingConvention'), variables('nameToken'), variables('sharedServicesName'))]",
     "sharedServicesNetworkSecurityGroupName": "[replace(variables('networkSecurityGroupNamingConvention'), variables('nameToken'), variables('sharedServicesName'))]",
     "sharedServicesSubnetName": "[replace(variables('subnetNamingConvention'), variables('nameToken'), variables('sharedServicesName'))]",
@@ -984,7 +984,7 @@
             "value": "[variables('calculatedTags')]"
           },
           "logStorageAccountName": {
-            "value": "[take(variables('hubLogStorageAccountName'), 23)]"
+            "value": "[variables('hubLogStorageAccountName')]"
           },
           "logStorageSkuName": {
             "value": "[parameters('logStorageSkuName')]"
@@ -2690,7 +2690,7 @@
             "value": "[variables('calculatedTags')]"
           },
           "logStorageAccountName": {
-            "value": "[string(take(variables('spokes')[copyIndex()].logStorageAccountName, 23))]"
+            "value": "[variables('spokes')[copyIndex()].logStorageAccountName]"
           },
           "logStorageSkuName": {
             "value": "[parameters('logStorageSkuName')]"
@@ -4747,7 +4747,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "1148831067271080103"
+              "templateHash": "7553476343724456136"
             }
           },
           "parameters": {
@@ -5190,7 +5190,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "16381556259285133052"
+                      "templateHash": "9165533268589955383"
                     }
                   },
                   "parameters": {
@@ -5311,14 +5311,14 @@
                         "typeHandlerVersion": "1.4"
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', split(format('{0}/Microsoft.Azure.AzurePolicyforLinux', parameters('name')), '/')[0], split(format('{0}/Microsoft.Azure.AzurePolicyforLinux', parameters('name')), '/')[1])]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('name'), 'AzurePolicyforLinux')]",
                         "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2020-06-01",
-                      "name": "[format('{0}/Microsoft.Azure.AzurePolicyforLinux', parameters('name'))]",
+                      "apiVersion": "2020-12-01",
+                      "name": "[format('{0}/{1}', parameters('name'), 'AzurePolicyforLinux')]",
                       "location": "[parameters('location')]",
                       "properties": {
                         "publisher": "Microsoft.GuestConfiguration",

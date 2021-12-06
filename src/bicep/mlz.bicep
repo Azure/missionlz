@@ -49,7 +49,7 @@ var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'v
 var hubName = 'hub'
 var hubShortName = 'hub'
 var hubResourceGroupName =  replace(resourceGroupNamingConvention, nameToken, hubName)
-var hubLogStorageAccountName = replace(storageAccountNamingConvention, nameToken, hubShortName)
+var hubLogStorageAccountName = take(replace(storageAccountNamingConvention, nameToken, hubShortName), 23)
 var hubVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, hubName)
 var hubNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, hubName)
 var hubSubnetName = replace(subnetNamingConvention, nameToken, hubName)
@@ -59,7 +59,7 @@ var hubSubnetName = replace(subnetNamingConvention, nameToken, hubName)
 var identityName = 'identity'
 var identityShortName = 'id'
 var identityResourceGroupName = replace(resourceGroupNamingConvention, nameToken, identityName)
-var identityLogStorageAccountName = replace(storageAccountNamingConvention, nameToken, identityShortName)
+var identityLogStorageAccountName = take(replace(storageAccountNamingConvention, nameToken, identityShortName), 23)
 var identityVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, identityName)
 var identityNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, identityName)
 var identitySubnetName = replace(subnetNamingConvention, nameToken, identityName)
@@ -69,7 +69,7 @@ var identitySubnetName = replace(subnetNamingConvention, nameToken, identityName
 var operationsName = 'operations'
 var operationsShortName = 'ops'
 var operationsResourceGroupName = replace(resourceGroupNamingConvention, nameToken, operationsName)
-var operationsLogStorageAccountName = replace(storageAccountNamingConvention, nameToken, operationsShortName)
+var operationsLogStorageAccountName = take(replace(storageAccountNamingConvention, nameToken, operationsShortName), 23)
 var operationsVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, operationsName)
 var operationsNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, operationsName)
 var operationsSubnetName = replace(subnetNamingConvention, nameToken, operationsName)
@@ -79,7 +79,7 @@ var operationsSubnetName = replace(subnetNamingConvention, nameToken, operations
 var sharedServicesName = 'sharedServices'
 var sharedServicesShortName = 'svcs'
 var sharedServicesResourceGroupName = replace(resourceGroupNamingConvention, nameToken, sharedServicesName)
-var sharedServicesLogStorageAccountName = replace(storageAccountNamingConvention, nameToken, sharedServicesShortName)
+var sharedServicesLogStorageAccountName = take(replace(storageAccountNamingConvention, nameToken, sharedServicesShortName), 23)
 var sharedServicesVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, sharedServicesName)
 var sharedServicesNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, sharedServicesName)
 var sharedServicesSubnetName = replace(subnetNamingConvention, nameToken, sharedServicesName)
@@ -223,7 +223,7 @@ module hubNetwork './modules/hubNetwork.bicep' = {
     location: location
     tags: calculatedTags
 
-    logStorageAccountName: take(hubLogStorageAccountName, 23)
+    logStorageAccountName: hubLogStorageAccountName
     logStorageSkuName: logStorageSkuName
 
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
@@ -279,7 +279,7 @@ module spokeNetworks './modules/spokeNetwork.bicep' = [ for spoke in spokes: {
     location: location
     tags: calculatedTags
 
-    logStorageAccountName: string(take(spoke.logStorageAccountName, 23))
+    logStorageAccountName: spoke.logStorageAccountName
     logStorageSkuName: logStorageSkuName
 
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
@@ -494,7 +494,6 @@ param location string = deployment().location
 
 @description('The Storage Account SKU to use for log storage')
 param logStorageSkuName string = 'Standard_GRS'
-
 
 param hubSubscriptionId string = subscription().subscriptionId
 param identitySubscriptionId string = hubSubscriptionId
