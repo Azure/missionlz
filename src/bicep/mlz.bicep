@@ -14,7 +14,10 @@ targetScope = 'subscription'
 
 */
 
-var namingConvention = '${toLower(resourcePrefix)}-resource_token-mlz_token-${toLower(resourceSuffix)}'
+var resourceToken = 'resource_token'
+var nameToken = 'name_token'
+
+var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
 
 /*
 
@@ -27,76 +30,84 @@ var namingConvention = '${toLower(resourcePrefix)}-resource_token-mlz_token-${to
 
 // RESOURCE NAME CONVENTIONS WITH ABBREVIATIONS
 
-var bastionHostNamingConvention = replace(namingConvention, 'resource_token', 'bas')
-var firewallNamingConvention = replace(namingConvention, 'resource_token', 'afw')
-var firewallPolicyNamingConvention = replace(namingConvention, 'resource_token', 'afwp')
-var ipConfigurationNamingConvention = replace(namingConvention, 'resource_token', 'ipconf')
-var logAnalyticsWorkspaceNamingConvention = replace(namingConvention, 'resource_token', 'log')
-var networkInterfaceNamingConvention = replace(namingConvention, 'resource_token', 'nic')
-var networkSecurityGroupNamingConvention = replace(namingConvention, 'resource_token', 'nsg')
-var publicIpAddressNamingConvention = replace(namingConvention, 'resource_token', 'pip')
-var resourceGroupNamingConvention = replace(namingConvention, 'resource_token', 'rg')
-var storageAccountNamingConvention = toLower('${resourcePrefix}stmlz_token${uniqueString(resourcePrefix, resourceSuffix)}') // we use uniqueString() here to generate uniqueness
-var subnetNamingConvention = replace(namingConvention, 'resource_token', 'snet')
-var virtualMachineNamingConvention = replace(namingConvention, 'resource_token', 'vm')
-var virtualNetworkNamingConvention = replace(namingConvention, 'resource_token', 'vnet')
+var bastionHostNamingConvention = replace(namingConvention, resourceToken, 'bas')
+var firewallNamingConvention = replace(namingConvention, resourceToken, 'afw')
+var firewallPolicyNamingConvention = replace(namingConvention, resourceToken, 'afwp')
+var ipConfigurationNamingConvention = replace(namingConvention, resourceToken, 'ipconf')
+var logAnalyticsWorkspaceNamingConvention = replace(namingConvention, resourceToken, 'log')
+var networkInterfaceNamingConvention = replace(namingConvention, resourceToken, 'nic')
+var networkSecurityGroupNamingConvention = replace(namingConvention, resourceToken, 'nsg')
+var publicIpAddressNamingConvention = replace(namingConvention, resourceToken, 'pip')
+var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
+var storageAccountNamingConvention = toLower('${resourcePrefix}st${nameToken}${uniqueString(resourcePrefix, resourceSuffix)}') // we use uniqueString() here to generate uniqueness
+var subnetNamingConvention = replace(namingConvention, resourceToken, 'snet')
+var virtualMachineNamingConvention = replace(namingConvention, resourceToken, 'vm')
+var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'vnet')
 
 // HUB NAMES
 
-var hubResourceGroupName =  replace(resourceGroupNamingConvention, 'mlz_token', 'hub')
-var hubLogStorageAccountName = replace(storageAccountNamingConvention, 'mlz_token', 'hub')
-var hubVirtualNetworkName = replace(virtualNetworkNamingConvention, 'mlz_token', 'hub')
-var hubNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, 'mlz_token', 'hub')
-var hubSubnetName = replace(subnetNamingConvention, 'mlz_token', 'hub')
+var hubName = 'hub'
+var hubShortName = 'hub'
+var hubResourceGroupName =  replace(resourceGroupNamingConvention, nameToken, hubName)
+var hubLogStorageAccountName = replace(storageAccountNamingConvention, nameToken, hubShortName)
+var hubVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, hubName)
+var hubNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, hubName)
+var hubSubnetName = replace(subnetNamingConvention, nameToken, hubName)
 
 // IDENTITY NAMES
 
-var identityResourceGroupName = replace(resourceGroupNamingConvention, 'mlz_token', 'identity')
-var identityLogStorageAccountName = replace(storageAccountNamingConvention, 'mlz_token', 'id')
-var identityVirtualNetworkName = replace(virtualNetworkNamingConvention, 'mlz_token', 'identity')
-var identityNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, 'mlz_token', 'identity')
-var identitySubnetName = replace(subnetNamingConvention, 'mlz_token', 'identity')
+var identityName = 'identity'
+var identityShortName = 'id'
+var identityResourceGroupName = replace(resourceGroupNamingConvention, nameToken, identityName)
+var identityLogStorageAccountName = replace(storageAccountNamingConvention, nameToken, identityShortName)
+var identityVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, identityName)
+var identityNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, identityName)
+var identitySubnetName = replace(subnetNamingConvention, nameToken, identityName)
 
 // OPERATIONS NAMES
 
-var operationsResourceGroupName = replace(resourceGroupNamingConvention, 'mlz_token', 'operations')
-var operationsLogStorageAccountName = replace(storageAccountNamingConvention, 'mlz_token', 'ops')
-var operationsVirtualNetworkName = replace(virtualNetworkNamingConvention, 'mlz_token', 'operations')
-var operationsNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, 'mlz_token', 'operations')
-var operationsSubnetName = replace(subnetNamingConvention, 'mlz_token', 'operations')
+var operationsName = 'operations'
+var operationsShortName = 'ops'
+var operationsResourceGroupName = replace(resourceGroupNamingConvention, nameToken, operationsName)
+var operationsLogStorageAccountName = replace(storageAccountNamingConvention, nameToken, operationsShortName)
+var operationsVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, operationsName)
+var operationsNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, operationsName)
+var operationsSubnetName = replace(subnetNamingConvention, nameToken, operationsName)
 
 // SHARED SERVICES NAMES
 
-var sharedServicesResourceGroupName = replace(resourceGroupNamingConvention, 'mlz_token', 'sharedServices')
-var sharedServicesLogStorageAccountName = replace(storageAccountNamingConvention, 'mlz_token', 'svcs')
-var sharedServicesVirtualNetworkName = replace(virtualNetworkNamingConvention, 'mlz_token', 'sharedServices')
-var sharedServicesNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, 'mlz_token', 'sharedServices')
-var sharedServicesSubnetName = replace(subnetNamingConvention, 'mlz_token', 'sharedServices')
+var sharedServicesName = 'sharedServices'
+var sharedServicesShortName = 'svcs'
+var sharedServicesResourceGroupName = replace(resourceGroupNamingConvention, nameToken, sharedServicesName)
+var sharedServicesLogStorageAccountName = replace(storageAccountNamingConvention, nameToken, sharedServicesShortName)
+var sharedServicesVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, sharedServicesName)
+var sharedServicesNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, sharedServicesName)
+var sharedServicesSubnetName = replace(subnetNamingConvention, nameToken, sharedServicesName)
 
 // LOG ANALYTICS NAMES
 
-var logAnalyticsWorkspaceName = replace(logAnalyticsWorkspaceNamingConvention, 'mlz_token', 'operations')
+var logAnalyticsWorkspaceName = replace(logAnalyticsWorkspaceNamingConvention, nameToken, operationsName)
 
 // FIREWALL NAMES
 
-var firewallName = replace(firewallNamingConvention, 'mlz_token', 'hub')
-var firewallPolicyName = replace(firewallPolicyNamingConvention, 'mlz_token', 'hub')
-var firewallClientIpConfigurationName = replace(ipConfigurationNamingConvention, 'mlz_token', 'afw-client')
-var firewallClientPublicIPAddressName = replace(publicIpAddressNamingConvention, 'mlz_token', 'afw-client')
-var firewallManagementIpConfigurationName = replace(ipConfigurationNamingConvention, 'mlz_token', 'afw-mgmt')
-var firewallManagementPublicIPAddressName = replace(publicIpAddressNamingConvention, 'mlz_token', 'afw-mgmt')
+var firewallName = replace(firewallNamingConvention, nameToken, hubName)
+var firewallPolicyName = replace(firewallPolicyNamingConvention, nameToken, hubName)
+var firewallClientIpConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'afw-client')
+var firewallClientPublicIPAddressName = replace(publicIpAddressNamingConvention, nameToken, 'afw-client')
+var firewallManagementIpConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'afw-mgmt')
+var firewallManagementPublicIPAddressName = replace(publicIpAddressNamingConvention, nameToken, 'afw-mgmt')
 
 // BASTION NAMES
 
-var bastionHostName = replace(bastionHostNamingConvention, 'mlz_token', 'hub')
-var bastionHostPublicIPAddressName = replace(publicIpAddressNamingConvention, 'mlz_token', 'bas')
-var bastionHostIPConfigurationName = replace(ipConfigurationNamingConvention, 'mlz_token', 'bas')
-var linuxNetworkInterfaceName = replace(networkInterfaceNamingConvention, 'mlz_token', 'bas-linux')
-var linuxNetworkInterfaceIpConfigurationName = replace(ipConfigurationNamingConvention, 'mlz_token', 'bas-linux')
-var linuxVmName = replace(virtualMachineNamingConvention, 'mlz_token', 'bas-linux')
-var windowsNetworkInterfaceName = replace(networkInterfaceNamingConvention, 'mlz_token', 'bas-windows')
-var windowsNetworkInterfaceIpConfigurationName = replace(ipConfigurationNamingConvention, 'mlz_token', 'bas-windows')
-var windowsVmName = replace(virtualMachineNamingConvention, 'mlz_token', 'bas-windows')
+var bastionHostName = replace(bastionHostNamingConvention, nameToken, hubName)
+var bastionHostPublicIPAddressName = replace(publicIpAddressNamingConvention, nameToken, 'bas')
+var bastionHostIPConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'bas')
+var linuxNetworkInterfaceName = replace(networkInterfaceNamingConvention, nameToken, 'bas-linux')
+var linuxNetworkInterfaceIpConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'bas-linux')
+var linuxVmName = replace(virtualMachineNamingConvention, nameToken, 'bas-linux')
+var windowsNetworkInterfaceName = replace(networkInterfaceNamingConvention, nameToken, 'bas-windows')
+var windowsNetworkInterfaceIpConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'bas-windows')
+var windowsVmName = replace(virtualMachineNamingConvention, nameToken, 'bas-windows')
 
 // SPOKES
 

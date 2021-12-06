@@ -346,23 +346,23 @@ Let's look at an example using `--parameters resourcePrefix=FOO` and `--paramete
 - In `mlz.bicep` you will find a variable titled `namingConvention`:
 
     ```bicep
-    var namingConvention = '${toLower(resourcePrefix)}-resource_token-mlz_token-${toLower(resourceSuffix})'
-    # this generates a value of: foo-resource_token-mlz_token-bar
+    var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
+    # this generates a value of: foo-${resourceToken}-${nameToken}-bar
     ```
 
-- This naming convention uses Bicep's `replace()` function to substitute resource abbreviations for `resource_token` and Mission LZ hub and spoke resource names for `mlz_token`.
+- This naming convention uses Bicep's `replace()` function to substitute resource abbreviations for `resourceToken` and resource names for `nameToken`.
 
-- For example, when naming the Hub Resource Group, first the `resource_token` is substituted with the recommended abbreviation `rg`:
+- For example, when naming the Hub Resource Group, first the `resourceToken` is substituted with the recommended abbreviation `rg`:
 
     ```bicep
-    var resourceGroupNamingConvention = replace(namingConvention, 'resource_token', 'rg')
-    # this generates a value of: foo-rg-mlz_token-bar
+    var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
+    # this generates a value of: foo-rg-${nameToken}-bar
     ```
 
-- Then, the `mlz_token` is substituted with the Mission LZ name `hub`:
+- Then, the `nameToken` is substituted with the Mission LZ name `hub`:
 
     ```bicep
-    var hubResourceGroupName =  replace(resourceGroupNamingConvention, 'mlz_token', 'hub')
+    var hubResourceGroupName =  replace(resourceGroupNamingConvention, nameToken, 'hub')
     # this generates a value of: foo-rg-hub-bar
     ```
 
@@ -383,12 +383,12 @@ You can modify this naming convention to suit your needs. We recommend following
 - In `mlz.bicep` you can modify the root naming convention. This is the default convention:
 
     ```bicep
-    var namingConvention = '${toLower(resourcePrefix)}-resource_token-mlz_token-${toLower(resourceSuffix})'
+    var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
     ```
 
-- Say you did not want to use the resourceSuffix, but instead wanted to add your own token to the naming convention like `team`:
+- Say you did not want to use the `resourceSuffix` value, but instead wanted to add your own token to the naming convention like `team`:
 
-- First, you added the new parameter `environment`:
+- First, you added the new parameter `team`:
 
     ```bicep
     @allowedValues([
@@ -399,10 +399,10 @@ You can modify this naming convention to suit your needs. We recommend following
     param team
     ```
 
-- Then, you modified the naming convention, while retaining the string token identifiers `resource_token` and `mlz_token`, to allow for mixed case `resourcePrefix` values and your new `team` value:
+- Then, you modified the naming convention to allow for mixed case `resourcePrefix` values and your new `team` value (while retaining the token identifiers `resourceToken` and `nameToken`):
 
     ```bicep
-    var namingConvention = '${resourcePrefix}-${team}-resource_token-mlz_token'
+    var namingConvention = '${resourcePrefix}-${team}-${resourceToken}-${nameToken}'
     ```
 
 - Now, given a `--parameters resourcePrefix=FOO` and `--parameters team=sales` the generated Hub Resource Group Name would be:
