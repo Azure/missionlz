@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "10286368957514163169"
+      "templateHash": "14231715997569073942"
     }
   },
   "parameters": {
@@ -4458,7 +4458,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "5100455574031231618"
+              "templateHash": "15798076951502966032"
             }
           },
           "parameters": {
@@ -4467,13 +4467,6 @@
               "defaultValue": true,
               "metadata": {
                 "description": "Turn automatic deployment by ASC of the MMA (OMS VM extension) on or off"
-              }
-            },
-            "enableSecuritySettings": {
-              "type": "bool",
-              "defaultValue": true,
-              "metadata": {
-                "description": "Turn security policy settings On or Off."
               }
             },
             "logAnalyticsWorkspaceId": {
@@ -4492,8 +4485,7 @@
           "functions": [],
           "variables": {
             "bundle": "[if(not(equals(environment().name, 'AzureUSGovernment')), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'))]",
-            "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]",
-            "securitySettings": "[if(parameters('enableSecuritySettings'), 'On', 'Off')]"
+            "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]"
           },
           "resources": [
             {
@@ -4534,35 +4526,6 @@
                 "alertsToAdmins": "On",
                 "alertNotifications": "On",
                 "email": "[parameters('emailSecurityContact')]"
-              }
-            },
-            {
-              "type": "Microsoft.Security/policies",
-              "apiVersion": "2015-06-01-preview",
-              "name": "default",
-              "properties": {
-                "policyLevel": "Subscription",
-                "name": "default",
-                "unique": "Off",
-                "logCollection": "On",
-                "recommendations": {
-                  "patch": "[variables('securitySettings')]",
-                  "baseline": "[variables('securitySettings')]",
-                  "antimalware": "[variables('securitySettings')]",
-                  "diskEncryption": "[variables('securitySettings')]",
-                  "acls": "[variables('securitySettings')]",
-                  "nsgs": "[variables('securitySettings')]",
-                  "waf": "[variables('securitySettings')]",
-                  "sqlAuditing": "[variables('securitySettings')]",
-                  "sqlTde": "[variables('securitySettings')]",
-                  "ngfw": "[variables('securitySettings')]",
-                  "vulnerabilityAssessment": "[variables('securitySettings')]",
-                  "storageEncryption": "[variables('securitySettings')]",
-                  "jitNetworkAccess": "[variables('securitySettings')]"
-                },
-                "pricingConfiguration": {
-                  "selectedPricingTier": "Standard"
-                }
               }
             }
           ]
@@ -4603,7 +4566,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "5100455574031231618"
+              "templateHash": "15798076951502966032"
             }
           },
           "parameters": {
@@ -4612,13 +4575,6 @@
               "defaultValue": true,
               "metadata": {
                 "description": "Turn automatic deployment by ASC of the MMA (OMS VM extension) on or off"
-              }
-            },
-            "enableSecuritySettings": {
-              "type": "bool",
-              "defaultValue": true,
-              "metadata": {
-                "description": "Turn security policy settings On or Off."
               }
             },
             "logAnalyticsWorkspaceId": {
@@ -4637,8 +4593,7 @@
           "functions": [],
           "variables": {
             "bundle": "[if(not(equals(environment().name, 'AzureUSGovernment')), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'))]",
-            "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]",
-            "securitySettings": "[if(parameters('enableSecuritySettings'), 'On', 'Off')]"
+            "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]"
           },
           "resources": [
             {
@@ -4679,35 +4634,6 @@
                 "alertsToAdmins": "On",
                 "alertNotifications": "On",
                 "email": "[parameters('emailSecurityContact')]"
-              }
-            },
-            {
-              "type": "Microsoft.Security/policies",
-              "apiVersion": "2015-06-01-preview",
-              "name": "default",
-              "properties": {
-                "policyLevel": "Subscription",
-                "name": "default",
-                "unique": "Off",
-                "logCollection": "On",
-                "recommendations": {
-                  "patch": "[variables('securitySettings')]",
-                  "baseline": "[variables('securitySettings')]",
-                  "antimalware": "[variables('securitySettings')]",
-                  "diskEncryption": "[variables('securitySettings')]",
-                  "acls": "[variables('securitySettings')]",
-                  "nsgs": "[variables('securitySettings')]",
-                  "waf": "[variables('securitySettings')]",
-                  "sqlAuditing": "[variables('securitySettings')]",
-                  "sqlTde": "[variables('securitySettings')]",
-                  "ngfw": "[variables('securitySettings')]",
-                  "vulnerabilityAssessment": "[variables('securitySettings')]",
-                  "storageEncryption": "[variables('securitySettings')]",
-                  "jitNetworkAccess": "[variables('securitySettings')]"
-                },
-                "pricingConfiguration": {
-                  "selectedPricingTier": "Standard"
-                }
               }
             }
           ]
