@@ -91,8 +91,9 @@ resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01
   ]
 }
 
-resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-  name: '${virtualMachine.name}/Microsoft.Azure.AzurePolicyforLinux'
+resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+  parent: virtualMachine
+  name: 'AzurePolicyforLinux'
   location: location
   properties: {
     publisher: 'Microsoft.GuestConfiguration'
