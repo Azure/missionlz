@@ -37,6 +37,11 @@ Pick a unqiue resource prefix that is 3-10 alphanumeric characters in length wit
   - See [Setting the Firewall SKU](#Setting-the-Firewall-SKU) for steps on how to use the Standard SKU instead.
   - See [Setting the Firewall Location](#Setting-the-Firewall-Location) for steps on how to deploy into a different region.
 
+- Review the default [Naming Convention](#Naming-Conventions) or apply your own
+
+  - By default, Mission LZ creates resources with a naming convention
+  - See [Naming Convention](#Naming-Conventions) to see what that convention is and how to provide your own to suit your needs
+
 #### Know where to find your deployment output
 
 After a deployment is complete, you can refer to the provisioned resources programmaticaly with the Azure CLI.
@@ -327,6 +332,88 @@ Bicep templates, the Azure CLI, and JMESpath queries allows you to manually, or 
 Read more about `az deployment` at: [https://docs.microsoft.com](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
 
 Read more about JMESPath queries at: <https://jmespath.org/>
+
+## Naming Conventions
+
+The [naming convention is inspired by the Azure Cloud Adoption Framework](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming) and uses the [recommended resource abbreviations](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations).
+
+By default, Mission LZ resources are named according to a naming convention that uses the mandatory `resourcePrefix` parameter and the optional `resourceSuffix` parameter (that is defaulted to `mlz`).
+
+### Default Naming Convention Example
+
+Let's look at an example using `--parameters resourcePrefix=FOO` and `--parameters resourceSuffix=BAR`
+
+- In `mlz.bicep` you will find a variable titled `namingConvention`:
+
+    ```bicep
+    var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
+    # this generates a value of: foo-${resourceToken}-${nameToken}-bar
+    ```
+
+- This naming convention uses Bicep's `replace()` function to substitute resource abbreviations for `resourceToken` and resource names for `nameToken`.
+
+- For example, when naming the Hub Resource Group, first the `resourceToken` is substituted with the recommended abbreviation `rg`:
+
+    ```bicep
+    var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
+    # this generates a value of: foo-rg-${nameToken}-bar
+    ```
+
+- Then, the `nameToken` is substituted with the Mission LZ name `hub`:
+
+    ```bicep
+    var hubResourceGroupName =  replace(resourceGroupNamingConvention, nameToken, 'hub')
+    # this generates a value of: foo-rg-hub-bar
+    ```
+
+- Finally, the `hubResourceGroupName` is assigned to the resource group `name` parameter:
+
+  ```bicep
+  params: {
+    name: hubResourceGroupName # this is the calculated value 'foo-rg-hub-bar'
+    location: location
+    tags: calculatedTags
+  }
+  ```
+
+### Modifying The Naming Convention
+
+You can modify this naming convention to suit your needs. We recommend following the [Cloud Adoption Framework guidance](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming).
+
+- In `mlz.bicep` you can modify the root naming convention. This is the default convention:
+
+    ```bicep
+    var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
+    ```
+
+- Say you did not want to use the `resourceSuffix` value, but instead wanted to add your own token to the naming convention like `team`:
+
+- First, you added the new parameter `team`:
+
+    ```bicep
+    @allowedValues([
+      'admin'
+      'marketing'
+      'sales'
+    ])
+    param team
+    ```
+
+- Then, you modified the naming convention to allow for mixed case `resourcePrefix` values and your new `team` value (while retaining the token identifiers `resourceToken` and `nameToken`):
+
+    ```bicep
+    var namingConvention = '${resourcePrefix}-${team}-${resourceToken}-${nameToken}'
+    ```
+
+- Now, given a `--parameters resourcePrefix=FOO` and `--parameters team=sales` the generated Hub Resource Group Name would be:
+
+    ```plaintext
+    params: {
+      name: hubResourceGroupName # this is the calculated value 'FOO-sales-rg-hub'
+      location: location
+      tags: calculatedTags
+    }
+    ```
 
 ## Development Pre-requisites
 
