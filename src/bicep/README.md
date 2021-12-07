@@ -415,6 +415,27 @@ You can modify this naming convention to suit your needs. We recommend following
     }
     ```
 
+## Cleanup
+
+The Bicep/ARM deployment of Mission Landing Zone can be deleted with two steps:
+
+1. Delete all resource groups.
+1. Delete the diagnostic settings deployed at the subscription level.
+
+> NOTE: If you deploy and delete Mission Landing Zone in the same subscription multiple times without deleting the subscription-level diagnostic settings, the sixth deployment will fail. Azure has a limit of five diagnostic settings per subscription. The error will be similar to this: `"The limit of 5 diagnostic settings was reached."`
+
+To delete the diagnostic settings from the Azure Portal: choose the subscription blade, then Activity log in the left panel. At the top of the Activity log screen click the Diagnostics settings button. From there you can click the Edit setting link and delete the diagnostic setting.
+
+To delete the diagnotic settings in script, use the AZ CLI or PowerShell. An AZ CLI example is below:
+
+```BASH
+# View diagnostic settings in the current subscription
+az monitor diagnostic-settings subscription list --query value[] --output table
+
+# Delete a diagnostic setting
+az monitor diagnostic-settings subscription delete --name <diagnostic setting name>
+```
+
 ## Development Pre-requisites
 
 If you want to develop with Bicep you'll need these:
