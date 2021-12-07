@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "2134085193296925979"
+      "templateHash": "15591717121098622944"
     }
   },
   "parameters": {
@@ -15,6 +15,15 @@
         "description": "A prefix, 3-10 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces"
       },
       "maxLength": 10,
+      "minLength": 3
+    },
+    "resourceSuffix": {
+      "type": "string",
+      "defaultValue": "mlz",
+      "metadata": {
+        "description": "A suffix, 3 to 6 characters in length, to append to resource names (e.g. \"dev\", \"test\", \"prod\", \"mlz\"). It defaults to \"mlz\"."
+      },
+      "maxLength": 6,
       "minLength": 3
     },
     "hubSubscriptionId": {
@@ -52,20 +61,11 @@
         "description": "The region to deploy resources into. It defaults to the deployment location."
       }
     },
-    "resourceSuffix": {
-      "type": "string",
-      "defaultValue": "mlz",
-      "metadata": {
-        "description": "A suffix, 3 to 6 characters in length, to append to resource names (e.g. \"dev\", \"test\", \"prod\", \"mlz\"). It defaults to \"mlz\"."
-      },
-      "maxLength": 6,
-      "minLength": 3
-    },
-    "nowUtc": {
+    "deploymentNameSuffix": {
       "type": "string",
       "defaultValue": "[utcNow()]",
       "metadata": {
-        "description": "A timestamp to use for naming deployments uniquely. It defaults to the Bicep resolution of the \"utcNow()\" function."
+        "description": "A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the \"utcNow()\" function."
       }
     },
     "tags": {
@@ -517,8 +517,16 @@
       "type": "string",
       "defaultValue": "PerGB2018",
       "metadata": {
-        "description": "The SKU for the Log Analytics Workspace. It defaults to \"PerGB2018\"."
-      }
+        "description": "[Free/Standard/Premium/PerNode/PerGB2018/Standalone] The SKU for the Log Analytics Workspace. It defaults to \"PerGB2018\". See https://docs.microsoft.com/en-us/azure/azure-monitor/logs/resource-manager-workspace for valid settings."
+      },
+      "allowedValues": [
+        "Free",
+        "Standard",
+        "Premium",
+        "PerNode",
+        "PerGB2018",
+        "Standalone"
+      ]
     },
     "logStorageSkuName": {
       "type": "string",
@@ -873,7 +881,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('deploy-rg-hub-{0}', parameters('nowUtc'))]",
+      "name": "[format('deploy-rg-hub-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
@@ -948,7 +956,7 @@
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('deploy-rg-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))]",
+      "name": "[format('deploy-rg-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('spokes')[copyIndex()].subscriptionId]",
       "location": "[deployment().location]",
       "properties": {
@@ -1019,7 +1027,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('deploy-laws-{0}', parameters('nowUtc'))]",
+      "name": "[format('deploy-laws-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('operationsSubscriptionId')]",
       "resourceGroup": "[variables('operationsResourceGroupName')]",
       "properties": {
@@ -1232,7 +1240,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('deploy-vnet-hub-{0}', parameters('nowUtc'))]",
+      "name": "[format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "resourceGroup": "[variables('hubResourceGroupName')]",
       "properties": {
@@ -1254,10 +1262,10 @@
             "value": "[parameters('logStorageSkuName')]"
           },
           "logAnalyticsWorkspaceName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.name.value]"
           },
           "logAnalyticsWorkspaceResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.id.value]"
           },
           "virtualNetworkName": {
             "value": "[variables('hubVirtualNetworkName')]"
@@ -2928,7 +2936,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -2938,7 +2946,7 @@
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))]",
+      "name": "[format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('spokes')[copyIndex()].subscriptionId]",
       "resourceGroup": "[variables('spokes')[copyIndex()].resourceGroupName]",
       "properties": {
@@ -2960,10 +2968,10 @@
             "value": "[parameters('logStorageSkuName')]"
           },
           "logAnalyticsWorkspaceResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.id.value]"
           },
           "firewallPrivateIPAddress": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.firewallPrivateIPAddress.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.firewallPrivateIPAddress.value]"
           },
           "virtualNetworkName": {
             "value": "[variables('spokes')[copyIndex()].virtualNetworkName]"
@@ -3555,14 +3563,14 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('deploy-vnet-peerings-hub-{0}', parameters('nowUtc'))]",
+      "name": "[format('deploy-vnet-peerings-hub-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "resourceGroup": "[variables('hubResourceGroupName')]",
       "properties": {
@@ -3572,14 +3580,14 @@
         "mode": "Incremental",
         "parameters": {
           "hubVirtualNetworkName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.virtualNetworkName.value]"
           },
           "spokes": {
             "copy": [
               {
                 "name": "value",
                 "count": "[length(variables('spokes'))]",
-                "input": "[createObject('type', variables('spokes')[copyIndex('value')].name, 'virtualNetworkName', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex('value')].subscriptionId, variables('spokes')[copyIndex('value')].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex('value')].name, parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkName.value, 'virtualNetworkResourceId', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex('value')].subscriptionId, variables('spokes')[copyIndex('value')].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex('value')].name, parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkResourceId.value)]"
+                "input": "[createObject('type', variables('spokes')[copyIndex('value')].name, 'virtualNetworkName', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex('value')].subscriptionId, variables('spokes')[copyIndex('value')].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex('value')].name, parameters('deploymentNameSuffix'))), '2020-06-01').outputs.virtualNetworkName.value, 'virtualNetworkResourceId', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex('value')].subscriptionId, variables('spokes')[copyIndex('value')].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex('value')].name, parameters('deploymentNameSuffix'))), '2020-06-01').outputs.virtualNetworkResourceId.value)]"
               }
             ]
           }
@@ -3663,7 +3671,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix')))]",
         "spokeNetworks"
       ]
     },
@@ -3674,7 +3682,7 @@
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('deploy-vnet-peerings-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))]",
+      "name": "[format('deploy-vnet-peerings-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('spokes')[copyIndex()].subscriptionId]",
       "location": "[deployment().location]",
       "properties": {
@@ -3690,13 +3698,13 @@
             "value": "[variables('spokes')[copyIndex()].resourceGroupName]"
           },
           "spokeVirtualNetworkName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2020-06-01').outputs.virtualNetworkName.value]"
           },
           "hubVirtualNetworkName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.virtualNetworkName.value]"
           },
           "hubVirtualNetworkResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.virtualNetworkResourceId.value]"
           }
         },
         "template": {
@@ -3784,15 +3792,15 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "condition": "[parameters('deployPolicy')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('assign-policy-hub-{0}', parameters('nowUtc'))]",
+      "name": "[format('assign-policy-hub-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "resourceGroup": "[variables('hubResourceGroupName')]",
       "properties": {
@@ -3805,10 +3813,10 @@
             "value": "[parameters('policy')]"
           },
           "logAnalyticsWorkspaceName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.name.value]"
           },
           "logAnalyticsWorkspaceResourceGroupName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.resourceGroupName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.resourceGroupName.value]"
           },
           "operationsSubscriptionId": {
             "value": "[parameters('operationsSubscriptionId')]"
@@ -4044,7 +4052,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -4055,7 +4063,7 @@
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('assign-policy-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))]",
+      "name": "[format('assign-policy-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('spokes')[copyIndex()].subscriptionId]",
       "resourceGroup": "[variables('spokes')[copyIndex()].resourceGroupName]",
       "properties": {
@@ -4068,10 +4076,10 @@
             "value": "[parameters('policy')]"
           },
           "logAnalyticsWorkspaceName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.name.value]"
           },
           "logAnalyticsWorkspaceResourceGroupName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.resourceGroupName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.resourceGroupName.value]"
           },
           "operationsSubscriptionId": {
             "value": "[parameters('operationsSubscriptionId')]"
@@ -4307,13 +4315,13 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('activity-logs-hub-{0}', parameters('nowUtc'))]",
+      "name": "[format('activity-logs-hub-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
@@ -4323,10 +4331,10 @@
         "mode": "Incremental",
         "parameters": {
           "diagnosticSettingName": {
-            "value": "[format('log-hub-sub-activity-to-{0}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.name.value)]"
+            "value": "[format('log-hub-sub-activity-to-{0}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.name.value)]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.id.value]"
           }
         },
         "template": {
@@ -4403,8 +4411,8 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -4415,7 +4423,7 @@
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('activity-logs-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))]",
+      "name": "[format('activity-logs-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('spokes')[copyIndex()].subscriptionId]",
       "location": "[deployment().location]",
       "properties": {
@@ -4425,10 +4433,10 @@
         "mode": "Incremental",
         "parameters": {
           "diagnosticSettingName": {
-            "value": "[format('log-{0}-sub-activity-to-{1}', variables('spokes')[copyIndex()].name, reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.name.value)]"
+            "value": "[format('log-{0}-sub-activity-to-{1}', variables('spokes')[copyIndex()].name, reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.name.value)]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.id.value]"
           }
         },
         "template": {
@@ -4505,14 +4513,14 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]",
         "spokeNetworks"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('deploy-diagnostic-logging-{0}', parameters('nowUtc'))]",
+      "name": "[format('deploy-diagnostic-logging-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('operationsSubscriptionId')]",
       "resourceGroup": "[variables('operationsResourceGroupName')]",
       "properties": {
@@ -4525,7 +4533,7 @@
             "value": "[variables('operationsLogStorageAccountName')]"
           },
           "logAnalyticsWorkspaceName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.name.value]"
           }
         },
         "template": {
@@ -4582,8 +4590,8 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]",
         "spokeNetworks"
       ]
     },
@@ -4591,7 +4599,7 @@
       "condition": "[parameters('deployASC')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('set-hub-sub-security-center-{0}', parameters('nowUtc'))]",
+      "name": "[format('set-hub-sub-security-center-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
@@ -4601,7 +4609,7 @@
         "mode": "Incremental",
         "parameters": {
           "logAnalyticsWorkspaceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.id.value]"
           },
           "emailSecurityContact": {
             "value": "[parameters('emailSecurityContact')]"
@@ -4725,7 +4733,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -4746,7 +4754,7 @@
         "mode": "Incremental",
         "parameters": {
           "logAnalyticsWorkspaceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.id.value]"
           },
           "emailSecurityContact": {
             "value": "[parameters('emailSecurityContact')]"
@@ -4870,14 +4878,14 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "condition": "[parameters('deployRemoteAccess')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('deploy-remote-access-{0}', parameters('nowUtc'))]",
+      "name": "[format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "resourceGroup": "[variables('hubResourceGroupName')]",
       "properties": {
@@ -4890,13 +4898,13 @@
             "value": "[parameters('location')]"
           },
           "hubVirtualNetworkName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.virtualNetworkName.value]"
           },
           "hubSubnetResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.subnetResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.subnetResourceId.value]"
           },
           "hubNetworkSecurityGroupResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.networkSecurityGroupResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.networkSecurityGroupResourceId.value]"
           },
           "bastionHostName": {
             "value": "[variables('bastionHostName')]"
@@ -5001,7 +5009,7 @@
             "value": "[parameters('windowsVmStorageAccountType')]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.id.value]"
           }
         },
         "template": {
@@ -5981,8 +5989,8 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }
   ],
@@ -5993,30 +6001,30 @@
     },
     "firewallPrivateIPAddress": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.firewallPrivateIPAddress.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.firewallPrivateIPAddress.value]"
     },
     "hub": {
       "type": "object",
       "value": {
         "subscriptionId": "[parameters('hubSubscriptionId')]",
-        "resourceGroupName": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-rg-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.name.value]",
-        "resourceGroupResourceId": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-rg-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.id.value]",
-        "virtualNetworkName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkName.value]",
-        "virtualNetworkResourceId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkResourceId.value]",
-        "subnetName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.subnetName.value]",
-        "subnetResourceId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.subnetResourceId.value]",
-        "subnetAddressPrefix": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.subnetAddressPrefix.value]",
-        "networkSecurityGroupName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.networkSecurityGroupName.value]",
-        "networkSecurityGroupResourceId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('nowUtc'))), '2020-06-01').outputs.networkSecurityGroupResourceId.value]"
+        "resourceGroupName": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-rg-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.name.value]",
+        "resourceGroupResourceId": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-rg-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.id.value]",
+        "virtualNetworkName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.virtualNetworkName.value]",
+        "virtualNetworkResourceId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.virtualNetworkResourceId.value]",
+        "subnetName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.subnetName.value]",
+        "subnetResourceId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.subnetResourceId.value]",
+        "subnetAddressPrefix": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.subnetAddressPrefix.value]",
+        "networkSecurityGroupName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.networkSecurityGroupName.value]",
+        "networkSecurityGroupResourceId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.networkSecurityGroupResourceId.value]"
       }
     },
     "logAnalyticsWorkspaceName": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.name.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.name.value]"
     },
     "logAnalyticsWorkspaceResourceId": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('nowUtc'))), '2020-06-01').outputs.id.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix'))), '2020-06-01').outputs.id.value]"
     },
     "spokes": {
       "type": "array",
@@ -6025,15 +6033,15 @@
         "input": {
           "name": "[variables('spokes')[copyIndex()].name]",
           "subscriptionId": "[variables('spokes')[copyIndex()].subscriptionId]",
-          "resourceGroupName": "[reference(subscriptionResourceId(variables('spokes')[copyIndex()].subscriptionId, 'Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))), '2020-06-01').outputs.name.value]",
-          "resourceGroupId": "[reference(subscriptionResourceId(variables('spokes')[copyIndex()].subscriptionId, 'Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))), '2020-06-01').outputs.id.value]",
-          "virtualNetworkName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkName.value]",
-          "virtualNetworkResourceId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))), '2020-06-01').outputs.virtualNetworkResourceId.value]",
-          "subnetName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))), '2020-06-01').outputs.subnetName.value]",
-          "subnetResourceId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))), '2020-06-01').outputs.subnetResourceId.value]",
-          "subnetAddressPrefix": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))), '2020-06-01').outputs.subnetAddressPrefix.value]",
-          "networkSecurityGroupName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))), '2020-06-01').outputs.networkSecurityGroupName.value]",
-          "networkSecurityGroupResourceId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('nowUtc'))), '2020-06-01').outputs.networkSecurityGroupResourceId.value]"
+          "resourceGroupName": "[reference(subscriptionResourceId(variables('spokes')[copyIndex()].subscriptionId, 'Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2020-06-01').outputs.name.value]",
+          "resourceGroupId": "[reference(subscriptionResourceId(variables('spokes')[copyIndex()].subscriptionId, 'Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2020-06-01').outputs.id.value]",
+          "virtualNetworkName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2020-06-01').outputs.virtualNetworkName.value]",
+          "virtualNetworkResourceId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2020-06-01').outputs.virtualNetworkResourceId.value]",
+          "subnetName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2020-06-01').outputs.subnetName.value]",
+          "subnetResourceId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2020-06-01').outputs.subnetResourceId.value]",
+          "subnetAddressPrefix": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2020-06-01').outputs.subnetAddressPrefix.value]",
+          "networkSecurityGroupName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2020-06-01').outputs.networkSecurityGroupName.value]",
+          "networkSecurityGroupResourceId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2020-06-01').outputs.networkSecurityGroupResourceId.value]"
         }
       }
     }

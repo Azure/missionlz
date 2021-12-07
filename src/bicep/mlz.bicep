@@ -18,6 +18,11 @@ targetScope = 'subscription'
 @description('A prefix, 3-10 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
 param resourcePrefix string
 
+@minLength(3)
+@maxLength(6)
+@description('A suffix, 3 to 6 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".')
+param resourceSuffix string = 'mlz'
+
 @description('The subscription ID for the Hub Network and resources. It defaults to the deployment subscription.')
 param hubSubscriptionId string = subscription().subscriptionId
 
@@ -35,13 +40,8 @@ param location string = deployment().location
 
 // RESOURCE NAMING PARAMETERS
 
-@minLength(3)
-@maxLength(6)
-@description('A suffix, 3 to 6 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".')
-param resourceSuffix string = 'mlz'
-
-@description('A timestamp to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
-param nowUtc string = utcNow()
+@description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
+param deploymentNameSuffix string = utcNow()
 
 @description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
 param tags object = {}
@@ -306,7 +306,15 @@ param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
 @description('The number of days to retain Log Analytics Workspace logs. It defaults to "30".')
 param logAnalyticsWorkspaceRetentionInDays int = 30
 
-@description('The SKU for the Log Analytics Workspace. It defaults to "PerGB2018".')
+@allowed([
+  'Free'
+  'Standard'
+  'Premium'
+  'PerNode'
+  'PerGB2018'
+  'Standalone'
+])
+@description('[Free/Standard/Premium/PerNode/PerGB2018/Standalone] The SKU for the Log Analytics Workspace. It defaults to "PerGB2018". See https://docs.microsoft.com/en-us/azure/azure-monitor/logs/resource-manager-workspace for valid settings.')
 param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
 
 @description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
@@ -623,7 +631,7 @@ var calculatedTags = union(tags, defaultTags)
 // RESOURCE GROUPS
 
 module hubResourceGroup './modules/resourceGroup.bicep' = {
-  name: 'deploy-rg-hub-${nowUtc}'
+  name: 'deploy-rg-hub-${deploymentNameSuffix}'
   scope: subscription(hubSubscriptionId)
   params: {
     name: hubResourceGroupName
@@ -633,7 +641,7 @@ module hubResourceGroup './modules/resourceGroup.bicep' = {
 }
 
 module spokeResourceGroups './modules/resourceGroup.bicep' = [for spoke in spokes: {
-  name: 'deploy-rg-${spoke.name}-${nowUtc}'
+  name: 'deploy-rg-${spoke.name}-${deploymentNameSuffix}'
   scope: subscription(spoke.subscriptionId)
   params: {
     name: spoke.resourceGroupName
@@ -645,7 +653,7 @@ module spokeResourceGroups './modules/resourceGroup.bicep' = [for spoke in spoke
 // LOG ANALYTICS WORKSPACE
 
 module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
-  name: 'deploy-laws-${nowUtc}'
+  name: 'deploy-laws-${deploymentNameSuffix}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
     name: logAnalyticsWorkspaceName
@@ -664,7 +672,7 @@ module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
 // HUB AND SPOKE NETWORKS
 
 module hubNetwork './modules/hubNetwork.bicep' = {
-  name: 'deploy-vnet-hub-${nowUtc}'
+  name: 'deploy-vnet-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     location: location
@@ -720,7 +728,7 @@ module hubNetwork './modules/hubNetwork.bicep' = {
 }
 
 module spokeNetworks './modules/spokeNetwork.bicep' = [for spoke in spokes: {
-  name: 'deploy-vnet-${spoke.name}-${nowUtc}'
+  name: 'deploy-vnet-${spoke.name}-${deploymentNameSuffix}'
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
     location: location
@@ -752,7 +760,7 @@ module spokeNetworks './modules/spokeNetwork.bicep' = [for spoke in spokes: {
 // VIRTUAL NETWORK PEERINGS
 
 module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
-  name: 'deploy-vnet-peerings-hub-${nowUtc}'
+  name: 'deploy-vnet-peerings-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
@@ -765,7 +773,7 @@ module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
 }
 
 module spokeVirtualNetworkPeerings './modules/spokeNetworkPeering.bicep' = [for (spoke, i) in spokes: {
-  name: 'deploy-vnet-peerings-${spoke.name}-${nowUtc}'
+  name: 'deploy-vnet-peerings-${spoke.name}-${deploymentNameSuffix}'
   scope: subscription(spoke.subscriptionId)
   params: {
     spokeName: spoke.name
@@ -779,7 +787,7 @@ module spokeVirtualNetworkPeerings './modules/spokeNetworkPeering.bicep' = [for 
 // POLICY ASSIGNMENTS
 
 module hubPolicyAssignment './modules/policyAssignment.bicep' = if (deployPolicy) {
-  name: 'assign-policy-hub-${nowUtc}'
+  name: 'assign-policy-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     builtInAssignment: policy
@@ -790,7 +798,7 @@ module hubPolicyAssignment './modules/policyAssignment.bicep' = if (deployPolicy
 }
 
 module spokePolicyAssignments './modules/policyAssignment.bicep' = [for spoke in spokes: if (deployPolicy) {
-  name: 'assign-policy-${spoke.name}-${nowUtc}'
+  name: 'assign-policy-${spoke.name}-${deploymentNameSuffix}'
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
     builtInAssignment: policy
@@ -803,7 +811,7 @@ module spokePolicyAssignments './modules/policyAssignment.bicep' = [for spoke in
 // CENTRAL LOGGING
 
 module hubSubscriptionActivityLogging './modules/centralLogging.bicep' = {
-  name: 'activity-logs-hub-${nowUtc}'
+  name: 'activity-logs-hub-${deploymentNameSuffix}'
   scope: subscription(hubSubscriptionId)
   params: {
     diagnosticSettingName: 'log-hub-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
@@ -815,7 +823,7 @@ module hubSubscriptionActivityLogging './modules/centralLogging.bicep' = {
 }
 
 module spokeSubscriptionActivityLogging './modules/centralLogging.bicep' = [for spoke in spokes: if (spoke.subscriptionId != hubSubscriptionId) {
-  name: 'activity-logs-${spoke.name}-${nowUtc}'
+  name: 'activity-logs-${spoke.name}-${deploymentNameSuffix}'
   scope: subscription(spoke.subscriptionId)
   params: {
     diagnosticSettingName: 'log-${spoke.name}-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
@@ -827,7 +835,7 @@ module spokeSubscriptionActivityLogging './modules/centralLogging.bicep' = [for 
 }]
 
 module logAnalyticsDiagnosticLogging './modules/logAnalyticsDiagnosticLogging.bicep' = {
-  name: 'deploy-diagnostic-logging-${nowUtc}'
+  name: 'deploy-diagnostic-logging-${deploymentNameSuffix}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
     diagnosticStorageAccountName: operationsLogStorageAccountName
@@ -842,7 +850,7 @@ module logAnalyticsDiagnosticLogging './modules/logAnalyticsDiagnosticLogging.bi
 // SECURITY CENTER
 
 module hubSecurityCenter './modules/securityCenter.bicep' = if (deployASC) {
-  name: 'set-hub-sub-security-center-${nowUtc}'
+  name: 'set-hub-sub-security-center-${deploymentNameSuffix}'
   scope: subscription(hubSubscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
@@ -862,7 +870,7 @@ module spokeSecurityCenter './modules/securityCenter.bicep' = [for spoke in spok
 // REMOTE ACCESS
 
 module remoteAccess './modules/remoteAccess.bicep' = if (deployRemoteAccess) {
-  name: 'deploy-remote-access-${nowUtc}'
+  name: 'deploy-remote-access-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
 
   params: {
