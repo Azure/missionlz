@@ -2,29 +2,464 @@ targetScope = 'subscription'
 
 /*
 
+  PARAMETERS
+
+  Here are all the parameters a user can override.
+
+  These are the required parameters that Mission LZ does not provide a default for:
+    - resourcePrefix
+
+*/
+
+// REQUIRED PARAMETERS
+
+@minLength(3)
+@maxLength(10)
+@description('A prefix, 3-10 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
+param resourcePrefix string
+
+@minLength(3)
+@maxLength(6)
+@description('A suffix, 3 to 6 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".')
+param resourceSuffix string = 'mlz'
+
+@description('The subscription ID for the Hub Network and resources. It defaults to the deployment subscription.')
+param hubSubscriptionId string = subscription().subscriptionId
+
+@description('The subscription ID for the Identity Network and resources. It defaults to the deployment subscription.')
+param identitySubscriptionId string = subscription().subscriptionId
+
+@description('The subscription ID for the Operations Network and resources. It defaults to the deployment subscription.')
+param operationsSubscriptionId string = subscription().subscriptionId
+
+@description('The subscription ID for the Shared Services Network and resources. It defaults to the deployment subscription.')
+param sharedServicesSubscriptionId string = subscription().subscriptionId
+
+@description('The region to deploy resources into. It defaults to the deployment location.')
+param location string = deployment().location
+
+// RESOURCE NAMING PARAMETERS
+
+@description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
+param deploymentNameSuffix string = utcNow()
+
+@description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
+param tags object = {}
+
+// NETWORK ADDRESS SPACE PARAMETERS
+
+@description('The CIDR Virtual Network Address Prefix for the Hub Virtual Network.')
+param hubVirtualNetworkAddressPrefix string = '10.0.100.0/24'
+
+@description('The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.')
+param hubSubnetAddressPrefix string = '10.0.100.128/27'
+
+@description('The CIDR Subnet Address Prefix for the Azure Firewall Subnet. It must be in the Hub Virtual Network space. It must be /26.')
+param firewallClientSubnetAddressPrefix string = '10.0.100.0/26'
+
+@description('The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.')
+param firewallManagementSubnetAddressPrefix string = '10.0.100.64/26'
+
+@description('The CIDR Virtual Network Address Prefix for the Identity Virtual Network.')
+param identityVirtualNetworkAddressPrefix string = '10.0.110.0/26'
+
+@description('The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.')
+param identitySubnetAddressPrefix string = '10.0.110.0/27'
+
+@description('The CIDR Virtual Network Address Prefix for the Operations Virtual Network.')
+param operationsVirtualNetworkAddressPrefix string = '10.0.115.0/26'
+
+@description('The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.')
+param operationsSubnetAddressPrefix string = '10.0.115.0/27'
+
+@description('The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.')
+param sharedServicesVirtualNetworkAddressPrefix string = '10.0.120.0/26'
+
+@description('The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.')
+param sharedServicesSubnetAddressPrefix string = '10.0.120.0/27'
+
+// FIREWALL PARAMETERS
+
+@allowed([
+  'Standard'
+  'Premium'
+])
+@description('[Standard/Premium] The SKU for Azure Firewall. It defaults to "Premium".')
+param firewallSkuTier string = 'Premium'
+
+@allowed([
+  'Alert'
+  'Deny'
+  'Off'
+])
+@description('[Alert/Deny/Off] The Azure Firewall Threat Intelligence Rule triggered logging behavior. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
+param firewallThreatIntelMode string = 'Alert'
+
+@allowed([
+  'Alert'
+  'Deny'
+  'Off'
+])
+@description('[Alert/Deny/Off] The Azure Firewall Intrusion Detection mode. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
+param firewallIntrusionDetectionMode string = 'Alert'
+
+@description('An array of Firewall Diagnostic Logs categories to collect. See "https://docs.microsoft.com/en-us/azure/firewall/firewall-diagnostics#enable-diagnostic-logging-through-the-azure-portal" for valid values.')
+param firewallDiagnosticsLogs array = [
+  {
+    category: 'AzureFirewallApplicationRule'
+    enabled: true
+  }
+  {
+    category: 'AzureFirewallNetworkRule'
+    enabled: true
+  }
+  {
+    category: 'AzureFirewallDnsProxy'
+    enabled: true
+  }
+]
+
+@description('An array of Firewall Diagnostic Metrics categories to collect. See "https://docs.microsoft.com/en-us/azure/firewall/firewall-diagnostics#enable-diagnostic-logging-through-the-azure-portal" for valid values.')
+param firewallDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@description('An array of Service Endpoints to enable for the Azure Firewall Client Subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
+param firewallClientSubnetServiceEndpoints array = []
+
+@description('An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.')
+param firewallClientPublicIPAddressAvailabilityZones array = []
+
+@description('An array of Service Endpoints to enable for the Azure Firewall Management Subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
+param firewallManagementSubnetServiceEndpoints array = []
+
+@description('An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.')
+param firewallManagementPublicIPAddressAvailabilityZones array = []
+
+@description('An array of Public IP Address Diagnostic Logs for the Azure Firewall. See https://docs.microsoft.com/en-us/azure/ddos-protection/diagnostic-logging?tabs=DDoSProtectionNotifications#configure-ddos-diagnostic-logs for valid settings.')
+param publicIPAddressDiagnosticsLogs array = [
+  {
+    category: 'DDoSProtectionNotifications'
+    enabled: true
+  }
+  {
+    category: 'DDoSMitigationFlowLogs'
+    enabled: true
+  }
+  {
+    category: 'DDoSMitigationReports'
+    enabled: true
+  }
+]
+
+@description('An array of Public IP Address Diagnostic Metrics for the Azure Firewall. See https://docs.microsoft.com/en-us/azure/ddos-protection/diagnostic-logging?tabs=DDoSProtectionNotifications for valid settings.')
+param publicIPAddressDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+// HUB NETWORK PARAMETERS
+
+@description('An array of Network Diagnostic Logs to enable for the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.')
+param hubVirtualNetworkDiagnosticsLogs array = []
+
+@description('An array of Network Diagnostic Metrics to enable for the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
+param hubVirtualNetworkDiagnosticsMetrics array = []
+
+@description('An array of Network Security Group Rules to apply to the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
+param hubNetworkSecurityGroupRules array = []
+
+@description('An array of Network Security Group diagnostic logs to apply to the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
+param hubNetworkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group Metrics to apply to enable for the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
+param hubNetworkSecurityGroupDiagnosticsMetrics array = []
+
+@description('An array of Service Endpoints to enable for the Hub subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
+param hubSubnetServiceEndpoints array = [
+  {
+    service: 'Microsoft.Storage'
+  }
+]
+
+// IDENTITY PARAMETERS
+
+@description('An array of Network Diagnostic Logs to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.')
+param identityVirtualNetworkDiagnosticsLogs array = []
+
+@description('An array of Network Diagnostic Metrics to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
+param identityVirtualNetworkDiagnosticsMetrics array = []
+
+@description('An array of Network Security Group Rules to apply to the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
+param identityNetworkSecurityGroupRules array = []
+
+@description('An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
+param identityNetworkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group Metrics to apply to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
+param identityNetworkSecurityGroupDiagnosticsMetrics array = []
+
+@description('An array of Service Endpoints to enable for the Identity subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
+param identitySubnetServiceEndpoints array = [
+  {
+    service: 'Microsoft.Storage'
+  }
+]
+
+// OPERATIONS PARAMETERS
+
+@description('An array of Network Diagnostic Logs to enable for the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.')
+param operationsVirtualNetworkDiagnosticsLogs array = []
+
+@description('An array of Network Diagnostic Metrics to enable for the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
+param operationsVirtualNetworkDiagnosticsMetrics array = []
+
+@description('An array of Network Security Group rules to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
+param operationsNetworkSecurityGroupRules array = []
+
+@description('An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
+param operationsNetworkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group Diagnostic Metrics to enable for the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
+param operationsNetworkSecurityGroupDiagnosticsMetrics array = []
+
+@description('An array of Service Endpoints to enable for the Operations subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
+param operationsSubnetServiceEndpoints array = [
+  {
+    service: 'Microsoft.Storage'
+  }
+]
+
+// SHARED SERVICES PARAMETERS
+
+@description('An array of Network Diagnostic Logs to enable for the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.')
+param sharedServicesVirtualNetworkDiagnosticsLogs array = []
+
+@description('An array of Network Diagnostic Metrics to enable for the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
+param sharedServicesVirtualNetworkDiagnosticsMetrics array = []
+
+@description('An array of Network Security Group rules to apply to the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
+param sharedServicesNetworkSecurityGroupRules array = []
+
+@description('An array of Network Security Group diagnostic logs to apply to the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
+param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group Diagnostic Metrics to enable for the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
+param sharedServicesNetworkSecurityGroupDiagnosticsMetrics array = []
+
+@description('An array of Service Endpoints to enable for the SharedServices subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
+param sharedServicesSubnetServiceEndpoints array = [
+  {
+    service: 'Microsoft.Storage'
+  }
+]
+
+// LOGGING PARAMETERS
+
+@description('When set to "true", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment. It defaults to "false".')
+param deploySentinel bool = false
+
+@description('The daily quota for Log Analytics Workspace logs in Gigabytes. It defaults to "-1" for no quota.')
+param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
+
+@description('The number of days to retain Log Analytics Workspace logs. It defaults to "30".')
+param logAnalyticsWorkspaceRetentionInDays int = 30
+
+@allowed([
+  'Free'
+  'Standard'
+  'Premium'
+  'PerNode'
+  'PerGB2018'
+  'Standalone'
+])
+@description('[Free/Standard/Premium/PerNode/PerGB2018/Standalone] The SKU for the Log Analytics Workspace. It defaults to "PerGB2018". See https://docs.microsoft.com/en-us/azure/azure-monitor/logs/resource-manager-workspace for valid settings.')
+param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
+
+@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
+param logStorageSkuName string = 'Standard_GRS'
+
+// REMOTE ACCESS PARAMETERS
+
+@description('When set to "true", provisions Azure Bastion Host and virtual machine jumpboxes. It defaults to "false".')
+param deployRemoteAccess bool = false
+
+@description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
+param bastionHostSubnetAddressPrefix string = '10.0.100.160/27'
+
+@description('The Azure Bastion Public IP Address Availability Zones. It defaults to "No-Zone" because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.')
+param bastionHostPublicIPAddressAvailabilityZones array = []
+
+// LINUX VIRTUAL MACHINE PARAMETERS
+
+@description('The administrator username for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
+param linuxVmAdminUsername string = 'azureuser'
+
+@allowed([
+  'sshPublicKey'
+  'password'
+])
+@description('[sshPublicKey/password] The authentication type for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "password".')
+param linuxVmAuthenticationType string = 'password'
+
+@description('The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
+@secure()
+@minLength(14)
+param linuxVmAdminPasswordOrKey string = deployRemoteAccess ? '' : newGuid()
+
+@description('The size of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Standard_B2s".')
+param linuxVmSize string = 'Standard_B2s'
+
+@description('The disk creation option of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".')
+param linuxVmOsDiskCreateOption string = 'FromImage'
+
+@description('The disk type of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Standard_LRS".')
+param linuxVmOsDiskType string = 'Standard_LRS'
+
+@description('The image publisher of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Canonical".')
+param linuxVmImagePublisher string = 'Canonical'
+
+@description('The image offer of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "UbuntuServer".')
+param linuxVmImageOffer string = 'UbuntuServer'
+
+@description('The image SKU of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "18.04-LTS".')
+param linuxVmImageSku string = '18.04-LTS'
+
+@description('The image version of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "latest".')
+param linuxVmImageVersion string = 'latest'
+
+@allowed([
+  'Static'
+  'Dynamic'
+])
+@description('[Static/Dynamic] The public IP Address allocation method for the Linux virtual machine. It defaults to "Dynamic".')
+param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
+
+// WINDOWS VIRTUAL MACHINE PARAMETERS
+
+@description('The administrator username for the Windows Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
+param windowsVmAdminUsername string = 'azureuser'
+
+@description('The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 14 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
+@secure()
+@minLength(14)
+param windowsVmAdminPassword string = deployRemoteAccess ? '' : newGuid()
+
+@description('The size of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "Standard_DS1_v2".')
+param windowsVmSize string = 'Standard_DS1_v2'
+
+@description('The publisher of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "MicrosoftWindowsServer".')
+param windowsVmPublisher string = 'MicrosoftWindowsServer'
+
+@description('The offer of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "WindowsServer".')
+param windowsVmOffer string = 'WindowsServer'
+
+@description('The SKU of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "2019-datacenter".')
+param windowsVmSku string = '2019-datacenter'
+
+@description('The version of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "latest".')
+param windowsVmVersion string = 'latest'
+
+@description('The disk creation option of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".')
+param windowsVmCreateOption string = 'FromImage'
+
+@description('The storage account type of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "StandardSSD_LRS".')
+param windowsVmStorageAccountType string = 'StandardSSD_LRS'
+
+@allowed([
+  'Static'
+  'Dynamic'
+])
+@description('[Static/Dynamic] The public IP Address allocation method for the Windows virtual machine. It defaults to "Dynamic".')
+param windowsNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
+
+// POLICY PARAMETERS
+
+@description('When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".')
+param deployPolicy bool = false
+
+@allowed([
+  'NIST'
+  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NIST
+  'CMMC'
+])
+@description('[NIST/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NIST". IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.')
+param policy string = 'NIST'
+
+// AZURE SECURITY CENTER PARAMETERS
+
+@description('When set to "true", enables Azure Security Center for the subscriptions used in the deployment. It defaults to "false".')
+param deployASC bool = false
+
+@description('Email address of the contact, in the form of john@doe.com')
+param emailSecurityContact string = ''
+
+/*
+
   NAMING CONVENTION
 
-  Here we define some naming conventions for resources.
+  Here we define a naming conventions for resources.
 
-  First, take `resourcePrefix` and `resourceSuffix` by params.
-  Then, we use string interpolation to insert those values into a naming convention.
+  First, we take `resourcePrefix` and `resourceSuffix` by params.
+  Then, using string interpolation "${}", we insert those values into a naming convention.
   
-  We were inspired for these abbreviations by: https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
-  We were inspired for these naming conventions by: https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming
+  We were inspired for this naming convention by: https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming
 
 */
 
 var resourceToken = 'resource_token'
 var nameToken = 'name_token'
-
 var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
 
 /*
 
   CALCULATED VALUES
 
-  Here, we reference the naming conventions described above,
-  then, use the replace() function to insert unique resource types and values into the naming convention.
+  Here we reference the naming conventions described above,
+  then use the "replace()" function to insert unique resource abbreviations and name values into the naming convention.
+
+  We were inspired for these abbreviations by: https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 
 */
 
@@ -48,7 +483,7 @@ var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'v
 
 var hubName = 'hub'
 var hubShortName = 'hub'
-var hubResourceGroupName =  replace(resourceGroupNamingConvention, nameToken, hubName)
+var hubResourceGroupName = replace(resourceGroupNamingConvention, nameToken, hubName)
 var hubLogStorageAccountName = take(replace(storageAccountNamingConvention, nameToken, hubShortName), 23)
 var hubVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, hubName)
 var hubNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, hubName)
@@ -97,6 +532,11 @@ var firewallClientPublicIPAddressName = replace(publicIpAddressNamingConvention,
 var firewallManagementIpConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'afw-mgmt')
 var firewallManagementPublicIPAddressName = replace(publicIpAddressNamingConvention, nameToken, 'afw-mgmt')
 
+// FIREWALL VALUES
+
+var firewallPublicIpAddressSkuName = 'Standard'
+var firewallPublicIpAddressAllocationMethod = 'Static'
+
 // BASTION NAMES
 
 var bastionHostName = replace(bastionHostNamingConvention, nameToken, hubName)
@@ -108,6 +548,11 @@ var linuxVmName = replace(virtualMachineNamingConvention, nameToken, 'bas-linux'
 var windowsNetworkInterfaceName = replace(networkInterfaceNamingConvention, nameToken, 'bas-windows')
 var windowsNetworkInterfaceIpConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'bas-windows')
 var windowsVmName = replace(virtualMachineNamingConvention, nameToken, 'bas-windows')
+
+// BASTION VALUES
+
+var bastionHostPublicIPAddressSkuName = 'Standard'
+var bastionHostPublicIPAddressAllocationMethod = 'Static'
 
 // SPOKES
 
@@ -165,18 +610,28 @@ var spokes = [
   }
 ]
 
+// TAGS
+
+var defaultTags = {
+  'resourcePrefix': resourcePrefix
+  'resourceSuffix': resourceSuffix
+  'DeploymentType': 'MissionLandingZoneARM'
+}
+
+var calculatedTags = union(tags, defaultTags)
+
 /*
 
   RESOURCES
 
-  Here, we create deployable resources.
+  Here we create deployable resources.
 
 */
 
 // RESOURCE GROUPS
 
 module hubResourceGroup './modules/resourceGroup.bicep' = {
-  name: 'deploy-rg-hub-${nowUtc}'
+  name: 'deploy-rg-hub-${deploymentNameSuffix}'
   scope: subscription(hubSubscriptionId)
   params: {
     name: hubResourceGroupName
@@ -186,7 +641,7 @@ module hubResourceGroup './modules/resourceGroup.bicep' = {
 }
 
 module spokeResourceGroups './modules/resourceGroup.bicep' = [for spoke in spokes: {
-  name: 'deploy-rg-${spoke.name}-${nowUtc}'
+  name: 'deploy-rg-${spoke.name}-${deploymentNameSuffix}'
   scope: subscription(spoke.subscriptionId)
   params: {
     name: spoke.resourceGroupName
@@ -198,7 +653,7 @@ module spokeResourceGroups './modules/resourceGroup.bicep' = [for spoke in spoke
 // LOG ANALYTICS WORKSPACE
 
 module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
-  name: 'deploy-laws-${nowUtc}'
+  name: 'deploy-laws-${deploymentNameSuffix}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
     name: logAnalyticsWorkspaceName
@@ -217,7 +672,7 @@ module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
 // HUB AND SPOKE NETWORKS
 
 module hubNetwork './modules/hubNetwork.bicep' = {
-  name: 'deploy-vnet-hub-${nowUtc}'
+  name: 'deploy-vnet-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     location: location
@@ -251,20 +706,20 @@ module hubNetwork './modules/hubNetwork.bicep' = {
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
     firewallClientIpConfigurationName: firewallClientIpConfigurationName
-    firewallClientSubnetName: 'AzureFirewallSubnet' // must be 'AzureFirewallSubnet'
+    firewallClientSubnetName: 'AzureFirewallSubnet' // this must be 'AzureFirewallSubnet'
     firewallClientSubnetAddressPrefix: firewallClientSubnetAddressPrefix
     firewallClientSubnetServiceEndpoints: firewallClientSubnetServiceEndpoints
     firewallClientPublicIPAddressName: firewallClientPublicIPAddressName
-    firewallClientPublicIPAddressSkuName: firewallClientPublicIPAddressSkuName
-    firewallClientPublicIpAllocationMethod: firewallClientPublicIpAllocationMethod
+    firewallClientPublicIPAddressSkuName: firewallPublicIpAddressSkuName
+    firewallClientPublicIpAllocationMethod: firewallPublicIpAddressAllocationMethod
     firewallClientPublicIPAddressAvailabilityZones: firewallClientPublicIPAddressAvailabilityZones
     firewallManagementIpConfigurationName: firewallManagementIpConfigurationName
-    firewallManagementSubnetName: 'AzureFirewallManagementSubnet' //this must be 'AzureFirewallManagementSubnet'
+    firewallManagementSubnetName: 'AzureFirewallManagementSubnet' // this must be 'AzureFirewallManagementSubnet'
     firewallManagementSubnetAddressPrefix: firewallManagementSubnetAddressPrefix
     firewallManagementSubnetServiceEndpoints: firewallManagementSubnetServiceEndpoints
     firewallManagementPublicIPAddressName: firewallManagementPublicIPAddressName
-    firewallManagementPublicIPAddressSkuName: firewallManagementPublicIPAddressSkuName
-    firewallManagementPublicIpAllocationMethod: firewallManagementPublicIpAllocationMethod
+    firewallManagementPublicIPAddressSkuName: firewallPublicIpAddressSkuName
+    firewallManagementPublicIpAllocationMethod: firewallPublicIpAddressAllocationMethod
     firewallManagementPublicIPAddressAvailabilityZones: firewallManagementPublicIPAddressAvailabilityZones
 
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
@@ -272,8 +727,8 @@ module hubNetwork './modules/hubNetwork.bicep' = {
   }
 }
 
-module spokeNetworks './modules/spokeNetwork.bicep' = [ for spoke in spokes: {
-  name: 'deploy-vnet-${spoke.name}-${nowUtc}'
+module spokeNetworks './modules/spokeNetwork.bicep' = [for spoke in spokes: {
+  name: 'deploy-vnet-${spoke.name}-${deploymentNameSuffix}'
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
     location: location
@@ -305,11 +760,11 @@ module spokeNetworks './modules/spokeNetwork.bicep' = [ for spoke in spokes: {
 // VIRTUAL NETWORK PEERINGS
 
 module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
-  name: 'deploy-vnet-peerings-hub-${nowUtc}'
+  name: 'deploy-vnet-peerings-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
-    spokes: [ for (spoke, i) in spokes: {
+    spokes: [for (spoke, i) in spokes: {
       type: spoke.name
       virtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
       virtualNetworkResourceId: spokeNetworks[i].outputs.virtualNetworkResourceId
@@ -317,8 +772,8 @@ module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
   }
 }
 
-module spokeVirtualNetworkPeerings './modules/spokeNetworkPeering.bicep' = [ for (spoke, i) in spokes: {
-  name: 'deploy-vnet-peerings-${spoke.name}-${nowUtc}'
+module spokeVirtualNetworkPeerings './modules/spokeNetworkPeering.bicep' = [for (spoke, i) in spokes: {
+  name: 'deploy-vnet-peerings-${spoke.name}-${deploymentNameSuffix}'
   scope: subscription(spoke.subscriptionId)
   params: {
     spokeName: spoke.name
@@ -331,8 +786,8 @@ module spokeVirtualNetworkPeerings './modules/spokeNetworkPeering.bicep' = [ for
 
 // POLICY ASSIGNMENTS
 
-module hubPolicyAssignment './modules/policyAssignment.bicep' = if(deployPolicy) {
-  name: 'assign-policy-hub-${nowUtc}'
+module hubPolicyAssignment './modules/policyAssignment.bicep' = if (deployPolicy) {
+  name: 'assign-policy-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     builtInAssignment: policy
@@ -342,8 +797,8 @@ module hubPolicyAssignment './modules/policyAssignment.bicep' = if(deployPolicy)
   }
 }
 
-module spokePolicyAssignments './modules/policyAssignment.bicep' = [ for spoke in spokes: if(deployPolicy) {
-  name: 'assign-policy-${spoke.name}-${nowUtc}'
+module spokePolicyAssignments './modules/policyAssignment.bicep' = [for spoke in spokes: if (deployPolicy) {
+  name: 'assign-policy-${spoke.name}-${deploymentNameSuffix}'
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
     builtInAssignment: policy
@@ -356,7 +811,7 @@ module spokePolicyAssignments './modules/policyAssignment.bicep' = [ for spoke i
 // CENTRAL LOGGING
 
 module hubSubscriptionActivityLogging './modules/centralLogging.bicep' = {
-  name: 'activity-logs-hub-${nowUtc}'
+  name: 'activity-logs-hub-${deploymentNameSuffix}'
   scope: subscription(hubSubscriptionId)
   params: {
     diagnosticSettingName: 'log-hub-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
@@ -367,8 +822,8 @@ module hubSubscriptionActivityLogging './modules/centralLogging.bicep' = {
   ]
 }
 
-module spokeSubscriptionActivityLogging './modules/centralLogging.bicep' = [ for spoke in spokes: if(spoke.subscriptionId != hubSubscriptionId) {
-  name: 'activity-logs-${spoke.name}-${nowUtc}'
+module spokeSubscriptionActivityLogging './modules/centralLogging.bicep' = [for spoke in spokes: if (spoke.subscriptionId != hubSubscriptionId) {
+  name: 'activity-logs-${spoke.name}-${deploymentNameSuffix}'
   scope: subscription(spoke.subscriptionId)
   params: {
     diagnosticSettingName: 'log-${spoke.name}-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
@@ -380,7 +835,7 @@ module spokeSubscriptionActivityLogging './modules/centralLogging.bicep' = [ for
 }]
 
 module logAnalyticsDiagnosticLogging './modules/logAnalyticsDiagnosticLogging.bicep' = {
-  name: 'deploy-diagnostic-logging-${nowUtc}'
+  name: 'deploy-diagnostic-logging-${deploymentNameSuffix}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
     diagnosticStorageAccountName: operationsLogStorageAccountName
@@ -394,8 +849,8 @@ module logAnalyticsDiagnosticLogging './modules/logAnalyticsDiagnosticLogging.bi
 
 // SECURITY CENTER
 
-module hubSecurityCenter './modules/securityCenter.bicep' = if(deployASC) {
-  name: 'set-hub-sub-security-center-${nowUtc}'
+module hubSecurityCenter './modules/securityCenter.bicep' = if (deployASC) {
+  name: 'set-hub-sub-security-center-${deploymentNameSuffix}'
   scope: subscription(hubSubscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
@@ -403,7 +858,7 @@ module hubSecurityCenter './modules/securityCenter.bicep' = if(deployASC) {
   }
 }
 
-module spokeSecurityCenter './modules/securityCenter.bicep' = [ for spoke in spokes: if( (deployASC) && (spoke.subscriptionId != hubSubscriptionId) ) {
+module spokeSecurityCenter './modules/securityCenter.bicep' = [for spoke in spokes: if ((deployASC) && (spoke.subscriptionId != hubSubscriptionId)) {
   name: 'set-${spoke.name}-sub-security-center'
   scope: subscription(operationsSubscriptionId)
   params: {
@@ -414,8 +869,8 @@ module spokeSecurityCenter './modules/securityCenter.bicep' = [ for spoke in spo
 
 // REMOTE ACCESS
 
-module remoteAccess './modules/remoteAccess.bicep' = if(deployRemoteAccess) {
-  name: 'deploy-remote-access-${nowUtc}'
+module remoteAccess './modules/remoteAccess.bicep' = if (deployRemoteAccess) {
+  name: 'deploy-remote-access-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
 
   params: {
@@ -467,226 +922,6 @@ module remoteAccess './modules/remoteAccess.bicep' = if(deployRemoteAccess) {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
   }
 }
-
-/*
-
-  PARAMETERS
-
-  Here are all the parameters a user can override.
-
-  These are the mandatory parameters that Mission LZ does not provide a default for:
-    - resourcePrefix
-
-*/
-
-@minLength(3)
-@maxLength(10)
-@description('A prefix, 3-10 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
-param resourcePrefix string
-
-@minLength(3)
-@maxLength(6)
-@description('A suffix, 3 to 6 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz")')
-param resourceSuffix string = 'mlz'
-
-@description('The region to deploy resources into')
-param location string = deployment().location
-
-@description('The Storage Account SKU to use for log storage')
-param logStorageSkuName string = 'Standard_GRS'
-
-param hubSubscriptionId string = subscription().subscriptionId
-param identitySubscriptionId string = hubSubscriptionId
-param operationsSubscriptionId string = hubSubscriptionId
-param sharedServicesSubscriptionId string = hubSubscriptionId
-
-@allowed([
-  'Standard'
-  'Premium'
-])
-param firewallSkuTier string = 'Premium'
-
-param hubVirtualNetworkAddressPrefix string = '10.0.100.0/24'
-param hubSubnetAddressPrefix string = '10.0.100.128/27'
-param hubVirtualNetworkDiagnosticsLogs array = []
-param hubVirtualNetworkDiagnosticsMetrics array = []
-param hubNetworkSecurityGroupRules array = []
-param hubNetworkSecurityGroupDiagnosticsLogs array = [
-  {
-    category: 'NetworkSecurityGroupEvent'
-    enabled: true
-  }
-  {
-    category: 'NetworkSecurityGroupRuleCounter'
-    enabled: true
-  }
-]
-param hubNetworkSecurityGroupDiagnosticsMetrics array = []
-param hubSubnetServiceEndpoints array = [
-  {
-    service: 'Microsoft.Storage'
-  }
-]
-
-param firewallManagementSubnetAddressPrefix string = '10.0.100.64/26'
-param firewallClientSubnetAddressPrefix string = '10.0.100.0/26'
-
-@allowed([
-  'Alert'
-  'Deny'
-  'Off'
-])
-param firewallThreatIntelMode string = 'Alert'
-
-@allowed([
-  'Alert'
-  'Deny'
-  'Off'
-])
-param firewallIntrusionDetectionMode string = 'Alert'
-
-param firewallDiagnosticsLogs array = [
-  {
-    category: 'AzureFirewallApplicationRule'
-    enabled: true
-  }
-  {
-    category: 'AzureFirewallNetworkRule'
-    enabled: true
-  }
-  {
-    category: 'AzureFirewallDnsProxy'
-    enabled: true
-  }
-]
-param firewallDiagnosticsMetrics array = [
-  {
-    category: 'AllMetrics'
-    enabled: true
-  }
-]
-
-param firewallClientSubnetServiceEndpoints array = []
-param firewallClientPublicIPAddressSkuName string = 'Standard'
-param firewallClientPublicIpAllocationMethod string = 'Static'
-param firewallClientPublicIPAddressAvailabilityZones array = []
-param firewallManagementSubnetServiceEndpoints array = []
-param firewallManagementPublicIPAddressSkuName string = 'Standard'
-param firewallManagementPublicIpAllocationMethod string = 'Static'
-param firewallManagementPublicIPAddressAvailabilityZones array = []
-param publicIPAddressDiagnosticsLogs array = [
-  {
-    category: 'DDoSProtectionNotifications'
-    enabled: true
-  }
-  {
-    category: 'DDoSMitigationFlowLogs'
-    enabled: true
-  }
-  {
-    category: 'DDoSMitigationReports'
-    enabled: true
-  }
-]
-param publicIPAddressDiagnosticsMetrics array = [
-  {
-    category: 'AllMetrics'
-    enabled: true
-  }
-]
-
-param identityVirtualNetworkAddressPrefix string = '10.0.110.0/26'
-param identityVirtualNetworkDiagnosticsLogs array = hubVirtualNetworkDiagnosticsLogs
-param identityVirtualNetworkDiagnosticsMetrics array = hubVirtualNetworkDiagnosticsMetrics
-param identityNetworkSecurityGroupRules array = hubNetworkSecurityGroupRules
-param identityNetworkSecurityGroupDiagnosticsLogs array = hubNetworkSecurityGroupDiagnosticsLogs
-param identityNetworkSecurityGroupDiagnosticsMetrics array = hubNetworkSecurityGroupDiagnosticsMetrics
-param identitySubnetAddressPrefix string = '10.0.110.0/27'
-param identitySubnetServiceEndpoints array = hubSubnetServiceEndpoints
-
-param operationsVirtualNetworkAddressPrefix string = '10.0.115.0/26'
-param operationsVirtualNetworkDiagnosticsLogs array = hubVirtualNetworkDiagnosticsLogs
-param operationsVirtualNetworkDiagnosticsMetrics array = hubVirtualNetworkDiagnosticsMetrics
-param operationsNetworkSecurityGroupRules array = hubNetworkSecurityGroupRules
-param operationsNetworkSecurityGroupDiagnosticsLogs array = hubNetworkSecurityGroupDiagnosticsLogs
-param operationsNetworkSecurityGroupDiagnosticsMetrics array = hubNetworkSecurityGroupDiagnosticsMetrics
-param operationsSubnetAddressPrefix string = '10.0.115.0/27'
-param operationsSubnetServiceEndpoints array = hubSubnetServiceEndpoints
-
-param sharedServicesVirtualNetworkAddressPrefix string = '10.0.120.0/26'
-param sharedServicesVirtualNetworkDiagnosticsLogs array = hubVirtualNetworkDiagnosticsLogs
-param sharedServicesVirtualNetworkDiagnosticsMetrics array = hubVirtualNetworkDiagnosticsMetrics
-param sharedServicesNetworkSecurityGroupRules array = hubNetworkSecurityGroupRules
-param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = hubNetworkSecurityGroupDiagnosticsLogs
-param sharedServicesNetworkSecurityGroupDiagnosticsMetrics array = hubNetworkSecurityGroupDiagnosticsMetrics
-param sharedServicesSubnetAddressPrefix string = '10.0.120.0/27'
-param sharedServicesSubnetServiceEndpoints array = hubSubnetServiceEndpoints
-
-param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
-param logAnalyticsWorkspaceRetentionInDays int = 30
-param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
-
-@description('When set to "True", enables Microsoft Sentinel within the MLZ Log Analytics workspace.')
-param deploySentinel bool = false
-
-@allowed([
-  'NIST'
-  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NIST
-  'CMMC'
-])
-@description('[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.')
-param policy string = 'NIST'
-param deployPolicy bool = false
-
-@description('Email address of the contact, in the form of john@doe.com')
-param emailSecurityContact string = ''
-param deployASC bool = false
-
-@description('Provision Azure Bastion Host and jumpboxes in this deployment')
-param deployRemoteAccess bool = false
-param bastionHostSubnetAddressPrefix string = '10.0.100.160/27'
-param bastionHostPublicIPAddressSkuName string = 'Standard'
-param bastionHostPublicIPAddressAllocationMethod string = 'Static'
-param bastionHostPublicIPAddressAvailabilityZones array = []
-param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
-param linuxVmSize string = 'Standard_B2s'
-param linuxVmOsDiskCreateOption string = 'FromImage'
-param linuxVmOsDiskType string = 'Standard_LRS'
-param linuxVmImagePublisher string = 'Canonical'
-param linuxVmImageOffer string = 'UbuntuServer'
-param linuxVmImageSku string = '18.04-LTS'
-param linuxVmImageVersion string = 'latest'
-param linuxVmAdminUsername string = 'azureuser'
-@allowed([
-  'sshPublicKey'
-  'password'
-])
-param linuxVmAuthenticationType string = 'password'
-@secure()
-@minLength(14)
-param linuxVmAdminPasswordOrKey string = deployRemoteAccess ? '' : newGuid()
-param windowsNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
-param windowsVmSize string = 'Standard_DS1_v2'
-param windowsVmAdminUsername string = 'azureuser'
-@secure()
-@minLength(14)
-param windowsVmAdminPassword string = deployRemoteAccess ? '' : newGuid()
-param windowsVmPublisher string = 'MicrosoftWindowsServer'
-param windowsVmOffer string = 'WindowsServer'
-param windowsVmSku string = '2019-datacenter'
-param windowsVmVersion string = 'latest'
-param windowsVmCreateOption string = 'FromImage'
-param windowsVmStorageAccountType string = 'StandardSSD_LRS'
-
-param tags object = {}
-var defaultTags = {
-  'resourcePrefix': resourcePrefix
-  'resourceSuffix': resourceSuffix
-  'DeploymentType': 'MissionLandingZoneARM'
-}
-var calculatedTags = union(tags,defaultTags)
-
-param nowUtc string = utcNow()
 
 /*
 
