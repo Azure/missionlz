@@ -97,7 +97,13 @@ jobs:
       azureSubscription: $(ServiceConnectionName)
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'az monitor diagnostic-settings subscription list --query "value[? contains(@.name, ''$1'')].name" -o table  |grep ''mlz''| awk ''{system(" az monitor diagnostic-settings  delete  --resource  ''"/subscriptions/$(subId)"'' --name "$1)}'''
+      inlineScript: | 
+        az monitor diagnostic-settings subscription list \
+          --query "value[].name" \
+          --output tsv \
+        | xargs -t -I % az monitor diagnostic-settings subscription delete \
+          --yes \
+          --name %
 
   - task: AzureCLI@2
     displayName: "Clean up Resources"
@@ -106,4 +112,11 @@ jobs:
       azureSubscription: $(ServiceConnectionName)
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'az group list -o table | grep ''mlz'' | awk ''{system("az group delete -y --no-wait -g "$1)}'''
+      inlineScript: |
+        az group list \
+          --query "[].name" \
+          --output tsv \
+        | xargs -t -I % az group delete \
+          --yes \
+          --no-wait \
+          --name %
