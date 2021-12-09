@@ -2,16 +2,10 @@ param targetResourceId string
 param roleDefinitionId string
 param principalId string
 @allowed([
-  'User'
+  'ForeignGroup'
   'Group'
   'ServicePrincipal'
-  'Unknown'
-  'DirectoryRoleTemplate'
-  'ForeignGroup'
-  'Application'
-  'MSI'
-  'DirectoryObjectOrGroup'
-  'Everyone'
+  'User'
 ])
 param principalType string = 'ServicePrincipal'
 param description string = ''

@@ -46,6 +46,12 @@ az deployment sub create \
   --template-file ./missionlz/src/bicep/mlz.bicep
 ```
 
+You'll be prompted for the one required argument `resourcePrefix` (a unique alphanumeric string 3-10 characters in length), which is used to to generate names for your resource groups and resources:
+
+```plaintext
+> Please provide string value for 'resourcePrefix' (? for help): (your unique alphanumeric string 3-10 characters in length)
+```
+
 ## Scope
 
 Mission LZ has the following scope:

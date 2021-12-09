@@ -2,30 +2,47 @@
 
 ## Deployment
 
-### Prerequisistes
+### Prerequisites
 
 You can deploy with the Azure Portal, the Azure CLI, or with both in a Azure Commercial, Azure for Government, or Air-Gapped Clouds. But first, you'll need these pre-requisites:
 
 1. An Azure Subscription(s) where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
+1. A BASH or PowerShell terminal where you can run the Azure CLI. For example, [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview), the MLZ [development container](../../.devcontainer/README.md), or a command shell on your local machine with the [AZ CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
 
-Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`?
+> NOTE: The AZ CLI will automatically install the Bicep tools when a command is run that needs them, or you can manually install them following the [instructions here.](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#azure-cli)
 
-- See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
+#### Decide on a Resource Prefix
 
-Want to add Azure Policies to this deployment?
+Resource Groups and resource names are derived from the mandatory parameter `resourcePrefix`.
 
-- See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
+Pick a unqiue resource prefix that is 3-10 alphanumeric characters in length without whitespaces.
 
-Want to remotely access the network without exposing it via Public IP Addresses?
+#### Pick your deployment options
 
-- See [Adding Remote Access via Bastion Host](#Adding-Remote-Access-via-Bastion-Host) to add virtual machines inside the network that you can access from an authenticated session in the Azure Portal with Azure Bastion.
+- Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`?
 
-By default, this template deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features)**.
+  - See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
 
-**Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If this doesn't fit your needs:
+- Want to add Azure Policies to this deployment?
 
-- See [Setting the Firewall SKU](#Setting-the-Firewall-SKU) for steps on how to use the Standard SKU instead.
-- See [Setting the Firewall Location](#Setting-the-Firewall-Location) for steps on how to deploy into a different region.
+  - See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
+
+- Want to remotely access the network without exposing it via Public IP Addresses?
+
+  - See [Adding Remote Access via Bastion Host](#Adding-Remote-Access-via-Bastion-Host) to add virtual machines inside the network that you can access from an authenticated session in the Azure Portal with Azure Bastion.
+
+- By default, this template deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features)**.
+
+  - **Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If this doesn't fit your needs:
+  - See [Setting the Firewall SKU](#Setting-the-Firewall-SKU) for steps on how to use the Standard SKU instead.
+  - See [Setting the Firewall Location](#Setting-the-Firewall-Location) for steps on how to deploy into a different region.
+
+- Review the default [Naming Convention](#Naming-Conventions) or apply your own
+
+  - By default, Mission LZ creates resources with a naming convention
+  - See [Naming Convention](#Naming-Conventions) to see what that convention is and how to provide your own to suit your needs
+
+#### Know where to find your deployment output
 
 After a deployment is complete, you can refer to the provisioned resources programmaticaly with the Azure CLI.
 
@@ -44,6 +61,12 @@ az deployment sub create \
   --name myMlzDeployment \
   --location eastus \
   --template-file ./mlz.bicep
+```
+
+You'll be prompted for the one required argument `resourcePrefix` (a unique alphanumeric string 3-10 characters in length), which is used to to generate names for your resource groups and resources:
+
+```plaintext
+> Please provide string value for 'resourcePrefix' (? for help): mymlz01
 ```
 
 #### Multiple subscription deployment
@@ -309,6 +332,109 @@ Bicep templates, the Azure CLI, and JMESpath queries allows you to manually, or 
 Read more about `az deployment` at: [https://docs.microsoft.com](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
 
 Read more about JMESPath queries at: <https://jmespath.org/>
+
+## Naming Conventions
+
+The [naming convention is inspired by the Azure Cloud Adoption Framework](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming) and uses the [recommended resource abbreviations](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations).
+
+By default, Mission LZ resources are named according to a naming convention that uses the mandatory `resourcePrefix` parameter and the optional `resourceSuffix` parameter (that is defaulted to `mlz`).
+
+### Default Naming Convention Example
+
+Let's look at an example using `--parameters resourcePrefix=FOO` and `--parameters resourceSuffix=BAR`
+
+- In `mlz.bicep` you will find a variable titled `namingConvention`:
+
+    ```bicep
+    var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
+    # this generates a value of: foo-${resourceToken}-${nameToken}-bar
+    ```
+
+- This naming convention uses Bicep's `replace()` function to substitute resource abbreviations for `resourceToken` and resource names for `nameToken`.
+
+- For example, when naming the Hub Resource Group, first the `resourceToken` is substituted with the recommended abbreviation `rg`:
+
+    ```bicep
+    var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
+    # this generates a value of: foo-rg-${nameToken}-bar
+    ```
+
+- Then, the `nameToken` is substituted with the Mission LZ name `hub`:
+
+    ```bicep
+    var hubResourceGroupName =  replace(resourceGroupNamingConvention, nameToken, 'hub')
+    # this generates a value of: foo-rg-hub-bar
+    ```
+
+- Finally, the `hubResourceGroupName` is assigned to the resource group `name` parameter:
+
+  ```bicep
+  params: {
+    name: hubResourceGroupName # this is the calculated value 'foo-rg-hub-bar'
+    location: location
+    tags: calculatedTags
+  }
+  ```
+
+### Modifying The Naming Convention
+
+You can modify this naming convention to suit your needs. We recommend following the [Cloud Adoption Framework guidance](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming).
+
+- In `mlz.bicep` you can modify the root naming convention. This is the default convention:
+
+    ```bicep
+    var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
+    ```
+
+- Say you did not want to use the `resourceSuffix` value, but instead wanted to add your own token to the naming convention like `team`:
+
+- First, you added the new parameter `team`:
+
+    ```bicep
+    @allowedValues([
+      'admin'
+      'marketing'
+      'sales'
+    ])
+    param team
+    ```
+
+- Then, you modified the naming convention to allow for mixed case `resourcePrefix` values and your new `team` value (while retaining the token identifiers `resourceToken` and `nameToken`):
+
+    ```bicep
+    var namingConvention = '${resourcePrefix}-${team}-${resourceToken}-${nameToken}'
+    ```
+
+- Now, given a `--parameters resourcePrefix=FOO` and `--parameters team=sales` the generated Hub Resource Group Name would be:
+
+    ```plaintext
+    params: {
+      name: hubResourceGroupName # this is the calculated value 'FOO-sales-rg-hub'
+      location: location
+      tags: calculatedTags
+    }
+    ```
+
+## Cleanup
+
+The Bicep/ARM deployment of Mission Landing Zone can be deleted with two steps:
+
+1. Delete all resource groups.
+1. Delete the diagnostic settings deployed at the subscription level.
+
+> NOTE: If you deploy and delete Mission Landing Zone in the same subscription multiple times without deleting the subscription-level diagnostic settings, the sixth deployment will fail. Azure has a limit of five diagnostic settings per subscription. The error will be similar to this: `"The limit of 5 diagnostic settings was reached."`
+
+To delete the diagnostic settings from the Azure Portal: choose the subscription blade, then Activity log in the left panel. At the top of the Activity log screen click the Diagnostics settings button. From there you can click the Edit setting link and delete the diagnostic setting.
+
+To delete the diagnotic settings in script, use the AZ CLI or PowerShell. An AZ CLI example is below:
+
+```BASH
+# View diagnostic settings in the current subscription
+az monitor diagnostic-settings subscription list --query value[] --output table
+
+# Delete a diagnostic setting
+az monitor diagnostic-settings subscription delete --name <diagnostic setting name>
+```
 
 ## Development Pre-requisites
 

@@ -3,7 +3,20 @@ param location string = resourceGroup().location
 param tags object = {}
 
 param skuTier string
+
+@allowed([
+  'Alert'
+  'Deny'
+  'Off'
+])
 param threatIntelMode string
+
+@allowed([
+  'Alert'
+  'Deny'
+  'Off'
+])
+param intrusionDetectionMode string
 
 param clientIpConfigurationName string
 param clientIpConfigurationSubnetResourceId string
@@ -27,6 +40,9 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   tags: tags
   properties: {
     threatIntelMode: threatIntelMode
+    intrusionDetection:{
+      mode: intrusionDetectionMode
+    }
     sku: {
       tier: skuTier
     }
