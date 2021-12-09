@@ -59,12 +59,12 @@
               ]
             },
             {
-              "name": "hubDetails",
+              "name": "hubSection",
               "label": "Hub",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "hubDetailsTextBlock",
+                  "name": "hubSectionTextBlock",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
                     "text": "All network traffic is directed through the Azure Firewall residing in the Hub Virtual Network and houses the Azure Bastion host for secure remote access into the network."
@@ -89,12 +89,12 @@
               ]
             },
             {
-              "name": "identityDetails",
+              "name": "identitySection",
               "label": "Identity",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "identityDetailsTextBlock",
+                  "name": "identitySectionTextBlock",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
                     "text": "The Identity spoke can be used to house Active Directory and other AuthN and AuthZ solutions."
@@ -119,12 +119,12 @@
               ]
             },
             {
-              "name": "operationsDetails",
+              "name": "operationsSection",
               "label": "Operations",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "operationsDetailsTextBlock",
+                  "name": "operationsSectionTextBlock",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
                     "text": "The Operations spoke can be used for operational tasks like logging and administration of workloads."
@@ -149,12 +149,12 @@
               ]
             },
             {
-              "name": "sharedServicesDetails",
+              "name": "sharedServicesSection",
               "label": "Shared Services",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "sharedServicesDetailsTextBlock",
+                  "name": "sharedServicesSectionTextBlock",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
                     "text": "The Shared Services spoke can be used to host services that are used by multiple workloads like source control and container registries."
@@ -179,7 +179,7 @@
               ]
             },
             {
-              "name": "missionLandingZoneLocation",
+              "name": "locationSection",
               "label": "Location",
               "type": "Microsoft.Common.Section",
               "elements": [
@@ -192,7 +192,7 @@
                   }
                 },
                 {
-                  "name": "locationName",
+                  "name": "location",
                   "label": "Location",
                   "type": "Microsoft.Common.DropDown",
                   "defaultValue": "",
@@ -210,12 +210,12 @@
               ]
             },
             {
-              "name": "resourcePrefix",
+              "name": "namingSection",
               "label": "Mission Landing Zone Name",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "missionLandingZonePrefix",
+                  "name": "resourcePrefix",
                   "label": "Resource Naming Prefix",
                   "type": "Microsoft.Common.TextBox",
                   "defaultValue": "",
@@ -232,10 +232,10 @@
                 },
                 {
                   "name": "resourceSuffix",
-                  "label": "Resource Suffix",
+                  "label": "Resource Naming Suffix",
                   "type": "Microsoft.Common.DropDown",
                   "defaultValue": "Development",
-                  "toolTip": "Select the environment for the deployment.",
+                  "toolTip": "Select a resource naming suffix to append to all resources.",
                   "multiselect": false,
                   "selectAll": false,
                   "filter": true,
@@ -598,7 +598,7 @@
               }
             },
             {
-              "name": "policy",
+              "name": "policySection",
               "label": "Enable Azure Policy",
               "type": "Microsoft.Common.Section",
               "elements": [
@@ -657,12 +657,12 @@
                       }
                     ]
                   },
-                  "visible": "[steps('compliance').policy.deployPolicy]"
+                  "visible": "[steps('compliance').policySection.deployPolicy]"
                 }
               ]
             },
             {
-              "name": "securityCenter",
+              "name": "securityCenterSection",
               "label": "Enable Azure Security Center",
               "type": "Microsoft.Common.Section",
               "elements": [
@@ -698,7 +698,7 @@
                   "placeholder": "johndoe@contoso.com",
                   "multiLine": false,
                   "constraints": {
-                    "required": "[steps('compliance').securityCenter.deployASC]",
+                    "required": "[steps('compliance').securityCenterSection.deployASC]",
                     "validations": [
                       {
                         "regex": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
@@ -706,7 +706,37 @@
                       }
                     ]
                   },
-                  "visible": "[steps('compliance').securityCenter.deployASC]"
+                  "visible": "[steps('compliance').securityCenterSection.deployASC]"
+                }
+              ]
+            },
+            {
+              "name": "sentinelSection",
+              "label": "Enable Azure Sentinel",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "sentinelSectionDetailsText",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Mission Landing Zone can activate Azure Sentinel for the Log Analytics Workspace it deploys."
+                  }
+                },
+                {
+                  "name": "sentinelOptionalDetailsText",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Enabling Azure Sentinel is optional, but recommended."
+                  }
+                },
+                {
+                  "name": "deploySentinel",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable Azure Sentinel?",
+                  "toolTip": "Check here to enable Azure Sentinel Center for the Log Analytics Workspace Mission Landing Zone deploys.",
+                  "constraints": {
+                    "required": false
+                  }
                 }
               ]
             }
@@ -728,7 +758,7 @@
               }
             },
             {
-              "name": "remoteAccessCheckbox",
+              "name": "remoteAccessSection",
               "label": "Enable Remote Access",
               "type": "Microsoft.Common.Section",
               "elements": [
@@ -751,10 +781,10 @@
               ]
             },
             {
-              "name": "azureBastionSubnet",
+              "name": "azureBastionSubnetSection",
               "label": "Azure Bastion Subnet",
               "type": "Microsoft.Common.Section",
-              "visible": "[steps('remoteAccess').remoteAccessCheckbox.deployRemoteAccess]",
+              "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
               "elements": [
                 {
                   "name": "remoteAccessSubnetTextBlock",
@@ -767,7 +797,7 @@
                   "name": "bastionSubnetAddressCidrRange",
                   "label": "Azure Bastion Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "visible": "[steps('remoteAccess').remoteAccessCheckbox.deployRemoteAccess]",
+                  "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
                   "defaultValue": "10.0.100.128/26",
                   "toolTip": "[concat('Specify a CIDR range for the Azure Bastion Host subnet within the Hub Virtual Network range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '. It must be of size /26 or larger.')]",
                   "constraints": {
@@ -778,19 +808,19 @@
                         "message": "Invalid CIDR range. The address prefix must be in the range [24,26]."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('remoteAccess').azureBastionSubnet.bastionSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
                         "message": "[concat('First octet not within the Hub virtual network CIDR range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('remoteAccess').azureBastionSubnet.bastionSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
                         "message": "[concat('Second octet not within the Hub virtual network CIDR range: ',  steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('remoteAccess').azureBastionSubnet.bastionSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
                         "message": "[concat('Third octet not within the Hub virtual network CIDR range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
                       },
                       {
-                        "isValid": "[lessOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('remoteAccess').azureBastionSubnet.bastionSubnetAddressCidrRange, '/')))]",
+                        "isValid": "[lessOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange, '/')))]",
                         "message": "[concat('Subnet mask not within the Hub virtual network CIDR range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
                       }
                     ]
@@ -799,10 +829,10 @@
               ]
             },
             {
-              "name": "windowsVmConfiguration",
+              "name": "windowsVmSection",
               "label": "Windows Virtual Machine",
               "type": "Microsoft.Common.Section",
-              "visible": "[steps('remoteAccess').remoteAccessCheckbox.deployRemoteAccess]",
+              "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
               "elements": [
                 {
                   "name": "windowsVmDescriptionTextblock",
@@ -849,13 +879,13 @@
               ]
             },
             {
-              "name": "linuxVmConfiguration",
+              "name": "linuxVmSection",
               "label": "Linux Virtual Machine",
               "type": "Microsoft.Common.Section",
-              "visible": "[steps('remoteAccess').remoteAccessCheckbox.deployRemoteAccess]",
+              "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
               "elements": [
                 {
-                  "name": "windowsVmDescriptionTextblock",
+                  "name": "linuxVmDescriptionTextblock",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
                     "text": "Provide an administrator username and password (or SSH public key) for the Linux virtual machine."
@@ -924,7 +954,42 @@
           ]
         }
       ],
-      "outputs": {}
+      "outputs": {
+        "kind": "Subscription",
+        "location": "[steps('basics').locationSection.location]",
+        "subscriptionId": "[steps('basics').hubSection.hubSubscriptionId]",
+        "parameters": {
+          "resourcePrefix": "[steps('basics').namingSection.resourcePrefix]",
+          "resourceSuffix": "[steps('basics').namingSection.resourceSuffix]",
+          "hubSubscriptionId": "[steps('basics').hubSection.hubSubscriptionId]",
+          "identitySubscriptionId": "[steps('basics').identitySection.identitySubscriptionId]",
+          "operationsSubscriptionId": "[steps('basics').operationsSection.operationsSubscriptionId]",
+          "sharedServicesSubscriptionId": "[steps('basics').sharedServicesSection.sharedServicesSubscriptionId]",
+          "tags": "[steps('tags').tagsByResource]",
+          "hubVirtualNetworkAddressPrefix": "[steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange]",
+          "hubSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.subnetAddressCidrRange]",
+          "firewallClientSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange]",
+          "firewallManagementSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallManagementSubnetAddressCidrRange]",
+          "identityVirtualNetworkAddressPrefix": "[steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange]",
+          "identitySubnetAddressPrefix": "[steps('networking').identityVirtualNetwork.subnetAddressCidrRange]",
+          "operationsVirtualNetworkAddressPrefix": "[steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange]",
+          "operationsSubnetAddressPrefix": "[steps('networking').operationsVirtualNetwork.subnetAddressCidrRange]",
+          "sharedServicesVirtualNetworkAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange]",
+          "sharedServicesSubnetAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange]",
+          "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
+          "policy": "[steps('compliance').policySection.policy]",
+          "deployASC": "[steps('compliance').securityCenterSection.deployASC]",
+          "emailSecurityContact": "[steps('compliance').securityCenterSection.emailSecurityContact]",
+          "deploySentinel": "[steps('compliance').sentinelSection.deploySentinel]",
+          "deployRemoteAccess": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
+          "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
+          "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]",
+          "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword]",
+          "linuxVmAdminUsername": "[steps('remoteAccess').linuxVmSection.linuxVmAdminUsername]",
+          "linuxVmAuthenticationType": "[steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.authenticationType]",
+          "linuxVmAdminPasswordOrKey": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.authenticationType, 'password'), steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.password, steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.sshPublicKey)]"
+        }
+      }
     }
   }
 }
