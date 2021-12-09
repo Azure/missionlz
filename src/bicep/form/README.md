@@ -1,4 +1,4 @@
-# sec/bicep/form
+# src/bicep/form
 
 A form to deploy Mission LZ:
 
