@@ -210,7 +210,7 @@
               ]
             },
             {
-              "name": "missionLandingZoneName",
+              "name": "resourcePrefix",
               "label": "Mission Landing Zone Name",
               "type": "Microsoft.Common.Section",
               "elements": [
@@ -226,29 +226,13 @@
                       {
                         "regex": "^[a-z0-9]{1,10}$",
                         "message": "The prefix must be between 1-10 lowercase characters and numbers."
-                      },
-                      {
-                        "isValid": "[not(equals(steps('basics').missionLandingZoneName.hubStorageAccountApi.nameAvailable, false))]",
-                        "message": "Prefix currently unavailable. Please choose a different one."
-                      },
-                      {
-                        "isValid": "[not(equals(steps('basics').missionLandingZoneName.identityStorageAccountApi.nameAvailable, false))]",
-                        "message": "Prefix currently unavailable. Please choose a different one."
-                      },
-                      {
-                        "isValid": "[not(equals(steps('basics').missionLandingZoneName.operationsStorageAccountApi.nameAvailable, false))]",
-                        "message": "Prefix currently unavailable. Please choose a different one."
-                      },
-                      {
-                        "isValid": "[not(equals(steps('basics').missionLandingZoneName.sharedServicesStorageAccountApi.nameAvailable, false))]",
-                        "message": "Prefix currently unavailable. Please choose a different one."
                       }
                     ]
                   }
                 },
                 {
-                  "name": "environment",
-                  "label": "Environment",
+                  "name": "resourceSuffix",
+                  "label": "Resource Suffix",
                   "type": "Microsoft.Common.DropDown",
                   "defaultValue": "Development",
                   "toolTip": "Select the environment for the deployment.",
@@ -267,63 +251,15 @@
                       {
                         "label": "Test",
                         "description": "Select if you want to deploy a test environment.",
-                        "value": "tst"
+                        "value": "test"
                       },
                       {
                         "label": "Production",
                         "description": "Select if you want to deploy a production environment.",
-                        "value": "prd"
+                        "value": "prod"
                       }
                     ],
                     "required": true
-                  }
-                },
-                {
-                  "name": "hubStorageAccountApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "request": {
-                    "method": "POST",
-                    "path": "[concat(steps('basics').hubDetails.hubSubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
-                    "body": {
-                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').missionLandingZoneName.environment, 'hub')]",
-                      "type": "Microsoft.Storage/storageAccounts"
-                    }
-                  }
-                },
-                {
-                  "name": "identityStorageAccountApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "request": {
-                    "method": "POST",
-                    "path": "[concat(steps('basics').identityDetails.identitySubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
-                    "body": {
-                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').missionLandingZoneName.environment, 'id')]",
-                      "type": "Microsoft.Storage/storageAccounts"
-                    }
-                  }
-                },
-                {
-                  "name": "operationsStorageAccountApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "request": {
-                    "method": "POST",
-                    "path": "[concat(steps('basics').operationsDetails.operationsSubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
-                    "body": {
-                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').missionLandingZoneName.environment, 'op')]",
-                      "type": "Microsoft.Storage/storageAccounts"
-                    }
-                  }
-                },
-                {
-                  "name": "sharedServicesStorageAccountApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "request": {
-                    "method": "POST",
-                    "path": "[concat(steps('basics').sharedServicesDetails.sharedServicesSubscriptionId, '/providers/Microsoft.Storage/checkNameAvailability?api-version=2021-04-01')]",
-                    "body": {
-                      "name": "[concat('stg', steps('basics').missionLandingZoneName.missionLandingZonePrefix, steps('basics').missionLandingZoneName.environment, 'svcs')]",
-                      "type": "Microsoft.Storage/storageAccounts"
-                    }
                   }
                 }
               ]
