@@ -459,6 +459,11 @@ var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}
   Here we reference the naming conventions described above,
   then use the "replace()" function to insert unique resource abbreviations and name values into the naming convention.
 
+  `storageAccountNamingConvention` is a unique naming convention:
+    
+    In an effort to reduce the likelihood of naming collisions, 
+    we replace `unique_storage_token` with a uniqueString() calculated by resourcePrefix, resourceSuffix, and the subscription ID
+
   We were inspired for these abbreviations by: https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 
 */
@@ -474,7 +479,7 @@ var networkInterfaceNamingConvention = replace(namingConvention, resourceToken, 
 var networkSecurityGroupNamingConvention = replace(namingConvention, resourceToken, 'nsg')
 var publicIpAddressNamingConvention = replace(namingConvention, resourceToken, 'pip')
 var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
-var storageAccountNamingConvention = toLower('${resourcePrefix}st${nameToken}${uniqueString(resourcePrefix, resourceSuffix)}') // we use uniqueString() here to generate uniqueness
+var storageAccountNamingConvention = toLower('${resourcePrefix}st${nameToken}unique_storage_token')
 var subnetNamingConvention = replace(namingConvention, resourceToken, 'snet')
 var virtualMachineNamingConvention = replace(namingConvention, resourceToken, 'vm')
 var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'vnet')
@@ -484,7 +489,9 @@ var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'v
 var hubName = 'hub'
 var hubShortName = 'hub'
 var hubResourceGroupName = replace(resourceGroupNamingConvention, nameToken, hubName)
-var hubLogStorageAccountName = take(replace(storageAccountNamingConvention, nameToken, hubShortName), 23)
+var hubLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, hubShortName)
+var hubLogStorageAccountUniqueName = replace(hubLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, hubSubscriptionId))
+var hubLogStorageAccountName = take(hubLogStorageAccountUniqueName, 23)
 var hubVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, hubName)
 var hubNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, hubName)
 var hubSubnetName = replace(subnetNamingConvention, nameToken, hubName)
@@ -494,7 +501,9 @@ var hubSubnetName = replace(subnetNamingConvention, nameToken, hubName)
 var identityName = 'identity'
 var identityShortName = 'id'
 var identityResourceGroupName = replace(resourceGroupNamingConvention, nameToken, identityName)
-var identityLogStorageAccountName = take(replace(storageAccountNamingConvention, nameToken, identityShortName), 23)
+var identityLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, identityShortName)
+var identityLogStorageAccountUniqueName = replace(identityLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, identitySubscriptionId))
+var identityLogStorageAccountName = take(identityLogStorageAccountUniqueName, 23)
 var identityVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, identityName)
 var identityNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, identityName)
 var identitySubnetName = replace(subnetNamingConvention, nameToken, identityName)
@@ -504,7 +513,9 @@ var identitySubnetName = replace(subnetNamingConvention, nameToken, identityName
 var operationsName = 'operations'
 var operationsShortName = 'ops'
 var operationsResourceGroupName = replace(resourceGroupNamingConvention, nameToken, operationsName)
-var operationsLogStorageAccountName = take(replace(storageAccountNamingConvention, nameToken, operationsShortName), 23)
+var operationsLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, operationsShortName)
+var operationsLogStorageAccountUniqueName = replace(operationsLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, operationsSubscriptionId))
+var operationsLogStorageAccountName = take(operationsLogStorageAccountUniqueName, 23)
 var operationsVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, operationsName)
 var operationsNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, operationsName)
 var operationsSubnetName = replace(subnetNamingConvention, nameToken, operationsName)
@@ -514,7 +525,9 @@ var operationsSubnetName = replace(subnetNamingConvention, nameToken, operations
 var sharedServicesName = 'sharedServices'
 var sharedServicesShortName = 'svcs'
 var sharedServicesResourceGroupName = replace(resourceGroupNamingConvention, nameToken, sharedServicesName)
-var sharedServicesLogStorageAccountName = take(replace(storageAccountNamingConvention, nameToken, sharedServicesShortName), 23)
+var sharedServicesLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, sharedServicesShortName)
+var sharedServicesLogStorageAccountUniqueName = replace(sharedServicesLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, sharedServicesSubscriptionId))
+var sharedServicesLogStorageAccountName = take(sharedServicesLogStorageAccountUniqueName, 23)
 var sharedServicesVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, sharedServicesName)
 var sharedServicesNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, sharedServicesName)
 var sharedServicesSubnetName = replace(subnetNamingConvention, nameToken, sharedServicesName)
