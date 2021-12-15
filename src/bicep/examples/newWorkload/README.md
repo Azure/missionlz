@@ -8,11 +8,18 @@ Read on to understand what this example does, and when you're ready, collect all
 
 ### Deploys a Spoke Network
 
+The docs on Azure virtual networking:  <https://docs.microsoft.com/en-us/azure/virtual-network/>.  This example deploys an additional [spoke network which is peered to the hub network](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview) of your MLZ instance. Additionally a few other items are deployed to enable connectivity in a secure manner:
+
+* A [route table is created and all external traffic is routed through the MLZ hub network](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview)
+* While this example does not deploy an firewall, the target for all external traffic is the MLZ [Azure Firewall](https://docs.microsoft.com/en-us/azure/firewall/overview) hosted in the hub to ensure appropriate traffic filtering.
+
 ## Pre-requisites
 
 1. A Mission LZ deployment (a deployment of mlz.bicep)
-1. Define some new values for required parameters described below.
-1. The output from the Mission LZ deployment described below.
+2. Define some new values for required parameters described below.
+3. The outputs from a deployment of mlz.bicep (./src/bicep/examples/deploymentVariables.json).
+
+See below for information on how to create the appropriate deployment variables file for use with this template.
 
 Required Parameters | Description
 ------------------- | -----------
@@ -28,83 +35,38 @@ hubVirtualNetworkResourceId | The network to peer the new workload network to
 logAnalyticsWorkspaceResourceId | The resource ID of the Log Analytics Workspace to send diagnostic logs to
 firewallPrivateIPAddress | The private IP Address to the Firewall to route traffic to from the new workload network
 
-One way to retreive these values is with the Azure CLI:
+### Generate MLZ Variable File (deploymentVariables.json)
 
-```bash
-# after a Mission LZ deployment
-#
-# az deployment sub create \
-#   --subscription $deploymentSubscription \
-#   --name "myMlzDeployment" \
-#   --template-file ./mlz.bicep \
+For instructions on generating 'deploymentVariables.json' using both Azure PowerShell and Azure CLI, please see the [README at the root of the examples folder](..\README.md).
 
-az deployment sub show \
-  --subscription $deploymentSubscription \
-  --name "myMlzDeployment" \
-  --query properties.outputs
-```
-
-...which should return an object containing the values you need:
-
-```plaintext
-{
-  "firewallPrivateIPAddress": {
-    "type": "String",
-    "value": "10.0.100.4"
-  },
-  "hub": {
-    "type": "Object",
-    "value": {
-      ...
-      "resourceGroupName": "mlz-dev-hub",
-      ...
-      "subscriptionId": "...",
-      "virtualNetworkName": "hub-vnet",
-      "virtualNetworkResourceId": "/subscriptions/.../providers/Microsoft.Network/virtualNetworks/hub-vnet"
-    }
-  },
-  "logAnalyticsWorkspaceResourceId": {
-    "type": "String",
-    "value": "/subscriptions/.../providers/Microsoft.OperationalInsights/workspaces/mlz-dev-laws"
-  },
-  ...
-}
-```
+Place the resulting 'deploymentVariables.json' file within the ./src/bicep/examples folder.
 
 ## Deploy the example
 
 Once you have the Mission LZ output values, you can pass those in as parameters to this deployment.
 
-And deploy with `az deployment group create` from the Azure CLI:
+And deploy with `az deployment sub create` from the Azure CLI or `New-AzSubscriptionDeployment` from Azure PowerShell.
 
-```bash
-cd examples/newWorkload
+### Deploying App Service Plan
 
-workloadSubscriptionId="12345678-1234..."
-location="eastus"
-workloadName="myNewWorkload"
+Connect to the appropriate Azure Environment and set appropriate context, see [getting started with Azure PowerShell or Azure CLI](..\README.md) for help if needed.  The commands below assume you are deploying in Azure Commercial and show the entire process from deploying MLZ and then adding an Azure App Service Plan post-deployment.
 
-az deployment sub create \
-  --subscription $workloadSubscriptionId \
-  --location $location \
-  --name $workloadName \
-  --template-file "./newWorkload.bicep" \
-  --parameters \
-  workloadName="$workloadName" \
-  hubSubscriptionId="$hubSubscriptionId" \
-  hubResourceGroupName="$hubResourceGroupName" \
-  hubVirtualNetworkName="$hubVirtualNetworkName" \
-  hubVirtualNetworkResourceId="$hubVirtualNetworkResourceId" \
-  logAnalyticsWorkspaceResourceId="$logAnalyticsWorkspaceResourceId" \
-  firewallPrivateIPAddress="$firewallPrivateIPAddress"
+```PowerShell
+cd .\src\bicep
+Connect-AzAccount
+New-AzSubscriptionDeployment -Name contoso -TemplateFile .\mlz.bicep -resourcePrefix 'contoso' -Location 'eastus'
+cd .\examples
+(Get-AzSubscriptionDeployment -Name contoso).outputs | ConvertTo-Json | Out-File -FilePath .\deploymentVariables.json
+cd .\newWorkload
+New-AzSubscriptionDeployment -DeploymentName deployNewWorkload -TemplateFile .\newWorkload.bicep -workloadName newWorkload -Location 'eastus'
 ```
 
-Or, completely experimentally, try the Portal:
-
-### AzureCloud
-
-[![Deploy To Azure](../../../../docs/images/deploytoazure.svg?sanitze=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fexamples%2FnewWorkload%2FnewWorkload.json)
-
-### AzureUSGovernment
-
-[![Deploy To Azure US Gov](../../../../docs/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fexamples%2FnewWorkload%2FnewWorkload.json)
+```Azure CLI
+az login
+cd src/bicep
+az deployment sub create -n contoso -f mlz.bicep -l eastus --parameters resourcePrefix=contoso
+cd examples
+az deployment sub show -n contoso --query properties.outputs > ./deploymentVariables.json
+cd newWorkload
+az deployment sub create -n deployNewWorkload -f newWorkload.bicep -l eastus --parameters workloadName='newWorkload'
+```

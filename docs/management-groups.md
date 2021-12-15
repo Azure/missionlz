@@ -35,8 +35,6 @@ The Tier 3 (workload) subscriptions would probably have different management con
 
 ### Management group design
 
-When setting up your management group hierarchy there are a number of critical design areas to consider.  The areas are documented in [Management group and subscription organization](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/management-group-and-subscription-organization) in the Microsoft Cloud Adoption Framework documentation.
-
 ## Step-by-step
 
 ### Add a subscription to a management group

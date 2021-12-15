@@ -443,8 +443,6 @@ param emailSecurityContact string = ''
 
   First, we take `resourcePrefix` and `resourceSuffix` by params.
   Then, using string interpolation "${}", we insert those values into a naming convention.
-  
-  We were inspired for this naming convention by: https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming
 
 */
 
@@ -459,7 +457,10 @@ var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}
   Here we reference the naming conventions described above,
   then use the "replace()" function to insert unique resource abbreviations and name values into the naming convention.
 
-  We were inspired for these abbreviations by: https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
+  `storageAccountNamingConvention` is a unique naming convention:
+    
+    In an effort to reduce the likelihood of naming collisions, 
+    we replace `unique_storage_token` with a uniqueString() calculated by resourcePrefix, resourceSuffix, and the subscription ID
 
 */
 
@@ -474,7 +475,7 @@ var networkInterfaceNamingConvention = replace(namingConvention, resourceToken, 
 var networkSecurityGroupNamingConvention = replace(namingConvention, resourceToken, 'nsg')
 var publicIpAddressNamingConvention = replace(namingConvention, resourceToken, 'pip')
 var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
-var storageAccountNamingConvention = toLower('${resourcePrefix}st${nameToken}unique_storage_token') // we replace `unique_storage_token` with a uniqueString() calculated by resourcePrefix, resourceSuffix, and the subscription ID
+var storageAccountNamingConvention = toLower('${resourcePrefix}st${nameToken}unique_storage_token')
 var subnetNamingConvention = replace(namingConvention, resourceToken, 'snet')
 var virtualMachineNamingConvention = replace(namingConvention, resourceToken, 'vm')
 var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'vnet')
