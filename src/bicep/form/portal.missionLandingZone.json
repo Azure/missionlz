@@ -986,7 +986,7 @@
         "deployRemoteAccess": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
         "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
         "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]",
-        "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword]",
+        "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword.password]",
         "linuxVmAdminUsername": "[steps('remoteAccess').linuxVmSection.linuxVmAdminUsername]",
         "linuxVmAuthenticationType": "[steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.authenticationType]",
         "linuxVmAdminPasswordOrKey": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.authenticationType, 'password'), steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.password, steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.sshPublicKey)]"
