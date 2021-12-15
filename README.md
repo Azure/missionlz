@@ -1,15 +1,19 @@
 # Mission LZ
 
-Mission Landing Zone is a highly opinionated template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their teams. It addresses a narrowly scoped, specific need for an SCCA compliant hub and spoke infrastructure.
+## What is Mission Landing Zone?
 
-Mission LZ is:
+Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their teams.
 
-- Designed for US Gov mission customers​
+It addresses a narrowly scoped, specific need for an SCCA compliant hub and spoke infrastructure.
+
+Mission Landing Zone is:
+
+- Designed for US Gov mission customers
 - Implements [SCCA](https://docs.microsoft.com/en-us/azure/azure-government/compliance/secure-azure-computing-architecture) requirements following Microsoft's [SACA](https://aka.ms/saca) implementation guidance
 - Deployable in commercial, government, and air-gapped Azure clouds
-- A narrow scope for a specific common need​
-- A simple solution with low configuration​
-- Written in Terraform and Bicep
+- A narrow scope for a specific common need
+- A simple solution with low configuration
+- Written as [Bicep](./src/bicep/README.md) and [Terraform](./src/terraform/README.md) templates
 
 Mission Landing Zone is the right solution when:
 
@@ -34,23 +38,55 @@ Our intent is to enable IT Admins to use this software to:
 
 ## Quickstart
 
-To get up and running quickly execute the following code from Azure Cloud Shell, or from wherever you have Azure CLI installed.
+You can get up and running quickly by deploying Mission Landing Zone with the Azure Portal or executing some Azure CLI commands.
+
+You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner) to the subscription(s) you deploy Mission Landing Zone into.
+
+### Deploy from the Azure Portal
+
+1. Deploy Mission Landing Zone into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
+
+    <!-- markdownlint-disable MD013 -->
+    <!-- allow for longer lines to acommodate button links -->
+    | Azure Commercial | Azure Government |
+    | :--- | :--- |
+    | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
+    <!-- markdownlint-enable MD013 -->
+
+1. After a successful deployment, see our [examples](./src/bicep/examples/README.md) directory for how to extend the capabilities of Mission Landing Zone.
+
+    - Extend your Mission Landing Zone deployment with the templates at [src/bicep/examples](./src/bicep/examples/README.md)
+
+### Deploy using Azure CLI
+
+Or, you can deploy Mission Landing Zone using Azure CLI.
 
 Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your browser: <https://docs.microsoft.com/en-us/azure/cloud-shell/overview>
 
-```bash
-git clone https://github.com/Azure/missionlz.git
-az deployment sub create \
-  --name myMlzDeployment \
-  --location eastus \
-  --template-file ./missionlz/src/bicep/mlz.bicep
-```
+1. Clone the repository:
 
-You'll be prompted for the one required argument `resourcePrefix` (a unique alphanumeric string 3-10 characters in length), which is used to to generate names for your resource groups and resources:
+    ```plaintext
+    git clone https://github.com/Azure/missionlz.git
+    ```
 
-```plaintext
-> Please provide string value for 'resourcePrefix' (? for help): (your unique alphanumeric string 3-10 characters in length)
-```
+1. Deploy Mission Landing Zone with the `az deployment sub create` command:
+
+    ```plaintext
+    az deployment sub create \
+      --name myMlzDeployment \
+      --location eastus \
+      --template-file ./missionlz/src/bicep/mlz.bicep
+    ```
+
+1. You'll be prompted for the one required argument `resourcePrefix` (a unique alphanumeric string without whitespaces and 3-10 characters in length), which is used to to generate names for your resource groups and resources:
+
+    ```plaintext
+    > Please provide string value for 'resourcePrefix' (? for help): (your unique alphanumeric string without whitespaces and 3-10 characters in length)
+    ```
+
+1. After a successful deployment, see our [examples](./src/bicep/examples/README.md) directory for how to extend the capabilities of Mission Landing Zone.
+
+    - Extend your Mission Landing Zone deployment with the templates at [src/bicep/examples](./src/bicep/examples/README.md)
 
 ## Scope
 
@@ -73,6 +109,7 @@ Mission LZ has the following scope:
 Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity and Authorization), T1 (Infrastructure Operations), T2 (DevSecOps and Shared Services), and multiple T3s (Workloads). Security can be configured to allow separation of duties between all tiers. Most customers will deploy each tier to a separate Azure subscription, but multiple subscriptions are not required.
 
 <!-- markdownlint-disable MD033 -->
+<!-- allow html for images so that they can be sized -->
 <img src="docs/images/networking.png" alt="Mission LZ Networking" width="600" />
 <!-- markdownlint-enable MD033 -->
 
@@ -103,6 +140,7 @@ See the [Projects](https://github.com/Azure/missionlz/projects) page for the rel
 Here's what the repo consists of as of May 2021:
 
 <!-- markdownlint-disable MD033 -->
+<!-- allow html for images so that they can be sized -->
 <img src="docs/images/missionlz_as_of_may2021.png" alt="Mission LZ as of April 2021" width="600" />
 <!-- markdownlint-enable MD033 -->
 
