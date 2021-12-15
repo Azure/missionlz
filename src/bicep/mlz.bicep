@@ -443,8 +443,6 @@ param emailSecurityContact string = ''
 
   First, we take `resourcePrefix` and `resourceSuffix` by params.
   Then, using string interpolation "${}", we insert those values into a naming convention.
-  
-  We were inspired for this naming convention by: https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming
 
 */
 
@@ -463,8 +461,6 @@ var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}
     
     In an effort to reduce the likelihood of naming collisions, 
     we replace `unique_storage_token` with a uniqueString() calculated by resourcePrefix, resourceSuffix, and the subscription ID
-
-  We were inspired for these abbreviations by: https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 
 */
 

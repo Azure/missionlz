@@ -335,8 +335,6 @@ Read more about JMESPath queries at: <https://jmespath.org/>
 
 ## Naming Conventions
 
-The [naming convention is inspired by the Azure Cloud Adoption Framework](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming) and uses the [recommended resource abbreviations](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations).
-
 By default, Mission LZ resources are named according to a naming convention that uses the mandatory `resourcePrefix` parameter and the optional `resourceSuffix` parameter (that is defaulted to `mlz`).
 
 ### Default Naming Convention Example
@@ -378,7 +376,7 @@ Let's look at an example using `--parameters resourcePrefix=FOO` and `--paramete
 
 ### Modifying The Naming Convention
 
-You can modify this naming convention to suit your needs. We recommend following the [Cloud Adoption Framework guidance](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming).
+You can modify this naming convention to suit your needs.
 
 - In `mlz.bicep` you can modify the root naming convention. This is the default convention:
 
