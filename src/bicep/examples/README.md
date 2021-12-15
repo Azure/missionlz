@@ -50,7 +50,7 @@ Execute the following commands from '.\src\bicep\examples\'
 
 ```Azure CLI
 az login
-az deployment sub show -n MLZDeploymentName --query properties.outputs >> ./deploymentVariables.json
+az deployment sub show -n MLZDeploymentName --query properties.outputs > ./deploymentVariables.json
 ```
 
 Replace "MLZDeploymentName" with your deployment name.  If you do not know your deployment name then log into the [Azure management portal](https://portal.azure.com), browse to 'Subscriptions', select the subscription MLZ was deployed into, and then look at 'Deployments' to obtain the deployment name.
