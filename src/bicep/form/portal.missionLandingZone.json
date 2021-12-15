@@ -798,7 +798,7 @@
                   "label": "Azure Bastion Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
                   "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
-                  "defaultValue": "10.0.100.128/26",
+                  "defaultValue": "10.0.100.192/26",
                   "toolTip": "[concat('Specify a CIDR range for the Azure Bastion Host subnet within the Hub Virtual Network range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '. It must be of size /26 or larger.')]",
                   "constraints": {
                     "required": true,
