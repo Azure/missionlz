@@ -931,3 +931,55 @@ module remoteAccess './modules/remoteAccess.bicep' = if (deployRemoteAccess) {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
   }
 }
+
+/*
+
+  OUTPUTS
+
+  Here, we emit objects to be used post-deployment.
+  
+  A user can reference these outputs with the `az deployment sub show` command like this:
+
+    az deployment sub show --name <your deployment name> --query properties.outputs
+
+  With that output as JSON you could pass it as arguments to another deployment using the Shared Variable File Pattern:
+    https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/patterns-shared-variable-file
+  
+  The output is a JSON object, you can use your favorite tool, like PowerShell or jq, to parse the values you need.
+
+*/
+
+output mlzResourcePrefix string = resourcePrefix
+
+output firewallPrivateIPAddress string = hubNetwork.outputs.firewallPrivateIPAddress
+
+output hub object = {
+  subscriptionId: hubSubscriptionId
+  resourceGroupName: hubResourceGroup.outputs.name
+  resourceGroupResourceId: hubResourceGroup.outputs.id
+  virtualNetworkName: hubNetwork.outputs.virtualNetworkName
+  virtualNetworkResourceId: hubNetwork.outputs.virtualNetworkResourceId
+  subnetName: hubNetwork.outputs.subnetName
+  subnetResourceId: hubNetwork.outputs.subnetResourceId
+  subnetAddressPrefix: hubNetwork.outputs.subnetAddressPrefix
+  networkSecurityGroupName: hubNetwork.outputs.networkSecurityGroupName
+  networkSecurityGroupResourceId: hubNetwork.outputs.networkSecurityGroupResourceId
+}
+
+output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.outputs.name
+
+output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.outputs.id
+
+output spokes array = [for (spoke, i) in spokes: {
+  name: spoke.name
+  subscriptionId: spoke.subscriptionId
+  resourceGroupName: spokeResourceGroups[i].outputs.name
+  resourceGroupId: spokeResourceGroups[i].outputs.id
+  virtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
+  virtualNetworkResourceId: spokeNetworks[i].outputs.virtualNetworkResourceId
+  subnetName: spokeNetworks[i].outputs.subnetName
+  subnetResourceId: spokeNetworks[i].outputs.subnetResourceId
+  subnetAddressPrefix: spokeNetworks[i].outputs.subnetAddressPrefix
+  networkSecurityGroupName: spokeNetworks[i].outputs.networkSecurityGroupName
+  networkSecurityGroupResourceId: spokeNetworks[i].outputs.networkSecurityGroupResourceId
+}]
