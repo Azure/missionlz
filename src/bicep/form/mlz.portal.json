@@ -234,7 +234,7 @@
                   "name": "resourceSuffix",
                   "label": "Resource Naming Suffix",
                   "type": "Microsoft.Common.DropDown",
-                  "defaultValue": "Development",
+                  "defaultValue": "dev",
                   "toolTip": "Select a resource naming suffix to append to all resources.",
                   "multiselect": false,
                   "selectAll": false,
@@ -244,18 +244,18 @@
                   "constraints": {
                     "allowedValues": [
                       {
-                        "label": "Development",
-                        "description": "Select if you want to deploy a development environment.",
+                        "label": "dev",
+                        "description": "Select if you want to append 'dev' to your resources.",
                         "value": "dev"
                       },
                       {
-                        "label": "Test",
-                        "description": "Select if you want to deploy a test environment.",
+                        "label": "test",
+                        "description": "Select if you want to append 'test' to your resources.",
                         "value": "test"
                       },
                       {
-                        "label": "Production",
-                        "description": "Select if you want to deploy a production environment.",
+                        "label": "prod",
+                        "description": "Select if you want to append 'prod' to your resources.",
                         "value": "prod"
                       }
                     ],
