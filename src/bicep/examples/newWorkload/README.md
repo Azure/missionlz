@@ -70,13 +70,3 @@ az deployment sub show -n contoso --query properties.outputs > ./deploymentVaria
 cd newWorkload
 az deployment sub create -n deployNewWorkload -f newWorkload.bicep -l eastus --parameters workloadName='newWorkload'
 ```
-
-Or, completely experimentally, try the Portal:
-
-### AzureCloud
-
-[![Deploy To Azure](../../../../docs/images/deploytoazure.svg?sanitze=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fexamples%2FnewWorkload%2FnewWorkload.json)
-
-### AzureUSGovernment
-
-[![Deploy To Azure US Gov](../../../../docs/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fexamples%2FnewWorkload%2FnewWorkload.json)
