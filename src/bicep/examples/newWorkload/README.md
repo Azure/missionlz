@@ -11,23 +11,16 @@ Read on to understand what this example does, and when you're ready, collect all
 The docs on Azure virtual networking:  <https://docs.microsoft.com/en-us/azure/virtual-network/>.  This example deploys an additional [spoke network which is peered to the hub network](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview) of your MLZ instance. Additionally a few other items are deployed to enable connectivity in a secure manner:
 
 * A [route table is created and all external traffic is routed through the MLZ hub network](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview)
-* While this example does not deploy an firewall, the target for all external traffic is the MLZ [Azure Firewall](https://docs.microsoft.com/en-us/azure/firewall/overview) hosted in the hub to ensure appropriate traffic filtering.
+* While this example does not deploy a firewall, the target for all external traffic is the MLZ [Azure Firewall](https://docs.microsoft.com/en-us/azure/firewall/overview) hosted in the hub to ensure appropriate traffic filtering.
 
 ## Pre-requisites
 
 1. A Mission LZ deployment (a deployment of mlz.bicep)
-2. Define some new values for required parameters described below.
-3. The outputs from a deployment of mlz.bicep (./src/bicep/examples/deploymentVariables.json).
-
-See below for information on how to create the appropriate deployment variables file for use with this template.
+1. Define values for required parameters described below, and generate a `deploymentVariables.json` file from the deployment (see below).
 
 Required Parameters | Description
 ------------------- | -----------
-subscriptionID | The subscription ID where you want to deploy the new spoke network
 workloadName | A name (3 to 24 characters) for your workload
-
-Deployment Output Name | Description
------------------------| -----------
 hubSubscriptionId | The subscription that contain the Hub Resource Group
 hubResourceGroupName | The resource group that contains the Hub Virtual Network and deploy the virtual machines into
 hubVirtualNetworkName | The network to peer the new workload network to
@@ -47,7 +40,7 @@ Once you have the Mission LZ output values, you can pass those in as parameters 
 
 And deploy with `az deployment sub create` from the Azure CLI or `New-AzSubscriptionDeployment` from Azure PowerShell.
 
-### Deploying App Service Plan
+### Deploying the new workload
 
 Connect to the appropriate Azure Environment and set appropriate context, see [getting started with Azure PowerShell or Azure CLI](..\README.md) for help if needed.  The commands below assume you are deploying in Azure Commercial and show the entire process from deploying MLZ and then adding an Azure App Service Plan post-deployment.
 
