@@ -867,9 +867,7 @@
                     "password": "Specify an administrator password for the Windows virtual machine used to remote into the network."
                   },
                   "constraints": {
-                    "required": true,
-                    "customPasswordRegex": "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{12,128}$",
-                    "customValidationMessage": "The password must be alphanumeric, contain at least 12 characters, and have at least 1 letter, 1 number and one special character."
+                    "required": true
                   },
                   "options": {
                     "hideConfirmation": false
