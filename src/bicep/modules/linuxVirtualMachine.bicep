@@ -18,7 +18,7 @@ param adminUsername string
 ])
 param authenticationType string
 @secure()
-@minLength(14)
+@minLength(12)
 param adminPasswordOrKey string
 
 var linuxConfiguration = {
