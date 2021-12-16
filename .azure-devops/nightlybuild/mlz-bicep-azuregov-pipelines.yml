@@ -35,7 +35,7 @@ jobs:
   - task: AzureCLI@2
     displayName: "Generate deploymentVariables.json for all addons and examples"
     inputs:
-      azureSubscription: $(ServiceConnectionName)
+      azureSubscription: $(GServiceConnectionName)
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
