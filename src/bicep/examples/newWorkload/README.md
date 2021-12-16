@@ -16,7 +16,7 @@ The docs on Azure virtual networking:  <https://docs.microsoft.com/en-us/azure/v
 ## Pre-requisites
 
 1. A Mission LZ deployment (a deployment of mlz.bicep)
-1. Define values for required parameters described below, or generate a `deploymentVariables.json` file from the deployment (see below).
+1. Define values for required parameters described below, and generate a `deploymentVariables.json` file from the deployment (see below).
 
 Required Parameters | Description
 ------------------- | -----------
