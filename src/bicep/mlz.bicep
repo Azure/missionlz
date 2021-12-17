@@ -345,7 +345,7 @@ param linuxVmAuthenticationType string = 'password'
 
 @description('The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
 @secure()
-@minLength(14)
+@minLength(12)
 param linuxVmAdminPasswordOrKey string = deployRemoteAccess ? '' : newGuid()
 
 @description('The size of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Standard_B2s".')
@@ -381,9 +381,9 @@ param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 @description('The administrator username for the Windows Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
 param windowsVmAdminUsername string = 'azureuser'
 
-@description('The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 14 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
+@description('The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
 @secure()
-@minLength(14)
+@minLength(12)
 param windowsVmAdminPassword string = deployRemoteAccess ? '' : newGuid()
 
 @description('The size of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "Standard_DS1_v2".')

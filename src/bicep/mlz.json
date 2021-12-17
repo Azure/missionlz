@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1124.51302",
-      "templateHash": "13546296569054440129"
+      "templateHash": "16835281694778509752"
     }
   },
   "parameters": {
@@ -577,7 +577,7 @@
     "linuxVmAdminPasswordOrKey": {
       "type": "secureString",
       "defaultValue": "[if(parameters('deployRemoteAccess'), '', newGuid())]",
-      "minLength": 14,
+      "minLength": 12,
       "metadata": {
         "description": "The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements."
       }
@@ -652,9 +652,9 @@
     "windowsVmAdminPassword": {
       "type": "secureString",
       "defaultValue": "[if(parameters('deployRemoteAccess'), '', newGuid())]",
-      "minLength": 14,
+      "minLength": 12,
       "metadata": {
-        "description": "The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 14 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements."
+        "description": "The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements."
       }
     },
     "windowsVmSize": {
@@ -4996,7 +4996,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1124.51302",
-              "templateHash": "5493952578857184506"
+              "templateHash": "1358220533990268216"
             }
           },
           "parameters": {
@@ -5082,7 +5082,7 @@
             },
             "linuxVmAdminPasswordOrKey": {
               "type": "secureString",
-              "minLength": 14
+              "minLength": 12
             },
             "windowsNetworkInterfaceName": {
               "type": "string"
@@ -5104,7 +5104,7 @@
             },
             "windowsVmAdminPassword": {
               "type": "secureString",
-              "minLength": 14
+              "minLength": 12
             },
             "windowsVmPublisher": {
               "type": "string"
@@ -5436,7 +5436,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1124.51302",
-                      "templateHash": "6195638442308081265"
+                      "templateHash": "16581269896210557617"
                     }
                   },
                   "parameters": {
@@ -5486,7 +5486,7 @@
                     },
                     "adminPasswordOrKey": {
                       "type": "secureString",
-                      "minLength": 14
+                      "minLength": 12
                     },
                     "logAnalyticsWorkspaceId": {
                       "type": "string"
@@ -5795,7 +5795,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1124.51302",
-                      "templateHash": "10579512088546693511"
+                      "templateHash": "5877468865897065265"
                     }
                   },
                   "parameters": {
@@ -5820,7 +5820,7 @@
                     },
                     "adminPassword": {
                       "type": "secureString",
-                      "minLength": 14
+                      "minLength": 12
                     },
                     "publisher": {
                       "type": "string"

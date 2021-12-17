@@ -7,7 +7,7 @@ param networkInterfaceName string
 param size string
 param adminUsername string
 @secure()
-@minLength(14)
+@minLength(12)
 param adminPassword string
 param publisher string
 param offer string
