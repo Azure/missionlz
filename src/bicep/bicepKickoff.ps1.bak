@@ -158,7 +158,7 @@ Foreach ($item in $data.tiers.Value)
 	$createSecondaryTier = "az deployment sub create $tierParams"
 	write-host $createSecondaryTier
 
-	Invoke-Expression $createSecondaryTier
+	#Invoke-Expression $createSecondaryTier
 	
 }
   
