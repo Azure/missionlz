@@ -9,7 +9,7 @@ It addresses a narrowly scoped, specific need for an SCCA compliant hub and spok
 Mission Landing Zone is:
 
 - Designed for US Gov mission customers
-- Implements [SCCA](https://docs.microsoft.com/en-us/azure/azure-government/compliance/secure-azure-computing-architecture) requirements following Microsoft's [SACA](https://aka.ms/saca) implementation guidance
+- Implements [SCCA](https://aka.ms/saca) requirements following Microsoft's [SACA](https://aka.ms/saca) implementation guidance
 - Deployable in commercial, government, and air-gapped Azure clouds
 - A narrow scope for a specific common need
 - A simple solution with low configuration
