@@ -1,16 +1,12 @@
 # Mission LZ
 
-## What is Mission Landing Zone?
+Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their workloads and teams.
 
-Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their teams.
+Mission Landing Zone addresses a narrowly scoped, specific need for an SCCA compliant hub and spoke infrastructure.
 
-It addresses a narrowly scoped, specific need for an SCCA compliant hub and spoke infrastructure.
-
-Mission Landing Zone is:
-
-- Designed for US Gov mission customers
-- Implements [SCCA](https://aka.ms/saca) requirements following Microsoft's [SACA](https://aka.ms/saca) implementation guidance
-- Deployable in commercial, government, and air-gapped Azure clouds
+- Designed for US Government mission customers
+- Implements [Secure Cloud Computing Architecture (SCCA)](docs/scca.md) controls following Microsoft's [SACA](https://aka.ms/saca) implementation guidance
+- Deployable in Azure commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret clouds
 - A narrow scope for a specific common need
 - A simple solution with low configuration
 - Written as [Bicep](./src/bicep/README.md) and [Terraform](./src/terraform/README.md) templates
@@ -18,7 +14,7 @@ Mission Landing Zone is:
 Mission Landing Zone is the right solution when:
 
 - A simple, secure, and scalable hub and spoke infrastructure is needed
-- Various teams need separate, secure cloud environments administered by a central IT team
+- A central IT team is adminstering cloud resources on behalf of other teams and workloads
 - There is a need to implement SCCA
 - Hosting any workload requiring a secure environment, for example: data warehousing, AI/ML, and containerized applications
 
@@ -36,6 +32,10 @@ Our intent is to enable IT Admins to use this software to:
 - Optionally, customize the Terraform deployment configuration to suit specific needs
 - Deploy multiple customer workloads in production
 
+## What is a Landing Zone?
+
+A **landing zone** is networking infrastructure configured to provide a secure environment for hosting workloads.
+
 ## Quickstart
 
 You can get up and running quickly by deploying Mission Landing Zone with the Azure Portal or executing some Azure CLI commands.
@@ -46,12 +46,9 @@ You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/ro
 
 1. Deploy Mission Landing Zone into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
 
-    <!-- markdownlint-disable MD013 -->
-    <!-- allow for longer lines to acommodate button links -->
     | Azure Commercial | Azure Government |
     | :--- | :--- |
     | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
-    <!-- markdownlint-enable MD013 -->
 
 1. After a successful deployment, see our [examples](./src/bicep/examples/README.md) directory for how to extend the capabilities of Mission Landing Zone.
 
