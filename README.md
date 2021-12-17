@@ -101,7 +101,7 @@ Mission LZ has the following scope:
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/scope.png" alt="Mission LZ Scope" width="600" />
+<img src="docs/images/scope-v2.png" alt="Mission LZ Scope" width="600" />
 <!-- markdownlint-enable MD033 -->
 
 ## Networking
