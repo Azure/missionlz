@@ -138,7 +138,7 @@ Here's what the repo consists of as of May 2021:
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/missionlz_as_of_may2021.png" alt="Mission LZ as of April 2021" width="600" />
+<img src="docs/images/20211220_missionlz_as_of_Dec2021.svg" alt="Mission LZ as of December 2021" width="900" />
 <!-- markdownlint-enable MD033 -->
 
 ## Contributing
