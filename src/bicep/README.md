@@ -443,6 +443,11 @@ az monitor diagnostic-settings subscription list --query value[] --output table
 az monitor diagnostic-settings subscription delete --name <diagnostic setting name>
 ```
 
+## Powershell
+There is a powershell file titled "bicepKickoff.ps1".  This file pulls data from the "paramters.json" file to create the 4 inital tiers as well as any Workload tiers that you would like to create. 
+
+The "parameters.json" file contains a list of all available parameters in the bicep deployment. Any parameter that is not empty will be added to the commandline for deployment of all tiers.  
+
 ## Development Pre-requisites
 
 If you want to develop with Bicep you'll need these:
