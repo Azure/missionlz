@@ -63,3 +63,18 @@ az deployment sub show -n contoso --query properties.outputs > ./deploymentVaria
 cd newWorkload
 az deployment sub create -n deployNewWorkload -f newWorkload.bicep -l eastus --parameters workloadName='newWorkload'
 ```
+
+## Powershell
+There is a powershell file titled "workloadKickoff.ps1".  This file pulls data from the "paramters.json" file to create any Workload tiers. The parameters.json file contains an array of all usable paramters in the bicep file for building the workload tiers.  Any parameter that is not empty will be added to the commandline for deployment of any workload tier.  
+
+The powershell will also use the name of the deployment for the primary 4 tiers to pull in the following information:
+hubSubscriptionId 
+hubResourceGroupName
+hubVirtualNetworkName 
+hubVirtualNetworkResourceId
+logAnalyticsWorkspaceResourceId
+firewallPrivateIPAddress
+
+It then creates the needed "deploymentVairables.json" file and kicks off the creation of any workload tiers.
+
+
