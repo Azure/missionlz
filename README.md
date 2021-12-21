@@ -138,7 +138,7 @@ See our [Getting Started Guide](docs/getting-started.md) in the docs.
 
 See the [Projects](https://github.com/Azure/missionlz/projects) page for the release timeline and feature areas.
 
-Here's what the repo consists of as of December 2021:
+Here's a summary of what Mission Landing Zone deploys of as of December 2021:
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
