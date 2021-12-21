@@ -121,7 +121,7 @@ All network traffic is directed through the firewall residing in the Network Hub
 |-------------|--------------|-----------------|-----------------|
 |default_route| 0.0.0.0/0    |Virtual Appliance|10.0.100.4       |
 
-The default firewall configured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). 
+The default firewall configured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features).
 
 Presently, there are two firewall rules configured to ensure access to the Azure Portal and to facilitate interactive logon via PowerShell and Azure CLI, all other traffic is restricted by default. Below are the collection of rules configured for Azure Commercial and Azure Government clouds:
 
