@@ -2,13 +2,12 @@
 
 Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their workloads and teams.
 
-Mission Landing Zone addresses a narrowly scoped, specific need for an SCCA compliant hub and spoke infrastructure.
+Mission Landing Zone addresses a narrowly scoped, specific need for a [Secure Cloud Computing Architecture (SCCA)](docs/scca.md) compliant hub and spoke infrastructure.
 
 - Designed for US Government mission customers
-- Implements [Secure Cloud Computing Architecture (SCCA)](docs/scca.md) controls following Microsoft's [SACA](https://aka.ms/saca) implementation guidance
+- Implements SCCA controls following Microsoft's [SACA](https://aka.ms/saca) implementation guidance
 - Deployable in Azure commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret clouds
-- A narrow scope for a specific common need
-- A simple solution with low configuration
+- A simple solution with low configuration and narrow scope
 - Written as [Bicep](./src/bicep/README.md) and [Terraform](./src/terraform/README.md) templates
 
 Mission Landing Zone is the right solution when:
@@ -29,7 +28,7 @@ Our intent is to enable IT Admins to use this software to:
 
 - Test and evaluate the landing zone using a single Azure subscription
 - Develop a known good configuration that can be used for production with multiple Azure subscriptions
-- Optionally, customize the Terraform deployment configuration to suit specific needs
+- Customize the deployment configuration to suit specific needs
 - Deploy multiple customer workloads in production
 
 ## What is a Landing Zone?
@@ -43,16 +42,15 @@ You can get up and running quickly by deploying Mission Landing Zone with the Az
 You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner) to the subscription(s) you deploy Mission Landing Zone into.
 
 ### Deploy from the Azure Portal
-
+<!-- markdownlint-disable MD013 -->
 1. Deploy Mission Landing Zone into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
 
     | Azure Commercial | Azure Government |
     | :--- | :--- |
     | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
+<!-- markdownlint-enable MD013 -->
 
 1. After a successful deployment, see our [examples](./src/bicep/examples/README.md) directory for how to extend the capabilities of Mission Landing Zone.
-
-    - Extend your Mission Landing Zone deployment with the templates at [src/bicep/examples](./src/bicep/examples/README.md)
 
 ### Deploy using Azure CLI
 
@@ -81,20 +79,21 @@ Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your b
     > Please provide string value for 'resourcePrefix' (? for help): (your unique alphanumeric string without whitespaces and 3-10 characters in length)
     ```
 
-1. After a successful deployment, see our [examples](./src/bicep/examples/README.md) directory for how to extend the capabilities of Mission Landing Zone.
+    Or you can add `resourcePrefix` to the `az deployment sub create` command above by adding a `--parameters` argument like this: `--parameters resourcePrefix=<provide unique value, 3-10 characters>`.
 
-    - Extend your Mission Landing Zone deployment with the templates at [src/bicep/examples](./src/bicep/examples/README.md)
+1. After a successful deployment, see our [examples](./src/bicep/examples/README.md) directory for how to extend the capabilities of Mission Landing Zone.
 
 ## Scope
 
 Mission LZ has the following scope:
 
 - Hub and spoke networking intended to comply with SCCA controls
+- Predefined spokes for identity, operations, shared services, and workloads
+- Ability to create multiple, isolated workloads or team subscriptions
 - Remote access
-- Shared services, i.e., services available to all workloads via the networking hub
-- Ability to create multiple workloads or team subscriptions
 - Compatibility with SCCA compliance (and other compliance frameworks)
 - Security using standard Azure tools with sensible defaults
+- Azure Policy initiatives
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
@@ -103,22 +102,27 @@ Mission LZ has the following scope:
 
 ## Networking
 
-Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity and Authorization), T1 (Infrastructure Operations), T2 (DevSecOps and Shared Services), and multiple T3s (Workloads). Security can be configured to allow separation of duties between all tiers. Most customers will deploy each tier to a separate Azure subscription, but multiple subscriptions are not required.
+Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity and Authorization), T1 (Infrastructure Operations), T2 (DevSecOps and Shared Services), and multiple T3s (Workloads). Access control can be configured to allow separation of duties between all tiers.
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
 <img src="docs/images/networking.png" alt="Mission LZ Networking" width="600" />
 <!-- markdownlint-enable MD033 -->
 
+## Subscriptions
+
+Most customers will deploy each tier to a separate Azure subscription, but multiple subscriptions are not required. A single subscription deployment is good for a small IT Admin team, or for testing and evaluation.
+
 ## Firewall
 
-All network traffic is directed through the firewall residing in the Network Hub resource group in this architecture. The firewall is configured as the default route for all the T0 (Identity and Authorization) through T3(n) (Team Environments) resource groups as follows:  
+All network traffic is directed through the firewall residing in the Network Hub resource group. The firewall is configured as the default route for all the T0 (Identity and Authorization) through T3 (workload/team environments) resource groups as follows:  
 
 |Name         |Address prefix| Next hop type| Next hop IP address|
 |-------------|--------------|-----------------|-----------------|
 |default_route| 0.0.0.0/0    |Virtual Appliance|10.0.100.4       |
 
-The default firewall configured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features) for both Azure Commercial and Azure Government to allow for enhanced security posturing.  
+The default firewall configured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). 
+
 Presently, there are two firewall rules configured to ensure access to the Azure Portal and to facilitate interactive logon via PowerShell and Azure CLI, all other traffic is restricted by default. Below are the collection of rules configured for Azure Commercial and Azure Government clouds:
 
 |Rule Collection Priority | Rule Collection Name | Rule name | Source | Port     | Protocol                               |
@@ -134,7 +138,7 @@ See our [Getting Started Guide](docs/getting-started.md) in the docs.
 
 See the [Projects](https://github.com/Azure/missionlz/projects) page for the release timeline and feature areas.
 
-Here's what the repo consists of as of May 2021:
+Here's what the repo consists of as of December 2021:
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
