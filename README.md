@@ -12,17 +12,17 @@ Mission Landing Zone addresses a narrowly scoped, specific need for a [Secure Cl
 
 Mission Landing Zone is the right solution when:
 
-- A simple, secure, and scalable hub and spoke infrastructure is needed
-- A central IT team is adminstering cloud resources on behalf of other teams and workloads
-- There is a need to implement SCCA
-- Hosting any workload requiring a secure environment, for example: data warehousing, AI/ML, and containerized applications
+- A simple, secure, and scalable hub and spoke infrastructure is needed.
+- A central IT team is adminstering cloud resources on behalf of other teams and workloads.
+- There is a need to implement SCCA.
+- Hosting any workload requiring a secure environment, for example: data warehousing, AI/ML, and containerized applications.
 
 Design goals include:
 
 - A simple, minimal set of code that is easy to configure
 - Good defaults that allow experimentation and testing in a single subscription
 - Deployment via command line or with a user interface
-- Uses Azure PaaS products
+- 100% Azure PaaS products
 
 Our intent is to enable IT Admins to use this software to:
 
@@ -37,7 +37,7 @@ A **landing zone** is networking infrastructure configured to provide a secure e
 
 ## Quickstart
 
-You can get up and running quickly by deploying Mission Landing Zone with the Azure Portal or executing some Azure CLI commands.
+You can deploy Mission Landing Zone from the Azure Portal or by executing an Azure CLI command.
 
 You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner) to the subscription(s) you deploy Mission Landing Zone into.
 
@@ -50,36 +50,33 @@ You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/ro
     | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
 <!-- markdownlint-enable MD013 -->
 
-1. After a successful deployment, see our [examples](./src/bicep/examples/README.md) directory for how to extend the capabilities of Mission Landing Zone.
+2. After a successful deployment, see our [examples](./src/bicep/examples/README.md) directory for how to extend the capabilities of Mission Landing Zone.
 
-### Deploy using Azure CLI
+### Deploy using the Azure CLI
 
-Or, you can deploy Mission Landing Zone using Azure CLI.
+> Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your browser: <https://docs.microsoft.com/en-us/azure/cloud-shell/overview>
 
-Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your browser: <https://docs.microsoft.com/en-us/azure/cloud-shell/overview>
-
-1. Clone the repository:
+1. Clone the repository and change directory to the root of the repository:
 
     ```plaintext
     git clone https://github.com/Azure/missionlz.git
+    cd missionlz
     ```
 
-1. Deploy Mission Landing Zone with the `az deployment sub create` command:
+1. Deploy Mission Landing Zone with the [`az deployment sub create`](https://docs.microsoft.com/en-us/cli/azure/deployment/sub?view=azure-cli-latest#az_deployment_sub_create) command. For a quickstart test deployment into a single subscription we suggest setting these parameters, which will deploy MLZ into the current AZ CLI subscription:
+
+    - `--name`: (optional) The deployment name, which is visible in the Azure Portal under Subscription/Deployments.
+    - `--location`: (required) The location to store the deployment metadata.
+    - `--template-file`: (required) The file path to the `mlz.bicep` template.
+    - `--parameters resourcePrefix=<value>`: (required) The `resourcePrefix` Bicep parameter is used to generate names for your resources. It is the only required parameter in the Bicep file. You can set it to any alphanumeric value that is between 3-10 characters. You can omit this parameter and the `az deployment sub create` command will prompt you to enter a value.
 
     ```plaintext
     az deployment sub create \
-      --name myMlzDeployment \
-      --location eastus \
-      --template-file ./missionlz/src/bicep/mlz.bicep
+    --name myMlzDeployment \
+    --location eastus \
+    --template-file ./src/bicep/mlz.bicep \
+    --parameters resourcePrefix="myMlz"
     ```
-
-1. You'll be prompted for the one required argument `resourcePrefix` (a unique alphanumeric string without whitespaces and 3-10 characters in length), which is used to to generate names for your resource groups and resources:
-
-    ```plaintext
-    > Please provide string value for 'resourcePrefix' (? for help): (your unique alphanumeric string without whitespaces and 3-10 characters in length)
-    ```
-
-    Or you can add `resourcePrefix` to the `az deployment sub create` command above by adding a `--parameters` argument like this: `--parameters resourcePrefix=<provide unique value, 3-10 characters>`.
 
 1. After a successful deployment, see our [examples](./src/bicep/examples/README.md) directory for how to extend the capabilities of Mission Landing Zone.
 
