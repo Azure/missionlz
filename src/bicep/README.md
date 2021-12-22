@@ -63,24 +63,21 @@ Use `az deployment sub` to deploy MLZ across 1:M subscriptions (and `az deployme
 
 #### Single subscription deployment
 
-To deploy Mission LZ into a single subscription, give your deployment a name and a location and specify the `./mlz.bicep` template file (replacing `mlz.bicep` with `mlz.json` if I'm disconnected from the internet or do not have an installation of [Bicep](https://aka.ms/bicep) available):
+To deploy Mission LZ into a single subscription, give your deployment a name and a location and specify the `./mlz.bicep` template file (replacing `mlz.bicep` with `mlz.json` if disconnected from the internet or do not have an installation of [Bicep](https://aka.ms/bicep) available):
 
 ```plaintext
 az deployment sub create \
   --name myMlzDeployment \
   --location eastus \
-  --template-file ./mlz.bicep
+  --template-file ./mlz.bicep \
+  --parameters resourcePrefix="myMlz"
 ```
 
-You'll be prompted for the one required argument `resourcePrefix` (a unique alphanumeric string 3-10 characters in length), which is used to to generate names for your resource groups and resources:
-
-```plaintext
-> Please provide string value for 'resourcePrefix' (? for help): mymlz01
-```
+The only required Bicep/ARM parameter is `resourcePrefix` (a unique alphanumeric string 3-10 characters in length), which is used to to generate names for your resource groups and resources:
 
 #### Multiple subscription deployment
 
-I can deploy into multiple subscriptions by specifying the `--parameters` flag and passing `key=value` arguments:
+Deployment to multiple subscriptions requires specifying the `--parameters` flag and passing `key=value` arguments:
 
 ```plaintext
 az deployment sub create \
@@ -89,6 +86,7 @@ az deployment sub create \
   --name multiSubscriptionTest \
   --template-file ./mlz.bicep \
   --parameters \
+    resourcePrefix="myMlz" \
     hubSubscriptionId=$hubSubscriptionId \
     identitySubscriptionId=$identitySubscriptionId \
     operationsSubscriptionId=$operationsSubscriptionId \
