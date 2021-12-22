@@ -110,7 +110,7 @@ Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity
 
 ## Subscriptions
 
-Most customers will deploy each tier to a separate Azure subscription, but multiple subscriptions are not required. A single subscription deployment is good for a small IT Admin team, or for testing and evaluation.
+Most customers will deploy each tier to a separate Azure subscription, but multiple subscriptions are not required. A single subscription deployment is good for a testing and evaluation, or possibly a small IT Admin team.
 
 ## Firewall
 
