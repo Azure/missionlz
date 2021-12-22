@@ -48,6 +48,15 @@ After a deployment is complete, you can refer to the provisioned resources progr
 
 - See [Reference Deployment Output](#Reference-Deployment-Output) for steps on how to use `az deployment` subcommands and JMESPath to query for specific properties.
 
+### Azure Portal
+
+<!-- markdownlint-disable MD013 -->
+<!-- allow for longer lines to acommodate button links -->
+| Azure Commercial | Azure Government |
+| :--- | :--- |
+| [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
+<!-- markdownlint-enable MD013 -->
+
 ### Azure CLI
 
 Use `az deployment sub` to deploy MLZ across 1:M subscriptions (and `az deployment sub create --help` for more information).
@@ -335,8 +344,6 @@ Read more about JMESPath queries at: <https://jmespath.org/>
 
 ## Naming Conventions
 
-The [naming convention is inspired by the Azure Cloud Adoption Framework](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming) and uses the [recommended resource abbreviations](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations).
-
 By default, Mission LZ resources are named according to a naming convention that uses the mandatory `resourcePrefix` parameter and the optional `resourceSuffix` parameter (that is defaulted to `mlz`).
 
 ### Default Naming Convention Example
@@ -378,7 +385,7 @@ Let's look at an example using `--parameters resourcePrefix=FOO` and `--paramete
 
 ### Modifying The Naming Convention
 
-You can modify this naming convention to suit your needs. We recommend following the [Cloud Adoption Framework guidance](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming).
+You can modify this naming convention to suit your needs.
 
 - In `mlz.bicep` you can modify the root naming convention. This is the default convention:
 

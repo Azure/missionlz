@@ -33,6 +33,18 @@ jobs:
           --parameters resourcePrefix=$datetime
 
   - task: AzureCLI@2
+    displayName: "Generate deploymentVariables.json for all addons and examples"
+    inputs:
+      azureSubscription: $(GServiceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az deployment sub show \
+          --name $(bDeploymentName) \
+          --query properties.outputs \
+          > $(Build.SourcesDirectory)/src/bicep/examples/deploymentVariables.json
+
+  - task: AzureCLI@2
     displayName: "Extract Values and Hydrate Variables for T3 Deployment"
     inputs:
       azureSubscription: $(GServiceConnectionName)
