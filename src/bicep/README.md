@@ -19,17 +19,11 @@ Pick a unqiue resource prefix that is 3-10 alphanumeric characters in length wit
 
 #### Pick your deployment options
 
-- Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`?
+- Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`? See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
 
-  - See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
+- Want to add Azure Policies to this deployment? See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
 
-- Want to add Azure Policies to this deployment?
-
-  - See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
-
-- Want to remotely access the network without exposing it via Public IP Addresses?
-
-  - See [Adding Remote Access via Bastion Host](#Adding-Remote-Access-via-Bastion-Host) to add virtual machines inside the network that you can access from an authenticated session in the Azure Portal with Azure Bastion.
+- Want to remotely access the network without exposing it via Public IP Addresses? See [Adding Remote Access via Bastion Host](#Adding-Remote-Access-via-Bastion-Host) to add virtual machines inside the network that you can access from an authenticated session in the Azure Portal with Azure Bastion.
 
 - By default, this template deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features)**.
 
@@ -44,9 +38,7 @@ Pick a unqiue resource prefix that is 3-10 alphanumeric characters in length wit
 
 #### Know where to find your deployment output
 
-After a deployment is complete, you can refer to the provisioned resources programmaticaly with the Azure CLI.
-
-- See [Reference Deployment Output](#Reference-Deployment-Output) for steps on how to use `az deployment` subcommands and JMESPath to query for specific properties.
+After a deployment is complete, you can refer to the provisioned resources programmaticaly with the Azure CLI. See [Reference Deployment Output](#Reference-Deployment-Output) for steps on how to use `az deployment` subcommands and JMESPath to query for specific properties.
 
 ### Azure Portal
 
