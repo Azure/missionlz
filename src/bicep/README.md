@@ -42,6 +42,8 @@ After a deployment is complete, you can refer to the provisioned resources progr
 
 ### Azure Portal
 
+The Azure Portal can be used to deploy Mission Landing Zone.
+
 <!-- markdownlint-disable MD013 -->
 <!-- allow for longer lines to acommodate button links -->
 | Azure Commercial | Azure Government |
@@ -51,7 +53,9 @@ After a deployment is complete, you can refer to the provisioned resources progr
 
 ### Azure CLI
 
-Use `az deployment sub` to deploy MLZ across 1:M subscriptions (and `az deployment sub create --help` for more information).
+If you are not using the Azure Portal to deploy, you can deploy with the Azure CLI.
+
+Use `az deployment sub` to deploy MLZ across one or many subscriptions. (See `az deployment sub create --help` for more information.)
 
 #### Single subscription deployment
 
