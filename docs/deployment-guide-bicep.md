@@ -353,6 +353,8 @@ You can modify this naming convention to suit your needs.
 
 ## Reference Deployment Output
 
+>>>>TODO: Simplify this section and point to az cli docs rather than having a tutorial on JMESPath.
+
 After you've deployed Mission Landing Zone you'll probably want to integrate additional services or infrastructure.
 
 You can use the `az deployment sub show` command with a `--query` argument to retrieve information about the resources you deployed.
