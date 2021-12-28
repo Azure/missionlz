@@ -1,6 +1,6 @@
 # Mission Landing Zone Bicep Template
 
-This folder contains the Bicep template for deploying Mission Landing Zone. See the [Deployment Guide for Bicep](../../docs/deployment-guide-bicep.md) for detailed instructions on how to use the template.
+This folder contains the Bicep template `mlz.bicep` for deploying Mission Landing Zone. See the [Deployment Guide for Bicep](../../docs/deployment-guide-bicep.md) for detailed instructions on how to use the template.
 
 ## Parameters
 
