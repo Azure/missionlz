@@ -8,7 +8,7 @@ Mission Landing Zone addresses a narrowly scoped, specific need for a [Secure Cl
 - Implements SCCA controls following Microsoft's [SACA](https://aka.ms/saca) implementation guidance
 - Deployable in Azure commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret clouds
 - A simple solution with low configuration and narrow scope
-- Written as [Bicep](./src/bicep/README.md) and [Terraform](./src/terraform/README.md) templates
+- Written as [Bicep](./src/bicep/) and [Terraform](./src/terraform/) templates
 
 Mission Landing Zone is the right solution when:
 
