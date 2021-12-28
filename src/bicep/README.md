@@ -102,7 +102,7 @@ You can use the AZ CLI or PowerShell to retrieve the output values from a deploy
 
 When the output is saved as a json document from the Azure CLI, these are the paths in the document to all the values. (The `[0..2]` notation indicates an array with three elements.)
 
-```json
+```plaintext
 firewallPrivateIPAddress.value
 hub.value.networkSecurityGroupName
 hub.value.networkSecurityGroupResourceId
