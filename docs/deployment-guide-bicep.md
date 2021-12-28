@@ -1,4 +1,6 @@
-# Mission LZ Bicep
+# Mission LZ Deployment Guide for Bicep
+
+This guide describes how to deploy Mission Landing Zone using the Bicep templates at [src/bicep](../src/bicep). See the [Bicep documentation](https://aka.ms/bicep/) for more information on Bicep.
 
 ## Deployment
 
@@ -6,7 +8,9 @@
 
 You can deploy with the Azure Portal, the Azure CLI, or with both in a Azure Commercial, Azure for Government, or Air-Gapped Clouds. But first, you'll need these pre-requisites:
 
-1. An Azure Subscription(s) where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
+>>> FIX ABOVE
+
+1. One or more Azure subscriptions where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
 1. A BASH or PowerShell terminal where you can run the Azure CLI. For example, [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview), the MLZ [development container](../../.devcontainer/README.md), or a command shell on your local machine with the [AZ CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
 
 > NOTE: The AZ CLI will automatically install the Bicep tools when a command is run that needs them, or you can manually install them following the [instructions here.](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#azure-cli)
@@ -119,6 +123,8 @@ And if I need to deploy into multiple subscriptions, I would pass the relevant s
 
 If I were in an offline environment that didn't have a Bicep installation available (like an air-gapped cloud), I could always deploy the `az bicep build` output ARM template **`mlz.json`**:
 
+>>>>>MAYBE THIS DOESN'T MAKE SENSE, OR DO WE NEED TO EXPLAIN HOW BICEP COMPILES TO ARM? MAYBE RENAME THE DOCUMENT TO INCLUDE THE WORD 'ARM', AND A STATEMENT ABOUT HOW BICEP COMPILES TO ARM AND YOU CAN DEPLOY EITHER (BUT NOT THE EXAMPLES).
+
 ```plaintext
 az cloud set -n <my cloud name>
 
@@ -134,7 +140,16 @@ az deployment sub create \
     sharedServicesSubscriptionId=$sharedServicesSubscriptionId
 ```
 
-## Adding Azure Policy
+## Deployment of Optional Features
+
+Mission Landing Zone has parameters that enable optional deployment of:
+
+- Azure Policy Initiatives
+- Azure Security Center
+- Azure Sentinel
+- Remote Access via Bastion Host
+
+### Adding Azure Policy
 
 To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the `deployPolicy=true` parameter with `policy` assigned to one of the following: `NIST`, `IL5`, or `CMMC`.
 
@@ -164,7 +179,7 @@ The result will be a policy assignment created for each resource group deployed 
 
 Under the [modules/policies](modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
 
-## Adding Azure Security Center
+### Enabling Azure Security Center
 
 By default [Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/security-center-introduction) offers a free set of monitoring capabilities that are enabled via an Azure policy when your first set up a subscription and view Azure Security Center portal blade.
 
@@ -179,7 +194,9 @@ az deployment sub create \
   --parameters emailSecurityContact=<user#domain.com>
 ```
 
-## Adding Remote Access via Bastion Host
+### Enabling Azure Sentinel
+
+### Enabling Remote Access via Bastion Host
 
 Want to remotely access the network and the resources you've deployed into it? You can use [Azure Bastion](https://docs.microsoft.com/en-us/azure/bastion/) to remotely access virtual machines within the network without exposing them via Public IP Addresses.
 
@@ -254,7 +271,87 @@ az deployment sub create \
   --template-file "src/bicep/mlz.bicep"
 ```
 
-### Reference Deployment Output
+## Naming Conventions
+
+By default, Mission LZ resources are named according to a naming convention that uses the mandatory `resourcePrefix` parameter and the optional `resourceSuffix` parameter (that is defaulted to `mlz`).
+
+### Default Naming Convention Example
+
+Let's look at an example using `--parameters resourcePrefix=FOO` and `--parameters resourceSuffix=BAR`
+
+- In `mlz.bicep` you will find a variable titled `namingConvention`:
+
+    ```bicep
+    var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
+    # this generates a value of: foo-${resourceToken}-${nameToken}-bar
+    ```
+
+- This naming convention uses Bicep's `replace()` function to substitute resource abbreviations for `resourceToken` and resource names for `nameToken`.
+
+- For example, when naming the Hub Resource Group, first the `resourceToken` is substituted with the recommended abbreviation `rg`:
+
+    ```bicep
+    var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
+    # this generates a value of: foo-rg-${nameToken}-bar
+    ```
+
+- Then, the `nameToken` is substituted with the Mission LZ name `hub`:
+
+    ```bicep
+    var hubResourceGroupName =  replace(resourceGroupNamingConvention, nameToken, 'hub')
+    # this generates a value of: foo-rg-hub-bar
+    ```
+
+- Finally, the `hubResourceGroupName` is assigned to the resource group `name` parameter:
+
+  ```bicep
+  params: {
+    name: hubResourceGroupName # this is the calculated value 'foo-rg-hub-bar'
+    location: location
+    tags: calculatedTags
+  }
+  ```
+
+### Modifying the Naming Convention
+
+You can modify this naming convention to suit your needs.
+
+- In `mlz.bicep` you can modify the root naming convention. This is the default convention:
+
+    ```bicep
+    var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
+    ```
+
+- Say you did not want to use the `resourceSuffix` value, but instead wanted to add your own token to the naming convention like `team`:
+
+- First, you added the new parameter `team`:
+
+    ```bicep
+    @allowedValues([
+      'admin'
+      'marketing'
+      'sales'
+    ])
+    param team
+    ```
+
+- Then, you modified the naming convention to allow for mixed case `resourcePrefix` values and your new `team` value (while retaining the token identifiers `resourceToken` and `nameToken`):
+
+    ```bicep
+    var namingConvention = '${resourcePrefix}-${team}-${resourceToken}-${nameToken}'
+    ```
+
+- Now, given a `--parameters resourcePrefix=FOO` and `--parameters team=sales` the generated Hub Resource Group Name would be:
+
+    ```plaintext
+    params: {
+      name: hubResourceGroupName # this is the calculated value 'FOO-sales-rg-hub'
+      location: location
+      tags: calculatedTags
+    }
+    ```
+
+## Reference Deployment Output
 
 After you've deployed Mission Landing Zone you'll probably want to integrate additional services or infrastructure.
 
@@ -335,86 +432,6 @@ Bicep templates, the Azure CLI, and JMESpath queries allows you to manually, or 
 Read more about `az deployment` at: [https://docs.microsoft.com](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
 
 Read more about JMESPath queries at: <https://jmespath.org/>
-
-## Naming Conventions
-
-By default, Mission LZ resources are named according to a naming convention that uses the mandatory `resourcePrefix` parameter and the optional `resourceSuffix` parameter (that is defaulted to `mlz`).
-
-### Default Naming Convention Example
-
-Let's look at an example using `--parameters resourcePrefix=FOO` and `--parameters resourceSuffix=BAR`
-
-- In `mlz.bicep` you will find a variable titled `namingConvention`:
-
-    ```bicep
-    var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
-    # this generates a value of: foo-${resourceToken}-${nameToken}-bar
-    ```
-
-- This naming convention uses Bicep's `replace()` function to substitute resource abbreviations for `resourceToken` and resource names for `nameToken`.
-
-- For example, when naming the Hub Resource Group, first the `resourceToken` is substituted with the recommended abbreviation `rg`:
-
-    ```bicep
-    var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
-    # this generates a value of: foo-rg-${nameToken}-bar
-    ```
-
-- Then, the `nameToken` is substituted with the Mission LZ name `hub`:
-
-    ```bicep
-    var hubResourceGroupName =  replace(resourceGroupNamingConvention, nameToken, 'hub')
-    # this generates a value of: foo-rg-hub-bar
-    ```
-
-- Finally, the `hubResourceGroupName` is assigned to the resource group `name` parameter:
-
-  ```bicep
-  params: {
-    name: hubResourceGroupName # this is the calculated value 'foo-rg-hub-bar'
-    location: location
-    tags: calculatedTags
-  }
-  ```
-
-### Modifying The Naming Convention
-
-You can modify this naming convention to suit your needs.
-
-- In `mlz.bicep` you can modify the root naming convention. This is the default convention:
-
-    ```bicep
-    var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
-    ```
-
-- Say you did not want to use the `resourceSuffix` value, but instead wanted to add your own token to the naming convention like `team`:
-
-- First, you added the new parameter `team`:
-
-    ```bicep
-    @allowedValues([
-      'admin'
-      'marketing'
-      'sales'
-    ])
-    param team
-    ```
-
-- Then, you modified the naming convention to allow for mixed case `resourcePrefix` values and your new `team` value (while retaining the token identifiers `resourceToken` and `nameToken`):
-
-    ```bicep
-    var namingConvention = '${resourcePrefix}-${team}-${resourceToken}-${nameToken}'
-    ```
-
-- Now, given a `--parameters resourcePrefix=FOO` and `--parameters team=sales` the generated Hub Resource Group Name would be:
-
-    ```plaintext
-    params: {
-      name: hubResourceGroupName # this is the calculated value 'FOO-sales-rg-hub'
-      location: location
-      tags: calculatedTags
-    }
-    ```
 
 ## Cleanup
 
