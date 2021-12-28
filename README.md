@@ -82,6 +82,8 @@ You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/ro
 
 > Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your browser: <https://docs.microsoft.com/en-us/azure/cloud-shell/overview>
 
+For more detailed deployment instructions, see our deployment guides for [Bicep](docs/deployment-guide-bicep.md) and [Terraform](docs/deployment-guide-terraform.md).
+
 ## Scope
 
 Mission LZ has the following scope:
