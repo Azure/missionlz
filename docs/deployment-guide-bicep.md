@@ -4,7 +4,7 @@ This guide describes how to deploy Mission Landing Zone using the Bicep template
 
 MLZ also provides the ARM template compiled from the Bicep file at [src/bicep/mlz.json](../src/bicep/mlz.json).
 
-MLZ has sensible defaults for all but one parameter, allowing for simple deployment that specify only the parameters that need to differ from the defaults.
+MLZ has sensible defaults for all but one parameter, allowing for simple deployment that specify only the parameters that need to differ from the defaults. See the [README.md](../src/bicep/README.md) document in the `src/bicep` folder for a complete list of parameters.
 
 Below is an example of an Azure CLI deployment that uses all the defaults, and sets the `resourcePrefix` parameter, which is the only required parameter.
 
@@ -15,8 +15,6 @@ az deployment sub create \
   --template-file ./mlz.bicep \
   --parameters resourcePrefix=myMlz
 ```
-
-See the [README.md](../src/bicep/README.md) document in the `src/bicep` folder for a complete list of parameters.
 
 ## Prerequisites
 
