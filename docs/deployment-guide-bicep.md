@@ -4,7 +4,9 @@ This guide describes how to deploy Mission Landing Zone using the Bicep template
 
 MLZ also provides the ARM template compiled from the Bicep file at [src/bicep/mlz.json](../src/bicep/mlz.json).
 
-MLZ provides defaults for all but one parameter, allowing a simple deployment to be run from the Azure CLI, PowerShell, or the Azure Portal. This is an example of an Azure CLI deployment that uses all the defaults, and sets the `resourcePrefix` parameter, which is the only required parameter for deploying MLZ.
+MLZ has sensible defaults for all but one parameter, allowing for simple deployment that specify only the parameters that need to differ from the defaults.
+
+Below is an example of an Azure CLI deployment that uses all the defaults, and sets the `resourcePrefix` parameter, which is the only required parameter.
 
 ```plaintext
 az deployment sub create \
@@ -77,7 +79,7 @@ Under the [src/bicep/modules/policies](..src/bicep/modules/policies) directory a
 
 By default [Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/security-center-introduction) offers a free set of monitoring capabilities that are enabled via an Azure policy when your first set up a subscription and view Azure Security Center portal blade.
 
-Azure Security Center offers a standard/defender sku which enables a greater depth of awareness including more reccomendations and threat analytics. You can enable this higher depth level of security in MLZ by setting the parameter `deployASC` during deployment. In addition you can include the `emailSecurityContact` parameter to set a contact email for alerts.
+Azure Security Center offers a standard/defender sku which enables a greater depth of awareness including more recomendations and threat analytics. You can enable this higher depth level of security in MLZ by setting the parameter `deployASC` during deployment. In addition you can include the `emailSecurityContact` parameter to set a contact email for alerts.
 
 #### Azure Sentinel
 
@@ -103,11 +105,6 @@ By default, MLZ deploys **[Azure Firewall Premium](https://docs.microsoft.com/en
 You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Standard` or `Premium`.
 
 If you'd like to specify a different region to deploy your resources into, change the location of the deployment. For example, when using the AZ CLI set the deployment command's `--location` argument.
-
-- Review the default [Naming Convention](#Naming-Conventions) or apply your own
-
-  - By default, Mission LZ creates resources with a naming convention
-  - See [Naming Convention](#Naming-Conventions) to see what that convention is and how to provide your own to suit your needs
 
 ### Naming Conventions
 
@@ -362,6 +359,10 @@ Bicep templates, the Azure CLI, and JMESpath queries allows you to manually, or 
 Read more about `az deployment` at: [https://docs.microsoft.com](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
 
 Read more about JMESPath queries at: <https://jmespath.org/>
+
+### Deploy with PowerShell
+
+TODO: Add content
 
 ## Cleanup
 
