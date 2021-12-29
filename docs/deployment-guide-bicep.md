@@ -216,15 +216,16 @@ The Azure Portal can be used to deploy Mission Landing Zone.
 | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
 <!-- markdownlint-enable MD013 -->
 
-### Deploy Using the Azure CLI
+### Command Line Deployment Using the Azure CLI or PowerShell
 
-Use `az deployment sub` to deploy MLZ across one or many subscriptions. (See `az deployment sub create --help` for more information.)
+Use `az deployment sub` to deploy MLZ across one or many subscriptions. (See `az deployment sub create --help` for more information) or use the PowerShell cmdlet `New-AzSubscriptionDeployment`.
 
 #### Single subscription deployment
 
 To deploy Mission LZ into a single subscription, give your deployment a name and a location and specify the `./mlz.bicep` template file (replacing `mlz.bicep` with `mlz.json` if disconnected from the internet or you do not have an installation of [Bicep](https://aka.ms/bicep) available):
 
-```plaintext
+```BASH
+# AZ CLI
 az deployment sub create \
   --name myMlzDeployment \
   --location eastus \
@@ -232,42 +233,81 @@ az deployment sub create \
   --parameters resourcePrefix="myMlz"
 ```
 
+```PowerShell
+# PowerShell
+New-AzSubscriptionDeployment `
+  -Name myMlzDeployment `
+  -Location 'eastus' `
+  -TemplateFile .\mlz.bicep `
+  -resourcePrefix 'myMlz' 
+```
+
 #### Multiple subscription deployment
 
 Deployment to multiple subscriptions requires specifying the `--parameters` flag and passing `key=value` arguments:
 
-```plaintext
+```BASH
+# AZ CLI
 az deployment sub create \
   --subscription $deploymentSubscription \
   --location eastus \
   --name multiSubscriptionTest \
   --template-file ./mlz.bicep \
   --parameters \
-    resourcePrefix="myMlz" \
-    hubSubscriptionId=$hubSubscriptionId \
-    identitySubscriptionId=$identitySubscriptionId \
-    operationsSubscriptionId=$operationsSubscriptionId \
-    sharedServicesSubscriptionId=$sharedServicesSubscriptionId
+      resourcePrefix="myMlz" \
+      hubSubscriptionId=$hubSubscriptionId \
+      identitySubscriptionId=$identitySubscriptionId \
+      operationsSubscriptionId=$operationsSubscriptionId \
+      sharedServicesSubscriptionId=$sharedServicesSubscriptionId
+```
+
+```PowerShell
+# PowerShell
+New-AzSubscriptionDeployment `
+  -Name myMlzDeployment `
+  -Location 'eastus' `
+  -TemplateFile .\mlz.bicep `
+  -resourcePrefix="myMlz" `
+  -hubSubscriptionId=$hubSubscriptionId `
+  -identitySubscriptionId=$identitySubscriptionId `
+  -operationsSubscriptionId=$operationsSubscriptionId `
+  -sharedServicesSubscriptionId=$sharedServicesSubscriptionId
 ```
 
 #### Deploying to Other Clouds
 
 When deploying to another cloud, like Azure US Government, first set the cloud and log in.
 
-Logging into `AzureUsGovernment`:
+Logging into `AzureUSGovernment`:
 
-```plaintext
+```BASH
+# AZ CLI
 az cloud set -n AzureUsGovernment
 az login
 ```
 
+```PowerShell
+# PowerShell
+Connect-AzAccount -Environment AzureUSGovernment
+```
+
 ...and supply a different value for the deployment `--location` argument:
 
-```plaintext
+```BASH
+# AZ CLI
 az deployment sub create \
   --name myMlzDeployment \
   --location usgovvirginia \
   --template-file ./mlz.bicep
+```
+
+```PowerShell
+# PowerShell
+New-AzSubscriptionDeployment `
+  -Name myMlzDeployment `
+  -Location 'usgovvirginia' `
+  -TemplateFile .\mlz.bicep `
+  -resourcePrefix="myMlz" `
 ```
 
 #### Air-Gapped Clouds
@@ -278,89 +318,57 @@ The ARM template is at [src/bicep/mlz.json](../src/bicep/mlz.json)]. The AZ CLI 
 
 #### Reference Deployment Output
 
-After you've deployed Mission Landing Zone you'll probably want to integrate additional services or infrastructure.
+After you've deployed Mission Landing Zone you can integrate additional services or infrastructure. Bicep templates, the Azure CLI, and JMESpath queries allows you to manually, or in an automated fashion, compose infrastructure incrementally and pass output from one template as input to another.
 
-You can use the `az deployment sub show` command with a `--query` argument to retrieve information about the resources you deployed.
+You can use the `az deployment sub show` command with a `--query` argument to retrieve information about the resources you deployed. In PowerShell use the `Get-AzSubscriptionDeployment` cmdlet.
 
-Before giving the next steps a try, it's probably a good idea to [review the Azure CLI's documentation on querying with JMESPath](https://docs.microsoft.com/en-us/cli/azure/query-azure-cli).
+In this example, MLZ was deployed using a deployment name of `myMissionLandingZone`. (The deployment name is the `name` parameter you set on `az deployment sub create` or `New-AzSubscriptionDeployment`.)
 
-First off, let's say you deployed Mission Landing Zone with a deployment name of `myMissionLandingZone`:
+When an MLZ deployment is complete, you can see all the resources provisioned in that deployment by querying the `outputs` property:
 
-```plaintext
-az deployment sub create \
-  --name "myMissionLandingZone" \
-  --location "East US" \
-  --template-file "src/bicep/mlz.bicep"
-```
-
-Once it's complete, you could see all the resources provisioned in that deployment by querying the `properties.outputResources` property:
-
-```plaintext
-az deployment sub show \
-  --name "myMissionLandingZone" \
-  --query "properties.outputResources"
-```
-
-That's a lot of resources. Thankfully, the template produces outputs for just the things you _probably_ need at `properties.outputs`:
-
-```plaintext
+```BASH
+# AZ CLI
 az deployment sub show \
   --name "myMissionLandingZone" \
   --query "properties.outputs"
 ```
 
-For example, if you need just the Firewall Private IP address you could retrieve it like this:
+```PowerShell
+# PowerShell
+(Get-AzSubscriptionDeployment -Name myMissionLandingZone).outputs | ConvertTo-Json
+```
 
-```plaintext
+If you need a single property value you can retrieve it like this:
+
+```BASH
+# AZ CLI
 az deployment sub show \
   --name "myMissionLandingZone" \
   --query "properties.outputs.firewallPrivateIPAddress.value"
 ```
 
-Or, if you need just the Log Analytics Workspace that performs central logging you could retrieve it like this:
+```PowerShell
+# PowerShell
+(Get-AzSubscriptionDeployment -Name myMissionLandingZone).outputs.firewallPrivateIPAddress
+```
 
-```plaintext
+If you want to export the data for use by other Bicep deployments, like the [shared variable file pattern](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/patterns-shared-variable-file), you can export the outputs to a json file.
+
+```BASH
+# AZ CLI
 az deployment sub show \
   --name "myMissionLandingZone" \
-  --query "properties.outputs.logAnalyticsWorkspaceResourceId.value"
+  --query "properties.outputs" > ./deploymentVariables.json
 ```
 
-Or, say you wanted to deploy resources into the Identity spoke. You could retrieve information about the Identity spoke by querying it from the `properties.outputs.spokes` array like this:
-
-```plaintext
-az deployment sub show \
-  --name "myMissionLandingZone" \
-  --query "properties.outputs.spokes.value[?name=='identity']"
+```PowerShell
+# PowerShell
+(Get-AzSubscriptionDeployment -Name myMissionLandingZone).outputs `
+  | ConvertTo-Json `
+  | Out-File -FilePath .\deploymentVariables.json
 ```
 
-Which would return an output similar to:
-
-```json
-[
-  {
-    "name": "identity",
-    "networkSecurityGroupName": "identity-nsg",
-    "networkSecurityGroupResourceId": ".../providers/Microsoft.Network/networkSecurityGroups/identity-nsg",
-    "resourceGroupId": ".../resourceGroups/mlz-identity",
-    "resourceGroupName": "mlz-identity",
-    "subnetAddressPrefix": "10.0.110.0/27",
-    "subnetName": "identity-subnet",
-    "subscriptionId": "<A GUID>",
-    "virtualNetworkName": "identity-vnet",
-    "virtualNetworkResourceId": ".../providers/Microsoft.Network/virtualNetworks/identity-vnet"
-  }
-]
-```
-
-Bicep templates, the Azure CLI, and JMESpath queries allows you to manually, or in an automated fashion, compose infrastructure incrementally and pass output from one template as input to another.
-
-Read more about `az deployment` at: [https://docs.microsoft.com](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
-
-Read more about JMESPath queries at: <https://jmespath.org/>
-
-### Deploy with PowerShell
-
-TODO: Add content
+#### Multiple Subscription Deployment
 
 ## Cleanup
 
@@ -395,3 +403,9 @@ However, you don't need to develop with Bicep to deploy the compiled `mlz.json` 
 ## See Also
 
 [Bicep documentation](https://aka.ms/bicep/) for documentation and general information on Bicep.
+
+Read more about `az deployment` at: [https://docs.microsoft.com](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
+
+Read more about JMESPath queries at: <https://jmespath.org/>
+
+[Azure Az PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/what-is-azure-powershell)
