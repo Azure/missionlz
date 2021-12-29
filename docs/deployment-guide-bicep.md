@@ -1,281 +1,119 @@
 # Mission LZ Deployment Guide for Bicep
 
-This guide describes how to deploy Mission Landing Zone using the Bicep templates at [src/bicep](../src/bicep). See the [Bicep documentation](https://aka.ms/bicep/) for more information on Bicep.
+This guide describes how to deploy Mission Landing Zone using the Bicep template at [src/bicep/mlz.bicep](../src/bicep). MLZ can be deployed using the Azure Portal, the Azure CLI, or PowerShell. Supported clouds include the Azure Cloud (commercial Azure), Azure US Government, Azure Secret, and Azure Top Secret.
 
-## Deployment
+MLZ also provides the ARM template compiled from the Bicep file at [src/bicep/mlz.json](../src/bicep/mlz.json).
 
-### Prerequisites
+MLZ provides defaults for all but one parameter, allowing a simple deployment to be run from the Azure CLI, PowerShell, or the Azure Portal. This is an example of an Azure CLI deployment that uses all the defaults, and sets the `resourcePrefix` parameter, which is the only required parameter for deploying MLZ.
 
-You can deploy with the Azure Portal, the Azure CLI, or with both in a Azure Commercial, Azure for Government, or Air-Gapped Clouds. But first, you'll need these pre-requisites:
+```plaintext
+az deployment sub create \
+  --name myMlzDeployment \
+  --location eastus \
+  --template-file ./mlz.bicep \
+  --parameters resourcePrefix=myMlz
+```
 
->>> FIX ABOVE
+See the [README.md](../src/bicep/README.md) document in the `src/bicep` folder for a complete list of parameters.
 
-1. One or more Azure subscriptions where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
-1. A BASH or PowerShell terminal where you can run the Azure CLI. For example, [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview), the MLZ [development container](../../.devcontainer/README.md), or a command shell on your local machine with the [AZ CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
+## Prerequisites
+
+- One or more Azure subscriptions where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
+- If you plan to deploy using the Azure Portal, then you need access to the portal in the cloud you want to deploy to, such as [https://portal.azure.com](https://portal.azure.com) or [https://portal.azure.us](https://portal.azure.us).
+- If you plan to deploy using BASH or a Windows shell, then a terminal instance with the AZ CLI installed is required. For example, [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview), the MLZ [development container](../../.devcontainer/README.md), or a command shell on your local machine with the [AZ CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
+- If you plan to deploy using PowerShell then you need a PowerShell terminal with the [Azure Az PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/what-is-azure-powershell) installed.
 
 > NOTE: The AZ CLI will automatically install the Bicep tools when a command is run that needs them, or you can manually install them following the [instructions here.](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#azure-cli)
 
-#### Decide on a Resource Prefix
+## Planning
+
+### Decide on a Resource Prefix
 
 Resource Groups and resource names are derived from the mandatory parameter `resourcePrefix`.
 
 Pick a unqiue resource prefix that is 3-10 alphanumeric characters in length without whitespaces.
 
-#### Pick your deployment options
+### One Subscription or Multiple
 
-- Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`? See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
+MLZ can deploy to a single subscription or multiple subscriptions. A test and evaluation deployment may deploy everything to a single subscription, and a production deployment may place each tier into its own subscription.
 
-- Want to add Azure Policies to this deployment? See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
+The optional parameters related to subscriptions are below.
 
-- Want to remotely access the network without exposing it via Public IP Addresses? See [Adding Remote Access via Bastion Host](#Adding-Remote-Access-via-Bastion-Host) to add virtual machines inside the network that you can access from an authenticated session in the Azure Portal with Azure Bastion.
+- `hubSubscriptionId`
+- `identitySubscriptionId`
+- `operationsSubscriptionId`
+- `sharedServicesSubscriptionId`
 
-- By default, this template deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features)**.
+### Networking
 
-  - **Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If this doesn't fit your needs:
-  - See [Setting the Firewall SKU](#Setting-the-Firewall-SKU) for steps on how to use the Standard SKU instead.
-  - See [Setting the Firewall Location](#Setting-the-Firewall-Location) for steps on how to deploy into a different region.
+The following parameters affect networking.
+
+Parameter name | Default Value | Description
+-------------- | ------------- | -----------
+`hubVirtualNetworkAddressPrefix` | '10.0.100.0/24' | The CIDR Virtual Network Address Prefix for the Hub Virtual Network.
+`hubSubnetAddressPrefix` | '10.0.100.128/27' | The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.
+`firewallClientSubnetAddressPrefix` | '10.0.100.0/26' | The CIDR Subnet Address Prefix for the Azure Firewall Subnet. It must be in the Hub Virtual Network space. It must be /26.
+`firewallManagementSubnetAddressPrefix` | '10.0.100.64/26' | The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.
+`identityVirtualNetworkAddressPrefix` | '10.0.110.0/26' | The CIDR Virtual Network Address Prefix for the Identity Virtual Network.
+`identitySubnetAddressPrefix` | '10.0.110.0/27' | The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.
+`operationsVirtualNetworkAddressPrefix` | '10.0.115.0/26' | The CIDR Virtual Network Address Prefix for the Operations Virtual Network.
+`operationsSubnetAddressPrefix` | '10.0.115.0/27' | The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.
+`sharedServicesVirtualNetworkAddressPrefix` | '10.0.120.0/26' | The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.
+`sharedServicesSubnetAddressPrefix` | '10.0.120.0/27' | The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.
+
+### Optional Features
+
+MLZ has optional features that can be enabled by setting parameters on the deployment.
+
+#### Azure Policy Initiatives: NIST, IL5, CMMC
+
+To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the `deployPolicy=true` parameter with `policy` assigned to one of the following: `NIST`, `IL5`, or `CMMC`.
+
+The result will be a policy assignment created for each resource group deployed by MLZ that can be viewed in the 'Compliance' view of Azure Policy in the Azure Portal.
+
+Under the [src/bicep/modules/policies](..src/bicep/modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
+
+#### Azure Security Center (Microsoft Defender for Cloud)
+
+By default [Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/security-center-introduction) offers a free set of monitoring capabilities that are enabled via an Azure policy when your first set up a subscription and view Azure Security Center portal blade.
+
+Azure Security Center offers a standard/defender sku which enables a greater depth of awareness including more reccomendations and threat analytics. You can enable this higher depth level of security in MLZ by setting the parameter `deployASC` during deployment. In addition you can include the `emailSecurityContact` parameter to set a contact email for alerts.
+
+#### Azure Sentinel
+
+Azure Sentinel can be enabled by setting the `deploySentinel=true` parameter.
+
+#### Remote access with a Bastion host plus a Linux VM and a Windows VM to serve as jump boxes
+
+If you want to remotely access the network and the resources you've deployed you can use [Azure Bastion](https://docs.microsoft.com/en-us/azure/bastion/) to remotely access virtual machines within the network without exposing them via Public IP Addresses.
+
+To deploy a virtual machine as a jumpbox into the network without a Public IP Address using Azure Bastion Host, provide these parameters:
+
+- `deployRemoteAccess=true`
+- `windowsVmAdminPassword=<your password>`
+- `linuxVmAuthenticationType=<'sshPublicKey' | 'password'>`
+- `linuxVmAdminPasswordOrKey=<your password or SSH Key>`
+- `windowsVmAdminUsername=<user name>` The default is 'azureuser'.
+- `linuxVmAdminUsername=<user name>` The default is 'azureuser'.
+
+#### Azure Firewall Premium
+
+By default, MLZ deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If necessary you can set a different firewall SKU or location.
+
+You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Standard` or `Premium`.
+
+If you'd like to specify a different region to deploy your resources into, change the location of the deployment. For example, when using the AZ CLI set the deployment command's `--location` argument.
 
 - Review the default [Naming Convention](#Naming-Conventions) or apply your own
 
   - By default, Mission LZ creates resources with a naming convention
   - See [Naming Convention](#Naming-Conventions) to see what that convention is and how to provide your own to suit your needs
 
-#### Know where to find your deployment output
-
-After a deployment is complete, you can refer to the provisioned resources programmaticaly with the Azure CLI. See [Reference Deployment Output](#Reference-Deployment-Output) for steps on how to use `az deployment` subcommands and JMESPath to query for specific properties.
-
-### Azure Portal
-
-The Azure Portal can be used to deploy Mission Landing Zone.
-
-<!-- markdownlint-disable MD013 -->
-<!-- allow for longer lines to acommodate button links -->
-| Azure Commercial | Azure Government |
-| :--- | :--- |
-| [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
-<!-- markdownlint-enable MD013 -->
-
-### Azure CLI
-
-If you are not using the Azure Portal to deploy, you can deploy with the Azure CLI.
-
-Use `az deployment sub` to deploy MLZ across one or many subscriptions. (See `az deployment sub create --help` for more information.)
-
-#### Single subscription deployment
-
-To deploy Mission LZ into a single subscription, give your deployment a name and a location and specify the `./mlz.bicep` template file (replacing `mlz.bicep` with `mlz.json` if disconnected from the internet or do not have an installation of [Bicep](https://aka.ms/bicep) available):
-
-```plaintext
-az deployment sub create \
-  --name myMlzDeployment \
-  --location eastus \
-  --template-file ./mlz.bicep \
-  --parameters resourcePrefix="myMlz"
-```
-
-The only required Bicep/ARM parameter is `resourcePrefix` (a unique alphanumeric string 3-10 characters in length), which is used to to generate names for your resource groups and resources:
-
-#### Multiple subscription deployment
-
-Deployment to multiple subscriptions requires specifying the `--parameters` flag and passing `key=value` arguments:
-
-```plaintext
-az deployment sub create \
-  --subscription $deploymentSubscription \
-  --location eastus \
-  --name multiSubscriptionTest \
-  --template-file ./mlz.bicep \
-  --parameters \
-    resourcePrefix="myMlz" \
-    hubSubscriptionId=$hubSubscriptionId \
-    identitySubscriptionId=$identitySubscriptionId \
-    operationsSubscriptionId=$operationsSubscriptionId \
-    sharedServicesSubscriptionId=$sharedServicesSubscriptionId
-```
-
-When deploying to multiple subscriptions, you must have at least [Contributor RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#all) to those subscriptions.
-
-#### Deploying to Other Clouds
-
-If I'm deploying to another cloud, say Azure Government, I will first login to that cloud...
-
-Logging into `AzureUsGovernment`:
-
-```plaintext
-az cloud set -n AzureUsGovernment
-az login
-```
-
-...and supply a different value for the deployment `--location` argument:
-
-```plaintext
-az deployment sub create \
-  --name myMlzDeployment \
-  --location usgovvirginia \
-  --template-file ./mlz.bicep
-```
-
-And if I need to deploy into multiple subscriptions, I would pass the relevant subscription IDs as `parameters` as described in [Multiple subscription deployment](#Multiple-subscription-deployment).
-
-### Air-Gapped Clouds
-
-#### Air-Gapped Clouds Deployment with Azure CLI
-
-If I were in an offline environment that didn't have a Bicep installation available (like an air-gapped cloud), I could always deploy the `az bicep build` output ARM template **`mlz.json`**:
-
->>>>>MAYBE THIS DOESN'T MAKE SENSE, OR DO WE NEED TO EXPLAIN HOW BICEP COMPILES TO ARM? MAYBE RENAME THE DOCUMENT TO INCLUDE THE WORD 'ARM', AND A STATEMENT ABOUT HOW BICEP COMPILES TO ARM AND YOU CAN DEPLOY EITHER (BUT NOT THE EXAMPLES).
-
-```plaintext
-az cloud set -n <my cloud name>
-
-az deployment sub create \
-  --subscription $deploymentSubscription \
-  --location <my location> \
-  --name multisubtest \
-  --template-file ./mlz.json \
-  --parameters \
-    hubSubscriptionId=$hubSubscriptionId \
-    identitySubscriptionId=$identitySubscriptionId \
-    operationsSubscriptionId=$operationsSubscriptionId \
-    sharedServicesSubscriptionId=$sharedServicesSubscriptionId
-```
-
-## Deployment of Optional Features
-
-Mission Landing Zone has parameters that enable optional deployment of:
-
-- Azure Policy Initiatives
-- Azure Security Center
-- Azure Sentinel
-- Remote Access via Bastion Host
-
-### Adding Azure Policy
-
-To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the `deployPolicy=true` parameter with `policy` assigned to one of the following: `NIST`, `IL5`, or `CMMC`.
-
-For example, deploying with MLZ:
-
-```plaintext
-az deployment sub create \
-  --location eastus \
-  --template-file mlz.bicep \
-  --parameters deployPolicy=true \
-  --parameters policy=<one of 'CMMC', 'IL5', or 'NIST'>
-```
-
-Or, apply policy to a resource group after deploying MLZ:
-
-```plaintext
-az deployment group create \
-  --resource-group <Resource Group to assign> \
-  --name <original deployment name + descriptor> \
-  --template-file ./src/bicep/modules/policyAssignment.bicep \
-  --parameters builtInAssignment=<one of 'CMMC', 'IL5', or 'NIST'> logAnalyticsWorkspaceName=<Log analytics workspace name> \
-  --parameters logAnalyticsWorkspaceName=<Log Analytics Workspace Name> \
-  --parameters logAnalyticsWorkspaceResourceGroupName=<Log Analytics Workspace Resource Group Name>
-```
-
-The result will be a policy assignment created for each resource group deployed by MLZ that can be viewed in the 'Compliance' view of Azure Policy in the Azure Portal.
-
-Under the [modules/policies](modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
-
-### Enabling Azure Security Center
-
-By default [Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/security-center-introduction) offers a free set of monitoring capabilities that are enabled via an Azure policy when your first set up a subscription and view Azure Security Center portal blade.
-
-Azure Security Center offers a standard/defender sku which enables a greater depth of awareness including more reccomendations and threat analytics. You can enable this higher depth level of security in MLZ by setting the parameter `deployASC` during deployment. In addition you can include the `emailSecurityContact` parameter to set a contact email for alerts.
-
-```plaintext
-az deployment sub create \
-  --location eastus \
-  --template-file mlz.bicep \
-  --parameters policy=<one of 'CMMC', 'IL5', or 'NIST'> \
-  --parameters deployASC=true \
-  --parameters emailSecurityContact=<user#domain.com>
-```
-
-### Enabling Azure Sentinel
-
-### Enabling Remote Access via Bastion Host
-
-Want to remotely access the network and the resources you've deployed into it? You can use [Azure Bastion](https://docs.microsoft.com/en-us/azure/bastion/) to remotely access virtual machines within the network without exposing them via Public IP Addresses.
-
-To deploy a virtual machine as a jumpbox into the network without a Public IP Address using Azure Bastion Host, provide two parameters `deployRemoteAccess=true` and `linuxVmAdminPasswordOrKey=<your password>` and `windowsVmAdminPassword=<your password>` to the deployment. A quick and easy way to generate a secure password from the .devcontainer is the command `openssl rand -base64 14`.
-
-```plaintext
-my_password=$(openssl rand -base64 14)
-
-az deployment sub create \
-  --name "myRemoteAccessDeployment" \
-  --location "eastus" \
-  --template-file "src/bicep/mlz.bicep" \
-  --parameters deployRemoteAccess="true" \
-  --parameters linuxVmAdminPasswordOrKey="$my_password" \
-  --parameters windowsVmAdminPassword="$my_password"
-```
-
-Then, once you've deployed the virtual machines and Bastion Host, use these docs to connect with the provided password: <https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-rdp-windows#rdp>
-
-The default username is set to `azureuser`.
-
-### Using an SSH Key with Remote Access via Bastion Host
-
-If you have a key pair you'd like to use for SSH connections to the Linux virtual machine that is deployed with `deployRemoteAccess=true`, specify the `linuxVmAuthenticationType` parameter to `sshPublicKey` like so:
-
-```plaintext
-my_sshkey=$(cat ~/.ssh/id_rsa.pub) # or, however you source your public key
-my_password=$(openssl rand -base64 14)
-
-az deployment sub create \
-  --name "myRemoteAccessDeployment" \
-  --location "eastus" \
-  --template-file "src/bicep/mlz.bicep" \
-  --parameters deployRemoteAccess="true" \
-  --parameters linuxVmAuthenticationType="sshPublicKey" \
-  --parameters linuxVmAdminPasswordOrKey="$my_sshkey" \
-  --parameters windowsVmAdminPassword="$my_password"
-```
-
-For more information on generating a public/private key pair see <https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-ssh-keys-detailed#generate-keys-with-ssh-keygen>.
-
-Then, once you've deployed the virtual machines and Bastion Host, use these docs to connect with an SSH Key: <https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-ssh#privatekey>
-
-The default username is set to `azureuser`.
-
-## Configuring the Firewall
-
-### Setting the Firewall SKU
-
-By default, this template deploys [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features).
-
-Not all regions support Azure Firewall Premium. Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions).
-
-You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Standard` or `Premium`:
-
-```plaintext
-az deployment sub create \
-  --name "myFirewallStandardDeployment" \
-  --location "eastus" \
-  --template-file "src/bicep/mlz.bicep" \
-  --parameters firewallSkuTier="Standard"
-```
-
-### Setting the Firewall Location
-
-If you'd like to specify a different region to deploy your resources into, just change the location of the deployment in the `az deployment sub create` command's `--location` argument:
-
-```plaintext
-az deployment sub create \
-  --name "SouthCentralUsDeployment" \
-  --location "South Central US" \
-  --template-file "src/bicep/mlz.bicep"
-```
-
-## Naming Conventions
+### Naming Conventions
 
 By default, Mission LZ resources are named according to a naming convention that uses the mandatory `resourcePrefix` parameter and the optional `resourceSuffix` parameter (that is defaulted to `mlz`).
 
-### Default Naming Convention Example
+#### Default Naming Convention Example
 
 Let's look at an example using `--parameters resourcePrefix=FOO` and `--parameters resourceSuffix=BAR`
 
@@ -312,7 +150,7 @@ Let's look at an example using `--parameters resourcePrefix=FOO` and `--paramete
   }
   ```
 
-### Modifying the Naming Convention
+#### Modifying the Naming Convention
 
 You can modify this naming convention to suit your needs.
 
@@ -351,9 +189,99 @@ You can modify this naming convention to suit your needs.
     }
     ```
 
-## Reference Deployment Output
+### Know where to find your deployment output
 
->>>>TODO: Simplify this section and point to az cli docs rather than having a tutorial on JMESPath.
+After a deployment is complete, you can refer to the provisioned resources programmaticaly with the Azure CLI. See [Reference Deployment Output](#Reference-Deployment-Output) for steps on how to use `az deployment` subcommands and JMESPath to query for specific properties.
+
+From the Azure Portal you can see the deployment output by going to the subscription where the firewall was deployed, then clicking `Deployments` in the left navigation pane.
+
+### Planning for Workloads
+
+MLZ allows for deploying one or many workloads that are peered to the hub network. Each workload can be in its own subscription or multiple workloads may be combined into a single subscription.
+
+A separate Bicep template is provided for deploying an empty workload. It deploys a virtual network, a route table, a network security group, a storage account (for logs), and a network peering to the hub network. The template is at [src/bicep/examples/newWorkload](../src/bicep/examples/newWorkload).
+
+The `newWorkload` template contains defaults for IP address ranges, but additional workloads will require planning for additional ranges. The following parameters affect `newWorkload` networking:
+
+- `virtualNetworkAddressPrefix`, defaults to '10.0.125.0/26'.
+- `subnetAddressPrefix`, defaults to '10.0.125.0/27'.
+
+For your workloads you can use this template as a starting point to create and customize specific workload deployments.
+
+## Deployment
+
+### Deploy Using the Azure Portal
+
+The Azure Portal can be used to deploy Mission Landing Zone.
+
+<!-- markdownlint-disable MD013 -->
+<!-- allow for longer lines to acommodate button links -->
+| Azure Commercial | Azure Government |
+| :--- | :--- |
+| [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
+<!-- markdownlint-enable MD013 -->
+
+### Deploy Using the Azure CLI
+
+Use `az deployment sub` to deploy MLZ across one or many subscriptions. (See `az deployment sub create --help` for more information.)
+
+#### Single subscription deployment
+
+To deploy Mission LZ into a single subscription, give your deployment a name and a location and specify the `./mlz.bicep` template file (replacing `mlz.bicep` with `mlz.json` if disconnected from the internet or you do not have an installation of [Bicep](https://aka.ms/bicep) available):
+
+```plaintext
+az deployment sub create \
+  --name myMlzDeployment \
+  --location eastus \
+  --template-file ./mlz.bicep \
+  --parameters resourcePrefix="myMlz"
+```
+
+#### Multiple subscription deployment
+
+Deployment to multiple subscriptions requires specifying the `--parameters` flag and passing `key=value` arguments:
+
+```plaintext
+az deployment sub create \
+  --subscription $deploymentSubscription \
+  --location eastus \
+  --name multiSubscriptionTest \
+  --template-file ./mlz.bicep \
+  --parameters \
+    resourcePrefix="myMlz" \
+    hubSubscriptionId=$hubSubscriptionId \
+    identitySubscriptionId=$identitySubscriptionId \
+    operationsSubscriptionId=$operationsSubscriptionId \
+    sharedServicesSubscriptionId=$sharedServicesSubscriptionId
+```
+
+#### Deploying to Other Clouds
+
+When deploying to another cloud, like Azure US Government, first set the cloud and log in.
+
+Logging into `AzureUsGovernment`:
+
+```plaintext
+az cloud set -n AzureUsGovernment
+az login
+```
+
+...and supply a different value for the deployment `--location` argument:
+
+```plaintext
+az deployment sub create \
+  --name myMlzDeployment \
+  --location usgovvirginia \
+  --template-file ./mlz.bicep
+```
+
+#### Air-Gapped Clouds
+
+For air-gapped clouds it may be convenient to transfer and deploy the ARM template instead of the Bicep template if the Bicep CLI tools are not available or if it is desirable to transfer only one file into the air gap.
+
+The ARM template is at [src/bicep/mlz.json](../src/bicep/mlz.json)]. The AZ CLI command for deploying the ARM template is the same as for deploying Bicep: use `az deployment sub create` and supply `mlz.json` as the template file name instead of `mlz.bicep`.
+
+#### Reference Deployment Output
 
 After you've deployed Mission Landing Zone you'll probably want to integrate additional services or infrastructure.
 
@@ -464,3 +392,7 @@ If you want to develop with Bicep you'll need these:
 1. Install Bicep <https://github.com/Azure/bicep/blob/main/docs/installing.md#install-and-manage-via-azure-cli-easiest>
 
 However, you don't need to develop with Bicep to deploy the compiled `mlz.json` in this repository.
+
+## See Also
+
+[Bicep documentation](https://aka.ms/bicep/) for documentation and general information on Bicep.
