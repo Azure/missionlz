@@ -106,7 +106,7 @@ Parameter name | Default Value | Description
 -------------- | ------------- | -----------
 `deploySentinel` | 'false' | When set to "true", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment. It defaults to "false".
 
-#### Remote access with a Bastion host plus a Linux VM and a Windows VM to serve as jump boxes
+#### Remote access with a Bastion Host
 
 If you want to remotely access the network and the resources you've deployed you can use [Azure Bastion](https://docs.microsoft.com/en-us/azure/bastion/) to remotely access virtual machines within the network without exposing them via Public IP Addresses.
 
@@ -228,6 +228,8 @@ Parameter name | Default Value | Description
 
 ## Deployment
 
+Mission Landing Zone can be deployed using the Azure Portal or with command-line tools provided with the AZ CLI or PowerShell.
+
 ### Deploy Using the Azure Portal
 
 The Azure Portal can be used to deploy Mission Landing Zone. The buttons below invoke an Azure Portal input form that maps user input values to the MLZ ARM template that was compiled from the Bicep template.
@@ -243,7 +245,7 @@ The Azure Portal can be used to deploy Mission Landing Zone. The buttons below i
 
 Use the AZ CLI command `az deployment sub` to deploy MLZ across one or many subscriptions or use the PowerShell cmdlet `New-AzSubscriptionDeployment`.
 
-#### Single subscription deployment
+#### Single Subscription Deployment
 
 To deploy Mission LZ into a single subscription, give your deployment a name and a location and specify the `./mlz.bicep` template file.
 
@@ -265,7 +267,7 @@ New-AzSubscriptionDeployment `
   -resourcePrefix 'myMlz' 
 ```
 
-#### Multiple subscription deployment
+#### Multiple Subscription Deployment
 
 Deployment to multiple subscriptions requires specifying the subscription IDs for each tier:
 
