@@ -279,7 +279,7 @@ az deployment sub create \
   --name multiSubscriptionTest \
   --template-file ./mlz.bicep \
   --parameters \
-      resourcePrefix 'myMlz' \
+      resourcePrefix='myMlz' \
       hubSubscriptionId=$hubSubscriptionId \
       identitySubscriptionId=$identitySubscriptionId \
       operationsSubscriptionId=$operationsSubscriptionId \
