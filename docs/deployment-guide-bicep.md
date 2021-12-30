@@ -279,11 +279,11 @@ az deployment sub create \
   --name multiSubscriptionTest \
   --template-file ./mlz.bicep \
   --parameters \
-      resourcePrefix="myMlz" \
-      hubSubscriptionId=$hubSubscriptionId \
-      identitySubscriptionId=$identitySubscriptionId \
-      operationsSubscriptionId=$operationsSubscriptionId \
-      sharedServicesSubscriptionId=$sharedServicesSubscriptionId
+      resourcePrefix 'myMlz' \
+      hubSubscriptionId $hubSubscriptionId \
+      identitySubscriptionId $identitySubscriptionId \
+      operationsSubscriptionId $operationsSubscriptionId \
+      sharedServicesSubscriptionId $sharedServicesSubscriptionId
 ```
 
 ```PowerShell
@@ -323,7 +323,8 @@ Connect-AzAccount -Environment AzureUSGovernment
 az deployment sub create \
   --name myMlzDeployment \
   --location usgovvirginia \
-  --template-file ./mlz.bicep
+  --template-file ./mlz.bicep \
+  --parameters resourcePrefix=myMlz
 ```
 
 ```PowerShell
@@ -332,7 +333,7 @@ New-AzSubscriptionDeployment `
   -Name myMlzDeployment `
   -Location 'usgovvirginia' `
   -TemplateFile .\mlz.bicep `
-  -resourcePrefix="myMlz" `
+  -resourcePrefix 'myMlz'
 ```
 
 #### Air-Gapped Clouds
