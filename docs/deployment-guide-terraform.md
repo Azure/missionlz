@@ -50,10 +50,10 @@ The optional parameters related to subscriptions are below. At least one subscri
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
-hub_subid | '' | Subscription ID for the Hub deployment
-tier0_subid | value of hub_subid | Subscription ID for tier 0
-tier1_subid | value of hub_subid | Subscription ID for tier 1
-tier2_subid | value of hub_subid | Subscription ID for tier 2
+`hub_subid` | '' | Subscription ID for the Hub deployment
+`tier0_subid` | value of hub_subid | Subscription ID for tier 0
+`tier1_subid` | value of hub_subid | Subscription ID for tier 1
+`tier2_subid` | value of hub_subid | Subscription ID for tier 2
 
 ### Networking
 
@@ -61,15 +61,15 @@ The following parameters affect networking.
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
-hub_vnet_address_space | '10.0.100.0/24' | The address space to be used for the virtual network
-hub_client_address_space | '10.0.100.0/26' | The address space to be used for the Firewall virtual network
-hub_management_address_space | '10.0.100.64/26' | The address space to be used for the Firewall virtual network subnet used for management traffic
-tier0_vnet_address_space | '10.0.110.0/26' | VNet prefix for tier 0
-tier0_subnets.address_prefixes | '10.0.110.0/27' | Subnet prefix for tier 0
-tier1_vnet_address_space | '10.0.115.0/26' | VNet prefix for tier 1
-tier1_subnets.address_prefixes | '10.0.115.0/27' | Subnet prefix for tier 1
-tier2_vnet_address_space | '10.0.120.0/26' | VNet prefix for tier 2
-tier2_subnets.address_prefixes | '10.0.120.0/27' | Subnet prefix for tier 2
+`hub_vnet_address_space` | '10.0.100.0/24' | The address space to be used for the virtual network
+`hub_client_address_space` | '10.0.100.0/26' | The address space to be used for the Firewall virtual network
+`hub_management_address_space` | '10.0.100.64/26' | The address space to be used for the Firewall virtual network subnet used for management traffic
+`tier0_vnet_address_space` | '10.0.110.0/26' | VNet prefix for tier 0
+`tier0_subnets`.address_prefixes | '10.0.110.0/27' | Subnet prefix for tier 0
+`tier1_vnet_address_space` | '10.0.115.0/26' | VNet prefix for tier 1
+`tier1_subnets`.address_prefixes | '10.0.115.0/27' | Subnet prefix for tier 1
+`tier2_vnet_address_space` | '10.0.120.0/26' | VNet prefix for tier 2
+`tier2_subnets`.address_prefixes | '10.0.120.0/27' | Subnet prefix for tier 2
 
 ### Optional Features
 
@@ -95,7 +95,18 @@ variable "create_policy_assignment" {
 }
 ```
 
-### Planning for Multiple Workloads
+### Planning for Workloads
+
+MLZ allows for deploying one or many workloads that are peered to the hub network. Each workload can be in its own subscription or multiple workloads may be combined into a single subscription.
+
+A separate Terraform template is provided for deploying an empty workload. It deploys a virtual network, a route table, a network security group, a storage account (for logs), and a network peering to the hub network. The template is at src/terraform/tier3. You can use this template as a starting point to create and customize specific workload deployments.
+
+The following parameters affect newWorkload networking:
+
+Parameter name | Default Value | Description
+-------------- | ------------- | -----------
+`tier3_vnet_address_space` | '10.0.125.0/26' | Address space prefix for tier 3
+`tier3_subnets.address_prefixes` | '10.0.125.0/27' | Subnet prefix for tier 3
 
 ## Deployment
 
@@ -184,7 +195,7 @@ laws_rgname = "operations-rg"
 tier1_subid = "{the Tier 1 subscription ID}"
 ```
 
-### Deploying new Spoke Networks
+### Deploying New Workloads
 
 Once you've deployed Mission LZ, you can use the Tier 3 module to deploy and peer new Spoke Networks and workloads to the Hub and Firewall.
 
