@@ -302,7 +302,7 @@ provider "azurerm" {
 
 The `azurerm` Terraform provider provides a mechanism for changing the Azure cloud in which to deploy Terraform modules.
 
-If you want to deploy to another cloud, pass in the correct value for `environment`,  `metadata_host`, and `location` for the cloud you're targeting to the relevant module's variables file [mlz/variables.tf](../../terraform/mlz/variables.tf) or [tier3/variables.tf](../../terraform/tier3/variables.tf):
+If you want to deploy to another cloud, pass in the correct value for `environment`,  `metadata_host`, and `location` for the cloud you're targeting to the relevant module's variables file [mlz/variables.tf](../src/terraform/mlz/variables.tf) or [tier3/variables.tf](../src/terraform/tier3/variables.tf):
 
 ```terraform
 variable "environment" {
