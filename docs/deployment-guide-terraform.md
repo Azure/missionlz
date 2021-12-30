@@ -46,7 +46,7 @@ Resource Groups and resource names are derived from the parameter `resourcePrefi
 
 MLZ can deploy to a single subscription or multiple subscriptions. A test and evaluation deployment may deploy everything to a single subscription, and a production deployment may place each tier into its own subscription.
 
-The optional parameters related to subscriptions are below. They default to the subscription used for deployment.
+The optional parameters related to subscriptions are below. At least one subscription is required.
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
@@ -55,8 +55,21 @@ tier0_subid | value of hub_subid | Subscription ID for tier 0
 tier1_subid | value of hub_subid | Subscription ID for tier 1
 tier2_subid | value of hub_subid | Subscription ID for tier 2
 
-
 ### Networking
+
+The following parameters affect networking.
+
+Parameter name | Default Value | Description
+-------------- | ------------- | -----------
+hub_vnet_address_space | '10.0.100.0/24' | The address space to be used for the virtual network
+hub_client_address_space | '10.0.100.0/26' | The address space to be used for the Firewall virtual network
+hub_management_address_space | '10.0.100.64/26' | The address space to be used for the Firewall virtual network subnet used for management traffic
+tier0_vnet_address_space | '10.0.110.0/26' | VNet prefix for tier 0
+tier0_subnets.address_prefixes | '10.0.110.0/27' | Subnet prefix for tier 0
+tier1_vnet_address_space | '10.0.115.0/26' | VNet prefix for tier 1
+tier1_subnets.address_prefixes | '10.0.115.0/27' | Subnet prefix for tier 1
+tier2_vnet_address_space | '10.0.120.0/26' | VNet prefix for tier 2
+tier2_subnets.address_prefixes | '10.0.120.0/27' | Subnet prefix for tier 2
 
 ### Optional Features
 
