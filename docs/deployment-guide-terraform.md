@@ -46,7 +46,7 @@ terraform apply # supply some parameters, approve
 
 ### Assigning Azure Policy
 
-This template supports assigning NIST 800-53 policies. See the [policies documentation](../../docs/policies.md) for more information.
+This template supports assigning NIST 800-53 policies. See the [policies documentation](./policies.md) for more information.
 
 You can enable this by providing a `true` value to the `create_policy_assignment` variable.
 
@@ -87,9 +87,7 @@ If you are deploying to another cloud, such as Azure Government, set the cloud n
 
 ### Terraform init
 
-Before provisioning any Azure resources with Terraform you must initialize a working directory.
-
-Here's the docs on `terraform init`: <https://www.terraform.io/docs/cli/commands/init.html/>
+Before provisioning any Azure resources with Terraform you must [initialize a working directory](https://www.terraform.io/docs/cli/commands/init.html/).
 
 1. Navigate to the directory in the repository that contains the MissionLZ Terraform module:
 
@@ -105,15 +103,9 @@ Here's the docs on `terraform init`: <https://www.terraform.io/docs/cli/commands
 
 ### Terraform apply
 
-After intializing the directory, use `terraform apply` to provision the resources described in `mlz/main.tf` and its referenced modules at `mlz/modules/*`.
+After intializing the directory, use `[terraform apply](https://www.terraform.io/docs/cli/commands/apply.html)` to provision the resources described in `mlz/main.tf` and its referenced modules at `mlz/modules/*`.
 
-> Looking to deploy this new spoke in a cloud other than `AzureCloud`, say `AzureUsGovernment`? Follow the guidance at [Deploying to Other Clouds](#Deploying-to-Other-Clouds) to set the correct variables for the deployment.
-
-Here's the docs on `terraform apply`: <https://www.terraform.io/docs/cli/commands/apply.html>
-
-When you run `terraform apply`, by default, Terraform will inspect the state of your environment to determine what resource creation, modification, or deletion needs to occur as if you invoked a `terraform plan` and then prompt you for your approval before taking action.
-
-Here's the docs on `terraform plan`: <https://www.terraform.io/docs/cli/commands/plan.html>
+When you run `terraform apply`, by default, Terraform will inspect the state of your environment to determine what resource creation, modification, or deletion needs to occur as if you invoked a `[terraform plan](https://www.terraform.io/docs/cli/commands/plan.html)` and then prompt you for your approval before taking action.
 
 1. From the directory in which you executed `terraform init` execute `terraform apply`:
 
@@ -163,13 +155,9 @@ laws_rgname = "operations-rg"
 tier1_subid = "{the Tier 1 subscription ID}"
 ```
 
-Interested in standing up new spoke networks, or Tier 3 environments, after a deployment? See [Deploying New Spoke Networks](#Deploying-New-Spoke-Networks)
-
 ### Deploying new Spoke Networks
 
 Once you've deployed Mission LZ, you can use the Tier 3 module to deploy and peer new Spoke Networks and workloads to the Hub and Firewall.
-
->Looking to deploy this new spoke in a cloud other than `AzureCloud`, say `AzureUsGovernment`? Follow the guidance at [Deploying to Other Clouds](#Deploying-to-Other-Clouds) to set the correct variables for the deployment.
 
 1. Navigate to the directory in the repository that contains the MissionLZ Tier 3 Terraform module:
 
@@ -183,7 +171,7 @@ Once you've deployed Mission LZ, you can use the Tier 3 module to deploy and pee
     terraform init
     ```
 
-1. Execute `terraform apply`:
+1. Execute `terraform apply`
 
     ```bash
     terraform apply
@@ -250,11 +238,9 @@ When this Tier 3 network has served its purpose, you can follow the same steps i
 
 ### Deploying with a Service Principal
 
-This is not required, in fact, the current Terraform modules are written as if you're executing them as a user.
+If you are using a Service Principal to deploy Azure resources with Terraform, [some additional configuration is required](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret/).
 
-But, if you're using a Service Principal to deploy Azure resources with Terraform check out this doc: <https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret/>
-
-Using a Service Principal will require updating the resource providers for `mlz/main.tf`, also described in that doc: <https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret#configuring-the-service-principal-in-terraform/>:
+Using a Service Principal will require [updating the resource providers](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret#configuring-the-service-principal-in-terraform/) for `mlz/main.tf`.
 
 ```terraform
 variable "client_secret" {
