@@ -103,9 +103,9 @@ Before provisioning any Azure resources with Terraform you must [initialize a wo
 
 ### Terraform apply
 
-After intializing the directory, use `[terraform apply](https://www.terraform.io/docs/cli/commands/apply.html)` to provision the resources described in `mlz/main.tf` and its referenced modules at `mlz/modules/*`.
+After intializing the directory, use [`terraform apply`](https://www.terraform.io/docs/cli/commands/apply.html) to provision the resources described in `mlz/main.tf` and its referenced modules at `mlz/modules/*`.
 
-When you run `terraform apply`, by default, Terraform will inspect the state of your environment to determine what resource creation, modification, or deletion needs to occur as if you invoked a `[terraform plan](https://www.terraform.io/docs/cli/commands/plan.html)` and then prompt you for your approval before taking action.
+When you run `terraform apply`, by default, Terraform will inspect the state of your environment to determine what resource creation, modification, or deletion needs to occur as if you invoked a [`terraform plan`](https://www.terraform.io/docs/cli/commands/plan.html) and then prompt you for your approval before taking action.
 
 1. From the directory in which you executed `terraform init` execute `terraform apply`:
 
