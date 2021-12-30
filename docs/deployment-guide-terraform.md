@@ -72,20 +72,18 @@ variable "create_policy_assignment" {
 
 ### Login to Azure CLI
 
-1. Log in using the Azure CLI
+Log in using the Azure CLI.
 
-    ```BASH
-    az login
-    ```
+```BASH
+az login
+```
 
-   > *(Optional)* If you needed to deploy into another cloud such as Azure Government, set the cloud name before logging in:
+If you are deploying to another cloud, such as Azure Government, set the cloud name before logging in.
 
-     ```BASH
-     az cloud set -n AzureUSGovernment
-     az login
-     ```
-
-1. (OPTIONAL) Deploying with a Service Principal? This requires updating the `azurerm` provider block. Check out the [Deploying with a Service Principal](#Deploying-with-a-Service-Principal) documentation.
+  ```BASH
+  az cloud set -n AzureUSGovernment
+  az login
+  ```
 
 ### Terraform init
 
