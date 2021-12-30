@@ -55,7 +55,7 @@ Parameter name | Default Value | Description
 
 ### Networking
 
-The following parameters affect networking addresses. Additional networking parameters can be found in the `src/terraform/mlz/variables.tf` file.
+The following parameters affect networking addresses. Additional networking parameters can be found in the [`src/terraform/mlz/variables.tf`](../src/terraform/mlz/variables.tf) file.
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
@@ -97,7 +97,7 @@ variable "create_policy_assignment" {
 
 MLZ allows for deploying one or many workloads that are peered to the hub network. Each workload can be in its own subscription or multiple workloads may be combined into a single subscription.
 
-A separate Terraform template is provided for deploying an empty workload. It deploys a virtual network, a route table, a network security group, a storage account (for logs), and a network peering to the hub network. The template is at src/terraform/tier3. You can use this template as a starting point to create and customize specific workload deployments.
+A separate Terraform template is provided for deploying an empty workload `src/terraform/tier3`. You can use this template as a starting point to create and customize specific workload deployments.
 
 The following parameters affect newWorkload networking:
 
@@ -173,8 +173,6 @@ When you run `terraform apply`, by default, Terraform will inspect the state of 
 
 1. The deployment will begin. These commands will deploy all of the resources that make up Mission LZ. Deployment could take up to 45 minutes.
 
-If you'd like to deploy from Terraform over-and-over again with the same resource names and environment values, follow the docs on using [Terraform Destroy](#Terraform-destroy) to clean-up your environment.
-
 ### Apply Complete
 
 When it's complete, you'll see some output values that will be necessary if you want to stand up new spoke, or Tier 3, networks:
@@ -193,7 +191,7 @@ laws_rgname = "operations-rg"
 tier1_subid = "{the Tier 1 subscription ID}"
 ```
 
-### Deploying New Workloads
+### Deploy New Workloads
 
 Once you've deployed Mission LZ, you can use the Tier 3 module to deploy and peer new Spoke Networks and workloads to the Hub and Firewall.
 
@@ -271,8 +269,6 @@ Once you've deployed Mission LZ, you can use the Tier 3 module to deploy and pee
 
     Enter a value: yes
     ```
-
-When this Tier 3 network has served its purpose, you can follow the same steps in [Terraform destroy](#Terraform-destroy) to remove the provisioned resources.
 
 ### Deploying with a Service Principal
 
@@ -385,9 +381,7 @@ To find more information about setting the backend see [Local Backend](https://w
 
 ## Cleanup
 
-Once you're happy with the deployment output and want to modify Mission LZ or just want to tear it down to save on costs, you can use `terraform destroy`.
-
-Here's the docs on `terraform destroy`: <https://www.terraform.io/docs/cli/commands/destroy.html>
+If you want to delete an MLZ deployment you can use [`terraform destroy`](https://www.terraform.io/docs/cli/commands/destroy.html).
 
 1. From the directory in which you executed `terraform init` and `terraform apply` execute `terraform destroy`:
 
@@ -424,5 +418,7 @@ For development of the Mission Landing Zone Terraform templates we recommend usi
 ## See Also
 
 [Terraform](https://www.terraform.io/)
+
 [Terraform Tutorial](https://learn.hashicorp.com/collections/terraform/azure-get-started/)
+
 [Developing in a container](https://code.visualstudio.com/docs/remote/containers) using Visual Studio Code
