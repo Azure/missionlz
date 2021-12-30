@@ -11,9 +11,7 @@
 
 This guide describes how to deploy Mission Landing Zone using the [Terraform](https://www.terraform.io/) template at [src/terraform/mlz](../src/terraform/mlz).
 
-To get started with Terraform on Azure check out their [useful tutorial](https://learn.hashicorp.com/collections/terraform/azure-get-started/).
-
-## High-Level Steps
+To get started with Terraform on Azure check out their [tutorial](https://learn.hashicorp.com/collections/terraform/azure-get-started/).
 
 Below is an example of a Terraform deployment that uses all the defaults.
 
@@ -40,7 +38,7 @@ terraform apply # supply some parameters, approve
 
 ### Decide on a Resource Prefix
 
-Resource Groups and resource names are derived from the parameter `resourcePrefix`, which defaults to 'mlz'. Pick a unqiue resource prefix that is 3-10 alphanumeric characters in length without whitespaces.
+Resource Groups and resource names are derived from the `resourcePrefix` parameter, which defaults to 'mlz'. Pick a unqiue resource prefix that is 3-10 alphanumeric characters in length without whitespaces.
 
 ### One Subscription or Multiple
 
@@ -57,7 +55,7 @@ Parameter name | Default Value | Description
 
 ### Networking
 
-The following parameters affect networking.
+The following parameters affect networking addresses. Additional networking parameters can be found in the `src/terraform/mlz/variables.tf` file.
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
