@@ -280,10 +280,10 @@ az deployment sub create \
   --template-file ./mlz.bicep \
   --parameters \
       resourcePrefix 'myMlz' \
-      hubSubscriptionId $hubSubscriptionId \
-      identitySubscriptionId $identitySubscriptionId \
-      operationsSubscriptionId $operationsSubscriptionId \
-      sharedServicesSubscriptionId $sharedServicesSubscriptionId
+      hubSubscriptionId=$hubSubscriptionId \
+      identitySubscriptionId=$identitySubscriptionId \
+      operationsSubscriptionId=$operationsSubscriptionId \
+      sharedServicesSubscriptionId=$sharedServicesSubscriptionId
 ```
 
 ```PowerShell
@@ -292,11 +292,11 @@ New-AzSubscriptionDeployment `
   -Name myMlzDeployment `
   -Location 'eastus' `
   -TemplateFile .\mlz.bicep `
-  -resourcePrefix="myMlz" `
-  -hubSubscriptionId=$hubSubscriptionId `
-  -identitySubscriptionId=$identitySubscriptionId `
-  -operationsSubscriptionId=$operationsSubscriptionId `
-  -sharedServicesSubscriptionId=$sharedServicesSubscriptionId
+  -resourcePrefix "myMlz" `
+  -hubSubscriptionId $hubSubscriptionId `
+  -identitySubscriptionId $identitySubscriptionId `
+  -operationsSubscriptionId $operationsSubscriptionId `
+  -sharedServicesSubscriptionId $sharedServicesSubscriptionId
 ```
 
 #### Deploying to Other Clouds
