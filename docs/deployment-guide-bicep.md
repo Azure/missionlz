@@ -418,8 +418,8 @@ az monitor diagnostic-settings subscription delete --name <diagnostic setting na
 
 If you want to develop with Bicep you'll need these:
 
-1. Install Azure CLI <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli#install>
-1. Install Bicep <https://github.com/Azure/bicep/blob/main/docs/installing.md#install-and-manage-via-azure-cli-easiest>
+1. Install [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli#install).
+1. If using Visual Studio Code, install the [Bicep extension](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#vs-code-and-bicep-extension).
 
 ## See Also
 
