@@ -29,7 +29,7 @@ az deployment sub create \
 
 - One or more Azure subscriptions where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
 - For deployments in the Azure Portal you need access to the portal in the cloud you want to deploy to, such as [https://portal.azure.com](https://portal.azure.com) or [https://portal.azure.us](https://portal.azure.us).
-- For deployments in BASH or a Windows shell, then a terminal instance with the AZ CLI installed is required. For example, [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview), the MLZ [development container](../../.devcontainer/README.md), or a command shell on your local machine with the [AZ CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
+- For deployments in BASH or a Windows shell, then a terminal instance with the AZ CLI installed is required. For example, [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview), the MLZ [development container](../.devcontainer/README.md), or a command shell on your local machine with the [AZ CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
 - For PowerShell deployments you need a PowerShell terminal with the [Azure Az PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/what-is-azure-powershell) installed.
 
 > NOTE: The AZ CLI will automatically install the Bicep tools when a command is run that needs them, or you can manually install them following the [instructions here.](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#azure-cli)
@@ -85,7 +85,7 @@ Parameter name | Default Value | Description
 `deployPolicy` | 'false' | When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".
 `policy` | 'NIST' | [NIST/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NIST". IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.
 
-Under the [src/bicep/modules/policies](..src/bicep/modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
+Under the [src/bicep/modules/policies](../src/bicep/modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
 
 #### Azure Security Center (Microsoft Defender for Cloud)
 
