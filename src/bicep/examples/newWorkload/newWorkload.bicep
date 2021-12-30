@@ -20,6 +20,8 @@ param logAnalyticsWorkspaceResourceId string = mlzDeploymentVariables.logAnalyti
 param firewallPrivateIPAddress string = mlzDeploymentVariables.firewallPrivateIPAddress.Value
 
 param virtualNetworkName string = '${workloadName}-vnet'
+
+@description('The address prefix for the network spoke vnet.')
 param virtualNetworkAddressPrefix string = '10.0.125.0/26'
 param virtualNetworkDiagnosticsLogs array = []
 param virtualNetworkDiagnosticsMetrics array = []
@@ -39,6 +41,8 @@ param networkSecurityGroupDiagnosticsLogs array = [
 param networkSecurityGroupDiagnosticsMetrics array = []
 
 param subnetName string = '${workloadName}-subnet'
+
+@description('The subnet address prefix for the network spoke vnet.')
 param subnetAddressPrefix string = '10.0.125.0/27'
 param subnetServiceEndpoints array = []
 
