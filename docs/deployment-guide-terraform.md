@@ -38,7 +38,23 @@ terraform apply # supply some parameters, approve
 
 ## Planning
 
+### Decide on a Resource Prefix
+
+Resource Groups and resource names are derived from the parameter `resourcePrefix`, which defaults to 'mlz'. Pick a unqiue resource prefix that is 3-10 alphanumeric characters in length without whitespaces.
+
 ### One Subscription or Multiple
+
+MLZ can deploy to a single subscription or multiple subscriptions. A test and evaluation deployment may deploy everything to a single subscription, and a production deployment may place each tier into its own subscription.
+
+The optional parameters related to subscriptions are below. They default to the subscription used for deployment.
+
+Parameter name | Default Value | Description
+-------------- | ------------- | -----------
+hub_subid | '' | Subscription ID for the Hub deployment
+tier0_subid | value of hub_subid | Subscription ID for tier 0
+tier1_subid | value of hub_subid | Subscription ID for tier 1
+tier2_subid | value of hub_subid | Subscription ID for tier 2
+
 
 ### Networking
 
