@@ -418,15 +418,15 @@ az monitor diagnostic-settings subscription delete --name <diagnostic setting na
 
 If you want to develop with Bicep you'll need these:
 
-1. Install [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli#install).
+1. Install the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli#install).
 1. If using Visual Studio Code, install the [Bicep extension](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#vs-code-and-bicep-extension).
 
 ## See Also
 
-[Bicep documentation](https://aka.ms/bicep/) for documentation and general information on Bicep.
+[Bicep documentation](https://aka.ms/bicep/)
 
-Read more about `az deployment` at: [https://docs.microsoft.com](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
+[`az deployment` documentation](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
 
-Read more about JMESPath queries at: <https://jmespath.org/>
+[JMESPath queries](https://jmespath.org/)
 
 [Azure Az PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/what-is-azure-powershell)
