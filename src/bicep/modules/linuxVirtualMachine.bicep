@@ -86,7 +86,6 @@ resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01
     typeHandlerVersion: '1.4'
   }
   dependsOn: [
-    virtualMachine
     policyExtension
   ]
 }
@@ -102,9 +101,6 @@ resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-0
     autoUpgradeMinorVersion: true
     enableAutomaticUpgrade: true
   }
-  dependsOn: [
-    virtualMachine
-  ]
 }
 
 resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
@@ -123,7 +119,6 @@ resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' 
     }
   }
   dependsOn: [
-    virtualMachine
     networkWatcher
   ]
 }
@@ -138,7 +133,6 @@ resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2020-06-0
     autoUpgradeMinorVersion: true
   }
   dependsOn: [
-    virtualMachine
     omsExtension
   ]
 }
