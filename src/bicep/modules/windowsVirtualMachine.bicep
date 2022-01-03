@@ -68,9 +68,6 @@ resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-0
     typeHandlerVersion: '9.5'
     autoUpgradeMinorVersion: true
   }
-  dependsOn: [
-    windowsVirtualMachine
-  ]
 }
 
 resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
@@ -100,9 +97,6 @@ resource mmaExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' 
       workspaceKey: listKeys(logAnalyticsWorkspaceId , '2015-11-01-preview').primarySharedKey
     }
   }
-  dependsOn: [
-    windowsVirtualMachine
-  ]
 }
 
 resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
@@ -113,7 +107,4 @@ resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01
     type: 'NetworkWatcherAgentWindows'
     typeHandlerVersion: '1.4'
   }
-  dependsOn: [
-    windowsVirtualMachine
-  ]
 }
