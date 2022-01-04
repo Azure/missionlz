@@ -13,7 +13,7 @@ Mission Landing Zone addresses a narrowly scoped, specific need for a [Secure Cl
 Mission Landing Zone is the right solution when:
 
 - A simple, secure, and scalable hub and spoke infrastructure is needed.
-- A central IT team is adminstering cloud resources on behalf of other teams and workloads.
+- A central IT team is administering cloud resources on behalf of other teams and workloads.
 - There is a need to implement SCCA.
 - Hosting any workload requiring a secure environment, for example: data warehousing, AI/ML, and containerized applications.
 
@@ -64,7 +64,7 @@ You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/ro
 1. Deploy Mission Landing Zone with the [`az deployment sub create`](https://docs.microsoft.com/en-us/cli/azure/deployment/sub?view=azure-cli-latest#az_deployment_sub_create) command. For a quickstart test deployment into the current AZ CLI subscription we suggest setting these parameters:
 
     - `--name`: (optional) The deployment name, which is visible in the Azure Portal under Subscription/Deployments.
-    - `--location`: (required) The location to store the deployment metadata.
+    - `--location`: (required) The Azure region to store the deployment metadata.
     - `--template-file`: (required) The file path to the `mlz.bicep` template.
     - `--parameters resourcePrefix=<value>`: (required) The `resourcePrefix` Bicep parameter is used to generate names for your resources. It is the only required parameter in the Bicep file. You can set it to any alphanumeric value that is between 3-10 characters. You can omit this parameter and the `az deployment sub create` command will prompt you to enter a value.
 

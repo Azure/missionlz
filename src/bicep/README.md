@@ -128,4 +128,3 @@ spokes.value[0..2].subnetResourceId
 spokes.value[0..2].subscriptionId
 spokes.value[0..2].virtualNetworkName
 spokes.value[0..2].virtualNetworkResourceId
-```
