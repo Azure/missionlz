@@ -13,7 +13,7 @@ Mission Landing Zone addresses a narrowly scoped, specific need for a [Secure Cl
 Mission Landing Zone is the right solution when:
 
 - A simple, secure, and scalable hub and spoke infrastructure is needed.
-- A central IT team is adminstering cloud resources on behalf of other teams and workloads.
+- A central IT team is administering cloud resources on behalf of other teams and workloads.
 - There is a need to implement SCCA.
 - Hosting any workload requiring a secure environment, for example: data warehousing, AI/ML, and containerized applications.
 
