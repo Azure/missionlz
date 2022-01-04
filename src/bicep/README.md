@@ -19,17 +19,11 @@ Pick a unqiue resource prefix that is 3-10 alphanumeric characters in length wit
 
 #### Pick your deployment options
 
-- Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`?
+- Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`? See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
 
-  - See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
+- Want to add Azure Policies to this deployment? See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
 
-- Want to add Azure Policies to this deployment?
-
-  - See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
-
-- Want to remotely access the network without exposing it via Public IP Addresses?
-
-  - See [Adding Remote Access via Bastion Host](#Adding-Remote-Access-via-Bastion-Host) to add virtual machines inside the network that you can access from an authenticated session in the Azure Portal with Azure Bastion.
+- Want to remotely access the network without exposing it via Public IP Addresses? See [Adding Remote Access via Bastion Host](#Adding-Remote-Access-via-Bastion-Host) to add virtual machines inside the network that you can access from an authenticated session in the Azure Portal with Azure Bastion.
 
 - By default, this template deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features)**.
 
@@ -44,11 +38,11 @@ Pick a unqiue resource prefix that is 3-10 alphanumeric characters in length wit
 
 #### Know where to find your deployment output
 
-After a deployment is complete, you can refer to the provisioned resources programmaticaly with the Azure CLI.
-
-- See [Reference Deployment Output](#Reference-Deployment-Output) for steps on how to use `az deployment` subcommands and JMESPath to query for specific properties.
+After a deployment is complete, you can refer to the provisioned resources programmaticaly with the Azure CLI. See [Reference Deployment Output](#Reference-Deployment-Output) for steps on how to use `az deployment` subcommands and JMESPath to query for specific properties.
 
 ### Azure Portal
+
+The Azure Portal can be used to deploy Mission Landing Zone.
 
 <!-- markdownlint-disable MD013 -->
 <!-- allow for longer lines to acommodate button links -->
@@ -59,28 +53,27 @@ After a deployment is complete, you can refer to the provisioned resources progr
 
 ### Azure CLI
 
-Use `az deployment sub` to deploy MLZ across 1:M subscriptions (and `az deployment sub create --help` for more information).
+If you are not using the Azure Portal to deploy, you can deploy with the Azure CLI.
+
+Use `az deployment sub` to deploy MLZ across one or many subscriptions. (See `az deployment sub create --help` for more information.)
 
 #### Single subscription deployment
 
-To deploy Mission LZ into a single subscription, give your deployment a name and a location and specify the `./mlz.bicep` template file (replacing `mlz.bicep` with `mlz.json` if I'm disconnected from the internet or do not have an installation of [Bicep](https://aka.ms/bicep) available):
+To deploy Mission LZ into a single subscription, give your deployment a name and a location and specify the `./mlz.bicep` template file (replacing `mlz.bicep` with `mlz.json` if disconnected from the internet or do not have an installation of [Bicep](https://aka.ms/bicep) available):
 
 ```plaintext
 az deployment sub create \
   --name myMlzDeployment \
   --location eastus \
-  --template-file ./mlz.bicep
+  --template-file ./mlz.bicep \
+  --parameters resourcePrefix="myMlz"
 ```
 
-You'll be prompted for the one required argument `resourcePrefix` (a unique alphanumeric string 3-10 characters in length), which is used to to generate names for your resource groups and resources:
-
-```plaintext
-> Please provide string value for 'resourcePrefix' (? for help): mymlz01
-```
+The only required Bicep/ARM parameter is `resourcePrefix` (a unique alphanumeric string 3-10 characters in length), which is used to to generate names for your resource groups and resources:
 
 #### Multiple subscription deployment
 
-I can deploy into multiple subscriptions by specifying the `--parameters` flag and passing `key=value` arguments:
+Deployment to multiple subscriptions requires specifying the `--parameters` flag and passing `key=value` arguments:
 
 ```plaintext
 az deployment sub create \
@@ -89,6 +82,7 @@ az deployment sub create \
   --name multiSubscriptionTest \
   --template-file ./mlz.bicep \
   --parameters \
+    resourcePrefix="myMlz" \
     hubSubscriptionId=$hubSubscriptionId \
     identitySubscriptionId=$identitySubscriptionId \
     operationsSubscriptionId=$operationsSubscriptionId \
