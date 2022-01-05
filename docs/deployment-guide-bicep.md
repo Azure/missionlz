@@ -100,7 +100,7 @@ Parameter name | Default Value | Description
 
 #### Azure Sentinel
 
-Azure Sentinel can be enabled by setting the `deploySentinel=true` parameter.
+[Sentinel](https://docs.microsoft.com/en-us/azure/sentinel/overview) is a scalable, cloud-native, security information and event management (SIEM) and security orchestration, automation, and response (SOAR) solution. Sentinel can be enabled by setting the `deploySentinel=true` parameter.
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
