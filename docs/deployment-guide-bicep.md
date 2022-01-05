@@ -110,7 +110,7 @@ Parameter name | Default Value | Description
 
 If you want to remotely access the network and the resources you've deployed you can use [Azure Bastion](https://docs.microsoft.com/en-us/azure/bastion/) to remotely access virtual machines within the network without exposing them via Public IP Addresses.
 
-To deploy a virtual machine as a jumpbox into the network without a Public IP Address using Azure Bastion Host, provide these parameters:
+Deploy a Linux and Windows virtual machine as jumpboxes into the network without a Public IP Address using Azure Bastion Host by providing values for these parameters:
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
