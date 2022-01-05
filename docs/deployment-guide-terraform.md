@@ -1,4 +1,4 @@
-# Mission LZ Terraform
+# Mission LZ Deployment Guide for Terraform
 
 ## Table of Contents
 
