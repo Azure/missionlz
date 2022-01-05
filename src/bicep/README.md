@@ -1,447 +1,130 @@
-# Mission LZ Bicep
+# Mission Landing Zone Bicep Template
 
-## Deployment
+This folder contains the Bicep template `mlz.bicep` for deploying Mission Landing Zone. See the [Deployment Guide for Bicep](../../docs/deployment-guide-bicep.md) for detailed instructions on how to use the template.
 
-### Prerequisites
+## Parameters
 
-You can deploy with the Azure Portal, the Azure CLI, or with both in a Azure Commercial, Azure for Government, or Air-Gapped Clouds. But first, you'll need these pre-requisites:
+<!-- markdownlint-disable MD034 -->
+Parameter name | Required | Description
+-------------- | -------- | -----------
+`resourcePrefix` | Yes      | A prefix, 3-10 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces
+`resourceSuffix` | No       | A suffix, 3 to 6 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".
+`hubSubscriptionId` | No       | The subscription ID for the Hub Network and resources. It defaults to the deployment subscription.
+`identitySubscriptionId` | No       | The subscription ID for the Identity Network and resources. It defaults to the deployment subscription.
+`operationsSubscriptionId` | No       | The subscription ID for the Operations Network and resources. It defaults to the deployment subscription.
+`sharedServicesSubscriptionId` | No       | The subscription ID for the Shared Services Network and resources. It defaults to the deployment subscription.
+`location`       | No       | The region to deploy resources into. It defaults to the deployment location.
+`deploymentNameSuffix` | No       | A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.
+`tags`           | No       | A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.
+`hubVirtualNetworkAddressPrefix` | No       | The CIDR Virtual Network Address Prefix for the Hub Virtual Network.
+`hubSubnetAddressPrefix` | No       | The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.
+`firewallClientSubnetAddressPrefix` | No       | The CIDR Subnet Address Prefix for the Azure Firewall Subnet. It must be in the Hub Virtual Network space. It must be /26.
+`firewallManagementSubnetAddressPrefix` | No       | The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.
+`identityVirtualNetworkAddressPrefix` | No       | The CIDR Virtual Network Address Prefix for the Identity Virtual Network.
+`identitySubnetAddressPrefix` | No       | The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.
+`operationsVirtualNetworkAddressPrefix` | No       | The CIDR Virtual Network Address Prefix for the Operations Virtual Network.
+`operationsSubnetAddressPrefix` | No       | The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.
+`sharedServicesVirtualNetworkAddressPrefix` | No       | The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.
+`sharedServicesSubnetAddressPrefix` | No       | The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.
+`firewallSkuTier` | No       | [Standard/Premium] The SKU for Azure Firewall. It defaults to "Premium".
+`firewallThreatIntelMode` | No       | [Alert/Deny/Off] The Azure Firewall Threat Intelligence Rule triggered logging behavior. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".
+`firewallIntrusionDetectionMode` | No       | [Alert/Deny/Off] The Azure Firewall Intrusion Detection mode. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".
+`firewallDiagnosticsLogs` | No       | An array of Firewall Diagnostic Logs categories to collect. See "https://docs.microsoft.com/en-us/azure/firewall/firewall-diagnostics#enable-diagnostic-logging-through-the-azure-portal" for valid values.
+`firewallDiagnosticsMetrics` | No       | An array of Firewall Diagnostic Metrics categories to collect. See "https://docs.microsoft.com/en-us/azure/firewall/firewall-diagnostics#enable-diagnostic-logging-through-the-azure-portal" for valid values.
+`firewallClientSubnetServiceEndpoints` | No       | An array of Service Endpoints to enable for the Azure Firewall Client Subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.
+`firewallClientPublicIPAddressAvailabilityZones` | No       | An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.
+`firewallManagementSubnetServiceEndpoints` | No       | An array of Service Endpoints to enable for the Azure Firewall Management Subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.
+`firewallManagementPublicIPAddressAvailabilityZones` | No       | An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.
+`publicIPAddressDiagnosticsLogs` | No       | An array of Public IP Address Diagnostic Logs for the Azure Firewall. See https://docs.microsoft.com/en-us/azure/ddos-protection/diagnostic-logging?tabs=DDoSProtectionNotifications#configure-ddos-diagnostic-logs for valid settings.
+`publicIPAddressDiagnosticsMetrics` | No       | An array of Public IP Address Diagnostic Metrics for the Azure Firewall. See https://docs.microsoft.com/en-us/azure/ddos-protection/diagnostic-logging?tabs=DDoSProtectionNotifications for valid settings.
+`hubVirtualNetworkDiagnosticsLogs` | No       | An array of Network Diagnostic Logs to enable for the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.
+`hubVirtualNetworkDiagnosticsMetrics` | No       | An array of Network Diagnostic Metrics to enable for the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.
+`hubNetworkSecurityGroupRules` | No       | An array of Network Security Group Rules to apply to the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.
+`hubNetworkSecurityGroupDiagnosticsLogs` | No       | An array of Network Security Group diagnostic logs to apply to the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.
+`hubNetworkSecurityGroupDiagnosticsMetrics` | No       | An array of Network Security Group Metrics to apply to enable for the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.
+`hubSubnetServiceEndpoints` | No       | An array of Service Endpoints to enable for the Hub subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.
+`identityVirtualNetworkDiagnosticsLogs` | No       | An array of Network Diagnostic Logs to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.
+`identityVirtualNetworkDiagnosticsMetrics` | No       | An array of Network Diagnostic Metrics to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.
+`identityNetworkSecurityGroupRules` | No       | An array of Network Security Group Rules to apply to the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.
+`identityNetworkSecurityGroupDiagnosticsLogs` | No       | An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.
+`identityNetworkSecurityGroupDiagnosticsMetrics` | No       | An array of Network Security Group Metrics to apply to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.
+`identitySubnetServiceEndpoints` | No       | An array of Service Endpoints to enable for the Identity subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.
+`operationsVirtualNetworkDiagnosticsLogs` | No       | An array of Network Diagnostic Logs to enable for the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.
+`operationsVirtualNetworkDiagnosticsMetrics` | No       | An array of Network Diagnostic Metrics to enable for the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.
+`operationsNetworkSecurityGroupRules` | No       | An array of Network Security Group rules to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.
+`operationsNetworkSecurityGroupDiagnosticsLogs` | No       | An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.
+`operationsNetworkSecurityGroupDiagnosticsMetrics` | No       | An array of Network Security Group Diagnostic Metrics to enable for the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.
+`operationsSubnetServiceEndpoints` | No       | An array of Service Endpoints to enable for the Operations subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.
+`sharedServicesVirtualNetworkDiagnosticsLogs` | No       | An array of Network Diagnostic Logs to enable for the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.
+`sharedServicesVirtualNetworkDiagnosticsMetrics` | No       | An array of Network Diagnostic Metrics to enable for the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.
+`sharedServicesNetworkSecurityGroupRules` | No       | An array of Network Security Group rules to apply to the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.
+`sharedServicesNetworkSecurityGroupDiagnosticsLogs` | No       | An array of Network Security Group diagnostic logs to apply to the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.
+`sharedServicesNetworkSecurityGroupDiagnosticsMetrics` | No       | An array of Network Security Group Diagnostic Metrics to enable for the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.
+`sharedServicesSubnetServiceEndpoints` | No       | An array of Service Endpoints to enable for the SharedServices subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.
+`deploySentinel` | No       | When set to "true", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment. It defaults to "false".
+`logAnalyticsWorkspaceCappingDailyQuotaGb` | No       | The daily quota for Log Analytics Workspace logs in Gigabytes. It defaults to "-1" for no quota.
+`logAnalyticsWorkspaceRetentionInDays` | No       | The number of days to retain Log Analytics Workspace logs. It defaults to "30".
+`logAnalyticsWorkspaceSkuName` | No       | [Free/Standard/Premium/PerNode/PerGB2018/Standalone] The SKU for the Log Analytics Workspace. It defaults to "PerGB2018". See https://docs.microsoft.com/en-us/azure/azure-monitor/logs/resource-manager-workspace for valid settings.
+`logStorageSkuName` | No       | The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.
+`deployRemoteAccess` | No       | When set to "true", provisions Azure Bastion Host and virtual machine jumpboxes. It defaults to "false".
+`bastionHostSubnetAddressPrefix` | No       | The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.
+`bastionHostPublicIPAddressAvailabilityZones` | No       | The Azure Bastion Public IP Address Availability Zones. It defaults to "No-Zone" because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.
+`linuxVmAdminUsername` | No       | The administrator username for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".
+`linuxVmAuthenticationType` | No       | [sshPublicKey/password] The authentication type for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "password".
+`linuxVmAdminPasswordOrKey` | No       | The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.
+`linuxVmSize`    | No       | The size of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Standard_B2s".
+`linuxVmOsDiskCreateOption` | No       | The disk creation option of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".
+`linuxVmOsDiskType` | No       | The disk type of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Standard_LRS".
+`linuxVmImagePublisher` | No       | The image publisher of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Canonical".
+`linuxVmImageOffer` | No       | The image offer of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "UbuntuServer".
+`linuxVmImageSku` | No       | The image SKU of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "18.04-LTS".
+`linuxVmImageVersion` | No       | The image version of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "latest".
+`linuxNetworkInterfacePrivateIPAddressAllocationMethod` | No       | [Static/Dynamic] The public IP Address allocation method for the Linux virtual machine. It defaults to "Dynamic".
+`windowsVmAdminUsername` | No       | The administrator username for the Windows Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".
+`windowsVmAdminPassword` | No       | The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.
+`windowsVmSize`  | No       | The size of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "Standard_DS1_v2".
+`windowsVmPublisher` | No       | The publisher of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "MicrosoftWindowsServer".
+`windowsVmOffer` | No       | The offer of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "WindowsServer".
+`windowsVmSku`   | No       | The SKU of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "2019-datacenter".
+`windowsVmVersion` | No       | The version of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "latest".
+`windowsVmCreateOption` | No       | The disk creation option of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".
+`windowsVmStorageAccountType` | No       | The storage account type of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "StandardSSD_LRS".
+`windowsNetworkInterfacePrivateIPAddressAllocationMethod` | No       | [Static/Dynamic] The public IP Address allocation method for the Windows virtual machine. It defaults to "Dynamic".
+`deployPolicy`   | No       | When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".
+`policy`         | No       | [NIST/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NIST". IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.
+`deployASC`     | No       | When set to "true", enables Azure Security Center for the subscriptions used in the deployment. It defaults to "false".
+`emailSecurityContact` | No       | Email address of the contact, in the form of john@doe.com
+<!-- markdownlint-enable MD034 -->
 
-1. An Azure Subscription(s) where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
-1. A BASH or PowerShell terminal where you can run the Azure CLI. For example, [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview), the MLZ [development container](../../.devcontainer/README.md), or a command shell on your local machine with the [AZ CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
+## Outputs
 
-> NOTE: The AZ CLI will automatically install the Bicep tools when a command is run that needs them, or you can manually install them following the [instructions here.](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#azure-cli)
+You can use the AZ CLI or PowerShell to retrieve the output values from a deployment, or you can use the Azure Portal to view the output values. See the [Referencing Deployment Output section](../../docs/deployment-guide-bicep.md#reference-deployment-output) in the Deployment Guide for Bicep.
 
-#### Decide on a Resource Prefix
-
-Resource Groups and resource names are derived from the mandatory parameter `resourcePrefix`.
-
-Pick a unqiue resource prefix that is 3-10 alphanumeric characters in length without whitespaces.
-
-#### Pick your deployment options
-
-- Are you deploying into a cloud other than `AzureCloud` like say `AzureUsGovernment`? See [Deploying to Other Clouds](#Deploying-to-Other-Clouds).
-
-- Want to add Azure Policies to this deployment? See [Adding Azure Policy](#Adding-Azure-Policy) to add policies like DoD IL5, NIST 800-53, CMMC Level 3, or how to apply your own.
-
-- Want to remotely access the network without exposing it via Public IP Addresses? See [Adding Remote Access via Bastion Host](#Adding-Remote-Access-via-Bastion-Host) to add virtual machines inside the network that you can access from an authenticated session in the Azure Portal with Azure Bastion.
-
-- By default, this template deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features)**.
-
-  - **Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If this doesn't fit your needs:
-  - See [Setting the Firewall SKU](#Setting-the-Firewall-SKU) for steps on how to use the Standard SKU instead.
-  - See [Setting the Firewall Location](#Setting-the-Firewall-Location) for steps on how to deploy into a different region.
-
-- Review the default [Naming Convention](#Naming-Conventions) or apply your own
-
-  - By default, Mission LZ creates resources with a naming convention
-  - See [Naming Convention](#Naming-Conventions) to see what that convention is and how to provide your own to suit your needs
-
-#### Know where to find your deployment output
-
-After a deployment is complete, you can refer to the provisioned resources programmaticaly with the Azure CLI. See [Reference Deployment Output](#Reference-Deployment-Output) for steps on how to use `az deployment` subcommands and JMESPath to query for specific properties.
-
-### Azure Portal
-
-The Azure Portal can be used to deploy Mission Landing Zone.
-
-<!-- markdownlint-disable MD013 -->
-<!-- allow for longer lines to acommodate button links -->
-| Azure Commercial | Azure Government |
-| :--- | :--- |
-| [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
-<!-- markdownlint-enable MD013 -->
-
-### Azure CLI
-
-If you are not using the Azure Portal to deploy, you can deploy with the Azure CLI.
-
-Use `az deployment sub` to deploy MLZ across one or many subscriptions. (See `az deployment sub create --help` for more information.)
-
-#### Single subscription deployment
-
-To deploy Mission LZ into a single subscription, give your deployment a name and a location and specify the `./mlz.bicep` template file (replacing `mlz.bicep` with `mlz.json` if disconnected from the internet or do not have an installation of [Bicep](https://aka.ms/bicep) available):
-
-```plaintext
-az deployment sub create \
-  --name myMlzDeployment \
-  --location eastus \
-  --template-file ./mlz.bicep \
-  --parameters resourcePrefix="myMlz"
-```
-
-The only required Bicep/ARM parameter is `resourcePrefix` (a unique alphanumeric string 3-10 characters in length), which is used to to generate names for your resource groups and resources:
-
-#### Multiple subscription deployment
-
-Deployment to multiple subscriptions requires specifying the `--parameters` flag and passing `key=value` arguments:
-
-```plaintext
-az deployment sub create \
-  --subscription $deploymentSubscription \
-  --location eastus \
-  --name multiSubscriptionTest \
-  --template-file ./mlz.bicep \
-  --parameters \
-    resourcePrefix="myMlz" \
-    hubSubscriptionId=$hubSubscriptionId \
-    identitySubscriptionId=$identitySubscriptionId \
-    operationsSubscriptionId=$operationsSubscriptionId \
-    sharedServicesSubscriptionId=$sharedServicesSubscriptionId
-```
-
-When deploying to multiple subscriptions, you must have at least [Contributor RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#all) to those subscriptions.
-
-#### Deploying to Other Clouds
-
-If I'm deploying to another cloud, say Azure Government, I will first login to that cloud...
-
-Logging into `AzureUsGovernment`:
-
-```plaintext
-az cloud set -n AzureUsGovernment
-az login
-```
-
-...and supply a different value for the deployment `--location` argument:
+When the output is saved as a json document from the Azure CLI, these are the paths in the document to all the values. (The `[0..2]` notation indicates an array with three elements.)
 
 ```plaintext
-az deployment sub create \
-  --name myMlzDeployment \
-  --location usgovvirginia \
-  --template-file ./mlz.bicep
-```
-
-And if I need to deploy into multiple subscriptions, I would pass the relevant subscription IDs as `parameters` as described in [Multiple subscription deployment](#Multiple-subscription-deployment).
-
-### Air-Gapped Clouds
-
-#### Air-Gapped Clouds Deployment with Azure CLI
-
-If I were in an offline environment that didn't have a Bicep installation available (like an air-gapped cloud), I could always deploy the `az bicep build` output ARM template **`mlz.json`**:
-
-```plaintext
-az cloud set -n <my cloud name>
-
-az deployment sub create \
-  --subscription $deploymentSubscription \
-  --location <my location> \
-  --name multisubtest \
-  --template-file ./mlz.json \
-  --parameters \
-    hubSubscriptionId=$hubSubscriptionId \
-    identitySubscriptionId=$identitySubscriptionId \
-    operationsSubscriptionId=$operationsSubscriptionId \
-    sharedServicesSubscriptionId=$sharedServicesSubscriptionId
-```
-
-## Adding Azure Policy
-
-To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the `deployPolicy=true` parameter with `policy` assigned to one of the following: `NIST`, `IL5`, or `CMMC`.
-
-For example, deploying with MLZ:
-
-```plaintext
-az deployment sub create \
-  --location eastus \
-  --template-file mlz.bicep \
-  --parameters deployPolicy=true \
-  --parameters policy=<one of 'CMMC', 'IL5', or 'NIST'>
-```
-
-Or, apply policy to a resource group after deploying MLZ:
-
-```plaintext
-az deployment group create \
-  --resource-group <Resource Group to assign> \
-  --name <original deployment name + descriptor> \
-  --template-file ./src/bicep/modules/policyAssignment.bicep \
-  --parameters builtInAssignment=<one of 'CMMC', 'IL5', or 'NIST'> logAnalyticsWorkspaceName=<Log analytics workspace name> \
-  --parameters logAnalyticsWorkspaceName=<Log Analytics Workspace Name> \
-  --parameters logAnalyticsWorkspaceResourceGroupName=<Log Analytics Workspace Resource Group Name>
-```
-
-The result will be a policy assignment created for each resource group deployed by MLZ that can be viewed in the 'Compliance' view of Azure Policy in the Azure Portal.
-
-Under the [modules/policies](modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
-
-## Adding Azure Security Center
-
-By default [Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/security-center-introduction) offers a free set of monitoring capabilities that are enabled via an Azure policy when your first set up a subscription and view Azure Security Center portal blade.
-
-Azure Security Center offers a standard/defender sku which enables a greater depth of awareness including more reccomendations and threat analytics. You can enable this higher depth level of security in MLZ by setting the parameter `deployASC` during deployment. In addition you can include the `emailSecurityContact` parameter to set a contact email for alerts.
-
-```plaintext
-az deployment sub create \
-  --location eastus \
-  --template-file mlz.bicep \
-  --parameters policy=<one of 'CMMC', 'IL5', or 'NIST'> \
-  --parameters deployASC=true \
-  --parameters emailSecurityContact=<user#domain.com>
-```
-
-## Adding Remote Access via Bastion Host
-
-Want to remotely access the network and the resources you've deployed into it? You can use [Azure Bastion](https://docs.microsoft.com/en-us/azure/bastion/) to remotely access virtual machines within the network without exposing them via Public IP Addresses.
-
-To deploy a virtual machine as a jumpbox into the network without a Public IP Address using Azure Bastion Host, provide two parameters `deployRemoteAccess=true` and `linuxVmAdminPasswordOrKey=<your password>` and `windowsVmAdminPassword=<your password>` to the deployment. A quick and easy way to generate a secure password from the .devcontainer is the command `openssl rand -base64 14`.
-
-```plaintext
-my_password=$(openssl rand -base64 14)
-
-az deployment sub create \
-  --name "myRemoteAccessDeployment" \
-  --location "eastus" \
-  --template-file "src/bicep/mlz.bicep" \
-  --parameters deployRemoteAccess="true" \
-  --parameters linuxVmAdminPasswordOrKey="$my_password" \
-  --parameters windowsVmAdminPassword="$my_password"
-```
-
-Then, once you've deployed the virtual machines and Bastion Host, use these docs to connect with the provided password: <https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-rdp-windows#rdp>
-
-The default username is set to `azureuser`.
-
-### Using an SSH Key with Remote Access via Bastion Host
-
-If you have a key pair you'd like to use for SSH connections to the Linux virtual machine that is deployed with `deployRemoteAccess=true`, specify the `linuxVmAuthenticationType` parameter to `sshPublicKey` like so:
-
-```plaintext
-my_sshkey=$(cat ~/.ssh/id_rsa.pub) # or, however you source your public key
-my_password=$(openssl rand -base64 14)
-
-az deployment sub create \
-  --name "myRemoteAccessDeployment" \
-  --location "eastus" \
-  --template-file "src/bicep/mlz.bicep" \
-  --parameters deployRemoteAccess="true" \
-  --parameters linuxVmAuthenticationType="sshPublicKey" \
-  --parameters linuxVmAdminPasswordOrKey="$my_sshkey" \
-  --parameters windowsVmAdminPassword="$my_password"
-```
-
-For more information on generating a public/private key pair see <https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-ssh-keys-detailed#generate-keys-with-ssh-keygen>.
-
-Then, once you've deployed the virtual machines and Bastion Host, use these docs to connect with an SSH Key: <https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-ssh#privatekey>
-
-The default username is set to `azureuser`.
-
-## Configuring the Firewall
-
-### Setting the Firewall SKU
-
-By default, this template deploys [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features).
-
-Not all regions support Azure Firewall Premium. Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions).
-
-You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Standard` or `Premium`:
-
-```plaintext
-az deployment sub create \
-  --name "myFirewallStandardDeployment" \
-  --location "eastus" \
-  --template-file "src/bicep/mlz.bicep" \
-  --parameters firewallSkuTier="Standard"
-```
-
-### Setting the Firewall Location
-
-If you'd like to specify a different region to deploy your resources into, just change the location of the deployment in the `az deployment sub create` command's `--location` argument:
-
-```plaintext
-az deployment sub create \
-  --name "SouthCentralUsDeployment" \
-  --location "South Central US" \
-  --template-file "src/bicep/mlz.bicep"
-```
-
-### Reference Deployment Output
-
-After you've deployed Mission Landing Zone you'll probably want to integrate additional services or infrastructure.
-
-You can use the `az deployment sub show` command with a `--query` argument to retrieve information about the resources you deployed.
-
-Before giving the next steps a try, it's probably a good idea to [review the Azure CLI's documentation on querying with JMESPath](https://docs.microsoft.com/en-us/cli/azure/query-azure-cli).
-
-First off, let's say you deployed Mission Landing Zone with a deployment name of `myMissionLandingZone`:
-
-```plaintext
-az deployment sub create \
-  --name "myMissionLandingZone" \
-  --location "East US" \
-  --template-file "src/bicep/mlz.bicep"
-```
-
-Once it's complete, you could see all the resources provisioned in that deployment by querying the `properties.outputResources` property:
-
-```plaintext
-az deployment sub show \
-  --name "myMissionLandingZone" \
-  --query "properties.outputResources"
-```
-
-That's a lot of resources. Thankfully, the template produces outputs for just the things you _probably_ need at `properties.outputs`:
-
-```plaintext
-az deployment sub show \
-  --name "myMissionLandingZone" \
-  --query "properties.outputs"
-```
-
-For example, if you need just the Firewall Private IP address you could retrieve it like this:
-
-```plaintext
-az deployment sub show \
-  --name "myMissionLandingZone" \
-  --query "properties.outputs.firewallPrivateIPAddress.value"
-```
-
-Or, if you need just the Log Analytics Workspace that performs central logging you could retrieve it like this:
-
-```plaintext
-az deployment sub show \
-  --name "myMissionLandingZone" \
-  --query "properties.outputs.logAnalyticsWorkspaceResourceId.value"
-```
-
-Or, say you wanted to deploy resources into the Identity spoke. You could retrieve information about the Identity spoke by querying it from the `properties.outputs.spokes` array like this:
-
-```plaintext
-az deployment sub show \
-  --name "myMissionLandingZone" \
-  --query "properties.outputs.spokes.value[?name=='identity']"
-```
-
-Which would return an output similar to:
-
-```json
-[
-  {
-    "name": "identity",
-    "networkSecurityGroupName": "identity-nsg",
-    "networkSecurityGroupResourceId": ".../providers/Microsoft.Network/networkSecurityGroups/identity-nsg",
-    "resourceGroupId": ".../resourceGroups/mlz-identity",
-    "resourceGroupName": "mlz-identity",
-    "subnetAddressPrefix": "10.0.110.0/27",
-    "subnetName": "identity-subnet",
-    "subscriptionId": "<A GUID>",
-    "virtualNetworkName": "identity-vnet",
-    "virtualNetworkResourceId": ".../providers/Microsoft.Network/virtualNetworks/identity-vnet"
-  }
-]
-```
-
-Bicep templates, the Azure CLI, and JMESpath queries allows you to manually, or in an automated fashion, compose infrastructure incrementally and pass output from one template as input to another.
-
-Read more about `az deployment` at: [https://docs.microsoft.com](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
-
-Read more about JMESPath queries at: <https://jmespath.org/>
-
-## Naming Conventions
-
-By default, Mission LZ resources are named according to a naming convention that uses the mandatory `resourcePrefix` parameter and the optional `resourceSuffix` parameter (that is defaulted to `mlz`).
-
-### Default Naming Convention Example
-
-Let's look at an example using `--parameters resourcePrefix=FOO` and `--parameters resourceSuffix=BAR`
-
-- In `mlz.bicep` you will find a variable titled `namingConvention`:
-
-    ```bicep
-    var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
-    # this generates a value of: foo-${resourceToken}-${nameToken}-bar
-    ```
-
-- This naming convention uses Bicep's `replace()` function to substitute resource abbreviations for `resourceToken` and resource names for `nameToken`.
-
-- For example, when naming the Hub Resource Group, first the `resourceToken` is substituted with the recommended abbreviation `rg`:
-
-    ```bicep
-    var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
-    # this generates a value of: foo-rg-${nameToken}-bar
-    ```
-
-- Then, the `nameToken` is substituted with the Mission LZ name `hub`:
-
-    ```bicep
-    var hubResourceGroupName =  replace(resourceGroupNamingConvention, nameToken, 'hub')
-    # this generates a value of: foo-rg-hub-bar
-    ```
-
-- Finally, the `hubResourceGroupName` is assigned to the resource group `name` parameter:
-
-  ```bicep
-  params: {
-    name: hubResourceGroupName # this is the calculated value 'foo-rg-hub-bar'
-    location: location
-    tags: calculatedTags
-  }
-  ```
-
-### Modifying The Naming Convention
-
-You can modify this naming convention to suit your needs.
-
-- In `mlz.bicep` you can modify the root naming convention. This is the default convention:
-
-    ```bicep
-    var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
-    ```
-
-- Say you did not want to use the `resourceSuffix` value, but instead wanted to add your own token to the naming convention like `team`:
-
-- First, you added the new parameter `team`:
-
-    ```bicep
-    @allowedValues([
-      'admin'
-      'marketing'
-      'sales'
-    ])
-    param team
-    ```
-
-- Then, you modified the naming convention to allow for mixed case `resourcePrefix` values and your new `team` value (while retaining the token identifiers `resourceToken` and `nameToken`):
-
-    ```bicep
-    var namingConvention = '${resourcePrefix}-${team}-${resourceToken}-${nameToken}'
-    ```
-
-- Now, given a `--parameters resourcePrefix=FOO` and `--parameters team=sales` the generated Hub Resource Group Name would be:
-
-    ```plaintext
-    params: {
-      name: hubResourceGroupName # this is the calculated value 'FOO-sales-rg-hub'
-      location: location
-      tags: calculatedTags
-    }
-    ```
-
-## Cleanup
-
-The Bicep/ARM deployment of Mission Landing Zone can be deleted with two steps:
-
-1. Delete all resource groups.
-1. Delete the diagnostic settings deployed at the subscription level.
-
-> NOTE: If you deploy and delete Mission Landing Zone in the same subscription multiple times without deleting the subscription-level diagnostic settings, the sixth deployment will fail. Azure has a limit of five diagnostic settings per subscription. The error will be similar to this: `"The limit of 5 diagnostic settings was reached."`
-
-To delete the diagnostic settings from the Azure Portal: choose the subscription blade, then Activity log in the left panel. At the top of the Activity log screen click the Diagnostics settings button. From there you can click the Edit setting link and delete the diagnostic setting.
-
-To delete the diagnotic settings in script, use the AZ CLI or PowerShell. An AZ CLI example is below:
-
-```BASH
-# View diagnostic settings in the current subscription
-az monitor diagnostic-settings subscription list --query value[] --output table
-
-# Delete a diagnostic setting
-az monitor diagnostic-settings subscription delete --name <diagnostic setting name>
-```
-
-## Development Pre-requisites
-
-If you want to develop with Bicep you'll need these:
-
-1. Install Azure CLI <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli#install>
-1. Install Bicep <https://github.com/Azure/bicep/blob/main/docs/installing.md#install-and-manage-via-azure-cli-easiest>
-
-However, you don't need to develop with Bicep to deploy the compiled `mlz.json` in this repository.
+firewallPrivateIPAddress.value
+hub.value.networkSecurityGroupName
+hub.value.networkSecurityGroupResourceId
+hub.value.resourceGroupName
+hub.value.resourceGroupResourceId
+hub.value.subnetAddressPrefix
+hub.value.subnetName
+hub.value.subnetResourceId
+hub.value.subscriptionId
+hub.value.virtualNetworkName
+hub.value.virtualNetworkResourceId
+logAnalyticsWorkspaceName.value
+logAnalyticsWorkspaceResourceId.value
+mlzResourcePrefix.value
+spokes.value[0..2].name
+spokes.value[0..2].networkSecurityGroupName
+spokes.value[0..2].networkSecurityGroupResourceId
+spokes.value[0..2].resourceGroupId
+spokes.value[0..2].resourceGroupName
+spokes.value[0..2].subnetAddressPrefix
+spokes.value[0..2].subnetName
+spokes.value[0..2].subnetResourceId
+spokes.value[0..2].subscriptionId
+spokes.value[0..2].virtualNetworkName
+spokes.value[0..2].virtualNetworkResourceId

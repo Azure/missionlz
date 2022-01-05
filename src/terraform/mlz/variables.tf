@@ -24,7 +24,7 @@ variable "location" {
 }
 
 variable "resourcePrefix" {
-  description = "A name for the deployment. It defaults to dev."
+  description = "A name for the deployment. It defaults to mlz."
   type        = string
   default     = "mlz"
 }
