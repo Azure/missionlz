@@ -55,19 +55,19 @@ Parameter name | Default Value | Description
 
 ### Networking
 
-The following parameters affect networking addresses. Additional networking parameters can be found in the [`src/terraform/mlz/variables.tf`](../src/terraform/mlz/variables.tf) file.
+The following parameters affect networking addresses. To override the defaults edit the variables file at [`src/terraform/mlz/variables.tf`](../src/terraform/mlz/variables.tf).
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
-`hub_vnet_address_space` | '10.0.100.0/24' | The address space to be used for the virtual network
-`hub_client_address_space` | '10.0.100.0/26' | The address space to be used for the Firewall virtual network
-`hub_management_address_space` | '10.0.100.64/26' | The address space to be used for the Firewall virtual network subnet used for management traffic
-`tier0_vnet_address_space` | '10.0.110.0/26' | VNet prefix for tier 0
-`tier0_subnets`.address_prefixes | '10.0.110.0/27' | Subnet prefix for tier 0
-`tier1_vnet_address_space` | '10.0.115.0/26' | VNet prefix for tier 1
-`tier1_subnets`.address_prefixes | '10.0.115.0/27' | Subnet prefix for tier 1
-`tier2_vnet_address_space` | '10.0.120.0/26' | VNet prefix for tier 2
-`tier2_subnets`.address_prefixes | '10.0.120.0/27' | Subnet prefix for tier 2
+`hub_vnet_address_space` | `["10.0.100.0/24"]` | The address space to be used for the virtual network
+`hub_client_address_space` | `"10.0.100.0/26"` | The address space to be used for the Firewall virtual network
+`hub_management_address_space` | `"10.0.100.64/26"` | The address space to be used for the Firewall virtual network subnet used for management traffic
+`tier0_vnet_address_space` | `["10.0.110.0/26"]` | VNet prefix for tier 0
+`tier0_subnets.address_prefixes` | `["10.0.110.0/27"]` | Subnet prefix for tier 0
+`tier1_vnet_address_space` | `["10.0.115.0/26"]` | VNet prefix for tier 1
+`tier1_subnets.address_prefixes` | `["10.0.115.0/27"]` | Subnet prefix for tier 1
+`tier2_vnet_address_space` | `["10.0.120.0/26"]` | VNet prefix for tier 2
+`tier2_subnets.address_prefixes` | `["10.0.120.0/27"]` | Subnet prefix for tier 2
 
 ### Optional Features
 
@@ -99,12 +99,12 @@ MLZ allows for deploying one or many workloads that are peered to the hub networ
 
 A separate Terraform template is provided for deploying an empty workload `src/terraform/tier3`. You can use this template as a starting point to create and customize specific workload deployments.
 
-The following parameters affect newWorkload networking:
+The following parameters affect newWorkload networking. To override the defaults edit the variables file at [`src/terraform/tier3/variables.tf`](../src/terraform/tier3/variables.tf).
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
-`tier3_vnet_address_space` | '10.0.125.0/26' | Address space prefix for tier 3
-`tier3_subnets.address_prefixes` | '10.0.125.0/27' | Subnet prefix for tier 3
+`tier3_vnet_address_space` | `["10.0.125.0/26"]` | Address space prefix for tier 3
+`tier3_subnets.address_prefixes` | `["10.0.125.0/27"]` | Subnet prefix for tier 3
 
 ## Deployment
 
@@ -381,7 +381,27 @@ To find more information about setting the backend see [Local Backend](https://w
 
 ## Cleanup
 
-If you want to delete an MLZ deployment you can use [`terraform destroy`](https://www.terraform.io/docs/cli/commands/destroy.html).
+If you want to delete an MLZ deployment you can use [`terraform destroy`](https://www.terraform.io/docs/cli/commands/destroy.html). If you have deployed more than one Terraform template, e.g., if you have deployed `mlz/main.tf` and then `tier3/main.tf`, run the `terraform destroy` commands in the reverse order that you applied them. For example:
+
+```bash
+# Deploy core MLZ resources
+cd src/terraform/mlz
+terraform apply
+
+# Deploy a tier 3 spoke network
+cd ../tier3
+terraform apply
+
+# Reverse order to destroy:
+# Destroy the tier 3 spoke network (still in the src/terraform/tier3 folder)
+terraform destroy
+
+# Destroy core MLZ resources
+cd ../mlz
+terraform destroy
+```
+
+Running `terraform destroy` for `mlz/main.tf` looks like this:
 
 1. From the directory in which you executed `terraform init` and `terraform apply` execute `terraform destroy`:
 
