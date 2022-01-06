@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "10398940261016449040"
+      "templateHash": "1824009288413854506"
     }
   },
   "parameters": {
@@ -22,7 +22,7 @@
     "hubNetworkSecurityGroupResourceId": {
       "type": "string"
     },
-    "logAnalyticsWorkspaceId": {
+    "logAnalyticsWorkspaceResourceId": {
       "type": "string"
     },
     "bastionHostName": {
@@ -111,7 +111,7 @@
     },
     "linuxVmAdminPasswordOrKey": {
       "type": "secureString",
-      "minLength": 14
+      "minLength": 12
     },
     "windowsNetworkInterfaceName": {
       "type": "string",
@@ -139,7 +139,7 @@
     },
     "windowsVmAdminPassword": {
       "type": "secureString",
-      "minLength": 14
+      "minLength": 12
     },
     "windowsVmPublisher": {
       "type": "string",
@@ -297,7 +297,7 @@
             "value": "[parameters('windowsVmStorageAccountType')]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[parameters('logAnalyticsWorkspaceId')]"
+            "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
           }
         },
         "template": {
@@ -307,7 +307,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "1148831067271080103"
+              "templateHash": "5159353539145495381"
             }
           },
           "parameters": {
@@ -393,7 +393,7 @@
             },
             "linuxVmAdminPasswordOrKey": {
               "type": "secureString",
-              "minLength": 14
+              "minLength": 12
             },
             "windowsNetworkInterfaceName": {
               "type": "string"
@@ -415,7 +415,7 @@
             },
             "windowsVmAdminPassword": {
               "type": "secureString",
-              "minLength": 14
+              "minLength": 12
             },
             "windowsVmPublisher": {
               "type": "string"
@@ -750,7 +750,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "16381556259285133052"
+                      "templateHash": "1923864005701002999"
                     }
                   },
                   "parameters": {
@@ -800,7 +800,7 @@
                     },
                     "adminPasswordOrKey": {
                       "type": "secureString",
-                      "minLength": 14
+                      "minLength": 12
                     },
                     "logAnalyticsWorkspaceId": {
                       "type": "string"
@@ -871,14 +871,14 @@
                         "typeHandlerVersion": "1.4"
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', split(format('{0}/Microsoft.Azure.AzurePolicyforLinux', parameters('name')), '/')[0], split(format('{0}/Microsoft.Azure.AzurePolicyforLinux', parameters('name')), '/')[1])]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('name'), 'AzurePolicyforLinux')]",
                         "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2020-06-01",
-                      "name": "[format('{0}/Microsoft.Azure.AzurePolicyforLinux', parameters('name'))]",
+                      "apiVersion": "2020-12-01",
+                      "name": "[format('{0}/{1}', parameters('name'), 'AzurePolicyforLinux')]",
                       "location": "[parameters('location')]",
                       "properties": {
                         "publisher": "Microsoft.GuestConfiguration",
@@ -1111,7 +1111,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "5398822015781472627"
+                      "templateHash": "18222194463697657474"
                     }
                   },
                   "parameters": {
@@ -1136,7 +1136,7 @@
                     },
                     "adminPassword": {
                       "type": "secureString",
-                      "minLength": 14
+                      "minLength": 12
                     },
                     "publisher": {
                       "type": "string"

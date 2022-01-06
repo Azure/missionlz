@@ -21,7 +21,7 @@ jobs:
   steps:
   - task: TerraformInstaller@0
     inputs:
-      terraformVersion: '1.0.8'
+      terraformVersion: 'latest'
   - task: AzureCLI@2
     displayName: "Terraform Plan"
     inputs:

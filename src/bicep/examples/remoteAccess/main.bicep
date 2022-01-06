@@ -32,7 +32,7 @@ param linuxVmAdminUsername string = 'azureuser'
 ])
 param linuxVmAuthenticationType string = 'password'
 @secure()
-@minLength(14)
+@minLength(12)
 param linuxVmAdminPasswordOrKey string
 
 param windowsNetworkInterfaceName string = 'windowsVmNetworkInterface'
@@ -42,7 +42,7 @@ param windowsVmName string = 'windowsVm'
 param windowsVmSize string = 'Standard_DS1_v2'
 param windowsVmAdminUsername string = 'azureuser'
 @secure()
-@minLength(14)
+@minLength(12)
 param windowsVmAdminPassword string
 param windowsVmPublisher string = 'MicrosoftWindowsServer'
 param windowsVmOffer string = 'WindowsServer'

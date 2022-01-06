@@ -1,5 +1,7 @@
 targetScope = 'subscription'
 
+param mlzDeploymentVariables object = json(loadTextContent('../deploymentVariables.json'))
+
 @minLength(3)
 @maxLength(24)
 param workloadName string
@@ -10,14 +12,16 @@ param tags object = {
   'resourceIdentifier': resourceIdentifier
 }
 
-param hubSubscriptionId string
-param hubResourceGroupName string
-param hubVirtualNetworkName string
-param hubVirtualNetworkResourceId string
-param logAnalyticsWorkspaceResourceId string
-param firewallPrivateIPAddress string
+param hubSubscriptionId string = mlzDeploymentVariables.hub.Value.subscriptionId
+param hubResourceGroupName string = mlzDeploymentVariables.hub.Value.resourceGroupName
+param hubVirtualNetworkName string = mlzDeploymentVariables.hub.Value.virtualNetworkName
+param hubVirtualNetworkResourceId string = mlzDeploymentVariables.hub.Value.virtualNetworkResourceId
+param logAnalyticsWorkspaceResourceId string = mlzDeploymentVariables.logAnalyticsWorkspaceResourceId.Value
+param firewallPrivateIPAddress string = mlzDeploymentVariables.firewallPrivateIPAddress.Value
 
 param virtualNetworkName string = '${workloadName}-vnet'
+
+@description('The address prefix for the network spoke vnet.')
 param virtualNetworkAddressPrefix string = '10.0.125.0/26'
 param virtualNetworkDiagnosticsLogs array = []
 param virtualNetworkDiagnosticsMetrics array = []
@@ -37,10 +41,12 @@ param networkSecurityGroupDiagnosticsLogs array = [
 param networkSecurityGroupDiagnosticsMetrics array = []
 
 param subnetName string = '${workloadName}-subnet'
+
+@description('The subnet address prefix for the network spoke vnet.')
 param subnetAddressPrefix string = '10.0.125.0/27'
 param subnetServiceEndpoints array = []
 
-param logStorageAccountName string = toLower(take('logs${uniqueString(workloadName)}', 24))
+param logStorageAccountName string = toLower(take('logs${uniqueString(subscription().subscriptionId, workloadName)}', 24))
 param logStorageSkuName string = 'Standard_GRS'
 
 param resourceIdentifier string = '${workloadName}${uniqueString(workloadName)}'
@@ -81,7 +87,7 @@ module spokeNetwork '../../modules/spokeNetwork.bicep' = {
 }
 
 module workloadVirtualNetworkPeerings '../../modules/spokeNetworkPeering.bicep' = {
-  name: '${resourceIdentifier}-${workloadName}VirtualNetworkPeerings'
+  name: take('${workloadName}--VNetPeerings', 64)
   params: {
     spokeName: workloadName
     spokeResourceGroupName: resourceGroup.name

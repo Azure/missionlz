@@ -32,7 +32,7 @@ param linuxVmAdminUsername string
 ])
 param linuxVmAuthenticationType string
 @secure()
-@minLength(14)
+@minLength(12)
 param linuxVmAdminPasswordOrKey string
 
 param windowsNetworkInterfaceName string
@@ -43,7 +43,7 @@ param windowsVmName string
 param windowsVmSize string
 param windowsVmAdminUsername string
 @secure()
-@minLength(14)
+@minLength(12)
 param windowsVmAdminPassword string
 param windowsVmPublisher string
 param windowsVmOffer string
