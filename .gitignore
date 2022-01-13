@@ -26,6 +26,6 @@ crash.log
 deploymentVariables.json
 
 # Ignore compiled bicep files from the examples that use the shared deployment variables file pattern.
-src/bicep/examples/appService/appService.json
+src/bicep/examples/appServicePlan/appService.json
 src/bicep/examples/keyVault/azureKeyVault.json
 src/bicep/examples/containerRegistry/contRegistry.json
