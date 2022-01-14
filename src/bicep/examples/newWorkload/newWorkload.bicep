@@ -46,18 +46,20 @@ param subnetServiceEndpoints array = []
 param logStorageAccountName string = toLower(take('logs${uniqueString(subscription().subscriptionId, workloadName)}', 24))
 param logStorageSkuName string = 'Standard_GRS'
 
+@description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
 param tags object = {}
-
 var defaultTags = {
   'DeploymentType': 'MissionLandingZoneARM'
 }
-
 var calculatedTags = union(tags, defaultTags)
 
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+module resourceGroup '../../modules/resourceGroup.bicep' = {
   name: resourceGroupName
-  location: location
-  tags: calculatedTags
+  params: {
+    name: resourceGroupName
+    location: location
+    tags: tags
+  }
 }
 
 module spokeNetwork '../../modules/spokeNetwork.bicep' = {
@@ -112,9 +114,9 @@ module hubToWorkloadVirtualNetworkPeering './modules/hubNetworkPeering.bicep' = 
   }
 }
 
-output resourceGroupName string = resourceGroupName
-output location string = location
-output tags object = calculatedTags
+output resourceGroupName string = resourceGroup.outputs.name
+output location string = resourceGroup.outputs.location
+output tags object = resourceGroup.outputs.tags
 output virtualNetworkName string = spokeNetwork.outputs.virtualNetworkName
 output virtualNetworkAddressPrefix string = spokeNetwork.outputs.virtualNetworkAddressPrefix
 output virtualNetworkResourceId string = spokeNetwork.outputs.virtualNetworkResourceId
