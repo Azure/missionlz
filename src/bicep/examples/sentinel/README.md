@@ -1,6 +1,6 @@
 # Sentinel Example
 
-This example adds an Azure Sentinel solution to a Log Analytics Workspace using Terraform. It shows how to use Terraform to deploy new resources to an existing Mission Landing Zone that was deployed using Bicep. Data from the original Bicep deployment can be retrieved using the Azure CLI, and then used as parameter inputs for a Terraform template.
+This example adds an Azure Sentinel solution to a Log Analytics Workspace using Terraform. It shows how to use Terraform to deploy new resources to an existing Mission Landing Zone that was deployed using Bicep. Data from the original Bicep deployment can be retrieved using the Azure CLI and used as parameter inputs for a Terraform template.
 
 ## What this example does
 
