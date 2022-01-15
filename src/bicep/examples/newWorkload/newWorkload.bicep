@@ -58,7 +58,7 @@ module resourceGroup '../../modules/resourceGroup.bicep' = {
   params: {
     name: resourceGroupName
     location: location
-    tags: tags
+    tags: calculatedTags
   }
 }
 
