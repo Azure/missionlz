@@ -1,6 +1,6 @@
 # Inheriting Tags
 
-This example adds a virtual machine adds ia policy to a given resource group that forces a specific tag to be inherited by all of its child components.  This example is useful for those trying to create a charging model or provide tracking for resource consumption based on resources in a specific resource group or scope.  You can use this to apply a custom tag of your choosing.
+This example adds a policy to a given resource group that forces a specific tag to be inherited by all of its child components.  This example is useful for those trying to create a charging model or provide tracking for resource consumption based on resources in a specific resource group or scope.  You can use this to apply a custom tag of your choosing.
 
 ## What this example does
 
