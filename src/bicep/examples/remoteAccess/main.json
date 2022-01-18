@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.1008.15138",
-      "templateHash": "1824009288413854506"
+      "version": "0.4.1124.51302",
+      "templateHash": "17246634398667903634"
     }
   },
   "parameters": {
@@ -168,13 +168,25 @@
     "nowUtc": {
       "type": "string",
       "defaultValue": "[utcNow()]"
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings."
+      }
     }
   },
-  "functions": [],
+  "variables": {
+    "defaultTags": {
+      "DeploymentType": "MissionLandingZoneARM"
+    },
+    "calculatedTags": "[union(parameters('tags'), variables('defaultTags'))]"
+  },
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('deploy-remoteAccess-Example-{0}', parameters('nowUtc'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -298,6 +310,9 @@
           },
           "logAnalyticsWorkspaceId": {
             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+          },
+          "tags": {
+            "value": "[variables('calculatedTags')]"
           }
         },
         "template": {
@@ -306,8 +321,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1008.15138",
-              "templateHash": "5159353539145495381"
+              "version": "0.4.1124.51302",
+              "templateHash": "1358220533990268216"
             }
           },
           "parameters": {
@@ -439,11 +454,10 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "remoteAccess-bastionHost",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -488,8 +502,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.4.1008.15138",
-                      "templateHash": "8312671392588769494"
+                      "version": "0.4.1124.51302",
+                      "templateHash": "2380768471469099549"
                     }
                   },
                   "parameters": {
@@ -525,7 +539,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "variables": {
                     "subnetName": "AzureBastionSubnet"
                   },
@@ -584,7 +597,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "remoteAccess-linuxNetworkInterface",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -620,8 +633,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.4.1008.15138",
-                      "templateHash": "15767041695622422511"
+                      "version": "0.4.1124.51302",
+                      "templateHash": "8101744643505090252"
                     }
                   },
                   "parameters": {
@@ -648,7 +661,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/networkInterfaces",
@@ -689,7 +701,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "remoteAccess-linuxVirtualMachine",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -737,7 +749,7 @@
                     "value": "[parameters('linuxVmAdminPasswordOrKey')]"
                   },
                   "networkInterfaceName": {
-                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-linuxNetworkInterface'), '2020-06-01').outputs.name.value]"
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-linuxNetworkInterface'), '2020-10-01').outputs.name.value]"
                   },
                   "logAnalyticsWorkspaceId": {
                     "value": "[parameters('logAnalyticsWorkspaceId')]"
@@ -749,8 +761,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.4.1008.15138",
-                      "templateHash": "1923864005701002999"
+                      "version": "0.4.1124.51302",
+                      "templateHash": "16581269896210557617"
                     }
                   },
                   "parameters": {
@@ -806,7 +818,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "variables": {
                     "linuxConfiguration": {
                       "disablePasswordAuthentication": true,
@@ -948,7 +959,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "remoteAccess-windowsNetworkInterface",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -984,8 +995,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.4.1008.15138",
-                      "templateHash": "15767041695622422511"
+                      "version": "0.4.1124.51302",
+                      "templateHash": "8101744643505090252"
                     }
                   },
                   "parameters": {
@@ -1012,7 +1023,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/networkInterfaces",
@@ -1053,7 +1063,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "remoteAccess-windowsVirtualMachine",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -1098,7 +1108,7 @@
                     "value": "[parameters('windowsVmStorageAccountType')]"
                   },
                   "networkInterfaceName": {
-                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-windowsNetworkInterface'), '2020-06-01').outputs.name.value]"
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-windowsNetworkInterface'), '2020-10-01').outputs.name.value]"
                   },
                   "logAnalyticsWorkspaceId": {
                     "value": "[parameters('logAnalyticsWorkspaceId')]"
@@ -1110,8 +1120,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.4.1008.15138",
-                      "templateHash": "18222194463697657474"
+                      "version": "0.4.1124.51302",
+                      "templateHash": "5877468865897065265"
                     }
                   },
                   "parameters": {
@@ -1160,7 +1170,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Compute/virtualMachines",

@@ -53,6 +53,13 @@ param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
 param nowUtc string = utcNow()
 
+@description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
+param tags object = {}
+var defaultTags = {
+  'DeploymentType': 'MissionLandingZoneARM'
+}
+var calculatedTags = union(tags, defaultTags)
+
 module remoteAccess '../../modules/remoteAccess.bicep' = {
   name: 'deploy-remoteAccess-Example-${nowUtc}'
   params: {
@@ -102,5 +109,7 @@ module remoteAccess '../../modules/remoteAccess.bicep' = {
     windowsVmStorageAccountType: windowsVmStorageAccountType
 
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
+
+    tags: calculatedTags
   }
 }
