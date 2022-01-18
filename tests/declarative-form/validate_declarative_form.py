@@ -28,6 +28,8 @@ def main():
 
     validate_form(template, form)
 
+    print("Success! The Declarative Form UI template maps to thet ARM deployment template.", file=sys.stdout)
+
     sys.exit(0)
 
 
@@ -44,13 +46,13 @@ def parse_args():
         - form_file_path (string)
     """
 
-    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser(description="Validate a Declarative Form UI template against an ARM Deployment Template.")
 
     parser.add_argument("deployment_template_path",
-                        help="the deployment template JSON file path")
+                        help="the path to the ARM deployment template JSON file")
 
     parser.add_argument("form_template_path",
-                        help="the Declarative Form UI template JSON file path")
+                        help="the path to the Declarative Form UI template JSON file")
 
     args = parser.parse_args()
 
