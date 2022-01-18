@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1124.51302",
-      "templateHash": "16835281694778509752"
+      "templateHash": "10156023147744075921"
     }
   },
   "parameters": {
@@ -914,7 +914,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1124.51302",
-              "templateHash": "2358208423733104980"
+              "templateHash": "14950222555728755781"
             }
           },
           "parameters": {
@@ -950,6 +950,10 @@
             "location": {
               "type": "string",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').location]"
+            },
+            "tags": {
+              "type": "object",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').tags]"
             }
           }
         }
@@ -988,7 +992,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1124.51302",
-              "templateHash": "2358208423733104980"
+              "templateHash": "14950222555728755781"
             }
           },
           "parameters": {
@@ -1024,6 +1028,10 @@
             "location": {
               "type": "string",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').location]"
+            },
+            "tags": {
+              "type": "object",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').tags]"
             }
           }
         }
@@ -1387,7 +1395,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1124.51302",
-              "templateHash": "5457795790797504613"
+              "templateHash": "17051388440557968847"
             }
           },
           "parameters": {
@@ -1822,7 +1830,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1124.51302",
-                      "templateHash": "11413611557719242980"
+                      "templateHash": "10163287795309985629"
                     }
                   },
                   "parameters": {
@@ -1899,6 +1907,10 @@
                     "subnets": {
                       "type": "array",
                       "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name'))).subnets]"
+                    },
+                    "addressPrefix": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name'))).addressSpace.addressPrefixes[0]]"
                     }
                   }
                 }
@@ -3009,7 +3021,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1124.51302",
-              "templateHash": "15135825859294163398"
+              "templateHash": "8302475958031972588"
             }
           },
           "parameters": {
@@ -3432,7 +3444,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1124.51302",
-                      "templateHash": "11413611557719242980"
+                      "templateHash": "10163287795309985629"
                     }
                   },
                   "parameters": {
@@ -3509,6 +3521,10 @@
                     "subnets": {
                       "type": "array",
                       "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name'))).subnets]"
+                    },
+                    "addressPrefix": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name'))).addressSpace.addressPrefixes[0]]"
                     }
                   }
                 }
@@ -3528,6 +3544,10 @@
             "virtualNetworkResourceId": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Resources/deployments', 'virtualNetwork'), '2020-10-01').outputs.id.value]"
+            },
+            "virtualNetworkAddressPrefix": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'virtualNetwork'), '2020-10-01').outputs.addressPrefix.value]"
             },
             "subnetName": {
               "type": "string",
