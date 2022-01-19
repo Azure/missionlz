@@ -861,18 +861,17 @@
                     "password": "Password",
                     "confirmPassword": "Confirm password"
                   },
-                  "type": "Microsoft.Compute.CredentialsCombo",
+                  "type": "Microsoft.Common.PasswordBox",
                   "defaultValue": "",
-                  "toolTip": {
-                    "password": "Specify an administrator password for the Windows virtual machine used to remote into the network."
-                  },
+                  "toolTip": "Specify an administrator password for the Windows virtual machine used to remote into the network.",
                   "constraints": {
-                    "required": true
+                    "required": true,
+                    "regex": "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{12,72}$",
+                    "validationMessage": "The password must be alphanumeric, contain at least 12 characters, and have at least 1 letter, 1 number and one special character."
                   },
                   "options": {
                     "hideConfirmation": false
-                  },
-                  "osPlatform": "Windows"
+                  }
                 }
               ]
             },
@@ -886,7 +885,7 @@
                   "name": "linuxVmDescriptionTextblock",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Provide an administrator username and password (or SSH public key) for the Linux virtual machine."
+                    "text": "Provide an administrator username and password for the Linux virtual machine."
                   }
                 },
                 {
@@ -905,26 +904,20 @@
                 },
                 {
                   "name": "linuxVmAdminPasswordOrKey",
-                  "type": "Microsoft.Compute.CredentialsCombo",
+                  "type": "Microsoft.Common.PasswordBox",
                   "label": {
-                    "authenticationType": "Authentication type",
                     "password": "Password",
-                    "confirmPassword": "Confirm password",
-                    "sshPublicKey": "SSH public key"
+                    "confirmPassword": "Confirm password"
                   },
-                  "toolTip": {
-                    "authenticationType": "Select an authentication type",
-                    "password": "Specify an administrator password for the Linux virtual machine used to remote into the network.",
-                    "sshPublicKey": "Paste in an SSH Public Key for the Linux virtual machine used to remote into the network."
-                  },
+                  "toolTip": "Specify an administrator password for the Linux virtual machine used to remote into the network.",
                   "constraints": {
-                    "required": true
+                    "required": true,
+                    "regex": "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{12,72}$",
+                    "validationMessage": "The password must be alphanumeric, contain at least 12 characters, and have at least 1 letter, 1 number and one special character."
                   },
                   "options": {
-                    "hideConfirmation": false,
-                    "hidePassword": false
-                  },
-                  "osPlatform": "Linux"
+                    "hideConfirmation": false
+                  }
                 }
               ]
             }
@@ -986,7 +979,7 @@
         "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]",
         "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword.password]",
         "linuxVmAdminUsername": "[steps('remoteAccess').linuxVmSection.linuxVmAdminUsername]",
-        "linuxVmAuthenticationType": "[steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.authenticationType]",
+        "linuxVmAuthenticationType": "password",
         "linuxVmAdminPasswordOrKey": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.authenticationType, 'password'), steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.password, steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.sshPublicKey)]"
       }
     }
