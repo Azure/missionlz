@@ -29,7 +29,7 @@ python3 validate_declarative_form.py ../../src/bicep/mlz.json ../../src/bicep/fo
 If successful, you'll find this in the stdout:
 
 ```plaintext
-Success! The Declarative Form UI template maps to thet ARM deployment template.
+Success! The Declarative Form UI template maps to the ARM deployment template.
 ```
 
 ### Failure
