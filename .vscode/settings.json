@@ -17,5 +17,16 @@
         },
         "MD029": false
     },
-    "terminal.integrated.scrollback": 10000
+    "terminal.integrated.scrollback": 10000,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./tests/declarative-form",
+        "-p",
+        "*test.py"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
 }

@@ -92,6 +92,13 @@ RUN apt-get update && apt-get install -y azure-cli=${AZURE_CLI_VERSION}
 RUN curl -Lo /usr/local/bin/bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 \
     && chmod +x /usr/local/bin/bicep
 
+# Install Python 3
+RUN apt-get update \
+    && apt-get install -y \
+    python3 \
+    python3-pip \
+    && ln -s /usr/bin/python3 /usr/bin/python 
+
 # Clean up
 RUN apt-get autoremove -y \
     && apt-get clean -y \
