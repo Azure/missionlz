@@ -861,7 +861,7 @@
                     "password": "Password",
                     "confirmPassword": "Confirm password"
                   },
-                  "type": "Microsoft.Common.PasswordBox",
+                  "type": "Microsoft.Compute.CredentialsCombo-Windows",
                   "defaultValue": "",
                   "toolTip": {
                     "password": "Specify an administrator password for the Windows virtual machine used to remote into the network."
@@ -905,7 +905,7 @@
                 },
                 {
                   "name": "linuxVmAdminPasswordOrKey",
-                  "type": "Microsoft.Common.PasswordBox",
+                  "type": "Microsoft.Compute.CredentialsCombo-Linux",
                   "label": {
                     "authenticationType": "Authentication type",
                     "password": "Password",
