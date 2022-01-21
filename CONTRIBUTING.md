@@ -112,7 +112,7 @@ The ideal backlog item takes no more than a day or two to finish. There will be 
 - Split a single backlog item into multiple
 - Abandon the work and close the backlog item or put it back into the backlog
 
-If an idividual backlog item takes more than a week then it's time to ask for help and consider one of the options above. Asking for help is a sign of engineering strength and expertise, and being stuck is a common experience for cloud engineers.
+If an individual backlog item takes more than a week then it's time to ask for help and consider one of the options above. Asking for help is a sign of engineering strength and expertise, and being stuck is a common experience for cloud engineers.
 
 Anyone can modify the backlog items, and when needed the product owner can assist by reducing scope, improving acceptance criteria, and splitting a single backlog item into multiple. Teammates can assist by providing advice, pair programming, or taking on part of the work.
 
