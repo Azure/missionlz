@@ -18,20 +18,20 @@ def main():
     Parses arguments, loads JSON into memory, executes form validation
     """
 
-    form_template_path, deployment_template_path = parse_args()
+    form_path, template_path = parse_args()
 
-    print(f"Validating that Declarative Form UI template outputs from {form_template_path} "
-        f"map to the ARM deployment template parameters at {deployment_template_path}...",
-        file=sys.stdout)
+    print(f"Validating that Declarative Form UI template outputs from {form_path} "
+          f"map to the ARM deployment template parameters at {template_path}...",
+          file=sys.stdout)
 
-    validate_paths(form_template_path, deployment_template_path)
+    validate_paths(form_path, template_path)
 
-    form = load_json(form_template_path)
-    template = load_json(deployment_template_path)
+    form = load_json(form_path)
+    template = load_json(template_path)
 
     validate_form(form, template)
 
-    print(f"Success!", file=sys.stdout)
+    print("Success!", file=sys.stdout)
 
     sys.exit(0)
 
@@ -45,21 +45,23 @@ def parse_args():
     See https://docs.python.org/3.11/howto/argparse.html for an example.
 
     Returns:
-        - form_file_path (string)
-        - deployment_template_path (string)
+        - form_path (string)
+        - template_path (string)
     """
 
-    parser = argparse.ArgumentParser(description="Validate a Declarative Form UI template against an ARM Deployment Template.")
+    parser = argparse.ArgumentParser(
+        description="Validate that Declarative Form UI template outputs "
+                    "map to ARM deployment template parameters")
 
-    parser.add_argument("form_template_path",
+    parser.add_argument("form_path",
                         help="the path to the Declarative Form UI template JSON file")
 
-    parser.add_argument("deployment_template_path",
+    parser.add_argument("template_path",
                         help="the path to the ARM deployment template JSON file")
 
     args = parser.parse_args()
 
-    return args.form_template_path, args.deployment_template_path
+    return args.form_path, args.template_path
 
 
 def validate_paths(*args):
@@ -89,8 +91,10 @@ def load_json(json_file_path):
     try:
         with open(json_file_path, 'r', encoding="UTF-8") as json_file:
             json_as_object = json.load(json_file)
-    except Exception as e:
-        print(f"Unable to parse JSON from file {json_file_path} with Exception: {e}", file=sys.stderr)
+    except Exception as exception:
+        print(f"Unable to parse JSON from file {json_file_path} "
+              f"with Exception: {exception}",
+              file=sys.stderr)
         sys.exit(1)
 
     return json_as_object
