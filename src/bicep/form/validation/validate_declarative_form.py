@@ -2,9 +2,9 @@
 # Licensed under the MIT License.
 
 """
-A command-line utility for validating
-a given Declarative Form Portal UI JSON template against
-a given ARM Deployment Template JSON template
+A command-line utility for validating that
+a given Declarative Form Portal UI JSON template contains outputs that
+map to a given ARM Deployment Template JSON template input parameters
 """
 
 import argparse
@@ -18,17 +18,20 @@ def main():
     Parses arguments, loads JSON into memory, executes form validation
     """
 
-    deployment_template_path, form_template_path = parse_args()
+    form_template_path, deployment_template_path = parse_args()
 
-    validate_paths(deployment_template_path, form_template_path)
+    print(f"Validating that Declarative Form UI template outputs from {form_template_path} "
+        f"map to the ARM deployment template parameters at {deployment_template_path}...",
+        file=sys.stdout)
 
-    template, form = load_json(
-        deployment_template_path,
-        form_template_path)
+    validate_paths(form_template_path, deployment_template_path)
 
-    validate_form(template, form)
+    form = load_json(form_template_path)
+    template = load_json(deployment_template_path)
 
-    print("Success! The Declarative Form UI template maps to thet ARM deployment template.", file=sys.stdout)
+    validate_form(form, template)
+
+    print(f"Success!", file=sys.stdout)
 
     sys.exit(0)
 
@@ -42,21 +45,21 @@ def parse_args():
     See https://docs.python.org/3.11/howto/argparse.html for an example.
 
     Returns:
-        - deployment_template_path (string)
         - form_file_path (string)
+        - deployment_template_path (string)
     """
 
     parser = argparse.ArgumentParser(description="Validate a Declarative Form UI template against an ARM Deployment Template.")
 
-    parser.add_argument("deployment_template_path",
-                        help="the path to the ARM deployment template JSON file")
-
     parser.add_argument("form_template_path",
                         help="the path to the Declarative Form UI template JSON file")
 
+    parser.add_argument("deployment_template_path",
+                        help="the path to the ARM deployment template JSON file")
+
     args = parser.parse_args()
 
-    return args.deployment_template_path, args.form_template_path
+    return args.form_template_path, args.deployment_template_path
 
 
 def validate_paths(*args):
@@ -70,31 +73,30 @@ def validate_paths(*args):
             sys.exit(1)
 
 
-def load_json(deployment_template_path, form_template_path):
+def load_json(json_file_path):
     """
     Loads JSON files into Python objects.
 
     See: https://docs.python.org/3/library/json.html#encoders-and-decoders
 
     Parameters:
-        - template_file_path (string): the deployment template file path
-        - form_file_path (string): the Declarative Form UI template file path
+        - json_file_path (string): the deployment template file path
 
     Returns:
-        - template_json (object): the deployment template as a Python object
-        - form_json (object): the Declarative Form UI as a Python object
+        - json_as_object (object): the deployment template as a Python object
     """
 
-    with open(deployment_template_path, 'r', encoding="UTF-8") as template_file:
-        template = json.load(template_file)
+    try:
+        with open(json_file_path, 'r', encoding="UTF-8") as json_file:
+            json_as_object = json.load(json_file)
+    except Exception as e:
+        print(f"Unable to parse JSON from file {json_file_path} with Exception: {e}", file=sys.stderr)
+        sys.exit(1)
 
-    with open(form_template_path, 'r', encoding="UTF-8") as form_file:
-        form = json.load(form_file)
-
-    return template, form
+    return json_as_object
 
 
-def validate_form(template, form):
+def validate_form(form, template):
     """
     Validates a Declarative Form UI template
     and if any errors are encountered
@@ -107,11 +109,11 @@ def validate_form(template, form):
 
     errors = []
 
-    valid, messages = form_specifies_all_required_parameters(template, form)
+    valid, messages = form_specifies_all_required_parameters(form, template)
     if not valid:
         errors.extend(messages)
 
-    valid, messages = form_specifies_valid_parameters(template, form)
+    valid, messages = form_specifies_valid_parameters(form, template)
     if not valid:
         errors.extend(messages)
 
@@ -121,14 +123,14 @@ def validate_form(template, form):
         sys.exit(1)
 
 
-def form_specifies_all_required_parameters(template, form):
+def form_specifies_all_required_parameters(form, template):
     """
     Validates that a Declarative Form UI provides
     output for every required deployment template parameter
 
     Parameters:
-        - template (Dict): the deployment template as a Python object
         - form (Dict): the Declarative Form UI template as a Python object
+        - template (Dict): the deployment template as a Python object
 
     Returns:
         - valid (bool): if the form outputs all required deployment template parameters
@@ -153,14 +155,14 @@ def form_specifies_all_required_parameters(template, form):
     return True, None
 
 
-def form_specifies_valid_parameters(template, form):
+def form_specifies_valid_parameters(form, template):
     """
     Validates that a Declarative Form UI provides
     only deployment template parameters as output
 
     Parameters:
-        - template (Dict): the deployment template as a Python object
         - form (Dict): the Declarative Form UI template as a Python object
+        - template (Dict): the deployment template as a Python object
 
     Returns:
         - valid (bool): if the form outputs only what is a deployment template parameter
@@ -169,8 +171,8 @@ def form_specifies_valid_parameters(template, form):
 
     errors = []
 
-    template_parameters = template["parameters"].keys()
     form_outputs = form["view"]["outputs"]["parameters"].keys()
+    template_parameters = template["parameters"].keys()
 
     form_outputs_not_in_template = set(
         form_outputs).difference(template_parameters)
