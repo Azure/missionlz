@@ -958,7 +958,7 @@
       "location": "[steps('basics').locationSection.location]",
       "subscriptionId": "[steps('basics').hubSection.hubSubscriptionId]",
       "parameters": {
-        "resourcePrefix": "[steps('basics').namingSection.resourcePrefix]",
+        "resourcePrefixFIZZBUZZ": "[steps('basics').namingSection.resourcePrefix]",
         "resourceSuffix": "[steps('basics').namingSection.resourceSuffix]",
         "hubSubscriptionId": "[replace(steps('basics').hubSection.hubSubscriptionId, '/subscriptions/', '')]",
         "identitySubscriptionId": "[replace(steps('basics').identitySection.identitySubscriptionId, '/subscriptions/', '')]",
