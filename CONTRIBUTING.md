@@ -100,6 +100,22 @@ When PRs are requested, review each change and run a full test deployment, speci
 
 The main branch is always production quality. The PR reviewer is responsible for ensuring that code merged to main meets our quality standards.
 
+#### Collaborate
+
+Team members are encouraged to collaborate, pair program, and ask for assistance.
+
+The ideal backlog item takes no more than a day or two to finish. There will be some backlog items for which we made false assumptions about the underlying technology, the platform doesn't work the way we think it does, the acceptance criteria are wrong, or for some other reason the work takes much longer than a day or two. In those cases all team members are encouraged and should feel empowered to:
+
+- Ask teammates for help
+- Modify the acceptance criteria to align with reality
+- Reduce scope
+- Split a single backlog item into multiple
+- Abandon the work and close the backlog item or put it back into the backlog
+
+If an individual backlog item takes more than a week then it's time to ask for help and consider one of the options above. Asking for help is a sign of engineering strength and expertise, and being stuck is a common experience for cloud engineers.
+
+Anyone can modify the backlog items, and when needed the product owner can assist by reducing scope, improving acceptance criteria, and splitting a single backlog item into multiple. Teammates can assist by providing advice, pair programming, or taking on part of the work.
+
 ### Product Owner Process
 
 #### Product Backlog
