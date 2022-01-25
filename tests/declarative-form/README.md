@@ -54,17 +54,28 @@ File could not be found: ../../src/bicep/form/mlz.portal.json2
 
 ## Debugging the Validator
 
-### From Visual Studio Code
+### Debugging in the IDE
 
-`//TODO (gmusa 20221019):` write up how to debug using launch.json in the dev container
+There's `launch.json` editor settings specified that pass command line arguments to any active Python script:
+
+- Open `validate_declarative_form.py` in the Codespace
+- set a breakpoint
+- and select "Run and Debug" (Ctrl + Shift + D) from the Application Menu to start debugging the validator script
+
+See <https://code.visualstudio.com/docs/python/debugging/> for more information on how to debug Python from the Codespace.
 
 ## Testing the Validator
 
-### From Visual Studio Code
+### Testing in the IDE
 
-`//TODO (gmusa 20210118):` write up how to execute tests in the dev container UI
+There's `settings.json` editor settings specified that inform where Python unit tests can be discovered:
 
-### From the terminal
+- Select "Testing" from the Application menu (or open the Command Pallete (F1) and type `View: Show Testing`)
+- Expand the `validation` directory and it's children to see all the unit tests
+- You can run them all selecting the "Run Tests" button (or open the Command Pallete (F1) and type `Test: Run All Tests`)
+- You can debug individual tests by setting a breakpoint in `validate_declarative_form.py` or `validate_declarative_form_test.py` and selecting `Debug Test` from the tests pane
+
+### Testing from the terminal
 
 You can run the unit tests by calling the `unittest` module from Python like:
 

@@ -12,7 +12,7 @@ from unittest.mock import patch
 import validate_declarative_form
 
 
-class TestValidateDeclarativeForm(unittest.TestCase):
+class ValidateDeclarativeFormTest(unittest.TestCase):
     """
     Test the validation for declarative forms
     """
