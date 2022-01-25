@@ -20,4 +20,5 @@ jobs:
   - bash: |
       cd src/bicep/form/validation
       python3 validate_declarative_form.py ../mlz.portal.json ../../mlz.json
+    displayName: 'Execute validation script'
     failOnStderr: true
