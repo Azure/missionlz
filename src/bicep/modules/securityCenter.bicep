@@ -31,6 +31,10 @@ param logAnalyticsWorkspaceId string
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string
 
+@description('Policy Initiative description field')
+param policySetDescription string = 'The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Azure Security Center default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Azure Security Center.'
+
+
 // security center
 
 resource securityCenterPricing 'Microsoft.Security/pricings@2018-06-01' = [for name in bundle: {
@@ -66,3 +70,14 @@ resource securityNotifications 'Microsoft.Security/securityContacts@2017-08-01-p
   }
 }
 
+resource symbolicname 'Microsoft.Authorization/policyAssignments@2021-06-01' = {
+  name: 'Azure Security Benchmark'
+  scope: subscription()
+  properties: {
+    displayName: 'ASC Default'
+    description: policySetDescription
+    enforcementMode: 'DoNotEnforce'
+    parameters: {}
+    policyDefinitionId: '/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8'
+  }
+}
