@@ -1,8 +1,6 @@
 # Sentinel Example
 
-This example adds an Azure Sentinel solution to a Log Analytics Workspace using Terraform.
-
-Read on to understand what this example does, and when you're ready, collect all of the pre-requisites, then deploy the example.
+This example adds an Azure Sentinel solution to a Log Analytics Workspace using Terraform. It shows how to use Terraform to deploy new resources to an existing Mission Landing Zone that was deployed using Bicep. Data from the original Bicep deployment can be retrieved using the Azure CLI and used as parameter inputs for a Terraform template.
 
 ## What this example does
 
@@ -13,8 +11,6 @@ The docs on Azure Sentinel: <https://docs.microsoft.com/en-us/azure/sentinel/ove
 ## Pre-requisites
 
 1. Terraform ([link to download](https://www.terraform.io/downloads.html))
-1. An internet connection (you can bundle Terraform dependencies, but this example does not and retrieves them from the internet)
-1. A desired region to deploy Azure Sentinel into described below
 1. A Mission LZ deployment (a deployment of mlz.bicep)
 1. The output from that deployment described below
 

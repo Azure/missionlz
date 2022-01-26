@@ -39,3 +39,4 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' 
 output name string = virtualNetwork.name
 output id string = virtualNetwork.id
 output subnets array = virtualNetwork.properties.subnets
+output addressPrefix string = virtualNetwork.properties.addressSpace.addressPrefixes[0]

@@ -24,3 +24,9 @@ crash.log
 
 # Ignore deploymentVariables.json as it is specific to a single instantiation of MLZ
 deploymentVariables.json
+
+# Ignore compiled bicep files from the examples that use the shared deployment variables file pattern.
+src/bicep/examples/appServicePlan/appService.json
+src/bicep/examples/containerRegistry/contRegistry.json
+src/bicep/examples/keyVault/azureKeyVault.json
+src/bicep/examples/newWorkload/newWorkload.json

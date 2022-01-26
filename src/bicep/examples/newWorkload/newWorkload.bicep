@@ -8,9 +8,6 @@ param workloadName string
 
 param resourceGroupName string = '${workloadName}-rg'
 param location string = deployment().location
-param tags object = {
-  'resourceIdentifier': resourceIdentifier
-}
 
 param hubSubscriptionId string = mlzDeploymentVariables.hub.Value.subscriptionId
 param hubResourceGroupName string = mlzDeploymentVariables.hub.Value.resourceGroupName
@@ -49,19 +46,27 @@ param subnetServiceEndpoints array = []
 param logStorageAccountName string = toLower(take('logs${uniqueString(subscription().subscriptionId, workloadName)}', 24))
 param logStorageSkuName string = 'Standard_GRS'
 
-param resourceIdentifier string = '${workloadName}${uniqueString(workloadName)}'
+@description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
+param tags object = {}
+var defaultTags = {
+  'DeploymentType': 'MissionLandingZoneARM'
+}
+var calculatedTags = union(tags, defaultTags)
 
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+module resourceGroup '../../modules/resourceGroup.bicep' = {
   name: resourceGroupName
-  location: location
-  tags: tags
+  params: {
+    name: resourceGroupName
+    location: location
+    tags: calculatedTags
+  }
 }
 
 module spokeNetwork '../../modules/spokeNetwork.bicep' = {
   name: 'spokeNetwork'
   scope: az.resourceGroup(resourceGroup.name)
   params: {
-    tags: tags
+    tags: calculatedTags
 
     logStorageAccountName: logStorageAccountName
     logStorageSkuName: logStorageSkuName
@@ -109,7 +114,11 @@ module hubToWorkloadVirtualNetworkPeering './modules/hubNetworkPeering.bicep' = 
   }
 }
 
+output resourceGroupName string = resourceGroup.outputs.name
+output location string = resourceGroup.outputs.location
+output tags object = resourceGroup.outputs.tags
 output virtualNetworkName string = spokeNetwork.outputs.virtualNetworkName
+output virtualNetworkAddressPrefix string = spokeNetwork.outputs.virtualNetworkAddressPrefix
 output virtualNetworkResourceId string = spokeNetwork.outputs.virtualNetworkResourceId
 output subnetName string = spokeNetwork.outputs.subnetName
 output subnetAddressPrefix string = spokeNetwork.outputs.subnetAddressPrefix

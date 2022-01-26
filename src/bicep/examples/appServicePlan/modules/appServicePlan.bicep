@@ -3,6 +3,7 @@ param location string
 param capacity int = 2
 param kind string
 param sku string
+param tags object = {}
 
 var reserved = kind == 'linux' ? true : false
 
@@ -17,6 +18,7 @@ resource svcPlanName_resource 'Microsoft.Web/serverfarms@2020-12-01' = {
   properties: {
     reserved: reserved
   }
+  tags: tags
 }
 
 output svcPlanName string = svcPlanName_resource.name

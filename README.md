@@ -131,9 +131,9 @@ Presently, there are two firewall rules configured to ensure access to the Azure
 |100                      | AllowAzureCloud      | AzureCloud|*       |   *      |Any                                     |
 |110                      | AzureAuth            | msftauth  |  *     | Https:443| aadcdn.msftauth.net, aadcdn.msauth.net |
 
-## Getting Started using Mission LZ
+## Getting Started
 
-See our [Getting Started Guide](docs/getting-started.md) in the docs.
+See the [Deployment Guide for Bicep](docs/deployment-guide-bicep.md) and the [Deployment Guide for Terraform](docs/deployment-guide-terraform.md) in the [`docs`](docs) folder.
 
 ## Product Roadmap
 

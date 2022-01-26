@@ -18,6 +18,13 @@ param enableAutoScale bool = true
 @description('Defines the performance tier of your web farm.  By default the performance scale will be premium 2nd generation version 2 "p2v2".  Another value would be standard generation 2 "s2".')
 param appServiceSkuName string = 'p2v2'
 
+@description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
+param tags object = {}
+var defaultTags = {
+  'DeploymentType': 'MissionLandingZoneARM'
+}
+var calculatedTags = union(tags, defaultTags)
+
 var targetSubscriptionId_Var = targetResourceGroup == '${mlzDeploymentVariables.spokes.Value[2].resourceGroupName}' ? '${mlzDeploymentVariables.spokes.Value[2].subscriptionId}' : subscription().subscriptionId
 var location = deployment().location
 var kind = 'linux'
@@ -26,6 +33,7 @@ var capacity = 2
 resource targetASPResourceGroup 'Microsoft.Resources/resourceGroups@2020-10-01' = {
   name: targetResourceGroup
   location: location
+  tags: calculatedTags
 }
 
 module appServicePlan 'modules/appServicePlan.bicep' = {
@@ -37,8 +45,10 @@ module appServicePlan 'modules/appServicePlan.bicep' = {
     sku: appServiceSkuName
     capacity: capacity
     kind: kind
+    tags: calculatedTags
   }
 }
+
 module appServicePlanSettings 'modules/appServiceSettings.bicep' = if (enableAutoScale) {
   name: 'appServicePlanSettingsName'
   scope: resourceGroup(targetSubscriptionId_Var, targetASPResourceGroup.name)
@@ -48,5 +58,7 @@ module appServicePlanSettings 'modules/appServiceSettings.bicep' = if (enableAut
     svcPlanNameID: appServicePlan.outputs.svcPlanID
   }
 }
+
 output appServicePlanName string = appServicePlanName
 output resourceGroupName string = targetResourceGroup
+output tags object = calculatedTags
