@@ -29,6 +29,9 @@ def main():
     form = load_json(form_path)
     template = load_json(template_path)
 
+    validate_form_path_is_a_form(form_path, form)
+    validate_template_path_is_a_template(template_path, template)
+
     validate_form(form, template)
 
     print("Success!", file=sys.stdout)
@@ -71,8 +74,40 @@ def validate_paths(*args):
     """
     for file_path in args:
         if not path.isfile(file_path):
-            print(f"File could not be found: {file_path}", file=sys.stderr)
+            print(f"ERROR - File not found: {file_path}", file=sys.stderr)
             sys.exit(1)
+
+
+def validate_form_path_is_a_form(form_path, form):
+    '''
+    Validates that the form adheres to the expected schema
+    by using its expected object properties
+    '''
+
+    try:
+        form["view"]["outputs"]["parameters"]
+    except KeyError as key:
+        print(f"ERROR - Unable to find property: {key}! "
+              "Expected a Declarative Form with a 'view.outputs.parameters' object. "
+              f"Check that the file at this path is a Declarative Form: {form_path}",
+              file=sys.stderr)
+        sys.exit(1)
+
+
+def validate_template_path_is_a_template(template_path, template):
+    '''
+    Validates that the template adheres to the expected schema
+    by using its expected object properties
+    '''
+
+    try:
+        template["parameters"]
+    except KeyError as key:
+        print(f"ERROR - Unable to find property: {key}! "
+              "Expected an ARM deployment template with a 'parameters' object. "
+              f"Check that the file at this path is an ARM deployment template: {template_path}",
+              file=sys.stderr)
+        sys.exit(1)
 
 
 def load_json(json_file_path):
@@ -92,7 +127,7 @@ def load_json(json_file_path):
         with open(json_file_path, 'r', encoding="UTF-8") as json_file:
             json_as_object = json.load(json_file)
     except Exception as exception:
-        print(f"Unable to parse JSON from file {json_file_path} "
+        print(f"ERROR - Unable to parse JSON from file {json_file_path} "
               f"with Exception: {exception}",
               file=sys.stderr)
         sys.exit(1)
@@ -122,8 +157,10 @@ def validate_form(form, template):
         errors.extend(messages)
 
     if len(errors) > 0:
+        error_message = "ERROR - There are validation errors for this form and template:"
         for message in errors:
-            print(message, file=sys.stderr)
+            error_message += f"\n{message}"
+        print(error_message, file=sys.stderr)
         sys.exit(1)
 
 

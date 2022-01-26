@@ -88,6 +88,18 @@ class ValidateDeclarativeFormTest(unittest.TestCase):
 
     invalid_json_file_content = "{{\"fizz\": \"buzz\"}"
 
+    invalid_declarative_form_object = {
+        "view": {
+            "outputs": {
+                "not_parameters": {}
+            }
+        }
+    }
+
+    invalid_arm_template_object = {
+        "not_parameters": {}
+    }
+
     def test_form_specifies_all_required_parameters(self):
         """
         Test that all required parameters not output by the form return errors
@@ -175,10 +187,10 @@ class ValidateDeclarativeFormTest(unittest.TestCase):
                 self.parameters_with_some_default_values_specified)
 
         self.assertEqual(system.exception.code, 1)
-        self.assertEqual(
-            mock_stderr.getvalue(),
-            f"Required parameter '{self.missing_required_param}'"
-            " not found in Declarative Form output\n")
+        self.assertIn(
+            f"Required parameter '{self.missing_required_param}' "
+            "not found in Declarative Form output",
+            mock_stderr.getvalue())
 
     @patch("sys.stderr", new_callable=StringIO)
     def test_validate_form_captures_extraneous_form_output(self, mock_stderr):
@@ -193,10 +205,10 @@ class ValidateDeclarativeFormTest(unittest.TestCase):
                 self.parameters_with_some_default_values_specified)
 
         self.assertEqual(system.exception.code, 1)
-        self.assertEqual(
-            mock_stderr.getvalue(),
-            f"Form output '{self.extraneous_output}' not found in"
-            " deployment template parameters\n")
+        self.assertIn(
+            f"Form output '{self.extraneous_output}' not found in "
+            "deployment template parameters",
+            mock_stderr.getvalue())
 
     @patch("sys.stderr", new_callable=StringIO)
     def test_validate_form_catches_invalid_template_json(self, mock_stderr):
@@ -214,6 +226,41 @@ class ValidateDeclarativeFormTest(unittest.TestCase):
         self.assertIn(
             f"Unable to parse JSON from file {file.name}",
             mock_stderr.getvalue())
+
+    @patch("sys.stderr", new_callable=StringIO)
+    def test_validate_form_catches_invalid_form_input(self, mock_stderr):
+        """
+        Test that the passed Declarative Form adheres to the expected
+        schema and that if it does not it is output to stderr and it exits code 1
+        """
+
+        with self.assertRaises(SystemExit) as system:
+            validate_declarative_form.validate_form_path_is_a_form(
+                "",
+                self.invalid_declarative_form_object)
+
+        self.assertEqual(system.exception.code, 1)
+        self.assertIn(
+            "Expected a Declarative Form with a 'view.outputs.parameters' object.",
+            mock_stderr.getvalue())
+
+    @patch("sys.stderr", new_callable=StringIO)
+    def test_validate_form_catches_invalid_deployment_template_input(self, mock_stderr):
+        """
+        Test that the passed ARM deployment template adheres to the expected
+        schema and that if it does not it is output to stderr and it exits code 1
+        """
+
+        with self.assertRaises(SystemExit) as system:
+            validate_declarative_form.validate_template_path_is_a_template(
+                "",
+                self.invalid_arm_template_object)
+
+        self.assertEqual(system.exception.code, 1)
+        self.assertIn(
+            "Expected an ARM deployment template with a 'parameters' object.",
+            mock_stderr.getvalue())
+
 
 if __name__ == '__main__':
     unittest.main()

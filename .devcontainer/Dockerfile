@@ -99,6 +99,7 @@ RUN apt-get update \
     python3-pip \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && python -m pip install pylint
+    && python -m pip install autopep8
 
 # Clean up
 RUN apt-get autoremove -y \
