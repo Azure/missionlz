@@ -25,15 +25,15 @@ var bundle = (environment().name != 'AzureUSGovernment' ? [
 param enableAutoProvisioning bool = true
 var autoProvisioning = enableAutoProvisioning ? 'On' : 'Off'
 
-@description('Turn security policy settings On or Off.')
-param enableSecuritySettings bool = true
-var securitySettings = enableSecuritySettings ? 'On' : 'Off'
-
 @description('Specify the ID of your custom Log Analytics workspace to collect ASC data.')
 param logAnalyticsWorkspaceId string
 
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string
+
+@description('Policy Initiative description field')
+param policySetDescription string = 'The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Azure Security Center default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Azure Security Center.'
+
 
 // security center
 
@@ -70,30 +70,14 @@ resource securityNotifications 'Microsoft.Security/securityContacts@2017-08-01-p
   }
 }
 
-resource securityPoliciesDefault 'Microsoft.Security/policies@2015-06-01-preview' = {
-  name: 'default'
+resource securityPoliciesDefault 'Microsoft.Authorization/policyAssignments@2021-06-01' = {
+  name: 'Azure Security Benchmark'
+  scope: subscription()
   properties: {
-    policyLevel: 'Subscription'
-    name: 'default'
-    unique: 'Off'
-    logCollection: 'On'
-    recommendations: {
-      patch: securitySettings
-      baseline: securitySettings
-      antimalware: securitySettings
-      diskEncryption: securitySettings
-      acls: securitySettings
-      nsgs: securitySettings
-      waf: securitySettings
-      sqlAuditing: securitySettings
-      sqlTde: securitySettings
-      ngfw: securitySettings
-      vulnerabilityAssessment: securitySettings
-      storageEncryption: securitySettings
-      jitNetworkAccess: securitySettings
-    }
-    pricingConfiguration: {
-      selectedPricingTier: 'Standard'
-    }
+    displayName: 'ASC Default'
+    description: policySetDescription
+    enforcementMode: 'DoNotEnforce'
+    parameters: {}
+    policyDefinitionId: '/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8'
   }
 }
