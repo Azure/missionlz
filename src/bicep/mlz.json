@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1124.51302",
-      "templateHash": "13597840406414972509"
+      "templateHash": "1118457920660514703"
     }
   },
   "parameters": {
@@ -4621,7 +4621,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1124.51302",
-              "templateHash": "18226179565285117415"
+              "templateHash": "998933596067649007"
             }
           },
           "parameters": {
@@ -4642,6 +4642,13 @@
               "type": "string",
               "metadata": {
                 "description": "Email address of the contact, in the form of john@doe.com"
+              }
+            },
+            "policySetDescription": {
+              "type": "string",
+              "defaultValue": "The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Azure Security Center default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Azure Security Center.",
+              "metadata": {
+                "description": "Policy Initiative description field"
               }
             }
           },
@@ -4688,6 +4695,18 @@
                 "alertsToAdmins": "On",
                 "alertNotifications": "On",
                 "email": "[parameters('emailSecurityContact')]"
+              }
+            },
+            {
+              "type": "Microsoft.Authorization/policyAssignments",
+              "apiVersion": "2021-06-01",
+              "name": "Azure Security Benchmark",
+              "properties": {
+                "displayName": "ASC Default",
+                "description": "[parameters('policySetDescription')]",
+                "enforcementMode": "DoNotEnforce",
+                "parameters": {},
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
               }
             }
           ]
@@ -4728,7 +4747,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1124.51302",
-              "templateHash": "18226179565285117415"
+              "templateHash": "998933596067649007"
             }
           },
           "parameters": {
@@ -4749,6 +4768,13 @@
               "type": "string",
               "metadata": {
                 "description": "Email address of the contact, in the form of john@doe.com"
+              }
+            },
+            "policySetDescription": {
+              "type": "string",
+              "defaultValue": "The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Azure Security Center default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Azure Security Center.",
+              "metadata": {
+                "description": "Policy Initiative description field"
               }
             }
           },
@@ -4795,6 +4821,18 @@
                 "alertsToAdmins": "On",
                 "alertNotifications": "On",
                 "email": "[parameters('emailSecurityContact')]"
+              }
+            },
+            {
+              "type": "Microsoft.Authorization/policyAssignments",
+              "apiVersion": "2021-06-01",
+              "name": "Azure Security Benchmark",
+              "properties": {
+                "displayName": "ASC Default",
+                "description": "[parameters('policySetDescription')]",
+                "enforcementMode": "DoNotEnforce",
+                "parameters": {},
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
               }
             }
           ]
