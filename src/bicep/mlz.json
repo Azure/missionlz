@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1124.51302",
-      "templateHash": "554527513249452863"
+      "templateHash": "9598620800925226147"
     }
   },
   "parameters": {
@@ -357,7 +357,12 @@
             "access": "Allow",
             "description": "Allow traffic from spokes",
             "destinationAddressPrefix": "[parameters('identityVirtualNetworkAddressPrefix')]",
-            "destinationPortRange": "*",
+            "destinationPortRanges": [
+              "22",
+              "80",
+              "443",
+              "3389"
+            ],
             "direction": "Inbound",
             "priority": 200,
             "protocol": "*",
@@ -426,12 +431,17 @@
       "type": "array",
       "defaultValue": [
         {
-          "name": "Operations-East-West",
+          "name": "Allow-Traffic-From-Spokes",
           "properties": {
             "access": "Allow",
             "description": "Allow traffic from spokes",
             "destinationAddressPrefix": "[parameters('operationsVirtualNetworkAddressPrefix')]",
-            "destinationPortRange": "*",
+            "destinationPortRanges": [
+              "22",
+              "80",
+              "443",
+              "3389"
+            ],
             "direction": "Inbound",
             "priority": 200,
             "protocol": "*",
@@ -500,12 +510,17 @@
       "type": "array",
       "defaultValue": [
         {
-          "name": "SharedServices-East-West",
+          "name": "Allow-Traffic-From-Spokes",
           "properties": {
             "access": "Allow",
             "description": "Allow traffic from spokes",
             "destinationAddressPrefix": "[parameters('sharedServicesVirtualNetworkAddressPrefix')]",
-            "destinationPortRange": "*",
+            "destinationPortRanges": [
+              "22",
+              "80",
+              "443",
+              "3389"
+            ],
             "direction": "Inbound",
             "priority": 200,
             "protocol": "*",
