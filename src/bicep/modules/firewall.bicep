@@ -132,6 +132,35 @@ resource firewallNetworkRuleCollectionGroup 'Microsoft.Network/firewallPolicies/
         name: 'AllowAzureCloud'
         priority: 100
       }
+      {
+        ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+        action: {
+          type: 'Allow'
+        }
+        rules: [
+          {
+            ruleType: 'NetworkRule'
+            name: 'MLZVnetRouting'
+            ipProtocols: [
+              'Any'
+            ]
+            sourceAddresses: [
+              '10.0.96.0/19'
+            ]
+            sourceIpGroups: []
+            destinationAddresses: [
+              '*'
+            ]
+            destinationIpGroups: []
+            destinationFqdns: []
+            destinationPorts: [
+              '*'
+            ]
+          }
+        ]
+        name: 'MLZSpecificNetworking'
+        priority: 100
+      }
     ]
   }
 }
