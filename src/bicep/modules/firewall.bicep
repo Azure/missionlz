@@ -28,6 +28,8 @@ param managementIpConfigurationPublicIPAddressResourceId string
 
 param firewallPolicyName string
 
+param firewallSupernetIPAddress string
+
 param logStorageAccountResourceId string
 param logAnalyticsWorkspaceResourceId string
 
@@ -145,7 +147,7 @@ resource firewallNetworkRuleCollectionGroup 'Microsoft.Network/firewallPolicies/
               'Any'
             ]
             sourceAddresses: [
-              '10.0.96.0/19'
+              firewallSupernetIPAddress
             ]
             sourceIpGroups: []
             destinationAddresses: [

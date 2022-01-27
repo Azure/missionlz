@@ -139,6 +139,9 @@ param firewallManagementSubnetServiceEndpoints array = []
 @description('An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.')
 param firewallManagementPublicIPAddressAvailabilityZones array = []
 
+@description('Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses')
+param firewallSupernetIPAddress string = '10.0.96.0/19'
+
 @description('An array of Public IP Address Diagnostic Logs for the Azure Firewall. See https://docs.microsoft.com/en-us/azure/ddos-protection/diagnostic-logging?tabs=DDoSProtectionNotifications#configure-ddos-diagnostic-logs for valid settings.')
 param publicIPAddressDiagnosticsLogs array = [
   {
@@ -787,6 +790,7 @@ module hubNetwork './modules/hubNetwork.bicep' = {
     firewallManagementPublicIPAddressSkuName: firewallPublicIpAddressSkuName
     firewallManagementPublicIpAllocationMethod: firewallPublicIpAddressAllocationMethod
     firewallManagementPublicIPAddressAvailabilityZones: firewallManagementPublicIPAddressAvailabilityZones
+    firewallSupernetIPAddress: firewallSupernetIPAddress
 
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
