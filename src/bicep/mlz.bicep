@@ -215,7 +215,12 @@ param identityNetworkSecurityGroupRules array = [
       access: 'Allow'
       description: 'Allow traffic from spokes'
       destinationAddressPrefix: identityVirtualNetworkAddressPrefix
-      destinationPortRange: '*'
+      destinationPortRanges: [
+        '22'
+        '80'
+        '443'
+        '3389'
+      ]
       direction: 'Inbound'
       priority: 200
       protocol: '*'
@@ -262,12 +267,17 @@ param operationsVirtualNetworkDiagnosticsMetrics array = []
 @description('An array of Network Security Group rules to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
 param operationsNetworkSecurityGroupRules array = [
   {
-  name: 'Operations-East-West'
+  name: 'Allow-Traffic-From-Spokes'
   properties: {
     access: 'Allow'
     description: 'Allow traffic from spokes'
     destinationAddressPrefix: operationsVirtualNetworkAddressPrefix
-    destinationPortRange: '*'
+    destinationPortRanges: [
+      '22'
+      '80'
+      '443'
+      '3389'
+    ]
     direction: 'Inbound'
     priority: 200
     protocol: '*'
@@ -314,12 +324,17 @@ param sharedServicesVirtualNetworkDiagnosticsMetrics array = []
 @description('An array of Network Security Group rules to apply to the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
 param sharedServicesNetworkSecurityGroupRules array = [
   {
-    name: 'SharedServices-East-West'
+    name: 'Allow-Traffic-From-Spokes'
     properties: {
       access: 'Allow'
       description: 'Allow traffic from spokes'
       destinationAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
-      destinationPortRange: '*'
+      destinationPortRanges: [
+        '22'
+        '80'
+        '443'
+        '3389'
+      ]
       direction: 'Inbound'
       priority: 200
       protocol: '*'
