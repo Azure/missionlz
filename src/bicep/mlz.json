@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1124.51302",
-      "templateHash": "14304357202178630181"
+      "templateHash": "554527513249452863"
     }
   },
   "parameters": {
@@ -352,7 +352,7 @@
       "type": "array",
       "defaultValue": [
         {
-          "name": "Identity-East-West",
+          "name": "Allow-Traffic-From-Spokes",
           "properties": {
             "access": "Allow",
             "description": "Allow traffic from spokes",
@@ -1462,7 +1462,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1124.51302",
-              "templateHash": "17184391349319104649"
+              "templateHash": "11458318329795931964"
             }
           },
           "parameters": {
@@ -2418,7 +2418,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1124.51302",
-                      "templateHash": "9370873473870563599"
+                      "templateHash": "4253924211133862661"
                     }
                   },
                   "parameters": {
@@ -2596,7 +2596,7 @@
                             "rules": [
                               {
                                 "ruleType": "NetworkRule",
-                                "name": "MLZVnetRouting",
+                                "name": "AllSpokeTraffic",
                                 "ipProtocols": [
                                   "Any"
                                 ],
@@ -2614,7 +2614,7 @@
                                 ]
                               }
                             ],
-                            "name": "MLZSpecificNetworking",
+                            "name": "AllowTrafficBetweenSpokes",
                             "priority": 200
                           }
                         ]
