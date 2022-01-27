@@ -160,7 +160,7 @@ resource firewallNetworkRuleCollectionGroup 'Microsoft.Network/firewallPolicies/
             ]
           }
         ]
-        name: 'MLZSpecificNetworking'
+        name: 'AllowTrafficBetweenSpokes'
         priority: 200
       }
     ]
