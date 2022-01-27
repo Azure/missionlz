@@ -210,7 +210,7 @@ param identityVirtualNetworkDiagnosticsMetrics array = []
 @description('An array of Network Security Group Rules to apply to the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
 param identityNetworkSecurityGroupRules array = [
   {
-    name: 'Identity-East-West'
+    name: 'Allow-Traffic-From-Spokes'
     properties: {
       access: 'Allow'
       description: 'Allow traffic from spokes'
