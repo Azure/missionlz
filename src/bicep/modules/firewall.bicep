@@ -28,6 +28,8 @@ param managementIpConfigurationPublicIPAddressResourceId string
 
 param firewallPolicyName string
 
+param firewallSupernetIPAddress string
+
 param logStorageAccountResourceId string
 param logAnalyticsWorkspaceResourceId string
 
@@ -131,6 +133,35 @@ resource firewallNetworkRuleCollectionGroup 'Microsoft.Network/firewallPolicies/
         ]
         name: 'AllowAzureCloud'
         priority: 100
+      }
+      {
+        ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+        action: {
+          type: 'Allow'
+        }
+        rules: [
+          {
+            ruleType: 'NetworkRule'
+            name: 'AllSpokeTraffic'
+            ipProtocols: [
+              'Any'
+            ]
+            sourceAddresses: [
+              firewallSupernetIPAddress
+            ]
+            sourceIpGroups: []
+            destinationAddresses: [
+              '*'
+            ]
+            destinationIpGroups: []
+            destinationFqdns: []
+            destinationPorts: [
+              '*'
+            ]
+          }
+        ]
+        name: 'AllowTrafficBetweenSpokes'
+        priority: 200
       }
     ]
   }

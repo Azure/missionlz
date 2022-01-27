@@ -139,6 +139,9 @@ param firewallManagementSubnetServiceEndpoints array = []
 @description('An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.')
 param firewallManagementPublicIPAddressAvailabilityZones array = []
 
+@description('Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses')
+param firewallSupernetIPAddress string = '10.0.96.0/19'
+
 @description('An array of Public IP Address Diagnostic Logs for the Azure Firewall. See https://docs.microsoft.com/en-us/azure/ddos-protection/diagnostic-logging?tabs=DDoSProtectionNotifications#configure-ddos-diagnostic-logs for valid settings.')
 param publicIPAddressDiagnosticsLogs array = [
   {
@@ -205,7 +208,31 @@ param identityVirtualNetworkDiagnosticsLogs array = []
 param identityVirtualNetworkDiagnosticsMetrics array = []
 
 @description('An array of Network Security Group Rules to apply to the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
-param identityNetworkSecurityGroupRules array = []
+param identityNetworkSecurityGroupRules array = [
+  {
+    name: 'Allow-Traffic-From-Spokes'
+    properties: {
+      access: 'Allow'
+      description: 'Allow traffic from spokes'
+      destinationAddressPrefix: identityVirtualNetworkAddressPrefix
+      destinationPortRanges: [
+        '22'
+        '80'
+        '443'
+        '3389'
+      ]
+      direction: 'Inbound'
+      priority: 200
+      protocol: '*'
+      sourceAddressPrefixes: [
+        operationsVirtualNetworkAddressPrefix
+        sharedServicesVirtualNetworkAddressPrefix
+      ]
+      sourcePortRange: '*'
+    }
+    type: 'string'
+  }
+]
 
 @description('An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
 param identityNetworkSecurityGroupDiagnosticsLogs array = [
@@ -238,7 +265,31 @@ param operationsVirtualNetworkDiagnosticsLogs array = []
 param operationsVirtualNetworkDiagnosticsMetrics array = []
 
 @description('An array of Network Security Group rules to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
-param operationsNetworkSecurityGroupRules array = []
+param operationsNetworkSecurityGroupRules array = [
+  {
+  name: 'Allow-Traffic-From-Spokes'
+  properties: {
+    access: 'Allow'
+    description: 'Allow traffic from spokes'
+    destinationAddressPrefix: operationsVirtualNetworkAddressPrefix
+    destinationPortRanges: [
+      '22'
+      '80'
+      '443'
+      '3389'
+    ]
+    direction: 'Inbound'
+    priority: 200
+    protocol: '*'
+    sourceAddressPrefixes: [
+      identityVirtualNetworkAddressPrefix
+      sharedServicesVirtualNetworkAddressPrefix
+    ]
+    sourcePortRange: '*'
+  }
+  type: 'string'
+}
+]
 
 @description('An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
 param operationsNetworkSecurityGroupDiagnosticsLogs array = [
@@ -271,7 +322,31 @@ param sharedServicesVirtualNetworkDiagnosticsLogs array = []
 param sharedServicesVirtualNetworkDiagnosticsMetrics array = []
 
 @description('An array of Network Security Group rules to apply to the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
-param sharedServicesNetworkSecurityGroupRules array = []
+param sharedServicesNetworkSecurityGroupRules array = [
+  {
+    name: 'Allow-Traffic-From-Spokes'
+    properties: {
+      access: 'Allow'
+      description: 'Allow traffic from spokes'
+      destinationAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
+      destinationPortRanges: [
+        '22'
+        '80'
+        '443'
+        '3389'
+      ]
+      direction: 'Inbound'
+      priority: 200
+      protocol: '*'
+      sourceAddressPrefixes: [
+        operationsVirtualNetworkAddressPrefix
+        identityVirtualNetworkAddressPrefix
+      ]
+      sourcePortRange: '*'
+    }
+    type: 'string'
+  }
+]
 
 @description('An array of Network Security Group diagnostic logs to apply to the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
 param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = [
@@ -730,6 +805,7 @@ module hubNetwork './modules/hubNetwork.bicep' = {
     firewallManagementPublicIPAddressSkuName: firewallPublicIpAddressSkuName
     firewallManagementPublicIpAllocationMethod: firewallPublicIpAddressAllocationMethod
     firewallManagementPublicIPAddressAvailabilityZones: firewallManagementPublicIPAddressAvailabilityZones
+    firewallSupernetIPAddress: firewallSupernetIPAddress
 
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
