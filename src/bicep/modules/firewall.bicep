@@ -159,7 +159,7 @@ resource firewallNetworkRuleCollectionGroup 'Microsoft.Network/firewallPolicies/
           }
         ]
         name: 'MLZSpecificNetworking'
-        priority: 100
+        priority: 200
       }
     ]
   }
