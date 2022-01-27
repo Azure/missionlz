@@ -142,7 +142,7 @@ resource firewallNetworkRuleCollectionGroup 'Microsoft.Network/firewallPolicies/
         rules: [
           {
             ruleType: 'NetworkRule'
-            name: 'MLZVnetRouting'
+            name: 'AllSpokeTraffic'
             ipProtocols: [
               'Any'
             ]
