@@ -29,6 +29,7 @@ param routeTableRouteNextHopType string = 'VirtualAppliance'
 param firewallName string
 param firewallSkuTier string
 param firewallPolicyName string
+param firewallSupernetIPAddress string
 
 @allowed([
   'Alert'
@@ -218,6 +219,7 @@ module firewall './firewall.bicep' = {
     clientIpConfigurationName: firewallClientIpConfigurationName
     clientIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/${firewallClientSubnetName}'
     clientIpConfigurationPublicIPAddressResourceId: firewallClientPublicIPAddress.outputs.id
+    firewallSupernetIPAddress: firewallSupernetIPAddress
 
     managementIpConfigurationName: firewallManagementIpConfigurationName
     managementIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/${firewallManagementSubnetName}'

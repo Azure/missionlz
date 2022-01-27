@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1124.51302",
-      "templateHash": "1118457920660514703"
+      "templateHash": "9598620800925226147"
     }
   },
   "parameters": {
@@ -240,6 +240,13 @@
         "description": "An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or \"No-Zone\", because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings."
       }
     },
+    "firewallSupernetIPAddress": {
+      "type": "string",
+      "defaultValue": "10.0.96.0/19",
+      "metadata": {
+        "description": "Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses"
+      }
+    },
     "publicIPAddressDiagnosticsLogs": {
       "type": "array",
       "defaultValue": [
@@ -343,7 +350,31 @@
     },
     "identityNetworkSecurityGroupRules": {
       "type": "array",
-      "defaultValue": [],
+      "defaultValue": [
+        {
+          "name": "Allow-Traffic-From-Spokes",
+          "properties": {
+            "access": "Allow",
+            "description": "Allow traffic from spokes",
+            "destinationAddressPrefix": "[parameters('identityVirtualNetworkAddressPrefix')]",
+            "destinationPortRanges": [
+              "22",
+              "80",
+              "443",
+              "3389"
+            ],
+            "direction": "Inbound",
+            "priority": 200,
+            "protocol": "*",
+            "sourceAddressPrefixes": [
+              "[parameters('operationsVirtualNetworkAddressPrefix')]",
+              "[parameters('sharedServicesVirtualNetworkAddressPrefix')]"
+            ],
+            "sourcePortRange": "*"
+          },
+          "type": "string"
+        }
+      ],
       "metadata": {
         "description": "An array of Network Security Group Rules to apply to the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings."
       }
@@ -398,7 +429,31 @@
     },
     "operationsNetworkSecurityGroupRules": {
       "type": "array",
-      "defaultValue": [],
+      "defaultValue": [
+        {
+          "name": "Allow-Traffic-From-Spokes",
+          "properties": {
+            "access": "Allow",
+            "description": "Allow traffic from spokes",
+            "destinationAddressPrefix": "[parameters('operationsVirtualNetworkAddressPrefix')]",
+            "destinationPortRanges": [
+              "22",
+              "80",
+              "443",
+              "3389"
+            ],
+            "direction": "Inbound",
+            "priority": 200,
+            "protocol": "*",
+            "sourceAddressPrefixes": [
+              "[parameters('identityVirtualNetworkAddressPrefix')]",
+              "[parameters('sharedServicesVirtualNetworkAddressPrefix')]"
+            ],
+            "sourcePortRange": "*"
+          },
+          "type": "string"
+        }
+      ],
       "metadata": {
         "description": "An array of Network Security Group rules to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings."
       }
@@ -453,7 +508,31 @@
     },
     "sharedServicesNetworkSecurityGroupRules": {
       "type": "array",
-      "defaultValue": [],
+      "defaultValue": [
+        {
+          "name": "Allow-Traffic-From-Spokes",
+          "properties": {
+            "access": "Allow",
+            "description": "Allow traffic from spokes",
+            "destinationAddressPrefix": "[parameters('sharedServicesVirtualNetworkAddressPrefix')]",
+            "destinationPortRanges": [
+              "22",
+              "80",
+              "443",
+              "3389"
+            ],
+            "direction": "Inbound",
+            "priority": 200,
+            "protocol": "*",
+            "sourceAddressPrefixes": [
+              "[parameters('operationsVirtualNetworkAddressPrefix')]",
+              "[parameters('identityVirtualNetworkAddressPrefix')]"
+            ],
+            "sourcePortRange": "*"
+          },
+          "type": "string"
+        }
+      ],
       "metadata": {
         "description": "An array of Network Security Group rules to apply to the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings."
       }
@@ -1381,6 +1460,9 @@
           "firewallManagementPublicIPAddressAvailabilityZones": {
             "value": "[parameters('firewallManagementPublicIPAddressAvailabilityZones')]"
           },
+          "firewallSupernetIPAddress": {
+            "value": "[parameters('firewallSupernetIPAddress')]"
+          },
           "publicIPAddressDiagnosticsLogs": {
             "value": "[parameters('publicIPAddressDiagnosticsLogs')]"
           },
@@ -1395,7 +1477,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1124.51302",
-              "templateHash": "17051388440557968847"
+              "templateHash": "11458318329795931964"
             }
           },
           "parameters": {
@@ -1475,6 +1557,9 @@
               "type": "string"
             },
             "firewallPolicyName": {
+              "type": "string"
+            },
+            "firewallSupernetIPAddress": {
               "type": "string"
             },
             "firewallThreatIntelMode": {
@@ -2316,6 +2401,9 @@
                   "clientIpConfigurationPublicIPAddressResourceId": {
                     "value": "[reference(resourceId('Microsoft.Resources/deployments', 'firewallClientPublicIPAddress'), '2020-10-01').outputs.id.value]"
                   },
+                  "firewallSupernetIPAddress": {
+                    "value": "[parameters('firewallSupernetIPAddress')]"
+                  },
                   "managementIpConfigurationName": {
                     "value": "[parameters('firewallManagementIpConfigurationName')]"
                   },
@@ -2345,7 +2433,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1124.51302",
-                      "templateHash": "16584291901786360410"
+                      "templateHash": "4253924211133862661"
                     }
                   },
                   "parameters": {
@@ -2398,6 +2486,9 @@
                       "type": "string"
                     },
                     "firewallPolicyName": {
+                      "type": "string"
+                    },
+                    "firewallSupernetIPAddress": {
                       "type": "string"
                     },
                     "logStorageAccountResourceId": {
@@ -2511,6 +2602,35 @@
                             ],
                             "name": "AllowAzureCloud",
                             "priority": 100
+                          },
+                          {
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "rules": [
+                              {
+                                "ruleType": "NetworkRule",
+                                "name": "AllSpokeTraffic",
+                                "ipProtocols": [
+                                  "Any"
+                                ],
+                                "sourceAddresses": [
+                                  "[parameters('firewallSupernetIPAddress')]"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "*"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "*"
+                                ]
+                              }
+                            ],
+                            "name": "AllowTrafficBetweenSpokes",
+                            "priority": 200
                           }
                         ]
                       },
@@ -3609,7 +3729,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1124.51302",
-              "templateHash": "1767605230483986077"
+              "templateHash": "485438933319305543"
             }
           },
           "parameters": {
@@ -3649,7 +3769,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1124.51302",
-                      "templateHash": "16609137319418689057"
+                      "templateHash": "8767588004842445770"
                     }
                   },
                   "parameters": {
@@ -3666,6 +3786,7 @@
                       "apiVersion": "2021-02-01",
                       "name": "[parameters('name')]",
                       "properties": {
+                        "allowForwardedTraffic": true,
                         "remoteVirtualNetwork": {
                           "id": "[parameters('remoteVirtualNetworkResourceId')]"
                         }
@@ -3722,7 +3843,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1124.51302",
-              "templateHash": "11446754582894399873"
+              "templateHash": "13959757217405312631"
             }
           },
           "parameters": {
@@ -3768,7 +3889,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1124.51302",
-                      "templateHash": "16609137319418689057"
+                      "templateHash": "8767588004842445770"
                     }
                   },
                   "parameters": {
@@ -3785,6 +3906,7 @@
                       "apiVersion": "2021-02-01",
                       "name": "[parameters('name')]",
                       "properties": {
+                        "allowForwardedTraffic": true,
                         "remoteVirtualNetwork": {
                           "id": "[parameters('remoteVirtualNetworkResourceId')]"
                         }
