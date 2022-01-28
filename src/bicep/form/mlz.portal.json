@@ -331,19 +331,19 @@
                         "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').hubVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1))), true)]",
                         "message": "CIDR range not within super network CIDR range (first octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').hubVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2))), true)]",
                         "message": "CIDR range not within super network CIDR range (second octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').hubVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3))), true)]",
                         "message": "CIDR range not within super network CIDR range (third octet)."
                       },
                       {
-                        "isValid": "[lessOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), last(split(steps('networking').hubVirtualNetwork.subnetAddressCidrRange, '/')))]",
+                        "isValid": "[lessOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')))]",
                         "message": "CIDR range not within super network CIDR range (subnet mask)."
                       }
                     ]
