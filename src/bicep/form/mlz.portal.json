@@ -302,6 +302,22 @@
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
+                  "name": "superNetworkAddressCidrRange",
+                  "label": "Super Network CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.96.0/19",
+                  "toolTip": "Specify an address CIDR range within the range [10,24].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-3]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
+                      }
+                    ]
+                  }
+                },
+                {
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Hub Virtual Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
@@ -313,6 +329,22 @@
                       {
                         "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-4]))$",
                         "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within super network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within super network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within super network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within super network CIDR range (subnet mask)."
                       }
                     ]
                   }
@@ -958,6 +990,7 @@
         "operationsSubscriptionId": "[replace(steps('basics').operationsSection.operationsSubscriptionId, '/subscriptions/', '')]",
         "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
         "location": "[steps('basics').locationSection.location]",
+        "firewallSupernetIPAddress": "[steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange]",
         "tags": "[if(not(contains(steps('tags').tagsByResource, 'MissionLandingZone')), parse('{}'), first(map(parse(concat('[', string(steps('tags').tagsByResource), ']')), (item) => item.MissionLandingZone)))]",
         "hubVirtualNetworkAddressPrefix": "[steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange]",
         "hubSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.subnetAddressCidrRange]",
