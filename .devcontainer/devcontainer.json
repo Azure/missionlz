@@ -13,9 +13,7 @@
 				"path": "/bin/bash"
 			}
 		},
-		"python.defaultInterpreterPath": "/bin/python",
-		"python.linting.enabled": true,
-		"python.linting.pylintEnabled": true
+		"terminal.integrated.defaultProfile.linux": "bash"
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.
@@ -27,9 +25,7 @@
 		"timonwong.shellcheck",
 		"ms-azuretools.vscode-bicep",
 		"bierner.markdown-preview-github-styles",
-		"ms-azure-devops.azure-pipelines",
-		"ms-python.python",
-		"ms-python.vscode-pylance"
+		"ms-azure-devops.azure-pipelines"
 	],
 
 	// Additional args to pass to the 'docker run' command
