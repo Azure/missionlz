@@ -18,7 +18,7 @@ jobs:
   displayName: 'Validate Declarative Form'
   steps:
   - bash: |
-      cd src/bicep/form/validation
-      python3 validate_declarative_form.py ../mlz.portal.json ../../mlz.json
+      curl -o validate_declarative_form.py -L https://raw.githubusercontent.com/glennmusa/validate-declarative-form/main/validate_declarative_form.py
+      python3 validate_declarative_form.py src/bicep/form/mlz.portal.json src/bicep/mlz.json
     displayName: 'Execute validation script'
     failOnStderr: true
