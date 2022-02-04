@@ -107,7 +107,7 @@ Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/networking.png" alt="A diagram that depicts a hub with four spokes, each spoke pointing at the hub." width="600" />
+<img src="docs/images/networking.png" alt="A diagram that depicts a hub with four spokes, each spoke pointing at the hub" width="600" />
 <!-- markdownlint-enable MD033 -->
 
 ## Subscriptions
@@ -143,7 +143,7 @@ Here's a summary of what Mission Landing Zone deploys of as of December 2021:
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/20220204_missionlz_as_of_Feb2022_light.svg" alt="A diagram that depicts a hub and spoke network topology built with Azure resources." width="1200" />
+<img src="docs/images/20220204_missionlz_as_of_Feb2022_light.svg" alt="A diagram that depicts a hub and spoke network topology built with Azure resources" width="1200" />
 <!-- markdownlint-enable MD033 -->
 
 ## Contributing
