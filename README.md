@@ -96,10 +96,10 @@ Mission LZ has the following scope:
 - Security using standard Azure tools with sensible defaults
 - Azure Policy initiatives
 
-<!-- markdownlint-disable MD033 -->
+<!-- markdownlint-disable MD033 MD013 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/scope-v2.png" alt="Mission LZ Scope" width="600" />
-<!-- markdownlint-enable MD033 -->
+<img src="docs/images/scope-v2.png" alt="A image that lists the components Mission LZ  provisions and uses: Log Analytics, Azure Defender, Azure Sentinel, Azure Bastion, Virtual Networks, and Azure Policies like NIST 800-53, CMMC, DoD IL5, all on-top of one to many Azure subscriptions. All these components and subscriptions fall under a rectangle labeled DISA Secure Cloud Computing Architecture (SCCA) Controls, indicating they all serve the purposes of fulfilling the Secure Cloud Computing Architecture Controls." width="600" />
+<!-- markdownlint-enable MD033 MD013 -->
 
 ## Networking
 
@@ -107,7 +107,7 @@ Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/networking.png" alt="Mission LZ Networking" width="600" />
+<img src="docs/images/networking.png" alt="A diagram that shows a Network Hub circle at the center and four squares that each pointing to that Network Hub circle. One square is for T0: Identity and Authorization, another square is labeled T1: Infrastructure Operations, another square is labeled T2: DevSecOps and Shared Services, and another square is labeled T3(n): Team Environments" width="600" />
 <!-- markdownlint-enable MD033 -->
 
 ## Subscriptions
@@ -141,10 +141,10 @@ See the [Projects](https://github.com/Azure/missionlz/projects) page for the rel
 
 Here's a summary of what Mission Landing Zone deploys of as of December 2021:
 
-<!-- markdownlint-disable MD033 -->
+<!-- markdownlint-disable MD033 MD013 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/20211220_missionlz_as_of_Dec2021.svg" alt="Mission LZ as of December 2021" width="1200" />
-<!-- markdownlint-enable MD033 -->
+<img src="docs/images/20220204_missionlz_as_of_Feb2022_light.svg" alt="A diagram that shows a hub and spoke network topology. The diagram depicts how a user would access the network from a web browser and the Azure Portal to connect to an Azure Bastion instance that allows them to remotely manage four virtual networks, or spokes, that are peered and forced tunnelled to a virtual network, the hub, that routes traffic and uses an Azure Firewall Premium instance to adhere to Secure Cloud Computing Architecture Controls." width="1200" />
+<!-- markdownlint-enable MD033 MD013 -->
 
 ## Contributing
 
