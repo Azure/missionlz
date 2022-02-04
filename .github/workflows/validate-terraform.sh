@@ -27,7 +27,7 @@ validate() {
   program_log "validating at ${tf_dir}..."
   terraform init -backend=false >> /dev/null || exit 1
   terraform validate >> /dev/null || exit 1
-  program_log "successful validation with 'terraform validate ${tf_dir}!"
+  program_log "successful validation with \"terraform validate ${tf_dir}\"!"
 }
 
 # check Terraform formatting with `terraform fmt`
@@ -37,14 +37,14 @@ check_formatting() {
   program_log "checking formatting at ${tf_dir}..."
   if terraform fmt -check -recursive >> /dev/null;
   then
-    program_log "successful check with 'terraform fmt -check -recursive ${tf_dir}'"
+    program_log "successful check with \"terraform fmt -check -recursive ${tf_dir}\""
   else
     linting_results=$(terraform fmt -check -recursive)
     for j in $linting_results
     do
-      error_log "'${j}' is not formatted correctly. Format with the command 'terraform fmt ${j}'"
+      error_log "\"${j}\" is not formatted correctly. Format with the command \"terraform fmt ${j}\""
     done
-    program_log "run 'terraform fmt -recursive' to format all Terraform components in a directory"
+    program_log "run \"terraform fmt -recursive\" to format all Terraform components in a directory"
     exit 1
   fi
 }
