@@ -98,7 +98,7 @@ Mission LZ has the following scope:
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/scope-v2.png" alt="Mission LZ Scope" width="600" />
+<img src="docs/images/scope-v2.png" alt="A table of the components Mission LZ provisions in Azure beneath a rectangle labeled DISA Secure Cloud Computing Architecture Controls" width="600" />
 <!-- markdownlint-enable MD033 -->
 
 ## Networking
@@ -107,7 +107,7 @@ Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/networking.png" alt="Mission LZ Networking" width="600" />
+<img src="docs/images/networking.png" alt="A diagram that depicts a hub with four spokes, each spoke pointing at the hub" width="600" />
 <!-- markdownlint-enable MD033 -->
 
 ## Subscriptions
@@ -116,7 +116,7 @@ Most customers will deploy each tier to a separate Azure subscription, but multi
 
 ## Firewall
 
-All network traffic is directed through the firewall residing in the Network Hub resource group. The firewall is configured as the default route for all the T0 (Identity and Authorization) through T3 (workload/team environments) resource groups as follows:  
+All network traffic is directed through the firewall residing in the Network Hub resource group. The firewall is configured as the default route for all the T0 (Identity and Authorization) through T3 (workload/team environments) resource groups as follows:
 
 |Name         |Address prefix| Next hop type| Next hop IP address|
 |-------------|--------------|-----------------|-----------------|
@@ -143,7 +143,7 @@ Here's a summary of what Mission Landing Zone deploys of as of December 2021:
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/20211220_missionlz_as_of_Dec2021.svg" alt="Mission LZ as of December 2021" width="1200" />
+<img src="docs/images/20220204_missionlz_as_of_Feb2022_light.svg" alt="A diagram that depicts a hub and spoke network topology built with Azure resources" width="1200" />
 <!-- markdownlint-enable MD033 -->
 
 ## Contributing
