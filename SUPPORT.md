@@ -4,7 +4,7 @@
 
 We welcome feedback of all types.
 
-This project uses GitHub issues to track work. Please search the [existing issues](/issues) before filing new issues to avoid duplicates.
+This project uses GitHub issues to track work. Please search the [existing issues](~/issues) before filing new issues to avoid duplicates.
 
 For new issues, use the [issue templates](/issues/new/choose).
 
