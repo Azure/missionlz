@@ -4,13 +4,13 @@
 
 We welcome feedback of all types.
 
-This project uses GitHub issues to track work. Please search the [existing issues](~/issues) before filing new issues to avoid duplicates.
+This project uses GitHub issues to track work. Please search the [existing issues](https://github.com/Azure/missionlz/issues) before filing new issues to avoid duplicates.
 
-For new issues, use the [issue templates](/issues/new/choose).
+For new issues, use the [issue templates](https://github.com/Azure/missionlz/issues/new/choose).
 
-For help and questions about using this project, please submit a [question](/issues/new?assignees=&labels=question&template=question.md&title=).
+For help and questions about using this project, please submit a [question](https://github.com/Azure/missionlz/issues/new?assignees=&labels=question&template=question.md&title=).
 
-To report a security issue please see our [security guidance](/SECURITY.md).
+To report a security issue please see our [security guidance](https://github.com/Azure/missionlz/SECURITY.md).
 
 ## Microsoft Support Policy  
 
