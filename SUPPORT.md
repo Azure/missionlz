@@ -10,7 +10,7 @@ For new issues, use the [issue templates](https://github.com/Azure/missionlz/iss
 
 For help and questions about using this project, please submit a [question](https://github.com/Azure/missionlz/issues/new?assignees=&labels=question&template=question.md&title=).
 
-To report a security issue please see our [security guidance](https://github.com/Azure/missionlz/SECURITY.md).
+To report a security issue please see our [security guidance](/SECURITY.md).
 
 ## Microsoft Support Policy  
 
