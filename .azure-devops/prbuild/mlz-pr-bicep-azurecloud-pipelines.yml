@@ -32,3 +32,6 @@ jobs:
           --location $(Location) \
           --template-file $(TemplateFile) \
           --parameters resourcePrefix=$datetime
+  - task: ManifestGeneratorTask@0
+    inputs:
+      BuildDropPath: '$(System.ArtifactsDirectory)/buildOutput'
