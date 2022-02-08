@@ -96,7 +96,7 @@ provider "azurerm" {
   alias           = "tier2"
   environment     = var.environment
   metadata_host   = var.metadata_host
-  subscription_id = coalesce(var.hub_subid, var.tier2_subid)
+  subscription_id = coalesce(var.tier2_subid, var.hub_subid)
 
   features {
     log_analytics_workspace {
