@@ -33,11 +33,12 @@ jobs:
           --template-file $(TemplateFile) \
           --parameters resourcePrefix=$datetime
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
-    displayName: 'Generation Task'
+    displayName: 'Generate SBOM'
     inputs:
       BuildDropPath: '$(Build.ArtifactStagingDirectory)'
   
   - task: PublishBuildArtifacts@1
+    displayName: 'Publish SBOM to Build Artifact'
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
       ArtifactName: 'drop'
