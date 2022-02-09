@@ -35,14 +35,10 @@ jobs:
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
     displayName: 'Generate SBOM'
     inputs:
-      BuildComponentPath: $(System.DefaultWorkingDirectory)
+      BuildComponentPath: '$(System.DefaultWorkingDirectory)/src'
       BuildDropPath: $(Build.ArtifactStagingDirectory)
-  
-  - task: onebranch.pipeline.manifest@1
-    inputs:
-      dropRoot: $(Build.ArtifactStagingDirectory)
-      manifestPath: $(Build.ArtifactStagingDirectory)
-      buildInfoPath: $(System.DefaultWorkingDirectory)
+      workingDirectory: '$(System.DefaultWorkingDirectory)/src'
+    
   
   
   - task: PublishBuildArtifacts@1
