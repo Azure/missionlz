@@ -32,7 +32,8 @@ jobs:
           --location $(Location) \
           --template-file $(TemplateFile) \
           --parameters resourcePrefix=$datetime
-  - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
+
+  - task: ManifestGeneratorTask@0
     displayName: 'Generate SBOM'
     inputs:
       BuildComponentPath: '$(System.DefaultWorkingDirectory)/src'
