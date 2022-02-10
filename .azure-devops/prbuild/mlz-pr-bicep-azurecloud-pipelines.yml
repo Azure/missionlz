@@ -54,14 +54,14 @@ jobs:
       script: |
             git config --global user.email "bsailesh@msn.com"
             git config --global user.name "Vidya Bala"
-            git checkout -t origin/brooke/sbom-pipeline;
+            git checkout -t self;
             git add '_manifest/*';
             git status;
             whoami;
             git push origin master
             git commit -m "Retrieved latest Developer SB changes!"
             echo "Pushing now!!!";
-            git push --set-upstream origin HEAD:brooke/sbom-pipeline;
+            git push --set-upstream self;
       workingDirectory: $(Build.SourcesDirectory)
     displayName: 'Git Commit and Tag from pipeline'
     continueOnError: true
