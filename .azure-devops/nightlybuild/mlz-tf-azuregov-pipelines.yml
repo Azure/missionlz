@@ -32,4 +32,4 @@ jobs:
 
   - template: templates/clean-az-subscription.yml
     parameters:
-      serviceConnectionName: $(ServiceConnectionName)
+      serviceConnectionName: $(GAzureConnection)

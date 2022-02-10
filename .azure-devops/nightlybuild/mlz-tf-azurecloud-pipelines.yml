@@ -31,3 +31,5 @@ jobs:
       Location: $(CLocation)
 
   - template: templates/clean-az-subscription.yml
+      parameters:
+      serviceConnectionName: $(CAzureConnection)
