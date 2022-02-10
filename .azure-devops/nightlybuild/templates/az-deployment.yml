@@ -9,8 +9,6 @@ parameters:
   type: string
 - name: Location
   type: string
-- name: TemplateFile
-  type: string
 - name: WorkloadSubId
   type: string
 - name: WorkloadName
@@ -29,7 +27,7 @@ steps:
         az deployment sub create \
           --name ${{ parameters.DeploymentName }} \
           --location ${{ parameters.Location }} \
-          --template-file ${{ parameters.TemplateFile }} \
+          --template-file $(Build.SourcesDirectory)/src/bicep/mlz.bicep
           --parameters resourcePrefix=$datetime
 
   - task: AzureCLI@2
