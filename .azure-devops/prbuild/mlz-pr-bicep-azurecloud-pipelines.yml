@@ -38,6 +38,9 @@ jobs:
     inputs:
       BuildComponentPath: '$(System.DefaultWorkingDirectory)/src'
       BuildDropPath: $(Build.ArtifactStagingDirectory)
+      PackageName: 'Visual Studio 2022'
+      PackageVersion: '17.0.2'
+      DockerImagesToScan: 'ubuntu:16.04, 56bab49eef2ef07505f6a1b0d5bd3a601dfc3c76ad4'
       workingDirectory: '$(System.DefaultWorkingDirectory)/src'
       verbose: Verbose
     
