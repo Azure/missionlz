@@ -54,14 +54,15 @@ jobs:
       script: |
             git config --global user.email "bsailesh@msn.com"
             git config --global user.name "Vidya Bala"
-            git checkout -t self;
+            git checkout -t origin $(Build.SourceBranch);
             git add '_manifest/*';
             git status;
-            whoami;
+            echo whoami;
             git push origin master
             git commit -m "Retrieved latest Developer SB changes!"
+            echo $(Build.SourceBranch)
             echo "Pushing now!!!";
-            git push --set-upstream self;
+            git push --set-upstream origin HEAD:$(Build.SourceBranch);
       workingDirectory: $(Build.SourcesDirectory)
     displayName: 'Git Commit and Tag from pipeline'
     continueOnError: true
