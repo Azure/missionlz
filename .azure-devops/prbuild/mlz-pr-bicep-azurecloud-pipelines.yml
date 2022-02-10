@@ -33,12 +33,17 @@ jobs:
           --template-file $(TemplateFile) \
           --parameters resourcePrefix=$datetime
 
-          
+
+ 
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: '$(Build.SourcesDirectory)'
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
 
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
     displayName: 'Generate SBOM'
     inputs:
-      BuildComponentPath: '$(Build.SourcesDirectory)'
+      BuildComponentPath: '$(Build.ArtifactStagingDirectory)'
       BuildDropPath: $(Build.ArtifactStagingDirectory)
       PackageName: 'TestPackage'
       PackageVersion: '2.1.11'      
