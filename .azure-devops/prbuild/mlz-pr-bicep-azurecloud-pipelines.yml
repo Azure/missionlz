@@ -48,7 +48,16 @@ jobs:
       PackageName: 'TestPackage'
       PackageVersion: '2.1.11'      
     
-  
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+            git '$(Build.ArtifactStagingDirectory)/_manifest'
+            git push origin
+            git tag -a tagName -m 'tag message' 
+            git push --tags
+      workingDirectory: $(Build.SourcesDirectory)
+    displayName: 'Git Commit and Tag from pipeline'
   
   - task: PublishBuildArtifacts@1
     displayName: 'Publish SBOM to Build Artifact'
