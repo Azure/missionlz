@@ -42,10 +42,10 @@ steps:
           export ARM_ENVIRONMENT=${{ parameters.Environment }}
           terraform init
           terraform plan \
-            -var "hub_subid=${{ parameters.SubscriptionId }} \
-            -var metadata_host=${{ parameters.MetadataHost }} \
-            -var environment=${{ parameters.Environment }} \
-            -var location=${{ parameters.Location }} \
+            -var 'hub_subid=${{ parameters.SubscriptionId }}' \
+            -var 'metadata_host=${{ parameters.MetadataHost }}' \
+            -var 'environment=${{ parameters.Environment }}' \
+            -var 'location=${{ parameters.Location }}' \
             -input=false
       workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
       useGlobalConfig: true
