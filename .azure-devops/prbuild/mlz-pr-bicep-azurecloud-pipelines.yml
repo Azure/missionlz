@@ -52,10 +52,16 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-            git add '_manifest/*'
+            git config --global user.email "bsailesh@msn.com"
+            git config --global user.name "Vidya Bala"
+            git checkout -t origin/brooke/sbom-pipeline;
+            git add '_manifest/*';
+            git status;
+            whoami;
             git push origin master
-            git tag -a tagName -m 'tag message' 
-            git push --tags
+            git commit -m "Retrieved latest Developer SB changes!"
+            echo "Pushing now!!!";
+            git push --set-upstream origin HEAD:brooke/sbom-pipeline;
       workingDirectory: $(Build.SourcesDirectory)
     displayName: 'Git Commit and Tag from pipeline'
     continueOnError: true
