@@ -44,7 +44,7 @@ jobs:
     displayName: 'Generate SBOM'
     inputs:
       BuildComponentPath: '$(Build.ArtifactStagingDirectory)'
-      BuildDropPath: '$(Build.SourcesDirectory)'
+      BuildDropPath: '$(Build.SourcesDirectory)/_manifest'
       PackageName: 'TestPackage'
       PackageVersion: '2.1.11'      
     
