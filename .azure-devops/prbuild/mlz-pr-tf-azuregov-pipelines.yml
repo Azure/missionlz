@@ -16,7 +16,7 @@ pool:
 jobs:
 
 - job: GovCloud_TF
-  displayName: "PR Checks for MissionLZ Terraform on AzureUsGovernment"
+  displayName: "PR Checks for Mission LZ Terraform on AzureUsGovernment"
 
   steps:
   - template: templates/terraform-plan.yml

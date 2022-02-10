@@ -16,7 +16,7 @@ pool:
 jobs:
 
 - job: CommercialCloud_TF
-  displayName: "PR Checks for MissionLZ Terraform on AzureCloud"
+  displayName: "PR Checks for Mission LZ Terraform on AzureCloud"
 
   steps:
   - template: templates/terraform-plan.yml
