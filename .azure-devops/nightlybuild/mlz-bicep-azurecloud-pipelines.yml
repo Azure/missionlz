@@ -103,4 +103,3 @@ jobs:
               firewallPrivateIPAddress=$(firewallPrivateIPAddress)
 
   - template: templates/clean-az-subscription.yml
-    displayName: "Clean Subscription"
