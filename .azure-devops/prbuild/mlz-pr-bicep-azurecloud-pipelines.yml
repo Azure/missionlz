@@ -52,7 +52,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-            git '$(Build.ArtifactStagingDirectory)/_manifest'
+            git add '$(Build.ArtifactStagingDirectory)/_manifest'
             git push origin
             git tag -a tagName -m 'tag message' 
             git push --tags
