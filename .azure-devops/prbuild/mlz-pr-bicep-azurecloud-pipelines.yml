@@ -52,13 +52,12 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-            git config --global user.email "bsailesh@msn.com"
-            git config --global user.name "Vidya Bala"
+            git config --global user.email $BUILD_REQUESTEDFOREMAIL
+            git config --global user.name "$BUILD_REQUESTEDFOR"
             git checkout -t origin $(Build.SourceBranch);
             git add '_manifest/*';
             git status;
             echo whoami;
-            git push origin master
             git commit -m "Retrieved latest Developer SB changes!"
             echo $(Build.SourceBranch)
             echo "Pushing now!!!";
