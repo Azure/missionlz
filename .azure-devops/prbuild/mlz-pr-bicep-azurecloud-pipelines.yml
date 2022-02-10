@@ -55,7 +55,7 @@ jobs:
             git config --global user.email "bsailesh@msn.com"
             git config --global user.name "Vidya Bala"
             git checkout -t self;
-            git update '_manifest/*';
+            git add '_manifest/*';
             git status;
             whoami;
             git push origin master
