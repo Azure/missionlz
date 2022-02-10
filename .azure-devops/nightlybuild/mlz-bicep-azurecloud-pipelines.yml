@@ -102,33 +102,6 @@ jobs:
               logAnalyticsWorkspaceResourceId=$(logAnalyticsWorkspaceResourceId) \
               firewallPrivateIPAddress=$(firewallPrivateIPAddress)
 
-  - task: AzureCLI@2
-    displayName: "Clean up Subscription Diagnostics Settings"
+  - template: templates/clean-az-subscription.yml
+    displayName: "Clean Subscription"
     condition: always()
-    inputs:
-      azureSubscription: $(ServiceConnectionName)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: | 
-        az monitor diagnostic-settings subscription list \
-          --query "value[].name" \
-          --output tsv \
-        | xargs -t -I % az monitor diagnostic-settings subscription delete \
-          --yes \
-          --name %
-
-  - task: AzureCLI@2
-    displayName: "Clean up Resources"
-    condition: always()
-    inputs:
-      azureSubscription: $(ServiceConnectionName)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az group list \
-          --query "[].name" \
-          --output tsv \
-        | xargs -t -I % az group delete \
-          --yes \
-          --no-wait \
-          --name %
