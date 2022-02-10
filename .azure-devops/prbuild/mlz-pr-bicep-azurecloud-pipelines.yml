@@ -40,6 +40,13 @@ jobs:
       sourceFolder: '$(Build.SourcesDirectory)'
       targetFolder: '$(Build.ArtifactStagingDirectory)'
 
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+            md $(Build.SourcesDirectory)/_manifest/$(Build.BuildId)
+
+
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
     displayName: 'Generate SBOM'
     inputs:
