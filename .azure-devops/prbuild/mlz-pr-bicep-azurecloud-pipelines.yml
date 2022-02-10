@@ -39,7 +39,7 @@ jobs:
       BuildComponentPath: '$(System.DefaultWorkingDirectory)/src'
       BuildDropPath: $(Build.ArtifactStagingDirectory)
       workingDirectory: '$(System.DefaultWorkingDirectory)/src'
-      verbose: debug
+      verbose: Verbose
     
   
   
