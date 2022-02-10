@@ -44,7 +44,7 @@ jobs:
     displayName: 'Generate SBOM'
     inputs:
       BuildComponentPath: '$(Build.ArtifactStagingDirectory)'
-      BuildDropPath: $(Build.ArtifactStagingDirectory)
+      BuildDropPath: '$(Build.SourcesDirectory)'
       PackageName: 'TestPackage'
       PackageVersion: '2.1.11'      
     
@@ -52,16 +52,20 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-            git add '$(Build.ArtifactStagingDirectory)/_manifest'
-            git push origin
+            git config --global user.email "bsailesh@msn.com"
+            git config --global user.name "vidyambala"
+
+            git add '_manifest/*'
+            git push origin master
             git tag -a tagName -m 'tag message' 
             git push --tags
       workingDirectory: $(Build.SourcesDirectory)
     displayName: 'Git Commit and Tag from pipeline'
+    continueOnError: true
   
   - task: PublishBuildArtifacts@1
     displayName: 'Publish SBOM to Build Artifact'
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/_manifest'
+      PathtoPublish: '$(Build.SourcesDirectory)/_manifest'
       ArtifactName: 'drop'
       publishLocation: 'Container'
