@@ -17,6 +17,7 @@ pool:
 jobs:
 
 - job: CommercialCloud_TF
+  displayName: "Nightly deployment of Mission LZ Terraform on AzureCloud"
 
   steps:
 

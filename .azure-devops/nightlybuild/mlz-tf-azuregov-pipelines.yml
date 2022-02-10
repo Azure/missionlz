@@ -15,6 +15,7 @@ pool:
 jobs:
 
 - job: GovCloud_TF
+  displayName: "Nightly deployment of Mission LZ Terraform on AzureUsGovernment"
 
   steps:
 

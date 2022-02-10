@@ -17,6 +17,7 @@ pool:
 jobs:
 
 - job: bicepCommercialCloud
+  displayName: "Nightly deployment of Mission LZ Bicep on AzureCloud"
 
   steps:
 
