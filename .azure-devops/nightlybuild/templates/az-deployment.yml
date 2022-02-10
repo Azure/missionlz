@@ -27,7 +27,7 @@ steps:
         az deployment sub create \
           --name ${{ parameters.DeploymentName }} \
           --location ${{ parameters.Location }} \
-          --template-file $(Build.SourcesDirectory)/src/bicep/mlz.bicep
+          --template-file $(Build.SourcesDirectory)/src/bicep/mlz.bicep \
           --parameters resourcePrefix=$datetime
 
   - task: AzureCLI@2
