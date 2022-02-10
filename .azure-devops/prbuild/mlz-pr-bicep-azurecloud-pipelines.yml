@@ -53,6 +53,6 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish SBOM to Build Artifact'
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/_manifest'
       ArtifactName: 'drop'
       publishLocation: 'Container'
