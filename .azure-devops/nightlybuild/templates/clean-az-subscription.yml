@@ -1,13 +1,17 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+parameters:
+- name: ServiceConnectionName # name of the parameter; required
+  type: string # data type of the parameter; required
+
 steps:
 
 - task: AzureCLI@2
   displayName: "Delete All Diagnostics Settings in Subscription"
   condition: always()
   inputs:
-    azureSubscription: $(ServiceConnectionName)
+    azureSubscription: ${{ parameters.ServiceConnectionName }}
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
@@ -22,7 +26,7 @@ steps:
   displayName: "Delete All Resource Groups in Subscription"
   condition: always()
   inputs:
-    azureSubscription: $(ServiceConnectionName)
+    azureSubscription: ${{ parameters.ServiceConnectionName }}
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
