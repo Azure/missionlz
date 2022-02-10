@@ -13,13 +13,12 @@ pool:
   vmImage: ubuntu-latest
 
 jobs:
-- job: GovCloud_TF
-  steps:
-  - task: TerraformInstaller@0
-    inputs:
-      terraformVersion: 'latest'
 
-  - template: templates/apply-tf.yml
+- job: GovCloud_TF
+
+  steps:
+
+  - template: templates/terraform-apply.yml
     parameters:
       ServiceConnectionName: $(GAzureConnection)
       ClientId: $(GClientId)

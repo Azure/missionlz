@@ -2,8 +2,9 @@
 # Licensed under the MIT License.
 
 parameters:
-- name: ServiceConnectionName # name of the parameter; required
-  type: string # data type of the parameter; required
+
+- name: ServiceConnectionName
+  type: string
 
 steps:
 

@@ -2,6 +2,7 @@
 # Licensed under the MIT License.
 
 schedules:
+
   - cron: "0 2 * * *"
     displayName: "Nightly - mlz Terraform azure cloud"
     branches:
@@ -10,16 +11,16 @@ schedules:
     always: true
 
 pool:
+
   vmImage: ubuntu-latest
 
 jobs:
-- job: CommercialCloud_TF
-  steps:
-  - task: TerraformInstaller@0
-    inputs:
-        terraformVersion: 'latest'
 
-  - template: templates/apply-tf.yml
+- job: CommercialCloud_TF
+
+  steps:
+
+  - template: templates/terraform-apply.yml
     parameters:
       ServiceConnectionName: $(CAzureConnection)
       ClientId: $(ClientId)
@@ -31,5 +32,5 @@ jobs:
       Location: $(CLocation)
 
   - template: templates/clean-az-subscription.yml
-      parameters:
+    parameters:
       serviceConnectionName: $(CAzureConnection)

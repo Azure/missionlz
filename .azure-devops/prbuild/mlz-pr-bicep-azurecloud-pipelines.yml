@@ -13,22 +13,14 @@ pr:
 pool:
   vmImage: ubuntu-latest
 
-variables:
-  ServiceConnectionName: $(CAzureConnection)
-
 jobs:
+
 - job: bicepCommercialCloud
+  displayName: "PR Checks for Mission LZ Bicep on AzureCloud"
+
   steps:
-  - task: AzureCLI@2
-    displayName: "What-if Bicep"
-    inputs:
-      azureSubscription: $(ServiceConnectionName)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        datetime=$(date +%s) # gets the current date time as an epoch
-        az deployment sub what-if \
-          --name $(bDeploymentName) \
-          --location $(Location) \
-          --template-file $(TemplateFile) \
-          --parameters resourcePrefix=$datetime
+  - template: templates/az-what-if.yml
+    parameters:
+      ServiceConnectionName: $(CAzureConnection)
+      DeploymentName: $(bDeploymentName)
+      Location: $(CLocation)
