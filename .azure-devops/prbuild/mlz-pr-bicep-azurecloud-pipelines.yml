@@ -62,7 +62,7 @@ jobs:
             git config --global user.email $BUILD_REQUESTEDFOREMAIL
             git config --global user.name "$BUILD_REQUESTEDFOR"
             git checkout -t origin $(Build.SourceBranch);
-            git add '_manifest/*';
+            git add '_sbomManifest/*';
             git status;
             echo whoami;
             git commit -m "Retrieved latest Developer SB changes!"
@@ -76,6 +76,6 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish SBOM to Build Artifact'
     inputs:
-      PathtoPublish: '$(Build.SourcesDirectory)/_manifest'
+      PathtoPublish: '$(Build.SourcesDirectory)/_sbomManifest'
       ArtifactName: 'drop'
       publishLocation: 'Container'
