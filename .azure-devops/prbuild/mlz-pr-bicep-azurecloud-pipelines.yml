@@ -46,7 +46,7 @@ jobs:
       script: |
             cd $(Build.SourcesDirectory);
             dir; 
-            rmdir /s /q _manifest;
+            rm -rf _manifest;
     enabled: true
 
 
