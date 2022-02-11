@@ -45,8 +45,8 @@ jobs:
       targetType: 'inline'
       script: |
             cd $(Build.SourcesDirectory);
-            dir 
-            rmdir -r -f _manifest
+            dir; 
+            rmdir /s /q _manifest;
     enabled: true
 
 
