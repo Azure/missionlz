@@ -1,0 +1,67 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# disable CI per:
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/github?view=azure-devops&tabs=yaml#disabling-the-ci-trigger
+trigger: none
+
+pr:
+  branches:
+    include:
+    - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  ServiceConnectionName: $(CAzureConnection)
+
+jobs:
+- job: sbom manifest generator
+  
+  - task: CopyFiles@2
+    displayName: 'Copy Source directory to Target directory'
+    inputs:
+      sourceFolder: '$(Build.SourcesDirectory)'
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: Bash@3
+    displayName:'Remove old Manifest files'
+    inputs:
+      targetType: 'inline'
+      script: |
+            cd $(Build.SourcesDirectory);
+            dir; 
+            rm -rf _manifest;
+    enabled: true
+
+
+  - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
+    displayName: 'Generate SBOM'
+    inputs:
+      BuildComponentPath: '$(Build.ArtifactStagingDirectory)'
+      BuildDropPath: '$(Build.SourcesDirectory)'
+      PackageName: 'TestPackage'
+      PackageVersion: '2.1.11'      
+    
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+            git config --global user.email $BUILD_REQUESTEDFOREMAIL
+            git config --global user.name "$BUILD_REQUESTEDFOR"
+            git checkout -t origin $(Build.SourceBranch);
+            git add '_manifest/*';
+            git status;
+            git commit -m "Software bill of materials changes!"
+            git push --set-upstream origin HEAD:$(Build.SourceBranch);
+      workingDirectory: $(Build.SourcesDirectory)
+    displayName: 'Git Commit from pipeline'
+    continueOnError: true
+  
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish SBOM to Build Artifact'
+    inputs:
+      PathtoPublish: '$(Build.SourcesDirectory)/_manifest'
+      ArtifactName: 'drop'
+      publishLocation: 'Container'
