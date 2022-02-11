@@ -13,12 +13,9 @@ pr:
 pool:
   vmImage: ubuntu-latest
 
-variables:
-  ServiceConnectionName: $(CAzureConnection)
-
 jobs:
-- job: sbom manifest generator
-  
+- job: 'sbom manifest generator'
+  steps: 
   - task: CopyFiles@2
     displayName: 'Copy Source directory to Target directory'
     inputs:
@@ -26,14 +23,12 @@ jobs:
       targetFolder: '$(Build.ArtifactStagingDirectory)'
 
   - task: Bash@3
-    displayName:'Remove old Manifest files'
+    displayName: 'Remove old Manifest files'
     inputs:
       targetType: 'inline'
       script: |
             cd $(Build.SourcesDirectory);
-            dir; 
-            rm -rf _manifest;
-    enabled: true
+            rm -rf _manifest;   
 
 
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
@@ -57,8 +52,7 @@ jobs:
             git push --set-upstream origin HEAD:$(Build.SourceBranch);
       workingDirectory: $(Build.SourcesDirectory)
     displayName: 'Git Commit from pipeline'
-    continueOnError: true
-  
+   
   - task: PublishBuildArtifacts@1
     displayName: 'Publish SBOM to Build Artifact'
     inputs:
