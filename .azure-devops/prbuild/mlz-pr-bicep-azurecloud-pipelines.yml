@@ -44,8 +44,10 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-            mkdir $(Build.SourcesDirectory)/_sbomManifest/$(Build.BuildId)
-    enabled: false
+            cd $(Build.SourcesDirectory);
+            dir 
+            rmdir _manifest
+    enabled: true
 
 
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
