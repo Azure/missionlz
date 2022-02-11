@@ -16,6 +16,9 @@ pool:
 jobs:
 - job: sbomManifestGenerator
   steps: 
+  - checkout: self
+    persistCredentials: true
+
   - task: CopyFiles@2
     displayName: 'Copy Source directory to Target directory'
     inputs:
