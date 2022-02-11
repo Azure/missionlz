@@ -51,8 +51,7 @@ jobs:
             git checkout -t origin $(Build.SourceBranch);
             git add '_manifest/*';
             git status;
-            echo whoami;
-            git commit -m "Retrieved latest Developer SB changes!"
+            git commit -m "Software bill of materials changes"
             echo $(Build.SourceBranch)
             echo "Pushing now!!!";
             git push --set-upstream origin HEAD:$(Build.SourceBranch);
