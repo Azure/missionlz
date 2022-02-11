@@ -14,7 +14,7 @@ pool:
   vmImage: ubuntu-latest
 
 jobs:
-- job: 'sbom-manifest-generator'
+- job: sbomManifestGenerator
   steps: 
   - task: CopyFiles@2
     displayName: 'Copy Source directory to Target directory'
