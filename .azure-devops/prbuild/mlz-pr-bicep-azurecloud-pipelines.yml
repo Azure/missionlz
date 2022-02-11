@@ -44,14 +44,14 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-            mkdir $(Build.SourcesDirectory)/_manifest/$(Build.BuildId)
+            mkdir $(Build.SourcesDirectory)/_sbomManifest/$(Build.BuildId)
 
 
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
     displayName: 'Generate SBOM'
     inputs:
       BuildComponentPath: '$(Build.ArtifactStagingDirectory)'
-      BuildDropPath: '$(Build.SourcesDirectory)/_manifest/$(Build.BuildId)'
+      BuildDropPath: '$(Build.SourcesDirectory)/_sbomManifest/$(Build.BuildId)'
       PackageName: 'TestPackage'
       PackageVersion: '2.1.11'      
     
