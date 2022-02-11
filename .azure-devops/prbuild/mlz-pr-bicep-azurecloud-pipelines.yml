@@ -45,13 +45,14 @@ jobs:
       targetType: 'inline'
       script: |
             mkdir $(Build.SourcesDirectory)/_sbomManifest/$(Build.BuildId)
+    enabled: false
 
 
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
     displayName: 'Generate SBOM'
     inputs:
       BuildComponentPath: '$(Build.ArtifactStagingDirectory)'
-      BuildDropPath: '$(Build.SourcesDirectory)/_sbomManifest/$(Build.BuildId)'
+      BuildDropPath: '$(Build.SourcesDirectory)'
       PackageName: 'TestPackage'
       PackageVersion: '2.1.11'      
     
@@ -62,7 +63,7 @@ jobs:
             git config --global user.email $BUILD_REQUESTEDFOREMAIL
             git config --global user.name "$BUILD_REQUESTEDFOR"
             git checkout -t origin $(Build.SourceBranch);
-            git add '_sbomManifest/*';
+            git add '_manifest/*';
             git status;
             echo whoami;
             git commit -m "Retrieved latest Developer SB changes!"
@@ -76,6 +77,6 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish SBOM to Build Artifact'
     inputs:
-      PathtoPublish: '$(Build.SourcesDirectory)/_sbomManifest'
+      PathtoPublish: '$(Build.SourcesDirectory)/_manifest'
       ArtifactName: 'drop'
       publishLocation: 'Container'
