@@ -26,6 +26,8 @@ jobs:
       Contents: |
         **/*
         !.git/*/**
+        !.git/**
+        !.git
       targetFolder: '$(Build.ArtifactStagingDirectory)'
 
   - task: Bash@3
