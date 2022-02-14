@@ -23,9 +23,6 @@ jobs:
     displayName: 'Copy Source directory to Target directory'
     inputs:
       sourceFolder: '$(Build.SourcesDirectory)'
-      Contents: |
-        **/*
-        !.git/**/*
       targetFolder: '$(Build.ArtifactStagingDirectory)'
 
   - task: Bash@3
