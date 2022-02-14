@@ -19,68 +19,8 @@ jobs:
   displayName: "PR Checks for Mission LZ Bicep on AzureCloud"
 
   steps:
-
-  - checkout: self
-    persistCredentials: true
-  - task: AzureCLI@2
-    displayName: "What-if Bicep"
-    inputs:
-      azureSubscription: $(ServiceConnectionName)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        datetime=$(date +%s) # gets the current date time as an epoch
-        az deployment sub what-if \
-          --name $(bDeploymentName) \
-          --location $(Location) \
-          --template-file $(TemplateFile) \
-          --parameters resourcePrefix=$datetime
-
-  - task: CopyFiles@2
-    inputs:
-      sourceFolder: '$(Build.SourcesDirectory)'
-      targetFolder: '$(Build.ArtifactStagingDirectory)'
-
-  - task: Bash@3
-    inputs:
-      targetType: 'inline'
-      script: |
-            cd $(Build.SourcesDirectory);
-            dir; 
-            rm -rf _manifest;
-
-
-
-  - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
-    displayName: 'Generate SBOM'
-    inputs:
-      BuildComponentPath: '$(Build.ArtifactStagingDirectory)'
-      BuildDropPath: '$(Build.SourcesDirectory)'
-      PackageName: 'TestPackage'
-      PackageVersion: '2.1.11'      
-    
-  - task: Bash@3
-    inputs:
-      targetType: 'inline'
-      script: |
-            git config --global user.email $BUILD_REQUESTEDFOREMAIL
-            git config --global user.name "$BUILD_REQUESTEDFOR"
-            git checkout -t origin $(Build.SourceBranch);
-            git add '_manifest/*';
-            git status;
-            echo whoami;
-            git commit -m "Retrieved latest Developer SB changes!"
-            echo $(Build.SourceBranch)
-            echo "Pushing now!!!";
-            git push --set-upstream origin HEAD:$(Build.SourceBranch);
-      workingDirectory: $(Build.SourcesDirectory)
-    displayName: 'Git Commit and Tag from pipeline'
-
-  
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish SBOM to Build Artifact'
-    inputs:
-      PathtoPublish: '$(Build.SourcesDirectory)/_manifest'
-      ArtifactName: 'drop'
-      publishLocation: 'Container'
-
+  - template: templates/az-what-if.yml
+    parameters:
+      ServiceConnectionName: $(CAzureConnection)
+      DeploymentName: $(bDeploymentName)
+      Location: $(CLocation)
