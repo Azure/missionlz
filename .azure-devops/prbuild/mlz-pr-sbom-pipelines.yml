@@ -33,15 +33,15 @@ jobs:
             cd $(Build.SourcesDirectory);
             rm -rf _manifest;   
 
-
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
     displayName: 'Generate SBOM'
     inputs:
       BuildComponentPath: '$(Build.ArtifactStagingDirectory)'
       BuildDropPath: '$(Build.SourcesDirectory)'
       PackageName: 'MLZPackage'
-      PackageVersion: '1.0'      
+      PackageVersion: '$(Build.BuildNumber)'      
     
+  
   - task: Bash@3
     inputs:
       targetType: 'inline'
