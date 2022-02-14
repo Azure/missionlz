@@ -25,9 +25,7 @@ jobs:
       sourceFolder: '$(Build.SourcesDirectory)'
       Contents: |
         **/*
-        !.git/*/**
-        !.git/**
-        !.git
+        !.git/**/*
       targetFolder: '$(Build.ArtifactStagingDirectory)'
 
   - task: Bash@3
