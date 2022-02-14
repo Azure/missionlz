@@ -2,12 +2,19 @@
 # Licensed under the MIT License.
 
 name: validate-build-bicep
-on: 
+on:
   pull_request:
     branches: [main]
-    paths: 
+    paths:
     - 'src/bicep/**'
     - '!src/bicep/**.md'
+   workflow_call:
+    inputs:
+      bicep_version:
+        description: 'The version of Bicep to use to build the ARM deployment template'
+        default: 'v0.4.1272'
+        required: true
+        type: string
 jobs:
   validate-build:
     runs-on: ubuntu-latest
@@ -18,6 +25,8 @@ jobs:
       - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
+          az bicep install --version ${{ inputs.bicep_version }}
+          az bicep version
           az bicep build --file src/bicep/mlz.bicep --outfile src/bicep/mlz.json
           if [[ $(git status --porcelain) ]]; then
             git add src/bicep/mlz.json
