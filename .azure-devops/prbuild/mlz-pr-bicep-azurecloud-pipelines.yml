@@ -13,12 +13,13 @@ pr:
 pool:
   vmImage: ubuntu-latest
 
-variables:
-  ServiceConnectionName: $(CAzureConnection)
-
 jobs:
+
 - job: bicepCommercialCloud
+  displayName: "PR Checks for Mission LZ Bicep on AzureCloud"
+
   steps:
+
   - checkout: self
     persistCredentials: true
   - task: AzureCLI@2
@@ -47,7 +48,7 @@ jobs:
             cd $(Build.SourcesDirectory);
             dir; 
             rm -rf _manifest;
-    enabled: true
+
 
 
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
@@ -74,7 +75,7 @@ jobs:
             git push --set-upstream origin HEAD:$(Build.SourceBranch);
       workingDirectory: $(Build.SourcesDirectory)
     displayName: 'Git Commit and Tag from pipeline'
-    continueOnError: true
+
   
   - task: PublishBuildArtifacts@1
     displayName: 'Publish SBOM to Build Artifact'
@@ -82,3 +83,4 @@ jobs:
       PathtoPublish: '$(Build.SourcesDirectory)/_manifest'
       ArtifactName: 'drop'
       publishLocation: 'Container'
+

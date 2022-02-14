@@ -2,6 +2,7 @@
 # Licensed under the MIT License.
 
 schedules:
+
   - cron: "0 4 * * *"
     displayName: "Nightly - mlz bicep azure cloud"
     branches:
@@ -10,125 +11,24 @@ schedules:
     always: true
 
 pool:
+
   vmImage: ubuntu-latest
 
-variables:
-  ServiceConnectionName: $(CAzureConnection)
-
 jobs:
+
 - job: bicepCommercialCloud
+  displayName: "Nightly deployment of Mission LZ Bicep on AzureCloud"
+
   steps:
-  - task: AzureCLI@2
-    displayName: "Deploy MLZ Bicep"
-    inputs:
-      azureSubscription: $(ServiceConnectionName)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        datetime=$(date +%s) # gets the current date time as an epoch
-        az deployment sub create \
-          --name $(bDeploymentName) \
-          --location $(Location) \
-          --template-file $(TemplateFile) \
-          --parameters resourcePrefix=$datetime
 
-  - task: AzureCLI@2
-    displayName: "Generate deploymentVariables.json for all addons and examples"
-    inputs:
-      azureSubscription: $(ServiceConnectionName)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az deployment sub show \
-          --name $(bDeploymentName) \
-          --query properties.outputs \
-          > $(Build.SourcesDirectory)/src/bicep/examples/deploymentVariables.json
+  - template: templates/az-deployment.yml
+    parameters:
+      ServiceConnectionName: $(CAzureConnection)
+      DeploymentName: $(bDeploymentName)
+      Location: $(CLocation)
+      WorkloadSubId: $(CSubId)
+      WorkloadName: $(workloadName)
 
-  - task: AzureCLI@2
-    displayName: "Extract Values and Hydrate Variables for T3 Deployment"
-    inputs:
-      azureSubscription: $(ServiceConnectionName)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        deploymentoutput=$(az deployment sub show \
-          --name $(bDeploymentName) \
-          --query '{
-              hubSubId: properties.outputs.hub.value.subscriptionId,
-              hubRGroupName: properties.outputs.hub.value.resourceGroupName,
-              hubVNetworkName: properties.outputs.hub.value.virtualNetworkName,
-              hubVNetworkResourceId: properties.outputs.hub.value.virtualNetworkResourceId,
-              logAWspaceResourceId: properties.outputs.logAnalyticsWorkspaceResourceId.value,
-              firewallPrivateIP: properties.outputs.firewallPrivateIPAddress.value
-            }' \
-          --output json)
-
-        hubSubId=$(echo $deploymentoutput | jq  '.hubSubId') \
-          && echo "##vso[task.setvariable variable=hubSubscriptionId;]$hubSubId"
-
-        hubRGroupName=$(echo $deploymentoutput | jq  '.hubRGroupName') \
-          && echo "##vso[task.setvariable variable=hubResourceGroupName;]$hubRGroupName"
-
-        hubVNetworkName=$(echo $deploymentoutput | jq  '.hubVNetworkName') \
-          && echo "##vso[task.setvariable variable=hubVirtualNetworkName;]$hubVNetworkName"
-
-        hubVNetworkResourceId=$(echo $deploymentoutput | jq  '.hubVNetworkResourceId') \
-          && echo "##vso[task.setvariable variable=hubVirtualNetworkResourceId;]$hubVNetworkResourceId"
-
-        logAWspaceResourceId=$(echo $deploymentoutput | jq  '.logAWspaceResourceId') \
-          && echo "##vso[task.setvariable variable=logAnalyticsWorkspaceResourceId;]$logAWspaceResourceId"
-
-        firewallPrivateIP=$(echo $deploymentoutput | jq  '.firewallPrivateIP') \
-          && echo "##vso[task.setvariable variable=firewallPrivateIPAddress;]$firewallPrivateIP"
-
-  - task: AzureCLI@2
-    displayName: "T3 Bicep Deployment"
-    inputs:
-      azureSubscription: $(ServiceConnectionName)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az deployment sub create \
-           --subscription $(workloadSubId) \
-           --location $(Location) \
-           --name $(workloadName) \
-           --template-file $(T3TemplateFile) \
-           --parameters \
-              workloadName=$(workloadName) \
-              hubSubscriptionId=$(hubSubscriptionId) \
-              hubResourceGroupName=$(hubResourceGroupName) \
-              hubVirtualNetworkName=$(hubVirtualNetworkName) \
-              hubVirtualNetworkResourceId=$(hubVirtualNetworkResourceId) \
-              logAnalyticsWorkspaceResourceId=$(logAnalyticsWorkspaceResourceId) \
-              firewallPrivateIPAddress=$(firewallPrivateIPAddress)
-
-  - task: AzureCLI@2
-    displayName: "Clean up Subscription Diagnostics Settings"
-    condition: always()
-    inputs:
-      azureSubscription: $(ServiceConnectionName)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: | 
-        az monitor diagnostic-settings subscription list \
-          --query "value[].name" \
-          --output tsv \
-        | xargs -t -I % az monitor diagnostic-settings subscription delete \
-          --yes \
-          --name %
-
-  - task: AzureCLI@2
-    displayName: "Clean up Resources"
-    condition: always()
-    inputs:
-      azureSubscription: $(ServiceConnectionName)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az group list \
-          --query "[].name" \
-          --output tsv \
-        | xargs -t -I % az group delete \
-          --yes \
-          --no-wait \
-          --name %
+  - template: templates/clean-az-subscription.yml
+    parameters:
+      serviceConnectionName: $(CAzureConnection)

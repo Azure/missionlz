@@ -2,6 +2,7 @@
 # Licensed under the MIT License.
 
 schedules:
+
   - cron: "0 2 * * *"
     displayName: "Nightly - mlz Terraform azure cloud"
     branches:
@@ -10,122 +11,27 @@ schedules:
     always: true
 
 pool:
+
   vmImage: ubuntu-latest
 
-variables:
-  ServiceConnectionName: $(CAzureConnection)
-
 jobs:
+
 - job: CommercialCloud_TF
+  displayName: "Nightly deployment of Mission LZ Terraform on AzureCloud"
+
   steps:
-  - task: TerraformInstaller@0
-    inputs:
-        terraformVersion: 'latest'
 
-  - task: AzureCLI@2
-    displayName: "Apply MLZ Terraform"
-    inputs:
-      azureSubscription: $(CAzureConnection)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      addSpnToEnvironment: true
-      inlineScript: |
-        export ARM_CLIENT_ID=$(ClientId)
-        export ARM_CLIENT_SECRET=$(ClientSecret)
-        export ARM_SUBSCRIPTION_ID=$(subId)
-        export ARM_TENANT_ID=$(tenantId)
-        terraform init
-        terraform plan -var "hub_subid=$(subid)" -input=false
-        terraform apply -var "hub_subid=$(subid)" -auto-approve -input=false
-      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
-      useGlobalConfig: true
+  - template: templates/terraform-apply.yml
+    parameters:
+      ServiceConnectionName: $(CAzureConnection)
+      ClientId: $(ClientId)
+      ClientSecret: $(ClientSecret)
+      SubscriptionId: $(CSubId)
+      TenantId: $(CTenantId)
+      Environment: $(CCloudEnv)
+      MetadataHost: $(CMetadataHost)
+      Location: $(CLocation)
 
-  - task: AzureCLI@2
-    displayName: "Extract Values and Hydrate Variables for T3 Deployment"
-    inputs:
-      azureSubscription: $(CAzureConnection)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      addSpnToEnvironment: true
-      inlineScript: |
-        echo "##vso[task.setvariable variable=hubSubscriptionId;]$(terraform output -raw hub_subid)"
-        echo "##vso[task.setvariable variable=hubVirtualNetworkName;]$(terraform output -raw hub_vnetname)"
-        echo "##vso[task.setvariable variable=hubResourceGroupName;]$(terraform output -raw hub_rgname)"
-        echo "##vso[task.setvariable variable=firewallPrivateIPAddress;]$(terraform output -raw firewall_private_ip)"
-        echo "##vso[task.setvariable variable=lawsName;]$(terraform output -raw laws_name)"
-        echo "##vso[task.setvariable variable=lawsRgName;]$(terraform output -raw laws_rgname)"
-        echo "##vso[task.setvariable variable=tier1SubId;]$(terraform output -raw tier1_subid)"
-        echo "##vso[task.setvariable variable=tier3SubId;]$(terraform output -raw tier1_subid)"
-      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
-      useGlobalConfig: true
-
-  - task: AzureCLI@2
-    displayName: "Apply T3 Workload Terraform"
-    inputs:
-      azureSubscription: $(CAzureConnection)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      addSpnToEnvironment: true
-      inlineScript: |
-        export ARM_CLIENT_ID=$(ClientId)
-        export ARM_CLIENT_SECRET=$(ClientSecret)
-        export ARM_SUBSCRIPTION_ID=$(subId)
-        export ARM_TENANT_ID=$(tenantId)
-        terraform init
-        terraform apply -var "hub_subid=$(hubSubscriptionId)" \
-          -var "hub_rgname=$(hubResourceGroupName)" \
-          -var "firewall_private_ip=$(firewallPrivateIPAddress)" \
-          -var "hub_vnetname=$(hubVirtualNetworkName)" \
-          -var "laws_name=$(lawsName)" -var "laws_rgname=$(lawsRgName)" \
-          -var "tier1_subid=$(tier1SubId)" \
-          -var "tier3_subid=$(tier3SubId)" \
-          -auto-approve \
-          -input=false
-      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/tier3'
-      useGlobalConfig: true
-
-  - task: AzureCLI@2
-    displayName: "Destroy T3 Workload Terraform"
-    condition: always()
-    inputs:
-      azureSubscription: $(CAzureConnection)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      addSpnToEnvironment: true
-      inlineScript: |
-        export ARM_CLIENT_ID=$(ClientId)
-        export ARM_CLIENT_SECRET=$(ClientSecret)
-        export ARM_SUBSCRIPTION_ID=$(subId)
-        export ARM_TENANT_ID=$(tenantId)
-        terraform init
-        terraform destroy -var "hub_subid=$(hubSubscriptionId)" \
-          -var "hub_rgname=$(hubResourceGroupName)" \
-          -var "firewall_private_ip=$(firewallPrivateIPAddress)" \
-          -var "hub_vnetname=$(hubVirtualNetworkName)" \
-          -var "laws_name=$(lawsName)" \
-          -var "laws_rgname=$(lawsRgName)" \
-          -var "tier1_subid=$(tier1SubId)" \
-          -var "tier3_subid=$(tier3SubId)" \
-          -auto-approve \
-          -input=false
-      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/tier3'
-      useGlobalConfig: true
-
-  - task: AzureCLI@2
-    displayName: "Destroy MLZ Terraform"
-    condition: always()
-    inputs:
-      azureSubscription: $(CAzureConnection)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      addSpnToEnvironment: true
-      inlineScript: |
-        export ARM_CLIENT_ID=$(ClientId)
-        export ARM_CLIENT_SECRET=$(ClientSecret)
-        export ARM_SUBSCRIPTION_ID=$(subId)
-        export ARM_TENANT_ID=$(tenantId)
-        terraform init
-        terraform destroy -var "hub_subid=$(subid)" -auto-approve -input=false
-      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
-      useGlobalConfig: true
-  
+  - template: templates/clean-az-subscription.yml
+    parameters:
+      serviceConnectionName: $(CAzureConnection)
