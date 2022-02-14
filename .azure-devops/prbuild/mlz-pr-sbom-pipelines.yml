@@ -38,7 +38,7 @@ jobs:
     inputs:
       BuildComponentPath: '$(Build.ArtifactStagingDirectory)'
       BuildDropPath: '$(Build.SourcesDirectory)'
-      PackageName: 'MLZPackage'
+      PackageName: 'Mission LZ'
       PackageVersion: '$(Build.BuildNumber)'      
     
   
