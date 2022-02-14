@@ -39,7 +39,7 @@ jobs:
     inputs:
       BuildComponentPath: '$(Build.ArtifactStagingDirectory)'
       BuildDropPath: '$(Build.SourcesDirectory)'
-      PackageName: 'TestPackage'
+      PackageName: 'MLZPackage'
       PackageVersion: '2.1.11'      
     
   - task: Bash@3
