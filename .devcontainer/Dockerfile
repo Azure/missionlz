@@ -92,7 +92,8 @@ RUN AZ_REPO=$(lsb_release -cs) \
 RUN apt-get update && apt-get install -y azure-cli=${AZURE_CLI_VERSION}
 
 # Install Bicep
-RUN az bicep install --version ${BICEP_VERSION}
+RUN curl -Lo /usr/local/bin/bicep https://github.com/Azure/bicep/releases/download/${BICEP_VERSION}/bicep-linux-x64 \
+    && chmod +x /usr/local/bin/bicep
 
 # Clean up
 RUN apt-get autoremove -y \

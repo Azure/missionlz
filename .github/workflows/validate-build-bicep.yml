@@ -8,13 +8,14 @@ on:
     paths:
     - 'src/bicep/**'
     - '!src/bicep/**.md'
-   workflow_call:
+  workflow_call:
     inputs:
       bicep_version:
         description: 'The version of Bicep to use to build the ARM deployment template'
         default: 'v0.4.1272'
         required: true
         type: string
+  workflow_dispatch:
 jobs:
   validate-build:
     runs-on: ubuntu-latest
