@@ -8,26 +8,9 @@ on:
     paths:
     - 'src/bicep/**'
     - '!src/bicep/**.md'
-    inputs:
-      bicep_version:
-        description: 'The version of Bicep to use to build the ARM deployment template'
-        default: 'v0.4.1272'
-        required: true
-        type: string
-  workflow_call:
-    inputs:
-      bicep_version:
-        description: 'The version of Bicep to use to build the ARM deployment template'
-        default: 'v0.4.1272'
-        required: true
-        type: string
   workflow_dispatch:
-    inputs:
-      bicep_version:
-        description: 'The version of Bicep to use to build the ARM deployment template'
-        default: 'v0.4.1272'
-        required: true
-        type: string
+env:
+  BICEP_VERSION: 'v0.4.1272'
 jobs:
   validate-build:
     runs-on: ubuntu-latest
@@ -38,7 +21,7 @@ jobs:
       - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          az bicep install --version ${{ inputs.bicep_version }}
+          az bicep install --version $BICEP_VERSION
           az bicep version
           az bicep build --file src/bicep/mlz.bicep --outfile src/bicep/mlz.json
           if [[ $(git status --porcelain) ]]; then
