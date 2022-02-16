@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "9278132488834262974"
+      "templateHash": "9201973649437229365"
     }
   },
   "parameters": {
@@ -830,7 +830,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "resourceToken": "resource_token",
     "nameToken": "name_token",
@@ -967,7 +966,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('deploy-rg-hub-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "location": "[deployment().location]",
@@ -1009,7 +1008,6 @@
               "defaultValue": {}
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Resources/resourceGroups",
@@ -1046,7 +1044,7 @@
         "count": "[length(variables('spokes'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('deploy-rg-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('spokes')[copyIndex()].subscriptionId]",
       "location": "[deployment().location]",
@@ -1088,7 +1086,6 @@
               "defaultValue": {}
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Resources/resourceGroups",
@@ -1121,7 +1118,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('deploy-laws-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('operationsSubscriptionId')]",
       "resourceGroup": "[variables('operationsResourceGroupName')]",
@@ -1201,7 +1198,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "solutions": [
               {
@@ -1334,7 +1330,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "resourceGroup": "[variables('hubResourceGroupName')]",
@@ -1650,7 +1646,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/virtualNetworks/subnets",
@@ -1677,7 +1672,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "logStorage",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -1723,7 +1718,6 @@
                       "defaultValue": {}
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Storage/storageAccounts",
@@ -1748,7 +1742,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "networkSecurityGroup",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -1818,7 +1812,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/networkSecurityGroups",
@@ -1864,7 +1857,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "virtualNetwork",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -1955,7 +1948,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualNetworks",
@@ -2014,7 +2006,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "routeTable",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -2078,7 +2070,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables",
@@ -2118,7 +2109,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "firewallClientPublicIPAddress",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -2200,7 +2191,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/publicIPAddresses",
@@ -2246,7 +2236,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "firewallManagementPublicIPAddress",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -2328,7 +2318,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/publicIPAddresses",
@@ -2374,7 +2363,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "firewall",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -2515,7 +2504,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/firewallPolicies",
@@ -2729,7 +2717,7 @@
             {
               "condition": "[contains(parameters('supportedClouds'), environment().name)]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "azure-monitor-private-link",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -2826,7 +2814,6 @@
                       }
                     }
                   },
-                  "functions": [],
                   "variables": {
                     "privateLinkConnectionName": "[take(format('plconn{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 80)]",
                     "privateLinkEndpointName": "[take(format('pl{0}{1}', parameters('logAnalyticsWorkspaceName'), parameters('uniqueData')), 80)]",
@@ -3095,7 +3082,7 @@
         "count": "[length(variables('spokes'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('spokes')[copyIndex()].subscriptionId]",
       "resourceGroup": "[variables('spokes')[copyIndex()].resourceGroupName]",
@@ -3242,11 +3229,10 @@
               "defaultValue": "VirtualAppliance"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "logStorage",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -3292,7 +3278,6 @@
                       "defaultValue": {}
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Storage/storageAccounts",
@@ -3317,7 +3302,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "networkSecurityGroup",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -3387,7 +3372,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/networkSecurityGroups",
@@ -3433,7 +3417,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "routeTable",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -3497,7 +3481,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables",
@@ -3534,7 +3517,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "virtualNetwork",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -3624,7 +3607,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualNetworks",
@@ -3727,7 +3709,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('deploy-vnet-peerings-hub-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "resourceGroup": "[variables('hubResourceGroupName')]",
@@ -3768,7 +3750,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "copy": {
@@ -3776,7 +3757,7 @@
                 "count": "[length(parameters('spokes'))]"
               },
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "[format('hub-to-{0}-vnet-peering', parameters('spokes')[copyIndex()].type)]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -3809,7 +3790,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
@@ -3840,7 +3820,7 @@
         "count": "[length(variables('spokes'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('deploy-vnet-peerings-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('spokes')[copyIndex()].subscriptionId]",
       "location": "[deployment().location]",
@@ -3893,11 +3873,10 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "[format('{0}-to-hub-vnet-peering', parameters('spokeName'))]",
               "resourceGroup": "[parameters('spokeResourceGroupName')]",
               "properties": {
@@ -3931,7 +3910,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
@@ -3959,7 +3937,7 @@
     {
       "condition": "[parameters('deployPolicy')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('assign-policy-hub-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "resourceGroup": "[variables('hubResourceGroupName')]",
@@ -4032,7 +4010,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "modifiedAssignment": "[if(and(equals(toLower(environment().name), toLower('AzureCloud')), equals(toLower(parameters('builtInAssignment')), toLower('IL5'))), 'NIST', parameters('builtInAssignment'))]",
             "assignmentName": "[format('{0} {1}', variables('modifiedAssignment'), resourceGroup().name)]",
@@ -4143,7 +4120,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "[format('Assign-Laws-Role-Policy-{0}', resourceGroup().name)]",
               "subscriptionId": "[parameters('operationsSubscriptionId')]",
               "resourceGroup": "[parameters('logAnalyticsWorkspaceResourceGroupName')]",
@@ -4198,7 +4175,6 @@
                       "defaultValue": ""
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Authorization/roleAssignments",
@@ -4232,7 +4208,7 @@
         "count": "[length(variables('spokes'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('assign-policy-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('spokes')[copyIndex()].subscriptionId]",
       "resourceGroup": "[variables('spokes')[copyIndex()].resourceGroupName]",
@@ -4305,7 +4281,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "modifiedAssignment": "[if(and(equals(toLower(environment().name), toLower('AzureCloud')), equals(toLower(parameters('builtInAssignment')), toLower('IL5'))), 'NIST', parameters('builtInAssignment'))]",
             "assignmentName": "[format('{0} {1}', variables('modifiedAssignment'), resourceGroup().name)]",
@@ -4416,7 +4391,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "[format('Assign-Laws-Role-Policy-{0}', resourceGroup().name)]",
               "subscriptionId": "[parameters('operationsSubscriptionId')]",
               "resourceGroup": "[parameters('logAnalyticsWorkspaceResourceGroupName')]",
@@ -4471,7 +4446,6 @@
                       "defaultValue": ""
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Authorization/roleAssignments",
@@ -4500,7 +4474,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('activity-logs-hub-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "location": "[deployment().location]",
@@ -4542,7 +4516,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [
             {
               "condition": "[contains(parameters('supportedClouds'), environment().name)]",
@@ -4602,7 +4575,7 @@
         "count": "[length(variables('spokes'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('activity-logs-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('spokes')[copyIndex()].subscriptionId]",
       "location": "[deployment().location]",
@@ -4644,7 +4617,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [
             {
               "condition": "[contains(parameters('supportedClouds'), environment().name)]",
@@ -4699,7 +4671,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('deploy-diagnostic-logging-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('operationsSubscriptionId')]",
       "resourceGroup": "[variables('operationsResourceGroupName')]",
@@ -4741,7 +4713,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [
             {
               "condition": "[contains(parameters('supportedClouds'), environment().name)]",
@@ -4778,7 +4749,7 @@
     {
       "condition": "[parameters('deployASC')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('set-hub-sub-security-center-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "location": "[deployment().location]",
@@ -4802,7 +4773,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "14876320613268622267"
+              "templateHash": "16713937257548308780"
             }
           },
           "parameters": {
@@ -4833,7 +4804,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "bundle": "[if(not(equals(environment().name, 'AzureUSGovernment')), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'))]",
             "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]"
@@ -4905,7 +4875,7 @@
         "count": "[length(variables('spokes'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('set-{0}-sub-security-center', variables('spokes')[copyIndex()].name)]",
       "subscriptionId": "[parameters('operationsSubscriptionId')]",
       "location": "[deployment().location]",
@@ -4929,7 +4899,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "14876320613268622267"
+              "templateHash": "16713937257548308780"
             }
           },
           "parameters": {
@@ -4960,7 +4930,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "bundle": "[if(not(equals(environment().name, 'AzureUSGovernment')), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'))]",
             "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]"
@@ -5028,7 +4997,7 @@
     {
       "condition": "[parameters('deployRemoteAccess')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "resourceGroup": "[variables('hubResourceGroupName')]",
@@ -5295,11 +5264,10 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "remoteAccess-bastionHost",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -5381,7 +5349,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "variables": {
                     "subnetName": "AzureBastionSubnet"
                   },
@@ -5440,7 +5407,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "remoteAccess-linuxNetworkInterface",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -5504,7 +5471,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/networkInterfaces",
@@ -5545,7 +5511,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "remoteAccess-linuxVirtualMachine",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -5662,7 +5628,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "variables": {
                     "linuxConfiguration": {
                       "disablePasswordAuthentication": true,
@@ -5804,7 +5769,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "remoteAccess-windowsNetworkInterface",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -5868,7 +5833,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Network/networkInterfaces",
@@ -5909,7 +5873,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-10-01",
               "name": "remoteAccess-windowsVirtualMachine",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -6016,7 +5980,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Compute/virtualMachines",
