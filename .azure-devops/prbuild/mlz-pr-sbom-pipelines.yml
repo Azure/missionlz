@@ -57,7 +57,7 @@ jobs:
             git commit -m "Update Software Bill of Materials (SBOM)"
             git push --set-upstream origin HEAD:$(Build.SourceBranch)
       workingDirectory: $(Build.SourcesDirectory)
-    displayName: 'Git Commit from pipeline'
+    displayName: 'Commit SBOM changes back to source branch'
    
   - task: PublishBuildArtifacts@1
     displayName: 'Publish SBOM to Build Artifact'
