@@ -49,13 +49,13 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-            git config --global user.email $BUILD_REQUESTEDFOREMAIL
+            git config --global user.email "$BUILD_REQUESTEDFOREMAIL"
             git config --global user.name "$BUILD_REQUESTEDFOR"
-            git checkout -t origin $(Build.SourceBranch);
-            git add '_manifest/*';
-            git status;
-            git commit -m "Software bill of materials changes"
-            git push --set-upstream origin HEAD:$(Build.SourceBranch);
+            git checkout -t origin $(Build.SourceBranch)
+            git add '_manifest/*'
+            git status
+            git commit -m "Update Software Bill of Materials (SBOM)"
+            git push --set-upstream origin HEAD:$(Build.SourceBranch)
       workingDirectory: $(Build.SourcesDirectory)
     displayName: 'Git Commit from pipeline'
    
