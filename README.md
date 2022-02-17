@@ -66,7 +66,7 @@ You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/ro
     - `--name`: (optional) The deployment name, which is visible in the Azure Portal under Subscription/Deployments.
     - `--location`: (required) The Azure region to store the deployment metadata.
     - `--template-file`: (required) The file path to the `mlz.bicep` template.
-    - `--parameters resourcePrefix=<value>`: (required) The `resourcePrefix` Bicep parameter is used to generate names for your resources. It is the only required parameter in the Bicep file. You can set it to any alphanumeric value without whitespace that is between 3-10 characters. You can omit this parameter and the `az deployment sub create` command will prompt you to enter a value.
+    - `--parameters resourcePrefix=<value>`: (required) The `resourcePrefix` Bicep parameter is used to generate names for your resources. It is the only required parameter in the Bicep file. You can set it to any alphanumeric value (without whitespace) that is between 3-10 characters. You can omit this parameter and the `az deployment sub create` command will prompt you to enter a value.
 
     Here's an example:
 
