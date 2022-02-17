@@ -148,7 +148,7 @@ Here's a summary of what Mission Landing Zone deploys of as of December 2021:
 
 ## Contributing
 
-This project welcomes contributions and suggestions. See our [Contributing Guide](CONTRIBUTING.md) for details.
+This project welcomes contributions and suggestions! See our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ## Feedback, Support, and How to Contact Us
 
