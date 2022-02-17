@@ -61,7 +61,7 @@ You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/ro
     cd missionlz
     ```
 
-1. Deploy Mission Landing Zone with the [`az deployment sub create`](https://docs.microsoft.com/en-us/cli/azure/deployment/sub?view=azure-cli-latest#az_deployment_sub_create) command. For a quickstart test deployment into the current AZ CLI subscription we suggest setting these parameters:
+1. Deploy Mission Landing Zone with the [`az deployment sub create`](https://docs.microsoft.com/en-us/cli/azure/deployment/sub?view=azure-cli-latest#az_deployment_sub_create) command. For a quickstart, we suggest a test deployment into the current AZ CLI subscription setting these parameters:
 
     - `--name`: (optional) The deployment name, which is visible in the Azure Portal under Subscription/Deployments.
     - `--location`: (required) The Azure region to store the deployment metadata.
