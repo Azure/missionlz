@@ -40,6 +40,18 @@ jobs:
       Verbosity: Verbose
 
   - bash: |
+      pwd
+      cd $(Build.SourcesDirectory)
+      pwd
+      cat _manifest/manifest.json | jq . > temp.json \
+        && mv temp.json _manifest/manifest.json \
+        && rm -f temp.json
+      cat _manifest/spdx_2.2/manifest.spdx.json | jq . > temp.json \
+        && mv temp.json _manifest/spdx_2.2/manifest.spdx.json \
+        && rm -f temp.json
+    displayName: 'Pretty Print SBOM'
+
+  - bash: |
       cd $(Build.ArtifactStagingDirectory)
       cp -r .git $(Build.SourcesDirectory)
       rm -rf .git
