@@ -34,15 +34,14 @@ jobs:
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
     displayName: 'Generate SBOM'
     inputs:
+      BuildComponentPath: '$(Build.SourcesDirectory)'
       BuildDropPath: '$(Build.SourcesDirectory)'
       PackageName: 'Mission LZ'
       PackageVersion: '$(Build.BuildNumber)'
       Verbosity: Verbose
 
   - bash: |
-      pwd
       cd $(Build.SourcesDirectory)
-      pwd
       cat _manifest/manifest.json | jq . > temp.json \
         && mv temp.json _manifest/manifest.json \
         && rm -f temp.json
