@@ -14,53 +14,60 @@ pool:
   vmImage: ubuntu-latest
 
 jobs:
-- job: sbomManifestGenerator
-  steps: 
+- job: generateSbom
+  displayName: 'Generate SBOM'
+  steps:
   - checkout: self
     persistCredentials: true
 
-  - task: CopyFiles@2
-    displayName: 'Copy Source directory to Target directory'
-    inputs:
-      sourceFolder: '$(Build.SourcesDirectory)'
-      Contents: |
-        **/*
-        !.git/**/*
-      targetFolder: '$(Build.ArtifactStagingDirectory)'
+  - bash: |
+      cd $(Build.SourcesDirectory)
+      rm -rf _manifest
+    displayName: 'Remove previous _manifest contents'
 
-  - task: Bash@3
-    displayName: 'Remove old Manifest files'
-    inputs:
-      targetType: 'inline'
-      script: |
-        cd $(Build.SourcesDirectory)
-        rm -rf _manifest
+  - bash: |
+      cd $(Build.SourcesDirectory)
+      cp -r .git $(Build.ArtifactStagingDirectory)
+      rm -rf .git
+    displayName: 'Temporarily move .git so it is not a part of the SBOM'
 
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
     displayName: 'Generate SBOM'
     inputs:
-      BuildComponentPath: '$(Build.ArtifactStagingDirectory)'
+      BuildComponentPath: '$(Build.SourcesDirectory)'
       BuildDropPath: '$(Build.SourcesDirectory)'
       PackageName: 'Mission LZ'
-      PackageVersion: '$(Build.BuildNumber)'      
-    
-  
-  - task: Bash@3
-    inputs:
-      targetType: 'inline'
-      script: |
-            git config --global user.email "$BUILD_REQUESTEDFOREMAIL"
-            git config --global user.name "$BUILD_REQUESTEDFOR"
-            git checkout -t origin $(Build.SourceBranch)
-            git add '_manifest/*'
-            git status
-            git commit -m "Update Software Bill of Materials (SBOM)"
-            git push --set-upstream origin HEAD:$(Build.SourceBranch)
-      workingDirectory: $(Build.SourcesDirectory)
+      PackageVersion: '$(Build.BuildNumber)'
+      Verbosity: Verbose
+
+  - bash: |
+      cd $(Build.SourcesDirectory)
+      cat _manifest/manifest.json | jq . > temp.json \
+        && mv temp.json _manifest/manifest.json \
+        && rm -f temp.json
+      cat _manifest/spdx_2.2/manifest.spdx.json | jq . > temp.json \
+        && mv temp.json _manifest/spdx_2.2/manifest.spdx.json \
+        && rm -f temp.json
+    displayName: 'Pretty Print SBOM'
+
+  - bash: |
+      cd $(Build.ArtifactStagingDirectory)
+      cp -r .git $(Build.SourcesDirectory)
+      rm -rf .git
+    displayName: 'Restore .git so we can commit back to the source branch'
+
+  - bash: |
+      git config --global user.email "$BUILD_REQUESTEDFOREMAIL"
+      git config --global user.name "$BUILD_REQUESTEDFOR"
+      git checkout -t origin $(Build.SourceBranch)
+      git add '_manifest/*'
+      git status
+      git commit -m "Update Software Bill of Materials (SBOM)"
+      git push --set-upstream origin HEAD:$(Build.SourceBranch)
     displayName: 'Commit SBOM changes back to source branch'
-   
+
   - task: PublishBuildArtifacts@1
-    displayName: 'Publish SBOM to Build Artifact'
+    displayName: 'Publish SBOM as Build Artifact'
     inputs:
       PathtoPublish: '$(Build.SourcesDirectory)/_manifest'
       ArtifactName: 'drop'
