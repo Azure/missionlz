@@ -31,7 +31,7 @@ For instructions on generating 'deploymentVariables.json' using both Azure Power
 
 Place the resulting 'deploymentVariables.json' file within the ./src/bicep/examples folder.
 
-### Deploying Azure Key Vault
+### Deploying Azure Automation
 
 Connect to the appropriate Azure Environment and set appropriate context, see getting started with Azure PowerShell for help if needed.  The commands below assume you are deploying in Azure Commercial and show the entire process from deploying MLZ and then adding a key vault post-deployment.
 
