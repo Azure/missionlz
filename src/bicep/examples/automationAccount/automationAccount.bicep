@@ -25,9 +25,6 @@ var calculatedTags = union(tags, defaultTags)
 var targetSubscriptionId_Var = targetResourceGroup == '${mlzDeploymentVariables.spokes.Value[1].resourceGroupName}' ? '${mlzDeploymentVariables.spokes.Value[1].subscriptionId}' : subscription().subscriptionId
 var location = deployment().location
 
-/* Log Analytics Variables */
-var diagnosticStorageAccountName = '${}'
-
 resource targetAAResourceGroup 'Microsoft.Resources/resourceGroups@2020-10-01' = {
   name: targetResourceGroup
   location: location
@@ -40,11 +37,11 @@ module automationAccount './modules/automationAccount.bicep' = {
     name: automationAcctName
     location: location
     enableDiagnostics: true
-    diagnosticStorageAccountName: ''
-    diagnosticStorageAccountResourceGroup: ''
-    logAnalyticsResourceGroup: ''
-    logAnalyticsWorkspaceName: ''
-    logAnalyticsSubscriptionId: ''
+    diagnosticStorageAccountName: '${mlzDeploymentVariables.diagnosticStorageAccountName.Value}'
+    diagnosticStorageAccountResourceGroup: '${mlzDeploymentVariables.spokes.Value[1].resourceGroupName}'
+    logAnalyticsResourceGroup: '${mlzDeploymentVariables.spokes.Value[1].resourceGroupName}'
+    logAnalyticsWorkspaceName: '${mlzDeploymentVariables.logAnalyticsWorkspaceName.Value}'
+    logAnalyticsSubscriptionId: '${mlzDeploymentVariables.spokes.Value[1].subscriptionId}'
     modules: [
       {
         name: 'Az.Accounts'
