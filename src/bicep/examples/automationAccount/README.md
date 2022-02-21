@@ -6,7 +6,7 @@ Read on to understand what this example does, and when you're ready, collect all
 
 ## What this example does
 
-### Deploys Azure Key Vault
+### Deploys an Azure Automation Account
 
 The docs on Azure Automation (Automation Accounts): <https://docs.microsoft.com/en-us/azure/automation/>.  
 
@@ -22,8 +22,9 @@ See below for information on how to create the appropriate deployment variables 
 
 Template Parameters Name | Description
 -----------------------| -----------
-keyVaultName | The name of key vault.  If not specified, the name will default to the MLZ default naming pattern.  
-targetResourceGroup | The name of the resource group where the key vault will be deployed.   If not specified, the resource group name will default to the shared services MLZ resource group name and subscription.
+automationAcctName | The name of automation account.  If not specified, the name will default to the MLZ default naming pattern.  
+targetResourceGroup | The name of the resource group where the automation account will be deployed.   If not specified, the resource group name will default to the shared services MLZ resource group name and subscription.
+automationRunbook | The URI of the powershell runbook to deploy with this automation account
 
 ### Generate MLZ Variable File (deploymentVariables.json)
 
@@ -33,7 +34,7 @@ Place the resulting 'deploymentVariables.json' file within the ./src/bicep/examp
 
 ### Deploying Azure Automation
 
-Connect to the appropriate Azure Environment and set appropriate context, see getting started with Azure PowerShell for help if needed.  The commands below assume you are deploying in Azure Commercial and show the entire process from deploying MLZ and then adding a key vault post-deployment.
+Connect to the appropriate Azure Environment and set appropriate context, see getting started with Azure PowerShell for help if needed.  The commands below assume you are deploying in Azure Commercial and show the entire process from deploying MLZ and then adding an automation account to the operations resource group.
 
 ```PowerShell
 cd .\src\bicep
@@ -41,7 +42,7 @@ Connect-AzAccount
 New-AzSubscriptionDeployment -Name contoso -TemplateFile .\mlz.bicep -resourcePrefix 'contoso' -Location 'eastus'
 cd .\examples
 (Get-AzSubscriptionDeployment -Name contoso).outputs | ConvertTo-Json | Out-File -FilePath .\deploymentVariables.json
-cd .\keyVault
+cd .\automationAccount
 New-AzSubscriptionDeployment -DeploymentName deployAzureAUtomationt -TemplateFile .\automationAccount.bicep -Location 'eastus'
 ```
 
@@ -51,7 +52,7 @@ cd src/bicep
 az deployment sub create -n contoso -f mlz.bicep -l eastus --parameters resourcePrefix=contoso
 cd examples
 az deployment sub show -n contoso --query properties.outputs > ./deploymentVariables.json
-cd keyVault
+cd automationAccount
 az deployment sub create -n deployAzureAutomation -f automationAccount.bicep -l eastus
 ```
 
