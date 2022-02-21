@@ -1,0 +1,24 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# disable CI per:
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/github?view=azure-devops&tabs=yaml#disabling-the-ci-trigger
+trigger: none
+
+pr:
+  branches:
+    include:
+    - main
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+- job: ValidateDeclarativeForm
+  displayName: 'Validate Declarative Form'
+  steps:
+  - bash: |
+      curl -s -o validate_declarative_form.py -L https://raw.githubusercontent.com/glennmusa/validate-declarative-form/main/validate_declarative_form.py
+      python3 validate_declarative_form.py src/bicep/form/mlz.portal.json src/bicep/mlz.json
+    displayName: 'Execute validation script'
+    failOnStderr: true
