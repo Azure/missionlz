@@ -23,7 +23,7 @@ var defaultTags = {
 var calculatedTags = union(tags, defaultTags)
 
 var targetSubscriptionId_Var = targetResourceGroup == '${mlzDeploymentVariables.spokes.Value[1].resourceGroupName}' ? '${mlzDeploymentVariables.spokes.Value[1].subscriptionId}' : subscription().subscriptionId
-var location = deployment().location
+param location string = deployment().location
 
 resource targetAAResourceGroup 'Microsoft.Resources/resourceGroups@2020-10-01' = {
   name: targetResourceGroup
