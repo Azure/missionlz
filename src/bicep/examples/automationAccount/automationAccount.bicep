@@ -15,6 +15,9 @@ param targetResourceGroup string = '${mlzDeploymentVariables.spokes.Value[1].res
 @description('The URL location to the PowerShell runbook you wish to use')
 param automationRunbook string = 'https://raw.githubusercontent.com/Azure/missionlz/breestryker/AzAutomationBicepEx/src/bicep/examples/automationAccount/test.ps1'
 
+@description('The location of the RG to deploy the Automation Account to')
+param location string = deployment().location
+
 @description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
 param tags object = {}
 var defaultTags = {
@@ -23,7 +26,7 @@ var defaultTags = {
 var calculatedTags = union(tags, defaultTags)
 
 var targetSubscriptionId_Var = targetResourceGroup == '${mlzDeploymentVariables.spokes.Value[1].resourceGroupName}' ? '${mlzDeploymentVariables.spokes.Value[1].subscriptionId}' : subscription().subscriptionId
-param location string = deployment().location
+
 
 resource targetAAResourceGroup 'Microsoft.Resources/resourceGroups@2020-10-01' existing = {
   name: targetResourceGroup
