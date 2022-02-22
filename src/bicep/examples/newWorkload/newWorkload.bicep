@@ -12,7 +12,6 @@ targetScope = 'subscription'
 
 // REQUIRED PARAMETERS
 
-
 @minLength(3)
 @maxLength(24)
 @description('A prefix, 3 to 24 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".')
@@ -22,7 +21,6 @@ param resourcePrefix string
 @maxLength(6)
 @description('A suffix, 3 to 6 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".')
 param resourceSuffix string = 'mlz'
-
 
 @description('The region to deploy resources into. It defaults to the deployment location.')
 param location string = deployment().location
@@ -38,8 +36,6 @@ param hubVirtualNetworkName string = mlzDeploymentVariables.hub.Value.virtualNet
 param hubVirtualNetworkResourceId string = mlzDeploymentVariables.hub.Value.virtualNetworkResourceId
 param logAnalyticsWorkspaceResourceId string = mlzDeploymentVariables.logAnalyticsWorkspaceResourceId.Value
 param firewallPrivateIPAddress string = mlzDeploymentVariables.firewallPrivateIPAddress.Value
-
-
 
 @description('The address prefix for the network spoke vnet.')
 param virtualNetworkAddressPrefix string = '10.0.125.0/26'
@@ -79,6 +75,16 @@ param logStorageSkuName string = 'Standard_GRS'
 @description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
 param tags object = {}
 
+/*
+
+  NAMING CONVENTION
+
+  Here we define a naming conventions for resources.
+
+  First, we take `resourcePrefix` and `resourceSuffix` by params.
+  Then, using string interpolation "${}", we insert those values into a naming convention.
+
+*/
 
 var resourceToken = 'resource_token'
 var nameToken = 'name_token'
@@ -90,7 +96,6 @@ var networkSecurityGroupNamingConvention = replace(namingConvention, resourceTok
 var storageAccountNamingConvention = toLower('${resourcePrefix}st${nameToken}unique_storage_token')
 var subnetNamingConvention = replace(namingConvention, resourceToken, 'snet')
 
-
 var workloadName = 'workload'
 var workloadShortName = 'wl'
 var workloadResourceGroupName = replace(resourceGroupNamingConvention, nameToken, workloadName)
@@ -100,6 +105,7 @@ var workloadLogStorageAccountName = take(workloadLogStorageAccountUniqueName, 23
 var workloadVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, workloadName)
 var workloadNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, workloadName)
 var workloadSubnetName = replace(subnetNamingConvention, nameToken, workloadName)
+
 var defaultTags = {
   'DeploymentType': 'MissionLandingZoneARM'
 }
