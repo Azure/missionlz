@@ -14,7 +14,7 @@ The docs on Azure Automation (Automation Accounts): <https://docs.microsoft.com/
 
 1. A Mission LZ deployment (a deployment of mlz.bicep)
 2. The outputs from a deployment of mlz.bicep (./src/bicep/examples/deploymentVariables.json).  
-3. Powershell Runbook for your MLZ deployment
+3. PowerShell Runbook for your MLZ deployment
 
 See below for information on how to create the appropriate deployment variables file for use with this template.
 
