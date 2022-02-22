@@ -1,5 +1,5 @@
 /*
-Deployes an automation account with modules/runbook/diagnostic logs
+Deploys an automation account with modules/runbook/diagnostic logs
 Makes use of example azure automation bicep: https://github.com/Azure/bicep/tree/main/docs/examples/301/automation-account-import-runbooks-and-modules
 */
 targetScope = 'subscription'
