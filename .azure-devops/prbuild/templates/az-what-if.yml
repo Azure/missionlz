@@ -1,0 +1,26 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+parameters:
+
+- name: ServiceConnectionName
+  type: string
+- name: DeploymentName
+  type: string
+- name: Location
+  type: string
+
+steps:
+  - task: AzureCLI@2
+    displayName: "What-if Bicep"
+    inputs:
+      azureSubscription: ${{ parameters.ServiceConnectionName }}
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        datetime=$(date +%s) # gets the current date time as an epoch
+        az deployment sub what-if \
+          --name ${{ parameters.DeploymentName }} \
+          --location ${{ parameters.Location }} \
+          --template-file $(Build.SourcesDirectory)/src/bicep/mlz.bicep \
+          --parameters resourcePrefix=$datetime

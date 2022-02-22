@@ -13,29 +13,19 @@ pr:
 pool:
   vmImage: ubuntu-latest
 
-variables:
-  GServiceConnectionName: $(GAzureConnection)
-
 jobs:
+
 - job: GovCloud_TF
+  displayName: "PR Checks for Mission LZ Terraform on AzureUsGovernment"
+
   steps:
-  - task: TerraformInstaller@0
-    inputs:
-      terraformVersion: 'latest'
-  - task: AzureCLI@2
-    displayName: "Terraform Plan"
-    inputs:
-      azureSubscription: $(GAzureConnection)
-      scriptType: 'bash'
-      addSpnToEnvironment: true
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-          export ARM_CLIENT_ID=$(GClientId)
-          export ARM_CLIENT_SECRET=$(GClientSecret)
-          export ARM_SUBSCRIPTION_ID=$(GSubId)
-          export ARM_TENANT_ID=$(GTenantId)
-          export ARM_ENVIRONMENT=$(CloudEnv)
-          terraform init
-          terraform plan -var "hub_subid=$(GSubid)" -var metadata_host=$(MetadataHost) -var environment=$(CloudEnv) -var location=$(GLocation) -input=false
-      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
-      useGlobalConfig: true
+  - template: templates/terraform-plan.yml
+    parameters:
+      ServiceConnectionName: $(GAzureConnection)
+      ClientId: $(GClientId)
+      ClientSecret: $(GClientSecret)
+      SubscriptionId: $(GSubId)
+      TenantId: $(GTenantId)
+      Environment: $(GCloudEnv)
+      MetadataHost: $(GMetadataHost)
+      Location: $(GLocation)

@@ -13,28 +13,19 @@ pr:
 pool:
   vmImage: ubuntu-latest
 
-variables:
-  ServiceConnectionName: $(CAzureConnection)
-
 jobs:
+
 - job: CommercialCloud_TF
+  displayName: "PR Checks for Mission LZ Terraform on AzureCloud"
+
   steps:
-  - task: TerraformInstaller@0
-    inputs:
-        terraformVersion: 'latest'
-  - task: AzureCLI@2
-    displayName: "Terraform Plan"
-    inputs:
-      azureSubscription: $(CAzureConnection)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      addSpnToEnvironment: true
-      inlineScript: |
-          export ARM_CLIENT_ID=$(ClientId)
-          export ARM_CLIENT_SECRET=$(ClientSecret)
-          export ARM_SUBSCRIPTION_ID=$(subId)
-          export ARM_TENANT_ID=$(tenantId)
-          terraform init
-          terraform plan -var "hub_subid=$(subid)" -input=false
-      workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform/mlz'
-      useGlobalConfig: true
+  - template: templates/terraform-plan.yml
+    parameters:
+      ServiceConnectionName: $(CAzureConnection)
+      ClientId: $(ClientId)
+      ClientSecret: $(ClientSecret)
+      SubscriptionId: $(CSubId)
+      TenantId: $(CTenantId)
+      Environment: $(CCloudEnv)
+      MetadataHost: $(CMetadataHost)
+      Location: $(CLocation)

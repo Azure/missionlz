@@ -16,6 +16,9 @@ ARG TFLINT_AZURERM=0.14.0
 # Azure CLI version
 ARG AZURE_CLI_VERSION=2.31.0-1~focal
 
+# Bicep version
+ARG BICEP_VERSION=v0.4.1272
+
 # Update distro (software-properties-common installs the add-apt-repository command)
 RUN apt-get update \
     && apt-get -y install --no-install-recommends apt-utils software-properties-common 2>&1 \
@@ -89,7 +92,7 @@ RUN AZ_REPO=$(lsb_release -cs) \
 RUN apt-get update && apt-get install -y azure-cli=${AZURE_CLI_VERSION}
 
 # Install Bicep
-RUN curl -Lo /usr/local/bin/bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 \
+RUN curl -Lo /usr/local/bin/bicep https://github.com/Azure/bicep/releases/download/${BICEP_VERSION}/bicep-linux-x64 \
     && chmod +x /usr/local/bin/bicep
 
 # Clean up
