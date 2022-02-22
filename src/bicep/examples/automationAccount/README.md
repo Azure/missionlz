@@ -1,6 +1,6 @@
 # Azure Automation Account Example
 
-This example deploys an  MLZ compatible Azure Automation account, with diagnostic logs pointed to the MLZ LAWS instance.
+This example deploys an MLZ compatible Azure Automation account, with diagnostic logs pointed to the MLZ Log Analytics Workspace (LAWS) instance.
 
 Read on to understand what this example does, and when you're ready, collect all of the pre-requisites, then deploy the example.
 
