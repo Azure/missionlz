@@ -13,8 +13,8 @@ targetScope = 'subscription'
 // REQUIRED PARAMETERS
 
 @minLength(3)
-@maxLength(24)
-@description('A prefix, 3 to 24 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".')
+@maxLength(10)
+@description('A prefix, 3 to 10 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".')
 param resourcePrefix string
 
 @minLength(3)

@@ -16,19 +16,19 @@ The docs on Azure virtual networking:  <https://docs.microsoft.com/en-us/azure/v
 ## Pre-requisites
 
 1. A Mission LZ deployment (a deployment of mlz.bicep)
-1. Define values for required parameters described below, and generate a `deploymentVariables.json` file from the deployment (see below).
+1. Generate a `deploymentVariables.json` file from that deployment (see [Generate MLZ Variable File](#Generate-MLZ-Variable-File))
+1. Define values for Required Parameters described below
+1. Decide if the default virtual network address prefix for your new workload is appropriate for your MLZ deployment. If it needs to change, override the `virtualNetworkAddressPrefix` parameter.
 
-Required Parameters | Description
-------------------- | -----------
-workloadName | A name (3 to 24 characters) for your workload
-hubSubscriptionId | The subscription that contain the Hub Resource Group
-hubResourceGroupName | The resource group that contains the Hub Virtual Network and deploy the virtual machines into
-hubVirtualNetworkName | The network to peer the new workload network to
-hubVirtualNetworkResourceId | The network to peer the new workload network to
-logAnalyticsWorkspaceResourceId | The resource ID of the Log Analytics Workspace to send diagnostic logs to
-firewallPrivateIPAddress | The private IP Address to the Firewall to route traffic to from the new workload network
+Required Parameters | Default | Description
+------------------- | ------- | -----------
+resourcePrefix | mlz | A prefix, 3 to 10 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".
 
-### Generate MLZ Variable File (deploymentVariables.json)
+Optional Parameters | Default | Description
+------------------- | ------- | -----------
+virtualNetworkAddressPrefix | 10.0.125.0/26 | The address prefix for the network spoke vnet.
+
+### Generate MLZ Variable File
 
 For instructions on generating 'deploymentVariables.json' using both Azure PowerShell and Azure CLI, please see the [README at the root of the examples folder](..\README.md).
 
@@ -51,7 +51,7 @@ New-AzSubscriptionDeployment -Name contoso -TemplateFile .\mlz.bicep -resourcePr
 cd .\examples
 (Get-AzSubscriptionDeployment -Name contoso).outputs | ConvertTo-Json | Out-File -FilePath .\deploymentVariables.json
 cd .\newWorkload
-New-AzSubscriptionDeployment -DeploymentName deployNewWorkload -TemplateFile .\newWorkload.bicep -workloadName newWorkload -Location 'eastus'
+New-AzSubscriptionDeployment -DeploymentName deployNewWorkload -TemplateFile .\newWorkload.bicep -resourcePrefix myWorkload -Location 'eastus'
 ```
 
 ```Azure CLI
@@ -61,5 +61,5 @@ az deployment sub create -n contoso -f mlz.bicep -l eastus --parameters resource
 cd examples
 az deployment sub show -n contoso --query properties.outputs > ./deploymentVariables.json
 cd newWorkload
-az deployment sub create -n deployNewWorkload -f newWorkload.bicep -l eastus --parameters workloadName='newWorkload'
+az deployment sub create -n deployNewWorkload -f newWorkload.bicep -l eastus --parameters resourcePrefix='myWorkload'
 ```
