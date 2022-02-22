@@ -150,7 +150,7 @@ module spokeNetwork '../../modules/spokeNetwork.bicep' = {
 }
 
 module workloadVirtualNetworkPeerings '../../modules/spokeNetworkPeering.bicep' = {
-  name: take('${workloadName}--VNetPeerings', 64)
+  name: take('${workloadName}-to-hub-vnet-peering', 64)
   params: {
     spokeName: workloadName
     spokeResourceGroupName: resourceGroup.name
@@ -163,7 +163,7 @@ module workloadVirtualNetworkPeerings '../../modules/spokeNetworkPeering.bicep' 
 
 module hubToWorkloadVirtualNetworkPeering './modules/hubNetworkPeering.bicep' = {
   scope: subscription(hubSubscriptionId)
-  name: 'hubToWorkloadVirtualNetworkPeering'
+  name: take('hub-to-${workloadName}-vnet-peering', 64)
   params: {
     hubResourceGroupName: hubResourceGroupName
     hubVirtualNetworkName: hubVirtualNetworkName
