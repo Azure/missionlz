@@ -12,7 +12,7 @@ param automationAcctName string = '${mlzDeploymentVariables.mlzResourcePrefix.Va
 @description('The name of the resource group in which the automation account will be deployed. If unchanged or not specified, the MLZ operations resource group is used.')
 param targetResourceGroup string = '${mlzDeploymentVariables.spokes.Value[1].resourceGroupName}'
 
-@description('The URL location to the powershell runbook you wish to use')
+@description('The URL location to the PowerShell runbook you wish to use')
 param automationRunbook string = 'https://raw.githubusercontent.com/Azure/missionlz/breestryker/AzAutomationBicepEx/src/bicep/examples/automationAccount/test.ps1'
 
 @description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
