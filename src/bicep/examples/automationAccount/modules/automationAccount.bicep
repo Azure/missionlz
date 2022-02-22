@@ -50,12 +50,16 @@ param logAnalyticsResourceGroup string = ''
 @description('Log analytics workspace subscription id (if differs from current subscription). Only required if enableDiagnostics is set to true.')
 param logAnalyticsSubscriptionId string = subscription().subscriptionId
 
+@description('Tags for created resources')
+param tags object = {}
+
 var lockName = '${automationAccount.name}-lck'
 var diagnosticsName = '${automationAccount.name}-dgs'
 
 resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
   name: name
   location: location
+  tags: tags
   identity: {
     type: 'SystemAssigned'
   }
@@ -69,6 +73,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-p
 resource automationAccountModules 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = [for module in modules: {
   parent: automationAccount
   name: module.name
+  tags: tags
   properties: {
     contentLink: {
       uri: module.version == 'latest' ? '${module.uri}/${module.name}' : '${module.uri}/${module.name}/${module.version}'
@@ -81,6 +86,7 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' =
   parent: automationAccount
   name: runbook.runbookName
   location: location
+  tags: tags
   properties: {
     runbookType: runbook.runbookType
     logProgress: runbook.logProgress
@@ -93,7 +99,6 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' =
 
 resource lock 'Microsoft.Authorization/locks@2016-09-01' = if (enableDeleteLock) {
   scope: automationAccount
-
   name: lockName
   properties: {
     level: 'CanNotDelete'
@@ -102,7 +107,6 @@ resource lock 'Microsoft.Authorization/locks@2016-09-01' = if (enableDeleteLock)
 
 resource diagnostics 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = if (enableDiagnostics) {
   scope: automationAccount
-
   name: diagnosticsName
   properties: {
     workspaceId: resourceId(logAnalyticsSubscriptionId, logAnalyticsResourceGroup, 'Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName)

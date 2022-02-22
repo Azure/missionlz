@@ -25,9 +25,8 @@ var calculatedTags = union(tags, defaultTags)
 var targetSubscriptionId_Var = targetResourceGroup == '${mlzDeploymentVariables.spokes.Value[1].resourceGroupName}' ? '${mlzDeploymentVariables.spokes.Value[1].subscriptionId}' : subscription().subscriptionId
 param location string = deployment().location
 
-resource targetAAResourceGroup 'Microsoft.Resources/resourceGroups@2020-10-01' = {
+resource targetAAResourceGroup 'Microsoft.Resources/resourceGroups@2020-10-01' existing = {
   name: targetResourceGroup
-  location: location
 }
 
 module automationAccount './modules/automationAccount.bicep' = {
@@ -35,6 +34,7 @@ module automationAccount './modules/automationAccount.bicep' = {
   name: automationAcctName
   params: {
     name: automationAcctName
+    tags: tags
     location: location
     enableDiagnostics: true
     diagnosticStorageAccountName: '${mlzDeploymentVariables.diagnosticStorageAccountName.Value}'
@@ -62,3 +62,4 @@ module automationAccount './modules/automationAccount.bicep' = {
 }
 
 output tags object = calculatedTags
+output systemIdentityPrincipalId string = automationAccount.outputs.systemIdentityPrincipalId
