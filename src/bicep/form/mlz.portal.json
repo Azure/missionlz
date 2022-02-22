@@ -694,19 +694,19 @@
               ]
             },
             {
-              "name": "securityCenterSection",
+              "name": "defenderSection",
               "label": "Enable Microsoft Defender for Cloud",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "securityCenterSubscriptionDetailsText",
+                  "name": "defenderSubscriptionDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
                     "text": "Mission Landing Zone can activate Microsoft Defender for Cloud for each subscription it is deployed into."
                   }
                 },
                 {
-                  "name": "securityCenterOptionalDetailsText",
+                  "name": "defenderOptionalDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
                     "text": "Enabling Microsoft Defender for Cloud is optional, but recommended."
@@ -730,7 +730,7 @@
                   "placeholder": "johndoe@contoso.com",
                   "multiLine": false,
                   "constraints": {
-                    "required": "[steps('compliance').securityCenterSection.deployDefender]",
+                    "required": "[steps('compliance').defenderSection.deployDefender]",
                     "validations": [
                       {
                         "regex": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
@@ -738,7 +738,7 @@
                       }
                     ]
                   },
-                  "visible": "[steps('compliance').securityCenterSection.deployDefender]"
+                  "visible": "[steps('compliance').defenderSection.deployDefender]"
                 }
               ]
             },
@@ -1005,8 +1005,8 @@
         "deploySentinel": "[steps('compliance').sentinelSection.deploySentinel]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
         "policy": "[steps('compliance').policySection.policy]",
-        "deployDefender": "[steps('compliance').securityCenterSection.deployDefender]",
-        "emailSecurityContact": "[steps('compliance').securityCenterSection.emailSecurityContact]",
+        "deployDefender": "[steps('compliance').defenderSection.deployDefender]",
+        "emailSecurityContact": "[steps('compliance').defenderSection.emailSecurityContact]",
         "deployRemoteAccess": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
         "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
         "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]",

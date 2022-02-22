@@ -35,9 +35,9 @@ param emailSecurityContact string
 param policySetDescription string = 'The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.'
 
 
-// security center
+// defender
 
-resource securityCenterPricing 'Microsoft.Security/pricings@2018-06-01' = [for name in bundle: {
+resource defenderPricing 'Microsoft.Security/pricings@2018-06-01' = [for name in bundle: {
   name: name
   properties: {
     pricingTier: 'Standard'

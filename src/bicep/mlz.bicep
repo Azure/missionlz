@@ -934,10 +934,10 @@ module logAnalyticsDiagnosticLogging './modules/logAnalyticsDiagnosticLogging.bi
   ]
 }
 
-// SECURITY CENTER
+// Microsoft Defender for Cloud
 
-module hubSecurityCenter './modules/defender.bicep' = if (deployDefender) {
-  name: 'set-hub-sub-security-center-${deploymentNameSuffix}'
+module hubDefender './modules/defender.bicep' = if (deployDefender) {
+  name: 'set-hub-sub-defender-${deploymentNameSuffix}'
   scope: subscription(hubSubscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
@@ -945,8 +945,8 @@ module hubSecurityCenter './modules/defender.bicep' = if (deployDefender) {
   }
 }
 
-module spokeSecurityCenter './modules/defender.bicep' = [for spoke in spokes: if ((deployDefender) && (spoke.subscriptionId != hubSubscriptionId)) {
-  name: 'set-${spoke.name}-sub-security-center'
+module spokeDefender './modules/defender.bicep' = [for spoke in spokes: if ((deployDefender) && (spoke.subscriptionId != hubSubscriptionId)) {
+  name: 'set-${spoke.name}-sub-defender'
   scope: subscription(operationsSubscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
