@@ -815,11 +815,11 @@
         "CMMC"
       ]
     },
-    "deployASC": {
+    "deployDefender": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "When set to \"true\", enables Azure Security Center for the subscriptions used in the deployment. It defaults to \"false\"."
+        "description": "When set to \"true\", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to \"false\"."
       }
     },
     "emailSecurityContact": {
@@ -4747,7 +4747,7 @@
       ]
     },
     {
-      "condition": "[parameters('deployASC')]",
+      "condition": "[parameters('deployDefender')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('set-hub-sub-security-center-{0}', parameters('deploymentNameSuffix'))]",
@@ -4781,13 +4781,13 @@
               "type": "bool",
               "defaultValue": true,
               "metadata": {
-                "description": "Turn automatic deployment by ASC of the MMA (OMS VM extension) on or off"
+                "description": "Turn automatic deployment by Microsoft Defender for Cloud of the MMA (OMS VM extension) on or off"
               }
             },
             "logAnalyticsWorkspaceId": {
               "type": "string",
               "metadata": {
-                "description": "Specify the ID of your custom Log Analytics workspace to collect ASC data."
+                "description": "Specify the ID of your custom Log Analytics workspace to collect Defender data."
               }
             },
             "emailSecurityContact": {
@@ -4798,7 +4798,7 @@
             },
             "policySetDescription": {
               "type": "string",
-              "defaultValue": "The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Azure Security Center default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Azure Security Center.",
+              "defaultValue": "The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender for Cloud.",
               "metadata": {
                 "description": "Policy Initiative description field"
               }
@@ -4854,7 +4854,7 @@
               "apiVersion": "2020-09-01",
               "name": "Azure Security Benchmark",
               "properties": {
-                "displayName": "ASC Default",
+                "displayName": "Defender Default",
                 "description": "[parameters('policySetDescription')]",
                 "enforcementMode": "DoNotEnforce",
                 "parameters": {},
@@ -4869,7 +4869,7 @@
       ]
     },
     {
-      "condition": "[and(parameters('deployASC'), not(equals(variables('spokes')[copyIndex()].subscriptionId, parameters('hubSubscriptionId'))))]",
+      "condition": "[and(parameters('deployDefender'), not(equals(variables('spokes')[copyIndex()].subscriptionId, parameters('hubSubscriptionId'))))]",
       "copy": {
         "name": "spokeSecurityCenter",
         "count": "[length(variables('spokes'))]"
@@ -4907,13 +4907,13 @@
               "type": "bool",
               "defaultValue": true,
               "metadata": {
-                "description": "Turn automatic deployment by ASC of the MMA (OMS VM extension) on or off"
+                "description": "Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off"
               }
             },
             "logAnalyticsWorkspaceId": {
               "type": "string",
               "metadata": {
-                "description": "Specify the ID of your custom Log Analytics workspace to collect ASC data."
+                "description": "Specify the ID of your custom Log Analytics workspace to collect Defender data."
               }
             },
             "emailSecurityContact": {
@@ -4924,7 +4924,7 @@
             },
             "policySetDescription": {
               "type": "string",
-              "defaultValue": "The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Azure Security Center default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Azure Security Center.",
+              "defaultValue": "The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender for Cloud.",
               "metadata": {
                 "description": "Policy Initiative description field"
               }
@@ -4980,7 +4980,7 @@
               "apiVersion": "2020-09-01",
               "name": "Azure Security Benchmark",
               "properties": {
-                "displayName": "ASC Default",
+                "displayName": "Defender Default",
                 "description": "[parameters('policySetDescription')]",
                 "enforcementMode": "DoNotEnforce",
                 "parameters": {},
