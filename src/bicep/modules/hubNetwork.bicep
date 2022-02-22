@@ -240,6 +240,7 @@ module azureMonitorPrivateLink './privateLink.bicep' = if ( contains(supportedCl
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     privateEndpointSubnetName: subnetName
     privateEndpointVnetName: virtualNetwork.outputs.name
+    location: location
     tags: tags
   }
   dependsOn: [

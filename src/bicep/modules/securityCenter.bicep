@@ -70,7 +70,7 @@ resource securityNotifications 'Microsoft.Security/securityContacts@2017-08-01-p
   }
 }
 
-resource securityPoliciesDefault 'Microsoft.Authorization/policyAssignments@2021-06-01' = {
+resource securityPoliciesDefault 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
   name: 'Azure Security Benchmark'
   scope: subscription()
   properties: {

@@ -879,6 +879,7 @@ module hubPolicyAssignment './modules/policyAssignment.bicep' = if (deployPolicy
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceGroupName: logAnalyticsWorkspace.outputs.resourceGroupName
     operationsSubscriptionId: operationsSubscriptionId
+    location: location
   }
 }
 
@@ -890,6 +891,7 @@ module spokePolicyAssignments './modules/policyAssignment.bicep' = [for spoke in
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceGroupName: logAnalyticsWorkspace.outputs.resourceGroupName
     operationsSubscriptionId: operationsSubscriptionId
+    location: location
   }
 }]
 

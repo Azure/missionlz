@@ -12,6 +12,9 @@ param operationsSubscriptionId string
 @description('Starts a policy remediation for the VM Agent policies in hub RG. Set to false by default since this is time consuming in deployment.')
 param deployRemediation bool = false
 
+@description('The location of this resource')
+param location string = resourceGroup().location
+
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
   name: logAnalyticsWorkspaceName
   scope: resourceGroup(operationsSubscriptionId, logAnalyticsWorkspaceResourceGroupName)
@@ -42,7 +45,7 @@ var lawsReaderRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefinit
 // assign policy to resource group
 resource assignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
   name: assignmentName
-  location: resourceGroup().location
+  location: location
   properties: {
       policyDefinitionId: policyDefinitionID[modifiedAssignment].id
       parameters: policyDefinitionID[modifiedAssignment].parameters
@@ -54,7 +57,7 @@ resource assignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
 
 resource vmssAgentAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
   name: agentVmssAssignmentName
-  location: resourceGroup().location
+  location: location
   properties: {
     policyDefinitionId: '/providers/Microsoft.Authorization/policySetDefinitions/75714362-cae7-409e-9b99-a8e5075b7fad'
     parameters: {
@@ -70,7 +73,7 @@ resource vmssAgentAssignment 'Microsoft.Authorization/policyAssignments@2020-09-
 
 resource vmAgentAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
   name: agentVmAssignmentName
-  location: resourceGroup().location
+  location: location
   properties: {
     policyDefinitionId: '/providers/Microsoft.Authorization/policySetDefinitions/55f3eceb-5573-4f18-9695-226972c6d74a'
     parameters: {
