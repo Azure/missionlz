@@ -10,7 +10,7 @@ Read on to understand what this example does, and when you're ready, collect all
 
 The docs on Azure Automation (Automation Accounts): <https://docs.microsoft.com/en-us/azure/automation/>.  
 
-## Pre-requisites
+## Prerequisites
 
 1. A Mission LZ deployment (a deployment of mlz.bicep)
 2. The outputs from a deployment of mlz.bicep (./src/bicep/examples/deploymentVariables.json).  
