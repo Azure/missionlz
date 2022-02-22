@@ -24,7 +24,7 @@ Template Parameters Name | Description
 -----------------------| -----------
 automationAcctName | The name of automation account.  If not specified, the name will default to the MLZ default naming pattern.  
 targetResourceGroup | The name of the resource group where the automation account will be deployed.   If not specified, the resource group name will default to the shared services MLZ resource group name and subscription.
-automationRunbook | The URI of the powershell runbook to deploy with this automation account
+automationRunbook | The URI of the PowerShell runbook to deploy with this automation account
 
 ### Generate MLZ Variable File (deploymentVariables.json)
 
