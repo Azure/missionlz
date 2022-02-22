@@ -93,7 +93,7 @@ Parameter name | Required | Description
 `windowsNetworkInterfacePrivateIPAddressAllocationMethod` | No       | [Static/Dynamic] The public IP Address allocation method for the Windows virtual machine. It defaults to "Dynamic".
 `deployPolicy`   | No       | When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".
 `policy`         | No       | [NIST/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NIST". IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.
-`deployASC`     | No       | When set to "true", enables Azure Security Center for the subscriptions used in the deployment. It defaults to "false".
+`deployDefender`     | No       | When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".
 `emailSecurityContact` | No       | Email address of the contact, in the form of john@doe.com
 <!-- markdownlint-enable MD034 -->
 
