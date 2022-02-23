@@ -1,4 +1,7 @@
 /*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+
 Deployes a web server farm(aka: App Service Plan) to support web container deployments for Linux.  
 Optionally enable dynamic auto scaling based on CPU Percentages using 'enableAutoScale' true/false
 */
