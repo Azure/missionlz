@@ -90,6 +90,7 @@ To deploy the workbook through Azure CLI:
 ```bash
 az deployment group create \
 --name MlzWorkbookDeploy \
---resource-group $operationsResourceGroupName 
+--resource-group $operationsResourceGroupName \
 --template-uri "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Solutions/ZeroTrust(TIC3.0)/Package/mainTemplate.json" \
 --parameters workspace=$logAnalyticsWorkspaceName
+```
