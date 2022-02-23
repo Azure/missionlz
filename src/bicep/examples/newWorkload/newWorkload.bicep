@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 targetScope = 'subscription'
 /*
 
@@ -33,11 +38,6 @@ param mlzDeploymentVariables object = json(loadTextContent('../deploymentVariabl
 param hubSubscriptionId string = mlzDeploymentVariables.hub.Value.subscriptionId
 param hubResourceGroupName string = mlzDeploymentVariables.hub.Value.resourceGroupName
 param hubVirtualNetworkName string = mlzDeploymentVariables.hub.Value.virtualNetworkName
-/*
-Copyright (c) Microsoft Corporation.
-Licensed under the MIT License.
-*/
-
 param hubVirtualNetworkResourceId string = mlzDeploymentVariables.hub.Value.virtualNetworkResourceId
 param logAnalyticsWorkspaceResourceId string = mlzDeploymentVariables.logAnalyticsWorkspaceResourceId.Value
 param firewallPrivateIPAddress string = mlzDeploymentVariables.firewallPrivateIPAddress.Value
