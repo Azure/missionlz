@@ -21,7 +21,7 @@ Required Parameters | Description
 _location_ | The region to deploy Azure Sentinel into
 _resourcePrefix_ | A 3-10 alphanumeric character string without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements
 _deploySentinel_ | A boolean expression indicating that Azure Sentinel is to be deployed with the MissionLZ deployment
-_deployASC_ | A boolean expression indicating that Azure Security Center (or Microsoft Defender for Cloud) is enabled in the MissionLZ deployment
+_deployDefender_ | A boolean expression indicating that Microsoft Defender for Cloud is enabled in the Mission LZ deployment
 
 An example deployment with required deployment parameters included is shown below:
 
