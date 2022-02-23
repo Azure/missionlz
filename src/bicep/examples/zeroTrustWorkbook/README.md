@@ -14,7 +14,7 @@ Documentation can be found here: [Build and monitor Zero Trust (TIC 3.0) securit
 
 2. Enablement of [enhanced security features in Microfost Defender for Cloud](https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security)
 
-The following table lists the required parameters for a missionLZ deployment to enable a Azure Sentinel Workbook:
+The following table lists the required parameters for a Mission LZ deployment to enable an Azure Sentinel Workbook:
 
 Required Parameters | Description
 ------------------- | -----------
