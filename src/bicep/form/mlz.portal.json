@@ -622,7 +622,7 @@
               "name": "complianceDescriptionTextBlock",
               "type": "Microsoft.Common.TextBlock",
               "options": {
-                "text": "Mission Landing Zone comes bundled with built-in policies that can be applied to the resources it deploys and the ability to enable Azure Security Center for the subscriptions it is deployed into.",
+                "text": "Mission Landing Zone comes bundled with built-in policies that can be applied to the resources it deploys and the ability to enable Microsoft Defender for Cloud for the subscriptions it is deployed into.",
                 "link": {
                   "label": "Learn more",
                   "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
@@ -694,29 +694,29 @@
               ]
             },
             {
-              "name": "securityCenterSection",
-              "label": "Enable Azure Security Center",
+              "name": "defenderSection",
+              "label": "Enable Microsoft Defender for Cloud",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "securityCenterSubscriptionDetailsText",
+                  "name": "defenderSubscriptionDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Mission Landing Zone can activate Azure Security Center for each subscription it is deployed into."
+                    "text": "Mission Landing Zone can activate Microsoft Defender for Cloud for each subscription it is deployed into."
                   }
                 },
                 {
-                  "name": "securityCenterOptionalDetailsText",
+                  "name": "defenderOptionalDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Enabling Azure Security Center is optional, but recommended."
+                    "text": "Enabling Microsoft Defender for Cloud is optional, but recommended."
                   }
                 },
                 {
-                  "name": "deployASC",
+                  "name": "deployDefender",
                   "type": "Microsoft.Common.CheckBox",
-                  "label": "Enable Azure Security Center?",
-                  "toolTip": "Check here to enable Azure Security Center for the subscriptions used to deploy Mission Landing Zone.",
+                  "label": "Enable Microsoft Defender for Cloud?",
+                  "toolTip": "Check here to enable Microsoft Defender for Cloud for the subscriptions used to deploy Mission Landing Zone.",
                   "constraints": {
                     "required": false
                   }
@@ -726,11 +726,11 @@
                   "type": "Microsoft.Common.TextBox",
                   "label": "Security Contact E-Mail Address",
                   "defaultValue": "",
-                  "toolTip": "Provide an e-mail address as a security contact for Azure Security Center",
+                  "toolTip": "Provide an e-mail address as a security contact for Microsoft Defender for Cloud",
                   "placeholder": "johndoe@contoso.com",
                   "multiLine": false,
                   "constraints": {
-                    "required": "[steps('compliance').securityCenterSection.deployASC]",
+                    "required": "[steps('compliance').defenderSection.deployDefender]",
                     "validations": [
                       {
                         "regex": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
@@ -738,7 +738,7 @@
                       }
                     ]
                   },
-                  "visible": "[steps('compliance').securityCenterSection.deployASC]"
+                  "visible": "[steps('compliance').defenderSection.deployDefender]"
                 }
               ]
             },
@@ -1005,8 +1005,8 @@
         "deploySentinel": "[steps('compliance').sentinelSection.deploySentinel]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
         "policy": "[steps('compliance').policySection.policy]",
-        "deployASC": "[steps('compliance').securityCenterSection.deployASC]",
-        "emailSecurityContact": "[steps('compliance').securityCenterSection.emailSecurityContact]",
+        "deployDefender": "[steps('compliance').defenderSection.deployDefender]",
+        "emailSecurityContact": "[steps('compliance').defenderSection.emailSecurityContact]",
         "deployRemoteAccess": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
         "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
         "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]",

@@ -506,10 +506,10 @@ param deployPolicy bool = false
 @description('[NIST/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NIST". IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.')
 param policy string = 'NIST'
 
-// AZURE SECURITY CENTER PARAMETERS
+// MICROSOFT DEFENDER PARAMETERS
 
-@description('When set to "true", enables Azure Security Center for the subscriptions used in the deployment. It defaults to "false".')
-param deployASC bool = false
+@description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
+param deployDefender bool = false
 
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string = ''
@@ -938,10 +938,10 @@ module logAnalyticsDiagnosticLogging './modules/logAnalyticsDiagnosticLogging.bi
   ]
 }
 
-// SECURITY CENTER
+// Microsoft Defender for Cloud
 
-module hubSecurityCenter './modules/securityCenter.bicep' = if (deployASC) {
-  name: 'set-hub-sub-security-center-${deploymentNameSuffix}'
+module hubDefender './modules/defender.bicep' = if (deployDefender) {
+  name: 'set-hub-sub-defender-${deploymentNameSuffix}'
   scope: subscription(hubSubscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
@@ -949,8 +949,8 @@ module hubSecurityCenter './modules/securityCenter.bicep' = if (deployASC) {
   }
 }
 
-module spokeSecurityCenter './modules/securityCenter.bicep' = [for spoke in spokes: if ((deployASC) && (spoke.subscriptionId != hubSubscriptionId)) {
-  name: 'set-${spoke.name}-sub-security-center'
+module spokeDefender './modules/defender.bicep' = [for spoke in spokes: if ((deployDefender) && (spoke.subscriptionId != hubSubscriptionId)) {
+  name: 'set-${spoke.name}-sub-defender'
   scope: subscription(operationsSubscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id

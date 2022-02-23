@@ -26,23 +26,23 @@ var bundle = (environment().name != 'AzureUSGovernment' ? [
   'Arm'
 ])
 
-@description('Turn automatic deployment by ASC of the MMA (OMS VM extension) on or off')
+@description('Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off')
 param enableAutoProvisioning bool = true
 var autoProvisioning = enableAutoProvisioning ? 'On' : 'Off'
 
-@description('Specify the ID of your custom Log Analytics workspace to collect ASC data.')
+@description('Specify the ID of your custom Log Analytics workspace to collect Defender data.')
 param logAnalyticsWorkspaceId string
 
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string
 
 @description('Policy Initiative description field')
-param policySetDescription string = 'The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Azure Security Center default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Azure Security Center.'
+param policySetDescription string = 'The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.'
 
 
-// security center
+// defender
 
-resource securityCenterPricing 'Microsoft.Security/pricings@2018-06-01' = [for name in bundle: {
+resource defenderPricing 'Microsoft.Security/pricings@2018-06-01' = [for name in bundle: {
   name: name
   properties: {
     pricingTier: 'Standard'
@@ -79,7 +79,7 @@ resource securityPoliciesDefault 'Microsoft.Authorization/policyAssignments@2020
   name: 'Azure Security Benchmark'
   scope: subscription()
   properties: {
-    displayName: 'ASC Default'
+    displayName: 'Defender Default'
     description: policySetDescription
     enforcementMode: 'DoNotEnforce'
     parameters: {}

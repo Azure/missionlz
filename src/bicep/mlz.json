@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "9201973649437229365"
+      "templateHash": "11789394257827199745"
     }
   },
   "parameters": {
@@ -815,11 +815,11 @@
         "CMMC"
       ]
     },
-    "deployASC": {
+    "deployDefender": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "When set to \"true\", enables Azure Security Center for the subscriptions used in the deployment. It defaults to \"false\"."
+        "description": "When set to \"true\", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to \"false\"."
       }
     },
     "emailSecurityContact": {
@@ -4747,10 +4747,10 @@
       ]
     },
     {
-      "condition": "[parameters('deployASC')]",
+      "condition": "[parameters('deployDefender')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('set-hub-sub-security-center-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('set-hub-sub-defender-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('hubSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
@@ -4773,7 +4773,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "16713937257548308780"
+              "templateHash": "8101636901285639541"
             }
           },
           "parameters": {
@@ -4781,13 +4781,13 @@
               "type": "bool",
               "defaultValue": true,
               "metadata": {
-                "description": "Turn automatic deployment by ASC of the MMA (OMS VM extension) on or off"
+                "description": "Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off"
               }
             },
             "logAnalyticsWorkspaceId": {
               "type": "string",
               "metadata": {
-                "description": "Specify the ID of your custom Log Analytics workspace to collect ASC data."
+                "description": "Specify the ID of your custom Log Analytics workspace to collect Defender data."
               }
             },
             "emailSecurityContact": {
@@ -4798,7 +4798,7 @@
             },
             "policySetDescription": {
               "type": "string",
-              "defaultValue": "The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Azure Security Center default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Azure Security Center.",
+              "defaultValue": "The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.",
               "metadata": {
                 "description": "Policy Initiative description field"
               }
@@ -4811,7 +4811,7 @@
           "resources": [
             {
               "copy": {
-                "name": "securityCenterPricing",
+                "name": "defenderPricing",
                 "count": "[length(variables('bundle'))]"
               },
               "type": "Microsoft.Security/pricings",
@@ -4854,7 +4854,7 @@
               "apiVersion": "2020-09-01",
               "name": "Azure Security Benchmark",
               "properties": {
-                "displayName": "ASC Default",
+                "displayName": "Defender Default",
                 "description": "[parameters('policySetDescription')]",
                 "enforcementMode": "DoNotEnforce",
                 "parameters": {},
@@ -4869,14 +4869,14 @@
       ]
     },
     {
-      "condition": "[and(parameters('deployASC'), not(equals(variables('spokes')[copyIndex()].subscriptionId, parameters('hubSubscriptionId'))))]",
+      "condition": "[and(parameters('deployDefender'), not(equals(variables('spokes')[copyIndex()].subscriptionId, parameters('hubSubscriptionId'))))]",
       "copy": {
-        "name": "spokeSecurityCenter",
+        "name": "spokeDefender",
         "count": "[length(variables('spokes'))]"
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('set-{0}-sub-security-center', variables('spokes')[copyIndex()].name)]",
+      "name": "[format('set-{0}-sub-defender', variables('spokes')[copyIndex()].name)]",
       "subscriptionId": "[parameters('operationsSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
@@ -4899,7 +4899,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "16713937257548308780"
+              "templateHash": "8101636901285639541"
             }
           },
           "parameters": {
@@ -4907,13 +4907,13 @@
               "type": "bool",
               "defaultValue": true,
               "metadata": {
-                "description": "Turn automatic deployment by ASC of the MMA (OMS VM extension) on or off"
+                "description": "Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off"
               }
             },
             "logAnalyticsWorkspaceId": {
               "type": "string",
               "metadata": {
-                "description": "Specify the ID of your custom Log Analytics workspace to collect ASC data."
+                "description": "Specify the ID of your custom Log Analytics workspace to collect Defender data."
               }
             },
             "emailSecurityContact": {
@@ -4924,7 +4924,7 @@
             },
             "policySetDescription": {
               "type": "string",
-              "defaultValue": "The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Azure Security Center default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Azure Security Center.",
+              "defaultValue": "The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.",
               "metadata": {
                 "description": "Policy Initiative description field"
               }
@@ -4937,7 +4937,7 @@
           "resources": [
             {
               "copy": {
-                "name": "securityCenterPricing",
+                "name": "defenderPricing",
                 "count": "[length(variables('bundle'))]"
               },
               "type": "Microsoft.Security/pricings",
@@ -4980,7 +4980,7 @@
               "apiVersion": "2020-09-01",
               "name": "Azure Security Benchmark",
               "properties": {
-                "displayName": "ASC Default",
+                "displayName": "Defender Default",
                 "description": "[parameters('policySetDescription')]",
                 "enforcementMode": "DoNotEnforce",
                 "parameters": {},
