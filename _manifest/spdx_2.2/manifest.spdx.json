@@ -1,6 +1,25 @@
 {
   "files": [
     {
+      "fileName": "./.gitignore",
+      "SPDXID": "SPDXRef-File--.gitignore-094F7A9121BBAD7D52EFB1D3F4B630CA15F32793",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "37eec709bd606fa90861bc08d28d4117f11f752c3dd1c044fca2271e2f811828"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "094f7a9121bbad7d52efb1d3f4b630ca15f32793"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
       "fileName": "./SECURITY.md",
       "SPDXID": "SPDXRef-File--SECURITY.md-28A48DED0C097169644A9C376CAD1A380DECB6CE",
       "checksums": [
@@ -11,6 +30,25 @@
         {
           "algorithm": "SHA1",
           "checksumValue": "28a48ded0c097169644a9c376cad1a380decb6ce"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/bicep/modules/networkInterface.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-networkInterface.bicep-5F1D61122E0163A3BC24F764E8952E2767186BE0",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "fe2097a87c6657e555b55221d7c83d8e56bbae9d8f0b5483011926f091c13237"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5f1d61122e0163a3bc24f764e8952e2767186be0"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -39,16 +77,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./.gitignore",
-      "SPDXID": "SPDXRef-File--.gitignore-094F7A9121BBAD7D52EFB1D3F4B630CA15F32793",
+      "fileName": "./src/bicep/modules/bastionHost.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-bastionHost.bicep-D9A4F0413433C0C49A113007F770375544A7D660",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "37eec709bd606fa90861bc08d28d4117f11f752c3dd1c044fca2271e2f811828"
+          "checksumValue": "31a12908b702ce148466fa000e7a315eb47f60ac5462433169b4ed622755c960"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "094f7a9121bbad7d52efb1d3f4b630ca15f32793"
+          "checksumValue": "d9a4f0413433c0c49a113007f770375544a7d660"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -59,110 +97,15 @@
     },
     {
       "fileName": "./src/bicep/modules/windowsVirtualMachine.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-windowsVirtualMachine.bicep-AE7BD5127CF8BA159686EF299BEFD3D0ADDD55A0",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-windowsVirtualMachine.bicep-26A57F0F483E9E4DD28EE5E7B512588D45AE03C2",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "48f34ddd11cbac02cc724943a8e5b5962e4636fdb68dd4cc39c0205faa3836fc"
+          "checksumValue": "9c9b2b9132b394f05213257c0c4b85233276917f02ee973429b5fdb111d34e24"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "ae7bd5127cf8ba159686ef299befd3d0addd55a0"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/modules/centralLogging.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-centralLogging.bicep-76DCBFBB47FC844BFDED8423B1458C1054060FC1",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "8dfdf645051221094b24b5cedf435193bc9cf5c9c302d12bf05a4d98ddd81b24"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "76dcbfbb47fc844bfded8423b1458c1054060fc1"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/modules/networkInterface.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-networkInterface.bicep-A838969BD72C03563327E85857A26F2A56C6662E",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "640df6fe4e0fb3e23cf8fe05f6068de14a998f8f761ecc9e954a450ee17f5d77"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a838969bd72c03563327e85857a26f2a56c6662e"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/modules/linuxVirtualMachine.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-linuxVirtualMachine.bicep-2B7894C75BACB795B526C5AE6531BBFC61D7F9BC",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "f8bfdc65216fb6457ed73f519e6d22596866df80eaebf597ae509d2aae9e2a4e"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2b7894c75bacb795b526c5ae6531bbfc61d7f9bc"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/modules/bastionHost.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-bastionHost.bicep-E05D4A8244AE68569C10C94EA2B23B4A1F918E73",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "783f2fe42a248eaf9e6a62a0e255793267cc0a97b3e03a6ba2ff13c9a4a053d5"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "e05d4a8244ae68569c10c94ea2b23b4a1f918e73"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/modules/policies/IL5-policyAssignmentParameters.json",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-policies-IL5-policyAssignmentParameters.json-D0D5010A6DF9D2105C97E07EA480C6C00D990C6C",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "cf864dfa1ec76ba0e1ebc38e69a7e1ff9c7acfa50de9f947e99872a2610ffd56"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d0d5010a6df9d2105c97e07ea480c6c00d990c6c"
+          "checksumValue": "26a57f0f483e9e4dd28ee5e7b512588d45ae03c2"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -173,15 +116,15 @@
     },
     {
       "fileName": "./src/bicep/modules/logAnalyticsWorkspace.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-logAnalyticsWorkspace.bicep-3987B39C3375F7A6DDC1D893E0F9013778826AD4",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-logAnalyticsWorkspace.bicep-1A0FE7DF6E4F53F13198D0380D837B4747C555FC",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "9f8146497cfa675fa651296420e750d2bcef9b2a2547289212d40aae05d7f86c"
+          "checksumValue": "8a9deba2a52c1ff7f00ff495ed32e40dd49516a41d17e1f048c77e3380b355e3"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "3987b39c3375f7a6ddc1d893e0f9013778826ad4"
+          "checksumValue": "1a0fe7df6e4f53f13198d0380d837b4747c555fc"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -191,16 +134,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/examples/appServicePlan/appService.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-appServicePlan-appService.bicep-3464ED8AB337E00BE62CCB3F5861F7D877B89A9D",
+      "fileName": "./src/bicep/modules/centralLogging.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-centralLogging.bicep-FAE1929A0B17C6D7E982B522E2ED96431CDC4D04",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "482d25aa62e13e458b06c9d3266a190f9c831f5768fa77bad86364256cb6a4e1"
+          "checksumValue": "89317d961ac2082e1748b584ce8c4367b500d0a64984c0082c66013aa806d78b"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "3464ed8ab337e00be62ccb3f5861f7d877b89a9d"
+          "checksumValue": "fae1929a0b17c6d7e982b522e2ed96431cdc4d04"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -229,16 +172,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/examples/newWorkload/README.md",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-newWorkload-README.md-80DD6447AED310971241B1E67E28DD48109A77DD",
+      "fileName": "./src/bicep/modules/linuxVirtualMachine.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-linuxVirtualMachine.bicep-B8EEBA0EDFB28A70CDA167FE9361C67BB3000427",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "bc16ede6b3830726faed19fcc843a8ecd2ebbe5736c99de231c6277286d40c42"
+          "checksumValue": "78082b334caa3ffff2e1c0c946ec27228a319a6f673df1a964d03ef356a77288"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "80dd6447aed310971241b1e67e28dd48109a77dd"
+          "checksumValue": "b8eeba0edfb28a70cda167fe9361c67bb3000427"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -267,16 +210,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/terraform/mlz/variables.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-mlz-variables.tf-B663AABEC188924FF7491D708FFDA188CA3C08A3",
+      "fileName": "./src/bicep/modules/policies/IL5-policyAssignmentParameters.json",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-policies-IL5-policyAssignmentParameters.json-D0D5010A6DF9D2105C97E07EA480C6C00D990C6C",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "41eadedbdc7a1c8b6e56d829f1cf063c74c6381efd8cb89b4b4e1106ee7d2c5f"
+          "checksumValue": "cf864dfa1ec76ba0e1ebc38e69a7e1ff9c7acfa50de9f947e99872a2610ffd56"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "b663aabec188924ff7491d708ffda188ca3c08a3"
+          "checksumValue": "d0d5010a6df9d2105c97e07ea480c6c00d990c6c"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -287,15 +230,15 @@
     },
     {
       "fileName": "./src/bicep/examples/newWorkload/newWorkload.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-newWorkload-newWorkload.bicep-7E87DF58887C6F4F1B646A03DBF8D0D94817F2D9",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-newWorkload-newWorkload.bicep-2A748D5AD35329EC13F9016C5F74886888EFB630",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d16f45270ea1ee0e6fd916d8e2c3e765d896def609e671010e16c61fac13f86e"
+          "checksumValue": "99af529ddffe2df67a0bf2d2c5132f0e69405ebb6a014906def3d70af659c12b"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "7e87df58887c6f4f1b646a03dbf8d0d94817f2d9"
+          "checksumValue": "2a748d5ad35329ec13f9016c5f74886888efb630"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -305,35 +248,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/terraform/modules/policy-assignments/outputs.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-modules-policy-assignments-outputs.tf-DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",
+      "fileName": "./src/bicep/examples/appServicePlan/appService.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-appServicePlan-appService.bicep-24868351FF0C61CE93D8551AD8CCAF6FA4B7B8CF",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          "checksumValue": "90be5a30622c2a2a82464c9f6fca297f42a9fbc35a06aa520cd5d60e4d22042a"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/terraform/modules/bastion/outputs.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-modules-bastion-outputs.tf-DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+          "checksumValue": "24868351ff0c61ce93d8551ad8ccaf6fa4b7b8cf"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -362,16 +286,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/terraform/modules/firewall/main.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-modules-firewall-main.tf-A074A567EB7080A6EF97D4D125950422A3EB146B",
+      "fileName": "./src/bicep/examples/newWorkload/README.md",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-newWorkload-README.md-80DD6447AED310971241B1E67E28DD48109A77DD",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3a82b541bcba083ca3dc062a8fba5891494b06b026839887af15d565e42cf5ed"
+          "checksumValue": "bc16ede6b3830726faed19fcc843a8ecd2ebbe5736c99de231c6277286d40c42"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "a074a567eb7080a6ef97d4d125950422a3eb146b"
+          "checksumValue": "80dd6447aed310971241b1e67e28dd48109a77dd"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -400,16 +324,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/terraform/modules/spoke/variables.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-modules-spoke-variables.tf-2BCCF3D2E7484BA2A248F5DE8412A96237B59679",
+      "fileName": "./src/terraform/mlz/variables.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-mlz-variables.tf-B663AABEC188924FF7491D708FFDA188CA3C08A3",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "cda5f1c9c4f99a12ba47f14ea8aa41246e8ccf4fb0a0c7f74ed9a01ee08a7579"
+          "checksumValue": "41eadedbdc7a1c8b6e56d829f1cf063c74c6381efd8cb89b4b4e1106ee7d2c5f"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "2bccf3d2e7484ba2a248f5de8412a96237b59679"
+          "checksumValue": "b663aabec188924ff7491d708ffda188ca3c08a3"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -438,16 +362,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./.azure-devops/prbuild/mlz-pr-tf-azurecloud-pipelines.yml",
-      "SPDXID": "SPDXRef-File--.azure-devops-prbuild-mlz-pr-tf-azurecloud-pipelines.yml-FD966A0AC397B24C652F67415CFFB9C5CEE96A0E",
+      "fileName": "./src/terraform/modules/policy-assignments/outputs.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-modules-policy-assignments-outputs.tf-DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "30fac8178b54c393c7c8ee705a07dcf572c2b5eb874a33fed8cb64582e6007ed"
+          "checksumValue": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "fd966a0ac397b24c652f67415cffb9c5cee96a0e"
+          "checksumValue": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -476,16 +400,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./.azure-devops/nightlybuild/mlz-tf-azuregov-pipelines.yml",
-      "SPDXID": "SPDXRef-File--.azure-devops-nightlybuild-mlz-tf-azuregov-pipelines.yml-7BC9A73199A8B736E635625C7629E9B12541D0C9",
+      "fileName": "./src/terraform/modules/bastion/outputs.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-modules-bastion-outputs.tf-DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d264480523bafdb200be0de38b97defb725f28ffb9b1842f31d783b9280572d3"
+          "checksumValue": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "7bc9a73199a8b736e635625c7629e9b12541d0c9"
+          "checksumValue": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -514,16 +438,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./.github/pull_request_template.md",
-      "SPDXID": "SPDXRef-File--.github-pull-request-template.md-DC86DEADDA96D728BDB99855DC3B6E4BEF34E11A",
+      "fileName": "./src/terraform/modules/firewall/main.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-modules-firewall-main.tf-A074A567EB7080A6EF97D4D125950422A3EB146B",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "0df7c4d87086902f68be49acaeb6f9239b3d77dbe4f9b4ae2e1423f871ce9a42"
+          "checksumValue": "3a82b541bcba083ca3dc062a8fba5891494b06b026839887af15d565e42cf5ed"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "dc86deadda96d728bdb99855dc3b6e4bef34e11a"
+          "checksumValue": "a074a567eb7080a6ef97d4d125950422a3eb146b"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -552,6 +476,25 @@
       "copyrightText": "NOASSERTION"
     },
     {
+      "fileName": "./src/terraform/modules/spoke/variables.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-modules-spoke-variables.tf-2BCCF3D2E7484BA2A248F5DE8412A96237B59679",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "cda5f1c9c4f99a12ba47f14ea8aa41246e8ccf4fb0a0c7f74ed9a01ee08a7579"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2bccf3d2e7484ba2a248f5de8412a96237b59679"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
       "fileName": "./.azure-devops/nightlybuild/mlz-tf-azurecloud-pipelines.yml",
       "SPDXID": "SPDXRef-File--.azure-devops-nightlybuild-mlz-tf-azurecloud-pipelines.yml-40F24ECAB27D7CA0441FDB799C2CCAD03B545E8C",
       "checksums": [
@@ -571,16 +514,54 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./.github/dependabot.yml",
-      "SPDXID": "SPDXRef-File--.github-dependabot.yml-07EDF6C9D72A0309DC91A8763F74247F2D122B57",
+      "fileName": "./.azure-devops/prbuild/mlz-pr-tf-azurecloud-pipelines.yml",
+      "SPDXID": "SPDXRef-File--.azure-devops-prbuild-mlz-pr-tf-azurecloud-pipelines.yml-FD966A0AC397B24C652F67415CFFB9C5CEE96A0E",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3afd433aaa570ca649e91113f0297130b127f4fef451cd266dc02e4d59691ac3"
+          "checksumValue": "30fac8178b54c393c7c8ee705a07dcf572c2b5eb874a33fed8cb64582e6007ed"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "07edf6c9d72a0309dc91a8763f74247f2d122b57"
+          "checksumValue": "fd966a0ac397b24c652f67415cffb9c5cee96a0e"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./.github/dependabot.yml",
+      "SPDXID": "SPDXRef-File--.github-dependabot.yml-D107A5FB2FE9BD1E871DD28DBF149BF35FEB8ED6",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "930f7a8261a76a614d20c2ed2f4a0ba27e88da151f1c5964692ec9d7baea5148"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d107a5fb2fe9bd1e871dd28dbf149bf35feb8ed6"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./.azure-devops/nightlybuild/mlz-tf-azuregov-pipelines.yml",
+      "SPDXID": "SPDXRef-File--.azure-devops-nightlybuild-mlz-tf-azuregov-pipelines.yml-7BC9A73199A8B736E635625C7629E9B12541D0C9",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d264480523bafdb200be0de38b97defb725f28ffb9b1842f31d783b9280572d3"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7bc9a73199a8b736e635625c7629e9b12541d0c9"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -600,6 +581,63 @@
         {
           "algorithm": "SHA1",
           "checksumValue": "b20cf5c186b324d71caca0caa26fbe8385408f73"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./.github/pull_request_template.md",
+      "SPDXID": "SPDXRef-File--.github-pull-request-template.md-DC86DEADDA96D728BDB99855DC3B6E4BEF34E11A",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0df7c4d87086902f68be49acaeb6f9239b3d77dbe4f9b4ae2e1423f871ce9a42"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "dc86deadda96d728bdb99855dc3b6e4bef34e11a"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./docs/images/deploytoazuregov.svg",
+      "SPDXID": "SPDXRef-File--docs-images-deploytoazuregov.svg-C67080F86FFBC18AABAEDDF46D1C54901D2C7E71",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d1ca547eab43b6a18c7d8f98694b301517c5c2448ffc5303dba352c4e026ff72"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c67080f86ffbc18aabaeddf46d1c54901d2c7e71"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./docs/images/management-groups/mg2-empty-subscription-list.png",
+      "SPDXID": "SPDXRef-File--docs-images-management-groups-mg2-empty-subscription-list.png-49539C23E7C6ED6223EFE91972FDCE52EFBC0A28",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ff19b3f037bc865af2b59bab59bf285b5c4f2b42d31ece908387bcc1ce9b20da"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "49539c23e7c6ed6223efe91972fdce52efbc0a28"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -666,16 +704,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./docs/images/deploytoazuregov.svg",
-      "SPDXID": "SPDXRef-File--docs-images-deploytoazuregov.svg-C67080F86FFBC18AABAEDDF46D1C54901D2C7E71",
+      "fileName": "./NOTICE",
+      "SPDXID": "SPDXRef-File--NOTICE-0D647CAB1E14E880446589F9050BE10E6D6882CB",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d1ca547eab43b6a18c7d8f98694b301517c5c2448ffc5303dba352c4e026ff72"
+          "checksumValue": "1f22e5cbb6f4e5a075061cb35e33f3caa610a880b4d0d5b5ecc7bcefc9e91a8d"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "c67080f86ffbc18aabaeddf46d1c54901d2c7e71"
+          "checksumValue": "0d647cab1e14e880446589f9050be10e6d6882cb"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -685,16 +723,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./docs/images/management-groups/mg2-empty-subscription-list.png",
-      "SPDXID": "SPDXRef-File--docs-images-management-groups-mg2-empty-subscription-list.png-49539C23E7C6ED6223EFE91972FDCE52EFBC0A28",
+      "fileName": "./src/bicep/modules/virtualNetworkPeering.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-virtualNetworkPeering.bicep-E90013F12D6740078DAACD33455F50871EA241F6",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "ff19b3f037bc865af2b59bab59bf285b5c4f2b42d31ece908387bcc1ce9b20da"
+          "checksumValue": "338e2255d2e824638fe4d58b936bb6ebe265f94b59cc9c3a96f9b1d00d6270f6"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "49539c23e7c6ed6223efe91972fdce52efbc0a28"
+          "checksumValue": "e90013f12d6740078daacd33455f50871ea241f6"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -723,244 +761,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/modules/storageAccount.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-storageAccount.bicep-B75FD567081F920D9669310354D314688761878B",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "0a12b988626c851051886a012826ef73d3d63bc1462c45d82d4b2c33d7bfa4b3"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "b75fd567081f920d9669310354d314688761878b"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/modules/hubNetwork.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-hubNetwork.bicep-EE76CAE454031E1EE88779995C88FB51A873B04E",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "edeac5b5834fc9c3db0853ec6b7dfd8b786a222b14dd421b8cf5accbd04aecc2"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ee76cae454031e1ee88779995c88fb51a873b04e"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/modules/hubNetworkPeerings.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-hubNetworkPeerings.bicep-278BB4340CF89126B29E3D1B670F6022BD555960",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "9741536d665a963c60720d8ae677b0c6c76ce7b99491966279161038bcce994e"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "278bb4340cf89126b29e3d1b670f6022bd555960"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/modules/networkSecurityGroup.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-networkSecurityGroup.bicep-6FAF7D0A8F637A596303712416385AC9BC0B7E4A",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "0c87a70128ade0133f19d5ecee43c50ede516b03d96a971704607f67bd520fde"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6faf7d0a8f637a596303712416385ac9bc0b7e4a"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/examples/containerRegistry/modules/containerRegistry.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-containerRegistry-modules-containerRegistry.bicep-5709FA93416FAAEFF383A39F549DCDBAEBF20241",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "0adafe6db27170496017d91ef6363d2f101707ba98c23a5ade5b60334cb09ddd"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5709fa93416faaeff383a39f549dcdbaebf20241"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/examples/remoteAccess/main.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-remoteAccess-main.bicep-8E6378967AB1DDC5641A2EDF5648EE3DB8F96F22",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "5d3883dfb0a10fe70ba037b6726e2c7659a6cb970829b580eaa3ba52719e4c69"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "8e6378967ab1ddc5641a2edf5648ee3db8f96f22"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/examples/keyVault/README.md",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-keyVault-README.md-0E6A22DDB3096385053E6BF81FE0DE4CA91B497A",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "3ac52947d5729c16a45f4892e6574b63493d595fb3fbad90edc5a1228c213b7b"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "0e6a22ddb3096385053e6bf81fe0de4ca91b497a"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/terraform/tier3/outputs.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-tier3-outputs.tf-B9820EE813195376DA1292009B5AB91DF14080F0",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "1c8a20fa5b81a909cb9336b543c6f7e11af5415bbab6e880cb9b0eaf2d2f20f8"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "b9820ee813195376da1292009b5ab91df14080f0"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./NOTICE",
-      "SPDXID": "SPDXRef-File--NOTICE-0D647CAB1E14E880446589F9050BE10E6D6882CB",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "1f22e5cbb6f4e5a075061cb35e33f3caa610a880b4d0d5b5ecc7bcefc9e91a8d"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "0d647cab1e14e880446589f9050be10e6d6882cb"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/terraform/modules/hub/outputs.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-modules-hub-outputs.tf-6E5165DE66D0B63F03669330F8CD14B9601C32BD",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "eb1ad4f9be016bb0b646974aaca4c42088e59eeeb84ec8a379e86009e6ad2f59"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6e5165de66d0b63f03669330f8cd14b9601c32bd"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/modules/virtualNetworkPeering.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-virtualNetworkPeering.bicep-85DC92CB00573147B96DBA46AAD214371730EB7C",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "de5af067a6dd7400dc9b67ef629d9ee32ef143bd23efc67c06fe3d6da819b84e"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "85dc92cb00573147b96dba46aad214371730eb7c"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/terraform/modules/subnet/main.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-modules-subnet-main.tf-D344C620D3EECC7C9EE2451E145E681325A83E5D",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "b6b553fe91052362452fcaeed457dc627ff7e67c3b3496636c9ebca8a9c4da4a"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d344c620d3eecc7c9ee2451e145e681325a83e5d"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
       "fileName": "./src/bicep/modules/logAnalyticsDiagnosticLogging.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-logAnalyticsDiagnosticLogging.bicep-5C90C218ACF72F2FD376DC6E73042F6BA2EF9BA1",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-logAnalyticsDiagnosticLogging.bicep-B1726C44ECFD202453C9D145C2DB068F4961EDD5",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "040a8767646b2d5f5cf8c9fac3112d5183cbab94b5005f4f6e3f4b79343b57a2"
+          "checksumValue": "df620c78dbbae4f912afaf628fefd494e8f87931f50dff31f3d62f8191178121"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "5c90c218acf72f2fd376dc6e73042f6ba2ef9ba1"
+          "checksumValue": "b1726c44ecfd202453c9d145c2db068f4961edd5"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -970,16 +780,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/terraform/modules/windows-virtual-machine/variables.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-modules-windows-virtual-machine-variables.tf-E6CE40236B8BDEF4255A61F90B6CD769A8730197",
+      "fileName": "./src/bicep/modules/storageAccount.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-storageAccount.bicep-533C5AE0D21345FD00D80B258FB2C099663D285A",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "841918ac341c15df54f379a7c28fc927400bdb04971e31803c6105b67ba65280"
+          "checksumValue": "9d14358ef9ae62410f9a531e52e92624a54db92d5711883b5a1b89c7aff9abe1"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "e6ce40236b8bdef4255a61f90b6cd769a8730197"
+          "checksumValue": "533c5ae0d21345fd00d80b258fb2c099663d285a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -990,15 +800,34 @@
     },
     {
       "fileName": "./src/bicep/modules/virtualNetwork.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-virtualNetwork.bicep-F479DA88FBA578FF1576EF5D78274E9A8B35F469",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-virtualNetwork.bicep-E3B27F4166879AEBD594D09343A95C30A11028D9",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3e429b1678856f63baf88c320aa57415e4d2014645bd0499d0f85a5401464180"
+          "checksumValue": "698306bb9806ee399f7f398f88123772d9be4f35e368f8b148af3b7da3dec7c5"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "f479da88fba578ff1576ef5d78274e9a8b35f469"
+          "checksumValue": "e3b27f4166879aebd594d09343a95c30a11028d9"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/bicep/modules/hubNetwork.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-hubNetwork.bicep-100FF0CD304F5044C976656A103EBEA213F4FCAE",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "71ebb8ae572ced9d1479b95d7e7020a3026434523ebc539246c49a921d70da58"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "100ff0cd304f5044c976656a103ebea213f4fcae"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1027,16 +856,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/examples/sentinel/sentinel.tf",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-sentinel-sentinel.tf-0123C515D78CE08EBC531683E6AFA6AD05D131A0",
+      "fileName": "./src/bicep/modules/hubNetworkPeerings.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-hubNetworkPeerings.bicep-E2B0B903621A8982488A949D5DB2DC6F06196DBB",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "085607cf83157914ad70254c0096f8b9d685ec1769fa660ed528f29c834764b7"
+          "checksumValue": "400a8d60f420089e89b3f72cc7bf8263cd2d5d1853de8f8f463c1f14f838ee9a"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "0123c515d78ce08ebc531683e6afa6ad05d131a0"
+          "checksumValue": "e2b0b903621a8982488a949d5db2dc6f06196dbb"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1046,16 +875,35 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/terraform/modules/linux-virtual-machine/outputs.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-modules-linux-virtual-machine-outputs.tf-DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",
+      "fileName": "./src/bicep/examples/sentinel/sentinel.tf",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-sentinel-sentinel.tf-A32AF44263453F1A053950534AE596D8E366026C",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          "checksumValue": "8bf2739dd4d60412f69f9bcda94dbcdeaae0f3e284059919d2ab42567bf55193"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+          "checksumValue": "a32af44263453f1a053950534ae596d8e366026c"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/bicep/modules/networkSecurityGroup.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-networkSecurityGroup.bicep-8CD4023B1EE0DA2B4BB55809087B408948F5BFA4",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6502b0fd7bd21d93b38722fe03edf35261f28cb68a9ac8ecb23f3398275688ce"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8cd4023b1ee0da2b4bb55809087b408948f5bfa4"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1084,16 +932,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./.azure-devops/prbuild/templates/terraform-plan.yml",
-      "SPDXID": "SPDXRef-File--.azure-devops-prbuild-templates-terraform-plan.yml-68A2F159B21A4077813C335A4614C0A234320932",
+      "fileName": "./src/bicep/examples/containerRegistry/modules/containerRegistry.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-containerRegistry-modules-containerRegistry.bicep-1E69DB5341AE42F9A3D9E8B9E39ABD7E650CBDAD",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "cddef69dcbb3f354dcee8eab2470f1f78bcea21ba6379a667550ef2dcd403206"
+          "checksumValue": "1fc1507c63cb7f9520c900b6001a46ff13d779e5f3ad2ae63069906b43967a43"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "68a2f159b21a4077813c335a4614c0a234320932"
+          "checksumValue": "1e69db5341ae42f9a3d9e8b9e39abd7e650cbdad"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1104,15 +952,15 @@
     },
     {
       "fileName": "./src/bicep/examples/keyVault/modules/keyVault.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-keyVault-modules-keyVault.bicep-E324BD60A35BDAB0DFE96C1392C5E7B4D8929A90",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-keyVault-modules-keyVault.bicep-830A6F8E0D398903916BB259C159EDC522E087EB",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5029f87ec84f97a526f18f05f1a0beb5d41f17a3e8d2da8982624492101b55e3"
+          "checksumValue": "e5f1ae1644ddc61986d1887507cf407e6c7ef0c29549ecf6b97ca75ee594aa4b"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "e324bd60a35bdab0dfe96c1392c5e7b4d8929a90"
+          "checksumValue": "830a6f8e0d398903916bb259c159edc522e087eb"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1122,16 +970,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./.azure-devops/nightlybuild/templates/clean-az-subscription.yml",
-      "SPDXID": "SPDXRef-File--.azure-devops-nightlybuild-templates-clean-az-subscription.yml-DF56636E3B9FFCC4D4E23435E70F8F0A7A00EA6A",
+      "fileName": "./src/bicep/examples/remoteAccess/main.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-remoteAccess-main.bicep-32F37E10D2428DB5A00BF69F2F49DFE4535A694D",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "4064636f0fa679fc9e3f783c56f9b235d6f3c9f984a148ab1354b9dd7dd0c274"
+          "checksumValue": "f1714617d5410c7803cfd160dde11b9694c854d3e64a385520d3cae0b5cfa6b7"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "df56636e3b9ffcc4d4e23435e70f8f0a7a00ea6a"
+          "checksumValue": "32f37e10d2428db5a00bf69f2f49dfe4535a694d"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1160,16 +1008,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./.github/workflows/README.md",
-      "SPDXID": "SPDXRef-File--.github-workflows-README.md-17710B7AE200C27DF31FA3011BF864E13FC77C42",
+      "fileName": "./src/bicep/examples/keyVault/README.md",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-keyVault-README.md-0E6A22DDB3096385053E6BF81FE0DE4CA91B497A",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "f6314b80732c517f16559ec2b9a2fd243123ff1957e99a89f890e060c8d76a54"
+          "checksumValue": "3ac52947d5729c16a45f4892e6574b63493d595fb3fbad90edc5a1228c213b7b"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "17710b7ae200c27df31fa3011bf864e13fc77c42"
+          "checksumValue": "0e6a22ddb3096385053e6bf81fe0de4ca91b497a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1198,16 +1046,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./docs/scca.md",
-      "SPDXID": "SPDXRef-File--docs-scca.md-358BFB9D93BE5FF2444E890FF6812ADFCD793281",
+      "fileName": "./src/terraform/tier3/outputs.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-tier3-outputs.tf-DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5872af3ff944847e78fc9727df4c13e2a52976405a35148d73b4f4b7ed9b0847"
+          "checksumValue": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "358bfb9d93be5ff2444e890ff6812adfcd793281"
+          "checksumValue": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1218,15 +1066,15 @@
     },
     {
       "fileName": "./src/terraform/modules/subnet/outputs.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-modules-subnet-outputs.tf-B9820EE813195376DA1292009B5AB91DF14080F0",
+      "SPDXID": "SPDXRef-File--src-terraform-modules-subnet-outputs.tf-DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "1c8a20fa5b81a909cb9336b543c6f7e11af5415bbab6e880cb9b0eaf2d2f20f8"
+          "checksumValue": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "b9820ee813195376da1292009b5ab91df14080f0"
+          "checksumValue": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1236,16 +1084,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./docs/images/management-groups/mg1-management-groups-list.png",
-      "SPDXID": "SPDXRef-File--docs-images-management-groups-mg1-management-groups-list.png-577E9488E0EE7E789403DA12416253B09704DB9D",
+      "fileName": "./src/terraform/modules/hub/outputs.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-modules-hub-outputs.tf-6E5165DE66D0B63F03669330F8CD14B9601C32BD",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "bfda1766a4a4f019c97eed61befaf284ec6d600dc0c767911f573f58a42d9037"
+          "checksumValue": "eb1ad4f9be016bb0b646974aaca4c42088e59eeeb84ec8a379e86009e6ad2f59"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "577e9488e0ee7e789403da12416253b09704db9d"
+          "checksumValue": "6e5165de66d0b63f03669330f8cd14b9601c32bd"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1274,6 +1122,25 @@
       "copyrightText": "NOASSERTION"
     },
     {
+      "fileName": "./src/terraform/modules/subnet/main.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-modules-subnet-main.tf-D344C620D3EECC7C9EE2451E145E681325A83E5D",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "b6b553fe91052362452fcaeed457dc627ff7e67c3b3496636c9ebca8a9c4da4a"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d344c620d3eecc7c9ee2451e145e681325a83e5d"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
       "fileName": "./.azure-devops/validate-declarative-form.yml",
       "SPDXID": "SPDXRef-File--.azure-devops-validate-declarative-form.yml-CDA6BB9FF8E696BB2589C335A03D7EEE585701CF",
       "checksums": [
@@ -1284,6 +1151,25 @@
         {
           "algorithm": "SHA1",
           "checksumValue": "cda6bb9ff8e696bb2589c335a03d7eee585701cf"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/terraform/modules/windows-virtual-machine/variables.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-modules-windows-virtual-machine-variables.tf-E6CE40236B8BDEF4255A61F90B6CD769A8730197",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "841918ac341c15df54f379a7c28fc927400bdb04971e31803c6105b67ba65280"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e6ce40236b8bdef4255a61f90b6cd769a8730197"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1312,6 +1198,25 @@
       "copyrightText": "NOASSERTION"
     },
     {
+      "fileName": "./src/terraform/modules/linux-virtual-machine/outputs.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-modules-linux-virtual-machine-outputs.tf-DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
       "fileName": "./.github/CODEOWNERS",
       "SPDXID": "SPDXRef-File--.github-CODEOWNERS-69897633D9B769262D1F52CBEF24DCA8685FE0A1",
       "checksums": [
@@ -1322,6 +1227,25 @@
         {
           "algorithm": "SHA1",
           "checksumValue": "69897633d9b769262d1f52cbef24dca8685fe0a1"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./.azure-devops/prbuild/templates/terraform-plan.yml",
+      "SPDXID": "SPDXRef-File--.azure-devops-prbuild-templates-terraform-plan.yml-68A2F159B21A4077813C335A4614C0A234320932",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "cddef69dcbb3f354dcee8eab2470f1f78bcea21ba6379a667550ef2dcd403206"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "68a2f159b21a4077813c335a4614c0a234320932"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1350,6 +1274,25 @@
       "copyrightText": "NOASSERTION"
     },
     {
+      "fileName": "./.azure-devops/nightlybuild/templates/clean-az-subscription.yml",
+      "SPDXID": "SPDXRef-File--.azure-devops-nightlybuild-templates-clean-az-subscription.yml-DF56636E3B9FFCC4D4E23435E70F8F0A7A00EA6A",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "4064636f0fa679fc9e3f783c56f9b235d6f3c9f984a148ab1354b9dd7dd0c274"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "df56636e3b9ffcc4d4e23435e70f8f0a7a00ea6a"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
       "fileName": "./docs/deployment-guide-terraform.md",
       "SPDXID": "SPDXRef-File--docs-deployment-guide-terraform.md-AFB7807B97838787F8CC23A718DF2F3A6F9F33E4",
       "checksums": [
@@ -1369,6 +1312,25 @@
       "copyrightText": "NOASSERTION"
     },
     {
+      "fileName": "./.github/workflows/README.md",
+      "SPDXID": "SPDXRef-File--.github-workflows-README.md-17710B7AE200C27DF31FA3011BF864E13FC77C42",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "f6314b80732c517f16559ec2b9a2fd243123ff1957e99a89f890e060c8d76a54"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "17710b7ae200c27df31fa3011bf864e13fc77c42"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
       "fileName": "./docs/images/management-groups/mg3-select-subscription.png",
       "SPDXID": "SPDXRef-File--docs-images-management-groups-mg3-select-subscription.png-231F306AA1C73ECEAFF86AFD52A3DD677E3EB584",
       "checksums": [
@@ -1379,6 +1341,44 @@
         {
           "algorithm": "SHA1",
           "checksumValue": "231f306aa1c73eceaff86afd52a3dd677e3eb584"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./docs/scca.md",
+      "SPDXID": "SPDXRef-File--docs-scca.md-358BFB9D93BE5FF2444E890FF6812ADFCD793281",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "5872af3ff944847e78fc9727df4c13e2a52976405a35148d73b4f4b7ed9b0847"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "358bfb9d93be5ff2444e890ff6812adfcd793281"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./docs/images/management-groups/mg1-management-groups-list.png",
+      "SPDXID": "SPDXRef-File--docs-images-management-groups-mg1-management-groups-list.png-577E9488E0EE7E789403DA12416253B09704DB9D",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "bfda1766a4a4f019c97eed61befaf284ec6d600dc0c767911f573f58a42d9037"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "577e9488e0ee7e789403da12416253b09704db9d"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1427,15 +1427,15 @@
     },
     {
       "fileName": "./src/bicep/modules/firewall.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-firewall.bicep-8AF8639EC5FB7F2D39460A26B6F5E20FA79AA9A2",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-firewall.bicep-61F36519341BBA54E6D48B05F77484DED9A4B505",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "f549943943514deebd5209feb1d94f1dec0f6b6b52f0a766a30d02ef0a8ddf0a"
+          "checksumValue": "1838a0e07f117dcefb9a0995d77e3360d425ee7b80e9a95949f4551ef708a4d3"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "8af8639ec5fb7f2d39460a26b6f5e20fa79aa9a2"
+          "checksumValue": "61f36519341bba54e6d48b05f77484ded9a4b505"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1446,15 +1446,15 @@
     },
     {
       "fileName": "./src/bicep/modules/routeTable.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-routeTable.bicep-2362382862974BCBF702F5BA4C88FF1AD88C00F5",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-routeTable.bicep-11554FFE0DAA4DE98DCBB22C5D955E889C71B53D",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5240461a0188ac83f5aa7c0b6ba0a51af12759638a679d1fa42dd4187719c350"
+          "checksumValue": "5096516d75c5247355b0ca4988fb0459b539211e5ba073e59380ab88a7c75f8d"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "2362382862974bcbf702f5ba4c88ff1ad88c00f5"
+          "checksumValue": "11554ffe0daa4de98dcbb22c5d955e889c71b53d"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1465,15 +1465,15 @@
     },
     {
       "fileName": "./src/bicep/modules/privateLink.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-privateLink.bicep-284290071BD078FD6319D8FE34B1B209C21AA579",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-privateLink.bicep-8D22D17D614268B2183C73C2C0060A6C5D2F66E5",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "195246933a4d3560e602d56c8e28bc3ca016d10cc0d1df3204cd2352da67a117"
+          "checksumValue": "f7a940628fabeef9dc5a7938be089dde5c2468296bb7910f3c0ddf64ad076a16"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "284290071bd078fd6319d8fe34b1b209c21aa579"
+          "checksumValue": "8d22d17d614268b2183c73c2c0060a6c5d2f66e5"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1484,15 +1484,15 @@
     },
     {
       "fileName": "./src/bicep/examples/containerRegistry/contRegistry.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-containerRegistry-contRegistry.bicep-163D689FFBFC22FDDE09D7E6F7228D0F7B2E86CF",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-containerRegistry-contRegistry.bicep-DDF95E9872E8F3FCD07D53D8D09AF88D75F9D737",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "fd04a4e044a41e52838bedcd504ddc700a6ca5af898edb7b49fdcec5a4afbfb6"
+          "checksumValue": "f64a4660af97678d196964366a8e28b1acce31006a10073afb156866f60141de"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "163d689ffbfc22fdde09d7e6f7228d0f7b2e86cf"
+          "checksumValue": "ddf95e9872e8f3fcd07d53d8d09af88d75f9d737"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1521,54 +1521,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./CODE_OF_CONDUCT.md",
-      "SPDXID": "SPDXRef-File--CODE-OF-CONDUCT.md-F1E7F6BA29A857FD36A5F603FA873753ABA9917E",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "9daeae709a0bd71bcfd1c96dc5822ecec5210327eff929da64b0ae7f8faf1444"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "f1e7f6ba29a857fd36a5f603fa873753aba9917e"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
       "fileName": "./src/bicep/examples/keyVault/azureKeyVault.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-keyVault-azureKeyVault.bicep-A9B5CA3A1BA31CDBA3836502F8EF6ECA56778C69",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-keyVault-azureKeyVault.bicep-88F5E1B211DFEA84320EBDD769892FEA647966FE",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d0d6817f1f8337cfde3fd438039e803b0c02ced1a88982dc083d202bf134f2bc"
+          "checksumValue": "88eab85610297bbb989e4a6bb77307b1a5e5f882e1ea1e811e17a4ef55124fd9"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "a9b5ca3a1ba31cdba3836502f8ef6eca56778c69"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/bicepconfig.json",
-      "SPDXID": "SPDXRef-File--src-bicep-bicepconfig.json-19B4E153666EA4AC1BE0180CA0CEFE9206B650C3",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "77fa6f0029d37602664d964da5c08c13cf5c60ce7eaf0a7cbc2489fdaf0eeba6"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "19b4e153666ea4ac1be0180ca0cefe9206b650c3"
+          "checksumValue": "88f5e1b211dfea84320ebdd769892fea647966fe"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1597,25 +1559,6 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/modules/policyAssignment.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-policyAssignment.bicep-F1A972373EA36354EC74796CB250B4A7D6CDA6DB",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "1cbc76ae37b2cfd06428d1c3b950f4dc5f6903c72b5b57438e7b3cda0dafffcd"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "f1a972373ea36354ec74796cb250b4a7d6cda6db"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
       "fileName": "./src/terraform/modules/hub/main.tf",
       "SPDXID": "SPDXRef-File--src-terraform-modules-hub-main.tf-09839610F13957C24A14CBE805A92FE8EFA858F8",
       "checksums": [
@@ -1626,25 +1569,6 @@
         {
           "algorithm": "SHA1",
           "checksumValue": "09839610f13957c24a14cbe805a92fe8efa858f8"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/modules/roleAssignment.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-roleAssignment.bicep-5EBEF86E83D8A97A7F72E131A1988F5843C13166",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "e624bd6e6b9896b7ea8f6221f304b00efb4c2c2485a86dbe816b1d4a880a6ea0"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5ebef86e83d8a97a7f72e131a1988f5843c13166"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1673,25 +1597,6 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/modules/remoteAccess.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-remoteAccess.bicep-51EDB938D58B0496F8D4560E57902BF9910B7613",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "fc9328e9afa4eaf57354d15f38813e264f726d3b7974a972799113b2f0de8d8e"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "51edb938d58b0496f8d4560e57902bf9910b7613"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
       "fileName": "./src/terraform/modules/jumpbox/outputs.tf",
       "SPDXID": "SPDXRef-File--src-terraform-modules-jumpbox-outputs.tf-DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",
       "checksums": [
@@ -1711,25 +1616,6 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/examples/containerRegistry/README.md",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-containerRegistry-README.md-E6977EDF9874D65E1F85D25F58198360559CB5A3",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "953ae6c198e532902b1989f4228a7f52579106b46e3c3214f7f2e9b584ced9b6"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "e6977edf9874d65e1f85d25f58198360559cb5a3"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
       "fileName": "./src/terraform/modules/linux-virtual-machine/main.tf",
       "SPDXID": "SPDXRef-File--src-terraform-modules-linux-virtual-machine-main.tf-2A6BFBB7A249B4A919C83EAAB829FF19F9ADE9AE",
       "checksums": [
@@ -1740,25 +1626,6 @@
         {
           "algorithm": "SHA1",
           "checksumValue": "2a6bfbb7a249b4a919c83eaab829ff19f9ade9ae"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/examples/appServicePlan/modules/appServiceSettings.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-appServicePlan-modules-appServiceSettings.bicep-FC902583C15E80535287221C637426F117C3B260",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "543b2fe8d0d013f7886939d5c6a394f49ac6d233ed7391a2fe7b6ba816f5539a"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "fc902583c15e80535287221c637426f117c3b260"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1806,25 +1673,6 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/examples/inheritTags/inherit.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-inheritTags-inherit.bicep-3C8F26FDF941E9391DB52342AF657A2CDA4905BC",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "213badeaeec230c6e4863f9fefe30049345638d6c7b1af482f45e6cdfe97e8b8"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "3c8f26fdf941e9391db52342af657a2cda4905bc"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
       "fileName": "./.github/workflows/validate-terraform.sh",
       "SPDXID": "SPDXRef-File--.github-workflows-validate-terraform.sh-9E3E3D243BAB8745971290688ECA4FB94488DAA8",
       "checksums": [
@@ -1835,25 +1683,6 @@
         {
           "algorithm": "SHA1",
           "checksumValue": "9e3e3d243bab8745971290688eca4fb94488daa8"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/terraform/tier3/variables.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-tier3-variables.tf-F30C567F4A0095C223D0B5971561B22637838C06",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "750d3c9dbb29c6cd4604559c3c54c6c5514092cc64e974f34396f71a6db7b854"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "f30c567f4a0095c223d0b5971561b22637838c06"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1882,25 +1711,6 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/terraform/modules/hub/variables.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-modules-hub-variables.tf-00EC3A0D70806548602B57091C6480EFD28D119C",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "01e58017ffc1e9a3c156ff2be55976cf7450adec625b8cc0a52d72da8c11a753"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "00ec3a0d70806548602b57091c6480efd28d119c"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
       "fileName": "./docs/images/management-groups/mg4-subscription-in-management-group.png",
       "SPDXID": "SPDXRef-File--docs-images-management-groups-mg4-subscription-in-management-group.png-E8565AF68535039929C984CD40537CDAC0EF692F",
       "checksums": [
@@ -1911,25 +1721,6 @@
         {
           "algorithm": "SHA1",
           "checksumValue": "e8565af68535039929c984cd40537cdac0ef692f"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/terraform/modules/virtual-network/outputs.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-modules-virtual-network-outputs.tf-366E76A5F9B20E244D649BAC1F497AD5D31C36C5",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "f46ee201dcc740832480c21bc1e36a4dbe619022d5ba389ffda5da25f077b9f9"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "366e76a5f9b20e244d649bac1f497ad5d31c36c5"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1958,16 +1749,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/terraform/modules/jumpbox/main.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-modules-jumpbox-main.tf-750CA3274D704F243AC656360B4E6BBFAAE51E57",
+      "fileName": "./CODE_OF_CONDUCT.md",
+      "SPDXID": "SPDXRef-File--CODE-OF-CONDUCT.md-F1E7F6BA29A857FD36A5F603FA873753ABA9917E",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8b3b17e905314033038c173367f999df3571f2eade266740c4ba93232574e6ee"
+          "checksumValue": "9daeae709a0bd71bcfd1c96dc5822ecec5210327eff929da64b0ae7f8faf1444"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "750ca3274d704f243ac656360b4e6bbfaae51e57"
+          "checksumValue": "f1e7f6ba29a857fd36a5f603fa873753aba9917e"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1977,16 +1768,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/terraform/modules/linux-virtual-machine/variables.tf",
-      "SPDXID": "SPDXRef-File--src-terraform-modules-linux-virtual-machine-variables.tf-E6CE40236B8BDEF4255A61F90B6CD769A8730197",
+      "fileName": "./src/bicep/bicepconfig.json",
+      "SPDXID": "SPDXRef-File--src-bicep-bicepconfig.json-19B4E153666EA4AC1BE0180CA0CEFE9206B650C3",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "841918ac341c15df54f379a7c28fc927400bdb04971e31803c6105b67ba65280"
+          "checksumValue": "77fa6f0029d37602664d964da5c08c13cf5c60ce7eaf0a7cbc2489fdaf0eeba6"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "e6ce40236b8bdef4255a61f90b6cd769a8730197"
+          "checksumValue": "19b4e153666ea4ac1be0180ca0cefe9206b650c3"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1996,16 +1787,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./.azure-devops/prbuild/mlz-pr-bicep-azurecloud-pipelines.yml",
-      "SPDXID": "SPDXRef-File--.azure-devops-prbuild-mlz-pr-bicep-azurecloud-pipelines.yml-FBDCF529A4F66EDC1A4176ED796BF6F5296E336E",
+      "fileName": "./src/bicep/modules/policyAssignment.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-policyAssignment.bicep-514CAD9DFC7B7EFD6B268E926659B783B62BAB67",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "b198846bdcde015d08086ef5fb52a8443d2362d1e789078c6f8d17e483abfec8"
+          "checksumValue": "b61aa790bd9a24c8f2657d9aeaad2745fee6a53612ab9a4ca2c112da133082a9"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "fbdcf529a4f66edc1a4176ed796bf6f5296e336e"
+          "checksumValue": "514cad9dfc7b7efd6b268e926659b783b62bab67"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2015,16 +1806,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./.azure-devops/nightlybuild/templates/terraform-apply.yml",
-      "SPDXID": "SPDXRef-File--.azure-devops-nightlybuild-templates-terraform-apply.yml-8710D5E8D40A83E22764FDBB93B00089ED7DC3FF",
+      "fileName": "./src/bicep/modules/roleAssignment.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-roleAssignment.bicep-FDD73B29D3A7BF8563D00895CC2ECE4FE1B743BE",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3109e228aac7946f5e4959b6c556481095df3746988813680f8a5cb4eb503ce6"
+          "checksumValue": "01eba9f73168c457549d24984ca364b787e89030f4dc469285ba2f7dca469c16"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "8710d5e8d40a83e22764fdbb93b00089ed7dc3ff"
+          "checksumValue": "fdd73b29d3a7bf8563d00895cc2ece4fe1b743be"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2034,16 +1825,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./.github/workflows/validate-build-bicep.yml",
-      "SPDXID": "SPDXRef-File--.github-workflows-validate-build-bicep.yml-ED4A0B9AE4914DD9BDA5EACF333C0820E75F09CF",
+      "fileName": "./src/bicep/modules/remoteAccess.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-remoteAccess.bicep-DF67FE6198FCD0ED3C03EF8455A5E601FC38829D",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "b2f14e7daf71f16223f8bf7b727ab3fdd07bbab2a13d4bb2ddfbaf033566f159"
+          "checksumValue": "6a204796022521dfd5e3d9fea076021abf45f235d3c9ad39105ea13b6cc184e5"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "ed4a0b9ae4914dd9bda5eacf333c0820e75f09cf"
+          "checksumValue": "df67fe6198fcd0ed3c03ef8455a5e601fc38829d"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2053,16 +1844,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./docs/management-groups.md",
-      "SPDXID": "SPDXRef-File--docs-management-groups.md-52613FC2AD36DB0EEE48658A95707DEC5AE2FF37",
+      "fileName": "./src/bicep/examples/containerRegistry/README.md",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-containerRegistry-README.md-E6977EDF9874D65E1F85D25F58198360559CB5A3",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e30e4e035e9671d81011ff9fa808965ff16c45a9d5c950e247e013fc45492144"
+          "checksumValue": "953ae6c198e532902b1989f4228a7f52579106b46e3c3214f7f2e9b584ced9b6"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "52613fc2ad36db0eee48658a95707dec5ae2ff37"
+          "checksumValue": "e6977edf9874d65e1f85d25f58198360559cb5a3"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2072,16 +1863,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./docs/images/scope-v2.png",
-      "SPDXID": "SPDXRef-File--docs-images-scope-v2.png-9DA8A7F5CB9C998ADAC2BFE4A1D912DF8C87BFD2",
+      "fileName": "./src/bicep/examples/appServicePlan/modules/appServiceSettings.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-appServicePlan-modules-appServiceSettings.bicep-2A975CB00E350B13A2C79F41D626DF5904FDC4B9",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3bc7910260a3ea8e968aee386911bc191a0201eb223b1f46e207177300b036a5"
+          "checksumValue": "3d0faf204a84bf0e3be6bd7c69eebaa6424751750ff670aea32907b21007005b"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "9da8a7f5cb9c998adac2bfe4a1d912df8c87bfd2"
+          "checksumValue": "2a975cb00e350b13a2c79f41d626df5904fdc4b9"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2091,16 +1882,54 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./.devcontainer/README.md",
-      "SPDXID": "SPDXRef-File--.devcontainer-README.md-0BE5AE023192FA89BFD1C04A97C619FE6B2F33B1",
+      "fileName": "./src/bicep/examples/inheritTags/inherit.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-inheritTags-inherit.bicep-4E31F740CBC175FCA3358F289B3E11E4161898CC",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c07ac70fba0d45ee28a0803b6372d08df408c7cbe3e0d29b549988963feac69a"
+          "checksumValue": "ca3bdf213ae2664f5c14967f2026c4d2c0e19587244cd396e4afd8c4c7ee23cf"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "0be5ae023192fa89bfd1c04a97c619fe6b2f33b1"
+          "checksumValue": "4e31f740cbc175fca3358f289b3e11e4161898cc"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/terraform/tier3/variables.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-tier3-variables.tf-F30C567F4A0095C223D0B5971561B22637838C06",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "750d3c9dbb29c6cd4604559c3c54c6c5514092cc64e974f34396f71a6db7b854"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f30c567f4a0095c223d0b5971561b22637838c06"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/terraform/modules/hub/variables.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-modules-hub-variables.tf-00EC3A0D70806548602B57091C6480EFD28D119C",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "01e58017ffc1e9a3c156ff2be55976cf7450adec625b8cc0a52d72da8c11a753"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "00ec3a0d70806548602b57091c6480efd28d119c"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2129,16 +1958,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/mlz.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-mlz.bicep-1035A45C58AC7C1BFC28A53DFD7BFAF8D4699AD6",
+      "fileName": "./src/terraform/modules/virtual-network/outputs.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-modules-virtual-network-outputs.tf-366E76A5F9B20E244D649BAC1F497AD5D31C36C5",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "fc3ffadefc26749186d07311bb156009305d6e45d9055d17901d30a7267338ec"
+          "checksumValue": "f46ee201dcc740832480c21bc1e36a4dbe619022d5ba389ffda5da25f077b9f9"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "1035a45c58ac7c1bfc28a53dfd7bfaf8d4699ad6"
+          "checksumValue": "366e76a5f9b20e244d649bac1f497ad5d31c36c5"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2148,16 +1977,35 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./LICENSE",
-      "SPDXID": "SPDXRef-File--LICENSE-689EC0681815ECC32BEE639C68E7740ADD7BD301",
+      "fileName": "./src/bicep/mlz.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-mlz.bicep-D46F64F8A9A3F45068A3CE9D17140338540D38EA",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+          "checksumValue": "96bed6a08e7df70af57e2a0ea94f5509c2f7760e599c7aa248f48d988e4a877b"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "689ec0681815ecc32bee639c68e7740add7bd301"
+          "checksumValue": "d46f64f8a9a3f45068a3ce9d17140338540d38ea"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/terraform/modules/jumpbox/main.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-modules-jumpbox-main.tf-750CA3274D704F243AC656360B4E6BBFAAE51E57",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "8b3b17e905314033038c173367f999df3571f2eade266740c4ba93232574e6ee"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "750ca3274d704f243ac656360b4e6bbfaae51e57"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2168,15 +2016,34 @@
     },
     {
       "fileName": "./src/bicep/modules/spokeNetwork.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-spokeNetwork.bicep-5B3A80452DEA45F40464ACAA0BB1D83EFB1A5652",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-spokeNetwork.bicep-1397488603D0898920401FFAB443BEA88E609457",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8f2bd0cff9361e5cb3ee5d3bdb59ba6222f86556b18a83a6723f11bdf3c6aff3"
+          "checksumValue": "87d74e2b6be8e66c6f1360f43c0c3e32e32d6e8ea42c534dc385460f9a3c5724"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "5b3a80452dea45f40464acaa0bb1d83efb1a5652"
+          "checksumValue": "1397488603d0898920401ffab443bea88e609457"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/terraform/modules/linux-virtual-machine/variables.tf",
+      "SPDXID": "SPDXRef-File--src-terraform-modules-linux-virtual-machine-variables.tf-E6CE40236B8BDEF4255A61F90B6CD769A8730197",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "841918ac341c15df54f379a7c28fc927400bdb04971e31803c6105b67ba65280"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e6ce40236b8bdef4255a61f90b6cd769a8730197"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2187,15 +2054,34 @@
     },
     {
       "fileName": "./src/bicep/modules/spokeNetworkPeering.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-spokeNetworkPeering.bicep-EF996859180318CEB627151BE790DBAE930FF69C",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-spokeNetworkPeering.bicep-F308F345570AAA2EBF9794CCD46E102A2D083EB9",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "39429416c8647e1aae0df44789bd585ed1b23beb478fc5e42b7aa595557fdf7a"
+          "checksumValue": "dd86020139effe20d9c06ea85cea1b4adf45a7ef8d772d1416db4aedba44157a"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "ef996859180318ceb627151be790dbae930ff69c"
+          "checksumValue": "f308f345570aaa2ebf9794ccd46e102a2d083eb9"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./.azure-devops/prbuild/mlz-pr-bicep-azurecloud-pipelines.yml",
+      "SPDXID": "SPDXRef-File--.azure-devops-prbuild-mlz-pr-bicep-azurecloud-pipelines.yml-FBDCF529A4F66EDC1A4176ED796BF6F5296E336E",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "b198846bdcde015d08086ef5fb52a8443d2362d1e789078c6f8d17e483abfec8"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fbdcf529a4f66edc1a4176ed796bf6f5296e336e"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2206,15 +2092,34 @@
     },
     {
       "fileName": "./src/bicep/modules/resourceGroup.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-resourceGroup.bicep-ED1F2A67EB6E20D131E562856D05CA10C6271BA3",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-resourceGroup.bicep-98085D689A939C285835CBE145EA1675921524FD",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "28e7b52279ce3f54a6f523b10f1126414b5fe74d9d39f326c1e9bdabf83c5124"
+          "checksumValue": "15e26681c6d77736d6853a9ed19ac1531ca5fabd9ecbc8aa2819672895220118"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "ed1f2a67eb6e20d131e562856d05ca10c6271ba3"
+          "checksumValue": "98085d689a939c285835cbe145ea1675921524fd"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./.azure-devops/nightlybuild/templates/terraform-apply.yml",
+      "SPDXID": "SPDXRef-File--.azure-devops-nightlybuild-templates-terraform-apply.yml-8710D5E8D40A83E22764FDBB93B00089ED7DC3FF",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "3109e228aac7946f5e4959b6c556481095df3746988813680f8a5cb4eb503ce6"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8710d5e8d40a83e22764fdbb93b00089ed7dc3ff"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2243,16 +2148,54 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/examples/appServicePlan/modules/appServicePlan.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-appServicePlan-modules-appServicePlan.bicep-9AED4C5BC9991884FCD297AA86B39B761ED5E603",
+      "fileName": "./.github/workflows/validate-build-bicep.yml",
+      "SPDXID": "SPDXRef-File--.github-workflows-validate-build-bicep.yml-EEBB0EBEC03A45444A13123CA880356992EF5E36",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "ddab567a03b51bca943bb0ba366b71050ce7c27960be471c9140b48d2d48b2d0"
+          "checksumValue": "7e24096ddce238c9e658284248f438ec168e69dd3e7bd57950b826327b575feb"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "9aed4c5bc9991884fcd297aa86b39b761ed5e603"
+          "checksumValue": "eebb0ebec03a45444a13123ca880356992ef5e36"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/bicep/examples/appServicePlan/modules/appServicePlan.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-appServicePlan-modules-appServicePlan.bicep-E18B1F1D9159A117EA324539B260331FF29BEC10",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "827ad8073bac61776b946b0c7d798bf52c32307af9e407c51f25876f69192fcc"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e18b1f1d9159a117ea324539b260331ff29bec10"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./docs/management-groups.md",
+      "SPDXID": "SPDXRef-File--docs-management-groups.md-52613FC2AD36DB0EEE48658A95707DEC5AE2FF37",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e30e4e035e9671d81011ff9fa808965ff16c45a9d5c950e247e013fc45492144"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "52613fc2ad36db0eee48658a95707dec5ae2ff37"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2281,6 +2224,25 @@
       "copyrightText": "NOASSERTION"
     },
     {
+      "fileName": "./docs/images/scope-v2.png",
+      "SPDXID": "SPDXRef-File--docs-images-scope-v2.png-9DA8A7F5CB9C998ADAC2BFE4A1D912DF8C87BFD2",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "3bc7910260a3ea8e968aee386911bc191a0201eb223b1f46e207177300b036a5"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9da8a7f5cb9c998adac2bfe4a1d912df8c87bfd2"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
       "fileName": "./src/terraform/mlz/outputs.tf",
       "SPDXID": "SPDXRef-File--src-terraform-mlz-outputs.tf-808FF9DC3416870722E09F385BBB06BD4F23449B",
       "checksums": [
@@ -2291,6 +2253,25 @@
         {
           "algorithm": "SHA1",
           "checksumValue": "808ff9dc3416870722e09f385bbb06bd4f23449b"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./.devcontainer/README.md",
+      "SPDXID": "SPDXRef-File--.devcontainer-README.md-0BE5AE023192FA89BFD1C04A97C619FE6B2F33B1",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "c07ac70fba0d45ee28a0803b6372d08df408c7cbe3e0d29b549988963feac69a"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0be5ae023192fa89bfd1c04a97c619fe6b2f33b1"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2338,25 +2319,6 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/mlz.json",
-      "SPDXID": "SPDXRef-File--src-bicep-mlz.json-2D7869DA5F6F79E1B007B95A2CDC5F2A6D6FC927",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "deae3e8df0f8f88bfc4bbb477f4905bcef96807432f4f4ca0793f4a90bf09bd8"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2d7869da5f6f79e1b007b95a2cdc5f2a6d6fc927"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
       "fileName": "./src/terraform/modules/jumpbox/variables.tf",
       "SPDXID": "SPDXRef-File--src-terraform-modules-jumpbox-variables.tf-AADBF23077A9B141ABAA36B121167F373FBC1381",
       "checksums": [
@@ -2386,25 +2348,6 @@
         {
           "algorithm": "SHA1",
           "checksumValue": "24b00d4333f06a82533a8032a037bdcb73e2ed47"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/modules/securityCenter.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-securityCenter.bicep-994F84DEAB45619516CB6140887EC9D1EE64C6BF",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "004a08eb6aff141e1f43b891ecfbfb61e6f8f8482680c4651950ef74e325ef45"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "994f84deab45619516cb6140887ec9d1ee64c6bf"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2452,54 +2395,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/modules/publicIPAddress.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-publicIPAddress.bicep-A0A0677308CD206C4B8BE87901FFDE0446AFD1C9",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "913e010756bab552ae8f12072b832a5193a083f3a09e035854cdfcac8867b35c"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a0a0677308cd206c4b8be87901ffde0446afd1c9"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
       "fileName": "./.github/workflows/super-linter.yml",
-      "SPDXID": "SPDXRef-File--.github-workflows-super-linter.yml-D5034B59BE0A231CBAE50AEEAC9C42894EEE4C91",
+      "SPDXID": "SPDXRef-File--.github-workflows-super-linter.yml-E9A9E5641CBFEE279D1B571A8FBF9B003DE731D2",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "16e6e1fc5a94b129dc1ae36d7f580587c90dfc6ee97f3a5a10b97022dc774ec0"
+          "checksumValue": "3d94b11f9125cb8b3a60d336fb08493ed15b80f6b0264bd8321c05616f00352a"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "d5034b59be0a231cbae50aeeac9c42894eee4c91"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/modules/subnet.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-modules-subnet.bicep-D8CECC891B5D7E602C04C4C6DA6A4FE0828A9C7C",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "1a5e3368d29165afeb98202a8f20e089bc55070120badb863d37694fadbf315d"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d8cecc891b5d7e602c04c4c6da6a4fe0828a9c7c"
+          "checksumValue": "e9a9e5641cbfee279d1b571a8fbf9b003de731d2"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2528,25 +2433,6 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/form/mlz.portal.json",
-      "SPDXID": "SPDXRef-File--src-bicep-form-mlz.portal.json-1269035622E6B6FBFA054BC79542542F17801CC4",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "a20e84c425ae410785904b3c8d89bc83008ac67ea2533905bec678ae5f842dbd"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1269035622e6b6fbfa054bc79542542f17801cc4"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
       "fileName": "./docs/images/deploytoazure.svg",
       "SPDXID": "SPDXRef-File--docs-images-deploytoazure.svg-8A5B870E6A68286DDFB714F8AB35F5983B36630C",
       "checksums": [
@@ -2557,25 +2443,6 @@
         {
           "algorithm": "SHA1",
           "checksumValue": "8a5b870e6a68286ddfb714f8ab35f5983b36630c"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "licenseInfoInFiles": [
-        "NOASSERTION"
-      ],
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./src/bicep/examples/appServicePlan/README.md",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-appServicePlan-README.md-C0C287D734B2214BA4AA74198BBD8AF0DD5B8977",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "b86d98c800f5a5a06b66383f65a70bd33eb29000394780a36454d682d36d42c3"
-        },
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "c0c287d734b2214ba4aa74198bbd8af0dd5b8977"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2604,16 +2471,149 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./src/bicep/examples/newWorkload/modules/hubNetworkPeering.bicep",
-      "SPDXID": "SPDXRef-File--src-bicep-examples-newWorkload-modules-hubNetworkPeering.bicep-43F065D7929220A6DB946F702C1B2779E606FA7F",
+      "fileName": "./LICENSE",
+      "SPDXID": "SPDXRef-File--LICENSE-689EC0681815ECC32BEE639C68E7740ADD7BD301",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "996ac71fadfd807762b7affa451383a03310e5de4cae20b54816eb3aeb4c505b"
+          "checksumValue": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "43f065d7929220a6db946f702c1b2779e606fa7f"
+          "checksumValue": "689ec0681815ecc32bee639c68e7740add7bd301"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/bicep/mlz.json",
+      "SPDXID": "SPDXRef-File--src-bicep-mlz.json-2D7869DA5F6F79E1B007B95A2CDC5F2A6D6FC927",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "deae3e8df0f8f88bfc4bbb477f4905bcef96807432f4f4ca0793f4a90bf09bd8"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2d7869da5f6f79e1b007b95a2cdc5f2a6d6fc927"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/bicep/modules/securityCenter.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-securityCenter.bicep-227149281E684ACB9FACECF50E7CD27C82A80E5B",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "01e8d221db6ca5f4eda57a1926683b83be905c68cf5e980dd63bb7bfc42225d5"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "227149281e684acb9facecf50e7cd27c82a80e5b"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/bicep/modules/publicIPAddress.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-publicIPAddress.bicep-13049FAA5A6FDB574BDAECFF8A6B20CC4BB7409B",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "9cdaf049747fd57bc7c33e7b54e0184c71e99974d1dfc4ed33b6963a0bbbc044"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "13049faa5a6fdb574bdaecff8a6b20cc4bb7409b"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/bicep/modules/subnet.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-modules-subnet.bicep-069C17C88FC6A28C1957F0D9DAA8EF03F0CB3172",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "562e45d3297a2006bfdbbcce2450411e8aa6533bcca1c7a590076ed2327d2ee4"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "069c17c88fc6a28c1957f0d9daa8ef03f0cb3172"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/bicep/form/mlz.portal.json",
+      "SPDXID": "SPDXRef-File--src-bicep-form-mlz.portal.json-1269035622E6B6FBFA054BC79542542F17801CC4",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "a20e84c425ae410785904b3c8d89bc83008ac67ea2533905bec678ae5f842dbd"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1269035622e6b6fbfa054bc79542542f17801cc4"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/bicep/examples/appServicePlan/README.md",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-appServicePlan-README.md-C0C287D734B2214BA4AA74198BBD8AF0DD5B8977",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "b86d98c800f5a5a06b66383f65a70bd33eb29000394780a36454d682d36d42c3"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c0c287d734b2214ba4aa74198bbd8af0dd5b8977"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./src/bicep/examples/newWorkload/modules/hubNetworkPeering.bicep",
+      "SPDXID": "SPDXRef-File--src-bicep-examples-newWorkload-modules-hubNetworkPeering.bicep-A6168BF0496E053B7C74D9079259EE11B17FAC1C",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "8892e332d7859e5f475e86ce94f31864927827960a0b57711ea72da1794c8cd1"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a6168bf0496e053b7c74d9079259ee11b17fac1c"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2757,15 +2757,15 @@
     },
     {
       "fileName": "./.github/workflows/validate-terraform.yml",
-      "SPDXID": "SPDXRef-File--.github-workflows-validate-terraform.yml-6D31EABA08921A28CCFAACC54405099899F3D5EF",
+      "SPDXID": "SPDXRef-File--.github-workflows-validate-terraform.yml-1D78AE785439E8229984B7BE114939814F40A6D9",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "cb36d5401a0eff9f3a208b15e8abccb1573c4287a64075a775e07d06eb372d48"
+          "checksumValue": "ea59f4d328ea629c0ba8eec71a39ebaf90d7e479c2ee67766e9ffb7be74bdda3"
         },
         {
           "algorithm": "SHA1",
-          "checksumValue": "6d31eaba08921a28ccfaacc54405099899f3d5ef"
+          "checksumValue": "1d78ae785439e8229984b7be114939814f40a6d9"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2859,7 +2859,7 @@
       "SPDXID": "SPDXRef-RootPackage",
       "downloadLocation": "NOASSERTION",
       "packageVerificationCode": {
-        "packageVerificationCodeValue": "bdda19650c08c8d4269397ea27155a3bcd6a3dac"
+        "packageVerificationCodeValue": "6b9162037645731b99af221d501d25f2b5a0bb76"
       },
       "filesAnalyzed": true,
       "licenseConcluded": "NOASSERTION",
@@ -2868,13 +2868,13 @@
       ],
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
-      "versionInfo": "20220223.3",
+      "versionInfo": "20220223.7",
       "supplier": "Organization: Microsoft",
       "hasFiles": [
         "SPDXRef-File--.devcontainer-Dockerfile-4F0529945927C7DF94EA0659651CC6DBCE0400D0",
         "SPDXRef-File--docs-images-deploytoazure.svg-8A5B870E6A68286DDFB714F8AB35F5983B36630C",
         "SPDXRef-File--docs-deployment-guide-bicep.md-CFFD0A93115A14E7A6C33085286B7EDB02B9F857",
-        "SPDXRef-File--.github-workflows-super-linter.yml-D5034B59BE0A231CBAE50AEEAC9C42894EEE4C91",
+        "SPDXRef-File--.github-workflows-super-linter.yml-E9A9E5641CBFEE279D1B571A8FBF9B003DE731D2",
         "SPDXRef-File--.azure-devops-nightlybuild-mlz-bicep-azurecloud-pipelines.yml-E433A1BCBA50FBA3692B1E3FBB9B077A4EA10BCB",
         "SPDXRef-File--.azure-devops-prbuild-mlz-pr-bicep-azuregov-pipelines.yml-C2AC51571535A9641E41EFF136EF0F939A7625D1",
         "SPDXRef-File--src-terraform-modules-spoke-outputs.tf-24B00D4333F06A82533A8032A037BDCB73E2ED47",
@@ -2883,12 +2883,12 @@
         "SPDXRef-File--src-terraform-modules-policy-assignments-nist-parameter-values-public.json.tmpl-EC4B286437E404C40E04E500F5704B2BC480E940",
         "SPDXRef-File--src-terraform-mlz-outputs.tf-808FF9DC3416870722E09F385BBB06BD4F23449B",
         "SPDXRef-File--src-bicep-examples-inheritTags-README.md-566651DD5D554E9DF3B65AB73A2A02A1EE786F1D",
-        "SPDXRef-File--src-bicep-examples-appServicePlan-modules-appServicePlan.bicep-9AED4C5BC9991884FCD297AA86B39B761ED5E603",
+        "SPDXRef-File--src-bicep-examples-appServicePlan-modules-appServicePlan.bicep-E18B1F1D9159A117EA324539B260331FF29BEC10",
         "SPDXRef-File--src-bicep-examples-README.md-9448C0795A7C81B71131C5E25D6D0D4076CC3863",
-        "SPDXRef-File--src-bicep-modules-resourceGroup.bicep-ED1F2A67EB6E20D131E562856D05CA10C6271BA3",
-        "SPDXRef-File--src-bicep-modules-spokeNetworkPeering.bicep-EF996859180318CEB627151BE790DBAE930FF69C",
-        "SPDXRef-File--src-bicep-modules-spokeNetwork.bicep-5B3A80452DEA45F40464ACAA0BB1D83EFB1A5652",
-        "SPDXRef-File--src-bicep-mlz.bicep-1035A45C58AC7C1BFC28A53DFD7BFAF8D4699AD6",
+        "SPDXRef-File--src-bicep-modules-resourceGroup.bicep-98085D689A939C285835CBE145EA1675921524FD",
+        "SPDXRef-File--src-bicep-modules-spokeNetworkPeering.bicep-F308F345570AAA2EBF9794CCD46E102A2D083EB9",
+        "SPDXRef-File--src-bicep-modules-spokeNetwork.bicep-1397488603D0898920401FFAB443BEA88E609457",
+        "SPDXRef-File--src-bicep-mlz.bicep-D46F64F8A9A3F45068A3CE9D17140338540D38EA",
         "SPDXRef-File--SUPPORT.md-261DD94D763BBA64A2AF2527A8D31A88163E6F47",
         "SPDXRef-File--.devcontainer-devcontainer.json-9FF15EF486DA6F1D68D67D411480CF2420A744C4",
         "SPDXRef-File--docs-images-management-groups-mg4-subscription-in-management-group.png-E8565AF68535039929C984CD40537CDAC0EF692F",
@@ -2901,12 +2901,12 @@
         "SPDXRef-File--src-terraform-modules-subnet-variables.tf-3F6FE2C0BE1D2063E4A5C4DB4D0BD6E0DD792349",
         "SPDXRef-File--src-terraform-modules-hub-main.tf-09839610F13957C24A14CBE805A92FE8EFA858F8",
         "SPDXRef-File--src-terraform-tier3-main.tf-B332969A285A174913D76E0A4B17081F8F39F083",
-        "SPDXRef-File--src-bicep-examples-keyVault-azureKeyVault.bicep-A9B5CA3A1BA31CDBA3836502F8EF6ECA56778C69",
+        "SPDXRef-File--src-bicep-examples-keyVault-azureKeyVault.bicep-88F5E1B211DFEA84320EBDD769892FEA647966FE",
         "SPDXRef-File--src-bicep-examples-remoteAccess-main.json-8A607B291FCA4E29F77405B458360938D870A888",
-        "SPDXRef-File--src-bicep-examples-containerRegistry-contRegistry.bicep-163D689FFBFC22FDDE09D7E6F7228D0F7B2E86CF",
-        "SPDXRef-File--src-bicep-modules-privateLink.bicep-284290071BD078FD6319D8FE34B1B209C21AA579",
-        "SPDXRef-File--src-bicep-modules-routeTable.bicep-2362382862974BCBF702F5BA4C88FF1AD88C00F5",
-        "SPDXRef-File--src-bicep-modules-firewall.bicep-8AF8639EC5FB7F2D39460A26B6F5E20FA79AA9A2",
+        "SPDXRef-File--src-bicep-examples-containerRegistry-contRegistry.bicep-DDF95E9872E8F3FCD07D53D8D09AF88D75F9D737",
+        "SPDXRef-File--src-bicep-modules-privateLink.bicep-8D22D17D614268B2183C73C2C0060A6C5D2F66E5",
+        "SPDXRef-File--src-bicep-modules-routeTable.bicep-11554FFE0DAA4DE98DCBB22C5D955E889C71B53D",
+        "SPDXRef-File--src-bicep-modules-firewall.bicep-61F36519341BBA54E6D48B05F77484DED9A4B505",
         "SPDXRef-File--src-bicep-README.md-72E554A01B7B48E406B19B09672B6EC437E8C033",
         "SPDXRef-File--.gitattributes-C3B930865367FCD784793BF0E62F487806F9CFC1",
         "SPDXRef-File--docs-images-management-groups-mg3-select-subscription.png-231F306AA1C73ECEAFF86AFD52A3DD677E3EB584",
@@ -2916,16 +2916,16 @@
         "SPDXRef-File--.azure-devops-prbuild-templates-az-what-if.yml-E9F8138A6EA835BCC14417FB8911462A2EA39666",
         "SPDXRef-File--.azure-devops-validate-declarative-form.yml-CDA6BB9FF8E696BB2589C335A03D7EEE585701CF",
         "SPDXRef-File--src-terraform-modules-windows-virtual-machine-main.tf-CDBF5A56C2629B4FCA0CA38D9EA3D3E0C5FAF391",
-        "SPDXRef-File--src-terraform-modules-subnet-outputs.tf-B9820EE813195376DA1292009B5AB91DF14080F0",
+        "SPDXRef-File--src-terraform-modules-subnet-outputs.tf-DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",
         "SPDXRef-File--src-terraform-modules-bastion-variables.tf-437551E35FC31649E974E6AA9B6BF63C147420FC",
         "SPDXRef-File--src-terraform-modules-policy-assignments-variables.tf-40C530674518775957C17862E9D888D4AE5B0019",
-        "SPDXRef-File--src-bicep-examples-keyVault-modules-keyVault.bicep-E324BD60A35BDAB0DFE96C1392C5E7B4D8929A90",
+        "SPDXRef-File--src-bicep-examples-keyVault-modules-keyVault.bicep-830A6F8E0D398903916BB259C159EDC522E087EB",
         "SPDXRef-File--src-bicep-examples-remoteAccess-README.md-A3AFA691CC0E9AC9ABBA7D8B9EBC16DE419D165B",
-        "SPDXRef-File--src-bicep-examples-sentinel-sentinel.tf-0123C515D78CE08EBC531683E6AFA6AD05D131A0",
+        "SPDXRef-File--src-bicep-examples-sentinel-sentinel.tf-A32AF44263453F1A053950534AE596D8E366026C",
         "SPDXRef-File--src-bicep-modules-policies-NIST-policyAssignmentParameters.json-1D2322F550CA984CD0D623B3673C78987F1DDCB3",
-        "SPDXRef-File--src-bicep-modules-virtualNetwork.bicep-F479DA88FBA578FF1576EF5D78274E9A8B35F469",
-        "SPDXRef-File--src-bicep-modules-logAnalyticsDiagnosticLogging.bicep-5C90C218ACF72F2FD376DC6E73042F6BA2EF9BA1",
-        "SPDXRef-File--src-bicep-modules-virtualNetworkPeering.bicep-85DC92CB00573147B96DBA46AAD214371730EB7C",
+        "SPDXRef-File--src-bicep-modules-virtualNetwork.bicep-E3B27F4166879AEBD594D09343A95C30A11028D9",
+        "SPDXRef-File--src-bicep-modules-logAnalyticsDiagnosticLogging.bicep-B1726C44ECFD202453C9D145C2DB068F4961EDD5",
+        "SPDXRef-File--src-bicep-modules-virtualNetworkPeering.bicep-E90013F12D6740078DAACD33455F50871EA241F6",
         "SPDXRef-File--NOTICE-0D647CAB1E14E880446589F9050BE10E6D6882CB",
         "SPDXRef-File--.vscode-extensions.json-B410AFCE726859B978FEF226CA6F799D6931A3C2",
         "SPDXRef-File--docs-images-networking.png-393C984E4D29903DE4426906F004A26CF023B7F2",
@@ -2939,17 +2939,17 @@
         "SPDXRef-File--src-terraform-modules-policy-assignments-outputs.tf-DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",
         "SPDXRef-File--src-terraform-mlz-variables.tf-B663AABEC188924FF7491D708FFDA188CA3C08A3",
         "SPDXRef-File--src-bicep-examples-newWorkload-README.md-80DD6447AED310971241B1E67E28DD48109A77DD",
-        "SPDXRef-File--src-bicep-examples-appServicePlan-appService.bicep-3464ED8AB337E00BE62CCB3F5861F7D877B89A9D",
+        "SPDXRef-File--src-bicep-examples-appServicePlan-appService.bicep-24868351FF0C61CE93D8551AD8CCAF6FA4B7B8CF",
         "SPDXRef-File--src-bicep-modules-policies-IL5-policyAssignmentParameters.json-D0D5010A6DF9D2105C97E07EA480C6C00D990C6C",
-        "SPDXRef-File--src-bicep-modules-linuxVirtualMachine.bicep-2B7894C75BACB795B526C5AE6531BBFC61D7F9BC",
-        "SPDXRef-File--src-bicep-modules-centralLogging.bicep-76DCBFBB47FC844BFDED8423B1458C1054060FC1",
-        "SPDXRef-File--src-bicep-modules-windowsVirtualMachine.bicep-AE7BD5127CF8BA159686EF299BEFD3D0ADDD55A0",
+        "SPDXRef-File--src-bicep-modules-linuxVirtualMachine.bicep-B8EEBA0EDFB28A70CDA167FE9361C67BB3000427",
+        "SPDXRef-File--src-bicep-modules-centralLogging.bicep-FAE1929A0B17C6D7E982B522E2ED96431CDC4D04",
+        "SPDXRef-File--src-bicep-modules-windowsVirtualMachine.bicep-26A57F0F483E9E4DD28EE5E7B512588D45AE03C2",
         "SPDXRef-File--README.md-2B293E8A393A0FEA40B6A6D95F57E39537C7EAE8",
         "SPDXRef-File--SECURITY.md-28A48DED0C097169644A9C376CAD1A380DECB6CE",
         "SPDXRef-File--.vscode-settings.json-EC29FB6F42C84C9D5D98A3F0292F58584515411B",
         "SPDXRef-File--docs-images-20220204-missionlz-as-of-Feb2022-light.svg-079B813667961E1A3D2A1A1115D05260887A9C46",
         "SPDXRef-File--.github-ISSUE-TEMPLATE-question.md-11851AC984C381F90CACF46A4CDF4C8F41A79C06",
-        "SPDXRef-File--.github-workflows-validate-terraform.yml-6D31EABA08921A28CCFAACC54405099899F3D5EF",
+        "SPDXRef-File--.github-workflows-validate-terraform.yml-1D78AE785439E8229984B7BE114939814F40A6D9",
         "SPDXRef-File--.azure-devops-nightlybuild-mlz-bicep-azuregov-pipelines.yml-0FE74C5991DACCBFC09F3347957C815388B81291",
         "SPDXRef-File--.azure-devops-prbuild-mlz-pr-tf-azuregov-pipelines.yml-C356233203BD15D4AF34D7CE2C106B66496B252C",
         "SPDXRef-File--src-terraform-modules-spoke-main.tf-B79B77C6BD46A874C36BB53B499FDD5BC2E34094",
@@ -2957,18 +2957,18 @@
         "SPDXRef-File--src-terraform-modules-virtual-network-variables.tf-40E274F8EFEFA6BD46C186A0059A5EFF212F7830",
         "SPDXRef-File--src-terraform-modules-policy-assignments-nist-parameter-values-usgovernment.json.tmpl-5B2CDB23AFD0AC69F365172B9CC7FEDD8789FEFF",
         "SPDXRef-File--src-terraform-mlz-main.tf-A1BFFAA640B797531A3CB14C91BFCCDA88F79F41",
-        "SPDXRef-File--src-bicep-examples-newWorkload-modules-hubNetworkPeering.bicep-43F065D7929220A6DB946F702C1B2779E606FA7F",
+        "SPDXRef-File--src-bicep-examples-newWorkload-modules-hubNetworkPeering.bicep-A6168BF0496E053B7C74D9079259EE11B17FAC1C",
         "SPDXRef-File--src-bicep-examples-appServicePlan-README.md-C0C287D734B2214BA4AA74198BBD8AF0DD5B8977",
         "SPDXRef-File--src-bicep-form-mlz.portal.json-1269035622E6B6FBFA054BC79542542F17801CC4",
-        "SPDXRef-File--src-bicep-modules-subnet.bicep-D8CECC891B5D7E602C04C4C6DA6A4FE0828A9C7C",
-        "SPDXRef-File--src-bicep-modules-publicIPAddress.bicep-A0A0677308CD206C4B8BE87901FFDE0446AFD1C9",
-        "SPDXRef-File--src-bicep-modules-securityCenter.bicep-994F84DEAB45619516CB6140887EC9D1EE64C6BF",
+        "SPDXRef-File--src-bicep-modules-subnet.bicep-069C17C88FC6A28C1957F0D9DAA8EF03F0CB3172",
+        "SPDXRef-File--src-bicep-modules-publicIPAddress.bicep-13049FAA5A6FDB574BDAECFF8A6B20CC4BB7409B",
+        "SPDXRef-File--src-bicep-modules-securityCenter.bicep-227149281E684ACB9FACECF50E7CD27C82A80E5B",
         "SPDXRef-File--src-bicep-mlz.json-2D7869DA5F6F79E1B007B95A2CDC5F2A6D6FC927",
         "SPDXRef-File--LICENSE-689EC0681815ECC32BEE639C68E7740ADD7BD301",
         "SPDXRef-File--.devcontainer-README.md-0BE5AE023192FA89BFD1C04A97C619FE6B2F33B1",
         "SPDXRef-File--docs-images-scope-v2.png-9DA8A7F5CB9C998ADAC2BFE4A1D912DF8C87BFD2",
         "SPDXRef-File--docs-management-groups.md-52613FC2AD36DB0EEE48658A95707DEC5AE2FF37",
-        "SPDXRef-File--.github-workflows-validate-build-bicep.yml-ED4A0B9AE4914DD9BDA5EACF333C0820E75F09CF",
+        "SPDXRef-File--.github-workflows-validate-build-bicep.yml-EEBB0EBEC03A45444A13123CA880356992EF5E36",
         "SPDXRef-File--.azure-devops-nightlybuild-templates-terraform-apply.yml-8710D5E8D40A83E22764FDBB93B00089ED7DC3FF",
         "SPDXRef-File--.azure-devops-prbuild-mlz-pr-bicep-azurecloud-pipelines.yml-FBDCF529A4F66EDC1A4176ED796BF6F5296E336E",
         "SPDXRef-File--src-terraform-modules-linux-virtual-machine-variables.tf-E6CE40236B8BDEF4255A61F90B6CD769A8730197",
@@ -2976,12 +2976,12 @@
         "SPDXRef-File--src-terraform-modules-virtual-network-outputs.tf-366E76A5F9B20E244D649BAC1F497AD5D31C36C5",
         "SPDXRef-File--src-terraform-modules-hub-variables.tf-00EC3A0D70806548602B57091C6480EFD28D119C",
         "SPDXRef-File--src-terraform-tier3-variables.tf-F30C567F4A0095C223D0B5971561B22637838C06",
-        "SPDXRef-File--src-bicep-examples-inheritTags-inherit.bicep-3C8F26FDF941E9391DB52342AF657A2CDA4905BC",
-        "SPDXRef-File--src-bicep-examples-appServicePlan-modules-appServiceSettings.bicep-FC902583C15E80535287221C637426F117C3B260",
+        "SPDXRef-File--src-bicep-examples-inheritTags-inherit.bicep-4E31F740CBC175FCA3358F289B3E11E4161898CC",
+        "SPDXRef-File--src-bicep-examples-appServicePlan-modules-appServiceSettings.bicep-2A975CB00E350B13A2C79F41D626DF5904FDC4B9",
         "SPDXRef-File--src-bicep-examples-containerRegistry-README.md-E6977EDF9874D65E1F85D25F58198360559CB5A3",
-        "SPDXRef-File--src-bicep-modules-remoteAccess.bicep-51EDB938D58B0496F8D4560E57902BF9910B7613",
-        "SPDXRef-File--src-bicep-modules-roleAssignment.bicep-5EBEF86E83D8A97A7F72E131A1988F5843C13166",
-        "SPDXRef-File--src-bicep-modules-policyAssignment.bicep-F1A972373EA36354EC74796CB250B4A7D6CDA6DB",
+        "SPDXRef-File--src-bicep-modules-remoteAccess.bicep-DF67FE6198FCD0ED3C03EF8455A5E601FC38829D",
+        "SPDXRef-File--src-bicep-modules-roleAssignment.bicep-FDD73B29D3A7BF8563D00895CC2ECE4FE1B743BE",
+        "SPDXRef-File--src-bicep-modules-policyAssignment.bicep-514CAD9DFC7B7EFD6B268E926659B783B62BAB67",
         "SPDXRef-File--src-bicep-bicepconfig.json-19B4E153666EA4AC1BE0180CA0CEFE9206B650C3",
         "SPDXRef-File--CODE-OF-CONDUCT.md-F1E7F6BA29A857FD36A5F603FA873753ABA9917E",
         "SPDXRef-File--docs-images-management-groups-mg1-management-groups-list.png-577E9488E0EE7E789403DA12416253B09704DB9D",
@@ -2993,19 +2993,19 @@
         "SPDXRef-File--src-terraform-modules-windows-virtual-machine-variables.tf-E6CE40236B8BDEF4255A61F90B6CD769A8730197",
         "SPDXRef-File--src-terraform-modules-subnet-main.tf-D344C620D3EECC7C9EE2451E145E681325A83E5D",
         "SPDXRef-File--src-terraform-modules-hub-outputs.tf-6E5165DE66D0B63F03669330F8CD14B9601C32BD",
-        "SPDXRef-File--src-terraform-tier3-outputs.tf-B9820EE813195376DA1292009B5AB91DF14080F0",
+        "SPDXRef-File--src-terraform-tier3-outputs.tf-DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",
         "SPDXRef-File--src-bicep-examples-keyVault-README.md-0E6A22DDB3096385053E6BF81FE0DE4CA91B497A",
-        "SPDXRef-File--src-bicep-examples-remoteAccess-main.bicep-8E6378967AB1DDC5641A2EDF5648EE3DB8F96F22",
-        "SPDXRef-File--src-bicep-examples-containerRegistry-modules-containerRegistry.bicep-5709FA93416FAAEFF383A39F549DCDBAEBF20241",
-        "SPDXRef-File--src-bicep-modules-networkSecurityGroup.bicep-6FAF7D0A8F637A596303712416385AC9BC0B7E4A",
-        "SPDXRef-File--src-bicep-modules-hubNetworkPeerings.bicep-278BB4340CF89126B29E3D1B670F6022BD555960",
-        "SPDXRef-File--src-bicep-modules-hubNetwork.bicep-EE76CAE454031E1EE88779995C88FB51A873B04E",
-        "SPDXRef-File--src-bicep-modules-storageAccount.bicep-B75FD567081F920D9669310354D314688761878B",
+        "SPDXRef-File--src-bicep-examples-remoteAccess-main.bicep-32F37E10D2428DB5A00BF69F2F49DFE4535A694D",
+        "SPDXRef-File--src-bicep-examples-containerRegistry-modules-containerRegistry.bicep-1E69DB5341AE42F9A3D9E8B9E39ABD7E650CBDAD",
+        "SPDXRef-File--src-bicep-modules-networkSecurityGroup.bicep-8CD4023B1EE0DA2B4BB55809087B408948F5BFA4",
+        "SPDXRef-File--src-bicep-modules-hubNetworkPeerings.bicep-E2B0B903621A8982488A949D5DB2DC6F06196DBB",
+        "SPDXRef-File--src-bicep-modules-hubNetwork.bicep-100FF0CD304F5044C976656A103EBEA213F4FCAE",
+        "SPDXRef-File--src-bicep-modules-storageAccount.bicep-533C5AE0D21345FD00D80B258FB2C099663D285A",
         "SPDXRef-File--CONTRIBUTING.md-01FC0CBA2503585D19E11361633A2EB351929F87",
         "SPDXRef-File--docs-images-management-groups-mg2-empty-subscription-list.png-49539C23E7C6ED6223EFE91972FDCE52EFBC0A28",
         "SPDXRef-File--docs-images-deploytoazuregov.svg-C67080F86FFBC18AABAEDDF46D1C54901D2C7E71",
         "SPDXRef-File--.github-ISSUE-TEMPLATE-bug-report.md-B20CF5C186B324D71CACA0CAA26FBE8385408F73",
-        "SPDXRef-File--.github-dependabot.yml-07EDF6C9D72A0309DC91A8763F74247F2D122B57",
+        "SPDXRef-File--.github-dependabot.yml-D107A5FB2FE9BD1E871DD28DBF149BF35FEB8ED6",
         "SPDXRef-File--.azure-devops-nightlybuild-mlz-tf-azurecloud-pipelines.yml-40F24ECAB27D7CA0441FDB799C2CCAD03B545E8C",
         "SPDXRef-File--.azure-devops-cred-poli-scan.yml-B3803A3194AA6B8E8E176B08414D0D70D2582DAE",
         "SPDXRef-File--src-terraform-modules-windows-virtual-machine-outputs.tf-DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",
@@ -3013,35 +3013,35 @@
         "SPDXRef-File--src-terraform-modules-bastion-main.tf-20E06656E6E60AC008404469F037B2130DAE561C",
         "SPDXRef-File--src-terraform-modules-policy-assignments-main.tf-24E0071CFAAAEBC2BE741FA23B35C53992D56571",
         "SPDXRef-File--src-terraform-README.md-ABE1845E8DB9FEDBCF1BF193CA8C4A052EFB766E",
-        "SPDXRef-File--src-bicep-examples-newWorkload-newWorkload.bicep-7E87DF58887C6F4F1B646A03DBF8D0D94817F2D9",
+        "SPDXRef-File--src-bicep-examples-newWorkload-newWorkload.bicep-2A748D5AD35329EC13F9016C5F74886888EFB630",
         "SPDXRef-File--src-bicep-examples-sentinel-README.md-4E4751C7862E88C7BEE1AB4DB33A77DBAC52404D",
         "SPDXRef-File--src-bicep-modules-policies-CMMC-policyAssignmentParameters.json-8CF60C607C27A50C539609F86166A4A99550B8DB",
-        "SPDXRef-File--src-bicep-modules-logAnalyticsWorkspace.bicep-3987B39C3375F7A6DDC1D893E0F9013778826AD4",
-        "SPDXRef-File--src-bicep-modules-bastionHost.bicep-E05D4A8244AE68569C10C94EA2B23B4A1F918E73",
-        "SPDXRef-File--src-bicep-modules-networkInterface.bicep-A838969BD72C03563327E85857A26F2A56C6662E",
+        "SPDXRef-File--src-bicep-modules-logAnalyticsWorkspace.bicep-1A0FE7DF6E4F53F13198D0380D837B4747C555FC",
+        "SPDXRef-File--src-bicep-modules-bastionHost.bicep-D9A4F0413433C0C49A113007F770375544A7D660",
+        "SPDXRef-File--src-bicep-modules-networkInterface.bicep-5F1D61122E0163A3BC24F764E8952E2767186BE0",
         "SPDXRef-File--.gitignore-094F7A9121BBAD7D52EFB1D3F4B630CA15F32793"
       ]
     }
   ],
   "relationships": [
     {
-      "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-RootPackage",
-      "spdxElementId": "SPDXRef-DOCUMENT"
-    },
-    {
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "Azure-Pipelines-Hosted-Image-ubuntu20-20220220.1",
       "spdxElementId": "SPDXRef-RootPackage"
+    },
+    {
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-RootPackage",
+      "spdxElementId": "SPDXRef-DOCUMENT"
     }
   ],
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "name": "Mission LZ 20220223.3",
-  "documentNamespace": "https://sbom.microsoft/1:I5vpEMl9wkCCZsmqQqtQDQ:MIGbmOPODUWjMVCPbweVOQ/202:8869/EDa30uLWYUWGo3aoEcvAZA",
+  "name": "Mission LZ 20220223.7",
+  "documentNamespace": "https://sbom.microsoft/1:I5vpEMl9wkCCZsmqQqtQDQ:MIGbmOPODUWjMVCPbweVOQ/202:8916/JmKUjDJVmUOp95T_QU2VpQ",
   "creationInfo": {
-    "created": "2022-02-23T15:15:01Z",
+    "created": "2022-02-23T19:01:35Z",
     "creators": [
       "Organization: Microsoft",
       "Tool: Microsoft.SBOMTool-2.1.14"

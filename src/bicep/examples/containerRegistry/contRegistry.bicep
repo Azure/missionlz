@@ -1,4 +1,7 @@
 /*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+
 Deployes a premium Azure Container Registry suitable for hosting docker containers.
 */
 targetScope = 'subscription'
