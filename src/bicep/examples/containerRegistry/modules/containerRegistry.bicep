@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 @minLength(5)
 @maxLength(50)
 param registryName string

@@ -1,4 +1,7 @@
 /*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+
 Deployes a premium Azure Key Vault to support hardware backed secrets and certificates storage
 */
 targetScope = 'subscription'
