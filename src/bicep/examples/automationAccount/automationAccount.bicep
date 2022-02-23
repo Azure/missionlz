@@ -37,7 +37,7 @@ module automationAccount './modules/automationAccount.bicep' = {
   name: automationAcctName
   params: {
     name: automationAcctName
-    tags: tags
+    tags: calculatedTags
     location: location
     enableDiagnostics: true
     diagnosticStorageAccountName: '${mlzDeploymentVariables.diagnosticStorageAccountName.Value}'
