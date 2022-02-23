@@ -12,9 +12,6 @@ param automationAcctName string = '${mlzDeploymentVariables.mlzResourcePrefix.Va
 @description('The name of the resource group in which the automation account will be deployed. If unchanged or not specified, the MLZ operations resource group is used.')
 param targetResourceGroup string = '${mlzDeploymentVariables.spokes.Value[1].resourceGroupName}'
 
-@description('The URL location to the PowerShell runbook you wish to use')
-param automationRunbook string = 'https://raw.githubusercontent.com/Azure/missionlz/breestryker/AzAutomationBicepEx/src/bicep/examples/automationAccount/test.ps1'
-
 @description('The location of the RG to deploy the Automation Account to')
 param location string = deployment().location
 
@@ -45,22 +42,6 @@ module automationAccount './modules/automationAccount.bicep' = {
     logAnalyticsResourceGroup: '${mlzDeploymentVariables.spokes.Value[1].resourceGroupName}'
     logAnalyticsWorkspaceName: '${mlzDeploymentVariables.logAnalyticsWorkspaceName.Value}'
     logAnalyticsSubscriptionId: '${mlzDeploymentVariables.spokes.Value[1].subscriptionId}'
-    modules: [
-      {
-        name: 'Az.Accounts'
-        version: 'latest'
-        uri: 'https://www.powershellgallery.com/api/v2/package'
-      }
-    ]
-    runbooks: [
-      {
-        runbookName: 'MLZRunBook'
-        runbookUri: automationRunbook
-        runbookType: 'PowerShell'
-        logProgress: true
-        logVerbose: false
-      }
-    ]        
   }
 }
 
