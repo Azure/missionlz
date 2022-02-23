@@ -92,7 +92,7 @@ steps:
            --name ${{ parameters.WorkloadName }} \
            --template-file $(Build.SourcesDirectory)/src/bicep/examples/newWorkload/newWorkload.bicep \
            --parameters \
-              workloadName=${{ parameters.WorkloadName }} \
+              resourcePrefix=$datetime \
               hubSubscriptionId=$(hubSubscriptionId) \
               hubResourceGroupName=$(hubResourceGroupName) \
               hubVirtualNetworkName=$(hubVirtualNetworkName) \
