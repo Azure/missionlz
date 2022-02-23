@@ -34,7 +34,7 @@ An example deployment with required deployment parameters included is shown belo
 #   --template-file ./mlz.bicep \
 #   --parameters resourcePrefix=$resourcePrefix \
 #   deploySentinel=true \
-#   deployASC=true
+#   deployDefender=true
 ```
 
 ## Deploying Sentinel Zero Trust (TIC3.0) Workbook
