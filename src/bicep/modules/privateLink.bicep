@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 @description('The name of the resource the private endpoint is being created for')
 param logAnalyticsWorkspaceName  string
 

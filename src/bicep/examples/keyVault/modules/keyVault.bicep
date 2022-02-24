@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param keyVaultName string
 param location string = resourceGroup().location
 param tenantID string
