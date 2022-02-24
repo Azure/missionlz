@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 @allowed([
   'NIST'
   'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NIST
