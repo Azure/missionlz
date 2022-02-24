@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "11789394257827199745"
+      "templateHash": "13300226497891805183"
     }
   },
   "parameters": {
@@ -6132,6 +6132,10 @@
     "logAnalyticsWorkspaceResourceId": {
       "type": "string",
       "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))).outputs.id.value]"
+    },
+    "diagnosticStorageAccountName": {
+      "type": "string",
+      "value": "[variables('operationsLogStorageAccountName')]"
     },
     "spokes": {
       "type": "array",
