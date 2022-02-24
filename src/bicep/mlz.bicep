@@ -1052,6 +1052,8 @@ output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.outputs.name
 
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.outputs.id
 
+output diagnosticStorageAccountName string = operationsLogStorageAccountName
+
 output spokes array = [for (spoke, i) in spokes: {
   name: spoke.name
   subscriptionId: spoke.subscriptionId
