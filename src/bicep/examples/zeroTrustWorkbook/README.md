@@ -14,14 +14,14 @@ Documentation can be found here: [Build and monitor Zero Trust (TIC 3.0) securit
 
 2. Enablement of [enhanced security features in Microfost Defender for Cloud](https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security)
 
-The following table lists the required parameters for a missionLZ deployment to enable a Azure Sentinel Workbook:
+The following table lists the required parameters for a Mission LZ deployment to enable an Azure Sentinel Workbook:
 
 Required Parameters | Description
 ------------------- | -----------
 _location_ | The region to deploy Azure Sentinel into
 _resourcePrefix_ | A 3-10 alphanumeric character string without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements
 _deploySentinel_ | A boolean expression indicating that Azure Sentinel is to be deployed with the MissionLZ deployment
-_deployASC_ | A boolean expression indicating that Azure Security Center (or Microsoft Defender for Cloud) is enabled in the MissionLZ deployment
+_deployDefender_ | A boolean expression indicating that Microsoft Defender for Cloud is enabled in the Mission LZ deployment
 
 An example deployment with required deployment parameters included is shown below:
 
@@ -34,7 +34,7 @@ An example deployment with required deployment parameters included is shown belo
 #   --template-file ./mlz.bicep \
 #   --parameters resourcePrefix=$resourcePrefix \
 #   deploySentinel=true \
-#   deployASC=true
+#   deployDefender=true
 ```
 
 ## Deploying Sentinel Zero Trust (TIC3.0) Workbook
@@ -90,6 +90,7 @@ To deploy the workbook through Azure CLI:
 ```bash
 az deployment group create \
 --name MlzWorkbookDeploy \
---resource-group $operationsResourceGroupName 
+--resource-group $operationsResourceGroupName \
 --template-uri "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Solutions/ZeroTrust(TIC3.0)/Package/mainTemplate.json" \
 --parameters workspace=$logAnalyticsWorkspaceName
+```
