@@ -13,6 +13,7 @@ Example | Description
 [Azure Sentinel](./sentinel) | A Terraform module that adds an Azure Sentinel solution to a Log Analytics Workspace. Sentinel can also be deployed via bicep and the base deployment of mlz.bicep by using the boolean param '-deploySentinel'.
 [Inherit Tags](./inheritTags) | Adds or replaces a specified tag and value from the parent resource group when any resource is created or updated.
 [appServicePlan](./appServicePlan) | Deploys an App Service Plan (AKA: Web Server Cluster) to support simple web accessible linux docker containers with optional dynamic auto scaling.
+[Zero Trust (TIC3.0) Workbook](./zeroTrustWorkbook) | Deploys an Azure Sentinel Zero Trust (TIC3.0) Workbook
 
 ## Shared Variable File Pattern (deploymentVariables.json)
 

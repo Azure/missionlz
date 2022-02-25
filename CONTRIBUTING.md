@@ -116,6 +116,19 @@ If an individual backlog item takes more than a week then it's time to ask for h
 
 Anyone can modify the backlog items, and when needed the product owner can assist by reducing scope, improving acceptance criteria, and splitting a single backlog item into multiple. Teammates can assist by providing advice, pair programming, or taking on part of the work.
 
+#### Nightly Builds
+
+[Nightly builds](https://github.com/Azure/missionlz#nightly-build-status) are run in Azure Pipelines to test deployments into Azure subscriptions. Successful nightly builds are a top priority for the team.
+
+How to remediate a broken build:
+
+1. One team member volunteers to investigate and fix, and communicates that to the rest of the team.
+1. Verify that the break is not an ephemeral issue. If running the build again fixes the issue then investigation can stop. If the same ephemeral issue appears often then [create a bug](https://github.com/Azure/missionlz/issues/new/choose) in the backlog and open a support request.
+1. If the issue requires a code change, [create a bug](https://github.com/Azure/missionlz/issues/new/choose) and put the bug at the top of the "In Progress" column of the [current project](https://github.com/Azure/missionlz/projects).
+1. Immediately fix the issue and submit a PR. Recruit help from the rest of the team if necessary.
+
+> NOTE: Broken nightly builds are the top priority for the team. One person will own the remediation, but the rest of the team should rally to assist until the build is fixed.
+
 ### Product Owner Process
 
 #### Product Backlog

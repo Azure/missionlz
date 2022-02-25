@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 @description('The name of the resource the private endpoint is being created for')
 param logAnalyticsWorkspaceName  string
 
@@ -22,6 +27,9 @@ param vnetResourceGroup string = resourceGroup().name
 @description('The subscription id of the subscription the virtual network exists in')
 param vnetSubscriptionId string = subscription().subscriptionId
 
+@description('The location of this resource')
+param location string = resourceGroup().location
+
 var privateLinkConnectionName  = take('plconn${logAnalyticsWorkspaceName}${uniqueData}', 80)
 var privateLinkEndpointName = take('pl${logAnalyticsWorkspaceName}${uniqueData}', 80)
 var privateLinkScopeName = take('plscope${logAnalyticsWorkspaceName}${uniqueData}', 80)
@@ -45,7 +53,7 @@ resource logAnalyticsWorkspacePrivateLinkScope  'microsoft.insights/privateLinkS
 
 resource subnetPrivateEndpoint  'Microsoft.Network/privateEndpoints@2020-07-01' = {
   name: privateLinkEndpointName
-  location: resourceGroup().location
+  location: location
   tags: tags
   properties: {
     subnet: {

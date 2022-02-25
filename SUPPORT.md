@@ -4,13 +4,13 @@
 
 We welcome feedback of all types.
 
-This project uses GitHub issues to track bugs and feature requests. Please search the existing issues before filing new issues to avoid duplicates.
+This project uses GitHub issues to track work. Please search the [existing issues](https://github.com/Azure/missionlz/issues) before filing new issues to avoid duplicates.
 
-For new issues, file your bug or feature request as a new [issue](https://github.com/Azure/missionlz/issues), [bug](https://github.com/Azure/missionlz/issues), or [feature request](https://github.com/Azure/missionlz/issues).
+For new issues, use the [issue templates](https://github.com/Azure/missionlz/issues/new/choose).
 
-For help and questions about using this project, please submit a [question](https://github.com/Azure/missionlz/issues).
+For help and questions about using this project, please submit a [question](https://github.com/Azure/missionlz/issues/new?assignees=&labels=question&template=question.md&title=).
 
-To report a security issue please see our [security guidance](./SECURITY.md).
+To report a security issue please see our [security guidance](/SECURITY.md).
 
 ## Microsoft Support Policy  
 
@@ -21,4 +21,5 @@ Any issues that are deemed out of scope by Microsoft support and/or require bugf
 Project maintainers and community aim to resolve issues in a timely fashion per community support policy of this repo. The project team works in Eastern U.S. time zone, Monday through Friday, except for U.S. Federal holidays.
 
 ## Community Support Policy
+
 Project maintainers will aim to respond within three business days for any new issues.

@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param location string = resourceGroup().location
 param tags object = {}
 
@@ -240,6 +245,7 @@ module azureMonitorPrivateLink './privateLink.bicep' = if ( contains(supportedCl
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     privateEndpointSubnetName: subnetName
     privateEndpointVnetName: virtualNetwork.outputs.name
+    location: location
     tags: tags
   }
   dependsOn: [

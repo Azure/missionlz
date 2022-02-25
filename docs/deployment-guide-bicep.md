@@ -87,15 +87,15 @@ Parameter name | Default Value | Description
 
 Under the [src/bicep/modules/policies](../src/bicep/modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
 
-#### Azure Security Center (Microsoft Defender for Cloud)
+#### Microsoft Defender for Cloud
 
-By default [Azure Security Center](https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction) offers a free set of monitoring capabilities that are enabled via an Azure policy when you first set up a subscription and view the Azure Security Center portal blade.
+By default [Microsoft Defender for Cloud](https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction) offers a free set of monitoring capabilities that are enabled via an Azure policy when you first set up a subscription and view the Microsoft Defender for Cloud portal blade.
 
-Azure Security Center offers a standard/defender sku which enables a greater depth of awareness including more recomendations and threat analytics. You can enable this higher depth level of security in MLZ by setting the parameter `deployASC` during deployment. In addition you can include the `emailSecurityContact` parameter to set a contact email for alerts.
+Microsoft Defender for Cloud offers a standard/defender sku which enables a greater depth of awareness including more recomendations and threat analytics. You can enable this higher depth level of security in MLZ by setting the parameter `deployDefender` during deployment. In addition you can include the `emailSecurityContact` parameter to set a contact email for alerts.
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
-`deployASC` | 'false' | When set to "true", enables Azure Security Center for the subscriptions used in the deployment. It defaults to "false".
+`deployDefender` | 'false' | When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".
 `emailSecurityContact` | '' | Email address of the contact, in the form of john@doe.com
 
 #### Azure Sentinel
@@ -396,10 +396,11 @@ az deployment sub show \
 
 ## Cleanup
 
-The Bicep/ARM deployment of Mission Landing Zone can be deleted with two steps:
+The Bicep/ARM deployment of Mission Landing Zone can be deleted with these steps:
 
 1. Delete all resource groups.
 1. Delete the diagnostic settings deployed at the subscription level.
+1. If Microsoft Defender for Cloud was deployed (parameter `deployDefender=true` was used) then remove subscription-level policy assignments and downgrade the Microsoft Defender for Cloud pricing tiers.
 
 > NOTE: If you deploy and delete Mission Landing Zone in the same subscription multiple times without deleting the subscription-level diagnostic settings, the sixth deployment will fail. Azure has a limit of five diagnostic settings per subscription. The error will be similar to this: `"The limit of 5 diagnostic settings was reached."`
 
@@ -414,6 +415,41 @@ az monitor diagnostic-settings subscription list --query value[] --output table
 # Delete a diagnostic setting
 az monitor diagnostic-settings subscription delete --name <diagnostic setting name>
 ```
+
+To delete the subscription-level policy assignments in the Azure portal:
+
+1. Navigate to the Policy page and select the Assignments tab in the left navigation bar.
+1. At the top, in the Scope box, choose the subscription(s) that contain the policy assignments you want to remove.
+1. In the table click the ellipsis menu ("...") and choose "Delete assignment".
+
+To delete the subscription-level policy assignments using the AZ CLI:
+
+```BASH
+# View the policy assignments for the current subscription
+az policy assignment list -o table --query "[].{Name:name, DisplayName:displayName, Scope:scope}"
+
+# Remove a policy assignment in the current subscription scope.
+az policy assignment delete --name "<name of policy assignment>"
+```
+
+To downgrade the Microsoft Defender for Cloud pricing level in the Azure portal:
+
+1. Navigate to the Microsoft Defender for Cloud page, then click the "Environment settings" tab in the left navigation panel.
+1. In the tree/grid select the subscription you want to manage.
+1. Click the large box near the top of the page that says "Enhanced security off".
+1. Click the save button.
+
+To downgrade the Microsoft Defender for Cloud pricing level using the AZ CLI:
+
+```BASH
+# List the pricing tiers
+az security pricing list -o table --query "value[].{Name:name, Tier:pricingTier}"
+
+# Change a pricing tier to the default free tier
+az security pricing create --name "<name of tier>" --tier Free
+```
+
+> NOTE: The Azure portal allows changing all pricing tiers with a single setting, but the AZ CLI requires each setting to be managed individually.
 
 ## Development Setup
 
