@@ -10,7 +10,7 @@ Documentation can be found here: [Build and monitor Zero Trust (TIC 3.0) securit
 
 ### Pre-requisites
 
-1. A MissionLZ deployment with Security Center and Sentinel enabled
+1. A MissionLZ deployment with Microsoft Defender for Cloud and Azure Sentinel enabled
 
 2. Enablement of [enhanced security features in Microfost Defender for Cloud](https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security)
 
@@ -51,38 +51,24 @@ _operationsSubscriptionId_ | The subscription that contains the Log Analytics Wo
 _operationsResourceGroupName_ | The resource group that contains the Log Analytics Workspace to link Azure Sentinel to
 _logAnalyticsWorkspaceName_ | The name of the Log Analytics Workspace to link Azure Sentinel to
 
-One way to retreive these values is with the Azure CLI:
+The `$operationsResourceGroupName` utilizes the `$resourcePrefix` in a typical Mission LZ deployment. The standard naming convention of the Operations resource group will be:
 
-az deployment sub show \
-  --subscription $deploymentSubscription \
-  --name "myMlzDeployment" \
-  --query properties.outputs
+`$resourcePrefix-rg-operations-mlz`
 
-...which should return an object containing the values you need:
-
-```plaintext
-{
-  "operationsSubscriptionId": {
-    "type": "String",
-    "value": "0987654-3210..."
-  },
-  ...
-  "operationsResourceGroupName": {
-    "type": "String",
-    "value": "mlz-dev-operations"
-  },
-  ...
-  "logAnalyticsWorkspaceName": {
-    "type": "String",
-    "value": "mlz-dev-laws"
-  },
-  ...
-```
-
-...and if you're on a BASH terminal, this command (take note to replace "myMlzDeployment" with your deployment name) will export the values as environment variables:
+This can be searchable through the Azure CLI as an example:
 
 ```bash
-export $(az deployment sub show --name "myMlzDeployment" --query "properties.outputs.{ args: [ join('', ['operationsResourceGroupName=', operationsResourceGroupName.value]), join('', ['logAnalyticsWorkspaceName=', logAnalyticsWorkspaceName.value])] }.args" --out tsv | xargs)
+az group list --query [].name --out tsv | grep "operations"
+```
+
+To retrieve the `$logAnalyticsWorkspaceName`, the following naming convention will be adhered to in a typical Mission LZ deployment:
+
+`$resourcePrefix-log-operations-mlz`
+
+This parameter is searchable with the Azure CLI:
+
+```bash
+az monitor log-analytics workspace list --query [].name --out tsv --resource-group $operationsResourceGroupName
 ```
 
 To deploy the workbook through Azure CLI:
