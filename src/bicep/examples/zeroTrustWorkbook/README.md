@@ -42,35 +42,10 @@ The Sentinel Zero Trust (TIC3.0) Workbook is maintained in the [Azure Sentinel G
 
 With the link provided, it is possible to use the "Deploy to Azure" button with some simple input parameters for Azure Government and Azure Commercial clouds.
 
-From the pre-existing deployment of MLZ shown above, the following parameters are required for deployment of the Azure Sentinel Workbook:
 
- Required Input Parameters | Description
----------------------------|------------
-_operationsSubscriptionId_ | The subscription that contains the Log Analytics Workspace and to deploy the Sentinel solution into
-_operationsResourceGroupName_ | The resource group that contains the Log Analytics Workspace to link Azure Sentinel to
-_logAnalyticsWorkspaceName_ | The name of the Log Analytics Workspace to link Azure Sentinel to
+### Command Line Workbook Deployment
 
-The `$operationsResourceGroupName` utilizes the `$resourcePrefix` in a typical Mission LZ deployment. In the example deployment above, the $resourcePrefix is `myPrefix`. The standard naming convention of the example Operations resource group will be:
-
-`myPrefix-rg-operations-mlz`
-
-This can be searchable through the Azure CLI:
-
-```bash
-az group list --query [].name --out tsv | grep "operations"
-```
-
-To retrieve the `$logAnalyticsWorkspaceName`, the following naming convention will be adhered to in a typical Mission LZ deployment with the example provided:
-
-`myPrefix-log-operations-mlz`
-
-This parameter is also searchable with the Azure CLI:
-
-```bash
-az monitor log-analytics workspace list --query [].name --out tsv --resource-group $operationsResourceGroupName
-```
-
-To deploy the workbook through Azure CLI (with the example parameters provided for the required variables):
+The workbook can be deployed using the Azure CLI `az deployment` command. The workbook template requires the `workspace` parameter, which is the name of the Log Analytics workspace connected to Sentinel in MLZ. The workspace name can be found in the MLZ operations resource group, which also contains the Log Analytics and Sentinel deployment. The same resource group is where the `az deployment` command is scoped. See the example below:
 
 ```bash
 az deployment group create \
