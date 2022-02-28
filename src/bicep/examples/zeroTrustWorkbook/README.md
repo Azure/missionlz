@@ -26,15 +26,14 @@ _deployDefender_ | A boolean expression indicating that Microsoft Defender for C
 An example deployment with required deployment parameters included is shown below:
 
 ```bash
-# after a Mission LZ deployment
-#
-# az deployment sub create \
-#   --subscription $deploymentSubscription \
-#   --name "myMlzDeployment" \
-#   --template-file ./mlz.bicep \
-#   --parameters resourcePrefix=$resourcePrefix \
-#   deploySentinel=true \
-#   deployDefender=true
+
+ az deployment sub create \
+   --subscription $deploymentSubscription \
+   --name "myMlzDeployment" \
+   --template-file ./mlz.bicep \
+   --parameters resourcePrefix=myPrefix \
+   deploySentinel=true \
+   deployDefender=true
 ```
 
 ## Deploying Sentinel Zero Trust (TIC3.0) Workbook
@@ -51,32 +50,32 @@ _operationsSubscriptionId_ | The subscription that contains the Log Analytics Wo
 _operationsResourceGroupName_ | The resource group that contains the Log Analytics Workspace to link Azure Sentinel to
 _logAnalyticsWorkspaceName_ | The name of the Log Analytics Workspace to link Azure Sentinel to
 
-The `$operationsResourceGroupName` utilizes the `$resourcePrefix` in a typical Mission LZ deployment. The standard naming convention of the Operations resource group will be:
+The `$operationsResourceGroupName` utilizes the `$resourcePrefix` in a typical Mission LZ deployment. In the example deployment above, the $resourcePrefix is `myPrefix`. The standard naming convention of the example Operations resource group will be:
 
-`$resourcePrefix-rg-operations-mlz`
+`myPrefix-rg-operations-mlz`
 
-This can be searchable through the Azure CLI as an example:
+This can be searchable through the Azure CLI:
 
 ```bash
 az group list --query [].name --out tsv | grep "operations"
 ```
 
-To retrieve the `$logAnalyticsWorkspaceName`, the following naming convention will be adhered to in a typical Mission LZ deployment:
+To retrieve the `$logAnalyticsWorkspaceName`, the following naming convention will be adhered to in a typical Mission LZ deployment with the example provided:
 
-`$resourcePrefix-log-operations-mlz`
+`myPrefix-log-operations-mlz`
 
-This parameter is searchable with the Azure CLI:
+This parameter is also searchable with the Azure CLI:
 
 ```bash
 az monitor log-analytics workspace list --query [].name --out tsv --resource-group $operationsResourceGroupName
 ```
 
-To deploy the workbook through Azure CLI:
+To deploy the workbook through Azure CLI (with the example parameters provided for the required variables):
 
 ```bash
 az deployment group create \
 --name MlzWorkbookDeploy \
---resource-group $operationsResourceGroupName \
+--resource-group myPrefix-rg-operations-mlz \
 --template-uri "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Solutions/ZeroTrust(TIC3.0)/Package/mainTemplate.json" \
---parameters workspace=$logAnalyticsWorkspaceName
+--parameters workspace=myPrefix-log-operations-mlz
 ```
