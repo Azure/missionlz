@@ -28,9 +28,9 @@ An example deployment with required deployment parameters included is shown belo
 ```bash
 
  az deployment sub create \
-   --subscription $deploymentSubscription \
    --name "myMlzDeployment" \
-   --template-file ./mlz.bicep \
+   --location eastus \
+   --template-file src/bicep/mlz.bicep \
    --parameters resourcePrefix=myPrefix \
    deploySentinel=true \
    deployDefender=true
