@@ -42,10 +42,10 @@ The Sentinel Zero Trust (TIC3.0) Workbook is maintained in the [Azure Sentinel G
 
 With the link provided, it is possible to use the "Deploy to Azure" button with some simple input parameters for Azure Government and Azure Commercial clouds.
 
-
 ### Command Line Workbook Deployment
 
-The workbook can be deployed using the Azure CLI `az deployment` command. The workbook template requires the `workspace` parameter, which is the name of the Log Analytics workspace connected to Sentinel in MLZ. The workspace name can be found in the MLZ operations resource group, which also contains the Log Analytics and Sentinel deployment. The same resource group is where the `az deployment` command is scoped. See the example below:
+The workbook can be deployed using the Azure CLI `az deployment` command. The workbook template requires the `workspace` parameter, which is the name of the Log Analytics workspace connected to Sentinel in MLZ. The workspace name can be found in the MLZ operations resource group, which also contains the Log Analytics and Sentinel deployment. The same resource group is where the `az deployment` command
+is deployed. See the example below:
 
 ```bash
 az deployment group create \
