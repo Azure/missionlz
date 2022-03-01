@@ -131,7 +131,7 @@ Presently, there are two firewall rules configured to ensure access to the Azure
 |100                      | AllowAzureCloud      | AzureCloud|*       |   *      |Any                                     |
 |110                      | AzureAuth            | msftauth  |  *     | Https:443| aadcdn.msftauth.net, aadcdn.msauth.net |
 
-To deploy Mission LZ using Azure Stack and an F5 BIG-IP Virtual Edition instead of Azure Firewall Premium, there is an alternate repository with instructions [found here](https://github.com/Azure/missionlz-edge).
+To deploy Mission LZ using Azure Stack Hub and an F5 BIG-IP Virtual Edition instead of Azure Firewall Premium, there is an alternate repository with instructions [found here](https://github.com/Azure/missionlz-edge).
 
 ## Getting Started
 
