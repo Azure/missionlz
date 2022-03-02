@@ -19,7 +19,7 @@ jobs:
     name: lint-codebase
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:          
           fetch-depth: 0 # Full git history is needed to get a proper list of changed files within `super-linter`
       - uses: github/super-linter/slim@v4 # use the slim linter since we don't use rust, dotenv, armttk, pwsh, or c#
