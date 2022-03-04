@@ -19,7 +19,7 @@ jobs:
       name: check tooling versions
       run: |
         terraform -version
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - shell: bash
       name: validate and lint terraform
       run: |
