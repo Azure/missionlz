@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "13300226497891805183"
+      "templateHash": "1626819828152441248"
     }
   },
   "parameters": {
@@ -4773,10 +4773,18 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "8101636901285639541"
+              "templateHash": "13407212031656841677"
             }
           },
           "parameters": {
+            "envName": {
+              "type": "string",
+              "defaultValue": "[environment().name]"
+            },
+            "bundle": {
+              "type": "array",
+              "defaultValue": "[if(equals(parameters('envName'), 'AzureCloud'), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), if(equals(parameters('envName'), 'AzureUSGovernment'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'), createArray()))]"
+            },
             "enableAutoProvisioning": {
               "type": "bool",
               "defaultValue": true,
@@ -4805,18 +4813,17 @@
             }
           },
           "variables": {
-            "bundle": "[if(not(equals(environment().name, 'AzureUSGovernment')), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'))]",
             "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]"
           },
           "resources": [
             {
               "copy": {
                 "name": "defenderPricing",
-                "count": "[length(variables('bundle'))]"
+                "count": "[length(parameters('bundle'))]"
               },
               "type": "Microsoft.Security/pricings",
               "apiVersion": "2018-06-01",
-              "name": "[variables('bundle')[copyIndex()]]",
+              "name": "[parameters('bundle')[copyIndex()]]",
               "properties": {
                 "pricingTier": "Standard"
               }
@@ -4861,7 +4868,13 @@
                 "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
               }
             }
-          ]
+          ],
+          "outputs": {
+            "bundle": {
+              "type": "array",
+              "value": "[parameters('bundle')]"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -4899,10 +4912,18 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "8101636901285639541"
+              "templateHash": "13407212031656841677"
             }
           },
           "parameters": {
+            "envName": {
+              "type": "string",
+              "defaultValue": "[environment().name]"
+            },
+            "bundle": {
+              "type": "array",
+              "defaultValue": "[if(equals(parameters('envName'), 'AzureCloud'), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), if(equals(parameters('envName'), 'AzureUSGovernment'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'), createArray()))]"
+            },
             "enableAutoProvisioning": {
               "type": "bool",
               "defaultValue": true,
@@ -4931,18 +4952,17 @@
             }
           },
           "variables": {
-            "bundle": "[if(not(equals(environment().name, 'AzureUSGovernment')), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'))]",
             "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]"
           },
           "resources": [
             {
               "copy": {
                 "name": "defenderPricing",
-                "count": "[length(variables('bundle'))]"
+                "count": "[length(parameters('bundle'))]"
               },
               "type": "Microsoft.Security/pricings",
               "apiVersion": "2018-06-01",
-              "name": "[variables('bundle')[copyIndex()]]",
+              "name": "[parameters('bundle')[copyIndex()]]",
               "properties": {
                 "pricingTier": "Standard"
               }
@@ -4987,7 +5007,13 @@
                 "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
               }
             }
-          ]
+          ],
+          "outputs": {
+            "bundle": {
+              "type": "array",
+              "value": "[parameters('bundle')]"
+            }
+          }
         }
       },
       "dependsOn": [
