@@ -1,0 +1,74 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+parameters:
+
+- name: tag
+  displayName: The Release Tag (e.g. "v2022.03.04")
+  type: string
+
+- name: packageVersion
+  displayName: The software bill of materials (SBOM) package version (e.g. "2022.03.04")
+  type: string
+
+- name: isDraft
+  displayName: Mark this a Draft Release?
+  type: boolean
+  default: true
+
+trigger: none
+
+steps:
+
+- bash: |
+    cd $(Build.SourcesDirectory)
+    cp -r .git $(Build.ArtifactStagingDirectory)
+    rm -rf .git
+  displayName: 'Move .git so it is not a part of the SBOM'
+
+- task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
+  displayName: 'Generate SBOM'
+  inputs:
+    BuildComponentPath: '$(Build.SourcesDirectory)'
+    BuildDropPath: '$(Build.SourcesDirectory)'
+    PackageName: 'sbom-package-name'
+    PackageVersion: '${{ parameters.packageVersion }}'
+    Verbosity: Verbose
+
+- bash: |
+    cd $(Build.SourcesDirectory)
+    cat _manifest/manifest.json | jq . > temp.json \
+      && mv temp.json _manifest/manifest.json \
+      && rm -f temp.json
+    cat _manifest/spdx_2.2/manifest.spdx.json | jq . > temp.json \
+      && mv temp.json _manifest/spdx_2.2/manifest.spdx.json \
+      && rm -f temp.json
+  displayName: 'Pretty Print SBOM'
+
+- bash: |
+    cd $(Build.SourcesDirectory)
+    cp -r _manifest $(Build.ArtifactStagingDirectory)
+  displayName: 'Add SBOM to artifact staging directory'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish SBOM as Build Artifact'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/_manifest'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+
+# https://github.com/Microsoft/azure-pipelines-tasks/tree/master/Tasks/GitHubReleaseV0
+- task: GitHubRelease@0
+  displayName: 'Generate GitHub Release'
+  inputs:
+    gitHubConnection: Azure
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'manual'
+    tag: '${{ parameters.tag }}'
+    title: 'MLZ - ${{ parameters.tag }}'
+    assets: '$(Build.ArtifactStagingDirectory)/**'
+    isDraft: ${{ parameters.isDraft }}
+    addChangeLog: true
+    compareWith: 'lastFullRelease'
