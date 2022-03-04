@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "13300226497891805183"
+      "templateHash": "18245260038507882468"
     }
   },
   "parameters": {
@@ -4773,10 +4773,14 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "8101636901285639541"
+              "templateHash": "2101623018607774889"
             }
           },
           "parameters": {
+            "bundle": {
+              "type": "array",
+              "defaultValue": "[if(equals(environment().name, 'AzureCloud'), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), if(equals(environment().name, 'AzureUSGovernment'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'), createArray()))]"
+            },
             "enableAutoProvisioning": {
               "type": "bool",
               "defaultValue": true,
@@ -4805,18 +4809,17 @@
             }
           },
           "variables": {
-            "bundle": "[if(not(equals(environment().name, 'AzureUSGovernment')), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'))]",
             "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]"
           },
           "resources": [
             {
               "copy": {
                 "name": "defenderPricing",
-                "count": "[length(variables('bundle'))]"
+                "count": "[length(parameters('bundle'))]"
               },
               "type": "Microsoft.Security/pricings",
               "apiVersion": "2018-06-01",
-              "name": "[variables('bundle')[copyIndex()]]",
+              "name": "[parameters('bundle')[copyIndex()]]",
               "properties": {
                 "pricingTier": "Standard"
               }
@@ -4899,10 +4902,14 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "8101636901285639541"
+              "templateHash": "2101623018607774889"
             }
           },
           "parameters": {
+            "bundle": {
+              "type": "array",
+              "defaultValue": "[if(equals(environment().name, 'AzureCloud'), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), if(equals(environment().name, 'AzureUSGovernment'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'), createArray()))]"
+            },
             "enableAutoProvisioning": {
               "type": "bool",
               "defaultValue": true,
@@ -4931,18 +4938,17 @@
             }
           },
           "variables": {
-            "bundle": "[if(not(equals(environment().name, 'AzureUSGovernment')), createArray('KeyVaults', 'SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'SqlServerVirtualMachines', 'AppServices', 'Dns', 'Arm'), createArray('SqlServers', 'VirtualMachines', 'StorageAccounts', 'ContainerRegistry', 'KubernetesService', 'Dns', 'Arm'))]",
             "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]"
           },
           "resources": [
             {
               "copy": {
                 "name": "defenderPricing",
-                "count": "[length(variables('bundle'))]"
+                "count": "[length(parameters('bundle'))]"
               },
               "type": "Microsoft.Security/pricings",
               "apiVersion": "2018-06-01",
-              "name": "[variables('bundle')[copyIndex()]]",
+              "name": "[parameters('bundle')[copyIndex()]]",
               "properties": {
                 "pricingTier": "Standard"
               }
