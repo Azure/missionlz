@@ -5,9 +5,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-param envName string = environment().name
-
-param bundle array = (envName == 'AzureCloud') ? [  
+param bundle array = (environment().name == 'AzureCloud') ? [  
   'KeyVaults'
   'SqlServers'
   'VirtualMachines'
@@ -18,7 +16,7 @@ param bundle array = (envName == 'AzureCloud') ? [
   'AppServices'
   'Dns'
   'Arm'
-  ] : (envName == 'AzureUSGovernment') ? [
+  ] : (environment().name == 'AzureUSGovernment') ? [
     'SqlServers'
     'VirtualMachines'
     'StorageAccounts'
@@ -27,9 +25,6 @@ param bundle array = (envName == 'AzureCloud') ? [
     'Dns'
     'Arm'
   ] : []
-
-output bundle array = bundle
-
 
 @description('Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off')
 param enableAutoProvisioning bool = true
