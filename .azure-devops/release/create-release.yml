@@ -61,7 +61,7 @@ steps:
 - task: GitHubRelease@0
   displayName: 'Generate GitHub Release'
   inputs:
-    gitHubConnection: Azure
+    gitHubConnection: 'missionlz-release'
     repositoryName: '$(Build.Repository.Name)'
     action: 'create'
     target: '$(Build.SourceVersion)'
