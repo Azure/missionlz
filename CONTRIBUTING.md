@@ -189,7 +189,7 @@ To generate a release, coordinate with the team to run these steps:
 1. If you need to, now is the time to update the release tag, but it should already follow the naming convention: "v\<year\>.\<month\>.\<revision\>"
 1. The release notes will be auto-populated with its included changes, but add a summary description at the top of the release notes that describe the changes in an easy-to-understand way.
 1. Edit the release notes for consistency, e.g., normalizing verb tense and capitalization.
-1. You should see four `mainfest.*` files that indicate the SBOM was successfully generated.
+1. You should see four `manifest.*` files that indicate the SBOM was successfully generated.
 1. Click the "Save draft" button to generate a draft release, or click "Publish release" if you are ready to publish.
 
 **Thank You!** - Your contributions to open source, large or small, make projects like this possible. Thank you for taking the time to contribute.
