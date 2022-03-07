@@ -173,13 +173,23 @@ The product owner defines the releases in the form of GitHub projects. One relea
 
 #### Creating a Release
 
-1. On the [Releases](https://github.com/Azure/missionlz/releases) page, click the button titled "Draft a new release".
-1. Click "Choose a tag", and type in a new tag name using the naming convention of "v\<year\>.\<month\>.\<revision\>". For example, `v2021.09.0`. (If this is an interim release, like a bug fix release, use the previous build label and add a revision number, like `v2021.09.1`.)
-1. Click the "+ Create new tag" button.
-1. Provide a title using this naming convention: "MLZ - \<build tag\>". For example, "MLZ - v2021.09.0".
-1. Click the button to auto-generate release notes, which will populate the description box with the titles of all pull requests merged to main.
+Releases are generated from an Azure DevOps pipeline the Mission LZ development team manages so that software bill of materials (SBOM) artifacts can be generated.
+
+To generate a release, coordinate with the team to run these steps:
+
+1. Navigate to the [mlz-release/create-release](https://ag-ascii.visualstudio.com/Mission%20Landing%20Zone%20-%20Pipeline/_build?definitionId=218) Azure DevOps pipeline.
+1. Click "Run Pipeline"
+1. Specify a value for the release tag using the naming convention of "v\<year\>.\<month\>.\<revision\>". For example, `v2021.09.0`. (If this is an interim release, like a bug fix release, use the previous build label and add a revision number, like `v2021.09.1`.)
+1. Specify a value for the SBOM package version using the the naming convention of "\<year\>.\<month\>.\<revision\>". For example, `2021.09.0`.
+1. We recommend you publish as a draft so that you can review the release and its artifacts, but this is overrideable by unchecking the "Mark as a Draft Release?" checkbox.
+1. Click the "Run" button. The pipeline will run.
+1. When it is complete, a new draft release will be found at [https://github.com/Azure/missionlz/releases](https://github.com/Azure/missionlz/releases)
+1. Click the pencil icon to edit the release
+1. If you need to, update the title, but it should already follow the naming convention: "MLZ - \<build tag\>". For example, "MLZ - v2021.09.0".
+1. If you need to, now is the time to update the release tag, but it should already follow the naming convention: "v\<year\>.\<month\>.\<revision\>"
+1. The release notes will be auto-populated with its included changes, but add a summary description at the top of the release notes that describe the changes in an easy-to-understand way.
 1. Edit the release notes for consistency, e.g., normalizing verb tense and capitalization.
-1. Add a summary description at the top of the release notes.
+1. You should see four `mainfest.*` files that indicate the SBOM was successfully generated.
 1. Click the "Save draft" button to generate a draft release, or click "Publish release" if you are ready to publish.
 
 **Thank You!** - Your contributions to open source, large or small, make projects like this possible. Thank you for taking the time to contribute.
