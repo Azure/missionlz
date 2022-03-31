@@ -718,7 +718,7 @@ var calculatedTags = union(tags, defaultTags)
 
 // RESOURCE GROUPS
 
-module hubResourceGroup './modules/resourceGroup.bicep' = {
+module hubResourceGroup './modules/resource-group.bicep' = {
   name: 'deploy-rg-hub-${deploymentNameSuffix}'
   scope: subscription(hubSubscriptionId)
   params: {
@@ -728,7 +728,7 @@ module hubResourceGroup './modules/resourceGroup.bicep' = {
   }
 }
 
-module spokeResourceGroups './modules/resourceGroup.bicep' = [for spoke in spokes: {
+module spokeResourceGroups './modules/resource-group.bicep' = [for spoke in spokes: {
   name: 'deploy-rg-${spoke.name}-${deploymentNameSuffix}'
   scope: subscription(spoke.subscriptionId)
   params: {
@@ -740,7 +740,7 @@ module spokeResourceGroups './modules/resourceGroup.bicep' = [for spoke in spoke
 
 // LOG ANALYTICS WORKSPACE
 
-module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
+module logAnalyticsWorkspace './modules/log-analytics-workspace.bicep' = {
   name: 'deploy-laws-${deploymentNameSuffix}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
@@ -759,7 +759,7 @@ module logAnalyticsWorkspace './modules/logAnalyticsWorkspace.bicep' = {
 
 // HUB AND SPOKE NETWORKS
 
-module hubNetwork './modules/hubNetwork.bicep' = {
+module hubNetwork './core/hub-network.bicep' = {
   name: 'deploy-vnet-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
@@ -816,7 +816,7 @@ module hubNetwork './modules/hubNetwork.bicep' = {
   }
 }
 
-module spokeNetworks './modules/spokeNetwork.bicep' = [for spoke in spokes: {
+module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
   name: 'deploy-vnet-${spoke.name}-${deploymentNameSuffix}'
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
@@ -848,7 +848,7 @@ module spokeNetworks './modules/spokeNetwork.bicep' = [for spoke in spokes: {
 
 // VIRTUAL NETWORK PEERINGS
 
-module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
+module hubVirtualNetworkPeerings './core/hub-network-peerings.bicep' = {
   name: 'deploy-vnet-peerings-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
@@ -861,7 +861,7 @@ module hubVirtualNetworkPeerings './modules/hubNetworkPeerings.bicep' = {
   }
 }
 
-module spokeVirtualNetworkPeerings './modules/spokeNetworkPeering.bicep' = [for (spoke, i) in spokes: {
+module spokeVirtualNetworkPeerings './core/spoke-network-peering.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-vnet-peerings-${spoke.name}-${deploymentNameSuffix}'
   scope: subscription(spoke.subscriptionId)
   params: {
@@ -875,7 +875,7 @@ module spokeVirtualNetworkPeerings './modules/spokeNetworkPeering.bicep' = [for 
 
 // POLICY ASSIGNMENTS
 
-module hubPolicyAssignment './modules/policyAssignment.bicep' = if (deployPolicy) {
+module hubPolicyAssignment './modules/policy-assignment.bicep' = if (deployPolicy) {
   name: 'assign-policy-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
@@ -887,7 +887,7 @@ module hubPolicyAssignment './modules/policyAssignment.bicep' = if (deployPolicy
   }
 }
 
-module spokePolicyAssignments './modules/policyAssignment.bicep' = [for spoke in spokes: if (deployPolicy) {
+module spokePolicyAssignments './modules/policy-assignment.bicep' = [for spoke in spokes: if (deployPolicy) {
   name: 'assign-policy-${spoke.name}-${deploymentNameSuffix}'
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
@@ -901,7 +901,7 @@ module spokePolicyAssignments './modules/policyAssignment.bicep' = [for spoke in
 
 // CENTRAL LOGGING
 
-module hubSubscriptionActivityLogging './modules/centralLogging.bicep' = {
+module hubSubscriptionActivityLogging './modules/central-logging.bicep' = {
   name: 'activity-logs-hub-${deploymentNameSuffix}'
   scope: subscription(hubSubscriptionId)
   params: {
@@ -913,7 +913,7 @@ module hubSubscriptionActivityLogging './modules/centralLogging.bicep' = {
   ]
 }
 
-module spokeSubscriptionActivityLogging './modules/centralLogging.bicep' = [for spoke in spokes: if (spoke.subscriptionId != hubSubscriptionId) {
+module spokeSubscriptionActivityLogging './modules/central-logging.bicep' = [for spoke in spokes: if (spoke.subscriptionId != hubSubscriptionId) {
   name: 'activity-logs-${spoke.name}-${deploymentNameSuffix}'
   scope: subscription(spoke.subscriptionId)
   params: {
@@ -925,7 +925,7 @@ module spokeSubscriptionActivityLogging './modules/centralLogging.bicep' = [for 
   ]
 }]
 
-module logAnalyticsDiagnosticLogging './modules/logAnalyticsDiagnosticLogging.bicep' = {
+module logAnalyticsDiagnosticLogging './modules/log-analytics-diagnostic-logging.bicep' = {
   name: 'deploy-diagnostic-logging-${deploymentNameSuffix}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
@@ -960,7 +960,7 @@ module spokeDefender './modules/defender.bicep' = [for spoke in spokes: if ((dep
 
 // REMOTE ACCESS
 
-module remoteAccess './modules/remoteAccess.bicep' = if (deployRemoteAccess) {
+module remoteAccess './core/remote-access.bicep' = if (deployRemoteAccess) {
   name: 'deploy-remote-access-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
 
