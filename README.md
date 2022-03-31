@@ -35,6 +35,9 @@ Our intent is to enable IT Admins to use this software to:
 
 A **landing zone** is networking infrastructure configured to provide a secure environment for hosting workloads.
 
+[![Landing Zones Azure Academy Video](https://img.youtube.com/vi/9BKgz9Rl1eo/0.jpg)](https://youtu.be/9BKgz9Rl1eo "Don't let this happen to you 😮 Build A Landing Zone 👍 - Click to Watch!")
+
+
 ## Quickstart
 
 You can deploy Mission Landing Zone from the Azure Portal or by executing an Azure CLI command.
