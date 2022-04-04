@@ -54,5 +54,5 @@ steps:
            --subscription ${{ parameters.WorkloadSubId }} \
            --location ${{ parameters.Location }} \
            --name ${{ parameters.WorkloadName }} \
-           --template-file $(Build.SourcesDirectory)/src/bicep/examples/newWorkload/newWorkload.bicep \
+           --template-file $(Build.SourcesDirectory)/src/bicep/examples/tier3/tier3.bicep \
            --parameters resourcePrefix=$datetime

@@ -99,7 +99,7 @@ MLZ allows for deploying one or many workloads that are peered to the hub networ
 
 A separate Terraform template is provided for deploying an empty workload `src/terraform/tier3`. You can use this template as a starting point to create and customize specific workload deployments.
 
-The following parameters affect newWorkload networking. To override the defaults edit the variables file at [`src/terraform/tier3/variables.tf`](../src/terraform/tier3/variables.tf).
+The following parameters affect tier3 networking. To override the defaults edit the variables file at [`src/terraform/tier3/variables.tf`](../src/terraform/tier3/variables.tf).
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------

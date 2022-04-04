@@ -8,15 +8,13 @@ You [must first deploy MissionLZ](../README.md#Deployment), then you can deploy 
 
 Example | Description
 ------- | -----------
-[appServicePlan](./appServicePlan) | Deploys an App Service Plan (AKA: Web Server Cluster) to support simple web accessible linux docker containers with optional dynamic auto scaling.
-[Automation Account](./automationAccount) | Deploys an Azure Automation account that can be used to execute runbooks.
-[Container Registry](./containerRegistry/) | Deploys an Azure Container Registry for holding and deploying docker containers.
-[Inherit Tags](./inheritTags) | Adds or replaces a specified tag and value from the parent resource group when any resource is created or updated.
-[KeyVault](./keyVault/) | Deploys a premium Azure Key Vault with RBAC enabled to support secret, key, and certificate management.
-[New Workload](./newWorkload) | Adds a new Spoke Network and peers it to the Hub Network routing all traffic to the Azure Firewall.
-[Remote Access](./remoteAccess) | Adds a Bastion Host and a virtual machine to serve as a jumpbox into the network.
+[appServicePlan](./app-service-plan) | Deploys an App Service Plan (AKA: Web Server Cluster) to support simple web accessible linux docker containers with optional dynamic auto scaling.
+[Automation Account](./automation-account) | Deploys an Azure Automation account that can be used to execute runbooks.
+[Container Registry](./container-registry/) | Deploys an Azure Container Registry for holding and deploying docker containers.
+[Inherit Tags](./inherit-tags) | Adds or replaces a specified tag and value from the parent resource group when any resource is created or updated.
+[KeyVault](./key-vault/) | Deploys a premium Azure Key Vault with RBAC enabled to support secret, key, and certificate management.
 [Azure Sentinel](./sentinel) | A Terraform module that adds an Azure Sentinel solution to a Log Analytics Workspace. Sentinel can also be deployed via bicep and the base deployment of mlz.bicep by using the boolean param '-deploySentinel'.
-[Zero Trust (TIC3.0) Workbook](./zeroTrustWorkbook) | Deploys an Azure Sentinel Zero Trust (TIC3.0) Workbook
+[Zero Trust (TIC3.0) Workbook](./zero-trust-workbook) | Deploys an Azure Sentinel Zero Trust (TIC3.0) Workbook
 
 ## Shared Variable File Pattern (deploymentVariables.json)
 
