@@ -221,9 +221,9 @@ params: {
 
 MLZ allows for deploying one or many workloads that are peered to the hub network. Each workload can be in its own subscription or multiple workloads may be combined into a single subscription.
 
-A separate Bicep template is provided for deploying an empty workload. It deploys a virtual network, a route table, a network security group, a storage account (for logs), and a network peering to the hub network. The template is at [src/bicep/examples/newWorkload](../src/bicep/examples/newWorkload). You can use this template as a starting point to create and customize specific workload deployments.
+A separate Bicep template is provided for deploying an empty workload. It deploys a virtual network, a route table, a network security group, a storage account (for logs), and a network peering to the hub network. The template is at [src/bicep/add-ons/tier3](../src/bicep/add-ons/tier3). You can use this template as a starting point to create and customize specific workload deployments.
 
-The `newWorkload` template contains defaults for IP address ranges, but additional workloads will require planning for additional ranges. The following parameters affect `newWorkload` networking:
+The `tier3` template contains defaults for IP address ranges, but additional workloads will require planning for additional ranges. The following parameters affect `tier3` networking:
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
