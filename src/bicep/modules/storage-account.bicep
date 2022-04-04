@@ -16,6 +16,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: skuName
   }
   tags: tags
+  properties: {
+    minimumTlsVersion: 'TLS1_2'
+  }
 }
-
 output id string = storageAccount.id
