@@ -24,5 +24,6 @@ resource "azurerm_storage_account" "loganalytics" {
   account_tier              = "Standard"
   account_replication_type  = "LRS"
   enable_https_traffic_only = true
+  min_tls_version           = "TLS1_2"
   tags                      = var.tags
 }
