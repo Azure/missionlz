@@ -11,7 +11,7 @@ param tags object = {}
 resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: storageAccountName
   location: location
-  kind: 'Storage'
+  kind: 'StorageV2'
   sku: {
     name: skuName
   }
