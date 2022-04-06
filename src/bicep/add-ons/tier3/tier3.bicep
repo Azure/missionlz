@@ -188,7 +188,7 @@ module workloadSubscriptionActivityLogging '../../modules/central-logging.bicep'
   dependsOn: [
     spokeNetwork
   ]
-}]
+}
 
 output resourceGroupName string = resourceGroup.outputs.name
 output location string = resourceGroup.outputs.location
