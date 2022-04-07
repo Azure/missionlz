@@ -11,11 +11,13 @@ param tags object = {}
 resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: storageAccountName
   location: location
-  kind: 'Storage'
+  kind: 'StorageV2'
   sku: {
     name: skuName
   }
   tags: tags
+  properties: {
+    minimumTlsVersion: 'TLS1_2'
+  }
 }
-
 output id string = storageAccount.id
