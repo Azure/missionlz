@@ -46,11 +46,6 @@ variable "nsg_name" {
   type        = string
 }
 
-variable "use_central_logging" {
-  description = "Variable to indicate whether central logging should be turned on or not"
-  type        = bool
-}
-
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
