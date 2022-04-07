@@ -113,12 +113,12 @@ locals {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "tier3-central" {
-  count              = (var.tier3_subid == var.hub_subid) ? 1 : 0
+  count              = (var.tier3_subid != var.hub_subid) ? 1 : 0
   provider           = azurerm.tier3
   name               = "tier3-central-diagnostics"
   target_resource_id = "/subscriptions/${var.tier3_subid}"
 
-  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.laws.workspace_id
+  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.laws.id
 
   dynamic "log" {
     for_each = local.log_categories
