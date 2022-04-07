@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "18245260038507882468"
+      "templateHash": "8556276802199947364"
     }
   },
   "parameters": {
@@ -1477,7 +1477,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "5240539463340820565"
+              "templateHash": "5175281369698486584"
             }
           },
           "parameters": {
@@ -1700,7 +1700,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "3206702832865512735"
+                      "templateHash": "3591431991821729793"
                     }
                   },
                   "parameters": {
@@ -1724,11 +1724,14 @@
                       "apiVersion": "2019-06-01",
                       "name": "[parameters('storageAccountName')]",
                       "location": "[parameters('location')]",
-                      "kind": "Storage",
+                      "kind": "StorageV2",
                       "sku": {
                         "name": "[parameters('skuName')]"
                       },
-                      "tags": "[parameters('tags')]"
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "minimumTlsVersion": "TLS1_2"
+                      }
                     }
                   ],
                   "outputs": {
@@ -3151,7 +3154,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "11486064324027397618"
+              "templateHash": "329959409495701935"
             }
           },
           "parameters": {
@@ -3260,7 +3263,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "3206702832865512735"
+                      "templateHash": "3591431991821729793"
                     }
                   },
                   "parameters": {
@@ -3284,11 +3287,14 @@
                       "apiVersion": "2019-06-01",
                       "name": "[parameters('storageAccountName')]",
                       "location": "[parameters('location')]",
-                      "kind": "Storage",
+                      "kind": "StorageV2",
                       "sku": {
                         "name": "[parameters('skuName')]"
                       },
-                      "tags": "[parameters('tags')]"
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "minimumTlsVersion": "TLS1_2"
+                      }
                     }
                   ],
                   "outputs": {
