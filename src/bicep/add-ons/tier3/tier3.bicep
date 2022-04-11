@@ -40,6 +40,7 @@ param hubResourceGroupName string = mlzDeploymentVariables.hub.Value.resourceGro
 param hubVirtualNetworkName string = mlzDeploymentVariables.hub.Value.virtualNetworkName
 param hubVirtualNetworkResourceId string = mlzDeploymentVariables.hub.Value.virtualNetworkResourceId
 param logAnalyticsWorkspaceResourceId string = mlzDeploymentVariables.logAnalyticsWorkspaceResourceId.Value
+param logAnalyticsWorkspaceName string = mlzDeploymentVariables.logAnalyticsWorkspaceName.Value
 param firewallPrivateIPAddress string = mlzDeploymentVariables.firewallPrivateIPAddress.Value
 
 @description('The address prefix for the network spoke vnet.')
@@ -175,6 +176,18 @@ module hubToWorkloadVirtualNetworkPeering './modules/hub-network-peering.bicep' 
     spokeVirtualNetworkName: spokeNetwork.outputs.virtualNetworkName
     spokeVirtualNetworkResourceId: spokeNetwork.outputs.virtualNetworkResourceId
   }
+}
+
+module workloadSubscriptionActivityLogging '../../modules/central-logging.bicep' = if (workloadSubscriptionId != hubSubscriptionId) {
+  name: 'activity-logs-${spokeNetwork.name}-${resourceSuffix}'
+  scope: subscription(workloadSubscriptionId)
+  params: {
+    diagnosticSettingName: 'log-${spokeNetwork.name}-sub-activity-to-${logAnalyticsWorkspaceName}'
+    logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
+  }
+  dependsOn: [
+    spokeNetwork
+  ]
 }
 
 output resourceGroupName string = resourceGroup.outputs.name

@@ -213,6 +213,98 @@ resource "azurerm_log_analytics_solution" "laws_sentinel" {
   tags = merge(var.tags, { "resourcePrefix" = "${var.resourcePrefix}-${random_id.random.hex}" })
 }
 
+// Central Logging
+locals {
+  log_categories = ["Administrative", "Security", "ServiceHealth", "Alert", "Recommendation", "Policy", "Autoscale", "ResourceHealth"]
+}
+
+resource "azurerm_monitor_diagnostic_setting" "hub-central" {
+  provider           = azurerm.hub
+  name               = "hub-central-diagnostics"
+  target_resource_id = "/subscriptions/${var.hub_subid}"
+
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.laws.id
+
+  dynamic "log" {
+    for_each = local.log_categories
+    content {
+      category = log.value
+      enabled  = true
+
+      retention_policy {
+        days    = 0
+        enabled = false
+      }
+    }
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "tier0-central" {
+  count              = (var.tier0_subid != "") ? ((var.tier0_subid != var.hub_subid) ? 1 : 0) : 0
+  provider           = azurerm.tier0
+  name               = "tier0-central-diagnostics"
+  target_resource_id = "/subscriptions/${var.tier0_subid}"
+
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.laws.id
+
+  dynamic "log" {
+    for_each = local.log_categories
+    content {
+      category = log.value
+      enabled  = true
+
+      retention_policy {
+        days    = 0
+        enabled = false
+      }
+    }
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "tier1-central" {
+  count              = (var.tier1_subid != "") ? ((var.tier1_subid != var.hub_subid) ? 1 : 0) : 0
+  provider           = azurerm.tier1
+  name               = "tier1-central-diagnostics"
+  target_resource_id = "/subscriptions/${var.tier1_subid}"
+
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.laws.id
+
+  dynamic "log" {
+    for_each = local.log_categories
+    content {
+      category = log.value
+      enabled  = true
+
+      retention_policy {
+        days    = 0
+        enabled = false
+      }
+    }
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "tier2-central" {
+  count              = (var.tier2_subid != "") ? ((var.tier2_subid != var.hub_subid) ? 1 : 0) : 0
+  provider           = azurerm.tier2
+  name               = "tier2-central-diagnostics"
+  target_resource_id = "/subscriptions/${var.tier2_subid}"
+
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.laws.id
+
+  dynamic "log" {
+    for_each = local.log_categories
+    content {
+      category = log.value
+      enabled  = true
+
+      retention_policy {
+        days    = 0
+        enabled = false
+      }
+    }
+  }
+}
+
 ###############################
 ## STAGE 2: Networking      ###
 ###############################
