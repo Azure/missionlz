@@ -40,7 +40,7 @@ steps:
         az deployment sub show \
           --name ${{ parameters.DeploymentName }} \
           --query properties.outputs \
-          > $(Build.SourcesDirectory)/src/bicep/examples/deploymentVariables.json
+          > $(Build.SourcesDirectory)/src/bicep/add-ons/deploymentVariables.json
 
   - task: AzureCLI@2
     displayName: "T3 Bicep Deployment"
