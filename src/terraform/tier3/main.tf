@@ -113,6 +113,7 @@ locals {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "tier3-central" {
+  count              = var.tier3_subid != var.hub_subid ? 1 : 0
   provider           = azurerm.tier3
   name               = "tier3-central-diagnostics"
   target_resource_id = "/subscriptions/${var.tier3_subid}"
