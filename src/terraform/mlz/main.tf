@@ -240,7 +240,7 @@ resource "azurerm_monitor_diagnostic_setting" "hub-central" {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "tier0-central" {
-  count              = (var.tier0_subid != "") ? ((var.tier0_subid != var.hub_subid) ? 1 : 0) : 0
+  count              = (var.tier0_subid != "") ? (var.tier0_subid != var.hub_subid ? 1 : 0) : 0
   provider           = azurerm.tier0
   name               = "tier0-central-diagnostics"
   target_resource_id = "/subscriptions/${var.tier0_subid}"
@@ -262,7 +262,7 @@ resource "azurerm_monitor_diagnostic_setting" "tier0-central" {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "tier1-central" {
-  count              = (var.tier1_subid != "") ? ((var.tier1_subid != var.hub_subid) ? 1 : 0) : 0
+  count              = (var.tier1_subid != "") ? (var.tier1_subid != var.hub_subid ? 1 : 0) : 0
   provider           = azurerm.tier1
   name               = "tier1-central-diagnostics"
   target_resource_id = "/subscriptions/${var.tier1_subid}"
@@ -284,7 +284,7 @@ resource "azurerm_monitor_diagnostic_setting" "tier1-central" {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "tier2-central" {
-  count              = (var.tier2_subid != "") ? ((var.tier2_subid != var.hub_subid) ? 1 : 0) : 0
+  count              = (var.tier2_subid != "") ? (var.tier2_subid != var.hub_subid ? 1 : 0) : 0
   provider           = azurerm.tier2
   name               = "tier2-central-diagnostics"
   target_resource_id = "/subscriptions/${var.tier2_subid}"
