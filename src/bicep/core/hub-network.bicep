@@ -13,7 +13,7 @@ param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceResourceId string
 
 param virtualNetworkName string
-param virtualNetworkAddressPrefix string
+param virtualNetworkAddressPrefixes array
 param virtualNetworkDiagnosticsLogs array
 param virtualNetworkDiagnosticsMetrics array
 
@@ -110,7 +110,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     location: location
     tags: tags
 
-    addressPrefix: virtualNetworkAddressPrefix
+    addressPrefixes: virtualNetworkAddressPrefixes
 
     subnets: [
       {

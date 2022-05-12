@@ -53,7 +53,9 @@ param tags object = {}
 // NETWORK ADDRESS SPACE PARAMETERS
 
 @description('The CIDR Virtual Network Address Prefix for the Hub Virtual Network.')
-param hubVirtualNetworkAddressPrefix string = '10.0.100.0/24'
+param hubVirtualNetworkAddressPrefixes array = [
+  '10.0.100.0/24'
+]
 
 @description('The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.')
 param hubSubnetAddressPrefix string = '10.0.100.128/27'
@@ -65,19 +67,25 @@ param firewallClientSubnetAddressPrefix string = '10.0.100.0/26'
 param firewallManagementSubnetAddressPrefix string = '10.0.100.64/26'
 
 @description('The CIDR Virtual Network Address Prefix for the Identity Virtual Network.')
-param identityVirtualNetworkAddressPrefix string = '10.0.110.0/26'
+param identityVirtualNetworkAddressPrefixes array = [
+  '10.0.110.0/26'
+]
 
 @description('The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.')
 param identitySubnetAddressPrefix string = '10.0.110.0/27'
 
 @description('The CIDR Virtual Network Address Prefix for the Operations Virtual Network.')
-param operationsVirtualNetworkAddressPrefix string = '10.0.115.0/26'
+param operationsVirtualNetworkAddressPrefixes array = [
+  '10.0.115.0/26'
+]
 
 @description('The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.')
 param operationsSubnetAddressPrefix string = '10.0.115.0/27'
 
 @description('The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.')
-param sharedServicesVirtualNetworkAddressPrefix string = '10.0.120.0/26'
+param sharedServicesVirtualNetworkAddressPrefixes array = [
+  '10.0.120.0/26'
+]
 
 @description('The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.')
 param sharedServicesSubnetAddressPrefix string = '10.0.120.0/27'
@@ -218,7 +226,7 @@ param identityNetworkSecurityGroupRules array = [
     properties: {
       access: 'Allow'
       description: 'Allow traffic from spokes'
-      destinationAddressPrefix: identityVirtualNetworkAddressPrefix
+      destinationAddressPrefix: identityVirtualNetworkAddressPrefixes
       destinationPortRanges: [
         '22'
         '80'
@@ -228,10 +236,7 @@ param identityNetworkSecurityGroupRules array = [
       direction: 'Inbound'
       priority: 200
       protocol: '*'
-      sourceAddressPrefixes: [
-        operationsVirtualNetworkAddressPrefix
-        sharedServicesVirtualNetworkAddressPrefix
-      ]
+      sourceAddressPrefixes: union(operationsVirtualNetworkAddressPrefixes,sharedServicesVirtualNetworkAddressPrefixes)
       sourcePortRange: '*'
     }
     type: 'string'
@@ -275,7 +280,7 @@ param operationsNetworkSecurityGroupRules array = [
   properties: {
     access: 'Allow'
     description: 'Allow traffic from spokes'
-    destinationAddressPrefix: operationsVirtualNetworkAddressPrefix
+    destinationAddressPrefix: operationsVirtualNetworkAddressPrefixes
     destinationPortRanges: [
       '22'
       '80'
@@ -285,10 +290,7 @@ param operationsNetworkSecurityGroupRules array = [
     direction: 'Inbound'
     priority: 200
     protocol: '*'
-    sourceAddressPrefixes: [
-      identityVirtualNetworkAddressPrefix
-      sharedServicesVirtualNetworkAddressPrefix
-    ]
+    sourceAddressPrefixes: union(identityVirtualNetworkAddressPrefixes,sharedServicesVirtualNetworkAddressPrefixes) 
     sourcePortRange: '*'
   }
   type: 'string'
@@ -332,7 +334,7 @@ param sharedServicesNetworkSecurityGroupRules array = [
     properties: {
       access: 'Allow'
       description: 'Allow traffic from spokes'
-      destinationAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
+      destinationAddressPrefix: sharedServicesVirtualNetworkAddressPrefixes
       destinationPortRanges: [
         '22'
         '80'
@@ -342,10 +344,7 @@ param sharedServicesNetworkSecurityGroupRules array = [
       direction: 'Inbound'
       priority: 200
       protocol: '*'
-      sourceAddressPrefixes: [
-        operationsVirtualNetworkAddressPrefix
-        identityVirtualNetworkAddressPrefix
-      ]
+      sourceAddressPrefixes: union(operationsVirtualNetworkAddressPrefixes,identityVirtualNetworkAddressPrefixes)
       sourcePortRange: '*'
     }
     type: 'string'
@@ -404,7 +403,7 @@ param logStorageSkuName string = 'Standard_GRS'
 @description('When set to "true", provisions Azure Bastion Host and virtual machine jumpboxes. It defaults to "false".')
 param deployRemoteAccess bool = false
 
-@description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
+@description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefixes" parameter value. It must be /27 or larger.')
 param bastionHostSubnetAddressPrefix string = '10.0.100.160/27'
 
 @description('The Azure Bastion Public IP Address Availability Zones. It defaults to "No-Zone" because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.')
@@ -651,7 +650,7 @@ var spokes = [
     resourceGroupName: identityResourceGroupName
     logStorageAccountName: identityLogStorageAccountName
     virtualNetworkName: identityVirtualNetworkName
-    virtualNetworkAddressPrefix: identityVirtualNetworkAddressPrefix
+    virtualNetworkAddressPrefixes: identityVirtualNetworkAddressPrefixes
     virtualNetworkDiagnosticsLogs: identityVirtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: identityVirtualNetworkDiagnosticsMetrics
     networkSecurityGroupName: identityNetworkSecurityGroupName
@@ -668,7 +667,7 @@ var spokes = [
     resourceGroupName: operationsResourceGroupName
     logStorageAccountName: operationsLogStorageAccountName
     virtualNetworkName: operationsVirtualNetworkName
-    virtualNetworkAddressPrefix: operationsVirtualNetworkAddressPrefix
+    virtualNetworkAddressPrefixes: operationsVirtualNetworkAddressPrefixes
     virtualNetworkDiagnosticsLogs: operationsVirtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: operationsVirtualNetworkDiagnosticsMetrics
     networkSecurityGroupName: operationsNetworkSecurityGroupName
@@ -685,7 +684,7 @@ var spokes = [
     resourceGroupName: sharedServicesResourceGroupName
     logStorageAccountName: sharedServicesLogStorageAccountName
     virtualNetworkName: sharedServicesVirtualNetworkName
-    virtualNetworkAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
+    virtualNetworkAddressPrefixes: sharedServicesVirtualNetworkAddressPrefixes
     virtualNetworkDiagnosticsLogs: sharedServicesVirtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: sharedServicesVirtualNetworkDiagnosticsMetrics
     networkSecurityGroupName: sharedServicesNetworkSecurityGroupName
@@ -773,7 +772,7 @@ module hubNetwork './core/hub-network.bicep' = {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
 
     virtualNetworkName: hubVirtualNetworkName
-    virtualNetworkAddressPrefix: hubVirtualNetworkAddressPrefix
+    virtualNetworkAddressPrefixes: hubVirtualNetworkAddressPrefixes
     virtualNetworkDiagnosticsLogs: hubVirtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: hubVirtualNetworkDiagnosticsMetrics
 
@@ -831,7 +830,7 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
     firewallPrivateIPAddress: hubNetwork.outputs.firewallPrivateIPAddress
 
     virtualNetworkName: spoke.virtualNetworkName
-    virtualNetworkAddressPrefix: spoke.virtualNetworkAddressPrefix
+    virtualNetworkAddressPrefixes: spoke.virtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: spoke.virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: spoke.virtualNetworkDiagnosticsMetrics
 

@@ -7,7 +7,7 @@ param name string
 param location string
 param tags object = {}
 
-param addressPrefix string
+param addressPrefixes array
 param logAnalyticsWorkspaceResourceId string
 param logStorageAccountResourceId string
 param subnets array
@@ -22,9 +22,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' = {
 
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        addressPrefix
-      ]
+      addressPrefixes: addressPrefixes
     }
     subnets: subnets
   }
@@ -44,4 +42,4 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' 
 output name string = virtualNetwork.name
 output id string = virtualNetwork.id
 output subnets array = virtualNetwork.properties.subnets
-output addressPrefix string = virtualNetwork.properties.addressSpace.addressPrefixes[0]
+output addressPrefixes array = virtualNetwork.properties.addressSpace.addressPrefixes

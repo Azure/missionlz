@@ -14,7 +14,7 @@ param logAnalyticsWorkspaceResourceId string
 param firewallPrivateIPAddress string
 
 param virtualNetworkName string
-param virtualNetworkAddressPrefix string
+param virtualNetworkAddressPrefixes array
 param virtualNetworkDiagnosticsLogs array
 param virtualNetworkDiagnosticsMetrics array
 
@@ -82,7 +82,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     location: location
     tags: tags
 
-    addressPrefix: virtualNetworkAddressPrefix
+    addressPrefixes: virtualNetworkAddressPrefixes
 
     subnets: [
       {
@@ -110,7 +110,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
 
 output virtualNetworkName string = virtualNetwork.outputs.name
 output virtualNetworkResourceId string = virtualNetwork.outputs.id
-output virtualNetworkAddressPrefix string = virtualNetwork.outputs.addressPrefix
+output virtualNetworkAddressPrefixes array = virtualNetwork.outputs.addressPrefixes
 output subnetName string = virtualNetwork.outputs.subnets[0].name
 output subnetAddressPrefix string = virtualNetwork.outputs.subnets[0].properties.addressPrefix
 output subnetResourceId string = virtualNetwork.outputs.subnets[0].id
