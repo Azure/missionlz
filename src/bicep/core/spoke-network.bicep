@@ -24,11 +24,8 @@ param networkSecurityGroupRules array
 param networkSecurityGroupDiagnosticsLogs array
 param networkSecurityGroupDiagnosticsMetrics array
 
-param subnetName string
-param subnetAddressPrefix string
-param subnetServiceEndpoints array
+param subnets array
 
-param routeTableName string = '${subnetName}-routetable'
 param routeTableRouteName string = 'default_route'
 param routeTableRouteAddressPrefix string = '0.0.0.0/0'
 param routeTableRouteNextHopIpAddress string = firewallPrivateIPAddress
@@ -61,10 +58,10 @@ module networkSecurityGroup '../modules/network-security-group.bicep' = {
   }
 }
 
-module routeTable '../modules/route-table.bicep' = {
-  name: 'routeTable'
+module routeTable '../modules/route-table.bicep' = [for subnet in subnets:{
+  name: '${subnet.subnetName}-routetable'
   params: {
-    name: routeTableName
+    name: '${subnet.subnetName}-routetable'
     location: location
     tags: tags
 
@@ -73,7 +70,7 @@ module routeTable '../modules/route-table.bicep' = {
     routeNextHopIpAddress: routeTableRouteNextHopIpAddress
     routeNextHopType: routeTableRouteNextHopType
   }
-}
+}]
 
 module virtualNetwork '../modules/virtual-network.bicep' = {
   name: 'virtualNetwork'
@@ -84,21 +81,19 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
 
     addressPrefixes: virtualNetworkAddressPrefixes
 
-    subnets: [
-      {
-        name: subnetName
+    subnets: [for subnet in subnets:{
+        name: subnet.subnetName
         properties: {
-          addressPrefix: subnetAddressPrefix
+          addressPrefix: subnet.subnetAddressPrefix
           networkSecurityGroup: {
             id: networkSecurityGroup.outputs.id
           }
           routeTable: {
-            id: routeTable.outputs.id
+            id: resourceId(resourceGroup().name,'${subnet.subnetName}-routetable')
           }
-          serviceEndpoints: subnetServiceEndpoints
+          serviceEndpoints: subnet.subnetServiceEndpoints
         }
-      }
-    ]
+      }]
 
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logStorageAccountResourceId: logStorage.outputs.id
@@ -111,8 +106,6 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
 output virtualNetworkName string = virtualNetwork.outputs.name
 output virtualNetworkResourceId string = virtualNetwork.outputs.id
 output virtualNetworkAddressPrefixes array = virtualNetwork.outputs.addressPrefixes
-output subnetName string = virtualNetwork.outputs.subnets[0].name
-output subnetAddressPrefix string = virtualNetwork.outputs.subnets[0].properties.addressPrefix
-output subnetResourceId string = virtualNetwork.outputs.subnets[0].id
 output networkSecurityGroupName string = networkSecurityGroup.outputs.name
 output networkSecurityGroupResourceId string =  networkSecurityGroup.outputs.id
+output subnets array = virtualNetwork.outputs.subnets

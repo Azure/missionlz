@@ -22,11 +22,8 @@ param networkSecurityGroupRules array
 param networkSecurityGroupDiagnosticsLogs array
 param networkSecurityGroupDiagnosticsMetrics array
 
-param subnetName string
-param subnetAddressPrefix string
-param subnetServiceEndpoints array
+param subnets array
 
-param routeTableName string = '${subnetName}-routetable'
 param routeTableRouteName string = 'default_route'
 param routeTableRouteAddressPrefix string = '0.0.0.0/0'
 param routeTableRouteNextHopType string = 'VirtualAppliance'
@@ -137,10 +134,10 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
   }
 }
 
-module routeTable '../modules/route-table.bicep' = {
-  name: 'routeTable'
+module routeTable '../modules/route-table.bicep' = [for subnet in subnets:{
+  name: '${subnet.subnetName}-routetable'
   params: {
-    name: routeTableName
+    name: '${subnet.subnetName}-routetable'
     location: location
     tags: tags
 
@@ -149,19 +146,19 @@ module routeTable '../modules/route-table.bicep' = {
     routeNextHopIpAddress: firewall.outputs.privateIPAddress
     routeNextHopType: routeTableRouteNextHopType
   }
-}
+}]
 
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = {
-  name: '${virtualNetworkName}/${subnetName}'
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = [for subnet in subnets:{
+  name: '${virtualNetworkName}/${subnet.subnetName}'
   properties: {
-    addressPrefix: subnetAddressPrefix
+    addressPrefix: subnet.subnetAddressPrefix
     networkSecurityGroup: {
       id: networkSecurityGroup.outputs.id
     }
     routeTable: {
-      id: routeTable.outputs.id
+      id: resourceId(resourceGroup().name,'${subnet.subnetName}-routetable')
     }
-    serviceEndpoints: subnetServiceEndpoints    
+    serviceEndpoints: subnet.subnetServiceEndpoints    
     privateEndpointNetworkPolicies: 'Disabled'
     privateLinkServiceNetworkPolicies: 'Enabled'
   }
@@ -169,7 +166,7 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = {
     virtualNetwork
     firewall
   ]
-}
+}]
 
 module firewallClientPublicIPAddress '../modules/public-ip-address.bicep' = {
   name: 'firewallClientPublicIPAddress'
@@ -243,7 +240,7 @@ module azureMonitorPrivateLink '../modules/private-link.bicep' = if ( contains(s
   params: {
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    privateEndpointSubnetName: subnetName
+    privateEndpointSubnetName: subnets[0].subnetName
     privateEndpointVnetName: virtualNetwork.outputs.name
     location: location
     tags: tags
@@ -255,9 +252,7 @@ module azureMonitorPrivateLink '../modules/private-link.bicep' = if ( contains(s
 
 output virtualNetworkName string = virtualNetwork.outputs.name
 output virtualNetworkResourceId string = virtualNetwork.outputs.id
-output subnetName string = subnet.name
-output subnetAddressPrefix string = subnet.properties.addressPrefix
-output subnetResourceId string = subnet.id
+output subnets array = virtualNetwork.outputs.subnets
 output networkSecurityGroupName string = networkSecurityGroup.outputs.name
 output networkSecurityGroupResourceId string = networkSecurityGroup.outputs.id
 output firewallPrivateIPAddress string = firewall.outputs.privateIPAddress

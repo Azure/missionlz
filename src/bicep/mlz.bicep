@@ -657,9 +657,14 @@ var spokes = [
     networkSecurityGroupRules: identityNetworkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: identityNetworkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
-    subnetName: identitySubnetName
-    subnetAddressPrefix: identitySubnetAddressPrefix
-    subnetServiceEndpoints: identitySubnetServiceEndpoints
+    subnets: [
+      {
+        subnetName: identitySubnetName
+        subnetAddressPrefix: identitySubnetAddressPrefix
+        subnetServiceEndpoints: identitySubnetServiceEndpoints
+      }
+    ]
+
   }
   {
     name: operationsName
@@ -674,9 +679,13 @@ var spokes = [
     networkSecurityGroupRules: operationsNetworkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: operationsNetworkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: operationsNetworkSecurityGroupDiagnosticsMetrics
-    subnetName: operationsSubnetName
-    subnetAddressPrefix: operationsSubnetAddressPrefix
-    subnetServiceEndpoints: operationsSubnetServiceEndpoints
+    subnets: [
+      {
+        subnetName: operationsSubnetName
+        subnetAddressPrefix: operationsSubnetAddressPrefix
+        subnetServiceEndpoints: operationsSubnetServiceEndpoints    
+      }
+    ]
   }
   {
     name: sharedServicesName
@@ -691,9 +700,13 @@ var spokes = [
     networkSecurityGroupRules: sharedServicesNetworkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: sharedServicesNetworkSecurityGroupDiagnosticsMetrics
-    subnetName: sharedServicesSubnetName
-    subnetAddressPrefix: sharedServicesSubnetAddressPrefix
-    subnetServiceEndpoints: sharedServicesSubnetServiceEndpoints
+    subnets: [
+      {
+        subnetName: sharedServicesSubnetName
+        subnetAddressPrefix: sharedServicesSubnetAddressPrefix
+        subnetServiceEndpoints: sharedServicesSubnetServiceEndpoints    
+      }
+    ]
   }
 ]
 
@@ -780,10 +793,13 @@ module hubNetwork './core/hub-network.bicep' = {
     networkSecurityGroupRules: hubNetworkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: hubNetworkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: hubNetworkSecurityGroupDiagnosticsMetrics
-
-    subnetName: hubSubnetName
-    subnetAddressPrefix: hubSubnetAddressPrefix
-    subnetServiceEndpoints: hubSubnetServiceEndpoints
+    subnets: [
+      {
+        subnetName: hubSubnetName
+        subnetAddressPrefix: hubSubnetAddressPrefix
+        subnetServiceEndpoints: hubSubnetServiceEndpoints    
+      }
+    ]
 
     firewallName: firewallName
     firewallSkuTier: firewallSkuTier
@@ -830,7 +846,7 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
     firewallPrivateIPAddress: hubNetwork.outputs.firewallPrivateIPAddress
 
     virtualNetworkName: spoke.virtualNetworkName
-    virtualNetworkAddressPrefixes: spoke.virtualNetworkAddressPrefix
+    virtualNetworkAddressPrefixes: spoke.virtualNetworkAddressPrefixes
     virtualNetworkDiagnosticsLogs: spoke.virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: spoke.virtualNetworkDiagnosticsMetrics
 
@@ -838,10 +854,7 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
     networkSecurityGroupRules: spoke.networkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: spoke.networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: spoke.networkSecurityGroupDiagnosticsMetrics
-
-    subnetName: spoke.subnetName
-    subnetAddressPrefix: spoke.subnetAddressPrefix
-    subnetServiceEndpoints: spoke.subnetServiceEndpoints
+    subnets: spoke.subnets
   }
 }]
 
@@ -967,7 +980,7 @@ module remoteAccess './core/remote-access.bicep' = if (deployRemoteAccess) {
     location: location
 
     hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
-    hubSubnetResourceId: hubNetwork.outputs.subnetResourceId
+    hubSubnetResourceId: hubNetwork.outputs.subnets[0].Id
     hubNetworkSecurityGroupResourceId: hubNetwork.outputs.networkSecurityGroupResourceId
 
     bastionHostName: bastionHostName
@@ -1040,9 +1053,7 @@ output hub object = {
   resourceGroupResourceId: hubResourceGroup.outputs.id
   virtualNetworkName: hubNetwork.outputs.virtualNetworkName
   virtualNetworkResourceId: hubNetwork.outputs.virtualNetworkResourceId
-  subnetName: hubNetwork.outputs.subnetName
-  subnetResourceId: hubNetwork.outputs.subnetResourceId
-  subnetAddressPrefix: hubNetwork.outputs.subnetAddressPrefix
+  subnets: hubNetwork.outputs.subnets
   networkSecurityGroupName: hubNetwork.outputs.networkSecurityGroupName
   networkSecurityGroupResourceId: hubNetwork.outputs.networkSecurityGroupResourceId
 }
@@ -1060,9 +1071,7 @@ output spokes array = [for (spoke, i) in spokes: {
   resourceGroupId: spokeResourceGroups[i].outputs.id
   virtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
   virtualNetworkResourceId: spokeNetworks[i].outputs.virtualNetworkResourceId
-  subnetName: spokeNetworks[i].outputs.subnetName
-  subnetResourceId: spokeNetworks[i].outputs.subnetResourceId
-  subnetAddressPrefix: spokeNetworks[i].outputs.subnetAddressPrefix
+  subnets: spokeNetworks[i].outputs.subnets
   networkSecurityGroupName: spokeNetworks[i].outputs.networkSecurityGroupName
   networkSecurityGroupResourceId: spokeNetworks[i].outputs.networkSecurityGroupResourceId
 }]
