@@ -226,7 +226,7 @@ param identityNetworkSecurityGroupRules array = [
     properties: {
       access: 'Allow'
       description: 'Allow traffic from spokes'
-      destinationAddressPrefix: identityVirtualNetworkAddressPrefixes
+      destinationAddressPrefixes: identityVirtualNetworkAddressPrefixes
       destinationPortRanges: [
         '22'
         '80'
@@ -280,7 +280,7 @@ param operationsNetworkSecurityGroupRules array = [
   properties: {
     access: 'Allow'
     description: 'Allow traffic from spokes'
-    destinationAddressPrefix: operationsVirtualNetworkAddressPrefixes
+    destinationAddressPrefixes: operationsVirtualNetworkAddressPrefixes
     destinationPortRanges: [
       '22'
       '80'
@@ -334,7 +334,7 @@ param sharedServicesNetworkSecurityGroupRules array = [
     properties: {
       access: 'Allow'
       description: 'Allow traffic from spokes'
-      destinationAddressPrefix: sharedServicesVirtualNetworkAddressPrefixes
+      destinationAddressPrefixes: sharedServicesVirtualNetworkAddressPrefixes
       destinationPortRanges: [
         '22'
         '80'

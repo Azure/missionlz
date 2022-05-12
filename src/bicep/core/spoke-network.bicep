@@ -89,7 +89,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
             id: networkSecurityGroup.outputs.id
           }
           routeTable: {
-            id: resourceId(resourceGroup().name,'${subnet.subnetName}-routetable')
+            id: resourceId(resourceGroup().name,'Microsoft.Network/routeTables','${subnet.subnetName}-routetable')
           }
           serviceEndpoints: subnet.subnetServiceEndpoints
         }
@@ -101,6 +101,9 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     logs: virtualNetworkDiagnosticsLogs
     metrics: virtualNetworkDiagnosticsMetrics
   }
+  dependsOn: [
+    routeTable
+  ]
 }
 
 output virtualNetworkName string = virtualNetwork.outputs.name

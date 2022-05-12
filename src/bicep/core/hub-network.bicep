@@ -156,7 +156,7 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = [for su
       id: networkSecurityGroup.outputs.id
     }
     routeTable: {
-      id: resourceId(resourceGroup().name,'${subnet.subnetName}-routetable')
+      id: resourceId(resourceGroup().name,'Microsoft.Network/routeTables','${subnet.subnetName}-routetable')
     }
     serviceEndpoints: subnet.subnetServiceEndpoints    
     privateEndpointNetworkPolicies: 'Disabled'
@@ -165,6 +165,7 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = [for su
   dependsOn: [
     virtualNetwork
     firewall
+    routeTable
   ]
 }]
 
