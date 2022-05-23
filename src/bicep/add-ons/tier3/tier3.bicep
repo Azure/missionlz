@@ -44,7 +44,9 @@ param logAnalyticsWorkspaceName string = mlzDeploymentVariables.logAnalyticsWork
 param firewallPrivateIPAddress string = mlzDeploymentVariables.firewallPrivateIPAddress.Value
 
 @description('The address prefix for the network spoke vnet.')
-param virtualNetworkAddressPrefix string = '10.0.125.0/26'
+param virtualNetworkAddressPrefixes array = [
+  '10.0.125.0/26'
+]
 
 @description('An array of Network Diagnostic Logs to enable for the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.')
 param virtualNetworkDiagnosticsLogs array = []
@@ -140,7 +142,7 @@ module spokeNetwork '../../core/spoke-network.bicep' = {
     firewallPrivateIPAddress: firewallPrivateIPAddress
 
     virtualNetworkName: workloadVirtualNetworkName
-    virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
+    virtualNetworkAddressPrefixes: virtualNetworkAddressPrefixes
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
 
@@ -148,10 +150,13 @@ module spokeNetwork '../../core/spoke-network.bicep' = {
     networkSecurityGroupRules: networkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
-
-    subnetName: workloadSubnetName
-    subnetAddressPrefix: subnetAddressPrefix
-    subnetServiceEndpoints: subnetServiceEndpoints
+    subnets: [
+      {
+        subnetName: workloadSubnetName
+        subnetAddressPrefix: subnetAddressPrefix
+        subnetServiceEndpoints: subnetServiceEndpoints
+      }
+    ]
   }
 }
 
@@ -194,10 +199,8 @@ output resourceGroupName string = resourceGroup.outputs.name
 output location string = resourceGroup.outputs.location
 output tags object = resourceGroup.outputs.tags
 output virtualNetworkName string = spokeNetwork.outputs.virtualNetworkName
-output virtualNetworkAddressPrefix string = spokeNetwork.outputs.virtualNetworkAddressPrefix
+output virtualNetworkAddressPrefixes array = spokeNetwork.outputs.virtualNetworkAddressPrefixes
 output virtualNetworkResourceId string = spokeNetwork.outputs.virtualNetworkResourceId
-output subnetName string = spokeNetwork.outputs.subnetName
-output subnetAddressPrefix string = spokeNetwork.outputs.subnetAddressPrefix
-output subnetResourceId string = spokeNetwork.outputs.subnetResourceId
+output subnets array = spokeNetwork.outputs.subnets
 output networkSecurityGroupName string = spokeNetwork.outputs.networkSecurityGroupName
 output networkSecurityGroupResourceId string = spokeNetwork.outputs.networkSecurityGroupResourceId
