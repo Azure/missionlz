@@ -7,9 +7,18 @@ param name string
 param location string = resourceGroup().location
 param tags object = {}
 
+@description('AKS cluster kubernetes version.')
 param kubernetesVersion string = '1.21.9'
+
+@minLength(1)
+@maxLength(54)
+@description('Optional DNS prefix to use with hosted Kubernetes API server FQDN, 1 to 54 characters in length, can contain alphanumerics and hyphens, but should start and end with alphanumeric. This cannot be updated once the Managed Cluster has been created.')
 param aksDnsPrefix string
+
+@description('Number of agents (VMs) to host docker containers. Allowed values must be in the range of 0 to 1000 (inclusive) for user pools and in the range of 1 to 1000 (inclusive) for system pools. The default value is 1.')
 param aksAgentCount int = 1
+
+@description('VM size availability varies by region. If a node contains insufficient compute resources (memory, cpu, etc) pods might fail to run correctly. For more details on restricted VM sizes, see: https://docs.microsoft.com/en-us/azure/virtual-machines/sizes')
 param vmSize string = 'Standard_D2_v2'
 
 //Network Profile
