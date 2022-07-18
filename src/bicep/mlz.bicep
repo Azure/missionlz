@@ -951,7 +951,7 @@ module hubDefender './modules/defender.bicep' = if (deployDefender) {
 
 module spokeDefender './modules/defender.bicep' = [for spoke in spokes: if ((deployDefender) && (spoke.subscriptionId != hubSubscriptionId)) {
   name: 'set-${spoke.name}-sub-defender'
-  scope: subscription(operationsSubscriptionId)
+  scope: subscription(spoke.subscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     emailSecurityContact: emailSecurityContact
