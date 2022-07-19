@@ -119,6 +119,7 @@ var calculatedTags = union(tags, defaultTags)
 
 module resourceGroup '../../modules/resource-group.bicep' = {
   name: workloadResourceGroupName
+  scope: subscription(workloadSubscriptionId)
   params: {
     name: workloadResourceGroupName
     location: location
@@ -128,7 +129,7 @@ module resourceGroup '../../modules/resource-group.bicep' = {
 
 module spokeNetwork '../../core/spoke-network.bicep' = {
   name: 'spokeNetwork'
-  scope: az.resourceGroup(resourceGroup.name)
+  scope: az.resourceGroup(workloadSubscriptionId, resourceGroup.name)
   params: {
     tags: calculatedTags
     location:location    
@@ -157,6 +158,7 @@ module spokeNetwork '../../core/spoke-network.bicep' = {
 
 module workloadVirtualNetworkPeerings '../../core/spoke-network-peering.bicep' = {
   name: take('${workloadName}-to-hub-vnet-peering', 64)
+  scope: subscription(workloadSubscriptionId)
   params: {
     spokeName: workloadName
     spokeResourceGroupName: resourceGroup.name
