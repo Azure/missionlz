@@ -42,7 +42,10 @@ param hubVirtualNetworkResourceId string = mlzDeploymentVariables.hub.Value.virt
 param logAnalyticsWorkspaceResourceId string = mlzDeploymentVariables.logAnalyticsWorkspaceResourceId.Value
 param logAnalyticsWorkspaceName string = mlzDeploymentVariables.logAnalyticsWorkspaceName.Value
 param firewallPrivateIPAddress string = mlzDeploymentVariables.firewallPrivateIPAddress.Value
+
+@description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
 param deployDefender bool = mlzDeploymentVariables.deployDefender.Value
+@description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string = mlzDeploymentVariables.emailSecurityContact.Value
 
 
@@ -83,12 +86,6 @@ param logStorageSkuName string = 'Standard_GRS'
 
 @description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
 param tags object = {}
-
-@description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
-param deployDefender bool = false
-
-@description('Email address of the contact, in the form of john@doe.com')
-param emailSecurityContact string = ''
 
 /*
 
