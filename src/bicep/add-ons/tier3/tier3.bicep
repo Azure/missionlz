@@ -42,6 +42,9 @@ param hubVirtualNetworkResourceId string = mlzDeploymentVariables.hub.Value.virt
 param logAnalyticsWorkspaceResourceId string = mlzDeploymentVariables.logAnalyticsWorkspaceResourceId.Value
 param logAnalyticsWorkspaceName string = mlzDeploymentVariables.logAnalyticsWorkspaceName.Value
 param firewallPrivateIPAddress string = mlzDeploymentVariables.firewallPrivateIPAddress.Value
+param deployDefender bool = mlzDeploymentVariables.deployDefender.Value
+param emailSecurityContact string = mlzDeploymentVariables.emailSecurityContact.Value
+
 
 @description('The address prefix for the network spoke vnet.')
 param virtualNetworkAddressPrefix string = '10.0.125.0/26'

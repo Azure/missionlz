@@ -27,6 +27,8 @@ resourcePrefix | mlz | A prefix, 3 to 10 characters in length, to append to reso
 Optional Parameters | Default | Description
 ------------------- | ------- | -----------
 virtualNetworkAddressPrefix | 10.0.125.0/26 | The address prefix for the network spoke vnet.
+deployDefender | Output from mlz.bicep (false) | When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".
+emailSecurityContact | Output from mlz.bicep (empty '') | Email address of the contact, in the form of john@doe.com
 
 ### Generate MLZ Variable File
 
