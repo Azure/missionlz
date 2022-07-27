@@ -27,6 +27,8 @@ resourcePrefix | mlz | A prefix, 3 to 10 characters in length, to append to reso
 Optional Parameters | Default | Description
 ------------------- | ------- | -----------
 virtualNetworkAddressPrefix | 10.0.125.0/26 | The address prefix for the network spoke vnet.
+workloadName | workload | The name of the tier 3 workload
+workloadLogStorageAccountNameParameter | Defaults to a calculated field | The name of the Storage Account 
 
 ### Generate MLZ Variable File
 
