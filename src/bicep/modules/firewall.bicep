@@ -8,6 +8,10 @@ param name string
 param location string = resourceGroup().location
 param tags object = {}
 
+@allowed([
+  'Standard'
+  'Premium'
+])
 param skuTier string
 
 @allowed([
@@ -42,15 +46,17 @@ param logAnalyticsWorkspaceResourceId string
 param logs array
 param metrics array
 
+var intrusionDetectionObject = {
+  mode: intrusionDetectionMode
+}
+
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   name: firewallPolicyName
   location: location
   tags: tags
   properties: {
     threatIntelMode: threatIntelMode
-    intrusionDetection:{
-      mode: intrusionDetectionMode
-    }
+    intrusionDetection: ((skuTier == 'Premium') ? intrusionDetectionObject : null)
     sku: {
       tier: skuTier
     }
