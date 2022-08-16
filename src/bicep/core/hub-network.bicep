@@ -9,7 +9,6 @@ param tags object = {}
 param logStorageAccountName string
 param logStorageSkuName string
 
-param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceResourceId string
 
 param virtualNetworkName string
@@ -236,21 +235,6 @@ module firewall '../modules/firewall.bicep' = {
     logs: firewallDiagnosticsLogs
     metrics: firewallDiagnosticsMetrics
   }
-}
-
-module azureMonitorPrivateLink '../modules/private-link.bicep' = if ( contains(supportedClouds, environment().name) ){
-  name: 'azure-monitor-private-link'
-  params: {
-    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    privateEndpointSubnetName: subnetName
-    privateEndpointVnetName: virtualNetwork.outputs.name
-    location: location
-    tags: tags
-  }
-  dependsOn: [
-    subnet
-  ]
 }
 
 output virtualNetworkName string = virtualNetwork.outputs.name
