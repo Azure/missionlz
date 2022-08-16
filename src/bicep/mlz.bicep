@@ -42,11 +42,6 @@ param sharedServicesSubscriptionId string = subscription().subscriptionId
 @description('The region to deploy resources into. It defaults to the deployment location.')
 param location string = deployment().location
 
-param supportedClouds array = [
-  'AzureCloud'
-  'AzureUSGovernment'
-]
-
 // RESOURCE NAMING PARAMETERS
 
 @description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
@@ -666,7 +661,6 @@ var spokes = [
     subnetName: identitySubnetName
     subnetAddressPrefix: identitySubnetAddressPrefix
     subnetServiceEndpoints: identitySubnetServiceEndpoints
-    subnetPrivateEndpointNetworkPolicies: 'Enabled'
   }
   {
     name: operationsName
@@ -683,8 +677,7 @@ var spokes = [
     networkSecurityGroupDiagnosticsMetrics: operationsNetworkSecurityGroupDiagnosticsMetrics
     subnetName: operationsSubnetName
     subnetAddressPrefix: operationsSubnetAddressPrefix
-    subnetServiceEndpoints: operationsSubnetServiceEndpoints    
-    subnetPrivateEndpointNetworkPolicies: 'Disabled'
+    subnetServiceEndpoints: operationsSubnetServiceEndpoints
   }
   {
     name: sharedServicesName
@@ -701,8 +694,7 @@ var spokes = [
     networkSecurityGroupDiagnosticsMetrics: sharedServicesNetworkSecurityGroupDiagnosticsMetrics
     subnetName: sharedServicesSubnetName
     subnetAddressPrefix: sharedServicesSubnetAddressPrefix
-    subnetServiceEndpoints: sharedServicesSubnetServiceEndpoints    
-    subnetPrivateEndpointNetworkPolicies: 'Disabled'
+    subnetServiceEndpoints: sharedServicesSubnetServiceEndpoints
   }
 ]
 
@@ -777,6 +769,7 @@ module hubNetwork './core/hub-network.bicep' = {
     logStorageAccountName: hubLogStorageAccountName
     logStorageSkuName: logStorageSkuName
 
+    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
 
     virtualNetworkName: hubVirtualNetworkName
@@ -792,8 +785,6 @@ module hubNetwork './core/hub-network.bicep' = {
     subnetName: hubSubnetName
     subnetAddressPrefix: hubSubnetAddressPrefix
     subnetServiceEndpoints: hubSubnetServiceEndpoints
-
-    gatewaySubnetAddressPrefix: gatewaySubnetAddressPrefix
 
     firewallName: firewallName
     firewallSkuTier: firewallSkuTier
@@ -852,8 +843,6 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
     subnetName: spoke.subnetName
     subnetAddressPrefix: spoke.subnetAddressPrefix
     subnetServiceEndpoints: spoke.subnetServiceEndpoints
-
-    subnetPrivateEndpointNetworkPolicies: spoke.subnetPrivateEndpointNetworkPolicies
   }
 }]
 
@@ -910,21 +899,6 @@ module spokePolicyAssignments './modules/policy-assignment.bicep' = [for spoke i
   }
 }]
 
-// PRIVATE DNS
-
-module azurePrivateDns './modules/private-dns.bicep' = {
-  name: 'azure-private-dns'
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  params: {
-    vnetName: hubNetwork.outputs.virtualNetworkName
-    tags: tags
-  }
-  dependsOn: [
-    hubNetwork
-  ]
-}
-
-
 // CENTRAL LOGGING
 
 module hubSubscriptionActivityLogging './modules/central-logging.bicep' = {
@@ -936,29 +910,6 @@ module hubSubscriptionActivityLogging './modules/central-logging.bicep' = {
   }
   dependsOn: [
     hubNetwork
-  ]
-}
-
-module azureMonitorPrivateLink './modules/private-link.bicep' = if ( contains(supportedClouds, environment().name) ){
-  name: 'azure-monitor-private-link'
-  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
-  params: {
-    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
-    privateEndpointSubnetName: operationsSubnetName
-    privateEndpointVnetName: operationsVirtualNetworkName
-    monitorPrivateDnsZoneId: azurePrivateDns.outputs.monitorPrivateDnsZoneId
-    omsPrivateDnsZoneId: azurePrivateDns.outputs.omsPrivateDnsZoneId
-    odsPrivateDnsZoneId: azurePrivateDns.outputs.odsPrivateDnsZoneId
-    agentsvcPrivateDnsZoneId: azurePrivateDns.outputs.agentsvcPrivateDnsZoneId
-    storagePrivateDnsZoneId: azurePrivateDns.outputs.storagePrivateDnsZoneId
-    location: location
-    tags: tags
-  }
-  dependsOn: [
-    logAnalyticsWorkspace
-    spokeNetworks
-    azurePrivateDns
   ]
 }
 
@@ -1061,9 +1012,6 @@ module remoteAccess './core/remote-access.bicep' = if (deployRemoteAccess) {
 
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
   }
-  dependsOn: [
-    azureMonitorPrivateLink
-  ]
 }
 
 /*
