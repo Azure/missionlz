@@ -113,7 +113,7 @@ var workloadNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvent
 var workloadSubnetName = replace(subnetNamingConvention, nameToken, workloadName)
 
 var defaultTags = {
-  'DeploymentType': 'MissionLandingZoneARM'
+  DeploymentType: 'MissionLandingZoneARM'
 }
 var calculatedTags = union(tags, defaultTags)
 
@@ -153,6 +153,7 @@ module spokeNetwork '../../core/spoke-network.bicep' = {
     subnetName: workloadSubnetName
     subnetAddressPrefix: subnetAddressPrefix
     subnetServiceEndpoints: subnetServiceEndpoints
+    subnetPrivateEndpointNetworkPolicies: 'Enabled'
   }
 }
 
