@@ -43,6 +43,12 @@ param logAnalyticsWorkspaceResourceId string = mlzDeploymentVariables.logAnalyti
 param logAnalyticsWorkspaceName string = mlzDeploymentVariables.logAnalyticsWorkspaceName.Value
 param firewallPrivateIPAddress string = mlzDeploymentVariables.firewallPrivateIPAddress.Value
 
+@description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
+param deployDefender bool = mlzDeploymentVariables.deployDefender.Value
+@description('Email address of the contact, in the form of john@doe.com')
+param emailSecurityContact string = mlzDeploymentVariables.emailSecurityContact.Value
+
+
 @description('The address prefix for the network spoke vnet.')
 param virtualNetworkAddressPrefix string = '10.0.125.0/26'
 
@@ -120,12 +126,13 @@ var workloadSubnetName = replace(subnetNamingConvention, nameToken, workloadName
 var workloadLogStorageAccountName = 'null' != workloadLogStorageAccountNameParameter ? workloadLogStorageAccountNameParameter : workloadLogStorageAccountNameVariable
 
 var defaultTags = {
-  'DeploymentType': 'MissionLandingZoneARM'
+  DeploymentType: 'MissionLandingZoneARM'
 }
 var calculatedTags = union(tags, defaultTags)
 
 module resourceGroup '../../modules/resource-group.bicep' = {
   name: workloadResourceGroupName
+  scope: subscription(workloadSubscriptionId)
   params: {
     name: workloadResourceGroupName
     location: location
@@ -135,7 +142,7 @@ module resourceGroup '../../modules/resource-group.bicep' = {
 
 module spokeNetwork '../../core/spoke-network.bicep' = {
   name: 'spokeNetwork'
-  scope: az.resourceGroup(resourceGroup.name)
+  scope: az.resourceGroup(workloadSubscriptionId, resourceGroup.name)
   params: {
     tags: calculatedTags
     location:location    
@@ -159,11 +166,13 @@ module spokeNetwork '../../core/spoke-network.bicep' = {
     subnetName: workloadSubnetName
     subnetAddressPrefix: subnetAddressPrefix
     subnetServiceEndpoints: subnetServiceEndpoints
+    subnetPrivateEndpointNetworkPolicies: 'Enabled'
   }
 }
 
 module workloadVirtualNetworkPeerings '../../core/spoke-network-peering.bicep' = {
   name: take('${workloadName}-to-hub-vnet-peering', 64)
+  scope: subscription(workloadSubscriptionId)
   params: {
     spokeName: workloadName
     spokeResourceGroupName: resourceGroup.name
@@ -195,6 +204,15 @@ module workloadSubscriptionActivityLogging '../../modules/central-logging.bicep'
   dependsOn: [
     spokeNetwork
   ]
+}
+
+module spokeDefender '../../modules/defender.bicep' = if (deployDefender) {
+  name: 'set-${workloadName}-sub-defender'
+  scope: subscription(workloadSubscriptionId)
+  params: {
+    logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
+    emailSecurityContact: emailSecurityContact
+  }
 }
 
 output resourceGroupName string = resourceGroup.outputs.name
