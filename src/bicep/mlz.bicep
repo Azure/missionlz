@@ -1097,6 +1097,10 @@ output hub object = {
   networkSecurityGroupResourceId: hubNetwork.outputs.networkSecurityGroupResourceId
 }
 
+output deployDefender bool = deployDefender
+
+output emailSecurityContact string = emailSecurityContact
+
 output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.outputs.name
 
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.outputs.id

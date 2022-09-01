@@ -48,6 +48,12 @@ param policy string = mlzDeploymentVariables.policyName.Value
 param deployPolicy bool = mlzDeploymentVariables.deployPolicy.Value
 
 
+@description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
+param deployDefender bool = mlzDeploymentVariables.deployDefender.Value
+@description('Email address of the contact, in the form of john@doe.com')
+param emailSecurityContact string = mlzDeploymentVariables.emailSecurityContact.Value
+
+
 @description('The address prefix for the network spoke vnet.')
 param virtualNetworkAddressPrefix string = '10.0.125.0/26'
 
@@ -119,9 +125,10 @@ var workloadLogStorageAccountName = take(workloadLogStorageAccountUniqueName, 23
 var workloadVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, workloadName)
 var workloadNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, workloadName)
 var workloadSubnetName = replace(subnetNamingConvention, nameToken, workloadName)
+var logAnalyticsWorkspaceResourceId_split = split(logAnalyticsWorkspaceResourceId, '/')
 
 var defaultTags = {
-  'DeploymentType': 'MissionLandingZoneARM'
+  DeploymentType: 'MissionLandingZoneARM'
 }
 var calculatedTags = union(tags, defaultTags)
 
@@ -161,6 +168,7 @@ module spokeNetwork '../../core/spoke-network.bicep' = {
     subnetName: workloadSubnetName
     subnetAddressPrefix: subnetAddressPrefix
     subnetServiceEndpoints: subnetServiceEndpoints
+    subnetPrivateEndpointNetworkPolicies: 'Enabled'
   }
 }
 
@@ -200,8 +208,6 @@ module workloadSubscriptionActivityLogging '../../modules/central-logging.bicep'
   ]
 }
 
-var logAnalyticsWorkspaceResourceId_split = split(logAnalyticsWorkspaceResourceId, '/')
-
 module workloadPolicyAssignment '../../modules/policy-assignment.bicep' = if (deployPolicy) {
   name: 'assign-policy-${workloadName}-${deploymentNameSuffix}'
   scope:  az.resourceGroup(workloadSubscriptionId, resourceGroup.name)
@@ -211,6 +217,15 @@ module workloadPolicyAssignment '../../modules/policy-assignment.bicep' = if (de
     logAnalyticsWorkspaceResourceGroupName: logAnalyticsWorkspaceResourceId_split[4]
     location: location
     operationsSubscriptionId: logAnalyticsWorkspaceResourceId_split[2]
+   }
+  }
+  
+module spokeDefender '../../modules/defender.bicep' = if (deployDefender) {
+  name: 'set-${workloadName}-sub-defender'
+  scope: subscription(workloadSubscriptionId)
+  params: {
+    logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
+    emailSecurityContact: emailSecurityContact
   }
 }
 

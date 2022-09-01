@@ -131,3 +131,6 @@ spokes.value[0..2].virtualNetworkName
 spokes.value[0..2].virtualNetworkResourceId
 deployPolicy.value
 policyName.value
+deployDefender.value
+emailSecurityContact.value
+
