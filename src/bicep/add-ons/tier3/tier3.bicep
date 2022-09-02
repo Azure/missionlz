@@ -43,6 +43,12 @@ param logAnalyticsWorkspaceResourceId string = mlzDeploymentVariables.logAnalyti
 param logAnalyticsWorkspaceName string = mlzDeploymentVariables.logAnalyticsWorkspaceName.Value
 param firewallPrivateIPAddress string = mlzDeploymentVariables.firewallPrivateIPAddress.Value
 
+@description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
+param deployDefender bool = mlzDeploymentVariables.deployDefender.Value
+@description('Email address of the contact, in the form of john@doe.com')
+param emailSecurityContact string = mlzDeploymentVariables.emailSecurityContact.Value
+
+
 @description('The address prefix for the network spoke vnet.')
 param virtualNetworkAddressPrefix string = '10.0.125.0/26'
 
@@ -191,6 +197,15 @@ module workloadSubscriptionActivityLogging '../../modules/central-logging.bicep'
   dependsOn: [
     spokeNetwork
   ]
+}
+
+module spokeDefender '../../modules/defender.bicep' = if (deployDefender) {
+  name: 'set-${workloadName}-sub-defender'
+  scope: subscription(workloadSubscriptionId)
+  params: {
+    logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
+    emailSecurityContact: emailSecurityContact
+  }
 }
 
 output resourceGroupName string = resourceGroup.outputs.name
