@@ -16,7 +16,7 @@ param vmNamePrefix string
 param vmCount int = 2
 
 @description('The administrator username for the Virtual Machine to remote into.')
-param vmAdminUsername string
+param vmAdminUsername string = 'azureuser'
 
 @description('The administrator password the Virtual Machine to remote into. It must be > 12 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
 @secure()
@@ -55,7 +55,7 @@ param nicPrivateIPAddressAllocationMethod string = 'Dynamic'
 param nicPrivateIPAddresses array = []
 
 @description('Uri to the container that contains the DSC configuration and the Custom Script')
-param extensionsFilesContainerUri string
+param extensionsFilesContainerUri string = 'https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/examples/iaas-dns-forwarders/extensions'
 
 @description('SAS Token to access the container that contains the DSC configuration and the Custom Script. Defaults to none for a public container')
 @secure()
@@ -293,7 +293,7 @@ resource DSC 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i 
   ]
 }]
 
-resource customScript 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = [for i in range(0, vmCount): {
+resource customScript 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = [for i in range(0, vmCount): if(conditionalDnsServerForwarders != []){
   name: 'CustomScriptExt'
   location: location
   parent: dnsForwarderVirtualMachines[i]
