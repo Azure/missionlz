@@ -95,6 +95,13 @@ param tags object = {}
 @description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
 param deploymentNameSuffix string = utcNow()
 
+@description('The name of the tier 3 workload')
+param workloadName string = 'workload'
+
+@maxLength(24)
+@description('The name of the Storage Account if using this Parameter. Otherwise it will be a calculated value.')
+param workloadLogStorageAccountNameParameter string = 'null'
+
 /*
 
   NAMING CONVENTION
@@ -108,7 +115,7 @@ param deploymentNameSuffix string = utcNow()
 
 var resourceToken = 'resource_token'
 var nameToken = 'name_token'
-var namingConvention = '${toLower(workloadName)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
+var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
 
 var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
 var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'vnet')
@@ -116,16 +123,16 @@ var networkSecurityGroupNamingConvention = replace(namingConvention, resourceTok
 var storageAccountNamingConvention = toLower('${resourcePrefix}st${nameToken}unique_storage_token')
 var subnetNamingConvention = replace(namingConvention, resourceToken, 'snet')
 
-var workloadName = 'workload'
-var workloadShortName = 'wl'
 var workloadResourceGroupName = replace(resourceGroupNamingConvention, nameToken, workloadName)
-var workloadLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, workloadShortName)
-var workloadLogStorageAccountUniqueName = replace(workloadLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, workloadSubscriptionId))
-var workloadLogStorageAccountName = take(workloadLogStorageAccountUniqueName, 23)
+var workloadLogStorageAccountNameTemplate = replace(storageAccountNamingConvention, nameToken, toLower(workloadName))
+var workloadLogStorageAccountUniqueName = replace(workloadLogStorageAccountNameTemplate, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, workloadSubscriptionId))
+var workloadLogStorageAccountNameVariable = take(workloadLogStorageAccountUniqueName, 23)
 var workloadVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, workloadName)
 var workloadNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, workloadName)
 var workloadSubnetName = replace(subnetNamingConvention, nameToken, workloadName)
 var logAnalyticsWorkspaceResourceId_split = split(logAnalyticsWorkspaceResourceId, '/')
+
+var workloadLogStorageAccountName = 'null' != workloadLogStorageAccountNameParameter ? workloadLogStorageAccountNameParameter : workloadLogStorageAccountNameVariable
 
 var defaultTags = {
   DeploymentType: 'MissionLandingZoneARM'
