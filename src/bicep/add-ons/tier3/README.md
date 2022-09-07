@@ -27,6 +27,8 @@ resourcePrefix | mlz | A prefix, 3 to 10 characters in length, to append to reso
 Optional Parameters | Default | Description
 ------------------- | ------- | -----------
 virtualNetworkAddressPrefix | 10.0.125.0/26 | The address prefix for the network spoke vnet.
+deployPolicy | Output from mlz.bicep (false) | When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".
+policy | Output from mlz.bicep (Nist) | [NIST/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NIST". IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.
 
 ### Generate MLZ Variable File
 

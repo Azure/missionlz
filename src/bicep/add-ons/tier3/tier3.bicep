@@ -42,6 +42,11 @@ param hubVirtualNetworkResourceId string = mlzDeploymentVariables.hub.Value.virt
 param logAnalyticsWorkspaceResourceId string = mlzDeploymentVariables.logAnalyticsWorkspaceResourceId.Value
 param logAnalyticsWorkspaceName string = mlzDeploymentVariables.logAnalyticsWorkspaceName.Value
 param firewallPrivateIPAddress string = mlzDeploymentVariables.firewallPrivateIPAddress.Value
+@description('[NIST/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NIST". IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.')
+param policy string = mlzDeploymentVariables.policyName.Value
+@description('When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".')
+param deployPolicy bool = mlzDeploymentVariables.deployPolicy.Value
+
 
 @description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
 param deployDefender bool = mlzDeploymentVariables.deployDefender.Value
@@ -85,7 +90,10 @@ param subnetServiceEndpoints array = []
 param logStorageSkuName string = 'Standard_GRS'
 
 @description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
-param tags object = {}
+param tags object = {} 
+
+@description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
+param deploymentNameSuffix string = utcNow()
 
 /*
 
@@ -117,6 +125,7 @@ var workloadLogStorageAccountName = take(workloadLogStorageAccountUniqueName, 23
 var workloadVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, workloadName)
 var workloadNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, workloadName)
 var workloadSubnetName = replace(subnetNamingConvention, nameToken, workloadName)
+var logAnalyticsWorkspaceResourceId_split = split(logAnalyticsWorkspaceResourceId, '/')
 
 var defaultTags = {
   DeploymentType: 'MissionLandingZoneARM'
@@ -199,6 +208,18 @@ module workloadSubscriptionActivityLogging '../../modules/central-logging.bicep'
   ]
 }
 
+module workloadPolicyAssignment '../../modules/policy-assignment.bicep' = if (deployPolicy) {
+  name: 'assign-policy-${workloadName}-${deploymentNameSuffix}'
+  scope:  az.resourceGroup(workloadSubscriptionId, resourceGroup.name)
+  params: {
+    builtInAssignment: policy
+    logAnalyticsWorkspaceName: logAnalyticsWorkspaceResourceId_split[8]
+    logAnalyticsWorkspaceResourceGroupName: logAnalyticsWorkspaceResourceId_split[4]
+    location: location
+    operationsSubscriptionId: logAnalyticsWorkspaceResourceId_split[2]
+   }
+  }
+  
 module spokeDefender '../../modules/defender.bicep' = if (deployDefender) {
   name: 'set-${workloadName}-sub-defender'
   scope: subscription(workloadSubscriptionId)
