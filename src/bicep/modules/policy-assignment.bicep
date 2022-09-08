@@ -4,12 +4,13 @@ Licensed under the MIT License.
 */
 
 @allowed([
-  'NIST'
-  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NIST
+  'NISTRev4'
+  'NISTRev5'
+  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NISTRev4
   'CMMC'
 ])
-@description('[NIST/IL5/CMMC] Built-in policy assignments to assign, default is NIST. IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.')
-param builtInAssignment string = 'NIST'
+@description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, default is NISTRev4. IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
+param builtInAssignment string = 'NISTRev4'
 param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceResourceGroupName string
 param operationsSubscriptionId string
@@ -26,9 +27,13 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
 }
 
 var policyDefinitionID = {
-  NIST: {
+  NISTRev4: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f'
-    parameters: json(replace(loadTextContent('policies/NIST-policyAssignmentParameters.json'),'<LAWORKSPACE>', logAnalyticsWorkspace.id))
+    parameters: json(replace(loadTextContent('policies/NISTRev4-policyAssignmentParameters.json'),'<LAWORKSPACE>', logAnalyticsWorkspace.id))
+  }
+  NISTRev5: {
+    id: '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f'
+    parameters: json(loadTextContent('policies/NISTRev5-policyAssignmentParameters.json'))
   }
   IL5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197'
@@ -40,7 +45,7 @@ var policyDefinitionID = {
   }
 }
 
-var modifiedAssignment = ( environment().name =~ 'AzureCloud' && builtInAssignment =~ 'IL5' ? 'NIST' : builtInAssignment )
+var modifiedAssignment = ( environment().name =~ 'AzureCloud' && builtInAssignment =~ 'IL5' ? 'NISTRev4' : builtInAssignment )
 var assignmentName = '${modifiedAssignment} ${resourceGroup().name}'
 var agentVmssAssignmentName = 'Deploy VMSS Agents ${resourceGroup().name}'
 var agentVmAssignmentName = 'Deploy VM Agents ${resourceGroup().name}'
