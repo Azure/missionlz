@@ -4,10 +4,10 @@ Licensed under the MIT License.
 */
 
 @description('The name of the resource the private endpoint is being created for')
-param logAnalyticsWorkspaceName  string
+param logAnalyticsWorkspaceName string
 
 @description('The resource id of the resoure the private endpoint is being created for')
-param logAnalyticsWorkspaceResourceId  string
+param logAnalyticsWorkspaceResourceId string
 
 @description('The name of the subnet in the virtual network where the private endpoint will be placed')
 param privateEndpointSubnetName string
@@ -19,7 +19,7 @@ param privateEndpointVnetName string
 param tags object
 
 @description('Data used to append to resources to ensure uniqueness')
-param uniqueData string = substring(newGuid(), 0, 8)
+param uniqueData string = substring(uniqueString(subscription().subscriptionId, deployment().name), 0, 8)
 
 @description('The name of the the resource group where the virtual network exists')
 param vnetResourceGroup string = resourceGroup().name
@@ -45,7 +45,7 @@ param agentsvcPrivateDnsZoneId string
 @description('Azure Blob Storage Private DNS Zone resource id')
 param storagePrivateDnsZoneId string
 
-var privateLinkConnectionName  = take('plconn${logAnalyticsWorkspaceName}${uniqueData}', 80)
+var privateLinkConnectionName = take('plconn${logAnalyticsWorkspaceName}${uniqueData}', 80)
 var privateLinkEndpointName = take('pl${logAnalyticsWorkspaceName}${uniqueData}', 80)
 var privateLinkScopeName = take('plscope${logAnalyticsWorkspaceName}${uniqueData}', 80)
 var privateLinkScopeResourceName = take('plscres${logAnalyticsWorkspaceName}${uniqueData}', 80)
@@ -56,17 +56,17 @@ resource globalPrivateLinkScope 'microsoft.insights/privateLinkScopes@2019-10-17
   properties: {}
 }
 
-resource logAnalyticsWorkspacePrivateLinkScope  'microsoft.insights/privateLinkScopes/scopedResources@2019-10-17-preview' = {
+resource logAnalyticsWorkspacePrivateLinkScope 'microsoft.insights/privateLinkScopes/scopedResources@2019-10-17-preview' = {
   name: '${privateLinkScopeName}/${privateLinkScopeResourceName}'
   properties: {
     linkedResourceId: logAnalyticsWorkspaceResourceId
   }
   dependsOn: [
-    globalPrivateLinkScope 
+    globalPrivateLinkScope
   ]
 }
 
-resource subnetPrivateEndpoint  'Microsoft.Network/privateEndpoints@2020-07-01' = {
+resource subnetPrivateEndpoint 'Microsoft.Network/privateEndpoints@2020-07-01' = {
   name: privateLinkEndpointName
   location: location
   tags: tags
@@ -76,7 +76,7 @@ resource subnetPrivateEndpoint  'Microsoft.Network/privateEndpoints@2020-07-01' 
     }
     privateLinkServiceConnections: [
       {
-        name: privateLinkConnectionName 
+        name: privateLinkConnectionName
         properties: {
           privateLinkServiceId: globalPrivateLinkScope.id
           groupIds: [
@@ -87,7 +87,7 @@ resource subnetPrivateEndpoint  'Microsoft.Network/privateEndpoints@2020-07-01' 
     ]
   }
   dependsOn: [
-    logAnalyticsWorkspacePrivateLinkScope 
+    logAnalyticsWorkspacePrivateLinkScope
   ]
 }
 
@@ -128,6 +128,6 @@ resource dnsZonePrivateLinkEndpoint 'Microsoft.Network/privateEndpoints/privateD
     ]
   }
   dependsOn: [
-    subnetPrivateEndpoint 
+    subnetPrivateEndpoint
   ]
 }
