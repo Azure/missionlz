@@ -21,6 +21,7 @@ param version string
 param createOption string
 param storageAccountType string
 param logAnalyticsWorkspaceId  string
+param availabilitySet object = {}
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' existing = {
   name: networkInterfaceName
@@ -32,6 +33,7 @@ resource windowsVirtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = 
   tags: tags
 
   properties: {
+    availabilitySet: ((availabilitySet != {}) ? availabilitySet : null)
     hardwareProfile: {
       vmSize: size 
     }

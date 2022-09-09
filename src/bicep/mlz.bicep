@@ -1097,11 +1097,19 @@ output hub object = {
   networkSecurityGroupResourceId: hubNetwork.outputs.networkSecurityGroupResourceId
 }
 
+output deployDefender bool = deployDefender
+
+output emailSecurityContact string = emailSecurityContact
+
 output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.outputs.name
 
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.outputs.id
 
 output diagnosticStorageAccountName string = operationsLogStorageAccountName
+
+output policyName string = policy
+
+output deployPolicy bool = deployPolicy
 
 output spokes array = [for (spoke, i) in spokes: {
   name: spoke.name
