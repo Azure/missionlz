@@ -61,7 +61,7 @@ param aksAgentCount int = 1
 param aksDnsPrefix string = '${resourcePrefix}aks'
 
 @description('AKS cluster kubernetes version.')
-param kubernetesVersion string = '1.21.9'
+param kubernetesVersion string = '1.24.3'
 
 @description('VM size availability varies by region. If a node contains insufficient compute resources (memory, cpu, etc) pods might fail to run correctly. For more details on restricted VM sizes, see: https://docs.microsoft.com/en-us/azure/virtual-machines/sizes')
 param vmSize string = 'Standard_D2_v2'

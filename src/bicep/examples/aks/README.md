@@ -1,6 +1,6 @@
 # Overview
 
-The example below deploys an AKS cluster into [Tier 3 Spoke Network](../tier3/README.md) but could be deployed into any existing Spoke Network.
+The example below deploys an AKS cluster into [Tier 3 Spoke Network](../../add-ons/tier3/README.md) but could be deployed into any existing Spoke Network.
 
 ## Pre-requisites
 
@@ -35,7 +35,7 @@ And deploy with `az deployment sub create` from the Azure CLI or `New-AzSubscrip
 
 ### Deploying AKS cluster into Tier 3 Subnet
 
-Connect to the appropriate Azure Environment and set appropriate context, see [getting started with Azure PowerShell or Azure CLI](..\examples\README.md) for help if needed.  The commands below assume you are deploying in Azure Commercial and show the entire process from deploying MLZ and then adding an Azure App Service Plan post-deployment.
+Connect to the appropriate Azure Environment and set appropriate context, see [getting started with Azure PowerShell or Azure CLI](../../examples/README.md) for help if needed.  The commands below assume you are deploying in Azure Commercial and show the entire process from deploying MLZ and then adding an Azure App Service Plan post-deployment.
 
 ```PowerShell
 cd .\src\bicep
@@ -58,7 +58,7 @@ cd add-ons
 az deployment sub show -n contoso --query properties.outputs > ./deploymentVariables.json
 cd tier3
 az deployment sub create -n deployTier3 -f tier3.bicep -l eastus --parameters resourcePrefix='myTier3' subnetAddressPrefix='10.0.125.0/26'
-cd ../aks
+cd ../../examples/aks
 az deployment sub show -n deployTier3 --query properties.outputs > ./vnetDeploymentVariables.json
 az deployment sub create -n deployAKS -f aks.bicep -l eastus --parameters resourcePrefix='myAKS' dnsServiceIp='10.1.0.10' serviceCidr='10.1.0.0/16' dockerBridgeCidr='170.10.0.1/16'
 ```
