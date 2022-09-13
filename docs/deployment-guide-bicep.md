@@ -74,7 +74,7 @@ Parameter name | Default Value | Description
 
 MLZ has optional features that can be enabled by setting parameters on the deployment.
 
-#### Azure Policy Initiatives: NIST, IL5, CMMC
+#### Azure Policy Initiatives: NISTRev4, NISTRev5, IL5, CMMC
 
 To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the `deployPolicy=true` parameter with `policy` assigned to one of the following: `NISTRev4`, `NISTRev5`, `IL5`, or `CMMC`.
 
