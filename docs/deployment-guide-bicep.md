@@ -74,16 +74,16 @@ Parameter name | Default Value | Description
 
 MLZ has optional features that can be enabled by setting parameters on the deployment.
 
-#### Azure Policy Initiatives: NIST, IL5, CMMC
+#### Azure Policy Initiatives: NISTRev4, NISTRev5, IL5, CMMC
 
-To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the `deployPolicy=true` parameter with `policy` assigned to one of the following: `NIST`, `IL5`, or `CMMC`.
+To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the `deployPolicy=true` parameter with `policy` assigned to one of the following: `NISTRev4`, `NISTRev5`, `IL5`, or `CMMC`.
 
 The result will be a policy assignment created for each resource group deployed by MLZ that can be viewed in the 'Compliance' view of Azure Policy in the Azure Portal.
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
 `deployPolicy` | 'false' | When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".
-`policy` | 'NIST' | [NIST/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NIST". IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.
+`policy` | 'NISTRev4' | [NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.
 
 Under the [src/bicep/modules/policies](../src/bicep/modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
 

@@ -663,7 +663,7 @@
                   "label": "Policy Assignment",
                   "placeholder": "",
                   "defaultValue": "NIST SP 800-53",
-                  "toolTip": "DoD IL5 is only available in AzureUsGovernment and will switch to NIST if tried in AzureCloud.",
+                  "toolTip": "DoD IL5 is only available in AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
                   "multiselect": false,
                   "selectAll": false,
                   "filter": true,
@@ -673,13 +673,18 @@
                   "constraints": {
                     "allowedValues": [
                       {
-                        "label": "NIST SP 800-53",
+                        "label": "NIST SP 800-53 Rev4",
                         "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
-                        "value": "NIST"
+                        "value": "NISTRev4"
+                      },
+                      {
+                        "label": "NIST SP 800-53 Rev5",
+                        "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
+                        "value": "NISTRev5"
                       },
                       {
                         "label": "DoD IL5",
-                        "description": "The Defense Information Systems Agency (DISA) is an agency of the US Department of Defense (DoD) that is responsible for developing and maintaining the DoD Cloud Computing Security Requirements Guide (SRG). These policies are only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.",
+                        "description": "The Defense Information Systems Agency (DISA) is an agency of the US Department of Defense (DoD) that is responsible for developing and maintaining the DoD Cloud Computing Security Requirements Guide (SRG). These policies are only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
                         "value": "IL5"
                       },
                       {
