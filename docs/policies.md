@@ -40,14 +40,14 @@ Deploying policy assignments for NIST along with a standard deployment of MLZ is
 
 ### Deploying with Bicep
 
-To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the parameter with one of the following, NIST, IL5 or CMMC. For example:
+To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the parameter with one of the following, NISTRev4, NISTRev5, IL5 or CMMC. For example:
 
 ```plaintext
 az deployment sub create \
   --location eastus \
   --template-file mlz.bicep \
   --parameters deployPolicy=true \
-  --parameters policy=<one of 'CMMC', 'IL5', or 'NIST'>
+  --parameters policy=<one of 'CMMC', 'IL5', 'NISTRev4', or 'NISTRev5'>
 ```
 
 Or, you can apply policy after deploying MLZ:
@@ -57,7 +57,7 @@ az deployment group create \
   --resource-group <Resource Group to assign> \
   --name <original deployment name + descriptor> \
   --template-file ./src/bicep/modules/policy-assignment.bicep \
-  --parameters builtInAssignment=<one of 'CMMC', 'IL5', or 'NIST'> logAnalyticsWorkspaceName=<Log analytics workspace name> \
+  --parameters builtInAssignment=<one of 'CMMC', 'IL5', 'NISTRev4', or 'NISTRev5'> logAnalyticsWorkspaceName=<Log analytics workspace name> \
   --parameters logAnalyticsWorkspaceName=<Log Analytics Workspace Name> \
   --parameters logAnalyticsWorkspaceResourceGroupName=<Log Analytics Workspace Resource Group Name>
 ```
