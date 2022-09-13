@@ -48,8 +48,8 @@ param vmStorageAccountType string = 'StandardSSD_LRS'
   'Static'
   'Dynamic'
 ])
-@description('[Static/Dynamic] The private IP Address allocation method for the Virtual Machine. It defaults to "Dynamic".')
-param nicPrivateIPAddressAllocationMethod string = 'Dynamic'
+@description('[Static/Dynamic] The private IP Address allocation method for the Virtual Machine. It defaults to "Static".')
+param nicPrivateIPAddressAllocationMethod string = 'Static'
 
 @description('Array of static private IP addresses for the VM Network Interface Cards')
 param nicPrivateIPAddresses array = []
@@ -200,7 +200,7 @@ param conditionalDnsServerForwarders array = [
 
 var vmAvSetName = '${vmNamePrefix}-avset-01'
 var NetworkInterfaceIpConfigurationName = 'ipConfiguration1'
-var sasToken = ((extensionsFilesContainerSas != '') ? '?${extensionsFilesContainerSas}' : null)
+var sasToken = ((extensionsFilesContainerSas != '') ? '?${extensionsFilesContainerSas}' : '')
 
 resource vmAvSet 'Microsoft.Compute/availabilitySets@2022-03-01' = {
   name: vmAvSetName
