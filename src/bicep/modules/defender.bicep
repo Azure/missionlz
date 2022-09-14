@@ -5,32 +5,32 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-param bundle array = (environment().name == 'AzureCloud') ? [  
-	'AppServices'
-	'Arm'
-	'ContainerRegistry'
-	'Containers'
-	'CosmosDbs'
-	'Dns'
-	'KeyVaults'
-	'KubernetesService'
-	'OpenSourceRelationalDatabases'
-	'SqlServers'
-	'SqlServerVirtualMachines'
-	'StorageAccounts'
-	'VirtualMachines'
-  ] : (environment().name == 'AzureUSGovernment') ? [
-	'Arm'
-	'ContainerRegistry'
-	'Containers'
-	'Dns'
-	'KubernetesService'
-	'OpenSourceRelationalDatabases'
-	'SqlServers'
-	'SqlServerVirtualMachines'
-	'StorageAccounts'
-	'VirtualMachines'
-  ] : []
+param bundle array = (environment().name == 'AzureCloud') ? [
+  'AppServices'
+  'Arm'
+  'ContainerRegistry'
+  'Containers'
+  'CosmosDbs'
+  'Dns'
+  'KeyVaults'
+  'KubernetesService'
+  'OpenSourceRelationalDatabases'
+  'SqlServers'
+  'SqlServerVirtualMachines'
+  'StorageAccounts'
+  'VirtualMachines'
+] : (environment().name == 'AzureUSGovernment') ? [
+  'Arm'
+  'ContainerRegistry'
+  'Containers'
+  'Dns'
+  'KubernetesService'
+  'OpenSourceRelationalDatabases'
+  'SqlServers'
+  'SqlServerVirtualMachines'
+  'StorageAccounts'
+  'VirtualMachines'
+] : []
 
 @description('Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off')
 param enableAutoProvisioning bool = true
@@ -44,7 +44,6 @@ param emailSecurityContact string
 
 @description('Policy Initiative description field')
 param policySetDescription string = 'The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.'
-
 
 // defender
 
@@ -64,7 +63,7 @@ resource autoProvision 'Microsoft.Security/autoProvisioningSettings@2017-08-01-p
   }
 }
 
-resource securityWorkspaceSettings  'Microsoft.Security/workspaceSettings@2017-08-01-preview' = {
+resource securityWorkspaceSettings 'Microsoft.Security/workspaceSettings@2017-08-01-preview' = {
   name: 'default'
   properties: {
     workspaceId: logAnalyticsWorkspaceId
@@ -89,6 +88,6 @@ resource securityPoliciesDefault 'Microsoft.Authorization/policyAssignments@2020
     description: policySetDescription
     enforcementMode: 'DoNotEnforce'
     parameters: {}
-    policyDefinitionId: '/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8'
+    policyDefinitionId: tenantResourceId('Microsoft.Authorization/policySetDefinitions', '1f3afdf9-d0c9-4c3d-847f-89da613e70a8')
   }
 }
