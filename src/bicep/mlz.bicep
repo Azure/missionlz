@@ -277,28 +277,28 @@ param operationsVirtualNetworkDiagnosticsMetrics array = []
 @description('An array of Network Security Group rules to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
 param operationsNetworkSecurityGroupRules array = [
   {
-  name: 'Allow-Traffic-From-Spokes'
-  properties: {
-    access: 'Allow'
-    description: 'Allow traffic from spokes'
-    destinationAddressPrefix: operationsVirtualNetworkAddressPrefix
-    destinationPortRanges: [
-      '22'
-      '80'
-      '443'
-      '3389'
-    ]
-    direction: 'Inbound'
-    priority: 200
-    protocol: '*'
-    sourceAddressPrefixes: [
-      identityVirtualNetworkAddressPrefix
-      sharedServicesVirtualNetworkAddressPrefix
-    ]
-    sourcePortRange: '*'
+    name: 'Allow-Traffic-From-Spokes'
+    properties: {
+      access: 'Allow'
+      description: 'Allow traffic from spokes'
+      destinationAddressPrefix: operationsVirtualNetworkAddressPrefix
+      destinationPortRanges: [
+        '22'
+        '80'
+        '443'
+        '3389'
+      ]
+      direction: 'Inbound'
+      priority: 200
+      protocol: '*'
+      sourceAddressPrefixes: [
+        identityVirtualNetworkAddressPrefix
+        sharedServicesVirtualNetworkAddressPrefix
+      ]
+      sourcePortRange: '*'
+    }
+    type: 'string'
   }
-  type: 'string'
-}
 ]
 
 @description('An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
@@ -711,9 +711,9 @@ var spokes = [
 // TAGS
 
 var defaultTags = {
-  'resourcePrefix': resourcePrefix
-  'resourceSuffix': resourceSuffix
-  'DeploymentType': 'MissionLandingZoneARM'
+  resourcePrefix: resourcePrefix
+  resourceSuffix: resourceSuffix
+  DeploymentType: 'MissionLandingZoneARM'
 }
 
 var calculatedTags = union(tags, defaultTags)
@@ -937,7 +937,7 @@ module hubSubscriptionActivityLogging './modules/central-logging.bicep' = {
   ]
 }
 
-module azureMonitorPrivateLink './modules/private-link.bicep' = if ( contains(supportedClouds, environment().name) ){
+module azureMonitorPrivateLink './modules/private-link.bicep' = if (contains(supportedClouds, environment().name)) {
   name: 'azure-monitor-private-link'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
