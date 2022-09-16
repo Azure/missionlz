@@ -8,6 +8,7 @@ You [must first deploy MissionLZ](../README.md#Deployment), then you can deploy 
 
 Example | Description
 ------- | -----------
+[AKS](./aks) | Deploys an AKS cluster into [Tier 3 Spoke Network](../add-ons/tier3/README.md).
 [appServicePlan](./app-service-plan) | Deploys an App Service Plan (AKA: Web Server Cluster) to support simple web accessible linux docker containers with optional dynamic auto scaling.
 [Automation Account](./automation-account) | Deploys an Azure Automation account that can be used to execute runbooks.
 [Container Registry](./container-registry/) | Deploys an Azure Container Registry for holding and deploying docker containers.

@@ -29,7 +29,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
 var policyDefinitionID = {
   NISTRev4: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f'
-    parameters: json(replace(loadTextContent('policies/NISTRev4-policyAssignmentParameters.json'),'<LAWORKSPACE>', logAnalyticsWorkspace.id))
+    parameters: json(replace(loadTextContent('policies/NISTRev4-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.id))
   }
   NISTRev5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f'
@@ -37,15 +37,15 @@ var policyDefinitionID = {
   }
   IL5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197'
-    parameters: json(replace(loadTextContent('policies/IL5-policyAssignmentParameters.json'),'<LAWORKSPACE>', logAnalyticsWorkspace.id))
+    parameters: json(replace(loadTextContent('policies/IL5-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.id))
   }
   CMMC: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de'
-    parameters: json(replace(loadTextContent('policies/CMMC-policyAssignmentParameters.json'),'<LAWORKSPACE>', logAnalyticsWorkspace.properties.customerId))
+    parameters: json(replace(loadTextContent('policies/CMMC-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.properties.customerId))
   }
 }
 
-var modifiedAssignment = ( environment().name =~ 'AzureCloud' && builtInAssignment =~ 'IL5' ? 'NISTRev4' : builtInAssignment )
+var modifiedAssignment = (environment().name =~ 'AzureCloud' && builtInAssignment =~ 'IL5' ? 'NISTRev4' : builtInAssignment)
 var assignmentName = '${modifiedAssignment} ${resourceGroup().name}'
 var agentVmssAssignmentName = 'Deploy VMSS Agents ${resourceGroup().name}'
 var agentVmAssignmentName = 'Deploy VM Agents ${resourceGroup().name}'
@@ -57,8 +57,8 @@ resource assignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
   name: assignmentName
   location: location
   properties: {
-      policyDefinitionId: policyDefinitionID[modifiedAssignment].id
-      parameters: policyDefinitionID[modifiedAssignment].parameters
+    policyDefinitionId: policyDefinitionID[modifiedAssignment].id
+    parameters: policyDefinitionID[modifiedAssignment].parameters
   }
   identity: {
     type: 'SystemAssigned'
@@ -69,7 +69,7 @@ resource vmssAgentAssignment 'Microsoft.Authorization/policyAssignments@2020-09-
   name: agentVmssAssignmentName
   location: location
   properties: {
-    policyDefinitionId: '/providers/Microsoft.Authorization/policySetDefinitions/75714362-cae7-409e-9b99-a8e5075b7fad'
+    policyDefinitionId: tenantResourceId('Microsoft.Authorization/policySetDefinitions', '75714362-cae7-409e-9b99-a8e5075b7fad')
     parameters: {
       logAnalytics_1: {
         value: logAnalyticsWorkspace.id
@@ -85,7 +85,7 @@ resource vmAgentAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01
   name: agentVmAssignmentName
   location: location
   properties: {
-    policyDefinitionId: '/providers/Microsoft.Authorization/policySetDefinitions/55f3eceb-5573-4f18-9695-226972c6d74a'
+    policyDefinitionId: tenantResourceId('Microsoft.Authorization/policySetDefinitions', '55f3eceb-5573-4f18-9695-226972c6d74a')
     parameters: {
       logAnalytics_1: {
         value: logAnalyticsWorkspace.id
@@ -99,34 +99,34 @@ resource vmAgentAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01
 
 // assign the policies assigned idenitity as contributor to each resource group for deploy if not exist and modify policiy remediation
 resource policyRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(contributorRoleDefinitionId,assignmentName)
+  name: guid(contributorRoleDefinitionId, assignmentName)
   scope: resourceGroup()
   properties: {
     roleDefinitionId: contributorRoleDefinitionId
     principalId: (empty(modifiedAssignment) ? '' : assignment.identity.principalId)
     principalType: 'ServicePrincipal'
-    }
   }
+}
 
 resource vmmsPolicyRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(contributorRoleDefinitionId,agentVmssAssignmentName)
+  name: guid(contributorRoleDefinitionId, agentVmssAssignmentName)
   scope: resourceGroup()
   properties: {
     roleDefinitionId: contributorRoleDefinitionId
     principalId: vmssAgentAssignment.identity.principalId
     principalType: 'ServicePrincipal'
-    }
   }
+}
 
 resource vmPolicyRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(contributorRoleDefinitionId,agentVmAssignmentName)
+  name: guid(contributorRoleDefinitionId, agentVmAssignmentName)
   scope: resourceGroup()
   properties: {
     roleDefinitionId: contributorRoleDefinitionId
     principalId: vmAgentAssignment.identity.principalId
     principalType: 'ServicePrincipal'
-    }
   }
+}
 
 module roleAssignment '../modules/role-assignment.bicep' = {
   name: 'Assign-Laws-Role-Policy-${resourceGroup().name}'
@@ -138,7 +138,7 @@ module roleAssignment '../modules/role-assignment.bicep' = {
   }
 }
 
-resource vmPolicyRemediation 'Microsoft.PolicyInsights/remediations@2019-07-01' = if(deployRemediation) {
+resource vmPolicyRemediation 'Microsoft.PolicyInsights/remediations@2019-07-01' = if (deployRemediation) {
   name: 'VM-Agent-Policy-Remediation'
   properties: {
     policyAssignmentId: vmAgentAssignment.id
