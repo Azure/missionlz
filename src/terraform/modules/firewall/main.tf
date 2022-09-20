@@ -27,7 +27,6 @@ resource "azurerm_public_ip" "fw_client_pip" {
   resource_group_name = data.azurerm_resource_group.hub.name
   allocation_method   = "Static"
   sku                 = "Standard"
-  availability_zone   = "No-Zone"
   tags                = var.tags
 }
 
@@ -37,7 +36,6 @@ resource "azurerm_public_ip" "fw_mgmt_pip" {
   resource_group_name = data.azurerm_resource_group.hub.name
   allocation_method   = "Static"
   sku                 = "Standard"
-  availability_zone   = "No-Zone"
   tags                = var.tags
 }
 
@@ -53,6 +51,7 @@ resource "azurerm_firewall" "firewall" {
   name                = var.firewall_name
   location            = var.location
   resource_group_name = data.azurerm_resource_group.hub.name
+  sku_name            = var.firewall_sku_name
   sku_tier            = var.firewall_sku
   private_ip_ranges   = var.disable_snat_ip_range
   firewall_policy_id  = azurerm_firewall_policy.firewallpolicy.id

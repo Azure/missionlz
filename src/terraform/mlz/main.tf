@@ -12,19 +12,19 @@ terraform {
   */
   backend "local" {}
 
-  required_version = ">= 1.0.11"
+  required_version = ">= 1.2.9"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "= 2.90.0"
+      version = "= 3.23.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = "= 3.1.0"
+      version = "= 3.4.3"
     }
     time = {
       source  = "hashicorp/time"
-      version = "0.7.2"
+      version = "0.8.0"
     }
   }
 }
@@ -131,7 +131,7 @@ locals {
 resource "random_id" "random" {
   keepers = {
     # Generate a new id each time we change resourePrefix variable
-    resourcePrefix = "${var.resourcePrefix}"
+    resourcePrefix = var.resourcePrefix
   }
   byte_length = 8
 }
@@ -338,6 +338,7 @@ module "firewall" {
   client_address_space = var.hub_client_address_space
 
   firewall_name                   = var.firewall_name
+  firewall_sku_name               = var.firewall_sku_name
   firewall_sku                    = contains(local.firewall_premium_environments, lower(var.environment)) ? "Premium" : "Standard"
   firewall_client_subnet_name     = module.hub-network.firewall_client_subnet_name
   firewall_management_subnet_name = module.hub-network.firewall_management_subnet_name
@@ -507,8 +508,8 @@ module "jumpbox-subnet" {
   address_prefixes     = var.jumpbox_subnet.address_prefixes
   service_endpoints    = lookup(var.jumpbox_subnet, "service_endpoints", [])
 
-  enforce_private_link_endpoint_network_policies = lookup(var.jumpbox_subnet, "enforce_private_link_endpoint_network_policies", null)
-  enforce_private_link_service_network_policies  = lookup(var.jumpbox_subnet, "enforce_private_link_service_network_policies", null)
+  private_endpoint_network_policies_enabled     = lookup(var.jumpbox_subnet, "private_endpoint_network_policies_enabled", null)
+  private_link_service_network_policies_enabled = lookup(var.jumpbox_subnet, "private_link_service_network_policies_enabled", null)
 
   nsg_name  = var.jumpbox_subnet.nsg_name
   nsg_rules = var.jumpbox_subnet.nsg_rules
