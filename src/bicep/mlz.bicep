@@ -42,6 +42,12 @@ param sharedServicesSubscriptionId string = subscription().subscriptionId
 @description('The region to deploy resources into. It defaults to the deployment location.')
 param location string = deployment().location
 
+@description('Supported Azure Clouds array. It defaults to the Public cloud and the Azure US Government cloud.')
+param supportedClouds array = [
+  'AzureCloud'
+  'AzureUSGovernment'
+]
+
 // RESOURCE NAMING PARAMETERS
 
 @description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
@@ -276,25 +282,28 @@ param operationsVirtualNetworkDiagnosticsMetrics array = []
 @description('An array of Network Security Group rules to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
 param operationsNetworkSecurityGroupRules array = [
   {
-  name: 'Allow-Traffic-From-Spokes'
-  properties: {
-    access: 'Allow'
-    description: 'Allow traffic from spokes'
-    destinationAddressPrefixes: operationsVirtualNetworkAddressPrefixes
-    destinationPortRanges: [
-      '22'
-      '80'
-      '443'
-      '3389'
-    ]
-    direction: 'Inbound'
-    priority: 200
-    protocol: '*'
-    sourceAddressPrefixes: union(identityVirtualNetworkAddressPrefixes,sharedServicesVirtualNetworkAddressPrefixes) 
-    sourcePortRange: '*'
+    name: 'Allow-Traffic-From-Spokes'
+    properties: {
+      access: 'Allow'
+      description: 'Allow traffic from spokes'
+      destinationAddressPrefix: operationsVirtualNetworkAddressPrefix
+      destinationPortRanges: [
+        '22'
+        '80'
+        '443'
+        '3389'
+      ]
+      direction: 'Inbound'
+      priority: 200
+      protocol: '*'
+      sourceAddressPrefixes: [
+        identityVirtualNetworkAddressPrefix
+        sharedServicesVirtualNetworkAddressPrefix
+      ]
+      sourcePortRange: '*'
+    }
+    type: 'string'
   }
-  type: 'string'
-}
 ]
 
 @description('An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
@@ -498,12 +507,13 @@ param windowsNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 param deployPolicy bool = false
 
 @allowed([
-  'NIST'
-  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NIST
+  'NISTRev4'
+  'NISTRev5'
+  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NISTRev4
   'CMMC'
 ])
-@description('[NIST/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NIST". IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.')
-param policy string = 'NIST'
+@description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
+param policy string = 'NISTRev4'
 
 // MICROSOFT DEFENDER PARAMETERS
 
@@ -657,14 +667,10 @@ var spokes = [
     networkSecurityGroupRules: identityNetworkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: identityNetworkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
-    subnets: [
-      {
-        subnetName: identitySubnetName
-        subnetAddressPrefix: identitySubnetAddressPrefix
-        subnetServiceEndpoints: identitySubnetServiceEndpoints
-      }
-    ]
-
+    subnetName: identitySubnetName
+    subnetAddressPrefix: identitySubnetAddressPrefix
+    subnetServiceEndpoints: identitySubnetServiceEndpoints
+    subnetPrivateEndpointNetworkPolicies: 'Enabled'
   }
   {
     name: operationsName
@@ -679,13 +685,10 @@ var spokes = [
     networkSecurityGroupRules: operationsNetworkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: operationsNetworkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: operationsNetworkSecurityGroupDiagnosticsMetrics
-    subnets: [
-      {
-        subnetName: operationsSubnetName
-        subnetAddressPrefix: operationsSubnetAddressPrefix
-        subnetServiceEndpoints: operationsSubnetServiceEndpoints    
-      }
-    ]
+    subnetName: operationsSubnetName
+    subnetAddressPrefix: operationsSubnetAddressPrefix
+    subnetServiceEndpoints: operationsSubnetServiceEndpoints
+    subnetPrivateEndpointNetworkPolicies: 'Disabled'
   }
   {
     name: sharedServicesName
@@ -700,22 +703,19 @@ var spokes = [
     networkSecurityGroupRules: sharedServicesNetworkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: sharedServicesNetworkSecurityGroupDiagnosticsMetrics
-    subnets: [
-      {
-        subnetName: sharedServicesSubnetName
-        subnetAddressPrefix: sharedServicesSubnetAddressPrefix
-        subnetServiceEndpoints: sharedServicesSubnetServiceEndpoints    
-      }
-    ]
+    subnetName: sharedServicesSubnetName
+    subnetAddressPrefix: sharedServicesSubnetAddressPrefix
+    subnetServiceEndpoints: sharedServicesSubnetServiceEndpoints
+    subnetPrivateEndpointNetworkPolicies: 'Enabled'
   }
 ]
 
 // TAGS
 
 var defaultTags = {
-  'resourcePrefix': resourcePrefix
-  'resourceSuffix': resourceSuffix
-  'DeploymentType': 'MissionLandingZoneARM'
+  resourcePrefix: resourcePrefix
+  resourceSuffix: resourceSuffix
+  DeploymentType: 'MissionLandingZoneARM'
 }
 
 var calculatedTags = union(tags, defaultTags)
@@ -780,8 +780,6 @@ module hubNetwork './core/hub-network.bicep' = {
 
     logStorageAccountName: hubLogStorageAccountName
     logStorageSkuName: logStorageSkuName
-
-    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
 
     virtualNetworkName: hubVirtualNetworkName
@@ -854,7 +852,10 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
     networkSecurityGroupRules: spoke.networkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: spoke.networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: spoke.networkSecurityGroupDiagnosticsMetrics
-    subnets: spoke.subnets
+    subnetName: spoke.subnetName
+    subnetAddressPrefix: spoke.subnetAddressPrefix
+    subnetServiceEndpoints: spoke.subnetServiceEndpoints
+    subnetPrivateEndpointNetworkPolicies: spoke.subnetPrivateEndpointNetworkPolicies
   }
 }]
 
@@ -911,6 +912,20 @@ module spokePolicyAssignments './modules/policy-assignment.bicep' = [for spoke i
   }
 }]
 
+// PRIVATE DNS
+
+module azurePrivateDns './modules/private-dns.bicep' = {
+  name: 'azure-private-dns'
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  params: {
+    vnetName: hubNetwork.outputs.virtualNetworkName
+    tags: tags
+  }
+  dependsOn: [
+    hubNetwork
+  ]
+}
+
 // CENTRAL LOGGING
 
 module hubSubscriptionActivityLogging './modules/central-logging.bicep' = {
@@ -922,6 +937,29 @@ module hubSubscriptionActivityLogging './modules/central-logging.bicep' = {
   }
   dependsOn: [
     hubNetwork
+  ]
+}
+
+module azureMonitorPrivateLink './modules/private-link.bicep' = if (contains(supportedClouds, environment().name)) {
+  name: 'azure-monitor-private-link'
+  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
+  params: {
+    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
+    privateEndpointSubnetName: operationsSubnetName
+    privateEndpointVnetName: operationsVirtualNetworkName
+    monitorPrivateDnsZoneId: azurePrivateDns.outputs.monitorPrivateDnsZoneId
+    omsPrivateDnsZoneId: azurePrivateDns.outputs.omsPrivateDnsZoneId
+    odsPrivateDnsZoneId: azurePrivateDns.outputs.odsPrivateDnsZoneId
+    agentsvcPrivateDnsZoneId: azurePrivateDns.outputs.agentsvcPrivateDnsZoneId
+    storagePrivateDnsZoneId: azurePrivateDns.outputs.storagePrivateDnsZoneId
+    location: location
+    tags: tags
+  }
+  dependsOn: [
+    logAnalyticsWorkspace
+    spokeNetworks
+    azurePrivateDns
   ]
 }
 
@@ -963,7 +1001,7 @@ module hubDefender './modules/defender.bicep' = if (deployDefender) {
 
 module spokeDefender './modules/defender.bicep' = [for spoke in spokes: if ((deployDefender) && (spoke.subscriptionId != hubSubscriptionId)) {
   name: 'set-${spoke.name}-sub-defender'
-  scope: subscription(operationsSubscriptionId)
+  scope: subscription(spoke.subscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     emailSecurityContact: emailSecurityContact
@@ -1024,6 +1062,9 @@ module remoteAccess './core/remote-access.bicep' = if (deployRemoteAccess) {
 
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
   }
+  dependsOn: [
+    azureMonitorPrivateLink
+  ]
 }
 
 /*
@@ -1058,11 +1099,19 @@ output hub object = {
   networkSecurityGroupResourceId: hubNetwork.outputs.networkSecurityGroupResourceId
 }
 
+output deployDefender bool = deployDefender
+
+output emailSecurityContact string = emailSecurityContact
+
 output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.outputs.name
 
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.outputs.id
 
 output diagnosticStorageAccountName string = operationsLogStorageAccountName
+
+output policyName string = policy
+
+output deployPolicy bool = deployPolicy
 
 output spokes array = [for (spoke, i) in spokes: {
   name: spoke.name

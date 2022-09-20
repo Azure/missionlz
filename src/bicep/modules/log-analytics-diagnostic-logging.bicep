@@ -11,7 +11,6 @@ param supportedClouds array = [
   'AzureUSGovernment'
 ]
 
-
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
   name: logAnalyticsWorkspaceName
 }
@@ -20,15 +19,9 @@ resource stg 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {
   name: diagnosticStorageAccountName
 }
 
-resource securityContacts 'Microsoft.Security/securityContacts@2017-08-01-preview' existing = {
-  name: 'securityNotifications'
-  scope: subscription()
-}
-
-
 //// Setting log analytics to collect its own diagnostics to itself and to storage
-resource logAnalyticsDiagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = if ( contains(supportedClouds, environment().name)) {
-  name: 'enable-log-analytics-diagnostics'  
+resource logAnalyticsDiagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = if (contains(supportedClouds, environment().name)) {
+  name: 'enable-log-analytics-diagnostics'
   scope: logAnalyticsWorkspace
   properties: {
     workspaceId: logAnalyticsWorkspace.id

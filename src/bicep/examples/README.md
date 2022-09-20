@@ -8,6 +8,7 @@ You [must first deploy MissionLZ](../README.md#Deployment), then you can deploy 
 
 Example | Description
 ------- | -----------
+[AKS](./aks) | Deploys an AKS cluster into [Tier 3 Spoke Network](../add-ons/tier3/README.md).
 [appServicePlan](./app-service-plan) | Deploys an App Service Plan (AKA: Web Server Cluster) to support simple web accessible linux docker containers with optional dynamic auto scaling.
 [Automation Account](./automation-account) | Deploys an Azure Automation account that can be used to execute runbooks.
 [Container Registry](./container-registry/) | Deploys an Azure Container Registry for holding and deploying docker containers.
@@ -15,6 +16,7 @@ Example | Description
 [KeyVault](./key-vault/) | Deploys a premium Azure Key Vault with RBAC enabled to support secret, key, and certificate management.
 [Azure Sentinel](./sentinel) | A Terraform module that adds an Azure Sentinel solution to a Log Analytics Workspace. Sentinel can also be deployed via bicep and the base deployment of mlz.bicep by using the boolean param '-deploySentinel'.
 [Zero Trust (TIC3.0) Workbook](./zero-trust-workbook) | Deploys an Azure Sentinel Zero Trust (TIC3.0) Workbook
+[IaaS DNS Forwarders](./iaas-dns-forwarders) | Deploys DNS Forwarder Virtual Machines in the HUB, for proper resolution of Private Endpoint and internal domains accross all Virtual Networks 
 
 ## Shared Variable File Pattern (deploymentVariables.json)
 

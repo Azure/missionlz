@@ -31,6 +31,8 @@ param routeTableRouteAddressPrefix string = '0.0.0.0/0'
 param routeTableRouteNextHopIpAddress string = firewallPrivateIPAddress
 param routeTableRouteNextHopType string = 'VirtualAppliance'
 
+param subnetPrivateEndpointNetworkPolicies string
+
 module logStorage '../modules/storage-account.bicep' = {
   name: 'logStorage'
   params: {
@@ -91,7 +93,8 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
           routeTable: {
             id: resourceId(resourceGroup().name,'Microsoft.Network/routeTables','${subnet.subnetName}-routetable')
           }
-          serviceEndpoints: subnet.subnetServiceEndpoints
+          serviceEndpoints: subnetServiceEndpoints            
+          privateEndpointNetworkPolicies: subnetPrivateEndpointNetworkPolicies
         }
       }]
 
