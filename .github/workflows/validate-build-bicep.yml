@@ -10,7 +10,7 @@ on:
     - 'src/bicep/**'
     - '!src/bicep/**.md'
 env:
-  BICEP_VERSION: 'v0.4.1272'
+  BICEP_VERSION: 'v0.10.61'
 jobs:
   validate-build:
     runs-on: ubuntu-latest
