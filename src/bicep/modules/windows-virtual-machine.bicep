@@ -22,6 +22,7 @@ param createOption string
 param storageAccountType string
 param logAnalyticsWorkspaceId  string
 param availabilitySet object = {}
+param dataDisks array = []
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' existing = {
   name: networkInterfaceName
@@ -55,6 +56,7 @@ resource windowsVirtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = 
           storageAccountType: storageAccountType          
         }
       }
+      dataDisks: dataDisks
     }
     networkProfile: {
       networkInterfaces: [

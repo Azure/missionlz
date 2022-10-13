@@ -1,6 +1,6 @@
 @description('MLZ Deployment output variables in json format. It defaults to the deploymentVariables.json.')
 param mlzDeploymentVariables object = json(loadTextContent('../deploymentVariables.json'))
-param hubVirtualNetworkSubnetId string = mlzDeploymentVariables.hub.Value.subnetResourceId
+param identityVirtualNetworkSubnetId string = mlzDeploymentVariables.spokes.Value[0].subnetResourceId
 param logAnalyticsWorkspaceResourceId string = mlzDeploymentVariables.logAnalyticsWorkspaceResourceId.Value
 
 @description('The region to deploy resources into. It defaults to the deployment location.')
@@ -35,6 +35,9 @@ param vmCreateOption string = 'FromImage'
 
 @description('The storage account type of the Virtual Machine. It defaults to "StandardSSD_LRS".')
 param vmStorageAccountType string = 'StandardSSD_LRS'
+
+@description('The size of the VM Data Disk. It defaults to 16GB.')
+param vmDataDiskSizeGB int = 16
 
 @allowed([
   'Static'
@@ -128,7 +131,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' = [fo
         name: NetworkInterfaceIpConfigurationName
         properties: {
           subnet: {
-            id: hubVirtualNetworkSubnetId
+            id: identityVirtualNetworkSubnetId
           }
           privateIPAllocationMethod: nicPrivateIPAddressAllocationMethod
           privateIPAddress: ((nicPrivateIPAddressAllocationMethod == 'Static') ? nicPrivateIPAddresses[i] : null)
@@ -158,7 +161,19 @@ module domainControllerVM '../../modules/windows-virtual-machine.bicep' = [for v
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
     availabilitySet: {
       id: vmAvSet.id
-    }
+    }    
+    dataDisks: [
+      {
+        createOption: 'Empty'
+        caching: 'None'
+        diskSizeGB: vmDataDiskSizeGB
+        lun: 1
+        name: '${vmNamePrefix}-0${(vmi + 1)}-dataDisk-1'
+        managedDisk: {          
+          storageAccountType: vmStorageAccountType
+        }
+      }
+    ]
   }
   dependsOn: [
     networkInterface
@@ -279,7 +294,7 @@ resource AddSecondDCDSC 'Microsoft.Compute/virtualMachines/extensions@2021-03-01
     protectedSettings: {
       configurationArguments: {
         domainAdminCredentials: {
-          UserName: '${netbiosDomainName}\\${domainAdminUsername}'
+          UserName: '${domainAdminUsername}@${dnsDomainName}'
           Password: domainAdminPassword
         }
         safemodeAdminCredentials: {
@@ -290,6 +305,7 @@ resource AddSecondDCDSC 'Microsoft.Compute/virtualMachines/extensions@2021-03-01
     }
   }
   dependsOn: [
+    NewADForestDSC
     AddFirstDCDSC
   ]
 }
