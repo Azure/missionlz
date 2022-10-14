@@ -22,7 +22,7 @@ This example deploys Active Directory Domain Controller Virtual Machines in the 
 
 ### Generate MLZ Variable File (deploymentVariables.json)
 
-For instructions on generating 'deploymentVariables.json' using both Azure PowerShell and Azure CLI, please see the [README at the root of the examples folder](..\README.md).
+For instructions on generating 'deploymentVariables.json' using both Azure PowerShell and Azure CLI, please see the [README at the root of the examples folder](../README.md).
 
 Place the resulting 'deploymentVariables.json' file within the ./src/bicep/examples folder.
 
@@ -33,7 +33,7 @@ Place the resulting 'deploymentVariables.json' file within the ./src/bicep/examp
 Template Parameters Name       | Description
 ---                            | ---
 vmNamePrefix                   | 3 to 12 characters VM name prefix. -01 and -02 will get appended to that prefix.
-nicPrivateIPAddresses          | array of two static IP addresses available in the HUB VNET subnet.
+nicPrivateIPAddresses          | array of two static IP addresses available in the Identity VNET subnet.
 extensionsFilesContainerUri    | uri to the storage account used to host the DSC configuration and custom script file (if not relying on the public repo)           
 extensionsFilesContainerSas    | storage account account SAS token used to host the DSC configuration and custom script file (if not relying on the public repo)  
 dnsForwarders                  | default DNS server forwarders (for instance: DISA's). Defaults to Azure DNS.
@@ -58,13 +58,13 @@ Connect-AzAccount -Environment AzureUSGovernment
 New-AzSubscriptionDeployment -Name contoso -TemplateFile .\mlz.bicep -resourcePrefix 'contoso' -Location 'USGovVirginia'
 cd .\examples
 (Get-AzSubscriptionDeployment -Name contoso).outputs | ConvertTo-Json | Out-File -FilePath .\deploymentVariables.json
-cd .\keyVault
+cd .\iaas-activedirectory-domaincontrollers
 $vmDomainAdminPassword = Read-Host -Prompt "Please provide a password for the domain administrator account, with a length of at least 12 characters" -AsSecureString
 $vmDomainJoinPassword = Read-Host -Prompt "Please provide a password for the domain join account, with a length of at least 12 characters" -AsSecureString
 New-AzResourceGroupDeployment -DeploymentName adDomainControllers `
-                              -TemplateFile .\forwarderVm.bicep
-                              -ResourceGroupName 'contoso-rg-identity-mlz'
-                              -vmNamePrefix 'contoso-adds'
+                              -TemplateFile .\forwarderVm.bicep `
+                              -ResourceGroupName 'contoso-rg-identity-mlz' `
+                              -vmNamePrefix 'contoso-adds' `
                               -nicPrivateIPAddresses "10.9.1.4", "10.9.1.5" `
                               -dnsForwarders "168.63.129.16" `
                               -dnsDomainName "ad.contoso.com" `
@@ -82,11 +82,11 @@ New-AzResourceGroupDeployment -DeploymentName adDomainControllers `
 
 The MLZ deployment needs to be configured for private DNS resolution, one of two ways depending on your scenario.
 
-### DNS Forwarders in the Hub
+### 1. DNS Forwarders in the Hub
 
-Use the [IaaS DNS forwarders example](..\iaas-dns-forwarders) to create DNS forwarders in the MLZ HUB, that will forward client DNS requests to Azure, Active Directory and the Internet as needed.
+Use the [IaaS DNS forwarders example](../iaas-dns-forwarders) to create DNS forwarders in the MLZ HUB, that will forward client DNS requests to Azure, Active Directory and the Internet as needed.
 
-### AD Domain Controllers act as DNS servers
+### 2. AD Domain Controllers act as DNS servers
 
 ![AD DNS Resolution diagram](diagram.png)
 
