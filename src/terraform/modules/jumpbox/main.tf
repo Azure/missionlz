@@ -18,16 +18,16 @@ resource "azurerm_key_vault" "jumpbox-keyvault" {
     object_id = var.object_id
 
     key_permissions = [
-      "create",
-      "get",
+      "Create",
+      "Get",
     ]
 
     secret_permissions = [
-      "set",
-      "get",
-      "delete",
-      "purge",
-      "recover"
+      "Set",
+      "Get",
+      "Delete",
+      "Purge",
+      "Recover"
     ]
   }
 
@@ -49,7 +49,7 @@ resource "random_password" "windows-jumpbox-password" {
   length      = random_integer.windows-jumpbox-password.result
   upper       = true
   lower       = true
-  number      = true
+  numeric     = true
   special     = true
   min_upper   = 1
   min_lower   = 1
@@ -72,7 +72,7 @@ resource "random_password" "linux-jumpbox-password" {
   length      = random_integer.linux-jumpbox-password.result
   upper       = true
   lower       = true
-  number      = true
+  numeric     = true
   special     = true
   min_upper   = 1
   min_lower   = 1

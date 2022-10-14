@@ -26,6 +26,11 @@ variable "vnet_address_space" {
   type        = list(string)
 }
 
+variable "firewall_sku_name" {
+  description = "SKU name of the Firewall. Possible values are AZFW_Hub and AZFW_VNet."
+  type        = string
+}
+
 variable "firewall_sku" {
   description = "The SKU for Azure Firewall"
   type        = string
