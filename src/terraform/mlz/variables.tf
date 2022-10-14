@@ -86,6 +86,12 @@ variable "firewall_name" {
   default     = "firewall"
 }
 
+variable "firewall_sku_name" {
+  description = "SKU name of the Firewall. Possible values are AZFW_Hub and AZFW_VNet."
+  type        = string
+  default     = "AZFW_VNet"
+}
+
 variable "firewall_policy_name" {
   description = "Name of the firewall policy to apply to the hub firewall"
   type        = string
@@ -161,8 +167,8 @@ variable "jumpbox_subnet" {
     address_prefixes  = list(string)
     service_endpoints = list(string)
 
-    enforce_private_link_endpoint_network_policies = bool
-    enforce_private_link_service_network_policies  = bool
+    private_endpoint_network_policies_enabled     = bool
+    private_link_service_network_policies_enabled = bool
 
     nsg_name = string
     nsg_rules = map(object({
@@ -184,8 +190,8 @@ variable "jumpbox_subnet" {
     address_prefixes  = ["10.0.100.160/27"]
     service_endpoints = ["Microsoft.Storage"]
 
-    enforce_private_link_endpoint_network_policies = false
-    enforce_private_link_service_network_policies  = false
+    private_endpoint_network_policies_enabled     = false
+    private_link_service_network_policies_enabled = false
 
     nsg_name = "jumpbox-subnet-nsg"
     nsg_rules = {

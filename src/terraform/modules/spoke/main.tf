@@ -24,8 +24,8 @@ module "subnets" {
   address_prefixes     = each.value.address_prefixes
   service_endpoints    = lookup(each.value, "service_endpoints", [])
 
-  enforce_private_link_endpoint_network_policies = lookup(each.value, "enforce_private_link_endpoint_network_policies", null)
-  enforce_private_link_service_network_policies  = lookup(each.value, "enforce_private_link_service_network_policies", null)
+  private_endpoint_network_policies_enabled     = lookup(each.value, "private_endpoint_network_policies_enabled", null)
+  private_link_service_network_policies_enabled = lookup(each.value, "private_link_service_network_policies_enabled", null)
 
   nsg_name  = each.value.nsg_name
   nsg_rules = each.value.nsg_rules

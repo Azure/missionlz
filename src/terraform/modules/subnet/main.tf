@@ -9,8 +9,8 @@ resource "azurerm_subnet" "subnet" {
 
   service_endpoints = var.service_endpoints
 
-  enforce_private_link_endpoint_network_policies = var.enforce_private_link_endpoint_network_policies
-  enforce_private_link_service_network_policies  = var.enforce_private_link_service_network_policies
+  private_endpoint_network_policies_enabled     = var.private_endpoint_network_policies_enabled
+  private_link_service_network_policies_enabled = var.private_link_service_network_policies_enabled
 }
 
 resource "azurerm_network_security_group" "nsg" {
@@ -92,6 +92,7 @@ resource "azurerm_monitor_diagnostic_setting" "nsg" {
 resource "azurerm_network_watcher_flow_log" "nsgfl" {
   depends_on = [azurerm_network_security_rule.nsgrules, azurerm_network_security_group.nsg]
 
+  name                 = var.name
   network_watcher_name = "NetworkWatcher_${replace(var.location, " ", "")}"
   resource_group_name  = "NetworkWatcherRG"
 
