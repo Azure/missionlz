@@ -20,7 +20,7 @@ Example | Description
 
 ## Shared Variable File Pattern (deploymentVariables.json)
 
-The shared variable file pattern reduced the repeition of shared values in a library of bicep files.   This pattern is utilized for all examples modules though in almost all cases you can over-ride the shared variable value by supplying custom parameter values at run time.  
+The shared variable file pattern reduced the repetition of shared values in a library of bicep files.   This pattern is utilized for all examples modules though in almost all cases you can over-ride the shared variable value by supplying custom parameter values at run time.  
 
 Shown below are two ways by which the shared variable file (deploymentVariables.json) can be generated.  The first utilizing PowerShell Core and the second using the Azure CLI.  A deployment of mlz.bicep is required, please make note of the name and region of the deployment.
 
