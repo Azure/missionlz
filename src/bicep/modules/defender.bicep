@@ -43,7 +43,7 @@ param logAnalyticsWorkspaceId string
 param emailSecurityContact string
 
 @description('Policy Initiative description field')
-param policySetDescription string = 'The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.'
+param policySetDescription string = 'The Microsoft Cloud Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Microsoft Cloud Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.'
 
 // defender
 
@@ -81,7 +81,7 @@ resource securityNotifications 'Microsoft.Security/securityContacts@2017-08-01-p
 }
 
 resource securityPoliciesDefault 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
-  name: 'Azure Security Benchmark'
+  name: 'Microsoft Cloud Security Benchmark'
   scope: subscription()
   properties: {
     displayName: 'Defender Default'

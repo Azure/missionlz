@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.10.61.36676",
-      "templateHash": "5303941002554581033"
+      "templateHash": "7571148492037470327"
     }
   },
   "parameters": {
@@ -4941,7 +4941,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.10.61.36676",
-              "templateHash": "12766624793953465210"
+              "templateHash": "16504472308304917287"
             }
           },
           "parameters": {
@@ -4970,7 +4970,7 @@
             },
             "policySetDescription": {
               "type": "string",
-              "defaultValue": "The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.",
+              "defaultValue": "The Microsoft Cloud Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Microsoft Cloud Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.",
               "metadata": {
                 "description": "Policy Initiative description field"
               }
@@ -5023,7 +5023,7 @@
             {
               "type": "Microsoft.Authorization/policyAssignments",
               "apiVersion": "2020-09-01",
-              "name": "Azure Security Benchmark",
+              "name": "Microsoft Cloud Security Benchmark",
               "properties": {
                 "displayName": "Defender Default",
                 "description": "[parameters('policySetDescription')]",
@@ -5070,7 +5070,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.10.61.36676",
-              "templateHash": "12766624793953465210"
+              "templateHash": "16504472308304917287"
             }
           },
           "parameters": {
@@ -5099,7 +5099,7 @@
             },
             "policySetDescription": {
               "type": "string",
-              "defaultValue": "The Azure Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Azure Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.",
+              "defaultValue": "The Microsoft Cloud Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Microsoft Cloud Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.",
               "metadata": {
                 "description": "Policy Initiative description field"
               }
@@ -5152,7 +5152,7 @@
             {
               "type": "Microsoft.Authorization/policyAssignments",
               "apiVersion": "2020-09-01",
-              "name": "Azure Security Benchmark",
+              "name": "Microsoft Cloud Security Benchmark",
               "properties": {
                 "displayName": "Defender Default",
                 "description": "[parameters('policySetDescription')]",
