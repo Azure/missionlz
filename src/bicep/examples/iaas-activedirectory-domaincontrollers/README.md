@@ -34,7 +34,7 @@ Template Parameters Name       | Description
 ---                            | ---
 vmNamePrefix                   | 3 to 12 characters VM name prefix. -01 and -02 will get appended to that prefix.
 nicPrivateIPAddresses          | array of two static IP addresses available in the Identity VNET subnet.
-extensionsFilesContainerUri    | uri to the storage account used to host the DSC configuration and custom script file (if not relying on the public repo)           
+extensionsFilesContainerUri    | uri to the storage account used to host the DSC configuration and custom script file (if not relying on the public repo)
 extensionsFilesContainerSas    | storage account account SAS token used to host the DSC configuration and custom script file (if not relying on the public repo)  
 dnsForwarders                  | default DNS server forwarders (for instance: DISA's). Defaults to Azure DNS.
 createOrAdd                    | Whether to create a new forest or add both domain controllers to an existing domain.

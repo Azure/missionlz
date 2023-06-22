@@ -27,12 +27,12 @@ az deployment sub create \
 
 ## Prerequisites
 
-- One or more Azure subscriptions where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
+- One or more Azure subscriptions where you or an identity you manage has `Owner` [RBAC permissions](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
 - For deployments in the Azure Portal you need access to the portal in the cloud you want to deploy to, such as [https://portal.azure.com](https://portal.azure.com) or [https://portal.azure.us](https://portal.azure.us).
-- For deployments in BASH or a Windows shell, then a terminal instance with the AZ CLI installed is required. For example, [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview), the MLZ [development container](../.devcontainer/README.md), or a command shell on your local machine with the [AZ CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
-- For PowerShell deployments you need a PowerShell terminal with the [Azure Az PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/what-is-azure-powershell) installed.
+- For deployments in BASH or a Windows shell, then a terminal instance with the AZ CLI installed is required. For example, [Azure Cloud Shell](https://learn.microsoft.com/en-us/azure/cloud-shell/overview), the MLZ [development container](../.devcontainer/README.md), or a command shell on your local machine with the [AZ CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
+- For PowerShell deployments you need a PowerShell terminal with the [Azure Az PowerShell module](https://learn.microsoft.com/en-us/powershell/azure/what-is-azure-powershell) installed.
 
-> NOTE: The AZ CLI will automatically install the Bicep tools when a command is run that needs them, or you can manually install them following the [instructions here.](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#azure-cli)
+> NOTE: The AZ CLI will automatically install the Bicep tools when a command is run that needs them, or you can manually install them following the [instructions here.](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#azure-cli)
 
 ## Planning
 
@@ -89,22 +89,22 @@ Under the [src/bicep/modules/policies](../src/bicep/modules/policies) directory 
 
 #### Microsoft Defender for Cloud
 
-By default [Microsoft Defender for Cloud](https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction) offers a free set of monitoring capabilities that are enabled via an Azure policy when you first set up a subscription and view the Microsoft Defender for Cloud portal blade.
+By default [Microsoft Defender for Cloud](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction) offers a free set of monitoring capabilities that are enabled via an Azure policy when you first set up a subscription and view the Microsoft Defender for Cloud portal blade.
 
 Microsoft Defender for Cloud offers a standard/defender sku which enables a greater depth of awareness including more recomendations and threat analytics. You can enable this higher depth level of security in MLZ by setting the parameter `deployDefender` during deployment. In addition you can include the `emailSecurityContact` parameter to set a contact email for alerts.
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
 `deployDefender` | 'false' | When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".
-`emailSecurityContact` | '' | Email address of the contact, in the form of john@doe.com
+`emailSecurityContact` | '' | Email address of the contact, in the form of <john@doe.com>
 
-The Defender plan by resource type for Microsoft Defender for Cloud is enabled by default in the following [Azure Environments](https://docs.microsoft.com/en-us/powershell/module/servicemanagement/azure.service/get-azureenvironment?view=azuresmps-4.0.0): `AzureCloud` and `AzureUSGovernment`. To enable this for other Azure Cloud environments, this will need to executed manually.
+The Defender plan by resource type for Microsoft Defender for Cloud is enabled by default in the following [Azure Environments](https://learn.microsoft.com/en-us/powershell/module/servicemanagement/azure.service/get-azureenvironment?view=azuresmps-4.0.0): `AzureCloud` and `AzureUSGovernment`. To enable this for other Azure Cloud environments, this will need to executed manually.
 Documentation on how to do this can be found
-[here](https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security)
+[here](https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security)
 
 #### Azure Sentinel
 
-[Sentinel](https://docs.microsoft.com/en-us/azure/sentinel/overview) is a scalable, cloud-native, security information and event management (SIEM) and security orchestration, automation, and response (SOAR) solution. Sentinel can be enabled by setting the `deploySentinel=true` parameter.
+[Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/overview) is a scalable, cloud-native, security information and event management (SIEM) and security orchestration, automation, and response (SOAR) solution. Sentinel can be enabled by setting the `deploySentinel=true` parameter.
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
@@ -112,22 +112,22 @@ Parameter name | Default Value | Description
 
 #### Remote access with a Bastion Host
 
-If you want to remotely access the network and the resources you've deployed you can use [Azure Bastion](https://docs.microsoft.com/en-us/azure/bastion/) to remotely access virtual machines within the network without exposing them via Public IP Addresses.
+If you want to remotely access the network and the resources you've deployed you can use [Azure Bastion](https://learn.microsoft.com/en-us/azure/bastion/) to remotely access virtual machines within the network without exposing them via Public IP Addresses.
 
 Deploy a Linux and Windows virtual machine as jumpboxes into the network without a Public IP Address using Azure Bastion Host by providing values for these parameters:
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
 `deployRemoteAccess` | 'false' | When set to "true", provisions Azure Bastion Host and virtual machine jumpboxes. It defaults to "false".
-`windowsVmAdminPassword` | new guid | The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See [password requirements for creating a Windows VM](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-).
+`windowsVmAdminPassword` | new guid | The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See [password requirements for creating a Windows VM](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-).
 `linuxVmAuthenticationType` | 'password' | [sshPublicKey/password] The authentication type for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "password".
-`linuxVmAdminPasswordOrKey` | new guid | The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See [password requirements for creating a Linux VM](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-).
+`linuxVmAdminPasswordOrKey` | new guid | The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See [password requirements for creating a Linux VM](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-).
 `windowsVmAdminUsername` | 'azureuser' | The administrator username for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".
 `linuxVmAdminUsername` | 'azureuser' | The administrator username for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".
 
 #### Azure Firewall Premium
 
-By default, MLZ deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If necessary you can set a different firewall SKU or location.
+By default, MLZ deploys **[Azure Firewall Premium](https://learn.microsoft.com/en-us/azure/firewall/premium-features). Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://learn.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If necessary you can set a different firewall SKU or location.
 
 You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Standard` or `Premium`.
 
@@ -382,7 +382,7 @@ az deployment sub show \
 (Get-AzSubscriptionDeployment -Name myMissionLandingZone).outputs.firewallPrivateIPAddress
 ```
 
-If you want to export the data for use by other Bicep deployments, like the [shared variable file pattern](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/patterns-shared-variable-file), you can export the outputs to a json file.
+If you want to export the data for use by other Bicep deployments, like the [shared variable file pattern](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/patterns-shared-variable-file), you can export the outputs to a json file.
 
 ```BASH
 # AZ CLI
@@ -459,15 +459,15 @@ az security pricing create --name "<name of tier>" --tier Free
 
 If you want to develop with Bicep you'll need these:
 
-1. Install the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli#install).
-1. If using Visual Studio Code, install the [Bicep extension](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#vs-code-and-bicep-extension).
+1. Install the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli#install).
+1. If using Visual Studio Code, install the [Bicep extension](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#vs-code-and-bicep-extension).
 
 ## See Also
 
 [Bicep documentation](https://aka.ms/bicep/)
 
-[`az deployment` documentation](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
+[`az deployment` documentation](https://learn.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
 
 [JMESPath queries](https://jmespath.org/)
 
-[Azure Az PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/what-is-azure-powershell)
+[Azure Az PowerShell module](https://learn.microsoft.com/en-us/powershell/azure/what-is-azure-powershell)

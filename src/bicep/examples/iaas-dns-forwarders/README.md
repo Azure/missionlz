@@ -6,7 +6,7 @@ This example deploys DNS Forwarder Virtual Machines in the MLZ HUB, to enables p
 
 ### Follows best-practices
 
-This Infrastructure as Code deploys the components to follow best practices: [Private Link and DNS integration in hub and spoke network architectures](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/private-link-and-dns-integration-at-scale#private-link-and-dns-integration-in-hub-and-spoke-network-architectures)
+This Infrastructure as Code deploys the components to follow best practices: [Private Link and DNS integration in hub and spoke network architectures](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/private-link-and-dns-integration-at-scale#private-link-and-dns-integration-in-hub-and-spoke-network-architectures)
 
 ### Configures proper DNS resolution in DoD Azure environments
 
@@ -38,7 +38,7 @@ Template Parameters Name       | Description
 vmNamePrefix                   | 3 to 12 characters VM name prefix. -01 and -02 will get appended to that prefix.
 vmAdminPassword                | local administrator password.
 nicPrivateIPAddresses          | array of two static IP addresses available in the HUB VNET subnet.
-extensionsFilesContainerUri    | uri to the storage account used to host the DSC configuration and custom script file (if not relying on the public repo)           
+extensionsFilesContainerUri    | uri to the storage account used to host the DSC configuration and custom script file (if not relying on the public repo)
 extensionsFilesContainerSas    | storage account account SAS token used to host the DSC configuration and custom script file (if not relying on the public repo)  
 dnsServerForwardersIpAddresses | default DNS server forwarders (for instance: DISA's). Defaults to Azure DNS.
 conditionalDnsServerForwarders | array of conditional forwarders to create, including Azure Private DNS zones and Active Directory-related zones. Defaults to Azure US Government's private endpoint DNS zones.
@@ -66,9 +66,9 @@ New-AzResourceGroupDeployment -DeploymentName IaaSDNSForwarders `
 
 ### conditionalDnsServerForwarders parameter
 
-The `conditionalDnsServerForwarders` parameter defaults to the [Azure US Government Private Endpoint DNS zones](https://docs.microsoft.com/en-us/azure/private-link/private-endpoint-dns#government) listed in the [forwarderVm.bicep template](forwarderVm.bicep).
+The `conditionalDnsServerForwarders` parameter defaults to the [Azure US Government Private Endpoint DNS zones](https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns#government) listed in the [forwarderVm.bicep template](forwarderVm.bicep).
 
-If you are using another cloud, wish to use a subsets of the [Private Endpoint DNS zones](https://docs.microsoft.com/en-us/azure/private-link/private-endpoint-dns) and/or add conditional forwarders for your own internal ActiveDirectory DNS domains, you will need to provide this parameter.
+If you are using another cloud, wish to use a subsets of the [Private Endpoint DNS zones](https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns) and/or add conditional forwarders for your own internal ActiveDirectory DNS domains, you will need to provide this parameter.
 
 The example below specifies conditionalDnsServerForwarders for the Azure Storage Blob and Azure Key Vault services only, in the Azure Public Cloud, as well as a conditional DNS forwarder for an internal Active Directory zone (as depicted in the example diagram).
 
@@ -119,4 +119,3 @@ foreach($vnet in $virtualnetworks){
     $vnetSave = $vnet | Set-AzVirtualNetwork
 }
 ```
-
