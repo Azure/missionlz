@@ -258,7 +258,7 @@ Once you've deployed Mission LZ, you can use the Tier 3 module to deploy and pee
       Enter a value: {the Tier 3 subscription ID}
     ```
 
-    You get these values when `terraform apply` is complete for the core Mission LZ deployment. See the [Apply Complete](#Apply-Complete) section for what these values look like. You can also source the values after a successful core Mission LZ deployment by inspecting the `outputs` object in the Terraform state file. By default that state file is at `src/terraform/mlz/terraform.tfstate`.
+    You get these values when `terraform apply` is complete for the core Mission LZ deployment. See the [Apply Complete](#apply-complete) section for what these values look like. You can also source the values after a successful core Mission LZ deployment by inspecting the `outputs` object in the Terraform state file. By default that state file is at `src/terraform/mlz/terraform.tfstate`.
 
 1. Terraform will then inspect the state of your Azure environment and compare it with what is described in the Tier 3 Terraform module. Eventually, you'll be prompted for your approval to create, modify, or destroy resources. Supply `yes`:
 

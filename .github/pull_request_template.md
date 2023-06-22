@@ -1,6 +1,6 @@
 # Description
 
-_Please explain the changes you've made_
+_Please explain the changes you've made._
 
 ## Issue reference
 
