@@ -16,7 +16,7 @@ The docs on Azure virtual networking:  <https://docs.microsoft.com/en-us/azure/v
 ## Pre-requisites
 
 1. A Mission LZ deployment (a deployment of mlz.bicep)
-1. Generate a `deploymentVariables.json` file from that deployment (see [Generate MLZ Variable File](#Generate-MLZ-Variable-File))
+1. Generate a `deploymentVariables.json` file from that deployment (see [Generate MLZ Variable File](#generate-mlz-variable-file))
 1. Define values for Required Parameters described below
 1. Decide if the default virtual network address prefix for your new workload is appropriate for your MLZ deployment. If it needs to change, override the `virtualNetworkAddressPrefix` parameter.
 

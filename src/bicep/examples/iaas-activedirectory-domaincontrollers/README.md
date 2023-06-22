@@ -7,7 +7,7 @@ This example deploys Active Directory Domain Controller Virtual Machines in the 
 ### Builds Virtual Machines and configures them as Active Directory Domain Controllers
 
 1. Deploys 2 Virtual Machines in an Availability Set
-    - a Data Disk gets configured without caching to host the AD databases, as per [best practices](https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/identity/adds-extend-domain#vm-recommendations)
+    - a Data Disk gets configured without caching to host the AD databases, as per [best practices](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/identity/adds-extend-domain#vm-recommendations)
 
 2. Runs a DSC configuration to:
     - Install AD DS roles and features.
@@ -34,7 +34,7 @@ Template Parameters Name       | Description
 ---                            | ---
 vmNamePrefix                   | 3 to 12 characters VM name prefix. -01 and -02 will get appended to that prefix.
 nicPrivateIPAddresses          | array of two static IP addresses available in the Identity VNET subnet.
-extensionsFilesContainerUri    | uri to the storage account used to host the DSC configuration and custom script file (if not relying on the public repo)           
+extensionsFilesContainerUri    | uri to the storage account used to host the DSC configuration and custom script file (if not relying on the public repo)
 extensionsFilesContainerSas    | storage account account SAS token used to host the DSC configuration and custom script file (if not relying on the public repo)  
 dnsForwarders                  | default DNS server forwarders (for instance: DISA's). Defaults to Azure DNS.
 createOrAdd                    | Whether to create a new forest or add both domain controllers to an existing domain.
