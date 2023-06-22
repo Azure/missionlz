@@ -62,7 +62,7 @@ cd .\iaas-activedirectory-domaincontrollers
 $vmDomainAdminPassword = Read-Host -Prompt "Please provide a password for the domain administrator account, with a length of at least 12 characters" -AsSecureString
 $vmDomainJoinPassword = Read-Host -Prompt "Please provide a password for the domain join account, with a length of at least 12 characters" -AsSecureString
 New-AzResourceGroupDeployment -DeploymentName adDomainControllers `
-                              -TemplateFile .\forwarderVm.bicep `
+                              -TemplateFile .\activeDirectoryDomainControllers.bicep `
                               -ResourceGroupName 'contoso-rg-identity-mlz' `
                               -vmNamePrefix 'contoso-adds' `
                               -nicPrivateIPAddresses "10.9.1.4", "10.9.1.5" `
