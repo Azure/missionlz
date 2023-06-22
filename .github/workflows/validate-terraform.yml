@@ -14,7 +14,7 @@ jobs:
   validate-terraform:
     runs-on: ubuntu-latest
     steps:
-    - uses: hashicorp/setup-terraform@v2.0.2
+    - uses: hashicorp/setup-terraform@v2.0.3
     - shell: bash
       name: check tooling versions
       run: |
