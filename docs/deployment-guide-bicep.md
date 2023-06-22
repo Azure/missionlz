@@ -96,7 +96,7 @@ Microsoft Defender for Cloud offers a standard/defender sku which enables a grea
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
 `deployDefender` | 'false' | When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".
-`emailSecurityContact` | '' | Email address of the contact, in the form of john@doe.com
+`emailSecurityContact` | '' | Email address of the contact, in the form of <john@doe.com>
 
 The Defender plan by resource type for Microsoft Defender for Cloud is enabled by default in the following [Azure Environments](https://docs.microsoft.com/en-us/powershell/module/servicemanagement/azure.service/get-azureenvironment?view=azuresmps-4.0.0): `AzureCloud` and `AzureUSGovernment`. To enable this for other Azure Cloud environments, this will need to executed manually.
 Documentation on how to do this can be found

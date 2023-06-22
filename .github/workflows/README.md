@@ -10,7 +10,7 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
 
 - apply-and-destroy-terraform.yml
 
-    This workflow assumes some pre-requisites have been set-up. See: [Configuration Prerequisites](#Configuration-Prerequisites)
+    This workflow assumes some pre-requisites have been set-up. See: [Configuration Prerequisites](#configuration-prerequisites)
 
     1. Checks out the .devcontainer from a private container registry for common tools
 
@@ -31,12 +31,6 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
     1. Recursively validates and lints all the terraform referenced at src/terraform
 
 ## Configuration Prerequisites
-
-1. MLZ Setup
-
-    To apply terraform at all, locally, or from this automation, `src/scripts/config/create_required_resources.sh` must be run to create the storage accounts to store Terraform state and create the Service Principal with authorization to deploy resources into the configured subscription(s).
-
-    See the root README's [Configure the Terraform Backend](#../..//README.md/#Configure-the-Terraform-Backend) on how to do this.
 
 1. Configuration store
 

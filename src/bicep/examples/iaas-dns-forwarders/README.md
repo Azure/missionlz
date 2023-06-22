@@ -38,7 +38,7 @@ Template Parameters Name       | Description
 vmNamePrefix                   | 3 to 12 characters VM name prefix. -01 and -02 will get appended to that prefix.
 vmAdminPassword                | local administrator password.
 nicPrivateIPAddresses          | array of two static IP addresses available in the HUB VNET subnet.
-extensionsFilesContainerUri    | uri to the storage account used to host the DSC configuration and custom script file (if not relying on the public repo)           
+extensionsFilesContainerUri    | uri to the storage account used to host the DSC configuration and custom script file (if not relying on the public repo)
 extensionsFilesContainerSas    | storage account account SAS token used to host the DSC configuration and custom script file (if not relying on the public repo)  
 dnsServerForwardersIpAddresses | default DNS server forwarders (for instance: DISA's). Defaults to Azure DNS.
 conditionalDnsServerForwarders | array of conditional forwarders to create, including Azure Private DNS zones and Active Directory-related zones. Defaults to Azure US Government's private endpoint DNS zones.
@@ -119,4 +119,3 @@ foreach($vnet in $virtualnetworks){
     $vnetSave = $vnet | Set-AzVirtualNetwork
 }
 ```
-

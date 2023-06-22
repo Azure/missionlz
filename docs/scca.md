@@ -6,10 +6,10 @@ Mission LZ is intended to comply with the controls listed in the  [Secure Cloud 
 
 The SCCA has four components:
 
-- [Boundary Cloud Access Point (BCAP)](#BCAP-Controls)
-- [Virtual Datacenter Security Stack (VDSS)](#VDSS-Controls)
-- [Virtual Datacenter Managed Services (VDMS)](#VDMS-Controls)
-- [Trusted Cloud Credential Manager (TCCM)](#TCCM-Controls)
+- [Boundary Cloud Access Point (BCAP)](#bcap-controls)
+- [Virtual Datacenter Security Stack (VDSS)](#vdss-controls)
+- [Virtual Datacenter Managed Services (VDMS)](#vdms-controls)
+- [Trusted Cloud Credential Manager (TCCM)](#tccm-controls)
 
 Each component has a set of controls. The controls for each component are listed below, with a mapping to the technologies used in Mission LZ to implement each control.
 

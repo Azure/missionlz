@@ -37,7 +37,6 @@ A **landing zone** is networking infrastructure configured to provide a secure e
 
 [![Landing Zones Azure Academy Video](https://img.youtube.com/vi/9BKgz9Rl1eo/0.jpg)](https://youtu.be/9BKgz9Rl1eo "Don't let this happen to you 😮 Build A Landing Zone 👍 - Click to Watch!")
 
-
 ## Quickstart
 
 You can deploy Mission Landing Zone from the Azure Portal or by executing an Azure CLI command.
@@ -125,7 +124,7 @@ All network traffic is directed through the firewall residing in the Network Hub
 |-------------|--------------|-----------------|-----------------|
 |default_route| 0.0.0.0/0    |Virtual Appliance|10.0.100.4       |
 
-The default firewall configured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). The Azure Firewall Premium SKU includes the IDPS feature necessary to satisfy the SCCA VDSS requirement. That being said, if you're deploying MLZ in an environment that does not have that requirement, you can optionally deploy Azure Firewall Standard by settings the `firewallSkuTier` parameter to `Standard`.
+The default firewall configured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). The Azure Firewall Premium SKU includes the IDPS feature necessary to satisfy the SCCA VDSS requirement. However, if you do not require IDPS, you can optionally deploy Azure Firewall Standard by settings the `firewallSkuTier` parameter to `Standard`.
 
 Presently, there are two firewall rules configured to ensure access to the Azure Portal and to facilitate interactive logon via PowerShell and Azure CLI, all other traffic is restricted by default. Below are the collection of rules configured for Azure Commercial and Azure Government clouds:
 

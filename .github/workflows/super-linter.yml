@@ -28,7 +28,6 @@ jobs:
           VALIDATE_BASH: true
           VALIDATE_GITHUB_ACTIONS: true
           VALIDATE_MARKDOWN: true
-          VALIDATE_TERRAFORM_TFLINT: true
           VALIDATE_YAML: true
           DEFAULT_BRANCH: main
           FILTER_REGEX_EXCLUDE: ".github/dependabot.yml"
