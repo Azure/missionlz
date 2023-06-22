@@ -8,10 +8,10 @@ Read on to understand what this example does, and when you're ready, collect all
 
 ### Deploys a Spoke Network
 
-The docs on Azure virtual networking:  <https://learn.microsoft.com/en-us/azure/virtual-network/>.  This example deploys an additional [spoke network which is peered to the hub network](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview) of your MLZ instance. Additionally a few other items are deployed to enable connectivity in a secure manner:
+The docs on Azure virtual networking:  <https://docs.microsoft.com/en-us/azure/virtual-network/>.  This example deploys an additional [spoke network which is peered to the hub network](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview) of your MLZ instance. Additionally a few other items are deployed to enable connectivity in a secure manner:
 
-* A [route table is created and all external traffic is routed through the MLZ hub network](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview)
-* While this example does not deploy a firewall, the target for all external traffic is the MLZ [Azure Firewall](https://learn.microsoft.com/en-us/azure/firewall/overview) hosted in the hub to ensure appropriate traffic filtering.
+* A [route table is created and all external traffic is routed through the MLZ hub network](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview)
+* While this example does not deploy a firewall, the target for all external traffic is the MLZ [Azure Firewall](https://docs.microsoft.com/en-us/azure/firewall/overview) hosted in the hub to ensure appropriate traffic filtering.
 
 ## Pre-requisites
 

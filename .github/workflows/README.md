@@ -68,4 +68,4 @@ For more on workflows: <https://docs.github.com/en/actions/reference/workflow-sy
     STORAGECONTAINER | The container contianing the files in the previous step
     STORAGETOKEN | A token to access the storage account (we used a Container SAS)
 
-    For more on creating a minimally scoped token to access storage see: <https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview/>
+    For more on creating a minimally scoped token to access storage see: <https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview/>

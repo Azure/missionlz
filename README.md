@@ -41,7 +41,7 @@ A **landing zone** is networking infrastructure configured to provide a secure e
 
 You can deploy Mission Landing Zone from the Azure Portal or by executing an Azure CLI command.
 
-You must have [Owner RBAC permissions](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner) to the subscription(s) you deploy Mission Landing Zone into.
+You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner) to the subscription(s) you deploy Mission Landing Zone into.
 
 ### Deploy from the Azure Portal
 <!-- markdownlint-disable MD013 -->
@@ -63,7 +63,7 @@ You must have [Owner RBAC permissions](https://learn.microsoft.com/en-us/azure/r
     cd missionlz
     ```
 
-1. Deploy Mission Landing Zone with the [`az deployment sub create`](https://learn.microsoft.com/en-us/cli/azure/deployment/sub?view=azure-cli-latest#az_deployment_sub_create) command. For a quickstart, we suggest a test deployment into the current AZ CLI subscription setting these parameters:
+1. Deploy Mission Landing Zone with the [`az deployment sub create`](https://docs.microsoft.com/en-us/cli/azure/deployment/sub?view=azure-cli-latest#az_deployment_sub_create) command. For a quickstart, we suggest a test deployment into the current AZ CLI subscription setting these parameters:
 
     - `--name`: (optional) The deployment name, which is visible in the Azure Portal under Subscription/Deployments.
     - `--location`: (required) The Azure region to store the deployment metadata.
@@ -82,7 +82,7 @@ You must have [Owner RBAC permissions](https://learn.microsoft.com/en-us/azure/r
 
 1. After a successful deployment, see our [examples](./src/bicep/examples/README.md) directory for how to extend the capabilities of Mission Landing Zone.
 
-> Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your browser: <https://learn.microsoft.com/en-us/azure/cloud-shell/overview>
+> Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your browser: <https://docs.microsoft.com/en-us/azure/cloud-shell/overview>
 
 For more detailed deployment instructions, see our deployment guides for [Bicep](docs/deployment-guide-bicep.md) and [Terraform](docs/deployment-guide-terraform.md).
 
@@ -124,7 +124,7 @@ All network traffic is directed through the firewall residing in the Network Hub
 |-------------|--------------|-----------------|-----------------|
 |default_route| 0.0.0.0/0    |Virtual Appliance|10.0.100.4       |
 
-The default firewall configured for MLZ is [Azure Firewall Premium](https://learn.microsoft.com/en-us/azure/firewall/premium-features). The Azure Firewall Premium SKU includes the IDPS feature necessary to satisfy the SCCA VDSS requirement. However, if you do not require IDPS, you can optionally deploy Azure Firewall Standard by settings the `firewallSkuTier` parameter to `Standard`.
+The default firewall configured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). The Azure Firewall Premium SKU includes the IDPS feature necessary to satisfy the SCCA VDSS requirement. However, if you do not require IDPS, you can optionally deploy Azure Firewall Standard by settings the `firewallSkuTier` parameter to `Standard`.
 
 Presently, there are two firewall rules configured to ensure access to the Azure Portal and to facilitate interactive logon via PowerShell and Azure CLI, all other traffic is restricted by default. Below are the collection of rules configured for Azure Commercial and Azure Government clouds:
 

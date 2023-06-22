@@ -7,7 +7,7 @@ This example deploys Active Directory Domain Controller Virtual Machines in the 
 ### Builds Virtual Machines and configures them as Active Directory Domain Controllers
 
 1. Deploys 2 Virtual Machines in an Availability Set
-    - a Data Disk gets configured without caching to host the AD databases, as per [best practices](https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/identity/adds-extend-domain#vm-recommendations)
+    - a Data Disk gets configured without caching to host the AD databases, as per [best practices](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/identity/adds-extend-domain#vm-recommendations)
 
 2. Runs a DSC configuration to:
     - Install AD DS roles and features.
