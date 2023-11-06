@@ -669,6 +669,7 @@ var spokes = [
     subnetAddressPrefix: identitySubnetAddressPrefix
     subnetServiceEndpoints: identitySubnetServiceEndpoints
     subnetPrivateEndpointNetworkPolicies: 'Enabled'
+    subnetPrivateLinkServiceNetworkPolicies: 'Enabled'
   }
   {
     name: operationsName
@@ -687,6 +688,7 @@ var spokes = [
     subnetAddressPrefix: operationsSubnetAddressPrefix
     subnetServiceEndpoints: operationsSubnetServiceEndpoints
     subnetPrivateEndpointNetworkPolicies: 'Disabled'
+    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
   }
   {
     name: sharedServicesName
@@ -705,6 +707,7 @@ var spokes = [
     subnetAddressPrefix: sharedServicesSubnetAddressPrefix
     subnetServiceEndpoints: sharedServicesSubnetServiceEndpoints
     subnetPrivateEndpointNetworkPolicies: 'Enabled'
+    subnetPrivateLinkServiceNetworkPolicies: 'Enabled'
   }
 ]
 
@@ -853,6 +856,7 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
     subnetServiceEndpoints: spoke.subnetServiceEndpoints
 
     subnetPrivateEndpointNetworkPolicies: spoke.subnetPrivateEndpointNetworkPolicies
+    subnetPrivateLinkServiceNetworkPolicies: spoke.subnetPrivateLinkServiceNetworkPolicies
   }
 }]
 

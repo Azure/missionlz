@@ -176,6 +176,7 @@ module spokeNetwork '../../core/spoke-network.bicep' = {
     subnetAddressPrefix: subnetAddressPrefix
     subnetServiceEndpoints: subnetServiceEndpoints
     subnetPrivateEndpointNetworkPolicies: 'Enabled'
+    subnetPrivateLinkServiceNetworkPolicies: 'Enabled'
   }
 }
 

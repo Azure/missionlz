@@ -35,6 +35,7 @@ param routeTableRouteNextHopIpAddress string = firewallPrivateIPAddress
 param routeTableRouteNextHopType string = 'VirtualAppliance'
 
 param subnetPrivateEndpointNetworkPolicies string
+param subnetPrivateLinkServiceNetworkPolicies string
 
 module logStorage '../modules/storage-account.bicep' = {
   name: 'logStorage'
@@ -99,6 +100,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
           }
           serviceEndpoints: subnetServiceEndpoints            
           privateEndpointNetworkPolicies: subnetPrivateEndpointNetworkPolicies
+          privateLinkServiceNetworkPolicies: subnetPrivateLinkServiceNetworkPolicies
         }
       }
     ]
