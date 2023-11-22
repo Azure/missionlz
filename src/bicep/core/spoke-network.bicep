@@ -17,6 +17,7 @@ param virtualNetworkName string
 param virtualNetworkAddressPrefix string
 param virtualNetworkDiagnosticsLogs array
 param virtualNetworkDiagnosticsMetrics array
+param vNetDnsServers array
 
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
@@ -86,6 +87,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     tags: tags
 
     addressPrefix: virtualNetworkAddressPrefix
+    vNetDnsServers: vNetDnsServers
 
     subnets: [
       {

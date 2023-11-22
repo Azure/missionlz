@@ -47,12 +47,15 @@ param emailSecurityContact string
 @description('Policy Initiative description field')
 param policySetDescription string = 'The Microsoft Cloud Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Microsoft Cloud Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.'
 
+@description('[Standard/Free] The SKU for Defender. It defaults to "Standard".')
+param defenderSkuTier string = 'Standard'
+
 // defender
 @batchSize(1)
 resource defenderPricing 'Microsoft.Security/pricings@2023-01-01' = [for name in bundle: {
   name: name
   properties: {
-    pricingTier: 'Standard'
+    pricingTier: defenderSkuTier
   }
 }]
 
@@ -76,9 +79,19 @@ resource securityWorkspaceSettings 'Microsoft.Security/workspaceSettings@2019-01
 resource securityNotifications 'Microsoft.Security/securityContacts@2020-01-01-preview' = if (!empty(emailSecurityContact)) {
   name: 'securityNotifications'
   properties: {
-    alertsToAdmins: 'On'
-    alertNotifications: 'On'
-    email: emailSecurityContact
+    notificationsByRole: {
+      roles: [
+        'AccountAdmin'
+        'Contributor'
+        'Owner'
+        'ServiceAdmin'
+      ]
+      state: 'On'
+    }
+    alertNotifications: {
+      state: 'On'
+    }
+    emails: emailSecurityContact
   }
 }
 
