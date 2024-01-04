@@ -18,8 +18,15 @@ param tags object
 var privateDnsZones_privatelink_monitor_azure_name = ( environment().name =~ 'AzureCloud' ? 'privatelink.monitor.azure.com' : 'privatelink.monitor.azure.us' ) 
 var privateDnsZones_privatelink_ods_opinsights_azure_name = ( environment().name =~ 'AzureCloud' ? 'privatelink.ods.opinsights.azure.com' : 'privatelink.ods.opinsights.azure.us' )
 var privateDnsZones_privatelink_oms_opinsights_azure_name = ( environment().name =~ 'AzureCloud' ? 'privatelink.oms.opinsights.azure.com' : 'privatelink.oms.opinsights.azure.us' )
-var privateDnsZones_privatelink_blob_core_cloudapi_net_name = ( environment().name =~ 'AzureCloud' ? 'privatelink.blob.${environment().suffixes.storage}' : 'privatelink.blob.core.usgovcloudapi.net' )
+var privateDnsZones_privatelink_blob_core_cloudapi_net_name = ( environment().name =~ 'AzureCloud') ? 'privatelink.blob.${environment().suffixes.storage}' : ( environment().name =~ 'AzureUSGovernment') ? 'privatelink.blob.core.usgovcloudapi.net' : ''
+var privateDnsZones_privatelink_file_core_cloudapi_net_name = ( environment().name =~ 'AzureCloud') ? 'privatelink.file.${environment().suffixes.storage}' : ( environment().name =~ 'AzureUSGovernment') ? 'privatelink.file.core.usgovcloudapi.net' : ''
 var privateDnsZones_privatelink_agentsvc_azure_automation_name = ( environment().name =~ 'AzureCloud' ? 'privatelink.agentsvc.azure-automation.net' : 'privatelink.agentsvc.azure-automation.us' )
+var privateDnsZones_privatelink_vault_core_azure_name = ( environment().name =~ 'AzureCloud') ? 'privatelink.vaultcore.azure.net' : ( environment().name =~ 'AzureUSGovernment') ? 'privatelink.vaultcore.usgovcloudapi.net' : ''
+var privateDnsZones_privatelink_sql_core_azure_name = ( environment().name =~ 'AzureCloud') ? 'privatelink.database.windows.net' : ( environment().name =~ 'AzureUSGovernment') ? 'privatelink.database.usgovcloudapi.net' : ''
+var privateDnsZones_privatelink_avd_core_azure_name = ( environment().name =~ 'AzureCloud') ? 'privatelink.wvd.microsoft.com' : ( environment().name =~ 'AzureUSGovernment') ? 'privatelink.wvd.azure.us' : ''
+var privateDnsZones_privatelink_avdfeed_core_azure_name = ( environment().name =~ 'AzureCloud') ? 'privatelink-global.wvd.microsoft.com' : ( environment().name =~ 'AzureUSGovernment') ? 'privatelink-global.wvd.azure.us' : ''
+var privateDnsZones_privatelink_automation_core_azure_name = ( environment().name =~ 'AzureCloud') ? 'privatelink.azure-automation.net' : ( environment().name =~ 'AzureUSGovernment') ? 'privatelink.azure-automation.us' : ''
+var privateDnsZones_privatelink_eventhub_core_azure_name = ( environment().name =~ 'AzureCloud') ? 'privatelink.servicebus.windows.net' : ( environment().name =~ 'AzureUSGovernment') ? 'privatelink.servicebus.usgovcloudapi.net' : ''
 
 resource privatelink_monitor_azure_com 'Microsoft.Network/privateDnsZones@2018-09-01' = {
   name: privateDnsZones_privatelink_monitor_azure_name
@@ -47,6 +54,48 @@ resource privatelink_agentsvc_azure_automation_net 'Microsoft.Network/privateDns
 
 resource privatelink_blob_core_cloudapi_net 'Microsoft.Network/privateDnsZones@2018-09-01' = {
   name: privateDnsZones_privatelink_blob_core_cloudapi_net_name
+  location: 'global'
+  tags: tags
+}
+
+resource privatelink_file_core_cloudapi_net 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privateDnsZones_privatelink_file_core_cloudapi_net_name
+  location: 'global'
+  tags: tags
+}
+
+resource privatelink_vault_core_cloudapi_net 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privateDnsZones_privatelink_vault_core_azure_name
+  location: 'global'
+  tags: tags
+}
+
+resource privatelink_database_core_cloudapi_net 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privateDnsZones_privatelink_sql_core_azure_name
+  location: 'global'
+  tags: tags
+}
+
+resource privatelink_avd_core_cloudapi_net 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privateDnsZones_privatelink_avd_core_azure_name
+  location: 'global'
+  tags: tags
+}
+
+resource privatelink_avdfeed_core_cloudapi_net 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privateDnsZones_privatelink_avdfeed_core_azure_name
+  location: 'global'
+  tags: tags
+}
+
+resource privatelink_automation_core_cloudapi_net 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privateDnsZones_privatelink_automation_core_azure_name
+  location: 'global'
+  tags: tags
+}
+
+resource privatelink_eventhub_core_cloudapi_net 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privateDnsZones_privatelink_eventhub_core_azure_name
   location: 'global'
   tags: tags
 }
@@ -125,8 +174,119 @@ resource privateDnsZones_privatelink_blob_core_cloudapi_net_privateDnsZones_priv
   ]
 }
 
+resource privateDnsZones_privatelink_file_core_cloudapi_net_privateDnsZones_privatelink_file_core_cloudapi_net_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privateDnsZones_privatelink_file_core_cloudapi_net_name}/${privateDnsZones_privatelink_file_core_cloudapi_net_name}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+    privatelink_file_core_cloudapi_net
+    privateDnsZones_privatelink_blob_core_cloudapi_net_privateDnsZones_privatelink_blob_core_cloudapi_net_link
+  ]
+}
+
+resource privateDnsZones_privatelink_vault_core_cloudapi_net_privateDnsZones_privatelink_vault_core_cloudapi_net_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privateDnsZones_privatelink_vault_core_azure_name}/${privateDnsZones_privatelink_vault_core_azure_name}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+    privatelink_vault_core_cloudapi_net
+    privateDnsZones_privatelink_file_core_cloudapi_net_privateDnsZones_privatelink_file_core_cloudapi_net_link
+  ]
+}
+
+resource privateDnsZones_privatelink_database_core_cloudapi_net_privateDnsZones_privatelink_database_core_cloudapi_net_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privateDnsZones_privatelink_sql_core_azure_name}/${privateDnsZones_privatelink_sql_core_azure_name}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+    privatelink_database_core_cloudapi_net
+    privateDnsZones_privatelink_vault_core_cloudapi_net_privateDnsZones_privatelink_vault_core_cloudapi_net_link
+  ]
+}
+
+resource privateDnsZones_privatelink_avd_core_cloudapi_net_privateDnsZones_privatelink_avd_core_cloudapi_net_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privateDnsZones_privatelink_avd_core_azure_name}/${privateDnsZones_privatelink_avd_core_azure_name}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+    privatelink_avd_core_cloudapi_net
+    privateDnsZones_privatelink_database_core_cloudapi_net_privateDnsZones_privatelink_database_core_cloudapi_net_link
+  ]
+}
+
+resource privateDnsZones_privatelink_avdfeed_core_cloudapi_net_privateDnsZones_privatelink_avdfeed_core_cloudapi_net_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privateDnsZones_privatelink_avdfeed_core_azure_name}/${privateDnsZones_privatelink_avdfeed_core_azure_name}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+    privatelink_avdfeed_core_cloudapi_net
+    privateDnsZones_privatelink_avd_core_cloudapi_net_privateDnsZones_privatelink_avd_core_cloudapi_net_link
+  ]
+}
+
+resource privateDnsZones_privatelink_automation_core_cloudapi_net_privateDnsZones_privatelink_automation_core_cloudapi_net_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privateDnsZones_privatelink_automation_core_azure_name}/${privateDnsZones_privatelink_automation_core_azure_name}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+    privatelink_automation_core_cloudapi_net
+    privateDnsZones_privatelink_avdfeed_core_cloudapi_net_privateDnsZones_privatelink_avdfeed_core_cloudapi_net_link
+  ]
+}
+
+resource privateDnsZones_privatelink_eventhub_core_cloudapi_net_privateDnsZones_privatelink_eventhub_core_cloudapi_net_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privateDnsZones_privatelink_eventhub_core_azure_name}/${privateDnsZones_privatelink_eventhub_core_azure_name}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+    privatelink_eventhub_core_cloudapi_net
+    privateDnsZones_privatelink_automation_core_cloudapi_net_privateDnsZones_privatelink_automation_core_cloudapi_net_link
+  ]
+}
+
 output monitorPrivateDnsZoneId string = privatelink_monitor_azure_com.id
 output omsPrivateDnsZoneId string = privatelink_oms_opinsights_azure_com.id
 output odsPrivateDnsZoneId string = privatelink_ods_opinsights_azure_com.id
 output agentsvcPrivateDnsZoneId string = privatelink_agentsvc_azure_automation_net.id
 output storagePrivateDnsZoneId string = privatelink_blob_core_cloudapi_net.id
+output vaultPrivateDnsZoneId string = privatelink_vault_core_cloudapi_net.id
+output databasePrivateDnsZoneId string = privatelink_database_core_cloudapi_net.id
+output avdPrivateDnsZoneId string = privatelink_avd_core_cloudapi_net.id
+output avdfeedPrivateDnsZoneId string = privatelink_avdfeed_core_cloudapi_net.id
+output automationPrivateDnsZoneId string = privatelink_automation_core_cloudapi_net.id
+output eventhubPrivateDnsZoneId string = privatelink_eventhub_core_cloudapi_net.id

@@ -8,6 +8,7 @@ param location string
 param tags object = {}
 
 param addressPrefix string
+param vNetDnsServers array = []
 param logAnalyticsWorkspaceResourceId string
 param logStorageAccountResourceId string
 param subnets array
@@ -27,6 +28,9 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' = {
       ]
     }
     subnets: subnets
+    dhcpOptions: vNetDnsServers != null ? {
+      dnsServers: vNetDnsServers
+    } : null
   }
 }
 

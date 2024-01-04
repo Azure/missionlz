@@ -63,6 +63,8 @@ param virtualNetworkDiagnosticsLogs array = []
 @description('An array of Network Diagnostic Metrics to enable for the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
 param virtualNetworkDiagnosticsMetrics array = []
 
+param vNetDnsServers array = [firewallPrivateIPAddress]
+
 @description('An array of Network Security Group rules to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
 param networkSecurityGroupRules array = []
 
@@ -164,6 +166,7 @@ module spokeNetwork '../../core/spoke-network.bicep' = {
 
     virtualNetworkName: workloadVirtualNetworkName
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
+    vNetDnsServers: vNetDnsServers
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
 
@@ -176,6 +179,7 @@ module spokeNetwork '../../core/spoke-network.bicep' = {
     subnetAddressPrefix: subnetAddressPrefix
     subnetServiceEndpoints: subnetServiceEndpoints
     subnetPrivateEndpointNetworkPolicies: 'Enabled'
+    subnetPrivateLinkServiceNetworkPolicies: 'Enabled'
   }
 }
 
@@ -226,7 +230,7 @@ module workloadPolicyAssignment '../../modules/policy-assignment.bicep' = if (de
     operationsSubscriptionId: logAnalyticsWorkspaceResourceId_split[2]
    }
   }
-  
+
 module spokeDefender '../../modules/defender.bicep' = if (deployDefender) {
   name: 'set-${workloadName}-sub-defender'
   scope: subscription(workloadSubscriptionId)

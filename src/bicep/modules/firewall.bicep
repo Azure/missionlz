@@ -28,6 +28,10 @@ param threatIntelMode string
 ])
 param intrusionDetectionMode string
 
+//DNS Proxy Settings
+param enableProxy bool
+param dnsServers array
+
 param clientIpConfigurationName string
 param clientIpConfigurationSubnetResourceId string
 param clientIpConfigurationPublicIPAddressResourceId string
@@ -50,6 +54,7 @@ var intrusionDetectionObject = {
   mode: intrusionDetectionMode
 }
 
+
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   name: firewallPolicyName
   location: location
@@ -59,6 +64,10 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
     intrusionDetection: ((skuTier == 'Premium') ? intrusionDetectionObject : null)
     sku: {
       tier: skuTier
+    }
+    dnsSettings: {
+      enableProxy: enableProxy
+      servers: dnsServers
     }
   }
 }

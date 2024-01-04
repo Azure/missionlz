@@ -6,14 +6,16 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param bundle array = (environment().name == 'AzureCloud') ? [
+  'Api'
   'AppServices'
   'Arm'
-  'ContainerRegistry'
+  'CloudPosture'
+  //'ContainerRegistry' (deprecated)
   'Containers'
   'CosmosDbs'
-  'Dns'
+  //'Dns' (deprecated)
   'KeyVaults'
-  'KubernetesService'
+  //'KubernetesService' (deprecated)
   'OpenSourceRelationalDatabases'
   'SqlServers'
   'SqlServerVirtualMachines'
@@ -21,10 +23,10 @@ param bundle array = (environment().name == 'AzureCloud') ? [
   'VirtualMachines'
 ] : (environment().name == 'AzureUSGovernment') ? [
   'Arm'
-  'ContainerRegistry'
+  //'ContainerRegistry' (deprecated)
   'Containers'
-  'Dns'
-  'KubernetesService'
+  //'Dns' (deprecated)
+  //'KubernetesService' (deprecated)
   'OpenSourceRelationalDatabases'
   'SqlServers'
   'SqlServerVirtualMachines'
@@ -45,25 +47,28 @@ param emailSecurityContact string
 @description('Policy Initiative description field')
 param policySetDescription string = 'The Microsoft Cloud Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Microsoft Cloud Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.'
 
-// defender
+@description('[Standard/Free] The SKU for Defender. It defaults to "Standard".')
+param defenderSkuTier string = 'Standard'
 
-resource defenderPricing 'Microsoft.Security/pricings@2018-06-01' = [for name in bundle: {
+// defender
+@batchSize(1)
+resource defenderPricing 'Microsoft.Security/pricings@2023-01-01' = [for name in bundle: {
   name: name
   properties: {
-    pricingTier: 'Standard'
+    pricingTier: defenderSkuTier
   }
 }]
 
 // auto provisioing
 
-resource autoProvision 'Microsoft.Security/autoProvisioningSettings@2017-08-01-preview' = {
+resource autoProvision 'Microsoft.Security/autoProvisioningSettings@2019-01-01' = {
   name: 'default'
   properties: {
     autoProvision: autoProvisioning
   }
 }
 
-resource securityWorkspaceSettings 'Microsoft.Security/workspaceSettings@2017-08-01-preview' = {
+resource securityWorkspaceSettings 'Microsoft.Security/workspaceSettings@2019-01-01' = {
   name: 'default'
   properties: {
     workspaceId: logAnalyticsWorkspaceId
@@ -71,16 +76,26 @@ resource securityWorkspaceSettings 'Microsoft.Security/workspaceSettings@2017-08
   }
 }
 
-resource securityNotifications 'Microsoft.Security/securityContacts@2017-08-01-preview' = if (!empty(emailSecurityContact)) {
+resource securityNotifications 'Microsoft.Security/securityContacts@2020-01-01-preview' = if (!empty(emailSecurityContact)) {
   name: 'securityNotifications'
   properties: {
-    alertsToAdmins: 'On'
-    alertNotifications: 'On'
-    email: emailSecurityContact
+    notificationsByRole: {
+      roles: [
+        'AccountAdmin'
+        'Contributor'
+        'Owner'
+        'ServiceAdmin'
+      ]
+      state: 'On'
+    }
+    alertNotifications: {
+      state: 'On'
+    }
+    emails: emailSecurityContact
   }
 }
 
-resource securityPoliciesDefault 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
+resource securityPoliciesDefault 'Microsoft.Authorization/policyAssignments@2022-06-01' = {
   name: 'Microsoft Cloud Security Benchmark'
   scope: subscription()
   properties: {

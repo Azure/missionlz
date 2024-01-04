@@ -8,6 +8,7 @@ param tags object = {}
 
 param logStorageAccountName string
 param logStorageSkuName string
+param vNetDnsServers array = []
 
 param logAnalyticsWorkspaceResourceId string
 
@@ -33,6 +34,10 @@ param routeTableRouteNextHopType string = 'VirtualAppliance'
 param firewallName string
 param firewallSkuTier string
 param firewallPolicyName string
+
+param enableProxy bool = false
+param dnsServers array = []
+
 param firewallSupernetIPAddress string
 
 @allowed([
@@ -105,6 +110,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     tags: tags
 
     addressPrefix: virtualNetworkAddressPrefix
+    vNetDnsServers: vNetDnsServers
 
     subnets: [
       {
@@ -219,6 +225,8 @@ module firewall '../modules/firewall.bicep' = {
     clientIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/${firewallClientSubnetName}'
     clientIpConfigurationPublicIPAddressResourceId: firewallClientPublicIPAddress.outputs.id
     firewallSupernetIPAddress: firewallSupernetIPAddress
+    enableProxy: enableProxy
+    dnsServers: dnsServers
 
     managementIpConfigurationName: firewallManagementIpConfigurationName
     managementIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/${firewallManagementSubnetName}'

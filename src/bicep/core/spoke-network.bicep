@@ -17,6 +17,7 @@ param virtualNetworkName string
 param virtualNetworkAddressPrefix string
 param virtualNetworkDiagnosticsLogs array
 param virtualNetworkDiagnosticsMetrics array
+param vNetDnsServers array
 
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
@@ -35,6 +36,7 @@ param routeTableRouteNextHopIpAddress string = firewallPrivateIPAddress
 param routeTableRouteNextHopType string = 'VirtualAppliance'
 
 param subnetPrivateEndpointNetworkPolicies string
+param subnetPrivateLinkServiceNetworkPolicies string
 
 module logStorage '../modules/storage-account.bicep' = {
   name: 'logStorage'
@@ -85,6 +87,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     tags: tags
 
     addressPrefix: virtualNetworkAddressPrefix
+    vNetDnsServers: vNetDnsServers
 
     subnets: [
       {
@@ -99,6 +102,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
           }
           serviceEndpoints: subnetServiceEndpoints            
           privateEndpointNetworkPolicies: subnetPrivateEndpointNetworkPolicies
+          privateLinkServiceNetworkPolicies: subnetPrivateLinkServiceNetworkPolicies
         }
       }
     ]
