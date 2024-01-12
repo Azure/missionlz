@@ -42,11 +42,8 @@ param odsPrivateDnsZoneId string
 @description('Agentsvc Private DNS Zone resource id')
 param agentsvcPrivateDnsZoneId string
 
-@description('Azure Blob Storage Private DNS Zone resource id')
-param storagePrivateDnsZoneId string
-
 var privateLinkConnectionName = take('plconn${logAnalyticsWorkspaceName}${uniqueData}', 80)
-var privateLinkEndpointName = take('pl${logAnalyticsWorkspaceName}${uniqueData}', 80)
+var privateLinkEndpointName = take('pe${logAnalyticsWorkspaceName}${uniqueData}', 80)
 var privateLinkScopeName = take('plscope${logAnalyticsWorkspaceName}${uniqueData}', 80)
 var privateLinkScopeResourceName = take('plscres${logAnalyticsWorkspaceName}${uniqueData}', 80)
 
@@ -67,7 +64,7 @@ resource logAnalyticsWorkspacePrivateLinkScope 'microsoft.insights/privateLinkSc
 }
 
 resource subnetPrivateEndpoint 'Microsoft.Network/privateEndpoints@2020-07-01' = {
-  name: privateLinkEndpointName
+  name: 'pe-${privateLinkEndpointName}'
   location: location
   tags: tags
   properties: {
@@ -90,6 +87,7 @@ resource subnetPrivateEndpoint 'Microsoft.Network/privateEndpoints@2020-07-01' =
     logAnalyticsWorkspacePrivateLinkScope
   ]
 }
+
 
 resource dnsZonePrivateLinkEndpoint 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-07-01' = {
   name: '${privateLinkEndpointName}/default'
@@ -119,15 +117,10 @@ resource dnsZonePrivateLinkEndpoint 'Microsoft.Network/privateEndpoints/privateD
           privateDnsZoneId: agentsvcPrivateDnsZoneId
         }
       }
-      {
-        name: 'storage'
-        properties: {
-          privateDnsZoneId: storagePrivateDnsZoneId
-        }
-      }
     ]
   }
   dependsOn: [
     subnetPrivateEndpoint
   ]
 }
+

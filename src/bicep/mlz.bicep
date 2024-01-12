@@ -1030,7 +1030,6 @@ module azureMonitorPrivateLink './modules/private-link.bicep' = if (contains(sup
     omsPrivateDnsZoneId: azurePrivateDns.outputs.omsPrivateDnsZoneId
     odsPrivateDnsZoneId: azurePrivateDns.outputs.odsPrivateDnsZoneId
     agentsvcPrivateDnsZoneId: azurePrivateDns.outputs.agentsvcPrivateDnsZoneId
-    storagePrivateDnsZoneId: azurePrivateDns.outputs.storagePrivateDnsZoneId
     location: location
     tags: tags
   }
