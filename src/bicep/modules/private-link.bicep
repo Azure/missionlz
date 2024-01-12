@@ -90,7 +90,8 @@ resource subnetPrivateEndpoint 'Microsoft.Network/privateEndpoints@2020-07-01' =
 
 
 resource dnsZonePrivateLinkEndpoint 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-07-01' = {
-  name: '${privateLinkEndpointName}/default'
+  name: privateLinkEndpointName
+  parent: subnetPrivateEndpoint
   properties: {
     privateDnsZoneConfigs: [
       {
