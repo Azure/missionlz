@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "4936773024390431306"
+      "templateHash": "694120147822049486"
     }
   },
   "parameters": {
@@ -5829,7 +5829,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "9121671548793135300"
+              "templateHash": "99089989168106181"
             }
           },
           "parameters": {
@@ -6274,7 +6274,7 @@
             "privatelink_queue_name": "[format('privatelink.queue.{0}', environment().suffixes.storage)]",
             "privatelink_table_name": "[format('privatelink.table.{0}', environment().suffixes.storage)]",
             "privatelink_blob_name": "[format('privatelink.blob.{0}', environment().suffixes.storage)]",
-            "privatelink_keyvaultDns_name": "[format('privatelink.{0}', environment().suffixes.keyvaultDns)]",
+            "privatelink_keyvaultDns_name": "[replace(format('privatelink{0}', environment().suffixes.keyvaultDns), 'vault', 'vaultcore')]",
             "privatelink_monitor_name": "[format('privatelink.monitor.{0}', variables('cloudSuffix'))]",
             "privatelink_ods_opinsights_name": "[format('privatelink.ods.opinsights.{0}', variables('cloudSuffix'))]",
             "privatelink_oms_opinsights_name": "[format('privatelink.oms.opinsights.{0}', variables('cloudSuffix'))]"
