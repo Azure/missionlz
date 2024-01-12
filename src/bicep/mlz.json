@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "14674295035698863661"
+      "templateHash": "18303410480099131017"
     }
   },
   "parameters": {
@@ -6748,7 +6748,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "15025570893473842559"
+              "templateHash": "10735009682975435526"
             }
           },
           "parameters": {
@@ -6863,7 +6863,7 @@
             {
               "type": "Microsoft.Network/privateEndpoints",
               "apiVersion": "2020-07-01",
-              "name": "[format('pe-{0}', variables('privateLinkEndpointName'))]",
+              "name": "[variables('privateLinkEndpointName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('tags')]",
               "properties": {
@@ -6920,7 +6920,7 @@
                 ]
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/privateEndpoints', format('pe-{0}', variables('privateLinkEndpointName')))]"
+                "[resourceId('Microsoft.Network/privateEndpoints', variables('privateLinkEndpointName'))]"
               ]
             }
           ]

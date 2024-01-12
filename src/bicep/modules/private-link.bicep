@@ -64,7 +64,7 @@ resource logAnalyticsWorkspacePrivateLinkScope 'microsoft.insights/privateLinkSc
 }
 
 resource subnetPrivateEndpoint 'Microsoft.Network/privateEndpoints@2020-07-01' = {
-  name: 'pe-${privateLinkEndpointName}'
+  name: privateLinkEndpointName
   location: location
   tags: tags
   properties: {
