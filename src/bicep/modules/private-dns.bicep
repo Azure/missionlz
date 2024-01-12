@@ -23,7 +23,7 @@ var locations = (loadJsonContent('../data/locations.json'))[environment().name]
 var privatelink_agentsvc_automation_name = 'privatelink.agentsvc.azure-automation.${automationSuffix}'
 var privatelink_avd_name = 'privatelink.wvd.${cloudSuffix}'
 var privatelink_avd_global_name = 'privatelink-global.wvd.${cloudSuffix}'
-var privatelink_backup_names = [for location in items(locations) : 'privatelink.backup.${location.value.recoveryServicesGeo}.${cloudSuffix}']
+var privatelink_backup_names = [for location in items(locations) : 'privatelink.backup.${location.value.recoveryServicesGeo}.${cloudSuffix}'] 
 var privatelink_file_name = 'privatelink.file.${environment().suffixes.storage}'
 var privatelink_queue_name = 'privatelink.queue.${environment().suffixes.storage}'
 var privatelink_table_name = 'privatelink.table.${environment().suffixes.storage}'
@@ -45,7 +45,7 @@ resource privateDnsZone_avd_global 'Microsoft.Network/privateDnsZones@2018-09-01
   tags: tags
 }
 
-resource privateDnsZone_backup_rsv 'Microsoft.Network/privateDnsZones@2018-09-01' = [ for name in privatelink_backup_names : {
+resource privateDnsZone_backup_rsv 'Microsoft.Network/privateDnsZones@2018-09-01' =  [ for name in privatelink_backup_names : if (!(contains(name, '..'))) {
   name: name
   location: 'global'
   tags: tags

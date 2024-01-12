@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "694120147822049486"
+      "templateHash": "14674295035698863661"
     }
   },
   "parameters": {
@@ -5829,7 +5829,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "99089989168106181"
+              "templateHash": "12164110377136166834"
             }
           },
           "parameters": {
@@ -5891,12 +5891,6 @@
                 "chinanorth2": {
                   "abbreviation": "cnn2",
                   "recoveryServicesGeo": "bjb2",
-                  "timeDifference": "+8:00",
-                  "timeZone": "China Standard Time"
-                },
-                "chinanorth3": {
-                  "abbreviation": "cnn3",
-                  "recoveryServicesGeo": "",
                   "timeDifference": "+8:00",
                   "timeZone": "China Standard Time"
                 }
@@ -6051,12 +6045,6 @@
                   "recoveryServicesGeo": "krs",
                   "timeDifference": "+9:00",
                   "timeZone": "Korea Standard Time"
-                },
-                "newzealandnorth": {
-                  "abbreviation": "nzn",
-                  "recoveryServicesGeo": "",
-                  "timeDifference": "+13:00",
-                  "timeZone": "New Zealand Standard Time"
                 },
                 "northcentralus": {
                   "abbreviation": "usnc",
@@ -6299,6 +6287,7 @@
                 "name": "privateDnsZone_backup_rsv",
                 "count": "[length(variables('privatelink_backup_names'))]"
               },
+              "condition": "[not(contains(variables('privatelink_backup_names')[copyIndex()], '..'))]",
               "type": "Microsoft.Network/privateDnsZones",
               "apiVersion": "2018-09-01",
               "name": "[variables('privatelink_backup_names')[copyIndex()]]",
