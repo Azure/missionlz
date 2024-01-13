@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "12966457627079645936"
+      "templateHash": "15402253028219609331"
     }
   },
   "parameters": {
@@ -6748,7 +6748,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "8401513239082999873"
+              "templateHash": "2114245460434162802"
             }
           },
           "parameters": {
@@ -6890,7 +6890,7 @@
             {
               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
               "apiVersion": "2020-07-01",
-              "name": "[format('{0}/{1}', variables('privateLinkEndpointName'), variables('privateLinkEndpointName'))]",
+              "name": "[format('{0}/{1}', variables('privateLinkEndpointName'), parameters('logAnalyticsWorkspaceName'))]",
               "properties": {
                 "privateDnsZoneConfigs": [
                   {
