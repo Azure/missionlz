@@ -193,20 +193,13 @@
                 },
                 {
                   "name": "location",
+                  "type": "Microsoft.Common.LocationSelector",
                   "label": "Location",
-                  "type": "Microsoft.Common.DropDown",
-                  "defaultValue": "",
-                  "toolTip": "Select the Location for your Mission Landing Zone.",
-                  "multiselect": false,
-                  "selectAll": false,
-                  "filter": true,
-                  "filterPlaceholder": "Filter items ...",
-                  "multiLine": true,
-                  "constraints": {
-                    "allowedValues": "[map(filter(steps('basics').armApiControls.locationsApi.value,(item) => contains(split('eastus,eastus2,southcentralus,westus,westus2,usgovvirginia,usgovarizona,ussec,usnat', ','), item.name)),(item) => parse(concat('{\"label\":\"', item.regionalDisplayName, '\",\"value\":\"', item.name, '\"}')))]",
-                    "required": true
-                  }
-                }
+                  "toolTip": "Select the location for the AVD session hosts.",
+                  "resourceTypes": [
+                      "Microsoft.Compute/virtualMachines"
+                  ]
+              }
               ]
             },
             {
@@ -985,7 +978,7 @@
     },
     "outputs": {
       "kind": "Subscription",
-      "location": "[steps('basics').locationSection.location]",
+      "location": "[steps('basics').locationSection.location.name]",
       "subscriptionId": "[steps('basics').hubSection.hubSubscriptionId]",
       "parameters": {
         "resourcePrefix": "[steps('basics').namingSection.resourcePrefix]",
@@ -994,7 +987,7 @@
         "identitySubscriptionId": "[replace(steps('basics').identitySection.identitySubscriptionId, '/subscriptions/', '')]",
         "operationsSubscriptionId": "[replace(steps('basics').operationsSection.operationsSubscriptionId, '/subscriptions/', '')]",
         "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
-        "location": "[steps('basics').locationSection.location]",
+        "location": "[steps('basics').locationSection.location.name]",
         "firewallSupernetIPAddress": "[steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange]",
         "tags": "[if(not(contains(steps('tags').tagsByResource, 'MissionLandingZone')), parse('{}'), first(map(parse(concat('[', string(steps('tags').tagsByResource), ']')), (item) => item.MissionLandingZone)))]",
         "hubVirtualNetworkAddressPrefix": "[steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange]",
