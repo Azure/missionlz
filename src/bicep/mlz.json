@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "15402253028219609331"
+      "templateHash": "2527199164729470268"
     }
   },
   "parameters": {
@@ -5829,7 +5829,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "12164110377136166834"
+              "templateHash": "4602601230334937372"
             }
           },
           "parameters": {
@@ -6545,54 +6545,54 @@
           "outputs": {
             "monitorPrivateDnsZoneId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privatelink_monitor_name'), format('{0}-link', variables('privatelink_monitor_name')))]"
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_monitor_name'))]"
             },
             "omsPrivateDnsZoneId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privatelink_oms_opinsights_name'), format('{0}-link', variables('privatelink_oms_opinsights_name')))]"
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_oms_opinsights_name'))]"
             },
             "odsPrivateDnsZoneId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privatelink_ods_opinsights_name'), format('{0}-link', variables('privatelink_ods_opinsights_name')))]"
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_ods_opinsights_name'))]"
             },
             "agentsvcPrivateDnsZoneId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privatelink_agentsvc_automation_name'), format('{0}-link', variables('privatelink_agentsvc_automation_name')))]"
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_agentsvc_automation_name'))]"
             },
             "storagePrivateDnsZoneId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privatelink_blob_name'), format('{0}-link', variables('privatelink_blob_name')))]"
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_blob_name'))]"
             },
             "avdPrivateDnsZoneId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privatelink_avd_name'), format('{0}-link', variables('privatelink_avd_name')))]"
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_avd_name'))]"
             },
             "avdGlobalPrivateDnsZoneId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privatelink_avd_global_name'), format('{0}-link', variables('privatelink_avd_global_name')))]"
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_avd_global_name'))]"
             },
             "backupPrivateDnsZoneIds": {
               "type": "array",
               "copy": {
                 "count": "[length(variables('privatelink_backup_names'))]",
-                "input": "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privatelink_backup_names')[copyIndex()], format('{0}-link', variables('privatelink_backup_names')[copyIndex()]))]"
+                "input": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_backup_names')[copyIndex()])]"
               }
             },
             "filePrivateDnsZoneId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privatelink_file_name'), format('{0}-link', variables('privatelink_file_name')))]"
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_file_name'))]"
             },
             "queuePrivateDnsZoneId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privatelink_queue_name'), format('{0}-link', variables('privatelink_queue_name')))]"
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_queue_name'))]"
             },
             "tablePrivateDnsZoneId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privatelink_table_name'), format('{0}-link', variables('privatelink_table_name')))]"
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_table_name'))]"
             },
             "keyvaultDnsPrivateDnsZoneId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privatelink_keyvaultDns_name'), format('{0}-link', variables('privatelink_keyvaultDns_name')))]"
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_keyvaultDns_name'))]"
             }
           }
         }

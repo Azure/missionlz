@@ -276,16 +276,16 @@ resource virtualNetworkLink_blob 'Microsoft.Network/privateDnsZones/virtualNetwo
   ]
 }
 
-output monitorPrivateDnsZoneId string = virtualNetworkLink_monitor.id
-output omsPrivateDnsZoneId string = virtualNetworkLink_oms_opinsights.id
-output odsPrivateDnsZoneId string = virtualNetworkLink_ods_opinsights.id
-output agentsvcPrivateDnsZoneId string = virtualNetworkLink_agentsvc_azure_automation.id
-output storagePrivateDnsZoneId string = virtualNetworkLink_blob.id
-output avdPrivateDnsZoneId string = virtualNetworkLink_avd.id
-output avdGlobalPrivateDnsZoneId string = virtualNetworkLink_avd_global.id
-output backupPrivateDnsZoneIds array = [for (name, i) in privatelink_backup_names: virtualNetworkLink_backup_rsv[i].id]
-output filePrivateDnsZoneId string = virtualNetworkLink_file.id
-output queuePrivateDnsZoneId string = virtualNetworkLink_queue.id
-output tablePrivateDnsZoneId string = virtualNetworkLink_table.id
-output keyvaultDnsPrivateDnsZoneId string = virtualNetworkLink_keyvaultDns.id
+output monitorPrivateDnsZoneId string = privateDnsZone_monitor_azure_com.id
+output omsPrivateDnsZoneId string = privateDnsZone_oms_opinsights_azure_com.id
+output odsPrivateDnsZoneId string = privateDnsZone_ods_opinsights_azure_com.id
+output agentsvcPrivateDnsZoneId string = privateDnsZone_agentsvc_azure_automation_net.id
+output storagePrivateDnsZoneId string = privateDnsZone_blob_core_cloudapi_net.id
+output avdPrivateDnsZoneId string = privateDnsZone_avd.id
+output avdGlobalPrivateDnsZoneId string = privateDnsZone_avd_global.id
+output backupPrivateDnsZoneIds array = [for (name, i) in privatelink_backup_names: privateDnsZone_backup_rsv[i].id]
+output filePrivateDnsZoneId string = privateDnsZone_file.id
+output queuePrivateDnsZoneId string = privateDnsZone_queue.id
+output tablePrivateDnsZoneId string = privateDnsZone_table.id
+output keyvaultDnsPrivateDnsZoneId string = privateDnsZone_keyvaultDns.id
 
