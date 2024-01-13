@@ -113,6 +113,12 @@ param firewallThreatIntelMode string = 'Alert'
 @description('[Alert/Deny/Off] The Azure Firewall Intrusion Detection mode. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
 param firewallIntrusionDetectionMode string = 'Alert'
 
+@description('[true/false] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers"')
+param enableProxy bool = true
+
+@description('''['168.63.129.16'] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers". This should be a comma separated list of IP addresses to forward DNS traffic''')
+param dnsServers array = ['168.63.129.16']
+
 @description('An array of Firewall Diagnostic Logs categories to collect. See "https://docs.microsoft.com/en-us/azure/firewall/firewall-diagnostics#enable-diagnostic-logging-through-the-azure-portal" for valid values.')
 param firewallDiagnosticsLogs array = [
   {
@@ -518,6 +524,13 @@ param policy string = 'NISTRev4'
 @description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
 param deployDefender bool = false
 
+@allowed([
+  'Standard'
+  'Free'
+])
+@description('[Standard/Free] The SKU for Defender. It defaults to "Standard".')
+param defenderSkuTier string = 'Standard'
+
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string = ''
 
@@ -669,6 +682,7 @@ var spokes = [
     subnetAddressPrefix: identitySubnetAddressPrefix
     subnetServiceEndpoints: identitySubnetServiceEndpoints
     subnetPrivateEndpointNetworkPolicies: 'Enabled'
+    subnetPrivateLinkServiceNetworkPolicies: 'Enabled'
   }
   {
     name: operationsName
@@ -687,6 +701,7 @@ var spokes = [
     subnetAddressPrefix: operationsSubnetAddressPrefix
     subnetServiceEndpoints: operationsSubnetServiceEndpoints
     subnetPrivateEndpointNetworkPolicies: 'Disabled'
+    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
   }
   {
     name: sharedServicesName
@@ -705,6 +720,7 @@ var spokes = [
     subnetAddressPrefix: sharedServicesSubnetAddressPrefix
     subnetServiceEndpoints: sharedServicesSubnetServiceEndpoints
     subnetPrivateEndpointNetworkPolicies: 'Enabled'
+    subnetPrivateLinkServiceNetworkPolicies: 'Enabled'
   }
 ]
 
@@ -821,7 +837,70 @@ module hubNetwork './core/hub-network.bicep' = {
 
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
+    enableProxy: enableProxy
+    dnsServers: dnsServers
   }
+}
+
+module hubNetworkDNS './core/hub-network.bicep' = {
+  name: 'deploy-vnet-hub-DNS-${deploymentNameSuffix}'
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  params: {
+    location: location
+    tags: calculatedTags
+
+    logStorageAccountName: hubLogStorageAccountName
+    logStorageSkuName: logStorageSkuName
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
+
+    virtualNetworkName: hubVirtualNetworkName
+    virtualNetworkAddressPrefix: hubVirtualNetworkAddressPrefix
+    virtualNetworkDiagnosticsLogs: hubVirtualNetworkDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: hubVirtualNetworkDiagnosticsMetrics
+
+    networkSecurityGroupName: hubNetworkSecurityGroupName
+    networkSecurityGroupRules: hubNetworkSecurityGroupRules
+    networkSecurityGroupDiagnosticsLogs: hubNetworkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: hubNetworkSecurityGroupDiagnosticsMetrics
+
+    subnetName: hubSubnetName
+    subnetAddressPrefix: hubSubnetAddressPrefix
+    subnetServiceEndpoints: hubSubnetServiceEndpoints
+
+    firewallName: firewallName
+    firewallSkuTier: firewallSkuTier
+    firewallPolicyName: firewallPolicyName
+    firewallThreatIntelMode: firewallThreatIntelMode
+    firewallIntrusionDetectionMode: firewallIntrusionDetectionMode
+    firewallDiagnosticsLogs: firewallDiagnosticsLogs
+    firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
+    firewallClientIpConfigurationName: firewallClientIpConfigurationName
+    firewallClientSubnetName: 'AzureFirewallSubnet' // this must be 'AzureFirewallSubnet'
+    firewallClientSubnetAddressPrefix: firewallClientSubnetAddressPrefix
+    firewallClientSubnetServiceEndpoints: firewallClientSubnetServiceEndpoints
+    firewallClientPublicIPAddressName: firewallClientPublicIPAddressName
+    firewallClientPublicIPAddressSkuName: firewallPublicIpAddressSkuName
+    firewallClientPublicIpAllocationMethod: firewallPublicIpAddressAllocationMethod
+    firewallClientPublicIPAddressAvailabilityZones: firewallClientPublicIPAddressAvailabilityZones
+    firewallManagementIpConfigurationName: firewallManagementIpConfigurationName
+    firewallManagementSubnetName: 'AzureFirewallManagementSubnet' // this must be 'AzureFirewallManagementSubnet'
+    firewallManagementSubnetAddressPrefix: firewallManagementSubnetAddressPrefix
+    firewallManagementSubnetServiceEndpoints: firewallManagementSubnetServiceEndpoints
+    firewallManagementPublicIPAddressName: firewallManagementPublicIPAddressName
+    firewallManagementPublicIPAddressSkuName: firewallPublicIpAddressSkuName
+    firewallManagementPublicIpAllocationMethod: firewallPublicIpAddressAllocationMethod
+    firewallManagementPublicIPAddressAvailabilityZones: firewallManagementPublicIPAddressAvailabilityZones
+    firewallSupernetIPAddress: firewallSupernetIPAddress
+    vNetDnsServers: [hubNetwork.outputs.firewallPrivateIPAddress]
+
+    publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
+    publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
+    enableProxy: enableProxy
+    dnsServers: dnsServers
+  }
+  dependsOn: [
+    hubNetwork
+  ]
 }
 
 module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
@@ -837,6 +916,7 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
 
     firewallPrivateIPAddress: hubNetwork.outputs.firewallPrivateIPAddress
+    vNetDnsServers: [hubNetwork.outputs.firewallPrivateIPAddress]
 
     virtualNetworkName: spoke.virtualNetworkName
     virtualNetworkAddressPrefix: spoke.virtualNetworkAddressPrefix
@@ -853,6 +933,7 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
     subnetServiceEndpoints: spoke.subnetServiceEndpoints
 
     subnetPrivateEndpointNetworkPolicies: spoke.subnetPrivateEndpointNetworkPolicies
+    subnetPrivateLinkServiceNetworkPolicies: spoke.subnetPrivateLinkServiceNetworkPolicies
   }
 }]
 
@@ -949,7 +1030,6 @@ module azureMonitorPrivateLink './modules/private-link.bicep' = if (contains(sup
     omsPrivateDnsZoneId: azurePrivateDns.outputs.omsPrivateDnsZoneId
     odsPrivateDnsZoneId: azurePrivateDns.outputs.odsPrivateDnsZoneId
     agentsvcPrivateDnsZoneId: azurePrivateDns.outputs.agentsvcPrivateDnsZoneId
-    storagePrivateDnsZoneId: azurePrivateDns.outputs.storagePrivateDnsZoneId
     location: location
     tags: tags
   }
@@ -993,6 +1073,7 @@ module hubDefender './modules/defender.bicep' = if (deployDefender) {
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     emailSecurityContact: emailSecurityContact
+    defenderSkuTier: defenderSkuTier
   }
 }
 
@@ -1002,6 +1083,7 @@ module spokeDefender './modules/defender.bicep' = [for spoke in spokes: if ((dep
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     emailSecurityContact: emailSecurityContact
+    defenderSkuTier: defenderSkuTier
   }
 }]
 

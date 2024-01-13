@@ -15,44 +15,99 @@ param vnetSubscriptionId string = subscription().subscriptionId
 @description('The tags that will be associated to the resources')
 param tags object
 
-var privateDnsZones_privatelink_monitor_azure_name = ( environment().name =~ 'AzureCloud' ? 'privatelink.monitor.azure.com' : 'privatelink.monitor.azure.us' ) 
-var privateDnsZones_privatelink_ods_opinsights_azure_name = ( environment().name =~ 'AzureCloud' ? 'privatelink.ods.opinsights.azure.com' : 'privatelink.ods.opinsights.azure.us' )
-var privateDnsZones_privatelink_oms_opinsights_azure_name = ( environment().name =~ 'AzureCloud' ? 'privatelink.oms.opinsights.azure.com' : 'privatelink.oms.opinsights.azure.us' )
-var privateDnsZones_privatelink_blob_core_cloudapi_net_name = ( environment().name =~ 'AzureCloud' ? 'privatelink.blob.${environment().suffixes.storage}' : 'privatelink.blob.core.usgovcloudapi.net' )
-var privateDnsZones_privatelink_agentsvc_azure_automation_name = ( environment().name =~ 'AzureCloud' ? 'privatelink.agentsvc.azure-automation.net' : 'privatelink.agentsvc.azure-automation.us' )
+var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
+var automationSuffix =  replace(environment().suffixes.storage, 'core.windows.', '')
 
-resource privatelink_monitor_azure_com 'Microsoft.Network/privateDnsZones@2018-09-01' = {
-  name: privateDnsZones_privatelink_monitor_azure_name
+var locations = (loadJsonContent('../data/locations.json'))[environment().name]
+
+var privatelink_agentsvc_automation_name = 'privatelink.agentsvc.azure-automation.${automationSuffix}'
+var privatelink_avd_name = 'privatelink.wvd.${cloudSuffix}'
+var privatelink_avd_global_name = 'privatelink-global.wvd.${cloudSuffix}'
+var privatelink_backup_names = [for location in items(locations) : 'privatelink.backup.${location.value.recoveryServicesGeo}.${cloudSuffix}'] 
+var privatelink_file_name = 'privatelink.file.${environment().suffixes.storage}'
+var privatelink_queue_name = 'privatelink.queue.${environment().suffixes.storage}'
+var privatelink_table_name = 'privatelink.table.${environment().suffixes.storage}'
+var privatelink_blob_name = 'privatelink.blob.${environment().suffixes.storage}'
+var privatelink_keyvaultDns_name  = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
+var privatelink_monitor_name = 'privatelink.monitor.${cloudSuffix}'
+var privatelink_ods_opinsights_name = 'privatelink.ods.opinsights.${cloudSuffix}'
+var privatelink_oms_opinsights_name = 'privatelink.oms.opinsights.${cloudSuffix}'
+
+resource privateDnsZone_avd 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privatelink_avd_name
   location: 'global'
   tags: tags
 }
 
-resource privatelink_oms_opinsights_azure_com 'Microsoft.Network/privateDnsZones@2018-09-01' = {
-  name: privateDnsZones_privatelink_oms_opinsights_azure_name
+resource privateDnsZone_avd_global 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privatelink_avd_global_name
   location: 'global'
   tags: tags
 }
 
-resource privatelink_ods_opinsights_azure_com 'Microsoft.Network/privateDnsZones@2018-09-01' = {
-  name: privateDnsZones_privatelink_ods_opinsights_azure_name
+resource privateDnsZone_backup_rsv 'Microsoft.Network/privateDnsZones@2018-09-01' =  [ for name in privatelink_backup_names : if (!(contains(name, '..'))) {
+  name: name
+  location: 'global'
+  tags: tags
+}]
+
+resource privateDnsZone_file 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privatelink_file_name
   location: 'global'
   tags: tags
 }
 
-resource privatelink_agentsvc_azure_automation_net 'Microsoft.Network/privateDnsZones@2018-09-01' = {
-  name: privateDnsZones_privatelink_agentsvc_azure_automation_name
+resource privateDnsZone_queue 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privatelink_queue_name
   location: 'global'
   tags: tags
 }
 
-resource privatelink_blob_core_cloudapi_net 'Microsoft.Network/privateDnsZones@2018-09-01' = {
-  name: privateDnsZones_privatelink_blob_core_cloudapi_net_name
+resource privateDnsZone_table 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privatelink_table_name
   location: 'global'
   tags: tags
 }
 
-resource privatelink_monitor_azure_com_privatelink_monitor_azure_com_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
-  name: '${privateDnsZones_privatelink_monitor_azure_name}/${privateDnsZones_privatelink_monitor_azure_name}-link'
+resource privateDnsZone_keyvaultDns 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privatelink_keyvaultDns_name
+  location: 'global'
+  tags: tags
+}
+
+resource privateDnsZone_monitor_azure_com 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privatelink_monitor_name
+  location: 'global'
+  tags: tags
+}
+
+resource privateDnsZone_oms_opinsights_azure_com 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privatelink_oms_opinsights_name
+  location: 'global'
+  tags: tags
+}
+
+resource privateDnsZone_ods_opinsights_azure_com 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privatelink_ods_opinsights_name
+  location: 'global'
+  tags: tags
+}
+
+resource privateDnsZone_agentsvc_azure_automation_net 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privatelink_agentsvc_automation_name
+  location: 'global'
+  tags: tags
+}
+
+resource privateDnsZone_blob_core_cloudapi_net 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+  name: privatelink_blob_name
+  location: 'global'
+  tags: tags
+}
+
+resource virtualNetworkLink_avd 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privatelink_avd_name}-link'
+  parent: privateDnsZone_avd
   location: 'global'
   properties: {
     registrationEnabled: false
@@ -61,12 +116,12 @@ resource privatelink_monitor_azure_com_privatelink_monitor_azure_com_link 'Micro
     }
   }
   dependsOn: [
-    privatelink_monitor_azure_com
   ]
 }
 
-resource privatelink_oms_opinsights_azure_com_privatelink_oms_opinsights_azure_com_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
-  name: '${privateDnsZones_privatelink_oms_opinsights_azure_name}/${privateDnsZones_privatelink_oms_opinsights_azure_name}-link'
+resource virtualNetworkLink_file 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privatelink_file_name}-link'
+  parent: privateDnsZone_file
   location: 'global'
   properties: {
     registrationEnabled: false
@@ -75,13 +130,12 @@ resource privatelink_oms_opinsights_azure_com_privatelink_oms_opinsights_azure_c
     }
   }
   dependsOn: [
-    privatelink_oms_opinsights_azure_com
-    privatelink_monitor_azure_com_privatelink_monitor_azure_com_link
   ]
 }
 
-resource privatelink_ods_opinsights_azure_com_privatelink_ods_opinsights_azure_com_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
-  name: '${privateDnsZones_privatelink_ods_opinsights_azure_name}/${privateDnsZones_privatelink_ods_opinsights_azure_name}-link'
+resource virtualNetworkLink_table 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privatelink_table_name}-link'
+  parent: privateDnsZone_table
   location: 'global'
   properties: {
     registrationEnabled: false
@@ -90,13 +144,12 @@ resource privatelink_ods_opinsights_azure_com_privatelink_ods_opinsights_azure_c
     }
   }
   dependsOn: [
-    privatelink_ods_opinsights_azure_com
-    privatelink_oms_opinsights_azure_com_privatelink_oms_opinsights_azure_com_link
   ]
 }
 
-resource privatelink_agentsvc_azure_automation_net_privatelink_agentsvc_azure_automation_net_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
-  name: '${privateDnsZones_privatelink_agentsvc_azure_automation_name}/${privateDnsZones_privatelink_agentsvc_azure_automation_name}-link'
+resource virtualNetworkLink_keyvaultDns 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privatelink_keyvaultDns_name}-link'
+  parent: privateDnsZone_keyvaultDns
   location: 'global'
   properties: {
     registrationEnabled: false
@@ -105,13 +158,13 @@ resource privatelink_agentsvc_azure_automation_net_privatelink_agentsvc_azure_au
     }
   }
   dependsOn: [
-    privatelink_agentsvc_azure_automation_net
-    privatelink_ods_opinsights_azure_com_privatelink_ods_opinsights_azure_com_link
   ]
 }
 
-resource privateDnsZones_privatelink_blob_core_cloudapi_net_privateDnsZones_privatelink_blob_core_cloudapi_net_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
-  name: '${privateDnsZones_privatelink_blob_core_cloudapi_net_name}/${privateDnsZones_privatelink_blob_core_cloudapi_net_name}-link'
+
+resource virtualNetworkLink_queue 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privatelink_queue_name}-link'
+  parent: privateDnsZone_queue
   location: 'global'
   properties: {
     registrationEnabled: false
@@ -120,13 +173,119 @@ resource privateDnsZones_privatelink_blob_core_cloudapi_net_privateDnsZones_priv
     }
   }
   dependsOn: [
-    privatelink_blob_core_cloudapi_net
-    privatelink_agentsvc_azure_automation_net_privatelink_agentsvc_azure_automation_net_link
   ]
 }
 
-output monitorPrivateDnsZoneId string = privatelink_monitor_azure_com.id
-output omsPrivateDnsZoneId string = privatelink_oms_opinsights_azure_com.id
-output odsPrivateDnsZoneId string = privatelink_ods_opinsights_azure_com.id
-output agentsvcPrivateDnsZoneId string = privatelink_agentsvc_azure_automation_net.id
-output storagePrivateDnsZoneId string = privatelink_blob_core_cloudapi_net.id
+resource virtualNetworkLink_backup_rsv 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = [ for (name, i) in privatelink_backup_names: {
+  name: '${name}-link'
+  parent: privateDnsZone_backup_rsv[i]
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+  ]
+}]
+
+resource virtualNetworkLink_avd_global 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privatelink_avd_global_name}-link'
+  parent: privateDnsZone_avd_global
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+  ]
+}
+
+resource virtualNetworkLink_monitor 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privatelink_monitor_name}-link'
+  parent: privateDnsZone_monitor_azure_com
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+  ]
+}
+
+resource virtualNetworkLink_oms_opinsights 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privatelink_oms_opinsights_name}-link'
+  parent: privateDnsZone_oms_opinsights_azure_com
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+
+  ]
+}
+
+resource virtualNetworkLink_ods_opinsights 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privatelink_ods_opinsights_name}-link'
+  parent: privateDnsZone_ods_opinsights_azure_com
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+  ]
+}
+
+resource virtualNetworkLink_agentsvc_azure_automation 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privatelink_agentsvc_automation_name}-link'
+  parent: privateDnsZone_agentsvc_azure_automation_net
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+
+  ]
+}
+
+resource virtualNetworkLink_blob 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+  name: '${privatelink_blob_name}-link'
+  parent: privateDnsZone_blob_core_cloudapi_net
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks', vnetName )
+    }
+  }
+  dependsOn: [
+  ]
+}
+
+output monitorPrivateDnsZoneId string = privateDnsZone_monitor_azure_com.id
+output omsPrivateDnsZoneId string = privateDnsZone_oms_opinsights_azure_com.id
+output odsPrivateDnsZoneId string = privateDnsZone_ods_opinsights_azure_com.id
+output agentsvcPrivateDnsZoneId string = privateDnsZone_agentsvc_azure_automation_net.id
+output storagePrivateDnsZoneId string = privateDnsZone_blob_core_cloudapi_net.id
+output avdPrivateDnsZoneId string = privateDnsZone_avd.id
+output avdGlobalPrivateDnsZoneId string = privateDnsZone_avd_global.id
+output backupPrivateDnsZoneIds array = [for (name, i) in privatelink_backup_names: privateDnsZone_backup_rsv[i].id]
+output filePrivateDnsZoneId string = privateDnsZone_file.id
+output queuePrivateDnsZoneId string = privateDnsZone_queue.id
+output tablePrivateDnsZoneId string = privateDnsZone_table.id
+output keyvaultDnsPrivateDnsZoneId string = privateDnsZone_keyvaultDns.id
+
