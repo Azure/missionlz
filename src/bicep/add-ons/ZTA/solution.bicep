@@ -128,6 +128,9 @@ param location string = deployment().location
 @description('The resource ID of the log analytics workspace if using build automation and desired.')
 param logAnalyticsWorkspaceResourceId string = ''
 
+@description('The resource ID of the log analytics workspace if using build automation and desired.')
+param spokelogAnalyticsWorkspaceResourceId string
+
 @description('The marketplace image offer.')
 param marketplaceImageOffer string = ''
 
@@ -187,7 +190,7 @@ param deployDefender bool = false
 
 param deployPolicy bool = false
 
-param emailSecurityContact string 
+param emailSecurityContact string
 
 param hubSubscriptionId string
 
@@ -195,7 +198,7 @@ param hubVirtualNetworkName string
 
 param logAnalyticsWorkspaceName string
 
-param policy string
+param policy string = ''
 
 param resourcePrefix string
 
@@ -302,7 +305,7 @@ module tier3 'modules/tier3.bicep' = {
     hubVirtualNetworkResourceId: hubVirtualNetwork.id
     location: location
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId 
     policy: policy
     resourceGroupName: existingResourceGroup ? resourceGroupName : rg.name
     resourcePrefix: resourcePrefix
@@ -327,6 +330,9 @@ module baseline 'modules/baseline.bicep' = {
     tags: tags
     userAssignedIdentityName: userAssignedIdentityName
   }
+  dependsOn: [
+    tier3
+  ]
 }
 
 module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomation) {
@@ -396,6 +402,9 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     vDOTInstaller: vDOTInstaller
     virtualMachineSize: virtualMachineSize
   }
+  dependsOn: [
+    tier3
+  ]
 }
 
 module imageBuild 'modules/imageBuild.bicep' = {
@@ -455,5 +464,6 @@ module imageBuild 'modules/imageBuild.bicep' = {
   }
   dependsOn: [
     buildAutomation
+    tier3
   ]
 }

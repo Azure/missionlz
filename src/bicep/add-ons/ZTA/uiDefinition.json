@@ -109,19 +109,6 @@
                                         "required": true,
                                         "allowedValues": "[map(steps('basics').hub.azureFirewallsApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
                                     }
-                                },
-                                {
-                                    "name": "firewallPolicy",
-                                    "type": "Microsoft.Solutions.ResourceSelector",
-                                    "toolTip": "Select MLZ Hub Azure Spoke Firewall Policy. This will be updated and the spoke virtualnetwork will be added to allow spoke traffic from the hub",
-                                    "label": "Hub azure firewall policy",
-                                    "resourceType": "Microsoft.Network/firewallPolicies",
-                                    "scope": {
-                                        "subscriptionId": "[replace(steps('basics').subscriptions.hub, '/subscriptions/', '')]"
-                                    },
-                                    "constraints": {
-                                        "required": true
-                                    }
                                 }
                             ]
                         },
@@ -158,35 +145,6 @@
                                         "required": true,
                                         "regex": "^[a-z0-9A-Z]{1,3}$",
                                         "validationMessage": "The value must be 1 - 3 characters in length and must be alphanumeric."
-                                    }
-                                },
-                                {
-                                    "name": "environment",
-                                    "type": "Microsoft.Common.DropDown",
-                                    "visible": true,
-                                    "label": "Environment short name",
-                                    "defaultValue": "Development (d)",
-                                    "toolTip": "Select the target environment for the solution. The single letter environment abbreviation will be used as part of the naming convention for the resoure groups and resources.",
-                                    "constraints": {
-                                        "required": true,
-                                        "allowedValues": [
-                                            {
-                                                "label": "Development (d)",
-                                                "value": "d"
-                                            },
-                                            {
-                                                "label": "Production (p)",
-                                                "value": "p"
-                                            },
-                                            {
-                                                "label": "Staging (s)",
-                                                "value": "s"
-                                            },
-                                            {
-                                                "label": "Test (t)",
-                                                "value": "t"
-                                            }
-                                        ]
                                     }
                                 }
                             ]
@@ -252,6 +210,164 @@
                                 "validations": []
                             },
                             "visible": "[equals(steps('basics').existingResourceGroup, false)]"
+                        }
+                    ]
+                },
+                {
+                    "name": "spoke",
+                    "label": "Spoke",
+                    "elements": [
+                       {
+                            "name": "deployDefender",
+                            "type": "Microsoft.Common.OptionsGroup",
+                            "label": "Deploy Defender",
+                            "defaultValue": [
+                                "No"
+                            ],
+                            "toolTip": "Select True to deploy defender to the ZTA spoke",
+                            "constraints": {
+                                "allowedValues": [
+                                    {
+                                        "label": "True",
+                                        "value": true
+                                    },
+                                    {
+                                        "label": "False",
+                                        "value": false
+                                    }
+                                ],
+                                "required": true
+                            },
+                            "visible": true
+                        },
+                        {
+                            "name": "emailSecurityContact",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Email",
+                            "defaultValue": "",
+                            "toolTip": "Please enter a valid email account",
+                            "constraints": {
+                                "required": false,
+                                "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
+                                "validationMessage": "Email is not valid. Please re-enter."
+                            },
+                            "visible": "[steps('spoke').deployDefender]"
+                        },
+                        {
+                            "name": "deployPolicy",
+                            "type": "Microsoft.Common.OptionsGroup",
+                            "label": "Deploy Policy",
+                            "defaultValue": [
+                                false
+                            ],
+                            "toolTip": "Select True to deploy defender to the ZTA spoke",
+                            "constraints": {
+                                "allowedValues": [
+                                    {
+                                        "label": "True",
+                                        "value": true
+                                    },
+                                    {
+                                        "label": "False",
+                                        "value": false
+                                    }
+                                ],
+                                "required": true
+                            },
+                            "visible": true
+                        },
+                        {
+                            "name": "policy",
+                            "type": "Microsoft.Common.OptionsGroup",
+                            "label": "Select Policy",
+                            "defaultValue": "",
+                            "toolTip": "Select True to install Outlook",
+                            "constraints": {
+                                "allowedValues": [
+                                    {
+                                        "label": "NISTRev4",
+                                        "value": "NISTRev4"
+                                    },
+                                    {
+                                        "label": "NISTRev5",
+                                        "value": "NISTRev5"
+                                    },
+                                    {
+                                        "label": "IL5",
+                                        "value": "IL5"
+                                    },
+                                    {
+                                        "label": "CMMC",
+                                        "value": "CMMC"
+                                    }
+                                ],
+                                "required": true
+                            },
+                            "visible": "[steps('spoke').deployPolicy]"
+                        },
+                        {
+                            "name": "logAnalyticsWorkspace",
+                            "type": "Microsoft.Solutions.ResourceSelector",
+                            "label": "Existing Log Analytics Workspace for Central Logging",
+                            "visible": true,
+                            "resourceType": "Microsoft.OperationalInsights/workspaces",
+                            "toolTip": "Select the log analytics workspace used for collecting security data for Sentinel or Defender for Cloud.",
+                            "options": {}
+                        },
+                        {
+                            "name": "networking",
+                            "label": "Networking",
+                            "type": "Microsoft.Common.Section",
+                            "elements": [
+                                {
+                                    "name": "virtualNetworkAddressCidrRange",
+                                    "label": "Virtual network CIDR range",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "defaultValue": "10.0.131.0/24",
+                                    "toolTip": "Specify an address CIDR range within the range [10,24].",
+                                    "constraints": {
+                                        "required": true,
+                                        "validations": [
+                                            {
+                                                "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-6]))$",
+                                                "message": "Invalid CIDR range. The address prefix must be in the range [10,26]."
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "subnetAddressCidrRange",
+                                    "label": "Subnet CIDR range",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "defaultValue": "10.0.131.0/24",
+                                    "toolTip": "Specify a CIDR range for the default subnet within the Shared Services Virtual Network range [24].",
+                                    "constraints": {
+                                        "required": true,
+                                        "validations": [
+                                            {
+                                                "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                                                "message": "Invalid CIDR range. The address prefix must be in the range [26,28]."
+                                            },
+                                            {
+                                                "isValid": "[if(greaterOrEquals(last(split(steps('spoke').networking.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('spoke').networking.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('spoke').networking.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                                                "message": "CIDR range not within virtual network CIDR range (first octet)."
+                                            },
+                                            {
+                                                "isValid": "[if(greaterOrEquals(last(split(steps('spoke').networking.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('spoke').networking.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('spoke').networking.subnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                                                "message": "CIDR range not within virtual network CIDR range (second octet)."
+                                            },
+                                            {
+                                                "isValid": "[if(greaterOrEquals(last(split(steps('spoke').networking.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('spoke').networking.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('spoke').networking.subnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                                                "message": "CIDR range not within virtual network CIDR range (third octet)."
+                                            },
+                                            {
+                                                "isValid": "[lessOrEquals(last(split(steps('spoke').networking.virtualNetworkAddressCidrRange, '/')), last(split(steps('spoke').networking.subnetAddressCidrRange, '/')))]",
+                                                "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
                         }
                     ]
                 },
@@ -792,7 +908,7 @@
                                         "required": true,
                                         "validations": [
                                             {
-                                                "isValid": "[endsWith(steps('office').officeBlob.officeBlob, '.exe')]",
+                                                "isValid": "[endsWith(steps('customizations').office, '.exe')]",
                                                 "message": "The file name must end with '.exe'."
                                             }
                                         ]
@@ -1063,7 +1179,7 @@
                                         "required": true,
                                         "validations": [
                                             {
-                                                "isValid": "[endsWith(steps('office').officeBlob.teamsBlob, '.msi')]",
+                                                "isValid": "[endsWith(steps('customizations').office.teamsBlob, '.msi')]",
                                                 "message": "The file name must end with '.msi'."
                                             }
                                         ]
@@ -1082,7 +1198,7 @@
                                         "required": true,
                                         "validations": [
                                             {
-                                                "isValid": "[endsWith(steps('office').officeBlob.msrdcwebrtcsvcInstaller, '.msi')]",
+                                                "isValid": "[endsWith(steps('customizations').office.msrdcwebrtcsvcInstaller, '.msi')]",
                                                 "message": "The file name must end with '.msi'."
                                             }
                                         ]
@@ -1101,7 +1217,7 @@
                                         "required": true,
                                         "validations": [
                                             {
-                                                "isValid": "[endsWith(steps('office').officeBlob.vcRedistInstaller, '.exe')]",
+                                                "isValid": "[endsWith(steps('customizations').office.vcRedistInstaller, '.exe')]",
                                                 "message": "The file name must end with '.exe'."
                                             }
                                         ]
@@ -1132,7 +1248,7 @@
                                 {
                                     "name": "vDotBlob",
                                     "type": "Microsoft.Common.TextBox",
-                                    "label": "Microsoft Visual C++ Redistributable Installer (.exe)",
+                                    "label": "Microsoft Visual C++ Redistributable Installer (.zip)",
                                     "defaultValue": "Virtual-Desktop-Optimization-Tool-main.zip",
                                     "toolTip": "Input the file / blob name for the VDOT installer zip.",
                                     "placeholder": "",
@@ -1141,7 +1257,7 @@
                                         "required": true,
                                         "validations": [
                                             {
-                                                "isValid": "[endsWith(steps('office').officeBlob.vDotBlob, '.zip')]",
+                                                "isValid": "[endsWith(steps('customizations').office.vDotBlob, '.zip')]",
                                                 "message": "The file name must end with '.zip'."
                                             }
                                         ]
@@ -1180,7 +1296,7 @@
                                         "required": true,
                                         "validations": [
                                             {
-                                                "isValid": "[endsWith(steps('office').officeBlob.installArcGisPro, '.zip')]",
+                                                "isValid": "[endsWith(steps('customizations').office.arcGisBlob, '.zip')]",
                                                 "message": "The file name must end with '.zip'."
                                             }
                                         ]
@@ -1466,22 +1582,24 @@
                 "installVirtualDesktopOptimizationTool": "[steps('customizations').office.installVirtualDesktopOptimizationTool]",
                 "installVisio": "[if(equals(steps('customizations').office.installOffice, true), steps('customizations').office.installVisio,'false')]",
                 "installWord": "[if(equals(steps('customizations').office.installOffice, true), steps('customizations').office.installWord,'false')]",
-				"deployDefender": "false",
-				"deployPolicy": "false",
-				"emailSecurityContact": "",
-
-				"hubSubscriptionId": "[steps('basics').subscriptions.hub]",
+				"deployDefender": "[steps('spoke').deployDefender]",
+				"deployPolicy": "[steps('spoke').deployPolicy]",
+                "policy": "[steps('spoke').policy]",
+                "emailSecurityContact": "[if(equals(steps('spoke').deployDefender, true), steps('spoke').emailSecurityContact , '')]",
+                "resourcePrefix": "[steps('basics').naming.identifier]",
+				"hubSubscriptionId": "[replace(steps('basics').subscriptions.hub, '/subscriptions/', '')]",
 				"hubResourceGroupName": "[first(skip(split(steps('basics').hub.azureFirewall, '/'), 4))]",
-				"hubVirtualNetworknName": "[steps('basics').hub.virtualNetwork.name]",
-				"spokeSubscriptionId": "[steps('basics').subscriptions.spoke]",
-				"azureFirewallName": "[steps('basics').hub.azureFirewall.name]",
-                "azureFirewallPolicyName": "[steps('basics').hub.firewallPolicy.name]",
-
+				"hubVirtualNetworkName": "[first(skip(split(steps('basics').hub.virtualNetwork, '/'), 8))]",
+				"workloadSubscriptionId": "[replace(steps('basics').subscriptions.spoke, '/subscriptions/', '')]",
+				"azureFirewallName": "[first(skip(split(steps('basics').hub.azureFirewall, '/'), 8))]",
+                "virtualNetworkAddressPrefix": "[steps('spoke').networking.virtualNetworkAddressCidrRange]",
+                "subnetAddressPrefix": "[steps('spoke').networking.subnetAddressCidrRange]",
                 "keyVaultName": "[if(steps('automation').enable, steps('automation').keyVault, '')]",
                 "keyVaultPrivateDnsZoneResourceId": "[if(steps('automation').enable, steps('automation').privateDnsZones.keyVault, '')]",
                 "localAdministratorPassword": "[steps('virtualMachines').localAdminCredentials.password]",
                 "localAdministratorUsername": "[steps('virtualMachines').localAdminCredentials.username]",
                 "location": "[steps('basics').location.name]",
+                "logAnalyticsWorkspaceName": "[steps('spoke').logAnalyticsWorkspace.name]",
                 "logAnalyticsWorkspaceResourceId": "[if(and(steps('automation').enable, steps('automation').monitoring.enable), steps('automation').monitoring.logAnalyticsWorkspace.id, '')]",
                 "marketplaceImageOffer": "[if(equals(steps('source').type, 'AzureMarketplace'), steps('source').marketplace.offer, '')]",
                 "marketplaceImagePublisher": "[if(equals(steps('source').type, 'AzureMarketplace'), steps('source').marketplace.publisher, '')]",
@@ -1494,6 +1612,7 @@
                 "resourceGroupName": "[if(equals(steps('basics').existingResourceGroup, true), steps('basics').existingResourceGroupName ,steps('basics').newResourceGroup)]",
                 "sourceImageType": "[steps('source').type]",
                 "storageAccountResourceId": "[steps('storage').storageSelector.id]",
+                "spokelogAnalyticsWorkspaceResourceId": "[steps('spoke').logAnalyticsWorkspace.id]",
                 "tags": "[steps('tags').tags]",
                 "teamsInstaller": "[if(equals(steps('customizations').office.installTeams, true), steps('customizations').office.teamsBlob.blobName,'')]",
                 "userAssignedIdentityName": "[steps('virtualMachines').userAssignedIdentityName]",
