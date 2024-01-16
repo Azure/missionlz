@@ -1,0 +1,177 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "actionGroupName": {
+        "value": ""
+    },
+    "automationAccountName": {
+        "value": ""
+    },
+    "automationAccountPrivateDnsZoneResourceId": {
+        "value": ""
+    },
+    "computeGalleryImageResourceId": {
+        "value": ""
+    },
+    "computeGalleryName": {
+        "value": ""
+    },
+    "containerName": {
+        "value": ""
+    },
+    "customizations": {
+        "value": []
+    },
+    "diskEncryptionSetResourceId": {
+        "value": ""
+    },
+    "distributionGroup": {
+        "value": ""
+    },
+    "deploymentNameSuffix": {
+        "value": ""
+    },
+    "domainJoinPassword": {
+        "value": ""
+    },
+    "domainJoinUserPrincipalName": {
+        "value": ""
+    },
+    "domainName": {
+        "value": ""
+    },
+    "enableBuildAutomation": {
+        "value": false
+    },
+    "excludeFromLatest": {
+        "value": false
+    },
+    "exemptPolicyAssignmentIds": {
+        "value": []
+    },
+    "hybridUseBenefit": {
+        "value": false
+    },
+    "hybridWorkerName": {
+        "value": ""
+    },
+    "imageDefinitionNamePrefix": {
+        "value": ""
+    },
+    "imageMajorVersion": {
+        "value": 0
+    },
+    "imageMinorVersion": {
+        "value": 0
+    },
+    "installAccess": {
+        "value": false
+    },
+    "installExcel": {
+        "value": false
+    },
+    "installOneDrive": {
+        "value": false
+    },
+    "installOneNote": {
+        "value": false
+    },
+    "installOutlook": {
+        "value": false
+    },
+    "installPowerPoint": {
+        "value": false
+    },
+    "installProject": {
+        "value": false
+    },
+    "installPublisher": {
+        "value": false
+    },
+    "installSkypeForBusiness": {
+        "value": false
+    },
+    "installTeams": {
+        "value": false
+    },
+    "installVirtualDesktopOptimizationTool": {
+        "value": false
+    },
+    "installVisio": {
+        "value": false
+    },
+    "installWord": {
+        "value": false
+    },
+    "keyVaultName": {
+        "value": ""
+    },
+    "keyVaultPrivateDnsZoneResourceId": {
+        "value": ""
+    },
+    "localAdministratorPassword": {
+        "value": ""
+    },
+    "localAdministratorUsername": {
+        "value": ""
+    },
+    "location": {
+        "value": ""
+    },
+    "logAnalyticsWorkspaceResourceId": {
+        "value": ""
+    },
+    "marketplaceImageOffer": {
+        "value": ""
+    },
+    "marketplaceImagePublisher": {
+        "value": ""
+    },
+    "marketplaceImageSKU": {
+        "value": ""
+    },
+    "msrdcwebrtcsvcInstaller": {
+        "value": ""
+    },
+    "officeInstaller": {
+        "value": ""
+    },
+    "oUPath": {
+        "value": ""
+    },
+    "replicaCount": {
+        "value": 0
+    },
+    "resourceGroupName": {
+        "value": ""
+    },
+    "sourceImageType": {
+        "value": ""
+    },
+    "storageAccountResourceId": {
+        "value": ""
+    },
+    "subnetResourceId": {
+        "value": ""
+    },
+    "tags": {
+        "value": {}
+    },
+    "teamsInstaller": {
+        "value": ""
+    },
+    "userAssignedIdentityName": {
+        "value": ""
+    },
+    "vcRedistInstaller": {
+        "value": ""
+    },
+    "vDOTInstaller": {
+        "value": ""
+    },
+    "virtualMachineSize": {
+        "value": ""
+    }
+  }
+}
