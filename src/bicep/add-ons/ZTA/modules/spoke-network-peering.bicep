@@ -12,7 +12,7 @@ param spokeVirtualNetworkName string
 param hubVirtualNetworkName string
 param hubVirtualNetworkResourceId string
 
-module spokeNetworkPeering '../modules/virtual-network-peering.bicep' = {
+module spokeNetworkPeering './virtual-network-peerings.bicep' = {
   name: '${spokeName}-to-hub-vnet-peering'
   scope: resourceGroup(spokeResourceGroupName)
   params: {
