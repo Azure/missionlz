@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.10.61.36676",
-      "templateHash": "4961315915169693062"
+      "templateHash": "11325591247187477175"
     }
   },
   "parameters": {
@@ -7140,7 +7140,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.10.61.36676",
-              "templateHash": "16303325944519685702"
+              "templateHash": "9863600299947422102"
             }
           },
           "parameters": {
@@ -7221,7 +7221,7 @@
               "condition": "[not(empty(parameters('emailSecurityContact')))]",
               "type": "Microsoft.Security/securityContacts",
               "apiVersion": "2020-01-01-preview",
-              "name": "securityNotifications",
+              "name": "default",
               "properties": {
                 "notificationsByRole": {
                   "roles": [
@@ -7291,7 +7291,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.10.61.36676",
-              "templateHash": "16303325944519685702"
+              "templateHash": "9863600299947422102"
             }
           },
           "parameters": {
@@ -7372,7 +7372,7 @@
               "condition": "[not(empty(parameters('emailSecurityContact')))]",
               "type": "Microsoft.Security/securityContacts",
               "apiVersion": "2020-01-01-preview",
-              "name": "securityNotifications",
+              "name": "default",
               "properties": {
                 "notificationsByRole": {
                   "roles": [
