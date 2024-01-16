@@ -31,7 +31,7 @@ param resourceSuffix string = 'mlz'
 param location string
 
 @description('The subscription ID for the Identity Network and resources. It defaults to the deployment subscription.')
-param workloadSubscriptionId string = subscription().subscriptionId
+param workloadSubscriptionId string 
 
 @description('MLZ Deployment output variables in json format. It defaults to the deploymentVariables.json.')
 param hubSubscriptionId string
@@ -41,8 +41,17 @@ param hubVirtualNetworkResourceId string
 param logAnalyticsWorkspaceResourceId string
 param logAnalyticsWorkspaceName string
 param firewallPrivateIPAddress string
+
+
 @description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
+@allowed([
+  'NISTRev4'
+  'NISTRev5'
+  'IL5'
+  'CMMC'
+])
 param policy string
+
 @description('When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".')
 param deployPolicy bool
 
@@ -53,7 +62,7 @@ param deployDefender bool
 param emailSecurityContact string
 
 @description('The address prefix for the network spoke vnet.')
-param virtualNetworkAddressPrefix string = '10.0.125.0/26'
+param virtualNetworkAddressPrefix string
 
 @description('An array of Network Diagnostic Logs to enable for the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.')
 param virtualNetworkDiagnosticsLogs array = []
@@ -81,7 +90,7 @@ param networkSecurityGroupDiagnosticsLogs array = [
 param networkSecurityGroupDiagnosticsMetrics array = []
 
 @description('The CIDR Virtual Network Address Prefix for the Workload Virtual Network.')
-param subnetAddressPrefix string = '10.0.125.0/27'
+param subnetAddressPrefix string
 
 @description('An array of Service Endpoints to enable for the Operations subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
 param subnetServiceEndpoints array = []
@@ -102,7 +111,7 @@ param workloadName string = 'ZTA'
 @description('The name of the Storage Account if using this Parameter. Otherwise it will be a calculated value.')
 param workloadLogStorageAccountNameParameter string = 'null'
 
-param existingResourceGroup bool = false
+param existingResourceGroup bool
 
 param resourceGroupName string
 
@@ -145,14 +154,14 @@ var defaultTags = {
 var calculatedTags = union(tags, defaultTags)
 
 
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (existingResourceGroup) {
+resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' existing =  {
   name: resourceGroupName
   scope: subscription(workloadSubscriptionId)
 }
 
 module spokeNetwork '../../../core/spoke-network.bicep' = {
   name: 'spokeNetwork'
-  scope: az.resourceGroup(workloadSubscriptionId, resourceGroup.name)
+  scope: az.resourceGroup(workloadSubscriptionId, (existingResourceGroup ? rg.name : resourceGroupName))
   params: {
     tags: calculatedTags
     location:location
@@ -182,7 +191,7 @@ module workloadVirtualNetworkPeerings './spoke-network-peering.bicep' = {
   scope: subscription(workloadSubscriptionId)
   params: {
     spokeName: workloadName
-    spokeResourceGroupName: resourceGroup.name
+    spokeResourceGroupName: (existingResourceGroup ? rg.name : resourceGroupName)
     spokeVirtualNetworkName: spokeNetwork.outputs.virtualNetworkName
     hubVirtualNetworkName: hubVirtualNetworkName
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
@@ -190,7 +199,7 @@ module workloadVirtualNetworkPeerings './spoke-network-peering.bicep' = {
 }
 
 module hubToWorkloadVirtualNetworkPeering './hub-network-peering.bicep' = {
-  scope: az.resourceGroup(workloadSubscriptionId, resourceGroup.name)
+  scope: az.resourceGroup(workloadSubscriptionId, (existingResourceGroup ? rg.name : resourceGroupName))
   name: take('hub-to-${workloadName}-vnet-peering', 64)
   params: {
     hubVirtualNetworkName: hubVirtualNetworkName
@@ -214,7 +223,7 @@ module workloadSubscriptionActivityLogging '../../../modules/central-logging.bic
 
 module workloadPolicyAssignment '../../../modules/policy-assignment.bicep' = if (deployPolicy) {
   name: 'assign-policy-${workloadName}-${deploymentNameSuffix}'
-  scope:  az.resourceGroup(workloadSubscriptionId, resourceGroup.name)
+  scope:  az.resourceGroup(workloadSubscriptionId, (existingResourceGroup ? rg.name : resourceGroupName))
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceResourceId_split[8]
@@ -233,8 +242,8 @@ module spokeDefender '../../../modules/defender.bicep' = if (deployDefender) {
   }
 }
 
-output rg string = resourceGroup.name
-output location string = resourceGroup.location
+output rg string = (existingResourceGroup ? rg.name : resourceGroupName)
+output location string = location
 output virtualNetworkName string = spokeNetwork.outputs.virtualNetworkName
 output virtualNetworkAddressPrefix string = spokeNetwork.outputs.virtualNetworkAddressPrefix
 output virtualNetworkResourceId string = spokeNetwork.outputs.virtualNetworkResourceId

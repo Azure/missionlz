@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "1010796731630499787"
+      "templateHash": "2404579633225603244"
     }
   },
   "parameters": {
@@ -34,7 +34,6 @@
     },
     "workloadSubscriptionId": {
       "type": "string",
-      "defaultValue": "[subscription().subscriptionId]",
       "metadata": {
         "description": "The subscription ID for the Identity Network and resources. It defaults to the deployment subscription."
       }
@@ -62,6 +61,12 @@
     },
     "policy": {
       "type": "string",
+      "allowedValues": [
+        "NISTRev4",
+        "NISTRev5",
+        "IL5",
+        "CMMC"
+      ],
       "metadata": {
         "description": "[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to \"NISTRev4\". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud."
       }
@@ -86,7 +91,6 @@
     },
     "virtualNetworkAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.125.0/26",
       "metadata": {
         "description": "The address prefix for the network spoke vnet."
       }
@@ -143,7 +147,6 @@
     },
     "subnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.125.0/27",
       "metadata": {
         "description": "The CIDR Virtual Network Address Prefix for the Workload Virtual Network."
       }
@@ -192,8 +195,7 @@
       }
     },
     "existingResourceGroup": {
-      "type": "bool",
-      "defaultValue": false
+      "type": "bool"
     },
     "resourceGroupName": {
       "type": "string"
@@ -229,7 +231,7 @@
       "apiVersion": "2022-09-01",
       "name": "spokeNetwork",
       "subscriptionId": "[parameters('workloadSubscriptionId')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "resourceGroup": "[if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -911,11 +913,9 @@
           "spokeName": {
             "value": "[parameters('workloadName')]"
           },
-          "spokeResourceGroupName": {
-            "value": "[parameters('resourceGroupName')]"
-          },
+          "spokeResourceGroupName": "[if(parameters('existingResourceGroup'), createObject('value', parameters('resourceGroupName')), createObject('value', parameters('resourceGroupName')))]",
           "spokeVirtualNetworkName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkName.value]"
           },
           "hubVirtualNetworkName": {
             "value": "[parameters('hubVirtualNetworkName')]"
@@ -1008,7 +1008,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork')]"
       ]
     },
     {
@@ -1016,7 +1016,7 @@
       "apiVersion": "2022-09-01",
       "name": "[take(format('hub-to-{0}-vnet-peering', parameters('workloadName')), 64)]",
       "subscriptionId": "[parameters('workloadSubscriptionId')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "resourceGroup": "[if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1030,10 +1030,10 @@
             "value": "[parameters('hubResourceGroupName')]"
           },
           "spokeVirtualNetworkName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkName.value]"
           },
           "spokeVirtualNetworkResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkResourceId.value]"
           }
         },
         "template": {
@@ -1117,7 +1117,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork')]"
       ]
     },
     {
@@ -1213,7 +1213,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork')]"
       ]
     },
     {
@@ -1222,7 +1222,7 @@
       "apiVersion": "2022-09-01",
       "name": "[format('assign-policy-{0}-{1}', parameters('workloadName'), parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[parameters('workloadSubscriptionId')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "resourceGroup": "[if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1630,43 +1630,43 @@
   "outputs": {
     "rg": {
       "type": "string",
-      "value": "[parameters('resourceGroupName')]"
+      "value": "[if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))]"
     },
     "location": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId(parameters('workloadSubscriptionId'), 'Microsoft.Resources/resourceGroups', parameters('resourceGroupName')), '2021-04-01', 'full').location]"
+      "value": "[parameters('location')]"
     },
     "virtualNetworkName": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkName.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkName.value]"
     },
     "virtualNetworkAddressPrefix": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkAddressPrefix.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkAddressPrefix.value]"
     },
     "virtualNetworkResourceId": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkResourceId.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkResourceId.value]"
     },
     "subnetName": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.subnetName.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.subnetName.value]"
     },
     "subnetAddressPrefix": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.subnetAddressPrefix.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.subnetAddressPrefix.value]"
     },
     "subnetResourceId": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.subnetResourceId.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.subnetResourceId.value]"
     },
     "networkSecurityGroupName": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.networkSecurityGroupName.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.networkSecurityGroupName.value]"
     },
     "networkSecurityGroupResourceId": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), if(parameters('existingResourceGroup'), parameters('resourceGroupName'), parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
     }
   }
 }
