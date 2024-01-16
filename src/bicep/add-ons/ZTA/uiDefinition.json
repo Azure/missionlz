@@ -908,7 +908,7 @@
                                         "required": true,
                                         "validations": [
                                             {
-                                                "isValid": "[endsWith(steps('customizations').office, '.exe')]",
+                                                "isValid": "[endsWith(steps('customizations').officeBlob, '.exe')]",
                                                 "message": "The file name must end with '.exe'."
                                             }
                                         ]

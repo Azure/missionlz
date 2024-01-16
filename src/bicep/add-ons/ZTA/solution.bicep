@@ -290,7 +290,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = if (!existingResou
   tags: tags
 }
 
-module tier3 'modules/tier3.bicep' = {
+module tier3  'modules/tier3.bicep' = {
   name: 'tier3-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, (existingResourceGroup ? rg.name : resourceGroupName))
   params: {
@@ -305,7 +305,7 @@ module tier3 'modules/tier3.bicep' = {
     hubVirtualNetworkResourceId: hubVirtualNetwork.id
     location: location
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
-    logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId 
+    logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
     policy: policy
     resourceGroupName: existingResourceGroup ? resourceGroupName : rg.name
     resourcePrefix: resourcePrefix

@@ -660,6 +660,12 @@
             },
             "policy": {
               "type": "string",
+              "allowedValues": [
+                "NISTRev4",
+                "NISTRev5",
+                "IL5",
+                "CMMC"
+              ],
               "metadata": {
                 "description": "[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to \"NISTRev4\". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud."
               }
