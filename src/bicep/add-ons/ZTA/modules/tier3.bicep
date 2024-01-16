@@ -31,7 +31,7 @@ param resourceSuffix string = 'mlz'
 param location string
 
 @description('The subscription ID for the Identity Network and resources. It defaults to the deployment subscription.')
-param workloadSubscriptionId string 
+param workloadSubscriptionId string
 
 @description('MLZ Deployment output variables in json format. It defaults to the deploymentVariables.json.')
 param hubSubscriptionId string
