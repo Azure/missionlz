@@ -39,7 +39,7 @@ A **landing zone** is networking infrastructure configured to provide a secure e
 
 ## Quickstart
 
-You can deploy Mission Landing Zone from the Azure Portal or by executing an Azure CLI command.
+You can deploy Mission Landing Zone from the Azure Portal, Azure Bicep or by executing an Azure CLI command.
 
 You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner) to the subscription(s) you deploy Mission Landing Zone into.
 
