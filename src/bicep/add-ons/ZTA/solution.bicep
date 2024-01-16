@@ -187,15 +187,11 @@ param deployDefender bool = false
 
 param deployPolicy bool = false
 
-param emailSecurityContact string
-
-param firewallPrivateIPAddress string
+param emailSecurityContact string 
 
 param hubSubscriptionId string
 
 param hubVirtualNetworkName string
-
-param hubVirtualNetworkResourceId string
 
 param logAnalyticsWorkspaceName string
 
@@ -205,6 +201,14 @@ param resourcePrefix string
 
 param hubResourceGroupName string
 
+param subnetAddressPrefix string
+
+param virtualNetworkAddressPrefix string
+
+param workloadSubscriptionId string
+
+@description('The name of the Azure Firewall.')
+param azureFirewallName string
 
 var imageDefinitionName = empty(computeGalleryImageResourceId) ? '${imageDefinitionNamePrefix}-${marketplaceImageSKU}' : '${imageDefinitionNamePrefix}-${split(computeGalleryImageResourceId, '/')[10]}'
 var imageVirtualMachineName = take('vmimg-${uniqueString(deploymentNameSuffix)}', 15)
@@ -267,6 +271,16 @@ var timeZones = {
   westus3: 'Mountain Standard Time'
 }
 
+resource hubVirtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' existing = {
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  name: hubVirtualNetworkName
+}
+
+resource azureFirewall 'Microsoft.Network/azureFirewalls@2023-05-01' existing = {
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  name: azureFirewallName
+}
+
 resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = if (!existingResourceGroup) {
   name: resourceGroupName
   location: location
@@ -281,17 +295,20 @@ module tier3 'modules/tier3.bicep' = {
     deployPolicy:  deployPolicy
     emailSecurityContact: emailSecurityContact
     existingResourceGroup: existingResourceGroup
-    firewallPrivateIPAddress: firewallPrivateIPAddress
+    firewallPrivateIPAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
+    hubResourceGroupName: hubResourceGroupName
     hubSubscriptionId: hubSubscriptionId
-    hubVirtualNetworkName: hubVirtualNetworkName
-    hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
+    hubVirtualNetworkName: hubVirtualNetwork.name
+    hubVirtualNetworkResourceId: hubVirtualNetwork.id
     location: location
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     policy: policy
     resourceGroupName: existingResourceGroup ? resourceGroupName : rg.name
     resourcePrefix: resourcePrefix
-    hubResourceGroupName: hubResourceGroupName
+    subnetAddressPrefix: subnetAddressPrefix
+    virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
+    workloadSubscriptionId: workloadSubscriptionId
   }
 }
 
