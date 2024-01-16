@@ -77,7 +77,7 @@ resource securityWorkspaceSettings 'Microsoft.Security/workspaceSettings@2019-01
 }
 
 resource securityNotifications 'Microsoft.Security/securityContacts@2020-01-01-preview' = if (!empty(emailSecurityContact)) {
-  name: 'securityNotifications'
+  name: 'default'
   properties: {
     notificationsByRole: {
       roles: [
