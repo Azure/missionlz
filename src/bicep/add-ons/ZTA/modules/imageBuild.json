@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "6609998574317511230"
+      "templateHash": "8327836886771636806"
     }
   },
   "parameters": {
@@ -462,9 +462,6 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "diskEncryptionSetResourceId": {
-            "value": "[parameters('diskEncryptionSetResourceId')]"
-          },
           "localAdministratorPassword": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'LocalAdministratorPassword')), createObject('value', parameters('localAdministratorPassword')))]",
           "localAdministratorUsername": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'LocalAdministratorUsername')), createObject('value', parameters('localAdministratorUsername')))]",
           "location": {
@@ -508,13 +505,10 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "666417518081719909"
+              "templateHash": "797614681408504492"
             }
           },
           "parameters": {
-            "diskEncryptionSetResourceId": {
-              "type": "string"
-            },
             "localAdministratorPassword": {
               "type": "securestring"
             },

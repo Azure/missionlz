@@ -128,8 +128,10 @@ param location string = deployment().location
 @description('The resource ID of the log analytics workspace if using build automation and desired.')
 param logAnalyticsWorkspaceResourceId string = ''
 
+
 @description('The resource ID of the log analytics workspace if using build automation and desired.')
 param spokelogAnalyticsWorkspaceResourceId string
+
 
 @description('The marketplace image offer.')
 param marketplaceImageOffer string = ''
@@ -305,7 +307,7 @@ module tier3 'modules/tier3.bicep' = {
     hubVirtualNetworkResourceId: hubVirtualNetwork.id
     location: location
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
-    logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId 
+    logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
     policy: policy
     resourceGroupName: existingResourceGroup ? resourceGroupName : rg.name
     resourcePrefix: resourcePrefix

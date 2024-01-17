@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "15129208060674516178"
+      "templateHash": "3036657114362594574"
     }
   },
   "parameters": {
@@ -6584,7 +6584,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "8327836886771636806"
+              "templateHash": "5352929328757799648"
             }
           },
           "parameters": {
@@ -7913,7 +7913,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "14089062657418312586"
+                      "templateHash": "9071697732370041967"
                     }
                   },
                   "parameters": {
@@ -7974,7 +7974,7 @@
                           }
                         ],
                         "source": {
-                          "script": "        param(\r\n          [string]$Environment,\r\n          [string]$ResourceGroupName,\r\n          [string]$SubscriptionId,\r\n          [string]$TenantId,\r\n          [string]$UserAssignedIdentityClientId,\r\n          [string]$VirtualMachineName\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n        $PowerStatus = ''\r\n        while ($PowerStatus -ne 'VM stopped') \r\n        {\r\n            Start-Sleep -Seconds 5\r\n            $PowerStatus = (Get-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -Status).Statuses[1].DisplayStatus\r\n        }\r\n        Set-AzVm -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -Generalized\r\n        Start-Sleep -Seconds 30\r\n      "
+                          "script": "        param(\r\n          [string]$Environment,\r\n          [string]$ResourceGroupName,\r\n          [string]$SubscriptionId,\r\n          [string]$TenantId,\r\n          [string]$UserAssignedIdentityClientId,\r\n          [string]$VirtualMachineName\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n        $PowerStatus = ''\r\n        while ($PowerStatus -ne 'VM stopped')\r\n        {\r\n            Start-Sleep -Seconds 5\r\n            $PowerStatus = (Get-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -Status).Statuses[1].DisplayStatus\r\n        }\r\n        Set-AzVm -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -Generalized\r\n        Start-Sleep -Seconds 30\r\n      "
                         }
                       }
                     }

@@ -70,7 +70,7 @@ module managementVM 'managementVM.bicep' = if (!enableBuildAutomation) {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     containerName: containerName
-    diskEncryptionSetResourceId: diskEncryptionSetResourceId 
+    diskEncryptionSetResourceId: diskEncryptionSetResourceId
     hybridUseBenefit: hybridUseBenefit
     localAdministratorPassword: localAdministratorPassword
     localAdministratorUsername: localAdministratorUsername
@@ -78,7 +78,7 @@ module managementVM 'managementVM.bicep' = if (!enableBuildAutomation) {
     storageAccountName: split(storageAccountResourceId, '/')[8]
     subnetResourceId: subnetResourceId
     tags: tags
-    userAssignedIdentityPrincipalId: userAssignedIdentityPrincipalId 
+    userAssignedIdentityPrincipalId: userAssignedIdentityPrincipalId
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
     virtualMachineName: managementVirtualMachineName
   }
@@ -102,6 +102,8 @@ module virtualMachine 'virtualMachine.bicep' = {
     virtualMachineName: imageVirtualMachineName
     virtualMachineSize: virtualMachineSize
   }
+  dependsOn: [
+  ]
 }
 
 module addCustomizations 'customizations.bicep' = {
@@ -136,6 +138,8 @@ module addCustomizations 'customizations.bicep' = {
     vDotInstaller: vDOTInstaller
     virtualMachineName: virtualMachine.outputs.name
   }
+  dependsOn: [
+  ]
 }
 
 module restartVirtualMachine 'restartVirtualMachine.bicep' = {
