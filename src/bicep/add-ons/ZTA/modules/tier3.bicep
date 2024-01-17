@@ -115,7 +115,7 @@ param workloadLogStorageAccountNameParameter string = 'null'
 
 param existingResourceGroup bool
 
-param resourceGroupName string = ''
+param resourceGroupName string
 
 param hubResourceGroupName string
 
