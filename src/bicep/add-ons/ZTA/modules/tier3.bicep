@@ -20,7 +20,7 @@ targetScope = 'resourceGroup'
 @minLength(3)
 @maxLength(10)
 @description('A prefix, 3 to 10 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".')
-param resourcePrefix string
+param resourcePrefix string = 'zta'
 
 @minLength(3)
 @maxLength(6)
@@ -52,12 +52,6 @@ param logAnalyticsWorkspaceName string
 param firewallPrivateIPAddress string
 
 @description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
-@allowed([
-  'NISTRev4'
-  'NISTRev5'
-  'IL5'
-  'CMMC'
-])
 param policy string
 
 @description('When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".')
@@ -65,6 +59,7 @@ param deployPolicy bool
 
 @description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
 param deployDefender bool
+
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string
 
@@ -112,7 +107,7 @@ param tags object = {}
 param deploymentNameSuffix string = utcNow()
 
 @description('The name of the tier 3 workload')
-param workloadName string = 'ZTA'
+param workloadName string = 'zta'
 
 @maxLength(24)
 @description('The name of the Storage Account if using this Parameter. Otherwise it will be a calculated value.')
@@ -120,7 +115,7 @@ param workloadLogStorageAccountNameParameter string = 'null'
 
 param existingResourceGroup bool
 
-param resourceGroupName string = ''
+param resourceGroupName string
 
 param hubResourceGroupName string
 
@@ -152,6 +147,7 @@ var workloadVirtualNetworkName = replace(virtualNetworkNamingConvention, nameTok
 var workloadNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, workloadName)
 var workloadSubnetName = replace(subnetNamingConvention, nameToken, workloadName)
 var logAnalyticsWorkspaceResourceId_split = split(logAnalyticsWorkspaceResourceId, '/')
+
 
 var workloadLogStorageAccountName = 'null' != workloadLogStorageAccountNameParameter ? workloadLogStorageAccountNameParameter : workloadLogStorageAccountNameVariable
 

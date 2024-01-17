@@ -187,7 +187,7 @@ param deployDefender bool = false
 
 param deployPolicy bool = false
 
-param emailSecurityContact string 
+param emailSecurityContact string
 
 param hubSubscriptionId string
 
@@ -195,7 +195,7 @@ param hubVirtualNetworkName string
 
 param logAnalyticsWorkspaceName string
 
-param policy string
+param policy string = ''
 
 param resourcePrefix string
 
@@ -327,6 +327,9 @@ module baseline 'modules/baseline.bicep' = {
     tags: tags
     userAssignedIdentityName: userAssignedIdentityName
   }
+  dependsOn: [
+    tier3
+  ]
 }
 
 module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomation) {
@@ -396,6 +399,9 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     vDOTInstaller: vDOTInstaller
     virtualMachineSize: virtualMachineSize
   }
+  dependsOn: [
+    tier3
+  ]
 }
 
 module imageBuild 'modules/imageBuild.bicep' = {
@@ -455,5 +461,6 @@ module imageBuild 'modules/imageBuild.bicep' = {
   }
   dependsOn: [
     buildAutomation
+    tier3
   ]
 }

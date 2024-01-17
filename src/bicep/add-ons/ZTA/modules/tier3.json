@@ -5,12 +5,13 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "2404579633225603244"
+      "templateHash": "12438304025953191912"
     }
   },
   "parameters": {
     "resourcePrefix": {
       "type": "string",
+      "defaultValue": "zta",
       "minLength": 3,
       "maxLength": 10,
       "metadata": {
@@ -45,28 +46,38 @@
       }
     },
     "hubVirtualNetworkName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The name of the hub virtual network. It defaults to the deployment output variable."
+      }
     },
     "hubVirtualNetworkResourceId": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The resource ID of the hub virtual network. It defaults to the deployment output variable."
+      }
     },
     "logAnalyticsWorkspaceResourceId": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The resource ID of the log analytics workspace. It defaults to the deployment output variable."
+      }
     },
     "logAnalyticsWorkspaceName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The name of the log analytics workspace. It defaults to the deployment output variable."
+      }
     },
     "firewallPrivateIPAddress": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The private IP address of the firewall. It defaults to the deployment output variable."
+      }
     },
     "policy": {
       "type": "string",
-      "allowedValues": [
-        "NISTRev4",
-        "NISTRev5",
-        "IL5",
-        "CMMC"
-      ],
+      "defaultValue": "NISTRev4",
       "metadata": {
         "description": "[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to \"NISTRev4\". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud."
       }
@@ -1512,7 +1523,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "11715480779075055357"
+              "templateHash": "17349871984393503749"
             }
           },
           "parameters": {
@@ -1593,7 +1604,7 @@
               "condition": "[not(empty(parameters('emailSecurityContact')))]",
               "type": "Microsoft.Security/securityContacts",
               "apiVersion": "2020-01-01-preview",
-              "name": "securityNotifications",
+              "name": "default",
               "properties": {
                 "notificationsByRole": {
                   "roles": [
