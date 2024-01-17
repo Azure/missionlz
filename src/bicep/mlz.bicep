@@ -1143,6 +1143,7 @@ module remoteAccess './core/remote-access.bicep' = if (deployRemoteAccess) {
   }
   dependsOn: [
     azureMonitorPrivateLink
+    hubNetworkDNS
   ]
 }
 
