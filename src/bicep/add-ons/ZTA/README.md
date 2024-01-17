@@ -96,6 +96,10 @@ Get-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Micros
     | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2FztaAddOnForEsri%2Fsrc%2Fbicep%2Fadd-ons%2FZTA%2FuiDefinition.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2FztaAddOnForEsri%2Fsrc%2Fbicep%2Fadd-ons%2FZTA%2FuiDefinition.json) |
 <!-- markdownlint-enable MD013 -->
 
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzureVirtualDesktop%2Fmain%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2FztaAddOnForEsri%2Fsrc%2Fbicep%2Fadd-ons%2FZTA%2FuiDefinition.json)
+[![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzureVirtualDesktop%2Fmain%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2FztaAddOnForEsri%2Fsrc%2Fbicep%2Fadd-ons%2FZTA%2FuiDefinition.json)
+
 ## Creating Template Spec for AirGapped Clouds
 
 ### Example
