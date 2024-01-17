@@ -36,12 +36,20 @@ param workloadSubscriptionId string
 @description('MLZ Deployment output variables in json format. It defaults to the deploymentVariables.json.')
 param hubSubscriptionId string
 
+@description('The name of the hub virtual network. It defaults to the deployment output variable.')
 param hubVirtualNetworkName string
-param hubVirtualNetworkResourceId string
-param logAnalyticsWorkspaceResourceId string
-param logAnalyticsWorkspaceName string
-param firewallPrivateIPAddress string
 
+@description('The resource ID of the hub virtual network. It defaults to the deployment output variable.')
+param hubVirtualNetworkResourceId string
+
+@description('The resource ID of the log analytics workspace. It defaults to the deployment output variable.')
+param logAnalyticsWorkspaceResourceId string
+
+@description('The name of the log analytics workspace. It defaults to the deployment output variable.')
+param logAnalyticsWorkspaceName string
+
+@description('The private IP address of the firewall. It defaults to the deployment output variable.')
+param firewallPrivateIPAddress string
 
 @description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
 @allowed([
@@ -54,7 +62,6 @@ param policy string
 
 @description('When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".')
 param deployPolicy bool
-
 
 @description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
 param deployDefender bool
@@ -113,7 +120,7 @@ param workloadLogStorageAccountNameParameter string = 'null'
 
 param existingResourceGroup bool
 
-param resourceGroupName string
+param resourceGroupName string = ''
 
 param hubResourceGroupName string
 
