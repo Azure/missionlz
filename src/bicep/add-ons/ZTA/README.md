@@ -87,15 +87,13 @@ Get-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Micros
 
 * [Use the Azure PowerShell module to enable end-to-end encryption using encryption at host](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/disks-enable-host-based-encryption-powershell)
 
-## Deployment
-
 ### Deploy from the Azure Portal
 <!-- markdownlint-disable MD013 -->
 1. Deploy Zero Trust Imaging into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
 
     | Azure Commercial | Azure Government |
     | :--- | :--- |
-    | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fgithub.com%2FAzure%2Fmissionlz%2Fblob%2FztaAddOnForEsri%2Fsrc%2Fbicep%2Fadd-ons%2FZTA%2Fsolution.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fgithub.com%2FAzure%2Fmissionlz%2Fblob%2FztaAddOnForEsri%2Fsrc%2Fbicep%2Fadd-ons%2FZTA%2Fsolution.json) |
+    | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2FztaAddOnForEsri%2Fsrc%2Fbicep%2Fadd-ons%2FZTA%2Fsolution.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2FztaAddOnForEsri%2Fsrc%2Fbicep%2Fadd-ons%2FZTA%2Fsolution.json) |
 <!-- markdownlint-enable MD013 -->
 
 ## Creating Template Spec for AirGapped Clouds
