@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "17486567247363088362"
+      "templateHash": "15645576385841347977"
     }
   },
   "parameters": {
@@ -5829,7 +5829,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "4602601230334937372"
+              "templateHash": "12558418965855664252"
             }
           },
           "parameters": {
@@ -6255,7 +6255,8 @@
             "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
             "automationSuffix": "[replace(environment().suffixes.storage, 'core.windows.', '')]",
             "locations": "[variables('$fxv#0')[environment().name]]",
-            "privatelink_agentsvc_automation_name": "[format('privatelink.agentsvc.azure-automation.{0}', variables('automationSuffix'))]",
+            "privatelink_agentsvc_azure_automation_name": "[format('privatelink.agentsvc.azure-automation.{0}', variables('automationSuffix'))]",
+            "privatelink_azure_automation_name": "[format('privatelink.azure-automation.{0}', variables('automationSuffix'))]",
             "privatelink_avd_name": "[format('privatelink.wvd.{0}', variables('cloudSuffix'))]",
             "privatelink_avd_global_name": "[format('privatelink-global.wvd.{0}', variables('cloudSuffix'))]",
             "privatelink_file_name": "[format('privatelink.file.{0}', environment().suffixes.storage)]",
@@ -6346,7 +6347,14 @@
             {
               "type": "Microsoft.Network/privateDnsZones",
               "apiVersion": "2018-09-01",
-              "name": "[variables('privatelink_agentsvc_automation_name')]",
+              "name": "[variables('privatelink_agentsvc_azure_automation_name')]",
+              "location": "global",
+              "tags": "[parameters('tags')]"
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2018-09-01",
+              "name": "[variables('privatelink_azure_automation_name')]",
               "location": "global",
               "tags": "[parameters('tags')]"
             },
@@ -6514,7 +6522,7 @@
             {
               "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
               "apiVersion": "2018-09-01",
-              "name": "[format('{0}/{1}', variables('privatelink_agentsvc_automation_name'), format('{0}-link', variables('privatelink_agentsvc_automation_name')))]",
+              "name": "[format('{0}/{1}', variables('privatelink_agentsvc_azure_automation_name'), format('{0}-link', variables('privatelink_agentsvc_azure_automation_name')))]",
               "location": "global",
               "properties": {
                 "registrationEnabled": false,
@@ -6523,7 +6531,22 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_agentsvc_automation_name'))]"
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_agentsvc_azure_automation_name'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2018-09-01",
+              "name": "[format('{0}/{1}', variables('privatelink_azure_automation_name'), format('{0}-link', variables('privatelink_azure_automation_name')))]",
+              "location": "global",
+              "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                  "id": "[resourceId(parameters('vnetSubscriptionId'), parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_azure_automation_name'))]"
               ]
             },
             {
@@ -6543,33 +6566,21 @@
             }
           ],
           "outputs": {
-            "monitorPrivateDnsZoneId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_monitor_name'))]"
-            },
-            "omsPrivateDnsZoneId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_oms_opinsights_name'))]"
-            },
-            "odsPrivateDnsZoneId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_ods_opinsights_name'))]"
-            },
             "agentsvcPrivateDnsZoneId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_agentsvc_automation_name'))]"
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_agentsvc_azure_automation_name'))]"
             },
-            "storagePrivateDnsZoneId": {
+            "automationPrivateDnsZoneId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_blob_name'))]"
-            },
-            "avdPrivateDnsZoneId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_avd_name'))]"
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_azure_automation_name'))]"
             },
             "avdGlobalPrivateDnsZoneId": {
               "type": "string",
               "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_avd_global_name'))]"
+            },
+            "avdPrivateDnsZoneId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_avd_name'))]"
             },
             "backupPrivateDnsZoneIds": {
               "type": "array",
@@ -6582,17 +6593,33 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_file_name'))]"
             },
+            "keyvaultDnsPrivateDnsZoneId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_keyvaultDns_name'))]"
+            },
+            "monitorPrivateDnsZoneId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_monitor_name'))]"
+            },
+            "odsPrivateDnsZoneId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_ods_opinsights_name'))]"
+            },
+            "omsPrivateDnsZoneId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_oms_opinsights_name'))]"
+            },
             "queuePrivateDnsZoneId": {
               "type": "string",
               "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_queue_name'))]"
             },
+            "storagePrivateDnsZoneId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_blob_name'))]"
+            },
             "tablePrivateDnsZoneId": {
               "type": "string",
               "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_table_name'))]"
-            },
-            "keyvaultDnsPrivateDnsZoneId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.Network/privateDnsZones', variables('privatelink_keyvaultDns_name'))]"
             }
           }
         }
