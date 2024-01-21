@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "11802488858058743522"
+      "templateHash": "16553787041595370535"
     }
   },
   "parameters": {
@@ -4041,7 +4041,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "152028927580700612"
+              "templateHash": "16150908492534844813"
             }
           },
           "parameters": {
@@ -4341,7 +4341,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "10434464295768923462"
+                      "templateHash": "168612721220957252"
                     }
                   },
                   "parameters": {
@@ -4402,7 +4402,7 @@
                             "value": "ServicePrincipal"
                           },
                           "roleDefinitionId": {
-                            "value": "e147488a-f6f5-4113-8e2d-b22465e65bf6"
+                            "value": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
                           },
                           "targetResourceId": {
                             "value": "[resourceGroup().id]"

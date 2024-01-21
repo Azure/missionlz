@@ -34,7 +34,7 @@ module roleAssignment 'role-assignment.bicep' = {
   params: {
     principalId: diskEncryptionSet.identity.principalId
     principalType: 'ServicePrincipal'
-    roleDefinitionId: 'e147488a-f6f5-4113-8e2d-b22465e65bf6' // Key Vault Crypto Service Encryption User
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions','e147488a-f6f5-4113-8e2d-b22465e65bf6') // Key Vault Crypto Service Encryption User
     targetResourceId: resourceGroup().id
   }
 }
