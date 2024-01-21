@@ -990,7 +990,7 @@ module hubSubscriptionActivityLogging './modules/central-logging.bicep' = {
 }
 
 module azureMonitorPrivateLink './modules/private-link.bicep' = if (contains(supportedClouds, environment().name)) {
-  name: 'azure-monitor-private-link'
+  name: 'deploy-azure-monitor-private-link-${deploymentNameSuffix}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
