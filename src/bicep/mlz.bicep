@@ -863,7 +863,7 @@ module spokeVirtualNetworkPeerings './core/spoke-network-peering.bicep' = [for (
 // PRIVATE DNS
 
 module privateDnsZones './modules/private-dns.bicep' = {
-  name: 'azure-private-dns'
+  name: 'deploy-private-dns-zones-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     vnetName: hubNetwork.outputs.virtualNetworkName
