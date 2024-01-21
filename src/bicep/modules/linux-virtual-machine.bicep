@@ -12,6 +12,9 @@ param adminUsername string
   'password'
 ])
 param authenticationType string
+param diskEncryptionSetResourceId string
+param diskName string
+param hybridUseBenefit bool
 param location string
 param name string
 param networkInterfaceName string
@@ -41,32 +44,26 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' exist
   name: networkInterfaceName
 }
 
-resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   name: name
   location: location
   tags: tags
   properties: {
+    diagnosticsProfile: {
+      bootDiagnostics: {
+        enabled: false
+      }
+    }
     hardwareProfile: {
       vmSize: vmSize
-    }
-    storageProfile: {
-      osDisk: {
-        createOption: osDiskCreateOption
-        managedDisk: {
-          storageAccountType: osDiskType
-        }
-      }
-      imageReference: {
-        publisher: vmImagePublisher
-        offer: vmImageOffer
-        sku: vmImageSku
-        version: vmImageVersion
-      }
     }
     networkProfile: {
       networkInterfaces: [
         {
           id: networkInterface.id
+          properties: {
+            deleteOption: 'Delete'
+          }
         }
       ]
     }
@@ -76,10 +73,40 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = {
       adminPassword: adminPasswordOrKey
       linuxConfiguration: ((authenticationType == 'password') ? null : linuxConfiguration)
     }
+    securityProfile: {
+      uefiSettings: {
+        secureBootEnabled: true
+        vTpmEnabled: true
+      }
+      securityType: 'trustedLaunch'
+      encryptionAtHost: true
+    }
+    storageProfile: {
+      osDisk: {
+        caching: 'ReadWrite'
+        createOption: osDiskCreateOption
+        deleteOption: 'Delete'
+        managedDisk: {
+          diskEncryptionSet: {
+            id: diskEncryptionSetResourceId
+          }
+          storageAccountType: osDiskType
+        }
+        name: diskName
+        osType: 'Linux'
+      }
+      imageReference: {
+        publisher: vmImagePublisher
+        offer: vmImageOffer
+        sku: vmImageSku
+        version: vmImageVersion
+      }
+    }
+    licenseType: hybridUseBenefit ? 'Windows_Server' : null
   }
 }
 
-resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   parent: virtualMachine
   name: 'Microsoft.Azure.NetworkWatcher'
   location: location
@@ -93,7 +120,7 @@ resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01
   ]
 }
 
-resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   parent: virtualMachine
   name: 'AzurePolicyforLinux'
   location: location
@@ -106,7 +133,7 @@ resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-0
   }
 }
 
-resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   parent: virtualMachine
   name: 'OMSExtension'
   location: location
@@ -127,7 +154,7 @@ resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' 
   ]
 }
 
-resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   parent: virtualMachine
   name: 'DependencyAgentLinux'
   location: location

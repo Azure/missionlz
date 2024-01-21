@@ -388,6 +388,9 @@ param bastionHostSubnetAddressPrefix string = '10.0.100.160/27'
 @description('The Azure Bastion Public IP Address Availability Zones. It defaults to "No-Zone" because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.')
 param bastionHostPublicIPAddressAvailabilityZones array = []
 
+@description('The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance.')
+param hybridUseBenefit bool = false
+
 // LINUX VIRTUAL MACHINE PARAMETERS
 
 @description('The administrator username for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
@@ -532,6 +535,8 @@ var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}
 // RESOURCE NAME CONVENTIONS WITH ABBREVIATIONS
 
 var bastionHostNamingConvention = replace(namingConvention, resourceToken, 'bas')
+var diskEncryptionSetNamingConvention = replace(namingConvention, resourceToken, 'des')
+var diskNamingConvention = replace(namingConvention, resourceToken, 'disk')
 var firewallNamingConvention = replace(namingConvention, resourceToken, 'afw')
 var firewallPolicyNamingConvention = replace(namingConvention, resourceToken, 'afwp')
 var keyVaultNamingConvention = replace(namingConvention, resourceToken, 'kv')
@@ -577,7 +582,8 @@ var identitySubnetName = replace(subnetNamingConvention, nameToken, identityName
 
 var operationsName = 'operations'
 var operationsShortName = 'ops'
-var operationsKeyVaultName = replace(keyVaultNamingConvention, nameToken, operationsName)
+var operationsDiskEncryptionSetName = replace(diskEncryptionSetNamingConvention, nameToken, operationsName)
+var operationsKeyVaultName = replace(keyVaultNamingConvention, nameToken, operationsShortName)
 var operationsResourceGroupName = replace(resourceGroupNamingConvention, nameToken, operationsName)
 var operationsLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, operationsShortName)
 var operationsLogStorageAccountUniqueName = replace(operationsLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, operationsSubscriptionId))
@@ -619,14 +625,16 @@ var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallPublicIpAddressSkuName = 'Standard'
 var firewallPublicIpAddressAllocationMethod = 'Static'
 
-// BASTION NAMES
+// REMOTE ACCESS NAMES
 
 var bastionHostName = replace(bastionHostNamingConvention, nameToken, hubName)
 var bastionHostPublicIPAddressName = replace(publicIpAddressNamingConvention, nameToken, 'bas')
 var bastionHostIPConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'bas')
+var linuxDiskName = replace(diskNamingConvention, nameToken, 'bas-linux')
 var linuxNetworkInterfaceName = replace(networkInterfaceNamingConvention, nameToken, 'bas-linux')
 var linuxNetworkInterfaceIpConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'bas-linux')
 var linuxVmName = replace(virtualMachineNamingConvention, nameToken, 'bas-linux')
+var windowsDiskName = replace(diskNamingConvention, nameToken, 'bas-windows')
 var windowsNetworkInterfaceName = replace(networkInterfaceNamingConvention, nameToken, 'bas-windows')
 var windowsNetworkInterfaceIpConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'bas-windows')
 var windowsVmName = replace(virtualMachineNamingConvention, nameToken, 'bas-windows')
@@ -869,13 +877,15 @@ module operationsCustomerManagedKeys './core/operations-customer-managed-keys.bi
   name: 'deploy-cmk-ops-${deploymentNameSuffix}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    diskEncryptionSetName: operationsDiskEncryptionSetName
     keyVaultName: operationsKeyVaultName
-    location: location
-    tags: calculatedTags
-    userAssignedIdentityName: operationsUserAssignedIdentityName
     keyVaultPrivateDnsZoneResourceId: privateDnsZones.outputs.keyvaultDnsPrivateDnsZoneId
+    location: location
     resourcePrefix: resourcePrefix
     subnetResourceId: spokeNetworks[1].outputs.subnetResourceId
+    tags: calculatedTags
+    userAssignedIdentityName: operationsUserAssignedIdentityName
   }
   dependsOn: [
     spokeNetworks
@@ -1116,6 +1126,10 @@ module remoteAccess './core/remote-access.bicep' = if (deployRemoteAccess) {
     windowsVmSku: windowsVmSku
     windowsVmStorageAccountType: windowsVmStorageAccountType
     windowsVmVersion: windowsVmVersion
+    diskEncryptionSetResourceId: operationsCustomerManagedKeys.outputs.diskEncryptionSetResourceId
+    hybridUseBenefit: hybridUseBenefit
+    linuxDiskName: linuxDiskName
+    windowsDiskName: windowsDiskName
   }
   dependsOn: [
     azureMonitorPrivateLink

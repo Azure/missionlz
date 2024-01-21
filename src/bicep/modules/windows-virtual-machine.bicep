@@ -3,42 +3,69 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param name string
-param location string
-param tags object = {}
-param networkInterfaceName string
-param size string
-param adminUsername string
 @secure()
 @minLength(12)
 param adminPassword string
-param publisher string
-param offer string
-param sku string
-param version string
+param adminUsername string
 param createOption string
-param storageAccountType string
-param logAnalyticsWorkspaceId  string
-param availabilitySet object = {}
 param dataDisks array = []
+param diskEncryptionSetResourceId string
+param diskName string
+param hybridUseBenefit bool
+param location string
+param logAnalyticsWorkspaceId  string
+param name string
+param networkInterfaceName string
+param offer string
+param publisher string
+param size string
+param sku string
+param storageAccountType string
+param tags object = {}
+param version string
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' existing = {
   name: networkInterfaceName
 }
 
-resource windowsVirtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
+resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   name: name
   location: location
   tags: tags
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
-    availabilitySet: ((availabilitySet != {}) ? availabilitySet : null)
+    diagnosticsProfile: {
+      bootDiagnostics: {
+        enabled: false
+      }
+    }
     hardwareProfile: {
       vmSize: size 
+    }
+    networkProfile: {
+      networkInterfaces: [
+        { 
+          id: networkInterface.id
+          properties: {
+            deleteOption: 'Delete'
+          }
+        }
+      ]
     }
     osProfile: {
       computerName: take(name, 15)
       adminUsername: adminUsername
       adminPassword: adminPassword
+    }
+    securityProfile: {
+      uefiSettings: {
+        secureBootEnabled: true
+        vTpmEnabled: true
+      }
+      securityType: 'trustedLaunch'
+      encryptionAtHost: true
     }
     storageProfile: {
       imageReference: {
@@ -48,25 +75,26 @@ resource windowsVirtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = 
         version: version 
       }
       osDisk: {
+        caching: 'ReadWrite'
         createOption: createOption
+        deleteOption: 'Delete'
         managedDisk: {
+          diskEncryptionSet: {
+            id: diskEncryptionSetResourceId
+          }
           storageAccountType: storageAccountType          
         }
+        name: diskName
+        osType: 'Windows'
       }
       dataDisks: dataDisks
     }
-    networkProfile: {
-      networkInterfaces: [
-        { 
-          id: networkInterface.id
-        }
-      ]
-    }
+    licenseType: hybridUseBenefit ? 'Windows_Server' : null
   }
 }
 
 resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
-  parent: windowsVirtualMachine
+  parent: virtualMachine
   name: 'DependencyAgentWindows'
   location: location
   properties: {
@@ -78,7 +106,7 @@ resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-0
 }
 
 resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
-  parent: windowsVirtualMachine
+  parent: virtualMachine
   name: 'AzurePolicyforWindows'
   location: location
   properties: {
@@ -91,7 +119,7 @@ resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-0
 }
 
 resource mmaExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
-  parent: windowsVirtualMachine
+  parent: virtualMachine
   name: 'MMAExtension'
   location: location
   properties: {
@@ -108,8 +136,8 @@ resource mmaExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' 
   }
 }
 
-resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-  parent: windowsVirtualMachine
+resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+  parent: virtualMachine
   name: 'Microsoft.Azure.NetworkWatcher'
   location: location
   properties: {

@@ -10,8 +10,11 @@ param bastionHostPublicIPAddressAvailabilityZones array
 param bastionHostPublicIPAddressName string
 param bastionHostPublicIPAddressSkuName string 
 param bastionHostSubnetResourceId string
+param diskEncryptionSetResourceId string
 param hubNetworkSecurityGroupResourceId string
 param hubSubnetResourceId string
+param hybridUseBenefit bool
+param linuxDiskName string
 param linuxNetworkInterfaceIpConfigurationName string
 param linuxNetworkInterfaceName string
 param linuxNetworkInterfacePrivateIPAddressAllocationMethod string
@@ -35,6 +38,7 @@ param linuxVmSize string
 param location string
 param logAnalyticsWorkspaceId string
 param tags object
+param windowsDiskName string
 param windowsNetworkInterfaceIpConfigurationName string
 param windowsNetworkInterfaceName string
 param windowsNetworkInterfacePrivateIPAddressAllocationMethod string
@@ -69,70 +73,72 @@ module bastionHost '../modules/bastion-host.bicep' = {
 module linuxNetworkInterface '../modules/network-interface.bicep' = {
   name: 'remoteAccess-linuxNetworkInterface'
   params: {
-    name: linuxNetworkInterfaceName
-    location: location
-    tags: tags
-    
     ipConfigurationName: linuxNetworkInterfaceIpConfigurationName
+    location: location
+    name: linuxNetworkInterfaceName
     networkSecurityGroupId: hubNetworkSecurityGroupResourceId
     privateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
     subnetId: hubSubnetResourceId
+    tags: tags
   }
 }
 
 module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' = {
   name: 'remoteAccess-linuxVirtualMachine'
   params: {
-    name: linuxVmName
-    location: location
-    tags: tags
-
-    vmSize: linuxVmSize
-    osDiskCreateOption: linuxVmOsDiskCreateOption
-    osDiskType: linuxVmOsDiskType
-    vmImagePublisher: linuxVmImagePublisher
-    vmImageOffer: linuxVmImageOffer
-    vmImageSku: linuxVmImageSku
-    vmImageVersion: linuxVmImageVersion
+    adminPasswordOrKey: linuxVmAdminPasswordOrKey
     adminUsername: linuxVmAdminUsername
     authenticationType: linuxVmAuthenticationType
-    adminPasswordOrKey: linuxVmAdminPasswordOrKey
-    networkInterfaceName: linuxNetworkInterface.outputs.name
+    diskEncryptionSetResourceId: diskEncryptionSetResourceId
+    diskName: linuxDiskName
+    hybridUseBenefit: hybridUseBenefit
+    location: location
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
+    name: linuxVmName
+    networkInterfaceName: linuxNetworkInterface.outputs.name
+    osDiskCreateOption: linuxVmOsDiskCreateOption
+    osDiskType: linuxVmOsDiskType
+    tags: tags
+    vmImageOffer: linuxVmImageOffer
+    vmImagePublisher: linuxVmImagePublisher
+    vmImageSku: linuxVmImageSku
+    vmImageVersion: linuxVmImageVersion
+    vmSize: linuxVmSize
   }
 }
 
 module windowsNetworkInterface '../modules/network-interface.bicep' = {
   name: 'remoteAccess-windowsNetworkInterface'
   params: {
-    name: windowsNetworkInterfaceName
-    location: location
-    tags: tags
-    
     ipConfigurationName: windowsNetworkInterfaceIpConfigurationName
+    location: location
+    name: windowsNetworkInterfaceName
     networkSecurityGroupId: hubNetworkSecurityGroupResourceId
     privateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
     subnetId: hubSubnetResourceId
+    tags: tags
   }
 }
 
 module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' = {
   name: 'remoteAccess-windowsVirtualMachine'
   params: {
-    name: windowsVmName
-    location: location
-    tags: tags
-
-    size: windowsVmSize
-    adminUsername: windowsVmAdminUsername
     adminPassword: windowsVmAdminPassword
-    publisher: windowsVmPublisher
-    offer: windowsVmOffer
-    sku: windowsVmSku
-    version: windowsVmVersion
+    adminUsername: windowsVmAdminUsername
     createOption: windowsVmCreateOption
-    storageAccountType: windowsVmStorageAccountType
-    networkInterfaceName: windowsNetworkInterface.outputs.name
+    diskEncryptionSetResourceId: diskEncryptionSetResourceId
+    diskName: windowsDiskName
+    hybridUseBenefit: hybridUseBenefit
+    location: location
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
+    name: windowsVmName
+    networkInterfaceName: windowsNetworkInterface.outputs.name
+    offer: windowsVmOffer
+    publisher: windowsVmPublisher
+    size: windowsVmSize
+    sku: windowsVmSku
+    storageAccountType: windowsVmStorageAccountType
+    tags: tags
+    version: windowsVmVersion
   }
 }

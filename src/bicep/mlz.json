@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "9972767709466004443"
+      "templateHash": "5491266495088901132"
     }
   },
   "parameters": {
@@ -603,6 +603,13 @@
         "description": "The Azure Bastion Public IP Address Availability Zones. It defaults to \"No-Zone\" because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings."
       }
     },
+    "hybridUseBenefit": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance."
+      }
+    },
     "linuxVmAdminUsername": {
       "type": "string",
       "defaultValue": "azureuser",
@@ -822,6 +829,8 @@
     "nameToken": "name_token",
     "namingConvention": "[format('{0}-{1}-{2}-{3}', toLower(parameters('resourcePrefix')), variables('resourceToken'), variables('nameToken'), toLower(parameters('resourceSuffix')))]",
     "bastionHostNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'bas')]",
+    "diskEncryptionSetNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'des')]",
+    "diskNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'disk')]",
     "firewallNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'afw')]",
     "firewallPolicyNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'afwp')]",
     "keyVaultNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'kv')]",
@@ -858,7 +867,8 @@
     "identitySubnetName": "[replace(variables('subnetNamingConvention'), variables('nameToken'), variables('identityName'))]",
     "operationsName": "operations",
     "operationsShortName": "ops",
-    "operationsKeyVaultName": "[replace(variables('keyVaultNamingConvention'), variables('nameToken'), variables('operationsName'))]",
+    "operationsDiskEncryptionSetName": "[replace(variables('diskEncryptionSetNamingConvention'), variables('nameToken'), variables('operationsName'))]",
+    "operationsKeyVaultName": "[replace(variables('keyVaultNamingConvention'), variables('nameToken'), variables('operationsShortName'))]",
     "operationsResourceGroupName": "[replace(variables('resourceGroupNamingConvention'), variables('nameToken'), variables('operationsName'))]",
     "operationsLogStorageAccountShortName": "[replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('operationsShortName'))]",
     "operationsLogStorageAccountUniqueName": "[replace(variables('operationsLogStorageAccountShortName'), 'unique_storage_token', uniqueString(parameters('resourcePrefix'), parameters('resourceSuffix'), parameters('operationsSubscriptionId')))]",
@@ -889,9 +899,11 @@
     "bastionHostName": "[replace(variables('bastionHostNamingConvention'), variables('nameToken'), variables('hubName'))]",
     "bastionHostPublicIPAddressName": "[replace(variables('publicIpAddressNamingConvention'), variables('nameToken'), 'bas')]",
     "bastionHostIPConfigurationName": "[replace(variables('ipConfigurationNamingConvention'), variables('nameToken'), 'bas')]",
+    "linuxDiskName": "[replace(variables('diskNamingConvention'), variables('nameToken'), 'bas-linux')]",
     "linuxNetworkInterfaceName": "[replace(variables('networkInterfaceNamingConvention'), variables('nameToken'), 'bas-linux')]",
     "linuxNetworkInterfaceIpConfigurationName": "[replace(variables('ipConfigurationNamingConvention'), variables('nameToken'), 'bas-linux')]",
     "linuxVmName": "[replace(variables('virtualMachineNamingConvention'), variables('nameToken'), 'bas-linux')]",
+    "windowsDiskName": "[replace(variables('diskNamingConvention'), variables('nameToken'), 'bas-windows')]",
     "windowsNetworkInterfaceName": "[replace(variables('networkInterfaceNamingConvention'), variables('nameToken'), 'bas-windows')]",
     "windowsNetworkInterfaceIpConfigurationName": "[replace(variables('ipConfigurationNamingConvention'), variables('nameToken'), 'bas-windows')]",
     "windowsVmName": "[replace(variables('virtualMachineNamingConvention'), variables('nameToken'), 'bas-windows')]",
@@ -3994,26 +4006,32 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "deploymentNameSuffix": {
+            "value": "[parameters('deploymentNameSuffix')]"
+          },
+          "diskEncryptionSetName": {
+            "value": "[variables('operationsDiskEncryptionSetName')]"
+          },
           "keyVaultName": {
             "value": "[variables('operationsKeyVaultName')]"
           },
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "tags": {
-            "value": "[variables('calculatedTags')]"
-          },
-          "userAssignedIdentityName": {
-            "value": "[variables('operationsUserAssignedIdentityName')]"
-          },
           "keyVaultPrivateDnsZoneResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', 'azure-private-dns'), '2022-09-01').outputs.keyvaultDnsPrivateDnsZoneId.value]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
           },
           "resourcePrefix": {
             "value": "[parameters('resourcePrefix')]"
           },
           "subnetResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[1].subscriptionId, variables('spokes')[1].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[1].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+          },
+          "tags": {
+            "value": "[variables('calculatedTags')]"
+          },
+          "userAssignedIdentityName": {
+            "value": "[variables('operationsUserAssignedIdentityName')]"
           }
         },
         "template": {
@@ -4023,10 +4041,16 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "14463858223926181103"
+              "templateHash": "152028927580700612"
             }
           },
           "parameters": {
+            "diskEncryptionSetName": {
+              "type": "string"
+            },
+            "deploymentNameSuffix": {
+              "type": "string"
+            },
             "keyVaultName": {
               "type": "string"
             },
@@ -4053,7 +4077,7 @@
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "keyVault",
+              "name": "[format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -4286,7 +4310,175 @@
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "userAssignedIdentity",
+              "name": "[format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "diskEncryptionSetName": {
+                    "value": "[parameters('diskEncryptionSetName')]"
+                  },
+                  "keyUrl": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
+                  },
+                  "keyVaultResourceId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), createObject('value', parameters('tags')['Microsoft.Compute/diskEncryptionSets']), createObject('value', createObject()))]"
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.24.24.22086",
+                      "templateHash": "10434464295768923462"
+                    }
+                  },
+                  "parameters": {
+                    "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "diskEncryptionSetName": {
+                      "type": "string"
+                    },
+                    "keyUrl": {
+                      "type": "string"
+                    },
+                    "keyVaultResourceId": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Compute/diskEncryptionSets",
+                      "apiVersion": "2023-04-02",
+                      "name": "[parameters('diskEncryptionSetName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
+                      "properties": {
+                        "activeKey": {
+                          "sourceVault": {
+                            "id": "[parameters('keyVaultResourceId')]"
+                          },
+                          "keyUrl": "[parameters('keyUrl')]"
+                        },
+                        "encryptionType": "EncryptionAtRestWithPlatformAndCustomerKeys",
+                        "rotationToLatestKeyVersionEnabled": true
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('assign-role-disk-encryption-set-ops-{0}', parameters('deploymentNameSuffix'))]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "principalId": {
+                            "value": "[reference(resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName')), '2023-04-02', 'full').identity.principalId]"
+                          },
+                          "principalType": {
+                            "value": "ServicePrincipal"
+                          },
+                          "roleDefinitionId": {
+                            "value": "e147488a-f6f5-4113-8e2d-b22465e65bf6"
+                          },
+                          "targetResourceId": {
+                            "value": "[resourceGroup().id]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.24.24.22086",
+                              "templateHash": "8686326864657481429"
+                            }
+                          },
+                          "parameters": {
+                            "targetResourceId": {
+                              "type": "string"
+                            },
+                            "roleDefinitionId": {
+                              "type": "string"
+                            },
+                            "principalId": {
+                              "type": "string"
+                            },
+                            "principalType": {
+                              "type": "string",
+                              "defaultValue": "ServicePrincipal",
+                              "allowedValues": [
+                                "ForeignGroup",
+                                "Group",
+                                "ServicePrincipal",
+                                "User"
+                              ]
+                            },
+                            "description": {
+                              "type": "string",
+                              "defaultValue": ""
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Authorization/roleAssignments",
+                              "apiVersion": "2020-04-01-preview",
+                              "name": "[guid(parameters('targetResourceId'), parameters('roleDefinitionId'), parameters('principalId'))]",
+                              "properties": {
+                                "principalId": "[parameters('principalId')]",
+                                "principalType": "[parameters('principalType')]",
+                                "roleDefinitionId": "[parameters('roleDefinitionId')]",
+                                "description": "[parameters('description')]"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "resourceId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName'))]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-user-assigned-identity-{0}', parameters('deploymentNameSuffix'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -4421,17 +4613,21 @@
             }
           ],
           "outputs": {
+            "diskEncryptionSetResourceId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            },
             "keyVaultUri": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2022-09-01').outputs.keyVaultUri.value]"
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
             },
             "storageKeyName": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2022-09-01').outputs.storageKeyName.value]"
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
             },
             "userAssignedIdentityResourceId": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'userAssignedIdentity'), '2022-09-01').outputs.resourceId.value]"
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-user-assigned-identity-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
             }
           }
         }
@@ -7174,6 +7370,18 @@
           },
           "windowsVmVersion": {
             "value": "[parameters('windowsVmVersion')]"
+          },
+          "diskEncryptionSetResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
+          },
+          "hybridUseBenefit": {
+            "value": "[parameters('hybridUseBenefit')]"
+          },
+          "linuxDiskName": {
+            "value": "[variables('linuxDiskName')]"
+          },
+          "windowsDiskName": {
+            "value": "[variables('windowsDiskName')]"
           }
         },
         "template": {
@@ -7183,7 +7391,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "2948298183799059014"
+              "templateHash": "8181077966537772080"
             }
           },
           "parameters": {
@@ -7208,10 +7416,19 @@
             "bastionHostSubnetResourceId": {
               "type": "string"
             },
+            "diskEncryptionSetResourceId": {
+              "type": "string"
+            },
             "hubNetworkSecurityGroupResourceId": {
               "type": "string"
             },
             "hubSubnetResourceId": {
+              "type": "string"
+            },
+            "hybridUseBenefit": {
+              "type": "bool"
+            },
+            "linuxDiskName": {
               "type": "string"
             },
             "linuxNetworkInterfaceIpConfigurationName": {
@@ -7269,6 +7486,9 @@
             },
             "tags": {
               "type": "object"
+            },
+            "windowsDiskName": {
+              "type": "string"
             },
             "windowsNetworkInterfaceIpConfigurationName": {
               "type": "string"
@@ -7443,17 +7663,14 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "name": {
-                    "value": "[parameters('linuxNetworkInterfaceName')]"
+                  "ipConfigurationName": {
+                    "value": "[parameters('linuxNetworkInterfaceIpConfigurationName')]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "tags": {
-                    "value": "[parameters('tags')]"
-                  },
-                  "ipConfigurationName": {
-                    "value": "[parameters('linuxNetworkInterfaceIpConfigurationName')]"
+                  "name": {
+                    "value": "[parameters('linuxNetworkInterfaceName')]"
                   },
                   "networkSecurityGroupId": {
                     "value": "[parameters('hubNetworkSecurityGroupResourceId')]"
@@ -7463,6 +7680,9 @@
                   },
                   "subnetId": {
                     "value": "[parameters('hubSubnetResourceId')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
                   }
                 },
                 "template": {
@@ -7547,35 +7767,8 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "name": {
-                    "value": "[parameters('linuxVmName')]"
-                  },
-                  "location": {
-                    "value": "[parameters('location')]"
-                  },
-                  "tags": {
-                    "value": "[parameters('tags')]"
-                  },
-                  "vmSize": {
-                    "value": "[parameters('linuxVmSize')]"
-                  },
-                  "osDiskCreateOption": {
-                    "value": "[parameters('linuxVmOsDiskCreateOption')]"
-                  },
-                  "osDiskType": {
-                    "value": "[parameters('linuxVmOsDiskType')]"
-                  },
-                  "vmImagePublisher": {
-                    "value": "[parameters('linuxVmImagePublisher')]"
-                  },
-                  "vmImageOffer": {
-                    "value": "[parameters('linuxVmImageOffer')]"
-                  },
-                  "vmImageSku": {
-                    "value": "[parameters('linuxVmImageSku')]"
-                  },
-                  "vmImageVersion": {
-                    "value": "[parameters('linuxVmImageVersion')]"
+                  "adminPasswordOrKey": {
+                    "value": "[parameters('linuxVmAdminPasswordOrKey')]"
                   },
                   "adminUsername": {
                     "value": "[parameters('linuxVmAdminUsername')]"
@@ -7583,14 +7776,50 @@
                   "authenticationType": {
                     "value": "[parameters('linuxVmAuthenticationType')]"
                   },
-                  "adminPasswordOrKey": {
-                    "value": "[parameters('linuxVmAdminPasswordOrKey')]"
+                  "diskEncryptionSetResourceId": {
+                    "value": "[parameters('diskEncryptionSetResourceId')]"
+                  },
+                  "diskName": {
+                    "value": "[parameters('linuxDiskName')]"
+                  },
+                  "hybridUseBenefit": {
+                    "value": "[parameters('hybridUseBenefit')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "logAnalyticsWorkspaceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceId')]"
+                  },
+                  "name": {
+                    "value": "[parameters('linuxVmName')]"
                   },
                   "networkInterfaceName": {
                     "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-linuxNetworkInterface'), '2022-09-01').outputs.name.value]"
                   },
-                  "logAnalyticsWorkspaceId": {
-                    "value": "[parameters('logAnalyticsWorkspaceId')]"
+                  "osDiskCreateOption": {
+                    "value": "[parameters('linuxVmOsDiskCreateOption')]"
+                  },
+                  "osDiskType": {
+                    "value": "[parameters('linuxVmOsDiskType')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "vmImageOffer": {
+                    "value": "[parameters('linuxVmImageOffer')]"
+                  },
+                  "vmImagePublisher": {
+                    "value": "[parameters('linuxVmImagePublisher')]"
+                  },
+                  "vmImageSku": {
+                    "value": "[parameters('linuxVmImageSku')]"
+                  },
+                  "vmImageVersion": {
+                    "value": "[parameters('linuxVmImageVersion')]"
+                  },
+                  "vmSize": {
+                    "value": "[parameters('linuxVmSize')]"
                   }
                 },
                 "template": {
@@ -7600,7 +7829,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "11466857937583591261"
+                      "templateHash": "15673259361514742625"
                     }
                   },
                   "parameters": {
@@ -7617,6 +7846,15 @@
                         "sshPublicKey",
                         "password"
                       ]
+                    },
+                    "diskEncryptionSetResourceId": {
+                      "type": "string"
+                    },
+                    "diskName": {
+                      "type": "string"
+                    },
+                    "hybridUseBenefit": {
+                      "type": "bool"
                     },
                     "location": {
                       "type": "string"
@@ -7671,32 +7909,26 @@
                   "resources": [
                     {
                       "type": "Microsoft.Compute/virtualMachines",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2021-04-01",
                       "name": "[parameters('name')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]",
                       "properties": {
+                        "diagnosticsProfile": {
+                          "bootDiagnostics": {
+                            "enabled": false
+                          }
+                        },
                         "hardwareProfile": {
                           "vmSize": "[parameters('vmSize')]"
-                        },
-                        "storageProfile": {
-                          "osDisk": {
-                            "createOption": "[parameters('osDiskCreateOption')]",
-                            "managedDisk": {
-                              "storageAccountType": "[parameters('osDiskType')]"
-                            }
-                          },
-                          "imageReference": {
-                            "publisher": "[parameters('vmImagePublisher')]",
-                            "offer": "[parameters('vmImageOffer')]",
-                            "sku": "[parameters('vmImageSku')]",
-                            "version": "[parameters('vmImageVersion')]"
-                          }
                         },
                         "networkProfile": {
                           "networkInterfaces": [
                             {
-                              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
+                              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]",
+                              "properties": {
+                                "deleteOption": "Delete"
+                              }
                             }
                           ]
                         },
@@ -7705,12 +7937,42 @@
                           "adminUsername": "[parameters('adminUsername')]",
                           "adminPassword": "[parameters('adminPasswordOrKey')]",
                           "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
-                        }
+                        },
+                        "securityProfile": {
+                          "uefiSettings": {
+                            "secureBootEnabled": true,
+                            "vTpmEnabled": true
+                          },
+                          "securityType": "trustedLaunch",
+                          "encryptionAtHost": true
+                        },
+                        "storageProfile": {
+                          "osDisk": {
+                            "caching": "ReadWrite",
+                            "createOption": "[parameters('osDiskCreateOption')]",
+                            "deleteOption": "Delete",
+                            "managedDisk": {
+                              "diskEncryptionSet": {
+                                "id": "[parameters('diskEncryptionSetResourceId')]"
+                              },
+                              "storageAccountType": "[parameters('osDiskType')]"
+                            },
+                            "name": "[parameters('diskName')]",
+                            "osType": "Linux"
+                          },
+                          "imageReference": {
+                            "publisher": "[parameters('vmImagePublisher')]",
+                            "offer": "[parameters('vmImageOffer')]",
+                            "sku": "[parameters('vmImageSku')]",
+                            "version": "[parameters('vmImageVersion')]"
+                          }
+                        },
+                        "licenseType": "[if(parameters('hybridUseBenefit'), 'Windows_Server', null())]"
                       }
                     },
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'Microsoft.Azure.NetworkWatcher')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -7725,7 +7987,7 @@
                     },
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2020-12-01",
+                      "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'AzurePolicyforLinux')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -7741,7 +8003,7 @@
                     },
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'OMSExtension')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -7763,7 +8025,7 @@
                     },
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'DependencyAgentLinux')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -7804,17 +8066,14 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "name": {
-                    "value": "[parameters('windowsNetworkInterfaceName')]"
+                  "ipConfigurationName": {
+                    "value": "[parameters('windowsNetworkInterfaceIpConfigurationName')]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "tags": {
-                    "value": "[parameters('tags')]"
-                  },
-                  "ipConfigurationName": {
-                    "value": "[parameters('windowsNetworkInterfaceIpConfigurationName')]"
+                  "name": {
+                    "value": "[parameters('windowsNetworkInterfaceName')]"
                   },
                   "networkSecurityGroupId": {
                     "value": "[parameters('hubNetworkSecurityGroupResourceId')]"
@@ -7824,6 +8083,9 @@
                   },
                   "subnetId": {
                     "value": "[parameters('hubSubnetResourceId')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
                   }
                 },
                 "template": {
@@ -7908,47 +8170,56 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "name": {
-                    "value": "[parameters('windowsVmName')]"
-                  },
-                  "location": {
-                    "value": "[parameters('location')]"
-                  },
-                  "tags": {
-                    "value": "[parameters('tags')]"
-                  },
-                  "size": {
-                    "value": "[parameters('windowsVmSize')]"
+                  "adminPassword": {
+                    "value": "[parameters('windowsVmAdminPassword')]"
                   },
                   "adminUsername": {
                     "value": "[parameters('windowsVmAdminUsername')]"
                   },
-                  "adminPassword": {
-                    "value": "[parameters('windowsVmAdminPassword')]"
-                  },
-                  "publisher": {
-                    "value": "[parameters('windowsVmPublisher')]"
-                  },
-                  "offer": {
-                    "value": "[parameters('windowsVmOffer')]"
-                  },
-                  "sku": {
-                    "value": "[parameters('windowsVmSku')]"
-                  },
-                  "version": {
-                    "value": "[parameters('windowsVmVersion')]"
-                  },
                   "createOption": {
                     "value": "[parameters('windowsVmCreateOption')]"
                   },
-                  "storageAccountType": {
-                    "value": "[parameters('windowsVmStorageAccountType')]"
+                  "diskEncryptionSetResourceId": {
+                    "value": "[parameters('diskEncryptionSetResourceId')]"
+                  },
+                  "diskName": {
+                    "value": "[parameters('windowsDiskName')]"
+                  },
+                  "hybridUseBenefit": {
+                    "value": "[parameters('hybridUseBenefit')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "logAnalyticsWorkspaceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceId')]"
+                  },
+                  "name": {
+                    "value": "[parameters('windowsVmName')]"
                   },
                   "networkInterfaceName": {
                     "value": "[reference(resourceId('Microsoft.Resources/deployments', 'remoteAccess-windowsNetworkInterface'), '2022-09-01').outputs.name.value]"
                   },
-                  "logAnalyticsWorkspaceId": {
-                    "value": "[parameters('logAnalyticsWorkspaceId')]"
+                  "offer": {
+                    "value": "[parameters('windowsVmOffer')]"
+                  },
+                  "publisher": {
+                    "value": "[parameters('windowsVmPublisher')]"
+                  },
+                  "size": {
+                    "value": "[parameters('windowsVmSize')]"
+                  },
+                  "sku": {
+                    "value": "[parameters('windowsVmSku')]"
+                  },
+                  "storageAccountType": {
+                    "value": "[parameters('windowsVmStorageAccountType')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "version": {
+                    "value": "[parameters('windowsVmVersion')]"
                   }
                 },
                 "template": {
@@ -7958,61 +8229,66 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "8202416321533561618"
+                      "templateHash": "14439588153238255023"
                     }
                   },
                   "parameters": {
+                    "adminPassword": {
+                      "type": "securestring",
+                      "minLength": 12
+                    },
+                    "adminUsername": {
+                      "type": "string"
+                    },
+                    "createOption": {
+                      "type": "string"
+                    },
+                    "dataDisks": {
+                      "type": "array",
+                      "defaultValue": []
+                    },
+                    "diskEncryptionSetResourceId": {
+                      "type": "string"
+                    },
+                    "diskName": {
+                      "type": "string"
+                    },
+                    "hybridUseBenefit": {
+                      "type": "bool"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceId": {
+                      "type": "string"
+                    },
                     "name": {
                       "type": "string"
                     },
-                    "location": {
+                    "networkInterfaceName": {
+                      "type": "string"
+                    },
+                    "offer": {
+                      "type": "string"
+                    },
+                    "publisher": {
+                      "type": "string"
+                    },
+                    "size": {
+                      "type": "string"
+                    },
+                    "sku": {
+                      "type": "string"
+                    },
+                    "storageAccountType": {
                       "type": "string"
                     },
                     "tags": {
                       "type": "object",
                       "defaultValue": {}
                     },
-                    "networkInterfaceName": {
-                      "type": "string"
-                    },
-                    "size": {
-                      "type": "string"
-                    },
-                    "adminUsername": {
-                      "type": "string"
-                    },
-                    "adminPassword": {
-                      "type": "securestring",
-                      "minLength": 12
-                    },
-                    "publisher": {
-                      "type": "string"
-                    },
-                    "offer": {
-                      "type": "string"
-                    },
-                    "sku": {
-                      "type": "string"
-                    },
                     "version": {
                       "type": "string"
-                    },
-                    "createOption": {
-                      "type": "string"
-                    },
-                    "storageAccountType": {
-                      "type": "string"
-                    },
-                    "logAnalyticsWorkspaceId": {
-                      "type": "string"
-                    },
-                    "availabilitySet": {
-                      "type": "object",
-                      "defaultValue": {}
-                    },
-                    "dataDisks": {
-                      "type": "array",
-                      "defaultValue": []
                     }
                   },
                   "resources": [
@@ -8022,15 +8298,40 @@
                       "name": "[parameters('name')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
                       "properties": {
-                        "availabilitySet": "[if(not(equals(parameters('availabilitySet'), createObject())), parameters('availabilitySet'), null())]",
+                        "diagnosticsProfile": {
+                          "bootDiagnostics": {
+                            "enabled": false
+                          }
+                        },
                         "hardwareProfile": {
                           "vmSize": "[parameters('size')]"
+                        },
+                        "networkProfile": {
+                          "networkInterfaces": [
+                            {
+                              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]",
+                              "properties": {
+                                "deleteOption": "Delete"
+                              }
+                            }
+                          ]
                         },
                         "osProfile": {
                           "computerName": "[take(parameters('name'), 15)]",
                           "adminUsername": "[parameters('adminUsername')]",
                           "adminPassword": "[parameters('adminPassword')]"
+                        },
+                        "securityProfile": {
+                          "uefiSettings": {
+                            "secureBootEnabled": true,
+                            "vTpmEnabled": true
+                          },
+                          "securityType": "trustedLaunch",
+                          "encryptionAtHost": true
                         },
                         "storageProfile": {
                           "imageReference": {
@@ -8040,20 +8341,21 @@
                             "version": "[parameters('version')]"
                           },
                           "osDisk": {
+                            "caching": "ReadWrite",
                             "createOption": "[parameters('createOption')]",
+                            "deleteOption": "Delete",
                             "managedDisk": {
+                              "diskEncryptionSet": {
+                                "id": "[parameters('diskEncryptionSetResourceId')]"
+                              },
                               "storageAccountType": "[parameters('storageAccountType')]"
-                            }
+                            },
+                            "name": "[parameters('diskName')]",
+                            "osType": "Windows"
                           },
                           "dataDisks": "[parameters('dataDisks')]"
                         },
-                        "networkProfile": {
-                          "networkInterfaces": [
-                            {
-                              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
-                            }
-                          ]
-                        }
+                        "licenseType": "[if(parameters('hybridUseBenefit'), 'Windows_Server', null())]"
                       }
                     },
                     {
@@ -8110,7 +8412,7 @@
                     },
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'Microsoft.Azure.NetworkWatcher')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -8135,7 +8437,8 @@
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', 'azure-monitor-private-link')]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }
   ],
