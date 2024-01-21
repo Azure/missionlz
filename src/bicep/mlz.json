@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "14718053459101585776"
+      "templateHash": "8925990070387210835"
     }
   },
   "parameters": {
@@ -4005,6 +4005,15 @@
           },
           "userAssignedIdentityName": {
             "value": "[variables('operationsUserAssignedIdentityName')]"
+          },
+          "keyVaultPrivateDnsZoneResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', 'azure-private-dns'), '2022-09-01').outputs.keyvaultDnsPrivateDnsZoneId.value]"
+          },
+          "resourcePrefix": {
+            "value": "[parameters('resourcePrefix')]"
+          },
+          "subnetResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[1].subscriptionId, variables('spokes')[1].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[1].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
           }
         },
         "template": {
@@ -4014,14 +4023,23 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "17165778028720193930"
+              "templateHash": "14463858223926181103"
             }
           },
           "parameters": {
             "keyVaultName": {
               "type": "string"
             },
+            "keyVaultPrivateDnsZoneResourceId": {
+              "type": "string"
+            },
             "location": {
+              "type": "string"
+            },
+            "resourcePrefix": {
+              "type": "string"
+            },
+            "subnetResourceId": {
               "type": "string"
             },
             "tags": {
@@ -4045,8 +4063,17 @@
                   "keyVaultName": {
                     "value": "[parameters('keyVaultName')]"
                   },
+                  "keyVaultPrivateDnsZoneResourceId": {
+                    "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                  },
                   "location": {
                     "value": "[parameters('location')]"
+                  },
+                  "resourcePrefix": {
+                    "value": "[parameters('resourcePrefix')]"
+                  },
+                  "subnetResourceId": {
+                    "value": "[parameters('subnetResourceId')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -4059,7 +4086,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "14987883252195967823"
+                      "templateHash": "17786330016094382581"
                     }
                   },
                   "parameters": {
@@ -4070,7 +4097,16 @@
                     "keyVaultName": {
                       "type": "string"
                     },
+                    "keyVaultPrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
                     "location": {
+                      "type": "string"
+                    },
+                    "resourcePrefix": {
+                      "type": "string"
+                    },
+                    "subnetResourceId": {
                       "type": "string"
                     },
                     "tags": {
@@ -4091,6 +4127,12 @@
                         "enablePurgeProtection": true,
                         "enableRbacAuthorization": true,
                         "enableSoftDelete": true,
+                        "networkAcls": {
+                          "bypass": "AzureServices",
+                          "virtualNetworkRules": [],
+                          "ipRules": [],
+                          "defaultAction": "Deny"
+                        },
                         "sku": {
                           "family": "A",
                           "name": "standard"
@@ -4098,6 +4140,50 @@
                         "softDeleteRetentionInDays": 7,
                         "tenantId": "[subscription().tenantId]"
                       }
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints",
+                      "apiVersion": "2020-05-01",
+                      "name": "[replace(parameters('keyVaultName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix')))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "subnet": {
+                          "id": "[parameters('subnetResourceId')]"
+                        },
+                        "privateLinkServiceConnections": [
+                          {
+                            "name": "[replace(parameters('keyVaultName'), parameters('resourcePrefix'), format('{0}-nic-', parameters('resourcePrefix')))]",
+                            "properties": {
+                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                              "groupIds": [
+                                "vault"
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                      "apiVersion": "2021-08-01",
+                      "name": "[format('{0}/{1}', replace(parameters('keyVaultName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix'))), parameters('keyVaultName'))]",
+                      "properties": {
+                        "privateDnsZoneConfigs": [
+                          {
+                            "name": "ipconfig1",
+                            "properties": {
+                              "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('keyVaultName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix'))))]"
+                      ]
                     },
                     {
                       "type": "Microsoft.KeyVault/vaults/keys",
@@ -4351,6 +4437,7 @@
         }
       },
       "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', 'azure-private-dns')]",
         "spokeNetworks"
       ]
     },

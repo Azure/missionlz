@@ -1,6 +1,9 @@
 param diskEncryptionKeyExpirationInDays int = 30
 param keyVaultName string
+param keyVaultPrivateDnsZoneResourceId string
 param location string
+param resourcePrefix string
+param subnetResourceId string
 param tags object
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
@@ -14,12 +17,55 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     enablePurgeProtection: true
     enableRbacAuthorization: true
     enableSoftDelete: true
+    networkAcls: {
+      bypass: 'AzureServices'
+      virtualNetworkRules: []
+      ipRules: []
+      defaultAction: 'Deny'
+    }
     sku: {
       family: 'A'
       name: 'standard'
     }
     softDeleteRetentionInDays: 7 
     tenantId: subscription().tenantId
+  }
+}
+
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-05-01' = {
+  name: replace(keyVaultName, resourcePrefix, '${resourcePrefix}-pe-')
+  location: location
+  tags: tags
+  properties: {
+    subnet: {
+      id: subnetResourceId
+    }
+    privateLinkServiceConnections: [
+      {
+        name: replace(keyVaultName, resourcePrefix, '${resourcePrefix}-nic-')
+        properties: {
+          privateLinkServiceId: vault.id
+          groupIds: [
+            'vault'
+          ]
+        }
+      }
+    ]
+  }
+}
+
+resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
+  parent: privateEndpoint
+  name: keyVaultName
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          privateDnsZoneId: keyVaultPrivateDnsZoneResourceId
+        }
+      }
+    ]
   }
 }
 

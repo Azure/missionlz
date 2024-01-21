@@ -873,6 +873,9 @@ module operationsCustomerManagedKeys './core/operations-customer-managed-keys.bi
     location: location
     tags: calculatedTags
     userAssignedIdentityName: operationsUserAssignedIdentityName
+    keyVaultPrivateDnsZoneResourceId: privateDnsZones.outputs.keyvaultDnsPrivateDnsZoneId
+    resourcePrefix: resourcePrefix
+    subnetResourceId: spokeNetworks[1].outputs.subnetResourceId
   }
   dependsOn: [
     spokeNetworks
