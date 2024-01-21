@@ -78,7 +78,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-05-01' = {
-  name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-pe')}-blob'
+  name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-pe-')}-blob'
   location: location
   tags: tags
   properties: {
@@ -87,7 +87,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-05-01' = {
     }
     privateLinkServiceConnections: [
       {
-        name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-pe')}-blob_${guid(storageAccount.id)}'
+        name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-pe-')}-blob_${guid(storageAccount.id)}'
         properties: {
           privateLinkServiceId: storageAccount.id
           groupIds: [
