@@ -6,9 +6,7 @@ Licensed under the MIT License.
 param name string
 param location string
 param tags object = {}
-
 param networkInterfaceName string
-
 param size string
 param adminUsername string
 @secure()
@@ -32,7 +30,6 @@ resource windowsVirtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = 
   name: name
   location: location
   tags: tags
-
   properties: {
     availabilitySet: ((availabilitySet != {}) ? availabilitySet : null)
     hardwareProfile: {
@@ -69,7 +66,8 @@ resource windowsVirtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = 
 }
 
 resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
-  name: '${windowsVirtualMachine.name}/DependencyAgentWindows'
+  parent: windowsVirtualMachine
+  name: 'DependencyAgentWindows'
   location: location
   properties: {
     publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
@@ -80,7 +78,8 @@ resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-0
 }
 
 resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
-  name: '${windowsVirtualMachine.name}/AzurePolicyforWindows'
+  parent: windowsVirtualMachine
+  name: 'AzurePolicyforWindows'
   location: location
   properties: {
     publisher: 'Microsoft.GuestConfiguration'
@@ -92,7 +91,8 @@ resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-0
 }
 
 resource mmaExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
-  name: '${windowsVirtualMachine.name}/MMAExtension'
+  parent: windowsVirtualMachine
+  name: 'MMAExtension'
   location: location
   properties: {
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
@@ -109,7 +109,8 @@ resource mmaExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' 
 }
 
 resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-  name: '${windowsVirtualMachine.name}/Microsoft.Azure.NetworkWatcher'
+  parent: windowsVirtualMachine
+  name: 'Microsoft.Azure.NetworkWatcher'
   location: location
   properties: {
     publisher: 'Microsoft.Azure.NetworkWatcher'

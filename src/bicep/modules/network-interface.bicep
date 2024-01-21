@@ -16,7 +16,6 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' = {
   name: name
   location: location
   tags: tags
-
   properties: {
     ipConfigurations: [
       {

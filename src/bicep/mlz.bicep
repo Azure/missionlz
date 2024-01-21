@@ -117,7 +117,7 @@ param firewallIntrusionDetectionMode string = 'Alert'
 param enableProxy bool = true
 
 @description('''['168.63.129.16'] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers". This should be a comma separated list of IP addresses to forward DNS traffic''')
-param dnsServers array = ['168.63.129.16']
+param dnsServers array = [ '168.63.129.16' ]
 
 @description('An array of Firewall Diagnostic Logs categories to collect. See "https://docs.microsoft.com/en-us/azure/firewall/firewall-diagnostics#enable-diagnostic-logging-through-the-azure-portal" for valid values.')
 param firewallDiagnosticsLogs array = [
@@ -143,14 +143,8 @@ param firewallDiagnosticsMetrics array = [
   }
 ]
 
-@description('An array of Service Endpoints to enable for the Azure Firewall Client Subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
-param firewallClientSubnetServiceEndpoints array = []
-
 @description('An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.')
 param firewallClientPublicIPAddressAvailabilityZones array = []
-
-@description('An array of Service Endpoints to enable for the Azure Firewall Management Subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
-param firewallManagementSubnetServiceEndpoints array = []
 
 @description('An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.')
 param firewallManagementPublicIPAddressAvailabilityZones array = []
@@ -208,13 +202,6 @@ param hubNetworkSecurityGroupDiagnosticsLogs array = [
 @description('An array of Network Security Group Metrics to apply to enable for the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
 param hubNetworkSecurityGroupDiagnosticsMetrics array = []
 
-@description('An array of Service Endpoints to enable for the Hub subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
-param hubSubnetServiceEndpoints array = [
-  {
-    service: 'Microsoft.Storage'
-  }
-]
-
 // IDENTITY PARAMETERS
 
 @description('An array of Network Diagnostic Logs to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.')
@@ -264,13 +251,6 @@ param identityNetworkSecurityGroupDiagnosticsLogs array = [
 
 @description('An array of Network Security Group Metrics to apply to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
 param identityNetworkSecurityGroupDiagnosticsMetrics array = []
-
-@description('An array of Service Endpoints to enable for the Identity subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
-param identitySubnetServiceEndpoints array = [
-  {
-    service: 'Microsoft.Storage'
-  }
-]
 
 // OPERATIONS PARAMETERS
 
@@ -322,13 +302,6 @@ param operationsNetworkSecurityGroupDiagnosticsLogs array = [
 @description('An array of Network Security Group Diagnostic Metrics to enable for the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
 param operationsNetworkSecurityGroupDiagnosticsMetrics array = []
 
-@description('An array of Service Endpoints to enable for the Operations subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
-param operationsSubnetServiceEndpoints array = [
-  {
-    service: 'Microsoft.Storage'
-  }
-]
-
 // SHARED SERVICES PARAMETERS
 
 @description('An array of Network Diagnostic Logs to enable for the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.')
@@ -378,13 +351,6 @@ param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = [
 
 @description('An array of Network Security Group Diagnostic Metrics to enable for the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
 param sharedServicesNetworkSecurityGroupDiagnosticsMetrics array = []
-
-@description('An array of Service Endpoints to enable for the SharedServices subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
-param sharedServicesSubnetServiceEndpoints array = [
-  {
-    service: 'Microsoft.Storage'
-  }
-]
 
 // LOGGING PARAMETERS
 
@@ -568,14 +534,17 @@ var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}
 var bastionHostNamingConvention = replace(namingConvention, resourceToken, 'bas')
 var firewallNamingConvention = replace(namingConvention, resourceToken, 'afw')
 var firewallPolicyNamingConvention = replace(namingConvention, resourceToken, 'afwp')
+var keyVaultNamingConvention = replace(namingConvention, resourceToken, 'kv')
 var ipConfigurationNamingConvention = replace(namingConvention, resourceToken, 'ipconf')
 var logAnalyticsWorkspaceNamingConvention = replace(namingConvention, resourceToken, 'log')
 var networkInterfaceNamingConvention = replace(namingConvention, resourceToken, 'nic')
 var networkSecurityGroupNamingConvention = replace(namingConvention, resourceToken, 'nsg')
+var networkWatcherNamingConvention = replace(namingConvention, resourceToken, 'nw')
 var publicIpAddressNamingConvention = replace(namingConvention, resourceToken, 'pip')
 var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
 var storageAccountNamingConvention = toLower('${resourcePrefix}st${nameToken}unique_storage_token')
 var subnetNamingConvention = replace(namingConvention, resourceToken, 'snet')
+var userAssignedIdentityNamingConvention = replace(namingConvention, resourceToken, 'uaid')
 var virtualMachineNamingConvention = replace(namingConvention, resourceToken, 'vm')
 var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'vnet')
 
@@ -583,13 +552,14 @@ var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'v
 
 var hubName = 'hub'
 var hubShortName = 'hub'
-var hubResourceGroupName = replace(resourceGroupNamingConvention, nameToken, hubName)
+var hubLogStorageAccountName = take(hubLogStorageAccountUniqueName, 23)
 var hubLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, hubShortName)
 var hubLogStorageAccountUniqueName = replace(hubLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, hubSubscriptionId))
-var hubLogStorageAccountName = take(hubLogStorageAccountUniqueName, 23)
-var hubVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, hubName)
+var hubNetworkWatcherName = replace(networkWatcherNamingConvention, nameToken, hubName)
 var hubNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, hubName)
+var hubResourceGroupName = replace(resourceGroupNamingConvention, nameToken, hubName)
 var hubSubnetName = replace(subnetNamingConvention, nameToken, hubName)
+var hubVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, hubName)
 
 // IDENTITY NAMES
 
@@ -607,6 +577,7 @@ var identitySubnetName = replace(subnetNamingConvention, nameToken, identityName
 
 var operationsName = 'operations'
 var operationsShortName = 'ops'
+var operationsKeyVaultName = replace(keyVaultNamingConvention, nameToken, operationsName)
 var operationsResourceGroupName = replace(resourceGroupNamingConvention, nameToken, operationsName)
 var operationsLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, operationsShortName)
 var operationsLogStorageAccountUniqueName = replace(operationsLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, operationsSubscriptionId))
@@ -614,6 +585,7 @@ var operationsLogStorageAccountName = take(operationsLogStorageAccountUniqueName
 var operationsVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, operationsName)
 var operationsNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, operationsName)
 var operationsSubnetName = replace(subnetNamingConvention, nameToken, operationsName)
+var operationsUserAssignedIdentityName = replace(userAssignedIdentityNamingConvention, nameToken, operationsName)
 
 // SHARED SERVICES NAMES
 
@@ -642,6 +614,8 @@ var firewallManagementPublicIPAddressName = replace(publicIpAddressNamingConvent
 
 // FIREWALL VALUES
 
+var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
+var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallPublicIpAddressSkuName = 'Standard'
 var firewallPublicIpAddressAllocationMethod = 'Static'
 
@@ -680,9 +654,8 @@ var spokes = [
     networkSecurityGroupDiagnosticsMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
     subnetName: identitySubnetName
     subnetAddressPrefix: identitySubnetAddressPrefix
-    subnetServiceEndpoints: identitySubnetServiceEndpoints
-    subnetPrivateEndpointNetworkPolicies: 'Enabled'
-    subnetPrivateLinkServiceNetworkPolicies: 'Enabled'
+    subnetPrivateEndpointNetworkPolicies: 'Disabled'
+    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
   }
   {
     name: operationsName
@@ -699,7 +672,6 @@ var spokes = [
     networkSecurityGroupDiagnosticsMetrics: operationsNetworkSecurityGroupDiagnosticsMetrics
     subnetName: operationsSubnetName
     subnetAddressPrefix: operationsSubnetAddressPrefix
-    subnetServiceEndpoints: operationsSubnetServiceEndpoints
     subnetPrivateEndpointNetworkPolicies: 'Disabled'
     subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
   }
@@ -718,9 +690,8 @@ var spokes = [
     networkSecurityGroupDiagnosticsMetrics: sharedServicesNetworkSecurityGroupDiagnosticsMetrics
     subnetName: sharedServicesSubnetName
     subnetAddressPrefix: sharedServicesSubnetAddressPrefix
-    subnetServiceEndpoints: sharedServicesSubnetServiceEndpoints
-    subnetPrivateEndpointNetworkPolicies: 'Enabled'
-    subnetPrivateLinkServiceNetworkPolicies: 'Enabled'
+    subnetPrivateEndpointNetworkPolicies: 'Disabled'
+    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
   }
 ]
 
@@ -789,117 +760,46 @@ module hubNetwork './core/hub-network.bicep' = {
   name: 'deploy-vnet-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
-    location: location
-    tags: calculatedTags
-
-    logStorageAccountName: hubLogStorageAccountName
-    logStorageSkuName: logStorageSkuName
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
-
-    virtualNetworkName: hubVirtualNetworkName
-    virtualNetworkAddressPrefix: hubVirtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: hubVirtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: hubVirtualNetworkDiagnosticsMetrics
-
-    networkSecurityGroupName: hubNetworkSecurityGroupName
-    networkSecurityGroupRules: hubNetworkSecurityGroupRules
-    networkSecurityGroupDiagnosticsLogs: hubNetworkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: hubNetworkSecurityGroupDiagnosticsMetrics
-
-    subnetName: hubSubnetName
-    subnetAddressPrefix: hubSubnetAddressPrefix
-    subnetServiceEndpoints: hubSubnetServiceEndpoints
-
-    firewallName: firewallName
-    firewallSkuTier: firewallSkuTier
-    firewallPolicyName: firewallPolicyName
-    firewallThreatIntelMode: firewallThreatIntelMode
-    firewallIntrusionDetectionMode: firewallIntrusionDetectionMode
-    firewallDiagnosticsLogs: firewallDiagnosticsLogs
-    firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
+    bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
+    deployRemoteAccess: deployRemoteAccess
+    dnsServers: dnsServers
+    enableProxy: enableProxy
     firewallClientIpConfigurationName: firewallClientIpConfigurationName
-    firewallClientSubnetName: 'AzureFirewallSubnet' // this must be 'AzureFirewallSubnet'
-    firewallClientSubnetAddressPrefix: firewallClientSubnetAddressPrefix
-    firewallClientSubnetServiceEndpoints: firewallClientSubnetServiceEndpoints
+    firewallClientPrivateIpAddress: firewallClientPrivateIpAddress
+    firewallClientPublicIPAddressAvailabilityZones: firewallClientPublicIPAddressAvailabilityZones
     firewallClientPublicIPAddressName: firewallClientPublicIPAddressName
     firewallClientPublicIPAddressSkuName: firewallPublicIpAddressSkuName
     firewallClientPublicIpAllocationMethod: firewallPublicIpAddressAllocationMethod
-    firewallClientPublicIPAddressAvailabilityZones: firewallClientPublicIPAddressAvailabilityZones
+    firewallClientSubnetAddressPrefix: firewallClientSubnetAddressPrefix
+    firewallClientSubnetName: 'AzureFirewallSubnet' // this must be 'AzureFirewallSubnet'
+    firewallIntrusionDetectionMode: firewallIntrusionDetectionMode
     firewallManagementIpConfigurationName: firewallManagementIpConfigurationName
-    firewallManagementSubnetName: 'AzureFirewallManagementSubnet' // this must be 'AzureFirewallManagementSubnet'
-    firewallManagementSubnetAddressPrefix: firewallManagementSubnetAddressPrefix
-    firewallManagementSubnetServiceEndpoints: firewallManagementSubnetServiceEndpoints
+    firewallManagementPublicIPAddressAvailabilityZones: firewallManagementPublicIPAddressAvailabilityZones
     firewallManagementPublicIPAddressName: firewallManagementPublicIPAddressName
     firewallManagementPublicIPAddressSkuName: firewallPublicIpAddressSkuName
     firewallManagementPublicIpAllocationMethod: firewallPublicIpAddressAllocationMethod
-    firewallManagementPublicIPAddressAvailabilityZones: firewallManagementPublicIPAddressAvailabilityZones
+    firewallManagementSubnetAddressPrefix: firewallManagementSubnetAddressPrefix
+    firewallManagementSubnetName: 'AzureFirewallManagementSubnet' // this must be 'AzureFirewallManagementSubnet'
+    firewallName: firewallName
+    firewallPolicyName: firewallPolicyName
+    firewallSkuTier: firewallSkuTier
     firewallSupernetIPAddress: firewallSupernetIPAddress
-
-    publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
-    publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
-    enableProxy: enableProxy
-    dnsServers: dnsServers
-  }
-}
-
-module hubNetworkDNS './core/hub-network.bicep' = {
-  name: 'deploy-vnet-hub-DNS-${deploymentNameSuffix}'
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  params: {
+    firewallThreatIntelMode: firewallThreatIntelMode
     location: location
-    tags: calculatedTags
-
-    logStorageAccountName: hubLogStorageAccountName
-    logStorageSkuName: logStorageSkuName
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
-
-    virtualNetworkName: hubVirtualNetworkName
-    virtualNetworkAddressPrefix: hubVirtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: hubVirtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: hubVirtualNetworkDiagnosticsMetrics
-
     networkSecurityGroupName: hubNetworkSecurityGroupName
     networkSecurityGroupRules: hubNetworkSecurityGroupRules
-    networkSecurityGroupDiagnosticsLogs: hubNetworkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: hubNetworkSecurityGroupDiagnosticsMetrics
-
-    subnetName: hubSubnetName
+    networkWatcherName: hubNetworkWatcherName
     subnetAddressPrefix: hubSubnetAddressPrefix
-    subnetServiceEndpoints: hubSubnetServiceEndpoints
-
-    firewallName: firewallName
-    firewallSkuTier: firewallSkuTier
-    firewallPolicyName: firewallPolicyName
-    firewallThreatIntelMode: firewallThreatIntelMode
-    firewallIntrusionDetectionMode: firewallIntrusionDetectionMode
-    firewallDiagnosticsLogs: firewallDiagnosticsLogs
-    firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
-    firewallClientIpConfigurationName: firewallClientIpConfigurationName
-    firewallClientSubnetName: 'AzureFirewallSubnet' // this must be 'AzureFirewallSubnet'
-    firewallClientSubnetAddressPrefix: firewallClientSubnetAddressPrefix
-    firewallClientSubnetServiceEndpoints: firewallClientSubnetServiceEndpoints
-    firewallClientPublicIPAddressName: firewallClientPublicIPAddressName
-    firewallClientPublicIPAddressSkuName: firewallPublicIpAddressSkuName
-    firewallClientPublicIpAllocationMethod: firewallPublicIpAddressAllocationMethod
-    firewallClientPublicIPAddressAvailabilityZones: firewallClientPublicIPAddressAvailabilityZones
-    firewallManagementIpConfigurationName: firewallManagementIpConfigurationName
-    firewallManagementSubnetName: 'AzureFirewallManagementSubnet' // this must be 'AzureFirewallManagementSubnet'
-    firewallManagementSubnetAddressPrefix: firewallManagementSubnetAddressPrefix
-    firewallManagementSubnetServiceEndpoints: firewallManagementSubnetServiceEndpoints
-    firewallManagementPublicIPAddressName: firewallManagementPublicIPAddressName
-    firewallManagementPublicIPAddressSkuName: firewallPublicIpAddressSkuName
-    firewallManagementPublicIpAllocationMethod: firewallPublicIpAddressAllocationMethod
-    firewallManagementPublicIPAddressAvailabilityZones: firewallManagementPublicIPAddressAvailabilityZones
-    firewallSupernetIPAddress: firewallSupernetIPAddress
-    vNetDnsServers: [hubNetwork.outputs.firewallPrivateIPAddress]
-
-    publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
-    publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
-    enableProxy: enableProxy
-    dnsServers: dnsServers
+    subnetName: hubSubnetName
+    tags: calculatedTags
+    virtualNetworkAddressPrefix: hubVirtualNetworkAddressPrefix
+    virtualNetworkName: hubVirtualNetworkName
+    vNetDnsServers: [
+      firewallClientPrivateIpAddress
+    ]
   }
   dependsOn: [
-    hubNetwork
+    hubResourceGroup
   ]
 }
 
@@ -908,33 +808,21 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
     location: location
-    tags: calculatedTags
-
-    logStorageAccountName: spoke.logStorageAccountName
-    logStorageSkuName: logStorageSkuName
-
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
-
-    firewallPrivateIPAddress: hubNetwork.outputs.firewallPrivateIPAddress
-    vNetDnsServers: [hubNetwork.outputs.firewallPrivateIPAddress]
-
-    virtualNetworkName: spoke.virtualNetworkName
-    virtualNetworkAddressPrefix: spoke.virtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: spoke.virtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: spoke.virtualNetworkDiagnosticsMetrics
-
     networkSecurityGroupName: spoke.networkSecurityGroupName
     networkSecurityGroupRules: spoke.networkSecurityGroupRules
-    networkSecurityGroupDiagnosticsLogs: spoke.networkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: spoke.networkSecurityGroupDiagnosticsMetrics
-
-    subnetName: spoke.subnetName
+    routeTableRouteNextHopIpAddress: firewallClientPrivateIpAddress
     subnetAddressPrefix: spoke.subnetAddressPrefix
-    subnetServiceEndpoints: spoke.subnetServiceEndpoints
-
+    subnetName: spoke.subnetName
     subnetPrivateEndpointNetworkPolicies: spoke.subnetPrivateEndpointNetworkPolicies
     subnetPrivateLinkServiceNetworkPolicies: spoke.subnetPrivateLinkServiceNetworkPolicies
+    tags: calculatedTags
+    virtualNetworkAddressPrefix: spoke.virtualNetworkAddressPrefix
+    virtualNetworkName: spoke.virtualNetworkName
+    vNetDnsServers: [ hubNetwork.outputs.firewallPrivateIPAddress ]
   }
+  dependsOn: [
+    spokeResourceGroups
+  ]
 }]
 
 // VIRTUAL NETWORK PEERINGS
@@ -964,6 +852,172 @@ module spokeVirtualNetworkPeerings './core/spoke-network-peering.bicep' = [for (
   }
 }]
 
+// PRIVATE DNS
+
+module privateDnsZones './modules/private-dns.bicep' = {
+  name: 'azure-private-dns'
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  params: {
+    vnetName: hubNetwork.outputs.virtualNetworkName
+    tags: tags
+  }
+}
+
+// OPERATIONS CMK DEPENDANCIES
+
+module operationsCustomerManagedKeys './core/operations-customer-managed-keys.bicep' = {
+  name: 'deploy-cmk-ops-${deploymentNameSuffix}'
+  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
+  params: {
+    keyVaultName: operationsKeyVaultName
+    location: location
+    tags: calculatedTags
+    userAssignedIdentityName: operationsUserAssignedIdentityName
+  }
+  dependsOn: [
+    spokeNetworks
+  ]
+}
+
+// HUB LOGGING STORAGE
+
+module hubStorage './core/hub-storage.bicep' = {
+  name: 'deploy-log-storage-hub-${deploymentNameSuffix}'
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  params: {
+    azureBlobsPrivateDnsZoneResourceId: privateDnsZones.outputs.blobPrivateDnsZoneId
+    keyVaultUri: operationsCustomerManagedKeys.outputs.keyVaultUri
+    location: location
+    logStorageAccountName: hubLogStorageAccountName
+    logStorageSkuName: logStorageSkuName
+    storageEncryptionKeyName: operationsCustomerManagedKeys.outputs.storageKeyName
+    subnetResourceId: hubNetwork.outputs.subnetResourceId
+    tags: calculatedTags
+    userAssignedIdentityResourceId: operationsCustomerManagedKeys.outputs.userAssignedIdentityResourceId
+  }
+}
+
+// SPOKE LOGGING STORAGE
+
+module spokeStorage './core/spoke-storage.bicep' = [for (spoke, i) in spokes: {
+  name: 'deploy-log-storage-${spoke.name}-${deploymentNameSuffix}'
+  scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
+  params: {
+    azureBlobsPrivateDnsZoneResourceId: privateDnsZones.outputs.blobPrivateDnsZoneId
+    keyVaultUri: operationsCustomerManagedKeys.outputs.keyVaultUri
+    location: location
+    logStorageAccountName: spoke.logStorageAccountName
+    logStorageSkuName: logStorageSkuName
+    storageEncryptionKeyName: operationsCustomerManagedKeys.outputs.storageKeyName
+    subnetResourceId: spokeNetworks[i].outputs.subnetResourceId
+    tags: tags
+    userAssignedIdentityResourceId: operationsCustomerManagedKeys.outputs.userAssignedIdentityResourceId
+  }
+}]
+
+// HUB DIAGONSTIC LOGGING
+
+module hubDiagnostics 'core/hub-diagnostics.bicep' = {
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  name: 'deploy-diagnostic-logging-hub-${deploymentNameSuffix}'
+  params: {
+    firewallDiagnosticsLogs: firewallDiagnosticsLogs
+    firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
+    firewallName: hubNetwork.outputs.firewallName
+    hubStorageAccountResourceId: hubStorage.outputs.storageAccountResourceId
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
+    networkSecurityGroupDiagnosticsLogs: hubNetworkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: hubNetworkSecurityGroupDiagnosticsMetrics
+    networkSecurityGroupName: hubNetworkSecurityGroupName
+    publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
+    publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
+    publicIPAddressNames: [
+      firewallClientPublicIPAddressName
+      firewallManagementPublicIPAddressName
+    ]
+    virtualNetworkDiagnosticsLogs: hubVirtualNetworkDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: hubVirtualNetworkDiagnosticsMetrics
+    virtualNetworkName: hubNetwork.outputs.virtualNetworkName
+  }
+}
+
+// SPOKE DIAGONSTIC LOGGING
+
+module spokeDiagnostics 'core/spoke-diagnostics.bicep' = [for (spoke, i) in spokes: {
+  scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
+  name: 'deploy-diagnostic-logging-${spoke.name}-${deploymentNameSuffix}'
+  params: {
+    hubStorageAccountResourceId: spokeStorage[i].outputs.ResourceId
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
+    networkSecurityGroupDiagnosticsLogs: spoke.NetworkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: spoke.NetworkSecurityGroupDiagnosticsMetrics
+    networkSecurityGroupName: spokeNetworks[i].outputs.networkSecurityGroupName
+    virtualNetworkDiagnosticsLogs: spoke.VirtualNetworkDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: spoke.VirtualNetworkDiagnosticsMetrics
+    virtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
+  }
+}]
+
+// CENTRAL LOGGING
+
+module hubSubscriptionActivityLogging './modules/central-logging.bicep' = {
+  name: 'activity-logs-hub-${deploymentNameSuffix}'
+  scope: subscription(hubSubscriptionId)
+  params: {
+    diagnosticSettingName: 'log-hub-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+  }
+  dependsOn: [
+    hubNetwork
+  ]
+}
+
+module azureMonitorPrivateLink './modules/private-link.bicep' = if (contains(supportedClouds, environment().name)) {
+  name: 'azure-monitor-private-link'
+  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
+  params: {
+    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
+    privateEndpointSubnetName: operationsSubnetName
+    privateEndpointVnetName: operationsVirtualNetworkName
+    monitorPrivateDnsZoneId: privateDnsZones.outputs.monitorPrivateDnsZoneId
+    omsPrivateDnsZoneId: privateDnsZones.outputs.omsPrivateDnsZoneId
+    odsPrivateDnsZoneId: privateDnsZones.outputs.odsPrivateDnsZoneId
+    agentsvcPrivateDnsZoneId: privateDnsZones.outputs.agentsvcPrivateDnsZoneId
+    location: location
+    tags: tags
+  }
+  dependsOn: [
+    logAnalyticsWorkspace
+    privateDnsZones
+    spokeNetworks
+  ]
+}
+
+module spokeSubscriptionActivityLogging './modules/central-logging.bicep' = [for spoke in spokes: if (spoke.subscriptionId != hubSubscriptionId) {
+  name: 'activity-logs-${spoke.name}-${deploymentNameSuffix}'
+  scope: subscription(spoke.subscriptionId)
+  params: {
+    diagnosticSettingName: 'log-${spoke.name}-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+  }
+  dependsOn: [
+    spokeNetworks
+  ]
+}]
+
+module logAnalyticsDiagnosticLogging './modules/log-analytics-diagnostic-logging.bicep' = {
+  name: 'deploy-diagnostic-logging-${deploymentNameSuffix}'
+  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
+  params: {
+    diagnosticStorageAccountName: operationsLogStorageAccountName
+    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
+  }
+  dependsOn: [
+    spokeStorage
+  ]
+}
+
 // POLICY ASSIGNMENTS
 
 module hubPolicyAssignment './modules/policy-assignment.bicep' = if (deployPolicy) {
@@ -989,81 +1043,6 @@ module spokePolicyAssignments './modules/policy-assignment.bicep' = [for spoke i
     location: location
   }
 }]
-
-// PRIVATE DNS
-
-module azurePrivateDns './modules/private-dns.bicep' = {
-  name: 'azure-private-dns'
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  params: {
-    vnetName: hubNetwork.outputs.virtualNetworkName
-    tags: tags
-  }
-  dependsOn: [
-    hubNetwork
-  ]
-}
-
-// CENTRAL LOGGING
-
-module hubSubscriptionActivityLogging './modules/central-logging.bicep' = {
-  name: 'activity-logs-hub-${deploymentNameSuffix}'
-  scope: subscription(hubSubscriptionId)
-  params: {
-    diagnosticSettingName: 'log-hub-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
-    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
-  }
-  dependsOn: [
-    hubNetwork
-  ]
-}
-
-module azureMonitorPrivateLink './modules/private-link.bicep' = if (contains(supportedClouds, environment().name)) {
-  name: 'azure-monitor-private-link'
-  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
-  params: {
-    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
-    privateEndpointSubnetName: operationsSubnetName
-    privateEndpointVnetName: operationsVirtualNetworkName
-    monitorPrivateDnsZoneId: azurePrivateDns.outputs.monitorPrivateDnsZoneId
-    omsPrivateDnsZoneId: azurePrivateDns.outputs.omsPrivateDnsZoneId
-    odsPrivateDnsZoneId: azurePrivateDns.outputs.odsPrivateDnsZoneId
-    agentsvcPrivateDnsZoneId: azurePrivateDns.outputs.agentsvcPrivateDnsZoneId
-    location: location
-    tags: tags
-  }
-  dependsOn: [
-    logAnalyticsWorkspace
-    spokeNetworks
-    azurePrivateDns
-  ]
-}
-
-module spokeSubscriptionActivityLogging './modules/central-logging.bicep' = [for spoke in spokes: if (spoke.subscriptionId != hubSubscriptionId) {
-  name: 'activity-logs-${spoke.name}-${deploymentNameSuffix}'
-  scope: subscription(spoke.subscriptionId)
-  params: {
-    diagnosticSettingName: 'log-${spoke.name}-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
-    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
-  }
-  dependsOn: [
-    spokeNetworks
-  ]
-}]
-
-module logAnalyticsDiagnosticLogging './modules/log-analytics-diagnostic-logging.bicep' = {
-  name: 'deploy-diagnostic-logging-${deploymentNameSuffix}'
-  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
-  params: {
-    diagnosticStorageAccountName: operationsLogStorageAccountName
-    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-  }
-  dependsOn: [
-    hubNetwork
-    spokeNetworks
-  ]
-}
 
 // Microsoft Defender for Cloud
 
@@ -1092,58 +1071,50 @@ module spokeDefender './modules/defender.bicep' = [for spoke in spokes: if ((dep
 module remoteAccess './core/remote-access.bicep' = if (deployRemoteAccess) {
   name: 'deploy-remote-access-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-
   params: {
-    location: location
-
-    hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
-    hubSubnetResourceId: hubNetwork.outputs.subnetResourceId
-    hubNetworkSecurityGroupResourceId: hubNetwork.outputs.networkSecurityGroupResourceId
-
+    bastionHostIPConfigurationName: bastionHostIPConfigurationName
     bastionHostName: bastionHostName
-    bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
-    bastionHostPublicIPAddressName: bastionHostPublicIPAddressName
-    bastionHostPublicIPAddressSkuName: bastionHostPublicIPAddressSkuName
     bastionHostPublicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
     bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-    bastionHostIPConfigurationName: bastionHostIPConfigurationName
-
-    linuxNetworkInterfaceName: linuxNetworkInterfaceName
+    bastionHostPublicIPAddressName: bastionHostPublicIPAddressName
+    bastionHostPublicIPAddressSkuName: bastionHostPublicIPAddressSkuName
+    bastionHostSubnetResourceId: hubNetwork.outputs.bastionHostSubnetResourceId
+    hubNetworkSecurityGroupResourceId: hubNetwork.outputs.networkSecurityGroupResourceId
+    hubSubnetResourceId: hubNetwork.outputs.subnetResourceId
     linuxNetworkInterfaceIpConfigurationName: linuxNetworkInterfaceIpConfigurationName
+    linuxNetworkInterfaceName: linuxNetworkInterfaceName
     linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
-
-    linuxVmName: linuxVmName
-    linuxVmSize: linuxVmSize
-    linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
-    linuxVmOsDiskType: linuxVmOsDiskType
-    linuxVmImagePublisher: linuxVmImagePublisher
-    linuxVmImageOffer: linuxVmImageOffer
-    linuxVmImageSku: linuxVmImageSku
-    linuxVmImageVersion: linuxVmImageVersion
+    linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
     linuxVmAdminUsername: linuxVmAdminUsername
     linuxVmAuthenticationType: linuxVmAuthenticationType
-    linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
-
-    windowsNetworkInterfaceName: windowsNetworkInterfaceName
-    windowsNetworkInterfaceIpConfigurationName: windowsNetworkInterfaceIpConfigurationName
-    windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
-
-    windowsVmName: windowsVmName
-    windowsVmSize: windowsVmSize
-    windowsVmAdminUsername: windowsVmAdminUsername
-    windowsVmAdminPassword: windowsVmAdminPassword
-    windowsVmPublisher: windowsVmPublisher
-    windowsVmOffer: windowsVmOffer
-    windowsVmSku: windowsVmSku
-    windowsVmVersion: windowsVmVersion
-    windowsVmCreateOption: windowsVmCreateOption
-    windowsVmStorageAccountType: windowsVmStorageAccountType
-
+    linuxVmImageOffer: linuxVmImageOffer
+    linuxVmImagePublisher: linuxVmImagePublisher
+    linuxVmImageSku: linuxVmImageSku
+    linuxVmImageVersion: linuxVmImageVersion
+    linuxVmName: linuxVmName
+    linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
+    linuxVmOsDiskType: linuxVmOsDiskType
+    linuxVmSize: linuxVmSize
+    location: location
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    tags: tags
+    windowsNetworkInterfaceIpConfigurationName: windowsNetworkInterfaceIpConfigurationName
+    windowsNetworkInterfaceName: windowsNetworkInterfaceName
+    windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
+    windowsVmAdminPassword: windowsVmAdminPassword
+    windowsVmAdminUsername: windowsVmAdminUsername
+    windowsVmCreateOption: windowsVmCreateOption
+    windowsVmName: windowsVmName
+    windowsVmOffer: windowsVmOffer
+    windowsVmPublisher: windowsVmPublisher
+    windowsVmSize: windowsVmSize
+    windowsVmSku: windowsVmSku
+    windowsVmStorageAccountType: windowsVmStorageAccountType
+    windowsVmVersion: windowsVmVersion
   }
   dependsOn: [
     azureMonitorPrivateLink
-    hubNetworkDNS
+    //hubNetworkDNS
   ]
 }
 

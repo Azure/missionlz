@@ -3,28 +3,26 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param name string
-param location string
-param tags object = {}
-
-param networkInterfaceName string
-
-param vmSize string
-param osDiskCreateOption string
-param osDiskType string
-param vmImagePublisher string
-param vmImageOffer string
-param vmImageSku string
-param vmImageVersion string
+@secure()
+@minLength(12)
+param adminPasswordOrKey string
 param adminUsername string
 @allowed([
   'sshPublicKey'
   'password'
 ])
 param authenticationType string
-@secure()
-@minLength(12)
-param adminPasswordOrKey string
+param location string
+param name string
+param networkInterfaceName string
+param osDiskCreateOption string
+param osDiskType string
+param tags object
+param vmImageOffer string
+param vmImagePublisher string
+param vmImageSku string
+param vmImageVersion string
+param vmSize string
 
 var linuxConfiguration = {
   disablePasswordAuthentication: true
@@ -47,7 +45,6 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   name: name
   location: location
   tags: tags
-
   properties: {
     hardwareProfile: {
       vmSize: vmSize
@@ -83,7 +80,8 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 }
 
 resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-  name: '${virtualMachine.name}/Microsoft.Azure.NetworkWatcher'
+  parent: virtualMachine
+  name: 'Microsoft.Azure.NetworkWatcher'
   location: location
   properties: {
     publisher: 'Microsoft.Azure.NetworkWatcher'
@@ -109,7 +107,8 @@ resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-0
 }
 
 resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-  name: '${virtualMachine.name}/OMSExtension'
+  parent: virtualMachine
+  name: 'OMSExtension'
   location: location
   properties: {
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
@@ -129,7 +128,8 @@ resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' 
 }
 
 resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-  name: '${virtualMachine.name}/DependencyAgentLinux'
+  parent: virtualMachine
+  name: 'DependencyAgentLinux'
   location: location
   properties: {
     publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'

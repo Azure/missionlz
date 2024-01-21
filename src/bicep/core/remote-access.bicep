@@ -3,81 +3,66 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param location string
-param tags object = {}
-
-param hubVirtualNetworkName string
-param hubSubnetResourceId string
-param hubNetworkSecurityGroupResourceId string
-
+param bastionHostIPConfigurationName string
 param bastionHostName string
-param bastionHostSubnetAddressPrefix string
-param bastionHostPublicIPAddressName string
-param bastionHostPublicIPAddressSkuName string 
 param bastionHostPublicIPAddressAllocationMethod string
 param bastionHostPublicIPAddressAvailabilityZones array
-param bastionHostIPConfigurationName string
-
-param linuxNetworkInterfaceName string
+param bastionHostPublicIPAddressName string
+param bastionHostPublicIPAddressSkuName string 
+param bastionHostSubnetResourceId string
+param hubNetworkSecurityGroupResourceId string
+param hubSubnetResourceId string
 param linuxNetworkInterfaceIpConfigurationName string
+param linuxNetworkInterfaceName string
 param linuxNetworkInterfacePrivateIPAddressAllocationMethod string
-
-param linuxVmName string
-param linuxVmSize string
-param linuxVmOsDiskCreateOption string
-param linuxVmOsDiskType string
-param linuxVmImagePublisher string
-param linuxVmImageOffer string 
-param linuxVmImageSku string
-param linuxVmImageVersion string
+@secure()
+@minLength(12)
+param linuxVmAdminPasswordOrKey string
 param linuxVmAdminUsername string
 @allowed([
   'sshPublicKey'
   'password'
 ])
 param linuxVmAuthenticationType string
-@secure()
-@minLength(12)
-param linuxVmAdminPasswordOrKey string
-
-param windowsNetworkInterfaceName string
+param linuxVmImageOffer string 
+param linuxVmImagePublisher string
+param linuxVmImageSku string
+param linuxVmImageVersion string
+param linuxVmName string
+param linuxVmOsDiskCreateOption string
+param linuxVmOsDiskType string
+param linuxVmSize string
+param location string
+param logAnalyticsWorkspaceId string
+param tags object
 param windowsNetworkInterfaceIpConfigurationName string
+param windowsNetworkInterfaceName string
 param windowsNetworkInterfacePrivateIPAddressAllocationMethod string
-
-param windowsVmName string
-param windowsVmSize string
-param windowsVmAdminUsername string
 @secure()
 @minLength(12)
 param windowsVmAdminPassword string
-param windowsVmPublisher string
-param windowsVmOffer string
-param windowsVmSku string
-param windowsVmVersion string
+param windowsVmAdminUsername string
 param windowsVmCreateOption string
+param windowsVmName string
+param windowsVmOffer string
+param windowsVmPublisher string
+param windowsVmSize string
+param windowsVmSku string
 param windowsVmStorageAccountType string
-
-param logAnalyticsWorkspaceId string
-
-resource hubVirtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
-  name: hubVirtualNetworkName
-}
+param windowsVmVersion string
 
 module bastionHost '../modules/bastion-host.bicep' = {
   name: 'remoteAccess-bastionHost'
-
   params: {
-    name: bastionHostName
+    bastionHostSubnetResourceId: bastionHostSubnetResourceId
+    ipConfigurationName: bastionHostIPConfigurationName
     location: location
-    tags: tags
-
-    virtualNetworkName: hubVirtualNetwork.name
-    subnetAddressPrefix: bastionHostSubnetAddressPrefix
-    publicIPAddressName: bastionHostPublicIPAddressName
-    publicIPAddressSkuName: bastionHostPublicIPAddressSkuName
+    name: bastionHostName
     publicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
     publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-    ipConfigurationName: bastionHostIPConfigurationName
+    publicIPAddressName: bastionHostPublicIPAddressName
+    publicIPAddressSkuName: bastionHostPublicIPAddressSkuName
+    tags: tags
   }
 }
 

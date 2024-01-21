@@ -3,21 +3,15 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param name string
+param bastionHostSubnetResourceId string
+param ipConfigurationName string
 param location string
-param tags object = {}
-
-param virtualNetworkName string
-
-var subnetName = 'AzureBastionSubnet' // The subnet name for Azure Bastion Hosts must be 'AzureBastionSubnet'
-param subnetAddressPrefix string
-
-param publicIPAddressName string
-param publicIPAddressSkuName string
+param name string
 param publicIPAddressAllocationMethod string
 param publicIPAddressAvailabilityZones array
-
-param ipConfigurationName string
+param publicIPAddressName string
+param publicIPAddressSkuName string
+param tags object
 
 resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2021-02-01' = {
   name: publicIPAddressName
@@ -35,14 +29,6 @@ resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2021-02-01' = {
   zones: publicIPAddressAvailabilityZones
 }
 
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = {
-  name: '${virtualNetworkName}/${subnetName}'
-
-  properties: {
-    addressPrefix: subnetAddressPrefix
-  }
-}
-
 resource bastionHost 'Microsoft.Network/bastionHosts@2021-02-01' = {
   name: name
   location: location
@@ -54,7 +40,7 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2021-02-01' = {
         name: ipConfigurationName
         properties: {
           subnet: {
-            id: subnet.id
+            id: bastionHostSubnetResourceId
           }
           publicIPAddress: {
             id: publicIPAddress.id
