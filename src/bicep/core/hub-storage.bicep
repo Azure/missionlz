@@ -3,7 +3,7 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param azureBlobsPrivateDnsZoneResourceId string
+param blobsPrivateDnsZoneResourceId string
 param keyVaultUri string
 param logStorageAccountName string
 param logStorageSkuName string
@@ -11,13 +11,14 @@ param location string
 param resourcePrefix string
 param storageEncryptionKeyName string
 param subnetResourceId string
+param tablesPrivateDnsZoneResourceId string
 param tags object
 param userAssignedIdentityResourceId string
 
 module storageAccount '../modules/storage-account.bicep' = {
   name: 'storage'
   params: {
-    azureBlobsPrivateDnsZoneResourceId: azureBlobsPrivateDnsZoneResourceId
+    blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
     keyVaultUri: keyVaultUri
     location: location
@@ -26,6 +27,7 @@ module storageAccount '../modules/storage-account.bicep' = {
     storageAccountName: logStorageAccountName
     storageEncryptionKeyName: storageEncryptionKeyName
     subnetResourceId: subnetResourceId
+    tablesPrivateDnsZoneResourceId: tablesPrivateDnsZoneResourceId
     tags: tags
   }
 }

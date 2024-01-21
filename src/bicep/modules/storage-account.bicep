@@ -3,7 +3,7 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param azureBlobsPrivateDnsZoneResourceId string
+param blobsPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
 param resourcePrefix string
@@ -11,8 +11,14 @@ param skuName string
 param storageAccountName string
 param storageEncryptionKeyName string
 param subnetResourceId string
+param tablesPrivateDnsZoneResourceId string
 param tags object
 param userAssignedIdentityResourceId string
+
+var zones = [
+  blobsPrivateDnsZoneResourceId
+  tablesPrivateDnsZoneResourceId
+]
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
@@ -77,8 +83,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-05-01' = {
-  name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-pe-')}-blob'
+resource privateEndpoints 'Microsoft.Network/privateEndpoints@2020-05-01' = [for (zone, i) in zones: {
+  name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-pe-')}-${split(split(zone, '/')[8], '.')[1]}'
   location: location
   tags: tags
   properties: {
@@ -87,7 +93,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-05-01' = {
     }
     privateLinkServiceConnections: [
       {
-        name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-nic-')}-blob'
+        name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-nic-')}-${split(split(zone, '/')[8], '.')[1]}'
         properties: {
           privateLinkServiceId: storageAccount.id
           groupIds: [
@@ -97,21 +103,21 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-05-01' = {
       }
     ]
   }
-}
+}]
 
-resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
-  parent: privateEndpoint
+resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = [for (zone, i) in zones: {
+  parent: privateEndpoints[i]
   name: storageAccountName
   properties: {
     privateDnsZoneConfigs: [
       {
         name: 'ipconfig1'
         properties: {
-          privateDnsZoneId: azureBlobsPrivateDnsZoneResourceId
+          privateDnsZoneId: zone
         }
       }
     ]
   }
-}
+}]
 
 output id string = storageAccount.id

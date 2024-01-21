@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "5491266495088901132"
+      "templateHash": "8889267249540517056"
     }
   },
   "parameters": {
@@ -4649,7 +4649,7 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "azureBlobsPrivateDnsZoneResourceId": {
+          "blobsPrivateDnsZoneResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', 'azure-private-dns'), '2022-09-01').outputs.blobPrivateDnsZoneId.value]"
           },
           "keyVaultUri": {
@@ -4673,6 +4673,9 @@
           "subnetResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
           },
+          "tablesPrivateDnsZoneResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', 'azure-private-dns'), '2022-09-01').outputs.tablePrivateDnsZoneId.value]"
+          },
           "tags": {
             "value": "[variables('calculatedTags')]"
           },
@@ -4687,11 +4690,11 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "10734217835166840924"
+              "templateHash": "16562264313481397415"
             }
           },
           "parameters": {
-            "azureBlobsPrivateDnsZoneResourceId": {
+            "blobsPrivateDnsZoneResourceId": {
               "type": "string"
             },
             "keyVaultUri": {
@@ -4715,6 +4718,9 @@
             "subnetResourceId": {
               "type": "string"
             },
+            "tablesPrivateDnsZoneResourceId": {
+              "type": "string"
+            },
             "tags": {
               "type": "object"
             },
@@ -4733,8 +4739,8 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "azureBlobsPrivateDnsZoneResourceId": {
-                    "value": "[parameters('azureBlobsPrivateDnsZoneResourceId')]"
+                  "blobsPrivateDnsZoneResourceId": {
+                    "value": "[parameters('blobsPrivateDnsZoneResourceId')]"
                   },
                   "userAssignedIdentityResourceId": {
                     "value": "[parameters('userAssignedIdentityResourceId')]"
@@ -4760,6 +4766,9 @@
                   "subnetResourceId": {
                     "value": "[parameters('subnetResourceId')]"
                   },
+                  "tablesPrivateDnsZoneResourceId": {
+                    "value": "[parameters('tablesPrivateDnsZoneResourceId')]"
+                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   }
@@ -4771,11 +4780,11 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "9704332619171498618"
+                      "templateHash": "9753044048835183070"
                     }
                   },
                   "parameters": {
-                    "azureBlobsPrivateDnsZoneResourceId": {
+                    "blobsPrivateDnsZoneResourceId": {
                       "type": "string"
                     },
                     "keyVaultUri": {
@@ -4799,12 +4808,21 @@
                     "subnetResourceId": {
                       "type": "string"
                     },
+                    "tablesPrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
                     "tags": {
                       "type": "object"
                     },
                     "userAssignedIdentityResourceId": {
                       "type": "string"
                     }
+                  },
+                  "variables": {
+                    "zones": [
+                      "[parameters('blobsPrivateDnsZoneResourceId')]",
+                      "[parameters('tablesPrivateDnsZoneResourceId')]"
+                    ]
                   },
                   "resources": [
                     {
@@ -4872,9 +4890,13 @@
                       }
                     },
                     {
+                      "copy": {
+                        "name": "privateEndpoints",
+                        "count": "[length(variables('zones'))]"
+                      },
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2020-05-01",
-                      "name": "[format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix'))))]",
+                      "name": "[format('{0}-{1}', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix'))), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]",
                       "properties": {
@@ -4883,7 +4905,7 @@
                         },
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-nic-', parameters('resourcePrefix'))))]",
+                            "name": "[format('{0}-{1}', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-nic-', parameters('resourcePrefix'))), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
                               "groupIds": [
@@ -4898,21 +4920,25 @@
                       ]
                     },
                     {
+                      "copy": {
+                        "name": "privateDnsZoneGroups",
+                        "count": "[length(variables('zones'))]"
+                      },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix')))), parameters('storageAccountName'))]",
+                      "name": "[format('{0}/{1}', format('{0}-{1}', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix'))), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]), parameters('storageAccountName'))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
                             "name": "ipconfig1",
                             "properties": {
-                              "privateDnsZoneId": "[parameters('azureBlobsPrivateDnsZoneResourceId')]"
+                              "privateDnsZoneId": "[variables('zones')[copyIndex()]]"
                             }
                           }
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix')))))]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-{1}', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix'))), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]))]"
                       ]
                     }
                   ],
@@ -4956,7 +4982,7 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "azureBlobsPrivateDnsZoneResourceId": {
+          "blobsPrivateDnsZoneResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', 'azure-private-dns'), '2022-09-01').outputs.blobPrivateDnsZoneId.value]"
           },
           "keyVaultUri": {
@@ -4980,6 +5006,9 @@
           "subnetResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
           },
+          "tablesPrivateDnsZoneResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', 'azure-private-dns'), '2022-09-01').outputs.tablePrivateDnsZoneId.value]"
+          },
           "tags": {
             "value": "[parameters('tags')]"
           },
@@ -4994,11 +5023,11 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "2099731221487572818"
+              "templateHash": "8173689652147359226"
             }
           },
           "parameters": {
-            "azureBlobsPrivateDnsZoneResourceId": {
+            "blobsPrivateDnsZoneResourceId": {
               "type": "string"
             },
             "keyVaultUri": {
@@ -5022,6 +5051,9 @@
             "subnetResourceId": {
               "type": "string"
             },
+            "tablesPrivateDnsZoneResourceId": {
+              "type": "string"
+            },
             "tags": {
               "type": "object"
             },
@@ -5040,8 +5072,8 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "azureBlobsPrivateDnsZoneResourceId": {
-                    "value": "[parameters('azureBlobsPrivateDnsZoneResourceId')]"
+                  "blobsPrivateDnsZoneResourceId": {
+                    "value": "[parameters('blobsPrivateDnsZoneResourceId')]"
                   },
                   "keyVaultUri": {
                     "value": "[parameters('keyVaultUri')]"
@@ -5064,6 +5096,9 @@
                   "subnetResourceId": {
                     "value": "[parameters('subnetResourceId')]"
                   },
+                  "tablesPrivateDnsZoneResourceId": {
+                    "value": "[parameters('tablesPrivateDnsZoneResourceId')]"
+                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
@@ -5078,11 +5113,11 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "9704332619171498618"
+                      "templateHash": "9753044048835183070"
                     }
                   },
                   "parameters": {
-                    "azureBlobsPrivateDnsZoneResourceId": {
+                    "blobsPrivateDnsZoneResourceId": {
                       "type": "string"
                     },
                     "keyVaultUri": {
@@ -5106,12 +5141,21 @@
                     "subnetResourceId": {
                       "type": "string"
                     },
+                    "tablesPrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
                     "tags": {
                       "type": "object"
                     },
                     "userAssignedIdentityResourceId": {
                       "type": "string"
                     }
+                  },
+                  "variables": {
+                    "zones": [
+                      "[parameters('blobsPrivateDnsZoneResourceId')]",
+                      "[parameters('tablesPrivateDnsZoneResourceId')]"
+                    ]
                   },
                   "resources": [
                     {
@@ -5179,9 +5223,13 @@
                       }
                     },
                     {
+                      "copy": {
+                        "name": "privateEndpoints",
+                        "count": "[length(variables('zones'))]"
+                      },
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2020-05-01",
-                      "name": "[format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix'))))]",
+                      "name": "[format('{0}-{1}', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix'))), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]",
                       "properties": {
@@ -5190,7 +5238,7 @@
                         },
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-nic-', parameters('resourcePrefix'))))]",
+                            "name": "[format('{0}-{1}', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-nic-', parameters('resourcePrefix'))), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
                               "groupIds": [
@@ -5205,21 +5253,25 @@
                       ]
                     },
                     {
+                      "copy": {
+                        "name": "privateDnsZoneGroups",
+                        "count": "[length(variables('zones'))]"
+                      },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix')))), parameters('storageAccountName'))]",
+                      "name": "[format('{0}/{1}', format('{0}-{1}', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix'))), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]), parameters('storageAccountName'))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
                             "name": "ipconfig1",
                             "properties": {
-                              "privateDnsZoneId": "[parameters('azureBlobsPrivateDnsZoneResourceId')]"
+                              "privateDnsZoneId": "[variables('zones')[copyIndex()]]"
                             }
                           }
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix')))))]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-{1}', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix'))), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]))]"
                       ]
                     }
                   ],

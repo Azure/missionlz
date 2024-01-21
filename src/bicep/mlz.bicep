@@ -898,7 +898,7 @@ module hubStorage './core/hub-storage.bicep' = {
   name: 'deploy-log-storage-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
-    azureBlobsPrivateDnsZoneResourceId: privateDnsZones.outputs.blobPrivateDnsZoneId
+    blobsPrivateDnsZoneResourceId: privateDnsZones.outputs.blobPrivateDnsZoneId
     keyVaultUri: operationsCustomerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageAccountName: hubLogStorageAccountName
@@ -906,6 +906,7 @@ module hubStorage './core/hub-storage.bicep' = {
     resourcePrefix: resourcePrefix
     storageEncryptionKeyName: operationsCustomerManagedKeys.outputs.storageKeyName
     subnetResourceId: hubNetwork.outputs.subnetResourceId
+    tablesPrivateDnsZoneResourceId: privateDnsZones.outputs.tablePrivateDnsZoneId
     tags: calculatedTags
     userAssignedIdentityResourceId: operationsCustomerManagedKeys.outputs.userAssignedIdentityResourceId
   }
@@ -917,7 +918,7 @@ module spokeStorage './core/spoke-storage.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-log-storage-${spoke.name}-${deploymentNameSuffix}'
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
-    azureBlobsPrivateDnsZoneResourceId: privateDnsZones.outputs.blobPrivateDnsZoneId
+    blobsPrivateDnsZoneResourceId: privateDnsZones.outputs.blobPrivateDnsZoneId
     keyVaultUri: operationsCustomerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageAccountName: spoke.logStorageAccountName
@@ -925,6 +926,7 @@ module spokeStorage './core/spoke-storage.bicep' = [for (spoke, i) in spokes: {
     resourcePrefix: resourcePrefix
     storageEncryptionKeyName: operationsCustomerManagedKeys.outputs.storageKeyName
     subnetResourceId: spokeNetworks[i].outputs.subnetResourceId
+    tablesPrivateDnsZoneResourceId: privateDnsZones.outputs.tablePrivateDnsZoneId
     tags: tags
     userAssignedIdentityResourceId: operationsCustomerManagedKeys.outputs.userAssignedIdentityResourceId
   }
