@@ -87,7 +87,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-05-01' = {
     }
     privateLinkServiceConnections: [
       {
-        name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-pe-')}-blob_${guid(storageAccount.id)}'
+        name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-nic-')}-blob'
         properties: {
           privateLinkServiceId: storageAccount.id
           groupIds: [

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "8925990070387210835"
+      "templateHash": "9972767709466004443"
     }
   },
   "parameters": {
@@ -4491,7 +4491,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "5510129619512917487"
+              "templateHash": "10734217835166840924"
             }
           },
           "parameters": {
@@ -4575,7 +4575,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "4946922031441593051"
+                      "templateHash": "9704332619171498618"
                     }
                   },
                   "parameters": {
@@ -4687,7 +4687,7 @@
                         },
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('{0}-blob_{1}', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix'))), guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))))]",
+                            "name": "[format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-nic-', parameters('resourcePrefix'))))]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
                               "groupIds": [
@@ -4798,7 +4798,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "17374882761460444084"
+              "templateHash": "2099731221487572818"
             }
           },
           "parameters": {
@@ -4882,7 +4882,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "4946922031441593051"
+                      "templateHash": "9704332619171498618"
                     }
                   },
                   "parameters": {
@@ -4994,7 +4994,7 @@
                         },
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('{0}-blob_{1}', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe-', parameters('resourcePrefix'))), guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))))]",
+                            "name": "[format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-nic-', parameters('resourcePrefix'))))]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
                               "groupIds": [
