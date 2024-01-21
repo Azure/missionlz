@@ -6,6 +6,7 @@ Licensed under the MIT License.
 param azureBlobsPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
+param resourcePrefix string
 param skuName string
 param storageAccountName string
 param storageEncryptionKeyName string
@@ -77,7 +78,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-05-01' = {
-  name: 'pe-${storageAccountName}'
+  name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-pe')}-blob'
   location: location
   tags: tags
   properties: {
@@ -86,7 +87,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-05-01' = {
     }
     privateLinkServiceConnections: [
       {
-        name: 'pe-${storageAccountName}_${guid(storageAccount.id)}'
+        name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-pe')}-blob_${guid(storageAccount.id)}'
         properties: {
           privateLinkServiceId: storageAccount.id
           groupIds: [

@@ -8,6 +8,7 @@ param keyVaultUri string
 param logStorageAccountName string
 param logStorageSkuName string
 param location string
+param resourcePrefix string
 param storageEncryptionKeyName string
 param subnetResourceId string
 param tags object
@@ -20,6 +21,7 @@ module storageAccount '../modules/storage-account.bicep' = {
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
     keyVaultUri: keyVaultUri
     location: location
+    resourcePrefix: resourcePrefix
     skuName: logStorageSkuName
     storageAccountName: logStorageAccountName
     storageEncryptionKeyName: storageEncryptionKeyName

@@ -890,6 +890,7 @@ module hubStorage './core/hub-storage.bicep' = {
     location: location
     logStorageAccountName: hubLogStorageAccountName
     logStorageSkuName: logStorageSkuName
+    resourcePrefix: resourcePrefix
     storageEncryptionKeyName: operationsCustomerManagedKeys.outputs.storageKeyName
     subnetResourceId: hubNetwork.outputs.subnetResourceId
     tags: calculatedTags
@@ -908,6 +909,7 @@ module spokeStorage './core/spoke-storage.bicep' = [for (spoke, i) in spokes: {
     location: location
     logStorageAccountName: spoke.logStorageAccountName
     logStorageSkuName: logStorageSkuName
+    resourcePrefix: resourcePrefix
     storageEncryptionKeyName: operationsCustomerManagedKeys.outputs.storageKeyName
     subnetResourceId: spokeNetworks[i].outputs.subnetResourceId
     tags: tags

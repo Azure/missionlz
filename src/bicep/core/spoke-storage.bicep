@@ -8,6 +8,7 @@ param keyVaultUri string
 param location string
 param logStorageAccountName string
 param logStorageSkuName string
+param resourcePrefix string
 param storageEncryptionKeyName string
 param subnetResourceId string
 param tags object
@@ -16,14 +17,15 @@ param userAssignedIdentityResourceId string
 module storageAccount '../modules/storage-account.bicep' = {
   name: 'storage'
   params: {
-    storageAccountName: logStorageAccountName
-    location: location
-    skuName: logStorageSkuName
-    tags: tags
     azureBlobsPrivateDnsZoneResourceId: azureBlobsPrivateDnsZoneResourceId
     keyVaultUri: keyVaultUri
+    location: location
+    resourcePrefix: resourcePrefix
+    skuName: logStorageSkuName
+    storageAccountName: logStorageAccountName
     storageEncryptionKeyName: storageEncryptionKeyName
     subnetResourceId: subnetResourceId
+    tags: tags
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
   }
 }

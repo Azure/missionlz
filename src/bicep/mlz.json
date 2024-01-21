@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "7750568451689560969"
+      "templateHash": "16958536441744639775"
     }
   },
   "parameters": {
@@ -4381,6 +4381,9 @@
           "logStorageSkuName": {
             "value": "[parameters('logStorageSkuName')]"
           },
+          "resourcePrefix": {
+            "value": "[parameters('resourcePrefix')]"
+          },
           "storageEncryptionKeyName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
           },
@@ -4401,7 +4404,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "14124653364128132696"
+              "templateHash": "11462674206164110982"
             }
           },
           "parameters": {
@@ -4418,6 +4421,9 @@
               "type": "string"
             },
             "location": {
+              "type": "string"
+            },
+            "resourcePrefix": {
               "type": "string"
             },
             "storageEncryptionKeyName": {
@@ -4456,6 +4462,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "resourcePrefix": {
+                    "value": "[parameters('resourcePrefix')]"
+                  },
                   "skuName": {
                     "value": "[parameters('logStorageSkuName')]"
                   },
@@ -4479,7 +4488,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "13226692994420197356"
+                      "templateHash": "1520789956270360080"
                     }
                   },
                   "parameters": {
@@ -4490,6 +4499,9 @@
                       "type": "string"
                     },
                     "location": {
+                      "type": "string"
+                    },
+                    "resourcePrefix": {
                       "type": "string"
                     },
                     "skuName": {
@@ -4579,7 +4591,7 @@
                     {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2020-05-01",
-                      "name": "[format('pe-{0}', parameters('storageAccountName'))]",
+                      "name": "[format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe', parameters('resourcePrefix'))))]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]",
                       "properties": {
@@ -4588,7 +4600,7 @@
                         },
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('pe-{0}_{1}', parameters('storageAccountName'), guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))))]",
+                            "name": "[format('{0}-blob_{1}', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe', parameters('resourcePrefix'))), guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))))]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
                               "groupIds": [
@@ -4605,7 +4617,7 @@
                     {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', format('pe-{0}', parameters('storageAccountName')), parameters('storageAccountName'))]",
+                      "name": "[format('{0}/{1}', format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe', parameters('resourcePrefix')))), parameters('storageAccountName'))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -4617,7 +4629,7 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', format('pe-{0}', parameters('storageAccountName')))]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe', parameters('resourcePrefix')))))]"
                       ]
                     }
                   ],
@@ -4676,6 +4688,9 @@
           "logStorageSkuName": {
             "value": "[parameters('logStorageSkuName')]"
           },
+          "resourcePrefix": {
+            "value": "[parameters('resourcePrefix')]"
+          },
           "storageEncryptionKeyName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
           },
@@ -4696,7 +4711,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "17590283376492382893"
+              "templateHash": "6757591555111592544"
             }
           },
           "parameters": {
@@ -4713,6 +4728,9 @@
               "type": "string"
             },
             "logStorageSkuName": {
+              "type": "string"
+            },
+            "resourcePrefix": {
               "type": "string"
             },
             "storageEncryptionKeyName": {
@@ -4739,29 +4757,32 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "storageAccountName": {
-                    "value": "[parameters('logStorageAccountName')]"
-                  },
-                  "location": {
-                    "value": "[parameters('location')]"
-                  },
-                  "skuName": {
-                    "value": "[parameters('logStorageSkuName')]"
-                  },
-                  "tags": {
-                    "value": "[parameters('tags')]"
-                  },
                   "azureBlobsPrivateDnsZoneResourceId": {
                     "value": "[parameters('azureBlobsPrivateDnsZoneResourceId')]"
                   },
                   "keyVaultUri": {
                     "value": "[parameters('keyVaultUri')]"
                   },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "resourcePrefix": {
+                    "value": "[parameters('resourcePrefix')]"
+                  },
+                  "skuName": {
+                    "value": "[parameters('logStorageSkuName')]"
+                  },
+                  "storageAccountName": {
+                    "value": "[parameters('logStorageAccountName')]"
+                  },
                   "storageEncryptionKeyName": {
                     "value": "[parameters('storageEncryptionKeyName')]"
                   },
                   "subnetResourceId": {
                     "value": "[parameters('subnetResourceId')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
                   },
                   "userAssignedIdentityResourceId": {
                     "value": "[parameters('userAssignedIdentityResourceId')]"
@@ -4774,7 +4795,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "13226692994420197356"
+                      "templateHash": "1520789956270360080"
                     }
                   },
                   "parameters": {
@@ -4785,6 +4806,9 @@
                       "type": "string"
                     },
                     "location": {
+                      "type": "string"
+                    },
+                    "resourcePrefix": {
                       "type": "string"
                     },
                     "skuName": {
@@ -4874,7 +4898,7 @@
                     {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2020-05-01",
-                      "name": "[format('pe-{0}', parameters('storageAccountName'))]",
+                      "name": "[format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe', parameters('resourcePrefix'))))]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]",
                       "properties": {
@@ -4883,7 +4907,7 @@
                         },
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('pe-{0}_{1}', parameters('storageAccountName'), guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))))]",
+                            "name": "[format('{0}-blob_{1}', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe', parameters('resourcePrefix'))), guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))))]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
                               "groupIds": [
@@ -4900,7 +4924,7 @@
                     {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', format('pe-{0}', parameters('storageAccountName')), parameters('storageAccountName'))]",
+                      "name": "[format('{0}/{1}', format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe', parameters('resourcePrefix')))), parameters('storageAccountName'))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -4912,7 +4936,7 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', format('pe-{0}', parameters('storageAccountName')))]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-blob', replace(parameters('storageAccountName'), parameters('resourcePrefix'), format('{0}-pe', parameters('resourcePrefix')))))]"
                       ]
                     }
                   ],
