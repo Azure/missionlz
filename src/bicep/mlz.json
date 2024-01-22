@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "10941512818639211433"
+      "templateHash": "13130523633992801856"
     }
   },
   "parameters": {
@@ -7832,7 +7832,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "13146069844365146864"
+              "templateHash": "5778706831016165290"
             }
           },
           "parameters": {
@@ -8267,7 +8267,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "11340554190693694553"
+                      "templateHash": "13448922027561695966"
                     }
                   },
                   "parameters": {
@@ -8404,6 +8404,35 @@
                         },
                         "licenseType": null
                       }
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-03-01",
+                      "name": "[format('{0}/{1}', parameters('name'), 'GuestAttestation')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.Security.LinuxAttestation",
+                        "type": "GuestAttestation",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                          "AttestationConfig": {
+                            "MaaSettings": {
+                              "maaEndpoint": "",
+                              "maaTenantName": "GuestAttestation"
+                            },
+                            "AscSettings": {
+                              "ascReportingEndpoint": "",
+                              "ascReportingFrequency": ""
+                            },
+                            "useCustomToken": "false",
+                            "disableAlerts": "false"
+                          }
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
                     },
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
@@ -8664,7 +8693,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "14439588153238255023"
+                      "templateHash": "5793129099305307535"
                     }
                   },
                   "parameters": {
@@ -8792,6 +8821,35 @@
                         },
                         "licenseType": "[if(parameters('hybridUseBenefit'), 'Windows_Server', null())]"
                       }
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-03-01",
+                      "name": "[format('{0}/{1}', parameters('name'), 'GuestAttestation')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.Security.WindowsAttestation",
+                        "type": "GuestAttestation",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                          "AttestationConfig": {
+                            "MaaSettings": {
+                              "maaEndpoint": "",
+                              "maaTenantName": "GuestAttestation"
+                            },
+                            "AscSettings": {
+                              "ascReportingEndpoint": "",
+                              "ascReportingFrequency": ""
+                            },
+                            "useCustomToken": "false",
+                            "disableAlerts": "false"
+                          }
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
                     },
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",

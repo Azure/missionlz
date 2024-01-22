@@ -93,6 +93,32 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   }
 }
 
+resource guestAttestationExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
+  parent: virtualMachine
+  name: 'GuestAttestation'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.Security.WindowsAttestation'
+    type: 'GuestAttestation'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    settings: {
+      AttestationConfig: {
+        MaaSettings: {
+          maaEndpoint: ''
+          maaTenantName: 'GuestAttestation'
+        }
+        AscSettings: {
+          ascReportingEndpoint: ''
+          ascReportingFrequency: ''
+        }
+        useCustomToken: 'false'
+        disableAlerts: 'false'
+      }
+    }
+  }
+}
+
 resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   parent: virtualMachine
   name: 'DependencyAgentWindows'
