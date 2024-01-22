@@ -3,14 +3,13 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param name string
 param location string
-param tags object = {}
-
-param routeName string
+param name string
 param routeAddressPrefix string
+param routeName string
 param routeNextHopIpAddress string
 param routeNextHopType string
+param tags object
 
 resource routeTable 'Microsoft.Network/routeTables@2021-02-01' = {
   name: name

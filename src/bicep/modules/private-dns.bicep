@@ -282,6 +282,7 @@ output automationPrivateDnsZoneId string = privateDnsZone_azure_automation.id
 output avdGlobalPrivateDnsZoneId string = privateDnsZone_avd_global.id
 output avdPrivateDnsZoneId string = privateDnsZone_avd.id
 output backupPrivateDnsZoneIds array = [for (name, i) in privatelink_backup_names: privateDnsZone_backup_rsv[i].id]
+output blobPrivateDnsZoneId string = privateDnsZone_blob.id
 output filePrivateDnsZoneId string = privateDnsZone_file.id
 output keyvaultDnsPrivateDnsZoneId string = privateDnsZone_keyvaultDns.id
 output monitorPrivateDnsZoneId string = privateDnsZone_monitor.id

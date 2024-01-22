@@ -217,8 +217,8 @@
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^[a-z0-9]{1,10}$",
-                        "message": "The prefix must be between 1-10 lowercase characters and numbers."
+                        "regex": "^[a-z][a-z0-9]{1,9}$",
+                        "message": "The prefix must contain alphanumeric characters, begin with a letter, letters must be lowercase, and not exceed 10 characters."
                       }
                     ]
                   }
@@ -902,6 +902,15 @@
                   "options": {
                     "hideConfirmation": false
                   }
+                },
+                {
+                  "name": "hybridUseBenefit",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable Hybrid Use Benefit?",
+                  "toolTip": "Check here to enable the Hybrid Use Benefit on your virtual machines.",
+                  "constraints": {
+                    "required": false
+                  }
                 }
               ]
             },
@@ -981,37 +990,38 @@
       "location": "[steps('basics').locationSection.location.name]",
       "subscriptionId": "[steps('basics').hubSection.hubSubscriptionId]",
       "parameters": {
-        "resourcePrefix": "[steps('basics').namingSection.resourcePrefix]",
-        "resourceSuffix": "[steps('basics').namingSection.resourceSuffix]",
-        "hubSubscriptionId": "[replace(steps('basics').hubSection.hubSubscriptionId, '/subscriptions/', '')]",
-        "identitySubscriptionId": "[replace(steps('basics').identitySection.identitySubscriptionId, '/subscriptions/', '')]",
-        "operationsSubscriptionId": "[replace(steps('basics').operationsSection.operationsSubscriptionId, '/subscriptions/', '')]",
-        "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
-        "location": "[steps('basics').locationSection.location.name]",
-        "firewallSupernetIPAddress": "[steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange]",
-        "tags": "[if(not(contains(steps('tags').tagsByResource, 'MissionLandingZone')), parse('{}'), first(map(parse(concat('[', string(steps('tags').tagsByResource), ']')), (item) => item.MissionLandingZone)))]",
-        "hubVirtualNetworkAddressPrefix": "[steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange]",
-        "hubSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.subnetAddressCidrRange]",
+        "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
+        "deployDefender": "[steps('compliance').defenderSection.deployDefender]",
+        "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
+        "deployRemoteAccess": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
+        "deploySentinel": "[steps('compliance').sentinelSection.deploySentinel]",
+        "emailSecurityContact": "[steps('compliance').defenderSection.emailSecurityContact]",
         "firewallClientSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange]",
         "firewallManagementSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallManagementSubnetAddressCidrRange]",
-        "identityVirtualNetworkAddressPrefix": "[steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange]",
+        "firewallSupernetIPAddress": "[steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange]",
+        "hubSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.subnetAddressCidrRange]",
+        "hubSubscriptionId": "[replace(steps('basics').hubSection.hubSubscriptionId, '/subscriptions/', '')]",
+        "hubVirtualNetworkAddressPrefix": "[steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange]",
+        "hybridUseBenefit": "[steps('remoteAccess').windowsVmSection.hybridUseBenefit]",
         "identitySubnetAddressPrefix": "[steps('networking').identityVirtualNetwork.subnetAddressCidrRange]",
-        "operationsVirtualNetworkAddressPrefix": "[steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange]",
-        "operationsSubnetAddressPrefix": "[steps('networking').operationsVirtualNetwork.subnetAddressCidrRange]",
-        "sharedServicesVirtualNetworkAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange]",
-        "sharedServicesSubnetAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange]",
-        "deploySentinel": "[steps('compliance').sentinelSection.deploySentinel]",
-        "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
-        "policy": "[steps('compliance').policySection.policy]",
-        "deployDefender": "[steps('compliance').defenderSection.deployDefender]",
-        "emailSecurityContact": "[steps('compliance').defenderSection.emailSecurityContact]",
-        "deployRemoteAccess": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
-        "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
-        "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]",
-        "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword.password]",
+        "identitySubscriptionId": "[replace(steps('basics').identitySection.identitySubscriptionId, '/subscriptions/', '')]",
+        "identityVirtualNetworkAddressPrefix": "[steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange]",
+        "linuxVmAdminPasswordOrKey": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.authenticationType, 'password'), steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.password, steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.sshPublicKey)]",
         "linuxVmAdminUsername": "[steps('remoteAccess').linuxVmSection.linuxVmAdminUsername]",
         "linuxVmAuthenticationType": "password",
-        "linuxVmAdminPasswordOrKey": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.authenticationType, 'password'), steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.password, steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.sshPublicKey)]"
+        "location": "[steps('basics').locationSection.location.name]",
+        "operationsSubnetAddressPrefix": "[steps('networking').operationsVirtualNetwork.subnetAddressCidrRange]",
+        "operationsSubscriptionId": "[replace(steps('basics').operationsSection.operationsSubscriptionId, '/subscriptions/', '')]",
+        "operationsVirtualNetworkAddressPrefix": "[steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange]",
+        "policy": "[steps('compliance').policySection.policy]",
+        "resourcePrefix": "[steps('basics').namingSection.resourcePrefix]",
+        "resourceSuffix": "[steps('basics').namingSection.resourceSuffix]",
+        "sharedServicesSubnetAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange]",
+        "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
+        "sharedServicesVirtualNetworkAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange]",
+        "tags": "[if(not(contains(steps('tags').tagsByResource, 'MissionLandingZone')), parse('{}'), first(map(parse(concat('[', string(steps('tags').tagsByResource), ']')), (item) => item.MissionLandingZone)))]",
+        "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword.password]",
+        "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]"
       }
     }
   }

@@ -3,17 +3,30 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-
+param clientIpConfigurationName string
+param clientIpConfigurationSubnetResourceId string
+param clientIpConfigurationPublicIPAddressResourceId string
+param dnsServers array
+param enableProxy bool
+param firewallPolicyName string
+param firewallSupernetIPAddress string
+@allowed([
+  'Alert'
+  'Deny'
+  'Off'
+])
+param intrusionDetectionMode string
+param location string
+param managementIpConfigurationName string
+param managementIpConfigurationSubnetResourceId string
+param managementIpConfigurationPublicIPAddressResourceId string
 param name string
-param location string = resourceGroup().location
-param tags object = {}
-
 @allowed([
   'Standard'
   'Premium'
 ])
 param skuTier string
-
+param tags object = {}
 @allowed([
   'Alert'
   'Deny'
@@ -21,39 +34,9 @@ param skuTier string
 ])
 param threatIntelMode string
 
-@allowed([
-  'Alert'
-  'Deny'
-  'Off'
-])
-param intrusionDetectionMode string
-
-//DNS Proxy Settings
-param enableProxy bool
-param dnsServers array
-
-param clientIpConfigurationName string
-param clientIpConfigurationSubnetResourceId string
-param clientIpConfigurationPublicIPAddressResourceId string
-
-param managementIpConfigurationName string
-param managementIpConfigurationSubnetResourceId string
-param managementIpConfigurationPublicIPAddressResourceId string
-
-param firewallPolicyName string
-
-param firewallSupernetIPAddress string
-
-param logStorageAccountResourceId string
-param logAnalyticsWorkspaceResourceId string
-
-param logs array
-param metrics array
-
 var intrusionDetectionObject = {
   mode: intrusionDetectionMode
 }
-
 
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   name: firewallPolicyName
@@ -73,10 +56,8 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
 }
 
 resource firewallAppRuleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-02-01' = {
-  name: '${firewallPolicyName}/DefaultApplicationRuleCollectionGroup'
-  dependsOn: [
-    firewallPolicy
-  ]
+  parent: firewallPolicy
+  name: 'DefaultApplicationRuleCollectionGroup'
   properties: {
     priority: 300
     ruleCollections: [
@@ -118,9 +99,9 @@ resource firewallAppRuleCollectionGroup 'Microsoft.Network/firewallPolicies/rule
 }
 
 resource firewallNetworkRuleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-02-01' = {
-  name: '${firewallPolicyName}/DefaultNetworkRuleCollectionGroup'
+  parent: firewallPolicy
+  name: 'DefaultNetworkRuleCollectionGroup'
   dependsOn: [
-    firewallPolicy
     firewallAppRuleCollectionGroup
   ]
   properties: {
@@ -230,15 +211,5 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' = {
   }
 }
 
-resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
-  scope: firewall
-  name: '${firewall.name}-diagnostics'
-  properties: {
-    storageAccountId: logStorageAccountResourceId
-    workspaceId: logAnalyticsWorkspaceResourceId
-    logs: logs
-    metrics: metrics
-  }
-}
-
+output name string = firewall.name
 output privateIPAddress string = firewall.properties.ipConfigurations[0].properties.privateIPAddress
