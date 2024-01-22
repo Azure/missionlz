@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "8799805699963881561"
+      "templateHash": "10319856952736988147"
     }
   },
   "parameters": {
@@ -4690,7 +4690,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "16562264313481397415"
+              "templateHash": "6330010367702999075"
             }
           },
           "parameters": {
@@ -4780,7 +4780,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "9753044048835183070"
+                      "templateHash": "8153769194575738814"
                     }
                   },
                   "parameters": {
@@ -4909,7 +4909,7 @@
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
                               "groupIds": [
-                                "blob"
+                                "[split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]]"
                               ]
                             }
                           }
@@ -5023,7 +5023,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "8173689652147359226"
+              "templateHash": "15353088112920784086"
             }
           },
           "parameters": {
@@ -5113,7 +5113,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "9753044048835183070"
+                      "templateHash": "8153769194575738814"
                     }
                   },
                   "parameters": {
@@ -5242,7 +5242,7 @@
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
                               "groupIds": [
-                                "blob"
+                                "[split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]]"
                               ]
                             }
                           }
@@ -7443,7 +7443,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "16121888738065093211"
+              "templateHash": "13146069844365146864"
             }
           },
           "parameters": {
@@ -7878,7 +7878,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "14884645693106953752"
+                      "templateHash": "11340554190693694553"
                     }
                   },
                   "parameters": {
@@ -8019,21 +8019,6 @@
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-04-01",
-                      "name": "[format('{0}/{1}', parameters('name'), 'Microsoft.Azure.NetworkWatcher')]",
-                      "location": "[parameters('location')]",
-                      "properties": {
-                        "publisher": "Microsoft.Azure.NetworkWatcher",
-                        "type": "NetworkWatcherAgentLinux",
-                        "typeHandlerVersion": "1.4"
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('name'), 'AzurePolicyforLinux')]",
-                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'AzurePolicyforLinux')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -8050,6 +8035,21 @@
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-04-01",
+                      "name": "[format('{0}/{1}', parameters('name'), 'Microsoft.Azure.NetworkWatcher')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.NetworkWatcher",
+                        "type": "NetworkWatcherAgentLinux",
+                        "typeHandlerVersion": "1.4"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('name'), 'AzurePolicyforLinux')]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2020-06-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'OMSExtension')]",
                       "location": "[parameters('location')]",
                       "properties": {
