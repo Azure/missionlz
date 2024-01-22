@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "4808476122647380464"
+      "templateHash": "16684754708957299071"
     }
   },
   "parameters": {
@@ -4439,7 +4439,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "12054782223447234085"
+              "templateHash": "15205511176758446611"
             }
           },
           "parameters": {
@@ -4508,7 +4508,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "11779575706720375217"
+                      "templateHash": "8627782382405074284"
                     }
                   },
                   "parameters": {
@@ -4551,10 +4551,11 @@
                         "enableSoftDelete": true,
                         "networkAcls": {
                           "bypass": "AzureServices",
-                          "virtualNetworkRules": [],
+                          "defaultAction": "Deny",
                           "ipRules": [],
-                          "defaultAction": "Deny"
+                          "virtualNetworkRules": []
                         },
+                        "publicNetworkAccess": "Disabled",
                         "sku": {
                           "family": "A",
                           "name": "standard"
@@ -6487,7 +6488,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "1496252344531989324"
+              "templateHash": "2378480114537074668"
             }
           },
           "parameters": {
@@ -6531,14 +6532,19 @@
           "resources": [
             {
               "type": "microsoft.insights/privateLinkScopes",
-              "apiVersion": "2019-10-17-preview",
+              "apiVersion": "2021-09-01",
               "name": "[variables('privateLinkScopeName')]",
               "location": "global",
-              "properties": {}
+              "properties": {
+                "accessModeSettings": {
+                  "ingestionAccessMode": "Private",
+                  "queryAccessMode": "Private"
+                }
+              }
             },
             {
               "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
-              "apiVersion": "2019-10-17-preview",
+              "apiVersion": "2021-09-01",
               "name": "[format('{0}/{1}', variables('privateLinkScopeName'), parameters('logAnalyticsWorkspaceName'))]",
               "properties": {
                 "linkedResourceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
@@ -6576,7 +6582,7 @@
             },
             {
               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-              "apiVersion": "2020-07-01",
+              "apiVersion": "2023-04-01",
               "name": "[format('{0}/{1}', variables('privateEndpointName'), variables('privateEndpointName'))]",
               "properties": {
                 "privateDnsZoneConfigs": [
