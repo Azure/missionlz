@@ -859,23 +859,6 @@
               ]
             },
             {
-              "name": "hybridUseBenefit",
-              "label": "Hybrid Use Benefit",
-              "type": "Microsoft.Common.Section",
-              "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
-              "elements": [
-                {
-                  "name": "enable",
-                  "type": "Microsoft.Common.CheckBox",
-                  "label": "Enable Hybrid Use Benefit?",
-                  "toolTip": "Check here to enable the Hybrid Use Benefit on your virtual machines.",
-                  "constraints": {
-                    "required": false
-                  }
-                }
-              ]
-            },
-            {
               "name": "windowsVmSection",
               "label": "Windows Virtual Machine",
               "type": "Microsoft.Common.Section",
@@ -918,6 +901,15 @@
                   },
                   "options": {
                     "hideConfirmation": false
+                  }
+                },
+                {
+                  "name": "hybridUseBenefit",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable Hybrid Use Benefit?",
+                  "toolTip": "Check here to enable the Hybrid Use Benefit on your virtual machines.",
+                  "constraints": {
+                    "required": false
                   }
                 }
               ]
@@ -1010,7 +1002,7 @@
         "hubSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.subnetAddressCidrRange]",
         "hubSubscriptionId": "[replace(steps('basics').hubSection.hubSubscriptionId, '/subscriptions/', '')]",
         "hubVirtualNetworkAddressPrefix": "[steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange]",
-        "hybridUseBenefit": "[steps('remoteAccess').hybridUseBenefit.enable]",
+        "hybridUseBenefit": "[steps('remoteAccess').windowsVmSection.hybridUseBenefit]",
         "identitySubnetAddressPrefix": "[steps('networking').identityVirtualNetwork.subnetAddressCidrRange]",
         "identitySubscriptionId": "[replace(steps('basics').identitySection.identitySubscriptionId, '/subscriptions/', '')]",
         "identityVirtualNetworkAddressPrefix": "[steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange]",
