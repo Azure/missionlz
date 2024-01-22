@@ -3,17 +3,10 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param name string
 param location string
-param tags object = {}
-
+param name string
 param securityRules array
-
-param logStorageAccountResourceId string
-param logAnalyticsWorkspaceResourceId string
-
-param logs array
-param metrics array
+param tags object
 
 resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-02-01' = {
   name: name
@@ -22,17 +15,6 @@ resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-02-0
 
   properties: {
     securityRules: securityRules
-  }
-}
-
-resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
-  scope: networkSecurityGroup
-  name: '${networkSecurityGroup.name}-diagnostics'
-  properties: {
-    storageAccountId: logStorageAccountResourceId
-    workspaceId: logAnalyticsWorkspaceResourceId
-    logs: logs
-    metrics: metrics
   }
 }
 

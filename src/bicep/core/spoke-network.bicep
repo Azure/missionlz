@@ -3,92 +3,52 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param location string = resourceGroup().location
-param tags object = {}
-
-param logStorageAccountName string
-param logStorageSkuName string
-
-param logAnalyticsWorkspaceResourceId string
-
-param firewallPrivateIPAddress string
-
-param virtualNetworkName string
-param virtualNetworkAddressPrefix string
-param virtualNetworkDiagnosticsLogs array
-param virtualNetworkDiagnosticsMetrics array
-param vNetDnsServers array
-
+param location string
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
-
-param networkSecurityGroupDiagnosticsLogs array
-param networkSecurityGroupDiagnosticsMetrics array
-
-param subnetName string
-param subnetAddressPrefix string
-param subnetServiceEndpoints array
-
-param routeTableName string = '${subnetName}-routetable'
+param routeTableName string
 param routeTableRouteName string = 'default_route'
 param routeTableRouteAddressPrefix string = '0.0.0.0/0'
-param routeTableRouteNextHopIpAddress string = firewallPrivateIPAddress
+param routeTableRouteNextHopIpAddress string
 param routeTableRouteNextHopType string = 'VirtualAppliance'
-
+param subnetAddressPrefix string
+param subnetName string
 param subnetPrivateEndpointNetworkPolicies string
 param subnetPrivateLinkServiceNetworkPolicies string
-
-module logStorage '../modules/storage-account.bicep' = {
-  name: 'logStorage'
-  params: {
-    storageAccountName: logStorageAccountName
-    location: location
-    skuName: logStorageSkuName
-    tags: tags
-  }
-}
+param tags object
+param virtualNetworkAddressPrefix string
+param virtualNetworkName string
+param vNetDnsServers array
 
 module networkSecurityGroup '../modules/network-security-group.bicep' = {
   name: 'networkSecurityGroup'
   params: {
-    name: networkSecurityGroupName
     location: location
-    tags: tags
-
+    name: networkSecurityGroupName
     securityRules: networkSecurityGroupRules
-    
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    logStorageAccountResourceId: logStorage.outputs.id
-
-    logs: networkSecurityGroupDiagnosticsLogs
-    metrics: networkSecurityGroupDiagnosticsMetrics
+    tags: tags
   }
 }
 
 module routeTable '../modules/route-table.bicep' = {
   name: 'routeTable'
   params: {
-    name: routeTableName
     location: location
-    tags: tags
-
-    routeName: routeTableRouteName
+    name: routeTableName
     routeAddressPrefix: routeTableRouteAddressPrefix
+    routeName: routeTableRouteName
     routeNextHopIpAddress: routeTableRouteNextHopIpAddress
     routeNextHopType: routeTableRouteNextHopType
+    tags: tags
   }
 }
 
 module virtualNetwork '../modules/virtual-network.bicep' = {
   name: 'virtualNetwork'
   params: {
-    name: virtualNetworkName
-    location: location
-    tags: tags
-
     addressPrefix: virtualNetworkAddressPrefix
-    vNetDnsServers: vNetDnsServers
-
+    location: location
+    name: virtualNetworkName
     subnets: [
       {
         name: subnetName
@@ -100,18 +60,13 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
           routeTable: {
             id: routeTable.outputs.id
           }
-          serviceEndpoints: subnetServiceEndpoints            
           privateEndpointNetworkPolicies: subnetPrivateEndpointNetworkPolicies
           privateLinkServiceNetworkPolicies: subnetPrivateLinkServiceNetworkPolicies
         }
       }
     ]
-
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    logStorageAccountResourceId: logStorage.outputs.id
-
-    logs: virtualNetworkDiagnosticsLogs
-    metrics: virtualNetworkDiagnosticsMetrics
+    tags: tags
+    vNetDnsServers: vNetDnsServers
   }
 }
 

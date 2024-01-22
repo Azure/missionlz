@@ -3,18 +3,12 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param name string
-param location string
-param tags object = {}
-
 param addressPrefix string
-param vNetDnsServers array = []
-param logAnalyticsWorkspaceResourceId string
-param logStorageAccountResourceId string
+param location string
+param name string
 param subnets array
-
-param logs array
-param metrics array
+param tags object
+param vNetDnsServers array
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' = {
   name: name
@@ -31,17 +25,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' = {
     dhcpOptions: vNetDnsServers != null ? {
       dnsServers: vNetDnsServers
     } : null
-  }
-}
-
-resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
-  scope: virtualNetwork
-  name: '${virtualNetwork.name}-diagnostics'
-  properties: {
-    storageAccountId: logStorageAccountResourceId
-    workspaceId: logAnalyticsWorkspaceResourceId
-    logs: logs
-    metrics: metrics
   }
 }
 

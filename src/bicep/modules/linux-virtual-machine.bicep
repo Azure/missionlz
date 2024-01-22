@@ -3,28 +3,28 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param name string
-param location string
-param tags object = {}
-
-param networkInterfaceName string
-
-param vmSize string
-param osDiskCreateOption string
-param osDiskType string
-param vmImagePublisher string
-param vmImageOffer string
-param vmImageSku string
-param vmImageVersion string
+@secure()
+@minLength(12)
+param adminPasswordOrKey string
 param adminUsername string
 @allowed([
   'sshPublicKey'
   'password'
 ])
 param authenticationType string
-@secure()
-@minLength(12)
-param adminPasswordOrKey string
+param diskEncryptionSetResourceId string
+param diskName string
+param location string
+param name string
+param networkInterfaceName string
+param osDiskCreateOption string
+param osDiskType string
+param tags object
+param vmImageOffer string
+param vmImagePublisher string
+param vmImageSku string
+param vmImageVersion string
+param vmSize string
 
 var linuxConfiguration = {
   disablePasswordAuthentication: true
@@ -43,33 +43,26 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' exist
   name: networkInterfaceName
 }
 
-resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   name: name
   location: location
   tags: tags
-
   properties: {
+    diagnosticsProfile: {
+      bootDiagnostics: {
+        enabled: false
+      }
+    }
     hardwareProfile: {
       vmSize: vmSize
-    }
-    storageProfile: {
-      osDisk: {
-        createOption: osDiskCreateOption
-        managedDisk: {
-          storageAccountType: osDiskType
-        }
-      }
-      imageReference: {
-        publisher: vmImagePublisher
-        offer: vmImageOffer
-        sku: vmImageSku
-        version: vmImageVersion
-      }
     }
     networkProfile: {
       networkInterfaces: [
         {
           id: networkInterface.id
+          properties: {
+            deleteOption: 'Delete'
+          }
         }
       ]
     }
@@ -79,23 +72,66 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = {
       adminPassword: adminPasswordOrKey
       linuxConfiguration: ((authenticationType == 'password') ? null : linuxConfiguration)
     }
+    securityProfile: {
+      uefiSettings: {
+        secureBootEnabled: true
+        vTpmEnabled: true
+      }
+      securityType: 'trustedLaunch'
+      encryptionAtHost: true
+    }
+    storageProfile: {
+      osDisk: {
+        caching: 'ReadWrite'
+        createOption: osDiskCreateOption
+        deleteOption: 'Delete'
+        managedDisk: {
+          diskEncryptionSet: {
+            id: diskEncryptionSetResourceId
+          }
+          storageAccountType: osDiskType
+        }
+        name: diskName
+        osType: 'Linux'
+      }
+      imageReference: {
+        publisher: vmImagePublisher
+        offer: vmImageOffer
+        sku: vmImageSku
+        version: vmImageVersion
+      }
+    }
+    licenseType: null
   }
 }
 
-resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-  name: '${virtualMachine.name}/Microsoft.Azure.NetworkWatcher'
+resource guestAttestationExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
+  parent: virtualMachine
+  name: 'GuestAttestation'
   location: location
   properties: {
-    publisher: 'Microsoft.Azure.NetworkWatcher'
-    type: 'NetworkWatcherAgentLinux'
-    typeHandlerVersion: '1.4'
+    publisher: 'Microsoft.Azure.Security.LinuxAttestation'
+    type: 'GuestAttestation'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    settings: {
+      AttestationConfig: {
+        MaaSettings: {
+          maaEndpoint: ''
+          maaTenantName: 'GuestAttestation'
+        }
+        AscSettings: {
+          ascReportingEndpoint: ''
+          ascReportingFrequency: ''
+        }
+        useCustomToken: 'false'
+        disableAlerts: 'false'
+      }
+    }
   }
-  dependsOn: [
-    policyExtension
-  ]
 }
 
-resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   parent: virtualMachine
   name: 'AzurePolicyforLinux'
   location: location
@@ -108,8 +144,23 @@ resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-0
   }
 }
 
+resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+  parent: virtualMachine
+  name: 'Microsoft.Azure.NetworkWatcher'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.NetworkWatcher'
+    type: 'NetworkWatcherAgentLinux'
+    typeHandlerVersion: '1.4'
+  }
+  dependsOn: [
+    policyExtension
+  ]
+}
+
 resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-  name: '${virtualMachine.name}/OMSExtension'
+  parent: virtualMachine
+  name: 'OMSExtension'
   location: location
   properties: {
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
@@ -128,8 +179,9 @@ resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' 
   ]
 }
 
-resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-  name: '${virtualMachine.name}/DependencyAgentLinux'
+resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+  parent: virtualMachine
+  name: 'DependencyAgentLinux'
   location: location
   properties: {
     publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
