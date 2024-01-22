@@ -424,7 +424,7 @@ param linuxVmImagePublisher string = 'Canonical'
 param linuxVmImageOffer string = 'UbuntuServer'
 
 @description('The image SKU of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "18.04-LTS".')
-param linuxVmImageSku string = '18.04-LTS'
+param linuxVmImageSku string = '18_04-lts-gen2'
 
 @description('The image version of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "latest".')
 param linuxVmImageVersion string = 'latest'
@@ -456,7 +456,7 @@ param windowsVmPublisher string = 'MicrosoftWindowsServer'
 param windowsVmOffer string = 'WindowsServer'
 
 @description('The SKU of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "2019-datacenter".')
-param windowsVmSku string = '2019-datacenter'
+param windowsVmSku string = '2019-datacenter-gensecond'
 
 @description('The version of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "latest".')
 param windowsVmVersion string = 'latest'
