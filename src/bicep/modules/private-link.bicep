@@ -18,13 +18,18 @@ var privateEndpointName = replace(logAnalyticsWorkspaceName, resourcePrefix, '${
 var privateEndpointNetworkInterfaceName = replace(logAnalyticsWorkspaceName, resourcePrefix, '${resourcePrefix}-nic')
 var privateLinkScopeName = replace(logAnalyticsWorkspaceName, resourcePrefix, '${resourcePrefix}-pls')
 
-resource privateLinkScope 'microsoft.insights/privateLinkScopes@2019-10-17-preview' = {
+resource privateLinkScope 'microsoft.insights/privateLinkScopes@2021-09-01' = {
   name: privateLinkScopeName
   location: 'global'
-  properties: {}
+  properties: {
+    accessModeSettings: {
+      ingestionAccessMode: 'Private'
+      queryAccessMode: 'Private'
+    }
+  }
 }
 
-resource scopedResource 'microsoft.insights/privateLinkScopes/scopedResources@2019-10-17-preview' = {
+resource scopedResource 'Microsoft.Insights/privateLinkScopes/scopedResources@2021-09-01' = {
   parent: privateLinkScope
   name: logAnalyticsWorkspaceName
   properties: {
@@ -55,8 +60,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   }
 }
 
-
-resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-07-01' = {
+resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-04-01' = {
   name: privateEndpointName
   parent: privateEndpoint
   properties: {
@@ -88,4 +92,3 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
     ]
   }
 }
-
