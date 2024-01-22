@@ -58,6 +58,9 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
       id: subnetResourceId
     }
   }
+  dependsOn: [
+    scopedResource
+  ]
 }
 
 resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-04-01' = {

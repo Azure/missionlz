@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "16684754708957299071"
+      "templateHash": "16320808462178016270"
     }
   },
   "parameters": {
@@ -6488,7 +6488,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "2378480114537074668"
+              "templateHash": "8449324246862763859"
             }
           },
           "parameters": {
@@ -6577,7 +6577,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('microsoft.insights/privateLinkScopes', variables('privateLinkScopeName'))]"
+                "[resourceId('microsoft.insights/privateLinkScopes', variables('privateLinkScopeName'))]",
+                "[resourceId('Microsoft.Insights/privateLinkScopes/scopedResources', variables('privateLinkScopeName'), parameters('logAnalyticsWorkspaceName'))]"
               ]
             },
             {
