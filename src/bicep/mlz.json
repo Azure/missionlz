@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "16553787041595370535"
+      "templateHash": "10148461992192012808"
     }
   },
   "parameters": {
@@ -7443,7 +7443,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "8181077966537772080"
+              "templateHash": "16121888738065093211"
             }
           },
           "parameters": {
@@ -7834,9 +7834,6 @@
                   "diskName": {
                     "value": "[parameters('linuxDiskName')]"
                   },
-                  "hybridUseBenefit": {
-                    "value": "[parameters('hybridUseBenefit')]"
-                  },
                   "location": {
                     "value": "[parameters('location')]"
                   },
@@ -7881,7 +7878,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "15673259361514742625"
+                      "templateHash": "14884645693106953752"
                     }
                   },
                   "parameters": {
@@ -7904,9 +7901,6 @@
                     },
                     "diskName": {
                       "type": "string"
-                    },
-                    "hybridUseBenefit": {
-                      "type": "bool"
                     },
                     "location": {
                       "type": "string"
@@ -8019,7 +8013,7 @@
                             "version": "[parameters('vmImageVersion')]"
                           }
                         },
-                        "licenseType": "[if(parameters('hybridUseBenefit'), 'Windows_Server', null())]"
+                        "licenseType": null
                       }
                     },
                     {

@@ -14,7 +14,6 @@ param adminUsername string
 param authenticationType string
 param diskEncryptionSetResourceId string
 param diskName string
-param hybridUseBenefit bool
 param location string
 param name string
 param networkInterfaceName string
@@ -102,7 +101,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
         version: vmImageVersion
       }
     }
-    licenseType: hybridUseBenefit ? 'Windows_Server' : null
+    licenseType: null
   }
 }
 

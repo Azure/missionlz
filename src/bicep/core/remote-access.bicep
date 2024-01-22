@@ -91,7 +91,6 @@ module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' = {
     authenticationType: linuxVmAuthenticationType
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     diskName: linuxDiskName
-    hybridUseBenefit: hybridUseBenefit
     location: location
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
     name: linuxVmName
