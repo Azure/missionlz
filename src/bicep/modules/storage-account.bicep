@@ -83,14 +83,12 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource privateEndpoints 'Microsoft.Network/privateEndpoints@2020-05-01' = [for (zone, i) in zones: {
+resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for (zone, i) in zones: {
   name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-pe-')}-${split(split(zone, '/')[8], '.')[1]}'
   location: location
   tags: tags
   properties: {
-    subnet: {
-      id: subnetResourceId
-    }
+    customNetworkInterfaceName: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-nic-')}-${split(split(zone, '/')[8], '.')[1]}'
     privateLinkServiceConnections: [
       {
         name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-nic-')}-${split(split(zone, '/')[8], '.')[1]}'
@@ -102,6 +100,9 @@ resource privateEndpoints 'Microsoft.Network/privateEndpoints@2020-05-01' = [for
         }
       }
     ]
+    subnet: {
+      id: subnetResourceId
+    }
   }
 }]
 
