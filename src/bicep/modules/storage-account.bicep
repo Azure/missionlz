@@ -97,7 +97,7 @@ resource privateEndpoints 'Microsoft.Network/privateEndpoints@2020-05-01' = [for
         properties: {
           privateLinkServiceId: storageAccount.id
           groupIds: [
-            'blob'
+            split(split(zone, '/')[8], '.')[1]
           ]
         }
       }
