@@ -3,95 +3,62 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-@description('The name of the resource the private endpoint is being created for')
+param agentsvcPrivateDnsZoneId string
+param location string = resourceGroup().location
 param logAnalyticsWorkspaceName string
-
-@description('The resource id of the resoure the private endpoint is being created for')
 param logAnalyticsWorkspaceResourceId string
-
-@description('The name of the subnet in the virtual network where the private endpoint will be placed')
-param privateEndpointSubnetName string
-
-@description('The name of the virtual network where the private endpoint will be placed')
-param privateEndpointVnetName string
-
-@description('The tags that will be associated to the VM')
+param monitorPrivateDnsZoneId string
+param odsPrivateDnsZoneId string
+param omsPrivateDnsZoneId string
+param resourcePrefix string
+param subnetResourceId string
 param tags object
 
-@description('Data used to append to resources to ensure uniqueness')
-param uniqueData string = substring(uniqueString(subscription().subscriptionId, deployment().name), 0, 8)
+var privateEndpointName = replace(logAnalyticsWorkspaceName, resourcePrefix, '${resourcePrefix}-pe')
+var privateEndpointNetworkInterfaceName = replace(logAnalyticsWorkspaceName, resourcePrefix, '${resourcePrefix}-nic')
+var privateLinkScopeName = replace(logAnalyticsWorkspaceName, resourcePrefix, '${resourcePrefix}-pls')
 
-@description('The name of the the resource group where the virtual network exists')
-param vnetResourceGroup string = resourceGroup().name
-
-@description('The subscription id of the subscription the virtual network exists in')
-param vnetSubscriptionId string = subscription().subscriptionId
-
-@description('The location of this resource')
-param location string = resourceGroup().location
-
-@description('Azure Monitor Private DNS Zone resource id')
-param monitorPrivateDnsZoneId string
-
-@description('OMS Private DNS Zone resource id')
-param omsPrivateDnsZoneId string
-
-@description('ODS Private DNS Zone resource id')
-param odsPrivateDnsZoneId string
-
-@description('Agentsvc Private DNS Zone resource id')
-param agentsvcPrivateDnsZoneId string
-
-var privateLinkConnectionName = take('plconn${logAnalyticsWorkspaceName}${uniqueData}', 80)
-var privateLinkEndpointName = take('pe${logAnalyticsWorkspaceName}${uniqueData}', 80)
-var privateLinkScopeName = take('plscope${logAnalyticsWorkspaceName}${uniqueData}', 80)
-var privateLinkScopeResourceName = take('plscres${logAnalyticsWorkspaceName}${uniqueData}', 80)
-
-resource globalPrivateLinkScope 'microsoft.insights/privateLinkScopes@2019-10-17-preview' = {
+resource privateLinkScope 'microsoft.insights/privateLinkScopes@2019-10-17-preview' = {
   name: privateLinkScopeName
   location: 'global'
   properties: {}
 }
 
-resource logAnalyticsWorkspacePrivateLinkScope 'microsoft.insights/privateLinkScopes/scopedResources@2019-10-17-preview' = {
-  name: '${privateLinkScopeName}/${privateLinkScopeResourceName}'
+resource scopedResource 'microsoft.insights/privateLinkScopes/scopedResources@2019-10-17-preview' = {
+  parent: privateLinkScope
+  name: logAnalyticsWorkspaceName
   properties: {
     linkedResourceId: logAnalyticsWorkspaceResourceId
   }
-  dependsOn: [
-    globalPrivateLinkScope
-  ]
 }
 
-resource subnetPrivateEndpoint 'Microsoft.Network/privateEndpoints@2020-07-01' = {
-  name: privateLinkEndpointName
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
+  name: privateEndpointName
   location: location
   tags: tags
   properties: {
-    subnet: {
-      id: resourceId(vnetSubscriptionId, vnetResourceGroup, 'Microsoft.Network/virtualNetworks/subnets', privateEndpointVnetName, privateEndpointSubnetName)
-    }
+    customNetworkInterfaceName: privateEndpointNetworkInterfaceName
     privateLinkServiceConnections: [
       {
-        name: privateLinkConnectionName
+        name: privateEndpointNetworkInterfaceName
         properties: {
-          privateLinkServiceId: globalPrivateLinkScope.id
+          privateLinkServiceId: privateLinkScope.id
           groupIds: [
             'azuremonitor'
           ]
         }
       }
     ]
+    subnet: {
+      id: subnetResourceId
+    }
   }
-  dependsOn: [
-    logAnalyticsWorkspacePrivateLinkScope
-  ]
 }
 
 
-resource dnsZonePrivateLinkEndpoint 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-07-01' = {
-  name: privateLinkEndpointName
-  parent: subnetPrivateEndpoint
+resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-07-01' = {
+  name: privateEndpointName
+  parent: privateEndpoint
   properties: {
     privateDnsZoneConfigs: [
       {
@@ -120,8 +87,5 @@ resource dnsZonePrivateLinkEndpoint 'Microsoft.Network/privateEndpoints/privateD
       }
     ]
   }
-  dependsOn: [
-    subnetPrivateEndpoint
-  ]
 }
 

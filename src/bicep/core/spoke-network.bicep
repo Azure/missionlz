@@ -6,7 +6,7 @@ Licensed under the MIT License.
 param location string
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
-param routeTableName string = '${subnetName}-routetable'
+param routeTableName string
 param routeTableRouteName string = 'default_route'
 param routeTableRouteAddressPrefix string = '0.0.0.0/0'
 param routeTableRouteNextHopIpAddress string

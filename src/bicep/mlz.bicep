@@ -549,7 +549,8 @@ var networkSecurityGroupNamingConvention = replace(namingConvention, resourceTok
 var networkWatcherNamingConvention = replace(namingConvention, resourceToken, 'nw')
 var publicIpAddressNamingConvention = replace(namingConvention, resourceToken, 'pip')
 var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
-var storageAccountNamingConvention = toLower('${resourcePrefix}st${nameToken}unique_storage_token')
+var routeTableNamingConvention = replace(namingConvention, resourceToken, 'rt')
+var storageAccountNamingConvention = toLower('${replace(replace(namingConvention, resourceToken, 'st'), '-', '')}unique_storage_token')
 var subnetNamingConvention = replace(namingConvention, resourceToken, 'snet')
 var userAssignedIdentityNamingConvention = replace(namingConvention, resourceToken, 'uaid')
 var virtualMachineNamingConvention = replace(namingConvention, resourceToken, 'vm')
@@ -559,12 +560,13 @@ var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'v
 
 var hubName = 'hub'
 var hubShortName = 'hub'
-var hubLogStorageAccountName = take(hubLogStorageAccountUniqueName, 23)
+var hubLogStorageAccountName = take(hubLogStorageAccountUniqueName, 24)
 var hubLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, hubShortName)
 var hubLogStorageAccountUniqueName = replace(hubLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, hubSubscriptionId))
 var hubNetworkWatcherName = replace(networkWatcherNamingConvention, nameToken, hubName)
 var hubNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, hubName)
 var hubResourceGroupName = replace(resourceGroupNamingConvention, nameToken, hubName)
+var hubRouteTableName = replace(routeTableNamingConvention, nameToken, hubName)
 var hubSubnetName = replace(subnetNamingConvention, nameToken, hubName)
 var hubVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, hubName)
 
@@ -572,13 +574,14 @@ var hubVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, h
 
 var identityName = 'identity'
 var identityShortName = 'id'
-var identityResourceGroupName = replace(resourceGroupNamingConvention, nameToken, identityName)
+var identityLogStorageAccountName = take(identityLogStorageAccountUniqueName, 24)
 var identityLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, identityShortName)
 var identityLogStorageAccountUniqueName = replace(identityLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, identitySubscriptionId))
-var identityLogStorageAccountName = take(identityLogStorageAccountUniqueName, 23)
-var identityVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, identityName)
 var identityNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, identityName)
+var identityResourceGroupName = replace(resourceGroupNamingConvention, nameToken, identityName)
+var identityRouteTableName = replace(routeTableNamingConvention, nameToken, identityName)
 var identitySubnetName = replace(subnetNamingConvention, nameToken, identityName)
+var identityVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, identityName)
 
 // OPERATIONS NAMES
 
@@ -586,26 +589,28 @@ var operationsName = 'operations'
 var operationsShortName = 'ops'
 var operationsDiskEncryptionSetName = replace(diskEncryptionSetNamingConvention, nameToken, operationsName)
 var operationsKeyVaultName = replace(keyVaultNamingConvention, nameToken, operationsShortName)
-var operationsResourceGroupName = replace(resourceGroupNamingConvention, nameToken, operationsName)
+var operationsLogStorageAccountName = take(operationsLogStorageAccountUniqueName, 24)
 var operationsLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, operationsShortName)
 var operationsLogStorageAccountUniqueName = replace(operationsLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, operationsSubscriptionId))
-var operationsLogStorageAccountName = take(operationsLogStorageAccountUniqueName, 23)
-var operationsVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, operationsName)
 var operationsNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, operationsName)
+var operationsResourceGroupName = replace(resourceGroupNamingConvention, nameToken, operationsName)
+var operationsRouteTableName = replace(routeTableNamingConvention, nameToken, operationsName)
 var operationsSubnetName = replace(subnetNamingConvention, nameToken, operationsName)
 var operationsUserAssignedIdentityName = replace(userAssignedIdentityNamingConvention, nameToken, operationsName)
+var operationsVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, operationsName)
 
 // SHARED SERVICES NAMES
 
 var sharedServicesName = 'sharedServices'
 var sharedServicesShortName = 'svcs'
-var sharedServicesResourceGroupName = replace(resourceGroupNamingConvention, nameToken, sharedServicesName)
+var sharedServicesLogStorageAccountName = take(sharedServicesLogStorageAccountUniqueName, 24)
 var sharedServicesLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, sharedServicesShortName)
 var sharedServicesLogStorageAccountUniqueName = replace(sharedServicesLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, sharedServicesSubscriptionId))
-var sharedServicesLogStorageAccountName = take(sharedServicesLogStorageAccountUniqueName, 23)
-var sharedServicesVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, sharedServicesName)
 var sharedServicesNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, sharedServicesName)
+var sharedServicesResourceGroupName = replace(resourceGroupNamingConvention, nameToken, sharedServicesName)
+var sharedServicesRouteTableName = replace(routeTableNamingConvention, nameToken, sharedServicesName)
 var sharedServicesSubnetName = replace(subnetNamingConvention, nameToken, sharedServicesName)
+var sharedServicesVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, sharedServicesName)
 
 // LOG ANALYTICS NAMES
 
@@ -662,6 +667,7 @@ var spokes = [
     networkSecurityGroupRules: identityNetworkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: identityNetworkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
+    routeTableName: identityRouteTableName
     subnetName: identitySubnetName
     subnetAddressPrefix: identitySubnetAddressPrefix
     subnetPrivateEndpointNetworkPolicies: 'Disabled'
@@ -680,6 +686,7 @@ var spokes = [
     networkSecurityGroupRules: operationsNetworkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: operationsNetworkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: operationsNetworkSecurityGroupDiagnosticsMetrics
+    routeTableName: operationsRouteTableName
     subnetName: operationsSubnetName
     subnetAddressPrefix: operationsSubnetAddressPrefix
     subnetPrivateEndpointNetworkPolicies: 'Disabled'
@@ -698,6 +705,7 @@ var spokes = [
     networkSecurityGroupRules: sharedServicesNetworkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: sharedServicesNetworkSecurityGroupDiagnosticsMetrics
+    routeTableName: sharedServicesRouteTableName
     subnetName: sharedServicesSubnetName
     subnetAddressPrefix: sharedServicesSubnetAddressPrefix
     subnetPrivateEndpointNetworkPolicies: 'Disabled'
@@ -799,6 +807,7 @@ module hubNetwork './core/hub-network.bicep' = {
     networkSecurityGroupName: hubNetworkSecurityGroupName
     networkSecurityGroupRules: hubNetworkSecurityGroupRules
     networkWatcherName: hubNetworkWatcherName
+    routeTableName: hubRouteTableName
     subnetAddressPrefix: hubSubnetAddressPrefix
     subnetName: hubSubnetName
     tags: calculatedTags
@@ -820,6 +829,7 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
     location: location
     networkSecurityGroupName: spoke.networkSecurityGroupName
     networkSecurityGroupRules: spoke.networkSecurityGroupRules
+    routeTableName: spoke.routeTableName
     routeTableRouteNextHopIpAddress: firewallClientPrivateIpAddress
     subnetAddressPrefix: spoke.subnetAddressPrefix
     subnetName: spoke.subnetName
@@ -997,14 +1007,14 @@ module azureMonitorPrivateLink './modules/private-link.bicep' = if (contains(sup
   params: {
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
-    privateEndpointSubnetName: operationsSubnetName
-    privateEndpointVnetName: operationsVirtualNetworkName
     monitorPrivateDnsZoneId: privateDnsZones.outputs.monitorPrivateDnsZoneId
     omsPrivateDnsZoneId: privateDnsZones.outputs.omsPrivateDnsZoneId
     odsPrivateDnsZoneId: privateDnsZones.outputs.odsPrivateDnsZoneId
     agentsvcPrivateDnsZoneId: privateDnsZones.outputs.agentsvcPrivateDnsZoneId
     location: location
     tags: tags
+    resourcePrefix: resourcePrefix
+    subnetResourceId: spokeNetworks[1].outputs.subnetResourceId
   }
   dependsOn: [
     logAnalyticsWorkspace
