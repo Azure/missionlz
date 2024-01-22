@@ -32,17 +32,15 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-05-01' = {
-  name: replace(keyVaultName, resourcePrefix, '${resourcePrefix}-pe-')
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
+  name: replace(keyVaultName, resourcePrefix, '${resourcePrefix}-pe')
   location: location
   tags: tags
   properties: {
-    subnet: {
-      id: subnetResourceId
-    }
+    customNetworkInterfaceName: replace(keyVaultName, resourcePrefix, '${resourcePrefix}-nic')
     privateLinkServiceConnections: [
       {
-        name: replace(keyVaultName, resourcePrefix, '${resourcePrefix}-nic-')
+        name: replace(keyVaultName, resourcePrefix, '${resourcePrefix}-nic')
         properties: {
           privateLinkServiceId: vault.id
           groupIds: [
@@ -51,6 +49,9 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-05-01' = {
         }
       }
     ]
+    subnet: {
+      id: subnetResourceId
+    }
   }
 }
 
