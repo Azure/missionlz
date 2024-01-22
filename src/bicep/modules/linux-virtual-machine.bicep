@@ -105,6 +105,19 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   }
 }
 
+resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+  parent: virtualMachine
+  name: 'AzurePolicyforLinux'
+  location: location
+  properties: {
+    publisher: 'Microsoft.GuestConfiguration'
+    type: 'ConfigurationforLinux'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
+  }
+}
+
 resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   parent: virtualMachine
   name: 'Microsoft.Azure.NetworkWatcher'
@@ -119,20 +132,7 @@ resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01
   ]
 }
 
-resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
-  parent: virtualMachine
-  name: 'AzurePolicyforLinux'
-  location: location
-  properties: {
-    publisher: 'Microsoft.GuestConfiguration'
-    type: 'ConfigurationforLinux'
-    typeHandlerVersion: '1.0'
-    autoUpgradeMinorVersion: true
-    enableAutomaticUpgrade: true
-  }
-}
-
-resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
   parent: virtualMachine
   name: 'OMSExtension'
   location: location
