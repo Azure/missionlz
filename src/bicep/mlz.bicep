@@ -904,6 +904,85 @@ module operationsCustomerManagedKeys './core/operations-customer-managed-keys.bi
   ]
 }
 
+// AZURE MONITOR
+
+module azureMonitor './modules/azure-monitor.bicep' = if (contains(supportedClouds, environment().name)) {
+  name: 'deploy-azure-monitor-${deploymentNameSuffix}'
+  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
+  params: {
+    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
+    monitorPrivateDnsZoneId: privateDnsZones.outputs.monitorPrivateDnsZoneId
+    omsPrivateDnsZoneId: privateDnsZones.outputs.omsPrivateDnsZoneId
+    odsPrivateDnsZoneId: privateDnsZones.outputs.odsPrivateDnsZoneId
+    agentsvcPrivateDnsZoneId: privateDnsZones.outputs.agentsvcPrivateDnsZoneId
+    location: location
+    tags: tags
+    resourcePrefix: resourcePrefix
+    subnetResourceId: spokeNetworks[1].outputs.subnetResourceId
+  }
+  dependsOn: [
+    logAnalyticsWorkspace
+    privateDnsZones
+    spokeNetworks
+  ]
+}
+
+// REMOTE ACCESS
+
+module remoteAccess './core/remote-access.bicep' = if (deployRemoteAccess) {
+  name: 'deploy-remote-access-${deploymentNameSuffix}'
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  params: {
+    bastionHostIPConfigurationName: bastionHostIPConfigurationName
+    bastionHostName: bastionHostName
+    bastionHostPublicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
+    bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
+    bastionHostPublicIPAddressName: bastionHostPublicIPAddressName
+    bastionHostPublicIPAddressSkuName: bastionHostPublicIPAddressSkuName
+    bastionHostSubnetResourceId: hubNetwork.outputs.bastionHostSubnetResourceId
+    hubNetworkSecurityGroupResourceId: hubNetwork.outputs.networkSecurityGroupResourceId
+    hubSubnetResourceId: hubNetwork.outputs.subnetResourceId
+    linuxNetworkInterfaceIpConfigurationName: linuxNetworkInterfaceIpConfigurationName
+    linuxNetworkInterfaceName: linuxNetworkInterfaceName
+    linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
+    linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
+    linuxVmAdminUsername: linuxVmAdminUsername
+    linuxVmAuthenticationType: linuxVmAuthenticationType
+    linuxVmImageOffer: linuxVmImageOffer
+    linuxVmImagePublisher: linuxVmImagePublisher
+    linuxVmImageSku: linuxVmImageSku
+    linuxVmImageVersion: linuxVmImageVersion
+    linuxVmName: linuxVmName
+    linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
+    linuxVmOsDiskType: linuxVmOsDiskType
+    linuxVmSize: linuxVmSize
+    location: location
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    tags: tags
+    windowsNetworkInterfaceIpConfigurationName: windowsNetworkInterfaceIpConfigurationName
+    windowsNetworkInterfaceName: windowsNetworkInterfaceName
+    windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
+    windowsVmAdminPassword: windowsVmAdminPassword
+    windowsVmAdminUsername: windowsVmAdminUsername
+    windowsVmCreateOption: windowsVmCreateOption
+    windowsVmName: windowsVmName
+    windowsVmOffer: windowsVmOffer
+    windowsVmPublisher: windowsVmPublisher
+    windowsVmSize: windowsVmSize
+    windowsVmSku: windowsVmSku
+    windowsVmStorageAccountType: windowsVmStorageAccountType
+    windowsVmVersion: windowsVmVersion
+    diskEncryptionSetResourceId: operationsCustomerManagedKeys.outputs.diskEncryptionSetResourceId
+    hybridUseBenefit: hybridUseBenefit
+    linuxDiskName: linuxDiskName
+    windowsDiskName: windowsDiskName
+  }
+  dependsOn: [
+    azureMonitor
+  ]
+}
+
 // HUB LOGGING STORAGE
 
 module hubStorage './core/hub-storage.bicep' = {
@@ -922,6 +1001,9 @@ module hubStorage './core/hub-storage.bicep' = {
     tags: calculatedTags
     userAssignedIdentityResourceId: operationsCustomerManagedKeys.outputs.userAssignedIdentityResourceId
   }
+  dependsOn: [
+    remoteAccess
+  ]
 }
 
 // SPOKE LOGGING STORAGE
@@ -942,6 +1024,9 @@ module spokeStorage './core/spoke-storage.bicep' = [for (spoke, i) in spokes: {
     tags: tags
     userAssignedIdentityResourceId: operationsCustomerManagedKeys.outputs.userAssignedIdentityResourceId
   }
+  dependsOn: [
+    remoteAccess
+  ]
 }]
 
 // HUB DIAGONSTIC LOGGING
@@ -998,28 +1083,6 @@ module hubSubscriptionActivityLogging './modules/central-logging.bicep' = {
   }
   dependsOn: [
     hubNetwork
-  ]
-}
-
-module azureMonitorPrivateLink './modules/private-link.bicep' = if (contains(supportedClouds, environment().name)) {
-  name: 'deploy-azure-monitor-private-link-${deploymentNameSuffix}'
-  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
-  params: {
-    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
-    monitorPrivateDnsZoneId: privateDnsZones.outputs.monitorPrivateDnsZoneId
-    omsPrivateDnsZoneId: privateDnsZones.outputs.omsPrivateDnsZoneId
-    odsPrivateDnsZoneId: privateDnsZones.outputs.odsPrivateDnsZoneId
-    agentsvcPrivateDnsZoneId: privateDnsZones.outputs.agentsvcPrivateDnsZoneId
-    location: location
-    tags: tags
-    resourcePrefix: resourcePrefix
-    subnetResourceId: spokeNetworks[1].outputs.subnetResourceId
-  }
-  dependsOn: [
-    logAnalyticsWorkspace
-    privateDnsZones
-    spokeNetworks
   ]
 }
 
@@ -1094,61 +1157,6 @@ module spokeDefender './modules/defender.bicep' = [for spoke in spokes: if ((dep
     defenderSkuTier: defenderSkuTier
   }
 }]
-
-// REMOTE ACCESS
-
-module remoteAccess './core/remote-access.bicep' = if (deployRemoteAccess) {
-  name: 'deploy-remote-access-${deploymentNameSuffix}'
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  params: {
-    bastionHostIPConfigurationName: bastionHostIPConfigurationName
-    bastionHostName: bastionHostName
-    bastionHostPublicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
-    bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-    bastionHostPublicIPAddressName: bastionHostPublicIPAddressName
-    bastionHostPublicIPAddressSkuName: bastionHostPublicIPAddressSkuName
-    bastionHostSubnetResourceId: hubNetwork.outputs.bastionHostSubnetResourceId
-    hubNetworkSecurityGroupResourceId: hubNetwork.outputs.networkSecurityGroupResourceId
-    hubSubnetResourceId: hubNetwork.outputs.subnetResourceId
-    linuxNetworkInterfaceIpConfigurationName: linuxNetworkInterfaceIpConfigurationName
-    linuxNetworkInterfaceName: linuxNetworkInterfaceName
-    linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
-    linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
-    linuxVmAdminUsername: linuxVmAdminUsername
-    linuxVmAuthenticationType: linuxVmAuthenticationType
-    linuxVmImageOffer: linuxVmImageOffer
-    linuxVmImagePublisher: linuxVmImagePublisher
-    linuxVmImageSku: linuxVmImageSku
-    linuxVmImageVersion: linuxVmImageVersion
-    linuxVmName: linuxVmName
-    linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
-    linuxVmOsDiskType: linuxVmOsDiskType
-    linuxVmSize: linuxVmSize
-    location: location
-    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
-    tags: tags
-    windowsNetworkInterfaceIpConfigurationName: windowsNetworkInterfaceIpConfigurationName
-    windowsNetworkInterfaceName: windowsNetworkInterfaceName
-    windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
-    windowsVmAdminPassword: windowsVmAdminPassword
-    windowsVmAdminUsername: windowsVmAdminUsername
-    windowsVmCreateOption: windowsVmCreateOption
-    windowsVmName: windowsVmName
-    windowsVmOffer: windowsVmOffer
-    windowsVmPublisher: windowsVmPublisher
-    windowsVmSize: windowsVmSize
-    windowsVmSku: windowsVmSku
-    windowsVmStorageAccountType: windowsVmStorageAccountType
-    windowsVmVersion: windowsVmVersion
-    diskEncryptionSetResourceId: operationsCustomerManagedKeys.outputs.diskEncryptionSetResourceId
-    hybridUseBenefit: hybridUseBenefit
-    linuxDiskName: linuxDiskName
-    windowsDiskName: windowsDiskName
-  }
-  dependsOn: [
-    azureMonitorPrivateLink
-  ]
-}
 
 /*
 
