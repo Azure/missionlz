@@ -514,9 +514,11 @@ param emailSecurityContact string = ''
 
 */
 
+var locations = (loadJsonContent('data/locations.json'))[environment().name]
+var locationAbbreviation = locations[location].abbreviation
 var resourceToken = 'resource_token'
 var nameToken = 'name_token'
-var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
+var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}-${locationAbbreviation}'
 
 /*
 
