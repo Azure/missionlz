@@ -165,7 +165,7 @@ resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' 
   properties: {
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
     type: 'OmsAgentForLinux'
-    typeHandlerVersion: '1.13'
+    typeHandlerVersion: '1.17'
     settings: {
       workspaceId: reference(logAnalyticsWorkspaceId , '2015-11-01-preview').customerId
       stopOnMultipleConnections: true
