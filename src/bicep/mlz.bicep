@@ -18,8 +18,8 @@ targetScope = 'subscription'
 // REQUIRED PARAMETERS
 
 @minLength(3)
-@maxLength(10)
-@description('A prefix, 3-10 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
+@maxLength(6)
+@description('A prefix, 3-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
 param resourcePrefix string
 
 @minLength(3)

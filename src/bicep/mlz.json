@@ -5,16 +5,16 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "6733078488232120276"
+      "templateHash": "11783352289111650944"
     }
   },
   "parameters": {
     "resourcePrefix": {
       "type": "string",
       "minLength": 3,
-      "maxLength": 10,
+      "maxLength": 6,
       "metadata": {
-        "description": "A prefix, 3-10 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces"
+        "description": "A prefix, 3-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces"
       }
     },
     "resourceSuffix": {
