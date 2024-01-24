@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "11783352289111650944"
+      "templateHash": "2150776309753846228"
     }
   },
   "parameters": {
@@ -8760,7 +8760,7 @@
       "condition": "[and(parameters('deployDefender'), not(equals(variables('spokes')[copyIndex()].subscriptionId, parameters('hubSubscriptionId'))))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('set-{0}-sub-defender', variables('spokes')[copyIndex()].name)]",
+      "name": "[format('set-{0}-sub-defender-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('spokes')[copyIndex()].subscriptionId]",
       "location": "[deployment().location]",
       "properties": {
