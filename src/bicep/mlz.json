@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "2150776309753846228"
+      "templateHash": "7889693018590170190"
     }
   },
   "parameters": {
@@ -3589,7 +3589,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "15825906422669965879"
+              "templateHash": "7144753336729388863"
             }
           },
           "parameters": {
@@ -3625,7 +3625,7 @@
               {
                 "name": "privatelink_backup_names",
                 "count": "[length(items(variables('locations')))]",
-                "input": "[format('privatelink.backup.{0}.{1}', items(variables('locations'))[copyIndex('privatelink_backup_names')].value.recoveryServicesGeo, variables('cloudSuffix'))]"
+                "input": "[format('privatelink.{0}.backup.{1}', items(variables('locations'))[copyIndex('privatelink_backup_names')].value.recoveryServicesGeo, variables('cloudSuffix'))]"
               }
             ],
             "$fxv#0": {
