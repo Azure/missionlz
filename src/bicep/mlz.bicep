@@ -530,7 +530,7 @@ var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}
   `storageAccountNamingConvention` is a unique naming convention:
     
     In an effort to reduce the likelihood of naming collisions, 
-    we replace `unique_storage_token` with a uniqueString() calculated by resourcePrefix, resourceSuffix, and the subscription ID
+    we replace `unique_token` with a uniqueString() calculated by resourcePrefix, resourceSuffix, and the subscription ID
 
 */
 
@@ -541,7 +541,7 @@ var diskEncryptionSetNamingConvention = replace(namingConvention, resourceToken,
 var diskNamingConvention = replace(namingConvention, resourceToken, 'disk')
 var firewallNamingConvention = replace(namingConvention, resourceToken, 'afw')
 var firewallPolicyNamingConvention = replace(namingConvention, resourceToken, 'afwp')
-var keyVaultNamingConvention = replace(namingConvention, resourceToken, 'kv')
+var keyVaultNamingConvention = '${replace(replace(namingConvention, resourceToken, 'kv'), '-', '')}unique_token'
 var ipConfigurationNamingConvention = replace(namingConvention, resourceToken, 'ipconf')
 var logAnalyticsWorkspaceNamingConvention = replace(namingConvention, resourceToken, 'log')
 var networkInterfaceNamingConvention = replace(namingConvention, resourceToken, 'nic')
@@ -550,7 +550,7 @@ var networkWatcherNamingConvention = replace(namingConvention, resourceToken, 'n
 var publicIpAddressNamingConvention = replace(namingConvention, resourceToken, 'pip')
 var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
 var routeTableNamingConvention = replace(namingConvention, resourceToken, 'rt')
-var storageAccountNamingConvention = toLower('${replace(replace(namingConvention, resourceToken, 'st'), '-', '')}unique_storage_token')
+var storageAccountNamingConvention = toLower('${replace(replace(namingConvention, resourceToken, 'st'), '-', '')}unique_token')
 var subnetNamingConvention = replace(namingConvention, resourceToken, 'snet')
 var userAssignedIdentityNamingConvention = replace(namingConvention, resourceToken, 'uaid')
 var virtualMachineNamingConvention = replace(namingConvention, resourceToken, 'vm')
@@ -562,7 +562,7 @@ var hubName = 'hub'
 var hubShortName = 'hub'
 var hubLogStorageAccountName = take(hubLogStorageAccountUniqueName, 24)
 var hubLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, hubShortName)
-var hubLogStorageAccountUniqueName = replace(hubLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, hubSubscriptionId))
+var hubLogStorageAccountUniqueName = replace(hubLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, hubSubscriptionId))
 var hubNetworkWatcherName = replace(networkWatcherNamingConvention, nameToken, hubName)
 var hubNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, hubName)
 var hubResourceGroupName = replace(resourceGroupNamingConvention, nameToken, hubName)
@@ -576,7 +576,7 @@ var identityName = 'identity'
 var identityShortName = 'id'
 var identityLogStorageAccountName = take(identityLogStorageAccountUniqueName, 24)
 var identityLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, identityShortName)
-var identityLogStorageAccountUniqueName = replace(identityLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, identitySubscriptionId))
+var identityLogStorageAccountUniqueName = replace(identityLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, identitySubscriptionId))
 var identityNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, identityName)
 var identityResourceGroupName = replace(resourceGroupNamingConvention, nameToken, identityName)
 var identityRouteTableName = replace(routeTableNamingConvention, nameToken, identityName)
@@ -588,10 +588,12 @@ var identityVirtualNetworkName = replace(virtualNetworkNamingConvention, nameTok
 var operationsName = 'operations'
 var operationsShortName = 'ops'
 var operationsDiskEncryptionSetName = replace(diskEncryptionSetNamingConvention, nameToken, operationsName)
-var operationsKeyVaultName = replace(keyVaultNamingConvention, nameToken, operationsShortName)
+var operationsKeyVaultName = take(operationsKeyVaultUniqueName, 24)
+var operationsKeyVaultShortName = replace(keyVaultNamingConvention, nameToken, operationsShortName)
+var operationsKeyVaultUniqueName = replace(operationsKeyVaultShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, operationsSubscriptionId))
 var operationsLogStorageAccountName = take(operationsLogStorageAccountUniqueName, 24)
 var operationsLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, operationsShortName)
-var operationsLogStorageAccountUniqueName = replace(operationsLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, operationsSubscriptionId))
+var operationsLogStorageAccountUniqueName = replace(operationsLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, operationsSubscriptionId))
 var operationsNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, operationsName)
 var operationsResourceGroupName = replace(resourceGroupNamingConvention, nameToken, operationsName)
 var operationsRouteTableName = replace(routeTableNamingConvention, nameToken, operationsName)
@@ -605,7 +607,7 @@ var sharedServicesName = 'sharedServices'
 var sharedServicesShortName = 'svcs'
 var sharedServicesLogStorageAccountName = take(sharedServicesLogStorageAccountUniqueName, 24)
 var sharedServicesLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, sharedServicesShortName)
-var sharedServicesLogStorageAccountUniqueName = replace(sharedServicesLogStorageAccountShortName, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, sharedServicesSubscriptionId))
+var sharedServicesLogStorageAccountUniqueName = replace(sharedServicesLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, sharedServicesSubscriptionId))
 var sharedServicesNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, sharedServicesName)
 var sharedServicesResourceGroupName = replace(resourceGroupNamingConvention, nameToken, sharedServicesName)
 var sharedServicesRouteTableName = replace(routeTableNamingConvention, nameToken, sharedServicesName)
