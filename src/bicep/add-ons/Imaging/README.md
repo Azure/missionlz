@@ -124,7 +124,7 @@ Type: String
 
 #### -ContainerName
 
-Specifies the container name where files, and scripts will be uploaded and consumed during the image process.
+Specifies the container name where files, and scripts will be uploaded.
 
 ```yaml
 Type: String
