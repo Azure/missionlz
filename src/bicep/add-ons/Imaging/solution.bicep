@@ -12,6 +12,9 @@ param automationAccountName string
 @description('The private DNS zone resource ID for the automation account resource.')
 param automationAccountPrivateDnsZoneResourceId string
 
+@description('The name of the Azure Firewall.')
+param azureFirewallName string
+
 @description('The resource ID of the compute gallery image.')
 param computeGalleryImageResourceId string = ''
 
@@ -30,6 +33,14 @@ param diskEncryptionSetResourceId string = ''
 @description('The distribution group for email notifications.')
 param distributionGroup string = ''
 
+
+@description('Defender for Cloud enabled.')
+param deployDefender bool = false
+
+@description('Deploy Policy enabled.')
+param deployPolicy bool = false
+
+
 @description('The suffix to append to deployment names.')
 param deploymentNameSuffix string = utcNow('yyMMddHHs')
 
@@ -43,14 +54,29 @@ param domainJoinUserPrincipalName string = ''
 @description('The domain name to join.')
 param domainName string = ''
 
+@description('The email address for the security contact.')
+param emailSecurityContact string
+
 @description('Determines whether to enable build automation.')
 param enableBuildAutomation bool
 
 @description('Determines whether to exclude the image from the latest version.')
 param excludeFromLatest bool = true
 
+@description('Determines whether to use an existing resource group.')
+param existingResourceGroup bool = false
+
 @description('The array of policy assignment IDs to exempt to prevent issues with the build process.')
 param exemptPolicyAssignmentIds array = []
+
+@description('The hub resource group name.')
+param hubResourceGroupName string
+
+@description('The name of hub subscription.')
+param hubSubscriptionId string
+
+@description('The hub virtual network name.')
+param hubVirtualNetworkName string
 
 @description('Determines whether to use the hybrid use benefit.')
 param hybridUseBenefit bool
@@ -128,10 +154,11 @@ param location string = deployment().location
 @description('The resource ID of the log analytics workspace if using build automation and desired.')
 param logAnalyticsWorkspaceResourceId string = ''
 
+@description('The log analytics workspace name.')
+param logAnalyticsWorkspaceName string
 
 @description('The resource ID of the log analytics workspace if using build automation and desired.')
 param spokelogAnalyticsWorkspaceResourceId string
-
 
 @description('The marketplace image offer.')
 param marketplaceImageOffer string = ''
@@ -145,20 +172,24 @@ param marketplaceImageSKU string = ''
 @description('The file name of the msrdcwebrtcsvc installer in Azure Blobs.')
 param msrdcwebrtcsvcInstaller string = ''
 
-@description('Determines whether to use an existing resource group.')
-param existingResourceGroup bool = false
-
 @description('The file name of the Office installer in Azure Blobs.')
 param officeInstaller string = ''
 
 @description('The distinguished name of the organizational unit to join.')
 param oUPath string = ''
 
+@description('The policy name')
+param policy string = ''
+
 @description('The count of replicas for the image version resource.')
 param replicaCount int
 
 @description('The name of the resource group.')
 param resourceGroupName string
+
+@description('The prefix for the resource names.')
+param resourcePrefix string
+
 
 @allowed([
   'AzureComputeGallery'
@@ -169,6 +200,9 @@ param sourceImageType string
 
 @description('The resource ID of the storage account where the installers and scripts are stored in Azure Blobs.')
 param storageAccountResourceId string
+
+@description('The subnet address prefix.')
+param subnetAddressPrefix string
 
 @description('The key value pairs of meta data to apply to the resources.')
 param tags object = {}
@@ -185,35 +219,14 @@ param vcRedistInstaller string = ''
 @description('The file name of the vDOT installer in Azure Blobs.')
 param vDOTInstaller string = ''
 
+@description('The virtual network address prefix.')
+param virtualNetworkAddressPrefix string
+
 @description('The size of the image virtual machine.')
 param virtualMachineSize string
 
-param deployDefender bool = false
-
-param deployPolicy bool = false
-
-param emailSecurityContact string
-
-param hubSubscriptionId string
-
-param hubVirtualNetworkName string
-
-param logAnalyticsWorkspaceName string
-
-param policy string = ''
-
-param resourcePrefix string
-
-param hubResourceGroupName string
-
-param subnetAddressPrefix string
-
-param virtualNetworkAddressPrefix string
-
+@description('The workload subscription id.')
 param workloadSubscriptionId string
-
-@description('The name of the Azure Firewall.')
-param azureFirewallName string
 
 var imageDefinitionName = empty(computeGalleryImageResourceId) ? '${imageDefinitionNamePrefix}-${marketplaceImageSKU}' : '${imageDefinitionNamePrefix}-${split(computeGalleryImageResourceId, '/')[10]}'
 var imageVirtualMachineName = take('vmimg-${uniqueString(deploymentNameSuffix)}', 15)
