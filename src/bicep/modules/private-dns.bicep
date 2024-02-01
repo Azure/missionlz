@@ -16,21 +16,36 @@ param vnetSubscriptionId string = subscription().subscriptionId
 param tags object
 
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
-var automationSuffix = replace(environment().suffixes.storage, 'core.windows.', '')
 var locations = (loadJsonContent('../data/locations.json'))[environment().name]
-var privatelink_agentsvc_azure_automation_name = 'privatelink.agentsvc.azure-automation.${automationSuffix}'
-var privatelink_azure_automation_name = 'privatelink.azure-automation.${automationSuffix}'
-var privatelink_avd_name = 'privatelink.wvd.${cloudSuffix}'
-var privatelink_avd_global_name = 'privatelink-global.wvd.${cloudSuffix}'
-var privatelink_backup_names = [for location in items(locations): 'privatelink.${location.value.recoveryServicesGeo}.backup.${cloudSuffix}']
+var privatelink_agentsvc_azure_automation_name = 'privatelink.agentsvc.azure-automation.${privatelink_azure_automation_suffixes[environment().name] ?? cloudSuffix}'
+var privatelink_azure_automation_suffixes = {
+  AzureCloud: 'net'
+  AzureUSGovernment: 'us'
+}
+var privatelink_azure_automation_name = 'privatelink.azure-automation.${privatelink_azure_automation_suffixes[environment().name] ?? cloudSuffix}'
+var privatelink_avd_suffixes = {
+  AzureCloud: 'microsoft.com'
+  AzureUSGovernment: 'azure.us'
+}
+var privatelink_avd_name = 'privatelink.wvd.${privatelink_avd_suffixes[environment().name] ?? cloudSuffix}'
+var privatelink_avd_global_name = 'privatelink-global.wvd.${privatelink_avd_suffixes[environment().name] ?? cloudSuffix}'
+var privatelink_backup_suffixes = {
+  AzureCloud: 'windowsazure.com'
+  AzureUSGovernment: 'windowsazure.us'
+}
+var privatelink_backup_names = [for location in items(locations): 'privatelink.${location.value.recoveryServicesGeo}.backup.${privatelink_backup_suffixes[environment().name] ?? cloudSuffix}']
 var privatelink_file_name = 'privatelink.file.${environment().suffixes.storage}'
 var privatelink_queue_name = 'privatelink.queue.${environment().suffixes.storage}'
 var privatelink_table_name = 'privatelink.table.${environment().suffixes.storage}'
 var privatelink_blob_name = 'privatelink.blob.${environment().suffixes.storage}'
 var privatelink_keyvaultDns_name = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
-var privatelink_monitor_name = 'privatelink.monitor.${cloudSuffix}'
-var privatelink_ods_opinsights_name = 'privatelink.ods.opinsights.${cloudSuffix}'
-var privatelink_oms_opinsights_name = 'privatelink.oms.opinsights.${cloudSuffix}'
+var privatelink_monitor_suffixes = {
+  AzureCloud: 'azure.com'
+  AzureUSGovernment: 'azure.us'
+}
+var privatelink_monitor_name = 'privatelink.monitor.${privatelink_monitor_suffixes[environment().name] ?? cloudSuffix}'
+var privatelink_ods_opinsights_name = 'privatelink.ods.opinsights.${privatelink_monitor_suffixes[environment().name] ?? cloudSuffix}'
+var privatelink_oms_opinsights_name = 'privatelink.oms.opinsights.${privatelink_monitor_suffixes[environment().name] ?? cloudSuffix}'
 
 resource privateDnsZone_avd 'Microsoft.Network/privateDnsZones@2018-09-01' = {
   name: privatelink_avd_name
