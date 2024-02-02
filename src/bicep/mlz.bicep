@@ -48,6 +48,9 @@ param supportedClouds array = [
   'AzureUSGovernment'
 ]
 
+@description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
+param deployIdentity bool
+
 // RESOURCE NAMING PARAMETERS
 
 @description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
@@ -655,26 +658,8 @@ var bastionHostPublicIPAddressAllocationMethod = 'Static'
 
 // SPOKES
 
-var spokes = [
-  {
-    name: identityName
-    subscriptionId: identitySubscriptionId
-    resourceGroupName: identityResourceGroupName
-    logStorageAccountName: identityLogStorageAccountName
-    virtualNetworkName: identityVirtualNetworkName
-    virtualNetworkAddressPrefix: identityVirtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: identityVirtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: identityVirtualNetworkDiagnosticsMetrics
-    networkSecurityGroupName: identityNetworkSecurityGroupName
-    networkSecurityGroupRules: identityNetworkSecurityGroupRules
-    networkSecurityGroupDiagnosticsLogs: identityNetworkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
-    routeTableName: identityRouteTableName
-    subnetName: identitySubnetName
-    subnetAddressPrefix: identitySubnetAddressPrefix
-    subnetPrivateEndpointNetworkPolicies: 'Disabled'
-    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
-  }
+var spokes = union(spokesCommon, spokesIdentity)
+var spokesCommon = [
   {
     name: operationsName
     subscriptionId: operationsSubscriptionId
@@ -714,6 +699,27 @@ var spokes = [
     subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
   }
 ]
+var spokesIdentity = deployIdentity ? [
+  {
+    name: identityName
+    subscriptionId: identitySubscriptionId
+    resourceGroupName: identityResourceGroupName
+    logStorageAccountName: identityLogStorageAccountName
+    virtualNetworkName: identityVirtualNetworkName
+    virtualNetworkAddressPrefix: identityVirtualNetworkAddressPrefix
+    virtualNetworkDiagnosticsLogs: identityVirtualNetworkDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: identityVirtualNetworkDiagnosticsMetrics
+    networkSecurityGroupName: identityNetworkSecurityGroupName
+    networkSecurityGroupRules: identityNetworkSecurityGroupRules
+    networkSecurityGroupDiagnosticsLogs: identityNetworkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
+    routeTableName: identityRouteTableName
+    subnetName: identitySubnetName
+    subnetAddressPrefix: identitySubnetAddressPrefix
+    subnetPrivateEndpointNetworkPolicies: 'Disabled'
+    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
+  }
+] : []
 
 // TAGS
 
@@ -880,9 +886,19 @@ module privateDnsZones './modules/private-dns.bicep' = {
   name: 'deploy-private-dns-zones-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
-    vnetName: hubNetwork.outputs.virtualNetworkName
+    deployIdentity: deployIdentity
+    deploymentNameSuffix: deploymentNameSuffix
+    hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
+    hubVirtualNetworkResourceGroupName: hubResourceGroupName
+    hubVirtualNetworkSubscriptionId: hubSubscriptionId
+    identityVirtualNetworkName: deployIdentity ? spokes[2].virtualNetworkName : ''
+    identityVirtualNetworkResourceGroupName: identityResourceGroupName
+    identityVirtualNetworkSubscriptionId: identitySubscriptionId
     tags: tags
   }
+  dependsOn: [
+    spokeNetworks
+  ]
 }
 
 // OPERATIONS CMK DEPENDANCIES
@@ -897,7 +913,7 @@ module operationsCustomerManagedKeys './core/operations-customer-managed-keys.bi
     keyVaultPrivateDnsZoneResourceId: privateDnsZones.outputs.keyvaultDnsPrivateDnsZoneId
     location: location
     resourcePrefix: resourcePrefix
-    subnetResourceId: spokeNetworks[1].outputs.subnetResourceId
+    subnetResourceId: spokeNetworks[0].outputs.subnetResourceId
     tags: calculatedTags
     userAssignedIdentityName: operationsUserAssignedIdentityName
   }
@@ -921,7 +937,7 @@ module azureMonitor './modules/azure-monitor.bicep' = if (contains(supportedClou
     location: location
     tags: tags
     resourcePrefix: resourcePrefix
-    subnetResourceId: spokeNetworks[1].outputs.subnetResourceId
+    subnetResourceId: spokeNetworks[0].outputs.subnetResourceId
   }
   dependsOn: [
     logAnalyticsWorkspace

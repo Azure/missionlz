@@ -101,9 +101,19 @@
                   }
                 },
                 {
+                  "name": "deployIdentity",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Deploy identity resources?",
+                  "toolTip": "Check here to create the identity resources.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
                   "name": "identitySubscriptionId",
                   "label": "Identity Subscription",
                   "type": "Microsoft.Common.DropDown",
+                  "visible": "[steps('basics').identitySection.deployIdentity]",
                   "defaultValue": "",
                   "toolTip": "Select the Subscription for your Mission Landing Zone Identity network.",
                   "multiselect": false,
@@ -195,11 +205,11 @@
                   "name": "location",
                   "type": "Microsoft.Common.LocationSelector",
                   "label": "Location",
-                  "toolTip": "Select the location for the AVD session hosts.",
+                  "toolTip": "Select the deployment location for MLZ.",
                   "resourceTypes": [
-                      "Microsoft.Compute/virtualMachines"
+                    "Microsoft.Compute/virtualMachines"
                   ]
-              }
+                }
               ]
             },
             {
@@ -444,6 +454,7 @@
               "name": "identityVirtualNetwork",
               "label": "Identity Virtual Network",
               "type": "Microsoft.Common.Section",
+              "visible": "[steps('basics').identitySection.deployIdentity]",
               "elements": [
                 {
                   "name": "virtualNetworkAddressCidrRange",
@@ -992,6 +1003,7 @@
       "parameters": {
         "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
         "deployDefender": "[steps('compliance').defenderSection.deployDefender]",
+        "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
         "deployRemoteAccess": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
         "deploySentinel": "[steps('compliance').sentinelSection.deploySentinel]",
@@ -1004,7 +1016,7 @@
         "hubVirtualNetworkAddressPrefix": "[steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange]",
         "hybridUseBenefit": "[steps('remoteAccess').windowsVmSection.hybridUseBenefit]",
         "identitySubnetAddressPrefix": "[steps('networking').identityVirtualNetwork.subnetAddressCidrRange]",
-        "identitySubscriptionId": "[replace(steps('basics').identitySection.identitySubscriptionId, '/subscriptions/', '')]",
+        "identitySubscriptionId": "[if(steps('basics').identitySection.deployIdentity, replace(steps('basics').identitySection.identitySubscriptionId, '/subscriptions/', ''), replace(steps('basics').hubSection.hubSubscriptionId, '/subscriptions/', ''))]",
         "identityVirtualNetworkAddressPrefix": "[steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange]",
         "linuxVmAdminPasswordOrKey": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.authenticationType, 'password'), steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.password, steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.sshPublicKey)]",
         "linuxVmAdminUsername": "[steps('remoteAccess').linuxVmSection.linuxVmAdminUsername]",
