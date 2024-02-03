@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "9827524108712133696"
+      "templateHash": "16428919688379005950"
     }
   },
   "parameters": {
@@ -1852,7 +1852,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "135943952067056909"
+              "templateHash": "3463799722942957103"
             }
           },
           "parameters": {
@@ -2553,7 +2553,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "16897700069729859570"
+                      "templateHash": "2265406437979420771"
                     }
                   },
                   "parameters": {
@@ -2625,6 +2625,10 @@
                   "variables": {
                     "intrusionDetectionObject": {
                       "mode": "[parameters('intrusionDetectionMode')]"
+                    },
+                    "dnsSettings": {
+                      "enableProxy": "[parameters('enableProxy')]",
+                      "servers": "[parameters('dnsServers')]"
                     }
                   },
                   "resources": [
@@ -2640,10 +2644,7 @@
                         "sku": {
                           "tier": "[parameters('skuTier')]"
                         },
-                        "dnsSettings": {
-                          "enableProxy": "[parameters('enableProxy')]",
-                          "servers": "[parameters('dnsServers')]"
-                        }
+                        "dnsSettings": "[if(equals(parameters('skuTier'), 'Premium'), variables('dnsSettings'), null())]"
                       }
                     },
                     {
