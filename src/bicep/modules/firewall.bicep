@@ -24,6 +24,7 @@ param name string
 @allowed([
   'Standard'
   'Premium'
+  'Basic'
 ])
 param skuTier string
 param tags object = {}
