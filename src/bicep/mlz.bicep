@@ -98,7 +98,7 @@ param sharedServicesSubnetAddressPrefix string = '10.0.120.0/27'
   'Premium'
   'Basic'
 ])
-@description('[Standard/Premium] The SKU for Azure Firewall. It defaults to "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.' )
+@description('[Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.' )
 param firewallSkuTier string
 
 @allowed([
