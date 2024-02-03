@@ -54,7 +54,7 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
     sku: {
       tier: skuTier
     }
-    dnsSettings: ((skuTier == 'Premium') ? dnsSettings : null)
+    dnsSettings: ((skuTier == 'Premium' || skuTier == 'Standard') ? dnsSettings : null)
   }
 }
 
