@@ -447,6 +447,41 @@
                       }
                     ]
                   }
+                },
+                {
+                  "name": "firewallSkuTier",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Firewall SKU",
+                  "placeholder": "",
+                  "defaultValue": ["Premium"],
+                  "toolTip": "Selecting a value other than Premium will reduce the security of the MLZ environment and your environment no longer be SCCA compliant. The Premium SKU is recommended for all production environments that require TLS inspection and SCCA.",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "filter": false,
+                  "filterPlaceholder": "Filter items ...",
+                  "multiLine": false,
+                  "defaultDescription": "Firewall SKU",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "Premium",
+                        "description": "Azure Firewall Premium is recommended to secure highly sensitive applications (such as payment processing). It supports advanced threat protection capabilities like malware and TLS inspection.",
+                        "value": "Premium"
+                      },
+                      {
+                        "label": "Standard",
+                        "description": "Azure Firewall Standard is recommended for customers looking for Layer 3 through Layer 7 firewall and needs autoscaling to handle peak traffic periods of up to 30 Gbps. It supports enterprise features like threat intelligence, DNS proxy, custom DNS, and web categories.",
+                        "value": "Standard"
+                      },
+                      {
+                        "label": "Basic",
+                        "description": "Azure Firewall Basic is recommended for SMB customers with throughput needs of 250 Mbps.",
+                        "value": "Basic"
+                      }
+                    ],
+                    "required": true
+                  },
+                  "visible": true
                 }
               ]
             },
@@ -1011,6 +1046,7 @@
         "firewallClientSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange]",
         "firewallManagementSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallManagementSubnetAddressCidrRange]",
         "firewallSupernetIPAddress": "[steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange]",
+        "firewallSkuTier": "[steps('networking').hubVirtualNetwork.firewallSkuTier]",
         "hubSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.subnetAddressCidrRange]",
         "hubSubscriptionId": "[replace(steps('basics').hubSection.hubSubscriptionId, '/subscriptions/', '')]",
         "hubVirtualNetworkAddressPrefix": "[steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange]",

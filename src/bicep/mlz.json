@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "9000107242870608619"
+      "templateHash": "15499443281386076184"
     }
   },
   "parameters": {
@@ -163,13 +163,13 @@
     },
     "firewallSkuTier": {
       "type": "string",
-      "defaultValue": "Premium",
       "allowedValues": [
         "Standard",
-        "Premium"
+        "Premium",
+        "Basic"
       ],
       "metadata": {
-        "description": "[Standard/Premium] The SKU for Azure Firewall. It defaults to \"Premium\"."
+        "description": "[Standard/Premium] The SKU for Azure Firewall. It defaults to \"Premium\". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant."
       }
     },
     "firewallThreatIntelMode": {
