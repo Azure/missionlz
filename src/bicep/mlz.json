@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "7859610760088732351"
+      "templateHash": "7418123530181724336"
     }
   },
   "parameters": {
@@ -1839,7 +1839,7 @@
           "virtualNetworkName": {
             "value": "[variables('hubVirtualNetworkName')]"
           },
-          "vNetDnsServers": "[if(or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard')), createObject('value', createArray(variables('firewallClientUsableIpAddresses'))), createObject('value', createArray()))]"
+          "vNetDnsServers": "[if(or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard')), createObject('value', createArray(variables('firewallClientUsableIpAddresses'))), createObject('value', createArray(null())))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1848,7 +1848,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "14863377312166271693"
+              "templateHash": "8461731925540724459"
             }
           },
           "parameters": {
@@ -2237,9 +2237,7 @@
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
-                  "vNetDnsServers": {
-                    "value": "[parameters('vNetDnsServers')]"
-                  }
+                  "vNetDnsServers": "[if(or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard')), createObject('value', parameters('vNetDnsServers')), createObject('value', createArray()))]"
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -2925,7 +2923,12 @@
           "virtualNetworkName": {
             "value": "[variables('spokes')[copyIndex()].virtualNetworkName]"
           },
-          "vNetDnsServers": "[if(or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard')), createObject('value', createArray(variables('firewallClientUsableIpAddresses'))), createObject('value', createArray()))]"
+          "firewallIpAddress": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPrivateIPAddress.value]"
+          },
+          "firewallSkuTier": {
+            "value": "[parameters('firewallSkuTier')]"
+          }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -2934,10 +2937,16 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "9456730802221898162"
+              "templateHash": "7589244119992333230"
             }
           },
           "parameters": {
+            "firewallSkuTier": {
+              "type": "string"
+            },
+            "firewallIpAddress": {
+              "type": "string"
+            },
             "location": {
               "type": "string"
             },
@@ -2985,9 +2994,6 @@
             },
             "virtualNetworkName": {
               "type": "string"
-            },
-            "vNetDnsServers": {
-              "type": "array"
             }
           },
           "resources": [
@@ -3202,9 +3208,7 @@
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
-                  "vNetDnsServers": {
-                    "value": "[parameters('vNetDnsServers')]"
-                  }
+                  "vNetDnsServers": "[if(or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard')), createObject('value', createArray(parameters('firewallIpAddress'))), createObject('value', createArray()))]"
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -3317,6 +3321,7 @@
         }
       },
       "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix')))]",
         "spokeResourceGroups"
       ]
     },

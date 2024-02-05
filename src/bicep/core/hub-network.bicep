@@ -131,7 +131,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     name: virtualNetworkName
     subnets: subnets
     tags: tags
-    vNetDnsServers: vNetDnsServers
+    vNetDnsServers:  ((firewallSkuTier == 'Premium' || firewallSkuTier == 'Standard') ? vNetDnsServers : [])
   }
   dependsOn: [
     networkWatcher
