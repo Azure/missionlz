@@ -9,6 +9,7 @@ param name string
 param subnets array
 param tags object
 param vNetDnsServers array
+param firewallSkuTier string
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' = {
   name: name
@@ -22,7 +23,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' = {
       ]
     }
     subnets: subnets
-    dhcpOptions: vNetDnsServers != null ? {
+    dhcpOptions: (vNetDnsServers != null && (firewallSkuTier == 'Premium' || firewallSkuTier == 'Standard'))  ? {
       dnsServers: vNetDnsServers
     } : null
   }

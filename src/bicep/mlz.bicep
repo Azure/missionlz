@@ -845,8 +845,8 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
     tags: calculatedTags
     virtualNetworkAddressPrefix: spoke.virtualNetworkAddressPrefix
     virtualNetworkName: spoke.virtualNetworkName
-    firewallIpAddress: hubNetwork.outputs.firewallPrivateIPAddress
     firewallSkuTier: firewallSkuTier
+    vNetDnsServers: (firewallSkuTier == 'Premium' || firewallSkuTier == 'Standard') ? [firewallClientUsableIpAddresses]: [null]
   }
   dependsOn: [
     spokeResourceGroups
