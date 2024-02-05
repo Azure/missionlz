@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "7702273271994430092"
+      "templateHash": "1976072491381785844"
     }
   },
   "parameters": {
@@ -1841,7 +1841,7 @@
           },
           "vNetDnsServers": {
             "value": [
-              "[variables('firewallClientPrivateIpAddress')]"
+              "[if(or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard')), variables('firewallClientUsableIpAddresses'), null())]"
             ]
           }
         },
@@ -2931,7 +2931,7 @@
           },
           "vNetDnsServers": {
             "value": [
-              "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPrivateIPAddress.value]"
+              "[if(or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard')), variables('firewallClientUsableIpAddresses'), null())]"
             ]
           }
         },
@@ -3325,7 +3325,6 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix')))]",
         "spokeResourceGroups"
       ]
     },
