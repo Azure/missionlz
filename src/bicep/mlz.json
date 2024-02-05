@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "1976072491381785844"
+      "templateHash": "7859610760088732351"
     }
   },
   "parameters": {
@@ -1839,11 +1839,7 @@
           "virtualNetworkName": {
             "value": "[variables('hubVirtualNetworkName')]"
           },
-          "vNetDnsServers": {
-            "value": [
-              "[if(or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard')), variables('firewallClientUsableIpAddresses'), null())]"
-            ]
-          }
+          "vNetDnsServers": "[if(or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard')), createObject('value', createArray(variables('firewallClientUsableIpAddresses'))), createObject('value', createArray()))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -2929,11 +2925,7 @@
           "virtualNetworkName": {
             "value": "[variables('spokes')[copyIndex()].virtualNetworkName]"
           },
-          "vNetDnsServers": {
-            "value": [
-              "[if(or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard')), variables('firewallClientUsableIpAddresses'), null())]"
-            ]
-          }
+          "vNetDnsServers": "[if(or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard')), createObject('value', createArray(variables('firewallClientUsableIpAddresses'))), createObject('value', createArray()))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
