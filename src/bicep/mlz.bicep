@@ -822,7 +822,9 @@ module hubNetwork './core/hub-network.bicep' = {
     tags: calculatedTags
     virtualNetworkAddressPrefix: hubVirtualNetworkAddressPrefix
     virtualNetworkName: hubVirtualNetworkName
-    vNetDnsServers: (firewallSkuTier == 'Premium' || firewallSkuTier == 'Standard') ? [firewallClientUsableIpAddresses]: [null]
+    vNetDnsServers: [
+      firewallClientPrivateIpAddress
+    ]
   }
   dependsOn: [
     hubResourceGroup
@@ -845,8 +847,9 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
     tags: calculatedTags
     virtualNetworkAddressPrefix: spoke.virtualNetworkAddressPrefix
     virtualNetworkName: spoke.virtualNetworkName
+
     firewallSkuTier: firewallSkuTier
-    vNetDnsServers: (firewallSkuTier == 'Premium' || firewallSkuTier == 'Standard') ? [firewallClientUsableIpAddresses]: [null]
+    vNetDnsServers: [ hubNetwork.outputs.firewallPrivateIPAddress ]
   }
   dependsOn: [
     spokeResourceGroups
