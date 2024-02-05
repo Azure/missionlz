@@ -3,6 +3,7 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 param firewallSkuTier string
+param firewallIpAddress string
 param location string
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
@@ -18,7 +19,6 @@ param subnetPrivateLinkServiceNetworkPolicies string
 param tags object
 param virtualNetworkAddressPrefix string
 param virtualNetworkName string
-param vNetDnsServers array
 
 module networkSecurityGroup '../modules/network-security-group.bicep' = {
   name: 'networkSecurityGroup'
@@ -66,7 +66,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
       }
     ]
     tags: tags
-    vNetDnsServers: ((firewallSkuTier == 'Premium' || firewallSkuTier == 'Standard') ? vNetDnsServers : [])
+    vNetDnsServers: ((firewallSkuTier == 'Premium' || firewallSkuTier == 'Standard') ? [firewallIpAddress] : [])
   }
 }
 
