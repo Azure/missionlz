@@ -46,7 +46,7 @@ The below automation templates can be deployed in your Azure subscriptions by cl
 
 ### Deploy from the Azure Portal
 <!-- markdownlint-disable MD013 -->
-1. Deploy Mission Landing Zone into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
+ Deploy Mission Landing Zone into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
 
     | Azure Commercial | Azure Government |
     | :--- | :--- |
@@ -55,11 +55,11 @@ The below automation templates can be deployed in your Azure subscriptions by cl
 
 <br>
 
-1. [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD)
+2. [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD)
 
 ### Deploy from the Azure Portal
 <!-- markdownlint-disable MD013 -->
-1. Deploy Zero Trust Imaging into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
+ Deploy Zero Trust Imaging into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
 
     | Azure Commercial | Azure Government |
     | :--- | :--- |
@@ -68,7 +68,7 @@ The below automation templates can be deployed in your Azure subscriptions by cl
 
 <br>
 
-1. The [Azure Virtual Desktop (AVD) solution](https://github.com/jamasten/AzureVirtualDesktop/blob/main/README.md)
+3. The [Azure Virtual Desktop (AVD) solution](https://github.com/jamasten/AzureVirtualDesktop/blob/main/README.md)
 
 ### Azure Portal
 
@@ -77,7 +77,7 @@ The below automation templates can be deployed in your Azure subscriptions by cl
 
 <br>
 
-1. ArcGIS on Azure
+4. ArcGIS on Azure
 
 ## ArcGIS on Azure
 
