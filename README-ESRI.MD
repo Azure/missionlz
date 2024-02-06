@@ -63,6 +63,7 @@ The below automation templates can be deployed in your Azure subscriptions by cl
 ## Mission Landing Zone
 
 1.  [Mission Landing Zone](https://github.com/Azure/missionlz/blob/main/README.md)
+Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their workloads and teams. Mission Landing Zone providesa Secure Cloud Computing Architecture (SCCA) compliant hub and spoke infrastructure.
 
 <!-- markdownlint-disable MD013 -->
 1. Deploy Mission Landing Zone into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
