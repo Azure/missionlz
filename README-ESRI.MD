@@ -13,9 +13,6 @@ The ArcGIS on Azure Landing Zone Accelerator is modular and designed to be usabl
 :arrow_forward: The first step is to deploy [Mission Landing Zone]https://github.com/Azure/missionlz/blob/main/README.md). This allows organizations to start with a foundational landing zone that supports their application portfolios, regardless of whether the applications are being migrated or are newly developed and deployed to Azure. Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their workloads and teams.
 Mission Landing Zone providesa Secure Cloud Computing Architecture (SCCA) compliant hub and spoke infrastructure. If you allready have an Azure Landing Zone you can skip this step. For more on what an Azure Landing Zone is, see here -> [Azure Landing Zone](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone).
 
- :arrow_forward: The second step is to deploy the [ArcGIS on Azure accelerator](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD). Esri's technology is a geographic information system (GIS) that contains capabilities for the visualization, analysis, and data management of geospatial data. Esri's core technology is called the ArcGIS platform. It includes capabilities for mapping, spatial analysis, 3D GIS, imagery and remote sensing, data collection and management, and field operations. For more information, see the [ArcGIS page on the Esri website](https://www.esri.com/en-us/arcgis/about-arcgis/overview).
-
- :arrow_forward: The second step is to deploy the [ArcGIS on Azure accelerator](https://github.com/Borg-GitHub/ArcGIS-on-Azure-with-AVD). Esri's technology is a geographic information system (GIS) that contains capabilities for the visualization, analysis, and data management of geospatial data. Esri's core technology is called the ArcGIS platform. It includes capabilities for mapping, spatial analysis, 3D GIS, imagery and remote sensing, data collection and management, and field operations. For more information, see the [ArcGIS page on the Esri website](https://www.esri.com/en-us/arcgis/about-arcgis/overview).
 
 There are two primary components to this component in this geospatial accelerator, ArcGIS Pro & ArcGIS Enterprise.
 
@@ -23,9 +20,20 @@ There are two primary components to this component in this geospatial accelerato
 
 - ArcGIS Enterprise is a software system for GIS that powers mapping and visualization, analytics, and data management. It is the backbone for running the Esri suite of applications. ArcGIS Enterprise includes ArcGIS Server, which is the core web services component for making maps and performing analysis, and Portal for ArcGIS, which allows you to share maps, applications, and other geographic information with other people in your organization. ArcGIS Enterprise will be deployed and configured on Windows virtual machines in it's own landing zone as shown in the image above.
 
- :arrow_forward: The third step is to deploy the [Azure Virtual Desktop (AVD) accelerator](https://github.com/microsoft/AVDAccelerator), which represents the strategic design path and target technical state for Azure Virtual Desktop deployment. This solution provides an architectural approach and reference implementation to prepare landing zone subscriptions for a scalable Azure Virtual Desktop deployment. For the architectural guidance, check out [Enterprise-scale for Azure Virtual Desktop in Microsoft Docs](https://docs.microsoft.com/azure/cloud-adoption-framework/scenarios/wvd/enterprise-scale-landing-zone).
+ :arrow_forward: The second step is to create the Windows image which will be used to create the Azure Virtual Desktops. This image will have ArcGIS Pro pre-installed when you use this template ->  [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD). 
 
-The Azure Virtual Desktop Accelerator only addresses what gets deployed in the specific Azure Virtual Desktop landing zone subscriptions, shown in the architectural diagram above. It is assumed that an appropriate platform foundation is already setup which may or may not be the official [ALZ platform foundation](https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/implementation#reference-implementation). This means that policies and governance should already be in place. The policies applied to management groups in the hierarchy above the subscription will flow down to the Enterprise-scale for Azure Virtual Desktop landing zone subscriptions.
+ :arrow_forward: The third step is to deploy the Azure Virtual Desktop (AVD) solution will provide a fully operational [stamp](https://learn.microsoft.com/azure/architecture/patterns/deployment-stamp) in an Azure subscription adhereing to the [Zero Trust principles](https://learn.microsoft.com/security/zero-trust/azure-infrastructure-avd). This template represents the strategic design path and target technical state for Azure Virtual Desktop deployment. Many of the [common features](./docs/features.md) used with AVD have been automated in this solution for your convenience. Be sure to complete the necessary [prerequisites](./docs/prerequisites.md) and to review the parameter descriptions to the understand the consequences of your selections.
+
+The Azure Virtual Desktop Accelerator only addresses what gets deployed in the specific Azure Virtual Desktop landing zone subscriptions, shown in the architectural diagram above. It is assumed that an appropriate landing zone foundation is already setup. This means that policies and governance should already be in place.
+
+> [!WARNING]
+> Failure to complete the [prerequisites](./docs/prerequisites.md) will result in an unsuccessful deployment.
+
+
+ :arrow_forward: The fourth step is to deploy the [ArcGIS Enterprise on Azure accelerator](https://github.com/Borg-GitHub/ArcGIS-on-Azure-with-AVD). Esri's technology is a geographic information system (GIS) that contains capabilities for the visualization, analysis, and data management of geospatial data. Esri's core technology is called the ArcGIS platform. It includes capabilities for mapping, spatial analysis, 3D GIS, imagery and remote sensing, data collection and management, and field operations. For more information, see the [ArcGIS page on the Esri website](https://www.esri.com/en-us/arcgis/about-arcgis/overview).
+
+
+
 
 ## Choosing a Deployment Model
 
