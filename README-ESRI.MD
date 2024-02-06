@@ -52,6 +52,7 @@ This Azure Virtual Desktop Accelerator only addresses what gets deployed in the 
  :arrow_forward: The fourth step is to deploy the [ArcGIS Enterprise on Azure accelerator](https://github.com/Borg-GitHub/ArcGIS-on-Azure-with-AVD). Esri's technology is a geographic information system (GIS) that contains capabilities for the visualization, analysis, and data management of geospatial data. Esri's core technology is called the ArcGIS platform. It includes capabilities for mapping, spatial analysis, 3D GIS, imagery and remote sensing, data collection and management, and field operations. For more information, see the [ArcGIS page on the Esri website](https://www.esri.com/en-us/arcgis/about-arcgis/overview).
 
 <br>
+<br>
 
 ## Choosing a Deployment Model
 
