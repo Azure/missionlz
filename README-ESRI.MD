@@ -32,9 +32,9 @@ There are two primary components to this component in this geospatial accelerato
 - ArcGIS Pro is a 64-bit professional desktop GIS application. GIS analysts can use it to perform spatial analysis and edit spatial data. GIS administrators can use it to create and publish geospatial services. This app will be deployed on the Windows 10 or 11 desktop virtual machines used as the Azure Virtual Desktop (AVD) hosts. Geospatial analysis in Azure is typicaly done on [GPU optimized](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes-gpu) virtual desktops.
 
 - ArcGIS Enterprise is a software system for GIS that powers mapping and visualization, analytics, and data management. It is the backbone for running the Esri suite of applications. ArcGIS Enterprise includes ArcGIS Server, which is the core web services component for making maps and performing analysis, and Portal for ArcGIS, which allows you to share maps, applications, and other geographic information with other people in your organization. ArcGIS Enterprise will be deployed and configured on Windows virtual machines in it's own landing zone as shown in the image above.
-
+<br>
  :arrow_forward: The second step is to create the Windows image which will be used to create the Azure Virtual Desktops. This image will have ArcGIS Pro pre-installed when you use this template ->  [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD). 
-
+<br>
  :arrow_forward: The third step is to deploy the Azure Virtual Desktop (AVD) solution will provide a fully operational [stamp](https://learn.microsoft.com/azure/architecture/patterns/deployment-stamp) in an Azure subscription adhereing to the [Zero Trust principles](https://learn.microsoft.com/security/zero-trust/azure-infrastructure-avd). This template represents the strategic design path and target technical state for Azure Virtual Desktop deployment. Many of the [common features](./docs/features.md) used with AVD have been automated in this solution for your convenience. Be sure to complete the necessary [prerequisites](./docs/prerequisites.md) and to review the parameter descriptions to the understand the consequences of your selections.
 
 This Azure Virtual Desktop Accelerator only addresses what gets deployed in the specific Azure Virtual Desktop landing zone subscriptions, shown in the architectural diagram above. It is assumed that an appropriate landing zone foundation is already setup. This means that policies and governance should already be in place.
@@ -42,10 +42,10 @@ This Azure Virtual Desktop Accelerator only addresses what gets deployed in the 
 > [!WARNING]
 > Failure to complete the [prerequisites](./docs/prerequisites.md) will result in an unsuccessful deployment.
 
-
+<br>
  :arrow_forward: The fourth step is to deploy the [ArcGIS Enterprise on Azure accelerator](https://github.com/Borg-GitHub/ArcGIS-on-Azure-with-AVD). Esri's technology is a geographic information system (GIS) that contains capabilities for the visualization, analysis, and data management of geospatial data. Esri's core technology is called the ArcGIS platform. It includes capabilities for mapping, spatial analysis, 3D GIS, imagery and remote sensing, data collection and management, and field operations. For more information, see the [ArcGIS page on the Esri website](https://www.esri.com/en-us/arcgis/about-arcgis/overview).
 
-
+<br>
 ## Choosing a Deployment Model
 
 The below automation templates can be deployed in your Azure subscriptions by clicking the blue buttons.  
