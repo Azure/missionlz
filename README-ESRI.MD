@@ -22,6 +22,8 @@ An Azure landing zone consists of platform landing zones and application landing
 
 **Application landing zone:** An application landing zone is a subscription for hosting an application. You pre-provision application landing zones through code and use management groups to assign policy controls to them. In the conceptual architecture above, the "ArcGIS-Multi Tier" and "ArcGIS-Single Tier" represent two different application landing zones.
 
+<br>
+
 :arrow_forward: The first step is to deploy [Mission Landing Zone](https://github.com/Azure/missionlz/blob/main/README.md). This allows organizations to start with a foundational landing zone that supports their application portfolios, regardless of whether the applications are being migrated or are newly developed and deployed to Azure. Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their workloads and teams.
 Mission Landing Zone providesa Secure Cloud Computing Architecture (SCCA) compliant hub and spoke infrastructure. If you allready have an Azure Landing Zone you can skip this step. For more on what an Azure Landing Zone is, see here -> [Azure Landing Zone](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone).
 
