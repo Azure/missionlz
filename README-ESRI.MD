@@ -14,8 +14,6 @@ The ArcGIS on Azure Landing Zone Accelerator is modular and designed to be usabl
 
 A [**landing zone**](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone)  is networking & infrastructure configured to provide a secure environment for hosting workloads.
 
-### Platform landing zones vs. application landing zones
-
 An Azure landing zone consists of platform landing zones and application landing zones. 
 
 **Platform landing zone:** A platform landing zone is a subscription that provides shared services (identity, connectivity, management) to applications in application landing zones. Consolidating these shared services often improves operational efficiency. One or more central teams manage the platform landing zones.
