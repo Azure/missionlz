@@ -23,7 +23,7 @@ An Azure landing zone consists of platform landing zones and application landing
 <br>
 
 :arrow_forward: The first step is to deploy [Mission Landing Zone](https://github.com/Azure/missionlz/blob/main/README.md). This allows organizations to start with a foundational landing zone that supports their application portfolios, regardless of whether the applications are being migrated or are newly developed and deployed to Azure. Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their workloads and teams.
-Mission Landing Zone providesa Secure Cloud Computing Architecture (SCCA) compliant hub and spoke infrastructure. If you allready have an Azure Landing Zone you can skip this step. For more on what an Azure Landing Zone is, see here -> [Azure Landing Zone](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone).
+Mission Landing Zone provides a Secure Cloud Computing Architecture (SCCA) compliant hub and spoke infrastructure. If you allready have an Azure Landing Zone you can skip this step. For more on what an Azure Landing Zone is, see here -> [Azure Landing Zone](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone).
 
 There are two primary components to this component in this geospatial accelerator, ArcGIS Pro & ArcGIS Enterprise.
 
