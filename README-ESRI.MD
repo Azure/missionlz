@@ -18,7 +18,7 @@ An Azure landing zone consists of platform landing zones and application landing
 
 **Platform landing zone:** A platform landing zone is a subscription that provides shared services (identity, connectivity, management) to applications in application landing zones. Consolidating these shared services often improves operational efficiency. One or more central teams manage the platform landing zones.
 
-**Application landing zone:** An application landing zone is a subscription for hosting an application. You pre-provision application landing zones through code and use management groups to assign policy controls to them. In the conceptual architecture above, the "ArcGIS-Multi Tier" and "ArcGIS-Single Tier" represent two different application landing zones.
+**Application landing zone:** An application landing zone is a subscription for hosting an application. You pre-provision application landing zones through code and use management groups to assign policy controls to them. In the conceptual architecture above, the [ArcGIS Single Machine" or "ArcGIS Multiple-Machine](https://enterprise.arcgis.com/en/server/latest/install/windows/deployment-scenarios.htm) deployments represent two different application landing zones.
 
 <br>
 
