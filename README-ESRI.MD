@@ -60,7 +60,7 @@ In this ArcGIS on Azure acclerator, you have access to step by step guides cover
 
 This option will deploy ArcGIS Enterprise on one Virutal Server, which is suiteable for Prof-of-Concept implementations.
 
- <img src="https://github.com/Borg-GitHub/ArcGIS-on-Azure-with-AVD/blob/main/images/ArcGIS-on-Azure-Single-Tier.png">
+ <img src="https://github.com/Borg-GitHub/missionlz-esri/blob/main/docs/images/ArcGIS-on-Azure-Single-Tier.png">
 
 | Deployment Type | Link |
 |:--|:--|
