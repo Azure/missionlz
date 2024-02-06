@@ -32,7 +32,7 @@ There are two primary components to this component in this geospatial accelerato
 - ArcGIS Enterprise is a software system for GIS that powers mapping and visualization, analytics, and data management. It is the backbone for running the Esri suite of applications. ArcGIS Enterprise includes ArcGIS Server, which is the core web services component for making maps and performing analysis, and Portal for ArcGIS, which allows you to share maps, applications, and other geographic information with other people in your organization. ArcGIS Enterprise will be deployed and configured on Windows virtual machines in it's own landing zone as shown in the image above.
 
 > [!NOTE]  
-> Presently this accelerator performs a base deployment of ArcGIS Enterprise. It does not deploy other [server roles] (https://enterprise.arcgis.com/en/get-started/latest/windows/additional-server-deployment.htm). Once the accelerator is deployed, additional server roles can be deployed on virtual machines in the landing zone. 
+> Presently this accelerator performs a base deployment of ArcGIS Enterprise. It does not deploy additonal [server roles] (https://enterprise.arcgis.com/en/get-started/latest/windows/additional-server-deployment.htm). Once the accelerator is deployed, additional server roles can be deployed on virtual machines in the landing zone. 
 
 <br>
 
