@@ -564,6 +564,10 @@ var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'v
 
 var hubName = 'hub'
 var hubShortName = 'hub'
+var hubDiskEncryptionSetName = replace(diskEncryptionSetNamingConvention, nameToken, hubName)
+var hubKeyVaultName = take(hubKeyVaultUniqueName, 24)
+var hubKeyVaultShortName = replace(keyVaultNamingConvention, nameToken, hubShortName)
+var hubKeyVaultUniqueName = replace(hubKeyVaultShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, hubSubscriptionId))
 var hubLogStorageAccountName = take(hubLogStorageAccountUniqueName, 24)
 var hubLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, hubShortName)
 var hubLogStorageAccountUniqueName = replace(hubLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, hubSubscriptionId))
@@ -572,6 +576,7 @@ var hubNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, 
 var hubResourceGroupName = replace(resourceGroupNamingConvention, nameToken, hubName)
 var hubRouteTableName = replace(routeTableNamingConvention, nameToken, hubName)
 var hubSubnetName = replace(subnetNamingConvention, nameToken, hubName)
+var hubUserAssignedIdentityName = replace(userAssignedIdentityNamingConvention, nameToken, hubName)
 var hubVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, hubName)
 
 // IDENTITY NAMES
@@ -591,10 +596,6 @@ var identityVirtualNetworkName = replace(virtualNetworkNamingConvention, nameTok
 
 var operationsName = 'operations'
 var operationsShortName = 'ops'
-var operationsDiskEncryptionSetName = replace(diskEncryptionSetNamingConvention, nameToken, operationsName)
-var operationsKeyVaultName = take(operationsKeyVaultUniqueName, 24)
-var operationsKeyVaultShortName = replace(keyVaultNamingConvention, nameToken, operationsShortName)
-var operationsKeyVaultUniqueName = replace(operationsKeyVaultShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, operationsSubscriptionId))
 var operationsLogStorageAccountName = take(operationsLogStorageAccountUniqueName, 24)
 var operationsLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, operationsShortName)
 var operationsLogStorageAccountUniqueName = replace(operationsLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, operationsSubscriptionId))
@@ -602,7 +603,7 @@ var operationsNetworkSecurityGroupName = replace(networkSecurityGroupNamingConve
 var operationsResourceGroupName = replace(resourceGroupNamingConvention, nameToken, operationsName)
 var operationsRouteTableName = replace(routeTableNamingConvention, nameToken, operationsName)
 var operationsSubnetName = replace(subnetNamingConvention, nameToken, operationsName)
-var operationsUserAssignedIdentityName = replace(userAssignedIdentityNamingConvention, nameToken, operationsName)
+
 var operationsVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, operationsName)
 
 // SHARED SERVICES NAMES
@@ -904,25 +905,22 @@ module privateDnsZones './modules/private-dns.bicep' = {
   ]
 }
 
-// OPERATIONS CMK DEPENDANCIES
+// CUSTOMER MANAGED KEYS
 
-module operationsCustomerManagedKeys './core/operations-customer-managed-keys.bicep' = {
-  name: 'deploy-cmk-ops-${deploymentNameSuffix}'
-  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
+module customerManagedKeys './core/hub-customer-managed-keys.bicep' = {
+  name: 'deploy-cmk-hub-${deploymentNameSuffix}'
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: operationsDiskEncryptionSetName
-    keyVaultName: operationsKeyVaultName
+    diskEncryptionSetName: hubDiskEncryptionSetName
+    keyVaultName: hubKeyVaultName
     keyVaultPrivateDnsZoneResourceId: privateDnsZones.outputs.keyvaultDnsPrivateDnsZoneId
     location: location
     resourcePrefix: resourcePrefix
-    subnetResourceId: spokeNetworks[0].outputs.subnetResourceId
+    subnetResourceId: hubNetwork.outputs.subnetResourceId
     tags: calculatedTags
-    userAssignedIdentityName: operationsUserAssignedIdentityName
+    userAssignedIdentityName: hubUserAssignedIdentityName
   }
-  dependsOn: [
-    spokeNetworks
-  ]
 }
 
 // AZURE MONITOR
@@ -994,7 +992,7 @@ module remoteAccess './core/remote-access.bicep' = if (deployRemoteAccess) {
     windowsVmSku: windowsVmSku
     windowsVmStorageAccountType: windowsVmStorageAccountType
     windowsVmVersion: windowsVmVersion
-    diskEncryptionSetResourceId: operationsCustomerManagedKeys.outputs.diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
     hybridUseBenefit: hybridUseBenefit
     linuxDiskName: linuxDiskName
     windowsDiskName: windowsDiskName
@@ -1011,16 +1009,16 @@ module hubStorage './core/hub-storage.bicep' = {
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     blobsPrivateDnsZoneResourceId: privateDnsZones.outputs.blobPrivateDnsZoneId
-    keyVaultUri: operationsCustomerManagedKeys.outputs.keyVaultUri
+    keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageAccountName: hubLogStorageAccountName
     logStorageSkuName: logStorageSkuName
     resourcePrefix: resourcePrefix
-    storageEncryptionKeyName: operationsCustomerManagedKeys.outputs.storageKeyName
+    storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     subnetResourceId: hubNetwork.outputs.subnetResourceId
     tablesPrivateDnsZoneResourceId: privateDnsZones.outputs.tablePrivateDnsZoneId
     tags: calculatedTags
-    userAssignedIdentityResourceId: operationsCustomerManagedKeys.outputs.userAssignedIdentityResourceId
+    userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
   }
   dependsOn: [
     remoteAccess
@@ -1034,16 +1032,16 @@ module spokeStorage './core/spoke-storage.bicep' = [for (spoke, i) in spokes: {
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
     blobsPrivateDnsZoneResourceId: privateDnsZones.outputs.blobPrivateDnsZoneId
-    keyVaultUri: operationsCustomerManagedKeys.outputs.keyVaultUri
+    keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageAccountName: spoke.logStorageAccountName
     logStorageSkuName: logStorageSkuName
     resourcePrefix: resourcePrefix
-    storageEncryptionKeyName: operationsCustomerManagedKeys.outputs.storageKeyName
+    storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     subnetResourceId: spokeNetworks[i].outputs.subnetResourceId
     tablesPrivateDnsZoneResourceId: privateDnsZones.outputs.tablePrivateDnsZoneId
     tags: tags
-    userAssignedIdentityResourceId: operationsCustomerManagedKeys.outputs.userAssignedIdentityResourceId
+    userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
   }
   dependsOn: [
     remoteAccess

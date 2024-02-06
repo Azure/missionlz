@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "9930725311433878151"
+      "templateHash": "17762422065056010338"
     }
   },
   "parameters": {
@@ -1241,6 +1241,10 @@
     "virtualNetworkNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'vnet')]",
     "hubName": "hub",
     "hubShortName": "hub",
+    "hubDiskEncryptionSetName": "[replace(variables('diskEncryptionSetNamingConvention'), variables('nameToken'), variables('hubName'))]",
+    "hubKeyVaultName": "[take(variables('hubKeyVaultUniqueName'), 24)]",
+    "hubKeyVaultShortName": "[replace(variables('keyVaultNamingConvention'), variables('nameToken'), variables('hubShortName'))]",
+    "hubKeyVaultUniqueName": "[replace(variables('hubKeyVaultShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('resourceSuffix'), parameters('hubSubscriptionId')))]",
     "hubLogStorageAccountName": "[take(variables('hubLogStorageAccountUniqueName'), 24)]",
     "hubLogStorageAccountShortName": "[replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('hubShortName'))]",
     "hubLogStorageAccountUniqueName": "[replace(variables('hubLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('resourceSuffix'), parameters('hubSubscriptionId')))]",
@@ -1249,6 +1253,7 @@
     "hubResourceGroupName": "[replace(variables('resourceGroupNamingConvention'), variables('nameToken'), variables('hubName'))]",
     "hubRouteTableName": "[replace(variables('routeTableNamingConvention'), variables('nameToken'), variables('hubName'))]",
     "hubSubnetName": "[replace(variables('subnetNamingConvention'), variables('nameToken'), variables('hubName'))]",
+    "hubUserAssignedIdentityName": "[replace(variables('userAssignedIdentityNamingConvention'), variables('nameToken'), variables('hubName'))]",
     "hubVirtualNetworkName": "[replace(variables('virtualNetworkNamingConvention'), variables('nameToken'), variables('hubName'))]",
     "identityName": "identity",
     "identityShortName": "id",
@@ -1262,10 +1267,6 @@
     "identityVirtualNetworkName": "[replace(variables('virtualNetworkNamingConvention'), variables('nameToken'), variables('identityName'))]",
     "operationsName": "operations",
     "operationsShortName": "ops",
-    "operationsDiskEncryptionSetName": "[replace(variables('diskEncryptionSetNamingConvention'), variables('nameToken'), variables('operationsName'))]",
-    "operationsKeyVaultName": "[take(variables('operationsKeyVaultUniqueName'), 24)]",
-    "operationsKeyVaultShortName": "[replace(variables('keyVaultNamingConvention'), variables('nameToken'), variables('operationsShortName'))]",
-    "operationsKeyVaultUniqueName": "[replace(variables('operationsKeyVaultShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('resourceSuffix'), parameters('operationsSubscriptionId')))]",
     "operationsLogStorageAccountName": "[take(variables('operationsLogStorageAccountUniqueName'), 24)]",
     "operationsLogStorageAccountShortName": "[replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('operationsShortName'))]",
     "operationsLogStorageAccountUniqueName": "[replace(variables('operationsLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('resourceSuffix'), parameters('operationsSubscriptionId')))]",
@@ -1273,7 +1274,6 @@
     "operationsResourceGroupName": "[replace(variables('resourceGroupNamingConvention'), variables('nameToken'), variables('operationsName'))]",
     "operationsRouteTableName": "[replace(variables('routeTableNamingConvention'), variables('nameToken'), variables('operationsName'))]",
     "operationsSubnetName": "[replace(variables('subnetNamingConvention'), variables('nameToken'), variables('operationsName'))]",
-    "operationsUserAssignedIdentityName": "[replace(variables('userAssignedIdentityNamingConvention'), variables('nameToken'), variables('operationsName'))]",
     "operationsVirtualNetworkName": "[replace(variables('virtualNetworkNamingConvention'), variables('nameToken'), variables('operationsName'))]",
     "sharedServicesName": "sharedServices",
     "sharedServicesShortName": "svcs",
@@ -4221,9 +4221,9 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[parameters('operationsSubscriptionId')]",
-      "resourceGroup": "[variables('operationsResourceGroupName')]",
+      "name": "[format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[parameters('hubSubscriptionId')]",
+      "resourceGroup": "[variables('hubResourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -4234,10 +4234,10 @@
             "value": "[parameters('deploymentNameSuffix')]"
           },
           "diskEncryptionSetName": {
-            "value": "[variables('operationsDiskEncryptionSetName')]"
+            "value": "[variables('hubDiskEncryptionSetName')]"
           },
           "keyVaultName": {
-            "value": "[variables('operationsKeyVaultName')]"
+            "value": "[variables('hubKeyVaultName')]"
           },
           "keyVaultPrivateDnsZoneResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-private-dns-zones-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyvaultDnsPrivateDnsZoneId.value]"
@@ -4249,13 +4249,13 @@
             "value": "[parameters('resourcePrefix')]"
           },
           "subnetResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[0].subscriptionId, variables('spokes')[0].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[0].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
           },
           "tags": {
             "value": "[variables('calculatedTags')]"
           },
           "userAssignedIdentityName": {
-            "value": "[variables('operationsUserAssignedIdentityName')]"
+            "value": "[variables('hubUserAssignedIdentityName')]"
           }
         },
         "template": {
@@ -4859,8 +4859,8 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-private-dns-zones-{0}', parameters('deploymentNameSuffix')))]",
-        "spokeNetworks"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-private-dns-zones-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -5183,7 +5183,7 @@
             "value": "[parameters('windowsVmVersion')]"
           },
           "diskEncryptionSetResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
           },
           "hybridUseBenefit": {
             "value": "[parameters('hybridUseBenefit')]"
@@ -6299,9 +6299,9 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-azure-monitor-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-laws-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -6320,7 +6320,7 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-private-dns-zones-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.blobPrivateDnsZoneId.value]"
           },
           "keyVaultUri": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -6335,7 +6335,7 @@
             "value": "[parameters('resourcePrefix')]"
           },
           "storageEncryptionKeyName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
           },
           "subnetResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
@@ -6347,7 +6347,7 @@
             "value": "[variables('calculatedTags')]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
           }
         },
         "template": {
@@ -6629,8 +6629,8 @@
         }
       },
       "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-private-dns-zones-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix')))]"
       ]
@@ -6655,7 +6655,7 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-private-dns-zones-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.blobPrivateDnsZoneId.value]"
           },
           "keyVaultUri": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -6670,7 +6670,7 @@
             "value": "[parameters('resourcePrefix')]"
           },
           "storageEncryptionKeyName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
           },
           "subnetResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
@@ -6682,7 +6682,7 @@
             "value": "[parameters('tags')]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
           }
         },
         "template": {
@@ -6964,7 +6964,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), variables('operationsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-ops-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-private-dns-zones-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[copyIndex()].subscriptionId, variables('spokes')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix')))]"
