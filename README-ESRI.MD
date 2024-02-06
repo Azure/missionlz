@@ -14,6 +14,14 @@ The ArcGIS on Azure Landing Zone Accelerator is modular and designed to be usabl
 
 A **landing zone** is networking infrastructure configured to provide a secure environment for hosting workloads.
 
+### Platform landing zones vs. application landing zones
+
+An Azure landing zone consists of platform landing zones and application landing zones. It's worth explaining the function of both in more detail.
+
+**Platform landing zone:** A platform landing zone is a subscription that provides shared services (identity, connectivity, management) to applications in application landing zones. Consolidating these shared services often improves operational efficiency. One or more central teams manage the platform landing zones. In the conceptual architecture (*see figure 1*), the "Identity subscription", "Management subscription", and "Connectivity subscription" represent three different platform landing zones. The conceptual architecture shows these three platform landing zones in detail. It depicts representative resources and policies applied to each platform landing zone.
+
+**Application landing zone:** An application landing zone is a subscription for hosting an application. You pre-provision application landing zones through code and use management groups to assign policy controls to them. In the conceptual architecture above, the "ArcGIS-Multi Tier" and "ArcGIS-Single Tier" represent two different application landing zones.
+
 :arrow_forward: The first step is to deploy [Mission Landing Zone](https://github.com/Azure/missionlz/blob/main/README.md). This allows organizations to start with a foundational landing zone that supports their application portfolios, regardless of whether the applications are being migrated or are newly developed and deployed to Azure. Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their workloads and teams.
 Mission Landing Zone providesa Secure Cloud Computing Architecture (SCCA) compliant hub and spoke infrastructure. If you allready have an Azure Landing Zone you can skip this step. For more on what an Azure Landing Zone is, see here -> [Azure Landing Zone](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone).
 
@@ -42,6 +50,8 @@ The below automation templates can be deployed in your Azure subscriptions by cl
 
 <br>
 
+## Mission Landing Zone
+
 1.  [Mission Landing Zone](https://github.com/Azure/missionlz/blob/main/README.md)
 
 <!-- markdownlint-disable MD013 -->
@@ -55,6 +65,8 @@ The below automation templates can be deployed in your Azure subscriptions by cl
 
 <br>
 
+## Zero Trust and Azure Imaging
+
 2. [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD)
 
 <!-- markdownlint-disable MD013 -->
@@ -67,14 +79,14 @@ The below automation templates can be deployed in your Azure subscriptions by cl
 
 <br>
 
+## The Azure Virtual Desktop (AVD) solution
+
 3. The [Azure Virtual Desktop (AVD) solution](https://github.com/jamasten/AzureVirtualDesktop/blob/main/README.md)
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzureVirtualDesktop%2Fmain%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzureVirtualDesktop%2Fmain%2FuiDefinition.json)
 [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzureVirtualDesktop%2Fmain%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzureVirtualDesktop%2Fmain%2FuiDefinition.json)
 
 <br>
-
-4. ArcGIS on Azure
 
 ## ArcGIS on Azure
 
@@ -101,13 +113,7 @@ This option will deploy ArcGIS Enterprise across multiple virtual machines, whic
 | Azure portal UI | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Favdaccelerator%2Fmain%2Fworkload%2Farm%2Fdeploy-custom-image.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Favdaccelerator%2Fmain%2Fworkload%2Fportal-ui%2Fportal-ui-custom-image.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Favdaccelerator%2Fmain%2Fworkload%2Farm%2Fdeploy-custom-image.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Favdaccelerator%2Fmain%2Fworkload%2Fportal-ui%2Fportal-ui-custom-image.json) |
 
 
-### Platform landing zones vs. application landing zones
 
-An Azure landing zone consists of platform landing zones and application landing zones. It's worth explaining the function of both in more detail.
-
-**Platform landing zone:** A platform landing zone is a subscription that provides shared services (identity, connectivity, management) to applications in application landing zones. Consolidating these shared services often improves operational efficiency. One or more central teams manage the platform landing zones. In the conceptual architecture (*see figure 1*), the "Identity subscription", "Management subscription", and "Connectivity subscription" represent three different platform landing zones. The conceptual architecture shows these three platform landing zones in detail. It depicts representative resources and policies applied to each platform landing zone.
-
-**Application landing zone:** An application landing zone is a subscription for hosting an application. You pre-provision application landing zones through code and use management groups to assign policy controls to them. In the conceptual architecture above, the "ArcGIS-Multi Tier" and "ArcGIS-Single Tier" represent two different application landing zones.
 
 
 If you would like step by step guidance on how to deploy  ESRI’s ArcGIS Enterprise on Azure and access it with ArcGIS Pro GPU enabled Azure virtual desktops, check out the Azure Architetcure Center documentation -> [Deploy Esri ArcGIS Pro in Azure Virtual Desktop](https://learn.microsoft.com/en-us/azure/architecture/example-scenario/data/esri-arcgis-azure-virtual-desktop).
