@@ -47,7 +47,7 @@ This Azure Virtual Desktop Accelerator only addresses what gets deployed in the 
 > Failure to complete the [prerequisites](./docs/prerequisites.md) will result in an unsuccessful deployment.
 
 <br>
- :arrow_forward: The fourth step is to run the ArcGIS Enterprise on Azure accelerator. This automation template will setup Esri's ArcGIS Enterprise in either the single tier or multi tier configuration as shown in the diagrams.  Esri's technology is a geographic information system (GIS) that contains capabilities for the visualization, analysis, and data management of geospatial data. Esri's core technology is called the ArcGIS platform. It includes capabilities for mapping, spatial analysis, 3D GIS, imagery and remote sensing, data collection and management, and field operations. For more information, see the [ArcGIS page on the Esri website](https://www.esri.com/en-us/arcgis/about-arcgis/overview).
+ :arrow_forward: The fourth step is to run the ArcGIS Enterprise on Azure accelerator. This automation template will setup Esri's ArcGIS Enterprise in either the single tier or multi tier configuration as shown in the diagrams.  Esri's technology is a geographic information system (GIS) that contains capabilities for the visualization, analysis, and data management of geospatial data. Esri's core technology is called the ArcGIS platform. It includes capabilities for mapping, spatial analysis, 3D GIS, imagery and remote sensing, data collection and management, and field operations. For more information, see the [ArcGIS page on the Esri website] (https://www.esri.com/en-us/arcgis/about-arcgis/overview).
 
 <br>
 <br>
