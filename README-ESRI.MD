@@ -77,7 +77,7 @@ The below automation templates can be deployed in your Azure subscriptions by cl
 
 ## Zero Trust and Azure Imaging
 
-This[Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD)
+This [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD)
 solution for Azure allows you create images in an Azure environment that adheres to zero trust. While other options exist in Azure, they are either a manual processes or do not adhere to zero trust. This solution uses a storage account with a private endpoint to store applications and the existing, preconfigured resources that comply with Zero Trust principles.
 
 <!-- markdownlint-disable MD013 -->
