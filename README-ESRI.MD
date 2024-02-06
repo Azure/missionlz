@@ -77,7 +77,8 @@ The below automation templates can be deployed in your Azure subscriptions by cl
 
 ## Zero Trust and Azure Imaging
 
-2. [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD)
+This[Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD)
+solution for Azure allows you create images in an Azure environment that adheres to zero trust. While other options exist in Azure, they are either a manual processes or do not adhere to zero trust. This solution uses a storage account with a private endpoint to store applications and the existing, preconfigured resources that comply with Zero Trust principles.
 
 <!-- markdownlint-disable MD013 -->
 1. Deploy Zero Trust Imaging into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
@@ -91,7 +92,7 @@ The below automation templates can be deployed in your Azure subscriptions by cl
 
 ## The Azure Virtual Desktop (AVD) solution
 
-3. The [Azure Virtual Desktop (AVD) solution](https://github.com/jamasten/AzureVirtualDesktop/blob/main/README.md)
+The [Azure Virtual Desktop (AVD) solution](https://github.com/jamasten/AzureVirtualDesktop/blob/main/README.md) provides an architectural approach and reference implementation to prepare landing zone subscriptions for a scalable Azure Virtual Desktop deployment. The Azure Virtual Desktop Landing Zone Accelerator (LZA) only addresses what gets deployed in the specific Azure Virtual Desktop landing zone subscriptions, as shown in the architectural diagram above. It is assumed that an appropriate Azure landing zone foundation is already setup.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzureVirtualDesktop%2Fmain%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzureVirtualDesktop%2Fmain%2FuiDefinition.json)
 [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzureVirtualDesktop%2Fmain%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzureVirtualDesktop%2Fmain%2FuiDefinition.json)
