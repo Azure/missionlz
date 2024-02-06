@@ -24,6 +24,7 @@ param name string
 @allowed([
   'Standard'
   'Premium'
+  'Basic'
 ])
 param skuTier string
 param tags object = {}
@@ -38,6 +39,11 @@ var intrusionDetectionObject = {
   mode: intrusionDetectionMode
 }
 
+var dnsSettings = {
+  enableProxy: enableProxy
+  servers: dnsServers
+}
+
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   name: firewallPolicyName
   location: location
@@ -48,10 +54,7 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
     sku: {
       tier: skuTier
     }
-    dnsSettings: {
-      enableProxy: enableProxy
-      servers: dnsServers
-    }
+    dnsSettings: ((skuTier == 'Premium' || skuTier == 'Standard') ? dnsSettings : null)
   }
 }
 

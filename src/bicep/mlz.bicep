@@ -96,9 +96,10 @@ param sharedServicesSubnetAddressPrefix string = '10.0.120.0/27'
 @allowed([
   'Standard'
   'Premium'
+  'Basic'
 ])
-@description('[Standard/Premium] The SKU for Azure Firewall. It defaults to "Premium".')
-param firewallSkuTier string = 'Premium'
+@description('[Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.' )
+param firewallSkuTier string
 
 @allowed([
   'Alert'
@@ -846,6 +847,8 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
     tags: calculatedTags
     virtualNetworkAddressPrefix: spoke.virtualNetworkAddressPrefix
     virtualNetworkName: spoke.virtualNetworkName
+
+    firewallSkuTier: firewallSkuTier
     vNetDnsServers: [ hubNetwork.outputs.firewallPrivateIPAddress ]
   }
   dependsOn: [

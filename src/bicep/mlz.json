@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "9000107242870608619"
+      "templateHash": "9930725311433878151"
     }
   },
   "parameters": {
@@ -163,13 +163,13 @@
     },
     "firewallSkuTier": {
       "type": "string",
-      "defaultValue": "Premium",
       "allowedValues": [
         "Standard",
-        "Premium"
+        "Premium",
+        "Basic"
       ],
       "metadata": {
-        "description": "[Standard/Premium] The SKU for Azure Firewall. It defaults to \"Premium\"."
+        "description": "[Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to \"Premium\". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant."
       }
     },
     "firewallThreatIntelMode": {
@@ -1852,7 +1852,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "15296079850903192633"
+              "templateHash": "8914523087490010027"
             }
           },
           "parameters": {
@@ -2243,6 +2243,9 @@
                   },
                   "vNetDnsServers": {
                     "value": "[parameters('vNetDnsServers')]"
+                  },
+                  "firewallSkuTier": {
+                    "value": "[parameters('firewallSkuTier')]"
                   }
                 },
                 "template": {
@@ -2252,7 +2255,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "12638783015880972122"
+                      "templateHash": "4828957538822254305"
                     }
                   },
                   "parameters": {
@@ -2273,6 +2276,9 @@
                     },
                     "vNetDnsServers": {
                       "type": "array"
+                    },
+                    "firewallSkuTier": {
+                      "type": "string"
                     }
                   },
                   "resources": [
@@ -2289,7 +2295,7 @@
                           ]
                         },
                         "subnets": "[parameters('subnets')]",
-                        "dhcpOptions": "[if(not(equals(parameters('vNetDnsServers'), null())), createObject('dnsServers', parameters('vNetDnsServers')), null())]"
+                        "dhcpOptions": "[if(and(not(equals(parameters('vNetDnsServers'), null())), or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard'))), createObject('dnsServers', parameters('vNetDnsServers')), null())]"
                       }
                     }
                   ],
@@ -2553,7 +2559,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "11702995579311223719"
+                      "templateHash": "1302706933422554098"
                     }
                   },
                   "parameters": {
@@ -2605,7 +2611,8 @@
                       "type": "string",
                       "allowedValues": [
                         "Standard",
-                        "Premium"
+                        "Premium",
+                        "Basic"
                       ]
                     },
                     "tags": {
@@ -2624,6 +2631,10 @@
                   "variables": {
                     "intrusionDetectionObject": {
                       "mode": "[parameters('intrusionDetectionMode')]"
+                    },
+                    "dnsSettings": {
+                      "enableProxy": "[parameters('enableProxy')]",
+                      "servers": "[parameters('dnsServers')]"
                     }
                   },
                   "resources": [
@@ -2639,10 +2650,7 @@
                         "sku": {
                           "tier": "[parameters('skuTier')]"
                         },
-                        "dnsSettings": {
-                          "enableProxy": "[parameters('enableProxy')]",
-                          "servers": "[parameters('dnsServers')]"
-                        }
+                        "dnsSettings": "[if(or(equals(parameters('skuTier'), 'Premium'), equals(parameters('skuTier'), 'Standard')), variables('dnsSettings'), null())]"
                       }
                     },
                     {
@@ -2927,6 +2935,9 @@
           "virtualNetworkName": {
             "value": "[variables('spokes')[copyIndex()].virtualNetworkName]"
           },
+          "firewallSkuTier": {
+            "value": "[parameters('firewallSkuTier')]"
+          },
           "vNetDnsServers": {
             "value": [
               "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPrivateIPAddress.value]"
@@ -2940,10 +2951,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "9456730802221898162"
+              "templateHash": "3122366333892461351"
             }
           },
           "parameters": {
+            "firewallSkuTier": {
+              "type": "string"
+            },
             "location": {
               "type": "string"
             },
@@ -3210,6 +3224,9 @@
                   },
                   "vNetDnsServers": {
                     "value": "[parameters('vNetDnsServers')]"
+                  },
+                  "firewallSkuTier": {
+                    "value": "[parameters('firewallSkuTier')]"
                   }
                 },
                 "template": {
@@ -3219,7 +3236,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "12638783015880972122"
+                      "templateHash": "4828957538822254305"
                     }
                   },
                   "parameters": {
@@ -3240,6 +3257,9 @@
                     },
                     "vNetDnsServers": {
                       "type": "array"
+                    },
+                    "firewallSkuTier": {
+                      "type": "string"
                     }
                   },
                   "resources": [
@@ -3256,7 +3276,7 @@
                           ]
                         },
                         "subnets": "[parameters('subnets')]",
-                        "dhcpOptions": "[if(not(equals(parameters('vNetDnsServers'), null())), createObject('dnsServers', parameters('vNetDnsServers')), null())]"
+                        "dhcpOptions": "[if(and(not(equals(parameters('vNetDnsServers'), null())), or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard'))), createObject('dnsServers', parameters('vNetDnsServers')), null())]"
                       }
                     }
                   ],

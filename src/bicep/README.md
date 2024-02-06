@@ -26,7 +26,7 @@ Parameter name | Required | Description
 `operationsSubnetAddressPrefix` | No       | The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.
 `sharedServicesVirtualNetworkAddressPrefix` | No       | The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.
 `sharedServicesSubnetAddressPrefix` | No       | The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.
-`firewallSkuTier` | No       | [Standard/Premium] The SKU for Azure Firewall. It defaults to "Premium".
+`firewallSkuTier` | No       | [Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium".
 `firewallThreatIntelMode` | No       | [Alert/Deny/Off] The Azure Firewall Threat Intelligence Rule triggered logging behavior. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".
 `firewallIntrusionDetectionMode` | No       | [Alert/Deny/Off] The Azure Firewall Intrusion Detection mode. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".
 `firewallDiagnosticsLogs` | No       | An array of Firewall Diagnostic Logs categories to collect. See "https://docs.microsoft.com/en-us/azure/firewall/firewall-diagnostics#enable-diagnostic-logging-through-the-azure-portal" for valid values.
