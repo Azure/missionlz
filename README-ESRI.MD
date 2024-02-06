@@ -6,7 +6,7 @@ ArcGIS geospatial Landing Zone Accelerator represents the strategic design path 
 
 Below is a diagram of the components of this solution.
 
-<img src="https://github.com/Borg-GitHub/ArcGIS-on-Azure-with-AVD/blob/main/images/ArcGIS-on-Azure.jpg">
+<img src="https://github.com/Borg-GitHub/missionlz-esri/blob/main/docs/images/ArcGIS-on-Azure.jpg">
 
 The ArcGIS on Azure Landing Zone Accelerator is modular and designed to be usable for organizations that have no Azure infrastructure, as well as those who already have assets in Azure. The path is comprised of three steps, each  may be done sequentially, or not at all depending upon the requierments of your project.
 
@@ -70,7 +70,7 @@ This option will deploy ArcGIS Enterprise on one Virutal Server, which is suitea
 
 This option will deploy ArcGIS Enterprise across multiple virtual machines, which is more suitable for production implementations which require high availability.
 
-<img src="https://github.com/Borg-GitHub/ArcGIS-on-Azure-with-AVD/blob/main/images/ArcGIS-on-Azure-multi-tier.png">
+<img src="https://github.com/Borg-GitHub/missionlz-esri/blob/main/docs/images/ArcGIS-on-Azure-multi-tier.png">
 
 | Deployment Type | Link |
 |:--|:--|
