@@ -1,0 +1,225 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "activeDirectorySolution": {
+            "value": "ActiveDirectoryDomainServices"
+        },
+        "artifactsContainerName": {
+            "value": "artifacts"
+        },
+        "artifactsStorageAccountResourceId": {
+            "value": ""
+        },
+        "automationAccountPrivateDnsZoneResourceId": {
+            "value": ""
+        },
+        "availability": {
+            "value": "AvailabilityZones"
+        },
+        "avdAgentMsiName": {
+            "value": "Microsoft.RDInfra.RDAgent.Installer-x64-1.0.7539.8300.msi"
+        },
+        "avdAgentBootLoaderMsiName": {
+            "value": "Microsoft.RDInfra.RDAgentBootLoader.Installer-x64 (5).msi"
+        },
+        "avdObjectId": {
+            "value": "cdcfb416-e2fe-41e2-be12-33813c1cd427"
+        },
+        "avdPrivateDnsZoneResourceId": {
+            "value": "/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourceGroups/rg-net-d-eu/providers/Microsoft.Network/privateDnsZones/privatelink.wvd.microsoft.com"
+        },
+        "azureFilesPrivateDnsZoneResourceId": {
+            "value": "/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourceGroups/rg-net-d-eu/providers/Microsoft.Network/privateDnsZones/privatelink.file.core.windows.net"
+        },
+        "azurePowerShellModuleMsiName": {
+            "value": "Az-Cmdlets-10.2.0.37547-x64.msi"
+        },
+        "customRdpProperty": {
+            "value": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;"
+        },
+        "disableBgpRoutePropagation": {
+            "value": false
+        },
+        "diskEncryption": {
+            "value": true
+        },
+        "diskSku": {
+            "value": "Premium_LRS"
+        },
+        "domainJoinPassword": {
+            "reference": {
+                "keyVault": {
+                  "id": "/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourceGroups/rg-core-d-eu/providers/Microsoft.KeyVault/vaults/kv-core-d-eu"
+                },
+                "secretName": "DomainJoinPassword"
+            }
+        },
+        "domainJoinUserPrincipalName": {
+            "reference": {
+                "keyVault": {
+                  "id": "/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourceGroups/rg-core-d-eu/providers/Microsoft.KeyVault/vaults/kv-core-d-eu"
+                },
+                "secretName": "DomainJoinUsername"
+            }
+        },
+        "domainName": {
+            "value": "jasonmasten.com"
+        },
+        "drainMode": {
+            "value": true
+        },
+        "environment": {
+            "value": "d"
+        },
+        "fslogixShareSizeInGB": {
+            "value": 100
+        },
+        "fslogixSolution": {
+            "value": "ProfileContainer"
+        },
+        "fslogixStorage": {
+            "value": "AzureFiles Premium"
+        },
+        "globalWorkspacePrivateDnsZoneResourceId": {
+            "value": "/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourceGroups/rg-net-d-eu/providers/Microsoft.Network/privateDnsZones/privatelink-global.wvd.microsoft.com"
+        },
+        "hostPoolPublicNetworkAccess": {
+            "value": "Enabled"
+        },
+        "hostPoolType": {
+            "value": "Pooled DepthFirst"
+        },
+        "hubAzureFirewallResourceId": {
+            "value": ""
+        },
+        "hubVirtualNetworkResourceId": {
+            "value": ""
+        },
+        "identifier": {
+            "value": "jnm"
+        },
+        "imageDefinitionResourceId": {
+            "value": ""
+        },
+        "imageOffer": {
+            "value": "office-365"
+        },
+        "imagePublisher": {
+            "value": "MicrosoftWindowsDesktop"
+        },
+        "imageSku": {
+            "value": "win11-22h2-avd-m365"
+        },
+        "locationControlPlane": {
+            "value": "eastus"
+        },
+        "logAnalyticsWorkspaceRetention": {
+            "value": 30
+        },
+        "logAnalyticsWorkspaceSku": {
+            "value": "PerGB2018"
+        },
+        "maxSessionLimit": {
+            "value": 8
+        },
+        "monitoring": {
+            "value": true
+        },
+        "organizationalUnitPath": {
+            "value": "OU=AVD,DC=jasonmasten,DC=com"
+        },
+        "recoveryServices": {
+            "value": false
+        },
+        "scalingBeginPeakTime": {
+            "value": "7:00"
+        },
+        "scalingEndPeakTime": {
+            "value": "18:00"
+        },
+        "scalingLimitSecondsToForceLogOffUser": {
+            "value": "0"
+        },
+        "scalingMinimumNumberOfRdsh": {
+            "value": "0"
+        },
+        "scalingSessionThresholdPerCPU": {
+            "value": "1"
+        },
+        "scalingTool": {
+            "value": true
+        },
+        "securityLogAnalyticsWorkspaceResourceId": {
+            "value": ""
+        },
+        "securityPrincipalObjectIds": {
+            "value": [
+                "06c4afa5-b6dc-4719-8034-947887108e29"
+            ]
+        },
+        "securityPrincipals": {
+            "value": []
+        },
+        "sessionDesktopFriendlyName": {
+            "value": ""
+        },
+        "sessionHostCount": {
+            "value": 1
+        },
+        "sessionHostIndex": {
+            "value": 0
+        },
+        "stampIndex": {
+            "value": 0
+        },
+        "storageCount": {
+            "value": 1
+        },
+        "storageIndex": {
+            "value": 0
+        },
+        "subnetAddressPrefix": {
+            "value": "10.0.8.0/24"
+        },
+        "subnetResourceId": {
+            "value": "/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourceGroups/rg-net-d-eu/providers/Microsoft.Network/virtualNetworks/vnet-net-d-eu/subnets/Clients"
+        },
+        "tags": {
+            "value": {}
+        },
+        "validationEnvironment": {
+            "value": false
+        },
+        "virtualMachinePassword": {
+            "reference": {
+                "keyVault": {
+                  "id": "/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourceGroups/rg-core-d-eu/providers/Microsoft.KeyVault/vaults/kv-core-d-eu"
+                },
+                "secretName": "VmPassword"
+            }
+        },
+        "virtualMachineSize": {
+            "value": "Standard_D4ads_v5"
+        },
+        "virtualMachineUsername": {
+            "reference": {
+                "keyVault": {
+                  "id": "/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourceGroups/rg-core-d-eu/providers/Microsoft.KeyVault/vaults/kv-core-d-eu"
+                },
+                "secretName": "VmUsername"
+            }
+        },
+        "virtualNetworkAddressPrefix": {
+            "value": [
+                "10.0.8.0/24"
+            ]
+        },
+        "workspaceFriendlyName": {
+            "value": "Jason Masten"
+        },
+        "workspacePublicNetworkAccess": {
+            "value": "Enabled"
+        }
+    }
+}
