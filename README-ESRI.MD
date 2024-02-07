@@ -36,7 +36,7 @@ There are two primary components to this component in this geospatial accelerato
 
 <br>
 
- :arrow_forward: The second step is to create the Windows image which will be used to create the Azure Virtual Desktops. This image will have ArcGIS Pro pre-installed when you use this template ->  [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD). Be sure to complete the necessary [prerequisites](https://github.com/mikedzikowski/ZTAImage?tab=readme-ov-file#prequisites)
+ :arrow_forward: The second step is to create the Windows image which will be used to create the Azure Virtual Desktops. This image will have ArcGIS Pro pre-installed when you use this template ->  [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD). Be sure to complete the necessary [prerequisites](https://github.com/mikedzikowski/ZTAImage?tab=readme-ov-file#prequisites).
 
 <br>
 
@@ -83,7 +83,7 @@ The below automation templates can be deployed in your Azure subscriptions by cl
 ## Zero Trust and Azure Imaging
 
 This [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD)
-solution for Azure allows you create images in an Azure environment that adheres to zero trust. While other options exist in Azure, they are either a manual processes or do not adhere to zero trust. This solution uses a storage account with a private endpoint to store applications and the existing, preconfigured resources that comply with Zero Trust principles. This solution will enable you to create an Windows image for Azure virtual desktop that comes with ArcGIS Pro pre installed.   
+solution for Azure allows you create images in an Azure environment that adheres to zero trust. While other options exist in Azure, they are either a manual processes or do not adhere to zero trust. This solution uses a storage account with a private endpoint to store applications and the existing, preconfigured resources that comply with Zero Trust principles. This solution will enable you to create an Windows image for Azure virtual desktop that comes with ArcGIS Pro pre installed.    Be sure to complete the necessary [prerequisites](https://github.com/mikedzikowski/ZTAImage?tab=readme-ov-file#prequisites).
 
 <!-- markdownlint-disable MD013 -->
 1. Deploy Zero Trust Imaging into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
@@ -97,7 +97,7 @@ solution for Azure allows you create images in an Azure environment that adheres
 
 ## The Azure Virtual Desktop (AVD) solution
 
-The [Azure Virtual Desktop (AVD) solution](https://github.com/jamasten/AzureVirtualDesktop/blob/main/README.md) provides an architectural approach and reference implementation to prepare landing zone subscriptions for a scalable Azure Virtual Desktop deployment. The Azure Virtual Desktop Landing Zone Accelerator (LZA) only addresses what gets deployed in the specific Azure Virtual Desktop landing zone subscriptions, as shown in the architectural diagram above. It is assumed that an appropriate Azure landing zone foundation is already setup.
+The [Azure Virtual Desktop (AVD) solution](https://github.com/jamasten/AzureVirtualDesktop/blob/main/README.md) provides an architectural approach and reference implementation to prepare landing zone subscriptions for a scalable Azure Virtual Desktop deployment. The Azure Virtual Desktop Landing Zone Accelerator (LZA) only addresses what gets deployed in the specific Azure Virtual Desktop landing zone subscriptions, as shown in the architectural diagram above. It is assumed that an appropriate Azure landing zone foundation is already setup.  Be sure to complete the necessary [prerequisites](./docs/prerequisites.md)
 
 <!-- markdownlint-disable MD013 -->
 1. Deploy The Azure Virtual Desktop (AVD) solution into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
