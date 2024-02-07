@@ -1,0 +1,414 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2021-09-09/uiFormDefinition.schema.json",
+    "view": {
+        "kind": "Form",
+        "properties": {
+            "title": "ArcGIS Enterprise on Azure with AVD",
+            "steps": [
+                {
+                    "name": "basics",
+                    "label": "Basics",
+                    "elements": [
+                        {
+                            "name": "scope",
+                            "type": "Microsoft.Common.ResourceScope",
+                            "location": {
+                                "resourceTypes": []
+                            }
+                        },
+                        {
+                            "name": "naming",
+                            "type": "Microsoft.Common.Section",
+                            "label": "Resource Naming",
+                            "elements": [
+                                {
+                                    "name": "resourceSuffix",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "Resource Suffix",
+                                    "toolTip": "Input a suffix for the resource names created with this solution. The suffix should represent a unique value within your organization, such as a business unit or project.",
+                                    "placeholder": "",
+                                    "constraints": {
+                                        "required": true,
+                                        "regex": "^[a-z0-9A-Z]+$",
+                                        "validationMessage": "The value must be alphanumeric."
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "server",
+                    "label": "Server",
+                    "elements": [
+                        {
+                            "name": "domain",
+                            "type": "Microsoft.Common.Section",
+                            "label": "Domain Settings",
+                            "visible": true,
+                            "elements": [
+                                {
+                                    "name": "joinWindowsDomain",
+                                    "type": "Microsoft.Common.CheckBox",
+                                    "label": "Join windows domain",
+                                    "defaultValue": true,
+                                    "toolTip": "Indicates whether the server is joined to Active Directory Domain Services."
+                                },
+                                {
+                                    "name": "name",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "visible": "[steps('server').domain.joinWindowsDomain]",
+                                    "label": "Domain Name",
+                                    "toolTip": "Provide domain name for Active Directory Domain Services.",
+                                    "placeholder": "Example: contoso.com",
+                                    "constraints": {
+                                        "required": true
+                                    }
+                                },
+                                {
+                                    "name": "ouPath",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "visible": "[steps('server').domain.joinWindowsDomain]",
+                                    "label": "OU Path",
+                                    "toolTip": "Input the distinguished name of the desired organization unit.",
+                                    "placeholder": "Example: OU=servers,OU=arcgis,DC=contoso,DC=com",
+                                    "constraints": {
+                                        "required": true
+                                    }
+                                },
+                                {
+                                    "name": "userPrincipalName",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "visible": "[steps('server').domain.joinWindowsDomain]",
+                                    "label": "Domain join user principal name",
+                                    "toolTip": "Enter the user principal name with domain join privileges.",
+                                    "placeholder": "",
+                                    "constraints": {
+                                        "required": true,
+                                        "regex": "^[a-z0-9A-Z_.-]+@(?:[a-z0-9]+\\.)+[a-z]+$",
+                                        "validationMessage": "The value must be a valid user principal name."
+                                    }
+                                },
+                                {
+                                    "name": "password",
+                                    "type": "Microsoft.Common.PasswordBox",
+                                    "visible": "[steps('server').domain.joinWindowsDomain]",
+                                    "label": {
+                                        "password": "Domain join password"
+                                    },
+                                    "toolTip": "Enter a password that is alphanumeric, contains at least 12 characters, 1 letter, 1 number and 1 special character.",
+                                    "constraints": {
+                                        "required": true
+                                    },
+                                    "options": {
+                                        "hideConfirmation": true
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "localAdminCredentials",
+                            "type": "Microsoft.Common.Section",
+                            "visible": true,
+                            "label": "Local administrator credential",
+                            "elements": [
+                                {
+                                    "name": "username",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "Username",
+                                    "defaultValue": "",
+                                    "toolTip": "Input the username for the local administrator account.",
+                                    "constraints": {
+                                        "required": true,
+                                        "regex": "",
+                                        "validationMessage": ""
+                                    },
+                                    "visible": true
+                                },
+                                {
+                                    "name": "password",
+                                    "type": "Microsoft.Common.PasswordBox",
+                                    "label": {
+                                        "password": "Password",
+                                        "confirmPassword": "Confirm Password"
+                                    },
+                                    "toolTip": "Input the password for the local administrator account.",
+                                    "constraints": {
+                                        "required": true,
+                                        "regex": "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=_!*<>()])(?=\\S+$).{12,123}$",
+                                        "validationMessage": "The value must be within 12 to 123 characters, be alphanumeric, and include 1 lower case character, 1 upper case character, 1 number, and 1 special character that is not '\\' or '-'."
+                                    },
+                                    "options": {
+                                        "hideConfirmation": false
+                                    },
+                                    "visible": true
+                                }
+                            ]
+                        },
+                        {
+                            "name": "configuration",
+                            "type": "Microsoft.Common.Section",
+                            "label": "Configuration settings",
+                            "visible": true,
+                            "elements": [
+                                {
+                                    "name": "osDiskSize",
+                                    "type": "Microsoft.Common.Slider",
+                                    "label": "OS Disk Size (GB)",
+                                    "defaultValue": 128,
+                                    "toolTip": "Input the virtual machine OS disk size in GB.",
+                                    "min": 32,
+                                    "max": 1024,
+                                    "showStepMarkers": false,
+                                    "constraints": {
+                                        "required": true
+                                    },
+                                    "visible": true
+                                },
+                                {
+                                    "name": "enableVirtualMachineDataDisk",
+                                    "type": "Microsoft.Common.CheckBox",
+                                    "label": "Enable data disk",
+                                    "defaultValue": false,
+                                    "toolTip": "Indicates whether an additional Managed Disk is attached to the Virtual Machine(s)."
+                                },
+                                {
+                                    "name": "enableMonitoring",
+                                    "type": "Microsoft.Common.CheckBox",
+                                    "label": "Enable monitoring",
+                                    "defaultValue": false,
+                                    "toolTip": "Indicates whether the Azure Monitor Agent will be installed on the virtual machine."
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "portal",
+                    "label": "Portal",
+                    "elements": [
+                        {
+                            "name": "primarySiteAdministratorAccount",
+                            "type": "Microsoft.Common.Section",
+                            "label": "ArcGIS primary site administrator account",
+                            "visible": true,
+                            "elements": [
+                                {
+                                    "name": "username",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "Username",
+                                    "defaultValue": "",
+                                    "toolTip": "Input the username for the ArcGIS primary site administrator account.",
+                                    "constraints": {
+                                        "required": true,
+                                        "regex": "",
+                                        "validationMessage": ""
+                                    },
+                                    "visible": true
+                                },
+                                {
+                                    "name": "password",
+                                    "type": "Microsoft.Common.PasswordBox",
+                                    "label": {
+                                        "password": "Password"
+                                    },
+                                    "toolTip": "Enter a password that is alphanumeric, contains at least 12 characters, 1 letter, 1 number and 1 special character.",
+                                    "constraints": {
+                                        "required": true,
+                                        "regex": "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\\.).{12,123}$",
+                                        "validationMessage": "The value must be within 12 to 24 characters, be alphanumeric, and include the following: lower case character, 1 upper case character, 1 number, and 1 period."
+                                    },
+                                    "options": {
+                                        "hideConfirmation": false
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "arcgisServiceAccount",
+                            "type": "Microsoft.Common.Section",
+                            "label": "ArcGIS service account",
+                            "visible": true,
+                            "elements": [
+                                {
+                                    "name": "isDomainAccount",
+                                    "type": "Microsoft.Common.CheckBox",
+                                    "label": "Is the ArcGIS service account a domain account?",
+                                    "defaultValue": true,
+                                    "toolTip": "Indicates whether the account is a domain or local account."
+                                },
+                                {
+                                    "name": "username",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "Username",
+                                    "defaultValue": "",
+                                    "toolTip": "Input the username for the service account.",
+                                    "constraints": {
+                                        "required": true,
+                                        "regex": "",
+                                        "validationMessage": ""
+                                    },
+                                    "visible": true
+                                },
+                                {
+                                    "name": "password",
+                                    "type": "Microsoft.Common.PasswordBox",
+                                    "label": {
+                                        "password": "Password"
+                                    },
+                                    "toolTip": "Enter a password that is alphanumeric, contains at least 12 characters, 1 letter, 1 number and 1 special character.",
+                                    "constraints": {
+                                        "required": true,
+                                        "regex": "^[a-zA-Z0-9@#$%^&+=_!*<>()]{12,123}$",
+                                        "validationMessage": "The value must be within 12 to 123 characters, be alphanumeric, and include 1 lower case character, 1 upper case character, 1 number, and 1 special character that is not '\\' or '-'."
+                                    },
+                                    "options": {
+                                        "hideConfirmation": false
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "configuration",
+                            "type": "Microsoft.Common.Section",
+                            "label": "Configuration settings",
+                            "visible": true,
+                            "elements": [
+                                {
+                                    "name": "externalDnsHostnamePrefix",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "External DNS hostname prefix",
+                                    "toolTip": "Input the external DNS hostname prefix for the portal.",
+                                    "placeholder": "",
+                                    "constraints": {
+                                        "required": true,
+                                        "regex": "^[a-z0-9A-Z]+$",
+                                        "validationMessage": "The value must be alphanumeric."
+                                    }
+                                },
+                                {
+                                    "name": "debugMode",
+                                    "type": "Microsoft.Common.CheckBox",
+                                    "label": "Enable debug mode",
+                                    "defaultValue": false,
+                                    "toolTip": "Indicates whether to enable the debug settings on the site deployment. Used for troubleshooting only and should not be used for a production deployment."
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "licenses",
+                    "label": "Licenses",
+                    "elements": [
+                        {
+                            "name": "files",
+                            "type": "Microsoft.Common.Section",
+                            "label": "License files",
+                            "visible": true,
+                            "elements": [
+                                {
+                                    "name": "portal",
+                                    "type": "Microsoft.Common.FileUpload",
+                                    "label": "Select your portal license file (.json)",
+                                    "toolTip": "Upload the portal license file with the JSON file extension.",
+                                    "constraints": {
+                                        "required": true,
+                                        "accept": ""
+                                    },
+                                    "options": {
+                                        "multiple": false,
+                                        "uploadMode": "file",
+                                        "openMode": "binary",
+                                        "encoding": ""
+                                    },
+                                    "visible": true,
+                                    "scope": {
+                                        "subscriptionId": "[steps('basics').resourceScope.subscription.subscriptionId]"
+                                    },
+                                    "resourceTypeMetadata": []
+                                },
+                                {
+                                    "name": "server",
+                                    "type": "Microsoft.Common.FileUpload",
+                                    "label": "Select your server license file (.prvc)",
+                                    "toolTip": "Upload the server license file with the PRVC file extension.",
+                                    "constraints": {
+                                        "required": true,
+                                        "accept": ""
+                                    },
+                                    "options": {
+                                        "multiple": false,
+                                        "uploadMode": "file",
+                                        "openMode": "binary",
+                                        "encoding": ""
+                                    },
+                                    "visible": true,
+                                    "scope": {
+                                        "subscriptionId": "[steps('basics').resourceScope.subscription.subscriptionId]"
+                                    },
+                                    "resourceTypeMetadata": []
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "tags",
+                    "label": "Tags",
+                    "elements": [
+                        {
+                            "name": "tags",
+                            "type": "Microsoft.Common.TagsByResource",
+                            "resources": [
+                                "Microsoft.Compute/availabilitySets",
+                                "Microsoft.Compute/virtualMachines",
+                                "Microsoft.KeyVault/vaults",
+                                "Microsoft.ManagedIdentity/userAssignedIdentities",
+                                "Microsoft.Network/applicationGateways",
+                                "Microsoft.Network/networkInterfaces",
+                                "Microsoft.Network/publicIPAddresses",
+                                "Microsoft.Network/virtualNetworks",
+                                "Microsoft.Resources/deploymentScripts",
+                                "Microsoft.Resources/resourceGroups",
+                                "Microsoft.Storage/storageAccounts"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "outputs": {
+            "parameters": {
+                "adminPassword": "[steps('server').localAdminCredentials.password]",
+                "adminUsername": "[steps('server').localAdminCredentials.username]",
+                "arcgisServiceAccountIsDomainAccount": "[steps('portal').arcgisServiceAccount.isDomainAccount]",
+                "arcgisServiceAccountPassword": "[steps('portal').arcgisServiceAccount.password]",
+                "arcgisServiceAccountUserName": "[steps('portal').arcgisServiceAccount.username]",
+                "dataStoreTypesForBaseDeploymentServers": "Relational",
+                "debugMode": "[steps('portal').configuration.debugMode]",
+                "enableMonitoring": "[steps('server').configuration.enableMonitoring]",
+                "enableVirtualMachineDataDisk": "[steps('server').configuration.enableVirtualMachineDataDisk]",
+                "externalDnsHostnamePrefix": "[steps('portal').configuration.externalDnsHostnamePrefix]",
+                "isTileCacheDataStoreClustered": false,
+                "isUpdatingCertificates": false,
+                "joinWindowsDomain": "[steps('server').domain.joinWindowsDomain]",
+                "ouPath": "[steps('server').domain.ouPath]",
+                "portalLicenseFile": "[steps('licenses').files.portal]",
+                "portalLicenseUserTypeId": "creatorUT",
+                "primarySiteAdministratorAccountPassword": "[steps('portal').primarySiteAdministratorAccount.password]",
+                "primarySiteAdministratorAccountUserName": "[steps('portal').primarySiteAdministratorAccount.username]",
+                "resourceSuffix": "[steps('basics').naming.resourceSuffix]",
+                "serverLicenseFile": "[steps('licenses').files.server]",
+                "tags": "[steps('tags').tags]",
+                "virtualMachineOSDiskSize": "[steps('server').configuration.osDiskSize]",
+                "windowsDomainAdministratorPassword": "[steps('server').domain.password]",
+                "windowsDomainAdministratorUserName": "[steps('server').domain.userPrincipalName]",
+                "windowsDomainName": "[steps('server').domain.name]"
+            },
+            "kind": "Subscription",
+            "location": "[steps('basics').scope.location.name]",
+            "subscriptionId": "[steps('basics').scope.subscription.id]"
+        }
+    }
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "resourceGroupName": {
+      "value": "a14-test-rg"
+    },
+    "deploymentPrefix": {
+      "value": "a14"
+    },
+    "externalDnsHostname": {
+      "value": "a14"
+    },
+    "adminUsername": {
+      "value": "xadmin"
+    },
+    "adminPassword": {
+      "value": "123mikeD123!"
+    },
+    "virtualMachineName": {
+      "value": "esri-test"
+    },
+    "virtualMachineOSDiskSize": {
+      "value": 0
+    },
+    "dscConfiguration": {
+      "value": "BaseDeploymentSingleTierConfiguration"
+    },
+    "dscScript": {
+      "value": "BaseDeploymentSingleTierConfiguration.ps1"
+    },
+    "arcgisServiceAccountUserName": {
+      "value": "arcgis"
+    },
+    "arcgisServiceAccountPassword": {
+      "value": "mikeD123!"
+    },
+    "arcgisServiceAccountIsDomainAccount": {
+      "value": false
+    },
+    "primarySiteAdministratorAccountUserName": {
+      "value": "sadmin"
+    },
+    "primarySiteAdministratorAccountPassword": {
+      "value": "MIKED."
+    },
+    "portalLicenseUserTypeId": {
+      "value": "creatorUT"
+    },
+    "dataStoreTypesForBaseDeploymentServers": {
+      "value": "Relational"
+    },
+    "cloudStorageAccountName": {
+      "value": ""
+    },
+    "cloudStorageAccountKey": {
+      "value": ""
+    },
+    "enableServerLogHarvesterPlugin": {
+      "value": false
+    },
+    "container": {
+      "value": "artifacts"
+    },
+    "joinWindowsDomain": {
+      "value": false
+    },
+    "windowsDomainName": {
+      "value": ""
+    },
+    "enableMonitoring": {
+        "value": true
+    }
+  }
+}
