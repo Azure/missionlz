@@ -36,7 +36,7 @@ There are two primary components to this component in this geospatial accelerato
 
 <br>
 
- :arrow_forward: The second step is to create the Windows image which will be used to create the Azure Virtual Desktops. This image will have ArcGIS Pro pre-installed when you use this template ->  [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD). 
+ :arrow_forward: The second step is to create the Windows image which will be used to create the Azure Virtual Desktops. This image will have ArcGIS Pro pre-installed when you use this template ->  [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD). Be sure to complete the necessary [prerequisites](https://github.com/mikedzikowski/ZTAImage?tab=readme-ov-file#prequisites)
 
 <br>
 
