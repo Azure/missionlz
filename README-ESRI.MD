@@ -108,9 +108,9 @@ The [Azure Virtual Desktop (AVD) solution](https://github.com/jamasten/AzureVirt
 
 In this ArcGIS on Azure acclerator, you have access to step by step guides covering various customer [scenarios](./Scenarios) that can help accelerate the development and deployment of ArcGIS on Azure which conform with best practices. This is a good starting point if you are **new** to Azure or Infrastructure-As-Code (IaC) . Each scenario aims to represent common customer use cases, with the goal of accelerating the deployment process using Infrastructure-As-Code (IaC) assets.
 
-### ArcGIS Enterprise base deployment single tier
+### ArcGIS Enterprise base deployment single machine
 
-This option will deploy ArcGIS Enterprise on one Virutal Server, which is suiteable for Prof-of-Concept implementations.
+This option will deploy ArcGIS Enterprise on one Virutal Server, which is suiteable for Prof-of-Concept implementations or demo environments.
 
  <img src="https://github.com/Borg-GitHub/missionlz-esri/blob/main/docs/images/ArcGIS-on-Azure-Single-Tier.png">
 
@@ -118,7 +118,7 @@ This option will deploy ArcGIS Enterprise on one Virutal Server, which is suitea
 |:--|:--|
 | Azure portal UI | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FBorg-GitHub%2FArcGIS-on-Azure-with-AVD%2Fmain%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FBorg-GitHub%2FArcGIS-on-Azure-with-AVD%2Fmain%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FBorg-GitHub%2FArcGIS-on-Azure-with-AVD%2Fmain%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FBorg-GitHub%2FArcGIS-on-Azure-with-AVD%2Fmain%2FuiDefinition.json) |
 
-### ArcGIS Enterprise base deployment multi tier
+### ArcGIS Enterprise base deployment multi machine
 
 This option will deploy ArcGIS Enterprise across multiple virtual machines, which is more suitable for production implementations which require high availability.
 
