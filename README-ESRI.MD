@@ -56,7 +56,8 @@ This automation template will setup Esri's ArcGIS Enterprise in either a [Single
 
 Once everything is deployed, users will need to consider how to migrate their data, applications, and configuration to this new environment. This includes ArcGIS Enterprise services, Enterprise geodatabase, Portal for ArcGIS configuration, etc.  See Esri's documentation [here](https://enterprise.arcgis.com/en/portal/latest/administer/windows/migration-strategies.htm) and [here](https://architecture.arcgis.com/en/framework/architecture-practices/architectural-foundations/deployment-concepts/enterprise-and-cloud-migration.html) for advice on migrations. See this video for a full discussion on migration options:
 
-![](https://mediaspace.esri.com/media/t/1_6iw4ydg1)
+
+[![](https://mediaspace.esri.com/media/t/1_6iw4ydg1)]
 
 <br>
 <br>
