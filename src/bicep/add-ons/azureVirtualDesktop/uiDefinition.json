@@ -15,8 +15,8 @@
                             "options": {
                                 "text": "The Azure Virtual Desktop (AVD) add-on reduces the complexity in deploying AVD with SCCA and zero trust compliance. Click on the link below to learn more about the solution.",
                                 "link": {
-                                    "label": "https://github.com/jamasten/AzureVirtualDesktop/blob/main/README.md",
-                                    "uri": "https://github.com/jamasten/AzureVirtualDesktop/blob/main/README.md"
+                                    "label": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azureVirtualDesktop/README.md",
+                                    "uri": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azureVirtualDesktop/README.md"
                                 }
                             }
                         },
@@ -66,7 +66,7 @@
                                     "type": "Microsoft.Common.DropDown",
                                     "visible": true,
                                     "label": "Virtual network",
-                                    "defaultValue": "[first(map(steps('basics').hub.virtualNetworksApi.value, (item) => item.name))]",
+                                    "defaultValue": "[filter(map(steps('basics').hub.virtualNetworksApi.value, (item) => item.name), (item) => contains(item, 'hub'))]",
                                     "filter": true,
                                     "toolTip": "Select the existing Hub virtual network.",
                                     "constraints": {
@@ -108,8 +108,8 @@
                                     "options": {
                                         "text": "The values selected below will be used as components in your naming convention to name your Azure resource groups and resources. For more information on the naming convention used in this solution, refer to the documentation.",
                                         "link": {
-                                            "label": "https://github.com/jamasten/AzureVirtualDesktop/blob/main/docs/design/naming.md",
-                                            "uri": "https://github.com/jamasten/AzureVirtualDesktop/blob/main/docs/design/naming.md"
+                                            "label": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azureVirtualDesktop/docs/design/naming.md",
+                                            "uri": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azureVirtualDesktop/docs/design/naming.md"
                                         }
                                     }
                                 },
@@ -1496,8 +1496,8 @@
                                         "style": "Warning",
                                         "text": "The files listed above are prerequisites for this solution. They must be downloaded and staged in Azure Blob storage. Once staged, ensure the file names listed above match the file names in Azure Blob storage since the names can change over time. Refer to the following link to download the files:",
                                         "uri": {
-                                            "text": "https://github.com/jamasten/AzureVirtualDesktop/blob/main/docs/prerequisites.md#required",
-                                            "value": "https://github.com/jamasten/AzureVirtualDesktop/blob/main/docs/prerequisites.md#required"
+                                            "text": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azureVirtualDesktop/docs/prerequisites.md#required",
+                                            "value": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azureVirtualDesktop/docs/prerequisites.md#required"
                                         }
                                     }
                                 }
