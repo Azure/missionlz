@@ -22,6 +22,8 @@ An Azure landing zone consists of platform landing zones and application landing
 
 <br>
 
+## Step 1 (optional)
+
 :arrow_forward: The first step is to deploy [Mission Landing Zone](https://github.com/Azure/missionlz/blob/main/README.md). This allows organizations to start with a foundational landing zone that supports their application portfolios, regardless of whether the applications are being migrated or are newly developed and deployed to Azure. Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their workloads and teams.
 Mission Landing Zone provides a Secure Cloud Computing Architecture (SCCA) compliant hub and spoke network infrastructure. If you allready have an Azure Landing Zone, you can skip this step. For more on what an Azure Landing Zone is, see here -> [Azure Landing Zone](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone).
 
@@ -36,9 +38,13 @@ There are two primary components to this component in this geospatial accelerato
 
 <br>
 
+## Step 2 (optional)
+
  :arrow_forward: The second step is to create the Windows image which will be used to create the Azure Virtual Desktops. This image will have ArcGIS Pro pre-installed when you use this template ->  [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD). Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging#prequisites).
 
 <br>
+
+## Step 3 (optional)
 
  :arrow_forward: The third step is to deploy the Azure Virtual Desktop (AVD) solution will provide a fully operational [stamp](https://learn.microsoft.com/azure/architecture/patterns/deployment-stamp) in an Azure subscription adhereing to the [Zero Trust principles](https://learn.microsoft.com/security/zero-trust/azure-infrastructure-avd). This template represents the strategic design path and target technical state for Azure Virtual Desktop deployment. Many of the [common features](./docs/features.md) used with AVD have been automated in this solution for your convenience. Be sure to complete the necessary [prerequisites](https://github.com/jamasten/AzureVirtualDesktop/blob/main/docs/prerequisites.md) and to review the parameter descriptions to the understand the consequences of your selections. Also, please review Esri's guidance on [VDI and ArcGIS Pro](https://architecture.arcgis.com/en/framework/architecture-practices/architectural-foundations/deployment-concepts/vdi-and-arcgis-pro.html).
 
@@ -50,6 +56,9 @@ This Azure Virtual Desktop Accelerator only addresses what gets deployed in the 
 > Failure to complete the [prerequisites](https://github.com/jamasten/AzureVirtualDesktop/blob/main/docs/prerequisites.md) will result in an unsuccessful deployment.
 
 <br>
+
+## Step 4 (optional)
+
  :arrow_forward: The fourth step is to run the ArcGIS Enterprise on Azure accelerator. 
 
 This automation template will setup Esri's ArcGIS Enterprise in either a [Single Machine or Multiple-Machine](https://enterprise.arcgis.com/en/server/latest/install/windows/deployment-scenarios.htm) deployment as shown in the diagrams. Presently, this base deployment is nearly identical to the [ArcGIS Enterprise Cloud Builder](https://enterprise.arcgis.com/en/server/latest/cloud/azure/what-is-arcgis-server-cloud-builder-for-microsoft-azure.htm). However, optimizations have been made in this highly opinionated architecture. For example, as part of the deployment, [Azure NetApp Files](https://learn.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-introduction) has been deployed which allows for ArcGIS Pro and Enterprise to share a Network Attached Storage device. ArcGIS Pro users can place GIS datasets on the share. Also, ArcGIS Enterprise has its [server directories](https://enterprise.arcgis.com/en/server/latest/administer/windows/about-server-directories.htm) located there for fast access to these important components of ArcGIS Enterprise. Also, the Web Adaptor is not deployed. Instead, the Azure Application Gateway is used as the load balancing solution.
