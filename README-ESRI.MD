@@ -50,7 +50,7 @@ This Azure Virtual Desktop Accelerator only addresses what gets deployed in the 
 <br>
 
 > [!WARNING]
-> Failure to complete the [prerequisites](https://github.com/jamasten/AzureVirtualDesktop/blob/main/docs/prerequisites.md) will result in an unsuccessful deployment.
+> Failure to complete the [prerequisites](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azureVirtualDesktop/docs/prerequisites.md) will result in an unsuccessful deployment.
 
 <br>
 
