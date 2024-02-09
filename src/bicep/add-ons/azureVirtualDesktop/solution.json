@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.3.34343",
-      "templateHash": "3466311479239393457"
+      "templateHash": "8200335932910640404"
     }
   },
   "parameters": {
@@ -551,7 +551,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.3.34343",
-              "templateHash": "5341683557597052754"
+              "templateHash": "9380484869415159237"
             }
           },
           "parameters": {
@@ -970,17 +970,17 @@
             },
             "$fxv#1": {
               "automationAccounts": "aa",
-              "availabilitySets": "as",
+              "availabilitySets": "avail",
               "dataCollectionRuleAssociations": "dcra",
               "dataCollectionRules": "dcr",
-              "desktopApplicationGroups": "dag",
+              "desktopApplicationGroups": "vdag",
               "diskAccesses": "da",
-              "remoteApplicationGroups": "rag",
+              "remoteApplicationGroups": "vdag",
               "disks": "disk",
               "diskEncryptionSets": "des",
-              "hostPools": "hp",
+              "hostPools": "vdpool",
               "keyVaults": "kv",
-              "logAnalyticsWorkspaces": "law",
+              "logAnalyticsWorkspaces": "log",
               "netAppAccounts": "naa",
               "netAppCapacityPools": "nacp",
               "networkInterfaces": "nic",
@@ -988,11 +988,11 @@
               "recoveryServicesVaults": "rsv",
               "resourceGroups": "rg",
               "routeTables": "rt",
-              "storageAccounts": "sa",
-              "userAssignedIdentities": "uai",
+              "storageAccounts": "st",
+              "userAssignedIdentities": "id",
               "virtualMachines": "vm",
               "virtualNetworks": "vnet",
-              "workspaces": "ws"
+              "workspaces": "vdws"
             },
             "namingConvention": "[format('{0}-{1}-resourceType-{2}-location', parameters('identifier'), parameters('stampIndex'), parameters('environmentShortName'))]",
             "namingConvention_Global": "[format('resourceType-{0}-location', parameters('environmentShortName'))]",
