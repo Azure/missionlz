@@ -7,8 +7,10 @@ param blobsPrivateDnsZoneResourceId string
 param keyVaultUri string
 param logStorageAccountName string
 param logStorageSkuName string
+param logStorageAccountNetworkInterfaceNamePrefix string
+param logStorageAccountPrivateEndpointNamePrefix string
 param location string
-param resourcePrefix string
+param serviceToken string
 param storageEncryptionKeyName string
 param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
@@ -19,16 +21,18 @@ module storageAccount '../modules/storage-account.bicep' = {
   name: 'storage'
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
-    userAssignedIdentityResourceId: userAssignedIdentityResourceId
     keyVaultUri: keyVaultUri
     location: location
-    resourcePrefix: resourcePrefix
+    serviceToken: serviceToken
     skuName: logStorageSkuName
     storageAccountName: logStorageAccountName
+    storageAccountNetworkInterfaceNamePrefix: logStorageAccountNetworkInterfaceNamePrefix
+    storageAccountPrivateEndpointNamePrefix: logStorageAccountPrivateEndpointNamePrefix
     storageEncryptionKeyName: storageEncryptionKeyName
     subnetResourceId: subnetResourceId
     tablesPrivateDnsZoneResourceId: tablesPrivateDnsZoneResourceId
     tags: tags
+    userAssignedIdentityResourceId: userAssignedIdentityResourceId
   }
 }
 

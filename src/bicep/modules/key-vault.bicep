@@ -1,8 +1,9 @@
 param diskEncryptionKeyExpirationInDays int = 30
 param keyVaultName string
+param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
+param keyVaultPrivateEndpointName string
 param location string
-param resourcePrefix string
 param subnetResourceId string
 param tags object
 
@@ -34,14 +35,14 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: replace(keyVaultName, resourcePrefix, '${resourcePrefix}-pe')
+  name: keyVaultPrivateEndpointName
   location: location
   tags: tags
   properties: {
-    customNetworkInterfaceName: replace(keyVaultName, resourcePrefix, '${resourcePrefix}-nic')
+    customNetworkInterfaceName: keyVaultNetworkInterfaceName
     privateLinkServiceConnections: [
       {
-        name: replace(keyVaultName, resourcePrefix, '${resourcePrefix}-nic')
+        name: keyVaultPrivateEndpointName
         properties: {
           privateLinkServiceId: vault.id
           groupIds: [

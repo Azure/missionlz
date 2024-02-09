@@ -2,7 +2,7 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
-
+param firewallSkuTier string
 param location string
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
@@ -67,6 +67,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     ]
     tags: tags
     vNetDnsServers: vNetDnsServers
+    firewallSkuTier: firewallSkuTier
   }
 }
 
