@@ -31,6 +31,12 @@ Our intent is to enable IT Admins to use this software to:
 - Customize the deployment configuration to suit specific needs
 - Deploy multiple customer workloads in production
 
+## Mission Landing Zone Add-ons
+
+- [ESRI ArcGIS Pro & Enterprise with AVD](./docs/esri.md)
+- [AVD (Azure Virtual Desktop)](./src/bicep/add-ons/AVD/README.md)
+- [Zero Trust Imaging](./src/bicep/add-ons/Imaging/README.md)
+
 ## What is a Landing Zone?
 
 A **landing zone** is networking infrastructure configured to provide a secure environment for hosting workloads.
