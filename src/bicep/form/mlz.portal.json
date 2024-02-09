@@ -234,11 +234,11 @@
                   }
                 },
                 {
-                  "name": "resourceSuffix",
-                  "label": "Resource Naming Suffix",
+                  "name": "environmentAbbreviation",
+                  "label": "Environment Abbreviation",
                   "type": "Microsoft.Common.DropDown",
                   "defaultValue": "dev",
-                  "toolTip": "Select a resource naming suffix to append to all resources.",
+                  "toolTip": "Select an abbreviation for the target environment. This value will be used as a component in the naming convention.",
                   "multiselect": false,
                   "selectAll": false,
                   "filter": true,
@@ -248,17 +248,17 @@
                     "allowedValues": [
                       {
                         "label": "dev",
-                        "description": "Select if you want to append 'dev' to your resources.",
+                        "description": "Development",
                         "value": "dev"
                       },
                       {
                         "label": "test",
-                        "description": "Select if you want to append 'test' to your resources.",
+                        "description": "Test",
                         "value": "test"
                       },
                       {
                         "label": "prod",
-                        "description": "Select if you want to append 'prod' to your resources.",
+                        "description": "Production",
                         "value": "prod"
                       }
                     ],
@@ -1063,7 +1063,7 @@
         "operationsVirtualNetworkAddressPrefix": "[steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange]",
         "policy": "[steps('compliance').policySection.policy]",
         "resourcePrefix": "[steps('basics').namingSection.resourcePrefix]",
-        "resourceSuffix": "[steps('basics').namingSection.resourceSuffix]",
+        "environmentAbbreviation": "[steps('basics').namingSection.environmentAbbreviation]",
         "sharedServicesSubnetAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange]",
         "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
         "sharedServicesVirtualNetworkAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange]",

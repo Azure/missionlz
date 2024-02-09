@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.3.34343",
-      "templateHash": "13185900490764163120"
+      "templateHash": "15680807531195546729"
     }
   },
   "parameters": {
@@ -17,13 +17,16 @@
         "description": "A prefix, 3-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces"
       }
     },
-    "resourceSuffix": {
+    "environmentAbbreviation": {
       "type": "string",
-      "defaultValue": "mlz",
-      "minLength": 3,
-      "maxLength": 6,
+      "defaultValue": "dev",
+      "allowedValues": [
+        "dev",
+        "prod",
+        "test"
+      ],
       "metadata": {
-        "description": "A suffix, 3 to 6 characters in length, to append to resource names (e.g. \"dev\", \"test\", \"prod\", \"mlz\"). It defaults to \"mlz\"."
+        "description": "The abbreviation for the environment."
       }
     },
     "hubSubscriptionId": {
@@ -1230,8 +1233,9 @@
     "locations": "[variables('$fxv#0')[environment().name]]",
     "locationAbbreviation": "[variables('locations')[parameters('location')].abbreviation]",
     "resourceToken": "resource_token",
-    "nameToken": "name_token",
-    "namingConvention": "[format('{0}-{1}-{2}-{3}-{4}', toLower(parameters('resourcePrefix')), variables('resourceToken'), variables('nameToken'), toLower(parameters('resourceSuffix')), variables('locationAbbreviation'))]",
+    "serviceToken": "service_token",
+    "networkToken": "network_token",
+    "namingConvention": "[format('{0}-{1}-{2}-{3}-{4}-{5}', toLower(parameters('resourcePrefix')), variables('resourceToken'), variables('serviceToken'), variables('networkToken'), parameters('environmentAbbreviation'), variables('locationAbbreviation'))]",
     "bastionHostNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'bas')]",
     "diskEncryptionSetNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'des')]",
     "diskNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'disk')]",
@@ -1240,10 +1244,10 @@
     "ipConfigurationNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'ipconf')]",
     "keyVaultNamingConvention": "[format('{0}unique_token', replace(replace(variables('namingConvention'), variables('resourceToken'), 'kv'), '-', ''))]",
     "logAnalyticsWorkspaceNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'log')]",
-    "networkInterfaceNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), format('nic-{0}', variables('resourceToken')))]",
+    "networkInterfaceNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'nic')]",
     "networkSecurityGroupNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'nsg')]",
     "networkWatcherNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'nw')]",
-    "privateEndpointNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), format('pe-{0}', variables('resourceToken')))]",
+    "privateEndpointNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'pe')]",
     "privateLinkScopeName": "[replace(variables('namingConvention'), variables('resourceToken'), 'pls')]",
     "publicIpAddressNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'pip')]",
     "resourceGroupNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'rg')]",
@@ -1255,84 +1259,84 @@
     "virtualNetworkNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'vnet')]",
     "hubName": "hub",
     "hubShortName": "hub",
-    "hubDiskEncryptionSetName": "[replace(variables('diskEncryptionSetNamingConvention'), variables('nameToken'), variables('hubName'))]",
+    "hubDiskEncryptionSetName": "[replace(replace(variables('diskEncryptionSetNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('hubName'))]",
     "hubKeyVaultName": "[take(variables('hubKeyVaultUniqueName'), 24)]",
-    "hubKeyVaultNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('resourceToken'), 'kv'), variables('nameToken'), variables('hubName'))]",
-    "hubKeyVaultPrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('resourceToken'), 'kv'), variables('nameToken'), variables('hubName'))]",
-    "hubKeyVaultShortName": "[replace(variables('keyVaultNamingConvention'), variables('nameToken'), variables('hubShortName'))]",
-    "hubKeyVaultUniqueName": "[replace(variables('hubKeyVaultShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('resourceSuffix'), parameters('hubSubscriptionId')))]",
+    "hubKeyVaultNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('serviceToken'), 'kv'), variables('networkToken'), variables('hubName'))]",
+    "hubKeyVaultPrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('serviceToken'), 'kv'), variables('networkToken'), variables('hubName'))]",
+    "hubKeyVaultShortName": "[replace(replace(variables('keyVaultNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('hubShortName'))]",
+    "hubKeyVaultUniqueName": "[replace(variables('hubKeyVaultShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('hubSubscriptionId')))]",
     "hubLogStorageAccountName": "[take(variables('hubLogStorageAccountUniqueName'), 24)]",
-    "hubLogStorageAccountNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('resourceToken'), format('{0}-st', variables('resourceToken'))), variables('nameToken'), variables('hubName'))]",
-    "hubLogStorageAccountPrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('resourceToken'), format('{0}-st', variables('resourceToken'))), variables('nameToken'), variables('hubName'))]",
-    "hubLogStorageAccountShortName": "[replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('hubShortName'))]",
-    "hubLogStorageAccountUniqueName": "[replace(variables('hubLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('resourceSuffix'), parameters('hubSubscriptionId')))]",
-    "hubNetworkWatcherName": "[replace(variables('networkWatcherNamingConvention'), variables('nameToken'), variables('hubName'))]",
-    "hubNetworkSecurityGroupName": "[replace(variables('networkSecurityGroupNamingConvention'), variables('nameToken'), variables('hubName'))]",
-    "hubResourceGroupName": "[replace(variables('resourceGroupNamingConvention'), variables('nameToken'), variables('hubName'))]",
-    "hubRouteTableName": "[replace(variables('routeTableNamingConvention'), variables('nameToken'), variables('hubName'))]",
-    "hubSubnetName": "[replace(variables('subnetNamingConvention'), variables('nameToken'), variables('hubName'))]",
-    "hubUserAssignedIdentityName": "[replace(variables('userAssignedIdentityNamingConvention'), variables('nameToken'), variables('hubName'))]",
-    "hubVirtualNetworkName": "[replace(variables('virtualNetworkNamingConvention'), variables('nameToken'), variables('hubName'))]",
+    "hubLogStorageAccountNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('serviceToken'), format('{0}-st', variables('serviceToken'))), variables('networkToken'), variables('hubName'))]",
+    "hubLogStorageAccountPrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('serviceToken'), format('{0}-st', variables('serviceToken'))), variables('networkToken'), variables('hubName'))]",
+    "hubLogStorageAccountShortName": "[replace(replace(variables('storageAccountNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('hubShortName'))]",
+    "hubLogStorageAccountUniqueName": "[replace(variables('hubLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('hubSubscriptionId')))]",
+    "hubNetworkWatcherName": "[replace(replace(variables('networkWatcherNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('hubName'))]",
+    "hubNetworkSecurityGroupName": "[replace(replace(variables('networkSecurityGroupNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('hubName'))]",
+    "hubResourceGroupName": "[replace(replace(variables('resourceGroupNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('hubName'))]",
+    "hubRouteTableName": "[replace(replace(variables('routeTableNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('hubName'))]",
+    "hubSubnetName": "[replace(replace(variables('subnetNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('hubName'))]",
+    "hubUserAssignedIdentityName": "[replace(replace(variables('userAssignedIdentityNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('hubName'))]",
+    "hubVirtualNetworkName": "[replace(replace(variables('virtualNetworkNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('hubName'))]",
     "identityName": "identity",
     "identityShortName": "id",
     "identityLogStorageAccountName": "[take(variables('identityLogStorageAccountUniqueName'), 24)]",
-    "identityLogStorageAccountNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('resourceToken'), format('{0}-st', variables('resourceToken'))), variables('nameToken'), variables('identityName'))]",
-    "identityLogStorageAccountPrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('resourceToken'), format('{0}-st', variables('resourceToken'))), variables('nameToken'), variables('identityName'))]",
-    "identityLogStorageAccountShortName": "[replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('identityShortName'))]",
-    "identityLogStorageAccountUniqueName": "[replace(variables('identityLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('resourceSuffix'), parameters('identitySubscriptionId')))]",
-    "identityNetworkSecurityGroupName": "[replace(variables('networkSecurityGroupNamingConvention'), variables('nameToken'), variables('identityName'))]",
-    "identityResourceGroupName": "[replace(variables('resourceGroupNamingConvention'), variables('nameToken'), variables('identityName'))]",
-    "identityRouteTableName": "[replace(variables('routeTableNamingConvention'), variables('nameToken'), variables('identityName'))]",
-    "identitySubnetName": "[replace(variables('subnetNamingConvention'), variables('nameToken'), variables('identityName'))]",
-    "identityVirtualNetworkName": "[replace(variables('virtualNetworkNamingConvention'), variables('nameToken'), variables('identityName'))]",
+    "identityLogStorageAccountNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('serviceToken'), format('{0}-st', variables('serviceToken'))), variables('networkToken'), variables('identityName'))]",
+    "identityLogStorageAccountPrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('serviceToken'), format('{0}-st', variables('serviceToken'))), variables('networkToken'), variables('identityName'))]",
+    "identityLogStorageAccountShortName": "[replace(replace(variables('storageAccountNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('identityShortName'))]",
+    "identityLogStorageAccountUniqueName": "[replace(variables('identityLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('identitySubscriptionId')))]",
+    "identityNetworkSecurityGroupName": "[replace(replace(variables('networkSecurityGroupNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('identityName'))]",
+    "identityResourceGroupName": "[replace(replace(variables('resourceGroupNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('identityName'))]",
+    "identityRouteTableName": "[replace(replace(variables('routeTableNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('identityName'))]",
+    "identitySubnetName": "[replace(replace(variables('subnetNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('identityName'))]",
+    "identityVirtualNetworkName": "[replace(replace(variables('virtualNetworkNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('identityName'))]",
     "operationsName": "operations",
     "operationsShortName": "ops",
     "operationsLogStorageAccountName": "[take(variables('operationsLogStorageAccountUniqueName'), 24)]",
-    "operationsLogStorageAccountNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('resourceToken'), format('{0}-st', variables('resourceToken'))), variables('nameToken'), variables('operationsName'))]",
-    "operationsLogStorageAccountPrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('resourceToken'), format('{0}-st', variables('resourceToken'))), variables('nameToken'), variables('operationsName'))]",
-    "operationsLogStorageAccountShortName": "[replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('operationsShortName'))]",
-    "operationsLogStorageAccountUniqueName": "[replace(variables('operationsLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('resourceSuffix'), parameters('operationsSubscriptionId')))]",
-    "operationsNetworkSecurityGroupName": "[replace(variables('networkSecurityGroupNamingConvention'), variables('nameToken'), variables('operationsName'))]",
-    "operationsPrivateLinkScopeName": "[replace(variables('privateLinkScopeName'), variables('nameToken'), variables('operationsName'))]",
-    "operationsPrivateLinkScopeNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('resourceToken'), 'pls'), variables('nameToken'), variables('operationsName'))]",
-    "operationsPrivateLinkScopePrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('resourceToken'), 'pls'), variables('nameToken'), variables('operationsName'))]",
-    "operationsResourceGroupName": "[replace(variables('resourceGroupNamingConvention'), variables('nameToken'), variables('operationsName'))]",
-    "operationsRouteTableName": "[replace(variables('routeTableNamingConvention'), variables('nameToken'), variables('operationsName'))]",
-    "operationsSubnetName": "[replace(variables('subnetNamingConvention'), variables('nameToken'), variables('operationsName'))]",
-    "operationsVirtualNetworkName": "[replace(variables('virtualNetworkNamingConvention'), variables('nameToken'), variables('operationsName'))]",
+    "operationsLogStorageAccountNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('serviceToken'), format('{0}-st', variables('serviceToken'))), variables('networkToken'), variables('operationsName'))]",
+    "operationsLogStorageAccountPrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('serviceToken'), format('{0}-st', variables('serviceToken'))), variables('networkToken'), variables('operationsName'))]",
+    "operationsLogStorageAccountShortName": "[replace(replace(variables('storageAccountNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('operationsShortName'))]",
+    "operationsLogStorageAccountUniqueName": "[replace(variables('operationsLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('operationsSubscriptionId')))]",
+    "operationsNetworkSecurityGroupName": "[replace(replace(variables('networkSecurityGroupNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('operationsName'))]",
+    "operationsPrivateLinkScopeName": "[replace(replace(variables('privateLinkScopeName'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('operationsName'))]",
+    "operationsPrivateLinkScopeNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('serviceToken'), 'pls'), variables('networkToken'), variables('operationsName'))]",
+    "operationsPrivateLinkScopePrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('serviceToken'), 'pls'), variables('networkToken'), variables('operationsName'))]",
+    "operationsResourceGroupName": "[replace(replace(variables('resourceGroupNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('operationsName'))]",
+    "operationsRouteTableName": "[replace(replace(variables('routeTableNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('operationsName'))]",
+    "operationsSubnetName": "[replace(replace(variables('subnetNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('operationsName'))]",
+    "operationsVirtualNetworkName": "[replace(replace(variables('virtualNetworkNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('operationsName'))]",
     "sharedServicesName": "sharedServices",
     "sharedServicesShortName": "svcs",
     "sharedServicesLogStorageAccountName": "[take(variables('sharedServicesLogStorageAccountUniqueName'), 24)]",
-    "sharedServicesLogStorageAccountPrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('resourceToken'), format('{0}-st', variables('resourceToken'))), variables('nameToken'), variables('sharedServicesName'))]",
-    "sharedServicesLogStorageAccountNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('resourceToken'), format('{0}-st', variables('resourceToken'))), variables('nameToken'), variables('sharedServicesName'))]",
-    "sharedServicesLogStorageAccountShortName": "[replace(variables('storageAccountNamingConvention'), variables('nameToken'), variables('sharedServicesShortName'))]",
-    "sharedServicesLogStorageAccountUniqueName": "[replace(variables('sharedServicesLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('resourceSuffix'), parameters('sharedServicesSubscriptionId')))]",
-    "sharedServicesNetworkSecurityGroupName": "[replace(variables('networkSecurityGroupNamingConvention'), variables('nameToken'), variables('sharedServicesName'))]",
-    "sharedServicesResourceGroupName": "[replace(variables('resourceGroupNamingConvention'), variables('nameToken'), variables('sharedServicesName'))]",
-    "sharedServicesRouteTableName": "[replace(variables('routeTableNamingConvention'), variables('nameToken'), variables('sharedServicesName'))]",
-    "sharedServicesSubnetName": "[replace(variables('subnetNamingConvention'), variables('nameToken'), variables('sharedServicesName'))]",
-    "sharedServicesVirtualNetworkName": "[replace(variables('virtualNetworkNamingConvention'), variables('nameToken'), variables('sharedServicesName'))]",
-    "logAnalyticsWorkspaceName": "[replace(variables('logAnalyticsWorkspaceNamingConvention'), variables('nameToken'), variables('operationsName'))]",
-    "firewallName": "[replace(variables('firewallNamingConvention'), variables('nameToken'), variables('hubName'))]",
-    "firewallPolicyName": "[replace(variables('firewallPolicyNamingConvention'), variables('nameToken'), variables('hubName'))]",
-    "firewallClientIpConfigurationName": "[replace(variables('ipConfigurationNamingConvention'), variables('nameToken'), 'afw-client')]",
-    "firewallClientPublicIPAddressName": "[replace(variables('publicIpAddressNamingConvention'), variables('nameToken'), 'afw-client')]",
-    "firewallManagementIpConfigurationName": "[replace(variables('ipConfigurationNamingConvention'), variables('nameToken'), 'afw-mgmt')]",
-    "firewallManagementPublicIPAddressName": "[replace(variables('publicIpAddressNamingConvention'), variables('nameToken'), 'afw-mgmt')]",
+    "sharedServicesLogStorageAccountPrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('serviceToken'), format('{0}-st', variables('serviceToken'))), variables('networkToken'), variables('sharedServicesName'))]",
+    "sharedServicesLogStorageAccountNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('serviceToken'), format('{0}-st', variables('serviceToken'))), variables('networkToken'), variables('sharedServicesName'))]",
+    "sharedServicesLogStorageAccountShortName": "[replace(replace(variables('storageAccountNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('sharedServicesShortName'))]",
+    "sharedServicesLogStorageAccountUniqueName": "[replace(variables('sharedServicesLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('sharedServicesSubscriptionId')))]",
+    "sharedServicesNetworkSecurityGroupName": "[replace(replace(variables('networkSecurityGroupNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('sharedServicesName'))]",
+    "sharedServicesResourceGroupName": "[replace(replace(variables('resourceGroupNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('sharedServicesName'))]",
+    "sharedServicesRouteTableName": "[replace(replace(variables('routeTableNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('sharedServicesName'))]",
+    "sharedServicesSubnetName": "[replace(replace(variables('subnetNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('sharedServicesName'))]",
+    "sharedServicesVirtualNetworkName": "[replace(replace(variables('virtualNetworkNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('sharedServicesName'))]",
+    "logAnalyticsWorkspaceName": "[replace(replace(variables('logAnalyticsWorkspaceNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('operationsName'))]",
+    "firewallName": "[replace(replace(variables('firewallNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('hubName'))]",
+    "firewallPolicyName": "[replace(variables('firewallPolicyNamingConvention'), variables('networkToken'), variables('hubName'))]",
+    "firewallClientIpConfigurationName": "[replace(replace(variables('ipConfigurationNamingConvention'), variables('serviceToken'), 'client-afw'), variables('networkToken'), variables('hubName'))]",
+    "firewallClientPublicIPAddressName": "[replace(replace(variables('publicIpAddressNamingConvention'), variables('serviceToken'), 'client-afw'), variables('networkToken'), variables('hubName'))]",
+    "firewallManagementIpConfigurationName": "[replace(replace(variables('ipConfigurationNamingConvention'), variables('serviceToken'), 'mgmt-afw'), variables('networkToken'), variables('hubName'))]",
+    "firewallManagementPublicIPAddressName": "[replace(replace(variables('publicIpAddressNamingConvention'), variables('serviceToken'), 'mgmt-afw'), variables('networkToken'), variables('hubName'))]",
     "firewallClientPrivateIpAddress": "[variables('firewallClientUsableIpAddresses')[3]]",
     "firewallPublicIpAddressSkuName": "Standard",
     "firewallPublicIpAddressAllocationMethod": "Static",
-    "bastionHostName": "[replace(variables('bastionHostNamingConvention'), variables('nameToken'), variables('hubName'))]",
-    "bastionHostPublicIPAddressName": "[replace(variables('publicIpAddressNamingConvention'), variables('nameToken'), 'bas')]",
-    "bastionHostIPConfigurationName": "[replace(variables('ipConfigurationNamingConvention'), variables('nameToken'), 'bas')]",
-    "linuxDiskName": "[replace(variables('diskNamingConvention'), variables('nameToken'), 'bas-linux')]",
-    "linuxNetworkInterfaceName": "[replace(variables('networkInterfaceNamingConvention'), variables('nameToken'), 'bas-linux')]",
-    "linuxNetworkInterfaceIpConfigurationName": "[replace(variables('ipConfigurationNamingConvention'), variables('nameToken'), 'bas-linux')]",
-    "linuxVmName": "[replace(variables('virtualMachineNamingConvention'), variables('nameToken'), 'bas-linux')]",
-    "windowsDiskName": "[replace(variables('diskNamingConvention'), variables('nameToken'), 'bas-windows')]",
-    "windowsNetworkInterfaceName": "[replace(variables('networkInterfaceNamingConvention'), variables('nameToken'), 'bas-windows')]",
-    "windowsNetworkInterfaceIpConfigurationName": "[replace(variables('ipConfigurationNamingConvention'), variables('nameToken'), 'bas-windows')]",
-    "windowsVmName": "[replace(variables('virtualMachineNamingConvention'), variables('nameToken'), 'bas-windows')]",
+    "bastionHostName": "[replace(replace(variables('bastionHostNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('hubName'))]",
+    "bastionHostPublicIPAddressName": "[replace(replace(variables('publicIpAddressNamingConvention'), variables('serviceToken'), 'bas'), variables('networkToken'), variables('hubName'))]",
+    "bastionHostIPConfigurationName": "[replace(replace(variables('ipConfigurationNamingConvention'), variables('serviceToken'), 'bas'), variables('networkToken'), variables('hubName'))]",
+    "linuxDiskName": "[replace(replace(variables('diskNamingConvention'), variables('serviceToken'), 'linux'), variables('networkToken'), variables('hubName'))]",
+    "linuxNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('serviceToken'), 'linux'), variables('networkToken'), variables('hubName'))]",
+    "linuxNetworkInterfaceIpConfigurationName": "[replace(replace(variables('ipConfigurationNamingConvention'), variables('serviceToken'), 'linux'), variables('networkToken'), variables('hubName'))]",
+    "linuxVmName": "[replace(replace(variables('virtualMachineNamingConvention'), variables('serviceToken'), 'linux'), variables('networkToken'), variables('hubName'))]",
+    "windowsDiskName": "[replace(replace(variables('diskNamingConvention'), variables('serviceToken'), 'windows'), variables('networkToken'), variables('hubName'))]",
+    "windowsNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('serviceToken'), 'windows'), variables('networkToken'), variables('hubName'))]",
+    "windowsNetworkInterfaceIpConfigurationName": "[replace(replace(variables('ipConfigurationNamingConvention'), variables('serviceToken'), 'windows'), variables('networkToken'), variables('hubName'))]",
+    "windowsVmName": "[replace(replace(variables('virtualMachineNamingConvention'), variables('serviceToken'), 'windows'), variables('networkToken'), variables('hubName'))]",
     "bastionHostPublicIPAddressSkuName": "Standard",
     "bastionHostPublicIPAddressAllocationMethod": "Static",
     "spokes": "[union(variables('spokesCommon'), variables('spokesIdentity'))]",
@@ -1383,7 +1387,7 @@
     "spokesIdentity": "[if(parameters('deployIdentity'), createArray(createObject('name', variables('identityName'), 'subscriptionId', parameters('identitySubscriptionId'), 'resourceGroupName', variables('identityResourceGroupName'), 'logStorageAccountName', variables('identityLogStorageAccountName'), 'logStorageAccountNetworkInterfaceNamePrefix', variables('identityLogStorageAccountNetworkInterfaceName'), 'logStorageAccountPrivateEndpointNamePrefix', variables('identityLogStorageAccountPrivateEndpointName'), 'virtualNetworkName', variables('identityVirtualNetworkName'), 'virtualNetworkAddressPrefix', parameters('identityVirtualNetworkAddressPrefix'), 'virtualNetworkDiagnosticsLogs', parameters('identityVirtualNetworkDiagnosticsLogs'), 'virtualNetworkDiagnosticsMetrics', parameters('identityVirtualNetworkDiagnosticsMetrics'), 'networkSecurityGroupName', variables('identityNetworkSecurityGroupName'), 'networkSecurityGroupRules', parameters('identityNetworkSecurityGroupRules'), 'networkSecurityGroupDiagnosticsLogs', parameters('identityNetworkSecurityGroupDiagnosticsLogs'), 'networkSecurityGroupDiagnosticsMetrics', parameters('identityNetworkSecurityGroupDiagnosticsMetrics'), 'routeTableName', variables('identityRouteTableName'), 'subnetName', variables('identitySubnetName'), 'subnetAddressPrefix', parameters('identitySubnetAddressPrefix'), 'subnetPrivateEndpointNetworkPolicies', 'Disabled', 'subnetPrivateLinkServiceNetworkPolicies', 'Disabled')), createArray())]",
     "defaultTags": {
       "resourcePrefix": "[parameters('resourcePrefix')]",
-      "resourceSuffix": "[parameters('resourceSuffix')]",
+      "environmentAbbreviation": "[parameters('environmentAbbreviation')]",
       "DeploymentType": "MissionLandingZoneARM"
     },
     "calculatedTags": "[union(parameters('tags'), variables('defaultTags'))]"
@@ -6399,8 +6403,8 @@
           "logStorageSkuName": {
             "value": "[parameters('logStorageSkuName')]"
           },
-          "resourceToken": {
-            "value": "[variables('resourceToken')]"
+          "serviceToken": {
+            "value": "[variables('serviceToken')]"
           },
           "storageEncryptionKeyName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
@@ -6425,7 +6429,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.3.34343",
-              "templateHash": "8236777278825992341"
+              "templateHash": "731609973799317176"
             }
           },
           "parameters": {
@@ -6450,7 +6454,7 @@
             "location": {
               "type": "string"
             },
-            "resourceToken": {
+            "serviceToken": {
               "type": "string"
             },
             "storageEncryptionKeyName": {
@@ -6489,8 +6493,8 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "resourceToken": {
-                    "value": "[parameters('resourceToken')]"
+                  "serviceToken": {
+                    "value": "[parameters('serviceToken')]"
                   },
                   "skuName": {
                     "value": "[parameters('logStorageSkuName')]"
@@ -6527,7 +6531,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.3.34343",
-                      "templateHash": "6536898234357421433"
+                      "templateHash": "15653504711976838150"
                     }
                   },
                   "parameters": {
@@ -6540,7 +6544,7 @@
                     "location": {
                       "type": "string"
                     },
-                    "resourceToken": {
+                    "serviceToken": {
                       "type": "string"
                     },
                     "skuName": {
@@ -6649,14 +6653,14 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('resourceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
+                      "name": "[replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]",
                       "properties": {
-                        "customNetworkInterfaceName": "[replace(parameters('storageAccountNetworkInterfaceNamePrefix'), parameters('resourceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
+                        "customNetworkInterfaceName": "[replace(parameters('storageAccountNetworkInterfaceNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('resourceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
+                            "name": "[replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
                               "groupIds": [
@@ -6680,7 +6684,7 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('resourceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]), parameters('storageAccountName'))]",
+                      "name": "[format('{0}/{1}', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]), parameters('storageAccountName'))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -6692,7 +6696,7 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('resourceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]))]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]))]"
                       ]
                     }
                   ],
@@ -6758,8 +6762,8 @@
           "logStorageSkuName": {
             "value": "[parameters('logStorageSkuName')]"
           },
-          "resourceToken": {
-            "value": "[variables('resourceToken')]"
+          "serviceToken": {
+            "value": "[variables('serviceToken')]"
           },
           "storageEncryptionKeyName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
@@ -6784,7 +6788,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.3.34343",
-              "templateHash": "5890416035413985557"
+              "templateHash": "7202575809788947481"
             }
           },
           "parameters": {
@@ -6809,7 +6813,7 @@
             "logStorageSkuName": {
               "type": "string"
             },
-            "resourceToken": {
+            "serviceToken": {
               "type": "string"
             },
             "storageEncryptionKeyName": {
@@ -6848,8 +6852,8 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "resourceToken": {
-                    "value": "[parameters('resourceToken')]"
+                  "serviceToken": {
+                    "value": "[parameters('serviceToken')]"
                   },
                   "skuName": {
                     "value": "[parameters('logStorageSkuName')]"
@@ -6886,7 +6890,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.3.34343",
-                      "templateHash": "6536898234357421433"
+                      "templateHash": "15653504711976838150"
                     }
                   },
                   "parameters": {
@@ -6899,7 +6903,7 @@
                     "location": {
                       "type": "string"
                     },
-                    "resourceToken": {
+                    "serviceToken": {
                       "type": "string"
                     },
                     "skuName": {
@@ -7008,14 +7012,14 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('resourceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
+                      "name": "[replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]",
                       "properties": {
-                        "customNetworkInterfaceName": "[replace(parameters('storageAccountNetworkInterfaceNamePrefix'), parameters('resourceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
+                        "customNetworkInterfaceName": "[replace(parameters('storageAccountNetworkInterfaceNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('resourceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
+                            "name": "[replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
                               "groupIds": [
@@ -7039,7 +7043,7 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('resourceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]), parameters('storageAccountName'))]",
+                      "name": "[format('{0}/{1}', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]), parameters('storageAccountName'))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -7051,7 +7055,7 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('resourceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]))]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]))]"
                       ]
                     }
                   ],

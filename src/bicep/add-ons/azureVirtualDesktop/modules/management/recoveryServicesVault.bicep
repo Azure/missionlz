@@ -4,6 +4,8 @@ param fslogix bool
 param location string
 param recoveryServicesPrivateDnsZoneResourceId string
 param recoveryServicesVaultName string
+param recoveryServicesVaultNetworkInterfaceName string
+param recoveryServicesVaultPrivateEndpointName string
 param storageService string
 param subnetId string
 param tags object
@@ -86,14 +88,14 @@ resource backupPolicy_Vm 'Microsoft.RecoveryServices/vaults/backupPolicies@2022-
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: 'pe-${recoveryServicesVaultName}'
+  name: recoveryServicesVaultPrivateEndpointName
   location: location
   tags: contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}
   properties: {
-    customNetworkInterfaceName: 'nic-${recoveryServicesVaultName}'
+    customNetworkInterfaceName: recoveryServicesVaultNetworkInterfaceName
     privateLinkServiceConnections: [
       {
-        name: 'pe-${recoveryServicesVaultName}'
+        name: recoveryServicesVaultPrivateEndpointName
         properties: {
           privateLinkServiceId: vault.id
           groupIds: [

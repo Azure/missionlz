@@ -42,6 +42,8 @@ param organizationalUnitPath string
 param recoveryServices bool
 param recoveryServicesPrivateDnsZoneResourceId string
 param recoveryServicesVaultName string
+param recoveryServicesVaultNetworkInterfaceName string
+param recoveryServicesVaultPrivateEndpointName string
 param resourceGroupControlPlane string
 param resourceGroupFeedWorkspace string
 param resourceGroupHosts string
@@ -316,6 +318,8 @@ module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryService
     azureQueueStoragePrivateDnsZoneResourceId: azureQueueStoragePrivateDnsZoneResourceId
     recoveryServicesPrivateDnsZoneResourceId: recoveryServicesPrivateDnsZoneResourceId
     recoveryServicesVaultName: recoveryServicesVaultName
+    recoveryServicesVaultNetworkInterfaceName: recoveryServicesVaultNetworkInterfaceName
+    recoveryServicesVaultPrivateEndpointName: recoveryServicesVaultPrivateEndpointName
     storageService: storageService
     subnetId: subnetResourceId
     tags: tags

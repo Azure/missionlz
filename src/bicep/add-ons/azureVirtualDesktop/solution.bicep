@@ -419,6 +419,8 @@ module management 'modules/management/management.bicep' = {
     recoveryServices: recoveryServices
     recoveryServicesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.backupPrivateDnsZoneName}'
     recoveryServicesVaultName: resourceNames.outputs.recoveryServicesVaultName
+    recoveryServicesVaultNetworkInterfaceName: resourceNames.outputs.recoveryServicesVaultNetworkInterfaceName
+    recoveryServicesVaultPrivateEndpointName: resourceNames.outputs.recoveryServicesVaultPrivateEndpointName
     resourceGroupControlPlane: resourceNames.outputs.resourceGroupControlPlane
     resourceGroupFeedWorkspace: resourceNames.outputs.resourceGroupFeedWorkspace
     resourceGroupHosts: resourceNames.outputs.resourceGroupHosts
