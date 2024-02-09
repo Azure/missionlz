@@ -169,14 +169,14 @@ module shares 'shares.bicep' = [for i in range(0, storageCount): {
 }]
 
 resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for i in range(0, storageCount): {
-  name: '${replace(storageAccountPrivateEndpointNamePrefix, serviceName, 'file')}${padLeft(i + storageIndex, 2, '0')}'
+  name: '${replace(storageAccountPrivateEndpointNamePrefix, serviceName, 'file')}-${padLeft(i + storageIndex, 2, '0')}'
   location: location
   tags: tagsPrivateEndpoints
   properties: {
-    customNetworkInterfaceName: '${replace(storageAccountNetworkInterfaceNamePrefix, serviceName, 'file')}${padLeft(i + storageIndex, 2, '0')}'
+    customNetworkInterfaceName: '${replace(storageAccountNetworkInterfaceNamePrefix, serviceName, 'file')}-${padLeft(i + storageIndex, 2, '0')}'
     privateLinkServiceConnections: [
       {
-        name: '${replace(storageAccountPrivateEndpointNamePrefix, serviceName, 'file')}${padLeft(i + storageIndex, 2, '0')}'
+        name: '${replace(storageAccountPrivateEndpointNamePrefix, serviceName, 'file')}-${padLeft(i + storageIndex, 2, '0')}'
         properties: {
           privateLinkServiceId: storageAccounts[i].id
           groupIds: [
@@ -193,7 +193,7 @@ resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for
 
 resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = [for i in range(0, storageCount): {
   parent: privateEndpoints[i]
-  name: '${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}'
+  name: '${storageAccountNamePrefix}-${padLeft(i + storageIndex, 2, '0')}'
   properties: {
     privateDnsZoneConfigs: [
       {

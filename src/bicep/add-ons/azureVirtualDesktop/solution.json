@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.3.34343",
-      "templateHash": "17354326795615741405"
+      "templateHash": "18030163526956675516"
     }
   },
   "parameters": {
@@ -7712,7 +7712,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.3.34343",
-              "templateHash": "12002064648343864093"
+              "templateHash": "1645915380599848712"
             }
           },
           "parameters": {
@@ -8374,7 +8374,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.3.34343",
-                      "templateHash": "16386142985010277329"
+                      "templateHash": "16191274975352947860"
                     }
                   },
                   "parameters": {
@@ -8629,14 +8629,14 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[format('{0}{1}', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceName'), 'file'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
+                      "name": "[format('{0}-{1}', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceName'), 'file'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsPrivateEndpoints')]",
                       "properties": {
-                        "customNetworkInterfaceName": "[format('{0}{1}', replace(parameters('storageAccountNetworkInterfaceNamePrefix'), parameters('serviceName'), 'file'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
+                        "customNetworkInterfaceName": "[format('{0}-{1}', replace(parameters('storageAccountNetworkInterfaceNamePrefix'), parameters('serviceName'), 'file'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('{0}{1}', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceName'), 'file'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
+                            "name": "[format('{0}-{1}', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceName'), 'file'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]",
                               "groupIds": [
@@ -8660,7 +8660,7 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceName'), 'file'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), format('{0}{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0')))]",
+                      "name": "[format('{0}/{1}', format('{0}-{1}', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceName'), 'file'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), format('{0}-{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0')))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -8672,7 +8672,7 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}{1}', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceName'), 'file'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-{1}', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceName'), 'file'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]",
                         "storageAccounts"
                       ]
                     },
@@ -9825,7 +9825,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.3.34343",
-              "templateHash": "148665908438674755"
+              "templateHash": "18296710262110720449"
             }
           },
           "parameters": {
@@ -10407,7 +10407,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.3.34343",
-                      "templateHash": "7703628870831507233"
+                      "templateHash": "3246449610762803212"
                     }
                   },
                   "parameters": {
@@ -10628,7 +10628,8 @@
                     "securitylogAnalyticsWorkspaceName": "[if(variables('securityMonitoring'), split(parameters('securityLogAnalyticsWorkspaceResourceId'), '/')[8], '')]",
                     "securityLogAnalyticsWorkspaceResourceGroupName": "[if(variables('securityMonitoring'), split(parameters('securityLogAnalyticsWorkspaceResourceId'), '/')[4], resourceGroup().name)]",
                     "securityLogAnalyticsWorkspaceSubscriptionId": "[if(variables('securityMonitoring'), split(parameters('securityLogAnalyticsWorkspaceResourceId'), '/')[2], subscription().subscriptionId)]",
-                    "securityMonitoring": "[if(empty(parameters('securityLogAnalyticsWorkspaceResourceId')), false(), true())]"
+                    "securityMonitoring": "[if(empty(parameters('securityLogAnalyticsWorkspaceResourceId')), false(), true())]",
+                    "sessionHostNamePrefix": "[replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), '')]"
                   },
                   "resources": [
                     {
@@ -10666,7 +10667,7 @@
                       },
                       "type": "Microsoft.Compute/virtualMachines",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
+                      "name": "[format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "zones": "[if(equals(parameters('availability'), 'AvailabilityZones'), createArray(parameters('availabilityZones')[mod(range(0, parameters('sessionHostCount'))[copyIndex()], length(parameters('availabilityZones')))]), null())]",
@@ -10699,7 +10700,7 @@
                           "dataDisks": []
                         },
                         "osProfile": {
-                          "computerName": "[format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
+                          "computerName": "[format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
                           "adminUsername": "[parameters('virtualMachineUsername')]",
                           "adminPassword": "[parameters('virtualMachinePassword')]",
                           "windowsConfiguration": {
@@ -10745,7 +10746,7 @@
                       },
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'IaaSAntimalware')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'IaaSAntimalware')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -10767,7 +10768,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -10777,7 +10778,7 @@
                       },
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'GuestAttestation')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'GuestAttestation')]",
                       "location": "[parameters('location')]",
                       "properties": {
                         "publisher": "Microsoft.Azure.Security.WindowsAttestation",
@@ -10800,7 +10801,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -10811,7 +10812,7 @@
                       "condition": "[and(parameters('monitoring'), equals(parameters('virtualMachineMonitoringAgent'), 'LogAnalyticsAgent'))]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'MicrosoftmonitoringAgent')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'MicrosoftmonitoringAgent')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -10828,7 +10829,7 @@
                       },
                       "dependsOn": [
                         "extension_IaasAntimalware",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -10839,7 +10840,7 @@
                       "condition": "[and(parameters('monitoring'), equals(parameters('virtualMachineMonitoringAgent'), 'AzureMonitorAgent'))]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2023-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AzureMonitorWindowsAgent')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AzureMonitorWindowsAgent')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -10850,7 +10851,7 @@
                         "enableAutomaticUpgrade": true
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -10861,7 +10862,7 @@
                       "condition": "[and(parameters('monitoring'), equals(parameters('virtualMachineMonitoringAgent'), 'AzureMonitorAgent'))]",
                       "type": "Microsoft.Insights/dataCollectionRuleAssociations",
                       "apiVersion": "2022-06-01",
-                      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]",
+                      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]",
                       "name": "[parameters('dataCollectionRuleAssociationName')]",
                       "properties": {
                         "dataCollectionRuleId": "[parameters('dataCollectionRuleResourceId')]",
@@ -10869,7 +10870,7 @@
                       },
                       "dependsOn": [
                         "extension_AzureMonitorWindowsAgent",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -10879,7 +10880,7 @@
                       },
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'CustomScriptExtension')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'CustomScriptExtension')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -10905,7 +10906,7 @@
                       "dependsOn": [
                         "dataCollectionRuleAssociation",
                         "extension_MicrosoftMonitoringAgent",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -10916,7 +10917,7 @@
                       "condition": "[contains(parameters('activeDirectorySolution'), 'DomainServices')]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'JsonADDomainExtension')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'JsonADDomainExtension')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -10938,7 +10939,7 @@
                       },
                       "dependsOn": [
                         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('CSE_DrainMode_{0}_{1}', parameters('batchCount'), parameters('timestamp')))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -10949,7 +10950,7 @@
                       "condition": "[not(contains(parameters('activeDirectorySolution'), 'DomainServices'))]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AADLoginForWindows')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AADLoginForWindows')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -10961,7 +10962,7 @@
                       },
                       "dependsOn": [
                         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('CSE_DrainMode_{0}_{1}', parameters('batchCount'), parameters('timestamp')))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -10972,7 +10973,7 @@
                       "condition": "[variables('amdVmSize')]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AmdGpuDriverWindows')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AmdGpuDriverWindows')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -10985,7 +10986,7 @@
                       "dependsOn": [
                         "extension_AADLoginForWindows",
                         "extension_JsonADDomainExtension",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -10996,7 +10997,7 @@
                       "condition": "[variables('nvidiaVmSize')]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'NvidiaGpuDriverWindows')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'NvidiaGpuDriverWindows')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -11009,7 +11010,7 @@
                       "dependsOn": [
                         "extension_AADLoginForWindows",
                         "extension_JsonADDomainExtension",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', replace(parameters('virtualMachineNamePrefix'), format('{0}{1}', parameters('serviceName'), parameters('networkName')), ''), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -11033,7 +11034,7 @@
                             "value": "[parameters('location')]"
                           },
                           "parameters": {
-                            "value": "[format('-Environment {0} -hostPoolName {1} -HostPoolResourceGroupName {2} -sessionHostCount {3} -sessionHostIndex {4} -SubscriptionId {5} -TenantId {6} -userAssignedidentityClientId {7} -virtualMachineNamePrefix {8}', environment().name, parameters('hostPoolName'), parameters('resourceGroupControlPlane'), parameters('sessionHostCount'), parameters('sessionHostIndex'), subscription().subscriptionId, tenant().tenantId, parameters('deploymentUserAssignedidentityClientId'), parameters('virtualMachineNamePrefix'))]"
+                            "value": "[format('-Environment {0} -hostPoolName {1} -HostPoolResourceGroupName {2} -sessionHostCount {3} -sessionHostIndex {4} -SubscriptionId {5} -TenantId {6} -userAssignedidentityClientId {7} -virtualMachineNamePrefix {8}', environment().name, parameters('hostPoolName'), parameters('resourceGroupControlPlane'), parameters('sessionHostCount'), parameters('sessionHostIndex'), subscription().subscriptionId, tenant().tenantId, parameters('deploymentUserAssignedidentityClientId'), variables('sessionHostNamePrefix'))]"
                           },
                           "scriptFileName": {
                             "value": "Set-AvdDrainMode.ps1"

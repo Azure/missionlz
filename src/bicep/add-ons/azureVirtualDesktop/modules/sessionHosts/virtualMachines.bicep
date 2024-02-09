@@ -107,6 +107,7 @@ var securityLogAnalyticsWorkspaceResourceGroupName = securityMonitoring ? split(
 var securityLogAnalyticsWorkspaceSubscriptionId = securityMonitoring ? split(securityLogAnalyticsWorkspaceResourceId, '/')[2] : subscription().subscriptionId
 var securityMonitoring = empty(securityLogAnalyticsWorkspaceResourceId) ? false : true
 var securityWorkspaceKey = securityMonitoring ? listKeys(securityLogAnalyticsWorkspaceResourceId, '2021-06-01').primarySharedKey : 'NotApplicable'
+var sessionHostNamePrefix = replace(virtualMachineNamePrefix, '${serviceName}${networkName}', '')
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = if (securityMonitoring) {
   name: securitylogAnalyticsWorkspaceName
@@ -137,7 +138,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [fo
 }]
 
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i in range(0, sessionHostCount): {
-  name: '${replace(virtualMachineNamePrefix, '${serviceName}${networkName}', '')}${padLeft((i + sessionHostIndex), 4, '0')}'
+  name: '${sessionHostNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
   location: location
   tags: tagsVirtualMachines
   zones: availability == 'AvailabilityZones' ? [
@@ -174,7 +175,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
       dataDisks: []
     }
     osProfile: {
-      computerName: '${replace(virtualMachineNamePrefix, '${serviceName}${networkName}', '')}${padLeft((i + sessionHostIndex), 4, '0')}'
+      computerName: '${sessionHostNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
       adminUsername: virtualMachineUsername
       adminPassword: virtualMachinePassword
       windowsConfiguration: {
@@ -355,7 +356,7 @@ module drainMode '../common/customScriptExtensions.bicep' = if (enableDrainMode)
       '${artifactsUri}Set-AvdDrainMode.ps1'
     ]
     location: location
-    parameters: '-Environment ${environment().name} -hostPoolName ${hostPoolName} -HostPoolResourceGroupName ${resourceGroupControlPlane} -sessionHostCount ${sessionHostCount} -sessionHostIndex ${sessionHostIndex} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -userAssignedidentityClientId ${deploymentUserAssignedidentityClientId} -virtualMachineNamePrefix ${virtualMachineNamePrefix}'
+    parameters: '-Environment ${environment().name} -hostPoolName ${hostPoolName} -HostPoolResourceGroupName ${resourceGroupControlPlane} -sessionHostCount ${sessionHostCount} -sessionHostIndex ${sessionHostIndex} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -userAssignedidentityClientId ${deploymentUserAssignedidentityClientId} -virtualMachineNamePrefix ${sessionHostNamePrefix}'
     scriptFileName: 'Set-AvdDrainMode.ps1'
     tags: tagsVirtualMachines
     userAssignedIdentityClientId: deploymentUserAssignedidentityClientId
