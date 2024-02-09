@@ -5,6 +5,7 @@ param keyVaultNetworkInterfaceName string
 param keyVaultPrivateEndpointName string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
+param serviceName string
 param subnetResourceId string
 param tags object
 param timestamp string
@@ -149,7 +150,7 @@ module userAssignedIdentity 'userAssignedIdentity.bicep' = {
   name: 'UAI_Encryption_${timestamp}'
   params: {
     location: location
-    name: '${userAssignedIdentityNamePrefix}-encryption'
+    name: replace(userAssignedIdentityNamePrefix, serviceName, 'encryption')
     tags: contains(tags, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tags['Microsoft.ManagedIdentity/userAssignedIdentities'] : {}
   }
 }

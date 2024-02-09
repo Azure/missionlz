@@ -42,7 +42,7 @@ var resourceAbbreviations = loadJsonContent('../../../data/resourceAbbreviations
 
 var agentSvcPrivateDnsZoneName = 'privatelink.agentsvc.azure-automation.${privateDnsZoneSuffixes_AzureAutomation[environment().name] ?? cloudEndpointSuffix}'
 var automationAccountDiagnosticSettingName = replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.diagnosticSettings), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
-var automationAccountName = replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.automationAccounts), serviceName, resourceAbbreviations.automationAccounts), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
+var automationAccountName = replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.automationAccounts), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
 var automationAccountNetworkInterfaceName = replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.networkInterfaces), serviceName, 'DSCAndHybridWorker-${resourceAbbreviations.automationAccounts}' ), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
 var automationAccountPrivateEndpointName = replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.privateEndpoints), serviceName, 'DSCAndHybridWorker-${resourceAbbreviations.automationAccounts}' ), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
 var availabilitySetNamePrefix = '${replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.availabilitySets), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation)}-'
@@ -56,7 +56,7 @@ var dataCollectionRuleName = 'microsoft-avdi-${locations[locationVirtualMachines
 var desktopApplicationGroupName = replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.desktopApplicationGroups), '-${serviceName}', ''), locationAbbreviation, locations[locationControlPlane].abbreviation)
 var diskAccessName = replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.diskAccesses), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
 var diskEncryptionSetName = replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.diskEncryptionSets), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
-var diskNamePrefix = '${replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.disks), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation)}-'
+var diskNamePrefix = replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.disks), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
 var filePrivateDnsZoneName = 'privatelink.file.${environment().suffixes.storage}'
 var fileShareNames = {
   CloudCacheProfileContainer: [
@@ -85,7 +85,7 @@ var keyVaultPrivateEndpointName = replace(replace(replace(namingConvention, reso
 var logAnalyticsWorkspaceName = replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.logAnalyticsWorkspaces), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
 var netAppAccountName = replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.netAppAccounts), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
 var netAppCapacityPoolName = replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.netAppCapacityPools), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
-var networkInterfaceNamePrefix = '${replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.networkInterfaces), locationAbbreviation, locations[locationVirtualMachines].abbreviation)}-'
+var networkInterfaceNamePrefix = replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.networkInterfaces), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
 var networkSecurityGroupNames = [
   replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.networkSecurityGroups), '-${serviceName}', ''), locationAbbreviation, locations[locationControlPlane].abbreviation)
   replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.networkSecurityGroups), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
@@ -115,7 +115,7 @@ var storageAccountNamePrefix = replace(replace(replace(replace(replace(namingCon
 var storageAccountNetworkInterfaceNamePrefix = replace(replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.networkInterfaces), serviceName, resourceAbbreviations.storageAccounts), locationAbbreviation, locations[locationVirtualMachines].abbreviation), environmentShortName, first(environmentShortName))
 var storageAccountPrivateEndpointNamePrefix = replace(replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.privateEndpoints), serviceName, resourceAbbreviations.storageAccounts), locationAbbreviation, locations[locationVirtualMachines].abbreviation), environmentShortName, first(environmentShortName))
 var userAssignedIdentityNamePrefix = replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.userAssignedIdentities), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
-var virtualMachineNamePrefix = replace(replace(replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.virtualMachines), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation), environmentShortName, first(environmentShortName)), '-', '')
+var virtualMachineNamePrefix = replace(replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.virtualMachines), locationAbbreviation, locations[locationVirtualMachines].abbreviation), environmentShortName, first(environmentShortName)), '-', '')
 var virtualNetworkNames = [
   replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.virtualNetworks), '-${serviceName}', ''), locationAbbreviation, locations[locationControlPlane].abbreviation)
   replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.virtualNetworks), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
@@ -163,6 +163,7 @@ output omsOpinsightsPrivateDnsZoneName string = omsOpinsightsPrivateDnsZoneName
 output netAppAccountName string = netAppAccountName
 output netAppCapacityPoolName string = netAppCapacityPoolName
 output networkInterfaceNamePrefix string = networkInterfaceNamePrefix
+output networkName string = networkName
 output networkSecurityGroupNames array = networkSecurityGroupNames
 output queuePrivateDnsZoneName string = queuePrivateDnsZoneName
 output recoveryServicesVaultName string = recoveryServicesVaultName
@@ -177,6 +178,7 @@ output resourceGroupManagement string = resourceGroupManagement
 output resourceGroupsNetwork array = resourceGroupsNetwork
 output resourceGroupStorage string = resourceGroupStorage
 output routeTables array = routeTables
+output serviceName string = serviceName
 output storageAccountNamePrefix string = storageAccountNamePrefix
 output storageAccountNetworkInterfaceNamePrefix string = storageAccountNetworkInterfaceNamePrefix
 output storageAccountPrivateEndpointNamePrefix string = storageAccountPrivateEndpointNamePrefix

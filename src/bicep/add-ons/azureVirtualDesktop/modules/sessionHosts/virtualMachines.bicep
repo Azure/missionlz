@@ -34,10 +34,12 @@ param managementVirtualMachineName string
 param monitoring bool
 param netAppFileShares array
 param networkInterfaceNamePrefix string
+param networkName string
 param organizationalUnitPath string
 param resourceGroupControlPlane string
 param resourceGroupManagement string
 param securityLogAnalyticsWorkspaceResourceId string
+param serviceName string
 param sessionHostCount int
 param sessionHostIndex int
 param storageAccountPrefix string
@@ -112,7 +114,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
 }
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, sessionHostCount): {
-  name: '${networkInterfaceNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
+  name: '${replace(networkInterfaceNamePrefix, '-${serviceName}', '')}-${padLeft((i + sessionHostIndex), 4, '0')}'
   location: location
   tags: tagsNetworkInterfaces
   properties: {
@@ -135,7 +137,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [fo
 }]
 
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i in range(0, sessionHostCount): {
-  name: '${virtualMachineNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
+  name: '${replace(virtualMachineNamePrefix, '${serviceName}${networkName}', '')}${padLeft((i + sessionHostIndex), 4, '0')}'
   location: location
   tags: tagsVirtualMachines
   zones: availability == 'AvailabilityZones' ? [
@@ -157,7 +159,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
     storageProfile: {
       imageReference: imageReference
       osDisk: {
-        name: '${diskNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
+        name: '${replace(diskNamePrefix, '-${serviceName}', '')}-${padLeft((i + sessionHostIndex), 4, '0')}'
         osType: 'Windows'
         createOption: 'FromImage'
         caching: 'ReadWrite'
@@ -172,7 +174,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
       dataDisks: []
     }
     osProfile: {
-      computerName: '${virtualMachineNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
+      computerName: '${replace(virtualMachineNamePrefix, '${serviceName}${networkName}', '')}${padLeft((i + sessionHostIndex), 4, '0')}'
       adminUsername: virtualMachineUsername
       adminPassword: virtualMachinePassword
       windowsConfiguration: {
@@ -185,7 +187,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
     networkProfile: {
       networkInterfaces: [
         {
-          id: resourceId('Microsoft.Network/networkInterfaces', '${networkInterfaceNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}')
+          id: networkInterface[i].id
           properties: {
             deleteOption: 'Delete'
           }

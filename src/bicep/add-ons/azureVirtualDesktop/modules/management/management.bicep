@@ -38,6 +38,7 @@ param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
 param networkInterfaceNamePrefix string
+param networkName string
 param organizationalUnitPath string
 param recoveryServices bool
 param recoveryServicesPrivateDnsZoneResourceId string
@@ -52,6 +53,7 @@ param resourceGroupStorage string
 param roleDefinitions object
 param scalingTool bool
 param securityLogAnalyticsWorkspaceResourceId string
+param serviceName string
 param sessionHostCount int
 param storageService string
 param subnetResourceId string
@@ -141,7 +143,7 @@ module deploymentUserAssignedIdentity 'userAssignedIdentity.bicep' = {
   name: 'UserAssignedIdentity_${timestamp}'
   params: {
     location: locationVirtualMachines
-    name: '${userAssignedIdentityNamePrefix}-deployment'
+    name: replace(userAssignedIdentityNamePrefix, serviceName, 'deployment')
     tags: contains(tags, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tags['Microsoft.ManagedIdentity/userAssignedIdentities'] : {}
   }
 }
@@ -173,6 +175,7 @@ module artifacts 'artifacts.bicep' = {
   params: {
     location: locationVirtualMachines
     resourceGroupManagement: resourceGroupManagement
+    serviceName: serviceName
     storageAccountName: split(artifactsStorageAccountResourceId, '/')[8]
     subscriptionId: subscription().subscriptionId
     tags: tags
@@ -192,6 +195,7 @@ module customerManagedKeys 'customerManagedKeys.bicep' = {
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     keyVaultPrivateEndpointName: keyVaultPrivateEndpointName
     location: locationVirtualMachines
+    serviceName: serviceName
     subnetResourceId: subnetResourceId
     tags: tags
     timestamp: timestamp
@@ -230,8 +234,10 @@ module virtualMachine 'virtualMachine.bicep' = {
     domainName: domainName
     location: locationVirtualMachines
     networkInterfaceNamePrefix: networkInterfaceNamePrefix
+    networkName: networkName
     organizationalUnitPath: organizationalUnitPath
     securityLogAnalyticsWorkspaceResourceId: securityLogAnalyticsWorkspaceResourceId
+    serviceName: serviceName
     subnet: split(subnetResourceId, '/')[10]
     tagsNetworkInterfaces: contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}
     tagsVirtualMachines: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}

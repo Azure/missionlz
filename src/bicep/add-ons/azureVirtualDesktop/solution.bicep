@@ -415,6 +415,7 @@ module management 'modules/management/management.bicep' = {
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     networkInterfaceNamePrefix: resourceNames.outputs.networkInterfaceNamePrefix
+    networkName: resourceNames.outputs.networkName
     organizationalUnitPath: organizationalUnitPath
     recoveryServices: recoveryServices
     recoveryServicesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.backupPrivateDnsZoneName}'
@@ -429,6 +430,7 @@ module management 'modules/management/management.bicep' = {
     roleDefinitions: logic.outputs.roleDefinitions
     scalingTool: scalingTool
     securityLogAnalyticsWorkspaceResourceId: securityLogAnalyticsWorkspaceResourceId
+    serviceName: resourceNames.outputs.serviceName
     sessionHostCount: sessionHostCount
     storageService: logic.outputs.storageService
     subnetResourceId: length(deploymentLocations) == 1 ? network_controlPlane.outputs.subnetResourceId : network_hosts.outputs.subnetResourceId
@@ -548,8 +550,11 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     resourceGroupStorage: resourceNames.outputs.resourceGroupStorage
     securityPrincipalNames: map(securityPrincipals, item => item.name)
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
+    serviceName: resourceNames.outputs.serviceName
     smbServerLocation: logic.outputs.smbServerLocation
     storageAccountNamePrefix: resourceNames.outputs.storageAccountNamePrefix
+    storageAccountNetworkInterfaceNamePrefix: resourceNames.outputs.storageAccountNetworkInterfaceNamePrefix
+    storageAccountPrivateEndpointNamePrefix: resourceNames.outputs.storageAccountPrivateEndpointNamePrefix
     storageCount: storageCount
     storageEncryptionKeyName: management.outputs.storageEncryptionKeyName
     storageIndex: storageIndex
@@ -615,6 +620,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
       'None'
     ]
     networkInterfaceNamePrefix: resourceNames.outputs.networkInterfaceNamePrefix
+    networkName: resourceNames.outputs.networkName
     organizationalUnitPath: organizationalUnitPath
     pooledHostPool: logic.outputs.pooledHostPool
     recoveryServicesVaultName: resourceNames.outputs.recoveryServicesVaultName
@@ -629,6 +635,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     scalingSessionThresholdPerCPU: scalingSessionThresholdPerCPU
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     securityLogAnalyticsWorkspaceResourceId: securityLogAnalyticsWorkspaceResourceId
+    serviceName: resourceNames.outputs.serviceName
     sessionHostBatchCount: logic.outputs.sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
     storageAccountPrefix: resourceNames.outputs.storageAccountNamePrefix

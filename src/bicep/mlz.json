@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.3.34343",
-      "templateHash": "3170235898096527362"
+      "templateHash": "6655483553945362084"
     }
   },
   "parameters": {
@@ -1254,7 +1254,7 @@
     "routeTableNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'rt')]",
     "storageAccountNamingConvention": "[toLower(format('{0}unique_token', replace(replace(variables('namingConvention'), variables('resourceToken'), 'st'), '-', '')))]",
     "subnetNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'snet')]",
-    "userAssignedIdentityNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'uaid')]",
+    "userAssignedIdentityNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'id')]",
     "virtualMachineNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'vm')]",
     "virtualNetworkNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), 'vnet')]",
     "hubName": "hub",
@@ -1266,8 +1266,8 @@
     "hubKeyVaultShortName": "[replace(replace(variables('keyVaultNamingConvention'), variables('serviceToken'), ''), variables('networkToken'), variables('hubShortName'))]",
     "hubKeyVaultUniqueName": "[replace(variables('hubKeyVaultShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('hubSubscriptionId')))]",
     "hubLogStorageAccountName": "[take(variables('hubLogStorageAccountUniqueName'), 24)]",
-    "hubLogStorageAccountNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('serviceToken'), format('{0}-st', variables('serviceToken'))), variables('networkToken'), variables('hubName'))]",
-    "hubLogStorageAccountPrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('serviceToken'), format('{0}-st', variables('serviceToken'))), variables('networkToken'), variables('hubName'))]",
+    "hubLogStorageAccountNetworkInterfaceNamePrefix": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('serviceToken'), format('{0}-st', variables('serviceToken'))), variables('networkToken'), variables('hubName'))]",
+    "hubLogStorageAccountPrivateEndpointNamePrefix": "[replace(replace(variables('privateEndpointNamingConvention'), variables('serviceToken'), format('{0}-st', variables('serviceToken'))), variables('networkToken'), variables('hubName'))]",
     "hubLogStorageAccountShortName": "[replace(replace(variables('storageAccountNamingConvention'), variables('serviceToken'), ''), variables('networkToken'), variables('hubShortName'))]",
     "hubLogStorageAccountUniqueName": "[replace(variables('hubLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('hubSubscriptionId')))]",
     "hubNetworkWatcherName": "[replace(replace(variables('networkWatcherNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('hubName'))]",
@@ -6395,10 +6395,10 @@
             "value": "[variables('hubLogStorageAccountName')]"
           },
           "logStorageAccountNetworkInterfaceNamePrefix": {
-            "value": "[variables('hubLogStorageAccountNetworkInterfaceName')]"
+            "value": "[variables('hubLogStorageAccountNetworkInterfaceNamePrefix')]"
           },
           "logStorageAccountPrivateEndpointNamePrefix": {
-            "value": "[variables('hubLogStorageAccountPrivateEndpointName')]"
+            "value": "[variables('hubLogStorageAccountPrivateEndpointNamePrefix')]"
           },
           "logStorageSkuName": {
             "value": "[parameters('logStorageSkuName')]"
@@ -6754,10 +6754,10 @@
             "value": "[variables('spokes')[copyIndex()].logStorageAccountName]"
           },
           "logStorageAccountNetworkInterfaceNamePrefix": {
-            "value": "[variables('spokes')[copyIndex()].logStorageAccountNetworkInterfaceName]"
+            "value": "[variables('spokes')[copyIndex()].logStorageAccountNetworkInterfaceNamePrefix]"
           },
           "logStorageAccountPrivateEndpointNamePrefix": {
-            "value": "[variables('spokes')[copyIndex()].logStorageAccountPrivateEndpointName]"
+            "value": "[variables('spokes')[copyIndex()].logStorageAccountPrivateEndpointNamePrefix]"
           },
           "logStorageSkuName": {
             "value": "[parameters('logStorageSkuName')]"

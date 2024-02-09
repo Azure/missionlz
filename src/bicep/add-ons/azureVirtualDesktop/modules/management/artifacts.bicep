@@ -1,12 +1,13 @@
 param location string
 param resourceGroupManagement string
+param serviceName string
 param storageAccountName string
 param subscriptionId string
 param tags object
 param timestamp string
 param userAssignedIdentityNamePrefix string
 
-var name = '${userAssignedIdentityNamePrefix}-artifacts'
+var name = replace(userAssignedIdentityNamePrefix, serviceName, 'artifacts')
 var roleDefinitionId = '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1' // Storage Blob Data Reader
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {

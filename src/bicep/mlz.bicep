@@ -562,7 +562,7 @@ var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg
 var routeTableNamingConvention = replace(namingConvention, resourceToken, 'rt')
 var storageAccountNamingConvention = toLower('${replace(replace(namingConvention, resourceToken, 'st'), '-', '')}unique_token')
 var subnetNamingConvention = replace(namingConvention, resourceToken, 'snet')
-var userAssignedIdentityNamingConvention = replace(namingConvention, resourceToken, 'uaid')
+var userAssignedIdentityNamingConvention = replace(namingConvention, resourceToken, 'id')
 var virtualMachineNamingConvention = replace(namingConvention, resourceToken, 'vm')
 var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'vnet')
 
@@ -577,8 +577,8 @@ var hubKeyVaultPrivateEndpointName = replace(replace(privateEndpointNamingConven
 var hubKeyVaultShortName = replace(replace(keyVaultNamingConvention, serviceToken, ''), networkToken, hubShortName)
 var hubKeyVaultUniqueName = replace(hubKeyVaultShortName, 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, hubSubscriptionId))
 var hubLogStorageAccountName = take(hubLogStorageAccountUniqueName, 24)
-var hubLogStorageAccountNetworkInterfaceName = replace(replace(networkInterfaceNamingConvention, serviceToken, '${serviceToken}-st'), networkToken, hubName)
-var hubLogStorageAccountPrivateEndpointName = replace(replace(privateEndpointNamingConvention, serviceToken, '${serviceToken}-st'), networkToken, hubName)
+var hubLogStorageAccountNetworkInterfaceNamePrefix = replace(replace(networkInterfaceNamingConvention, serviceToken, '${serviceToken}-st'), networkToken, hubName)
+var hubLogStorageAccountPrivateEndpointNamePrefix = replace(replace(privateEndpointNamingConvention, serviceToken, '${serviceToken}-st'), networkToken, hubName)
 var hubLogStorageAccountShortName = replace(replace(storageAccountNamingConvention, serviceToken, ''), networkToken, hubShortName)
 var hubLogStorageAccountUniqueName = replace(hubLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, hubSubscriptionId))
 var hubNetworkWatcherName = replace(replace(networkWatcherNamingConvention, '-${serviceToken}', ''), networkToken, hubName)
@@ -1039,8 +1039,8 @@ module hubStorage './core/hub-storage.bicep' = {
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageAccountName: hubLogStorageAccountName
-    logStorageAccountNetworkInterfaceNamePrefix: hubLogStorageAccountNetworkInterfaceName
-    logStorageAccountPrivateEndpointNamePrefix: hubLogStorageAccountPrivateEndpointName
+    logStorageAccountNetworkInterfaceNamePrefix: hubLogStorageAccountNetworkInterfaceNamePrefix
+    logStorageAccountPrivateEndpointNamePrefix: hubLogStorageAccountPrivateEndpointNamePrefix
     logStorageSkuName: logStorageSkuName
     serviceToken: serviceToken
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
@@ -1064,8 +1064,8 @@ module spokeStorage './core/spoke-storage.bicep' = [for (spoke, i) in spokes: {
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageAccountName: spoke.logStorageAccountName
-    logStorageAccountNetworkInterfaceNamePrefix: spoke.logStorageAccountNetworkInterfaceName
-    logStorageAccountPrivateEndpointNamePrefix: spoke.logStorageAccountPrivateEndpointName
+    logStorageAccountNetworkInterfaceNamePrefix: spoke.logStorageAccountNetworkInterfaceNamePrefix
+    logStorageAccountPrivateEndpointNamePrefix: spoke.logStorageAccountPrivateEndpointNamePrefix
     logStorageSkuName: logStorageSkuName
     serviceToken: serviceToken
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
