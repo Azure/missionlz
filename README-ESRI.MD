@@ -1,5 +1,8 @@
 # Welcome to the ArcGIS on Azure with Azure Virtual Desktop (AVD) Landing Zone Accelerator
 
+> [!CAUTION]
+> This repository is a WORK-IN-PROGRESS and is not yet fully complete.  
+
 Azure Landing Zone Accelerators are architectural guidance, reference architecture, reference implementations and automation packaged to deploy workload platforms on Azure at scale and aligned with industry proven practices.
 
 This ArcGIS Landing Zone Accelerator represents the strategic design path and automated deployment options to deploy Esri’s ArcGIS Enterprise on Azure and access it with ArcGIS Pro GPU enabled Azure virtual desktops. This solution provides an architectural approach and reference implementation to prepare Azure subscriptions for a scalable ArcGIS implementation on Azure, utilizing a combination of Azure cloud native services and traditional infrastructure virtual machines. Once the deployment is completed, users of this accelerator will have a base deployment which enables a rapid deployment of an Enterprise GIS. For overall architectural guidance on deploying ArcGIS in Azure, check out the Azure Architetcure Center documentation -> [Deploy Esri ArcGIS Pro in Azure Virtual Desktop](https://learn.microsoft.com/en-us/azure/architecture/example-scenario/data/esri-arcgis-azure-virtual-desktop). Also, see [Esri's ArcGIS Architecture Center](https://architecture.arcgis.com/).
