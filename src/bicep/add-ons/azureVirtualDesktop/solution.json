@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.3.34343",
-      "templateHash": "8200335932910640404"
+      "templateHash": "12211723162582136358"
     }
   },
   "parameters": {
@@ -551,7 +551,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.3.34343",
-              "templateHash": "9380484869415159237"
+              "templateHash": "18297210563466846174"
             }
           },
           "parameters": {
@@ -974,10 +974,10 @@
               "dataCollectionRuleAssociations": "dcra",
               "dataCollectionRules": "dcr",
               "desktopApplicationGroups": "vdag",
+              "diagnosticSettings": "diag",
               "diskAccesses": "da",
-              "remoteApplicationGroups": "vdag",
-              "disks": "disk",
               "diskEncryptionSets": "des",
+              "disks": "disk",
               "hostPools": "vdpool",
               "keyVaults": "kv",
               "logAnalyticsWorkspaces": "log",
@@ -985,7 +985,9 @@
               "netAppCapacityPools": "nacp",
               "networkInterfaces": "nic",
               "networkSecurityGroups": "nsg",
+              "privateEndpoints": "pe",
               "recoveryServicesVaults": "rsv",
+              "remoteApplicationGroups": "vdag",
               "resourceGroups": "rg",
               "routeTables": "rt",
               "storageAccounts": "st",
@@ -994,9 +996,13 @@
               "virtualNetworks": "vnet",
               "workspaces": "vdws"
             },
-            "namingConvention": "[format('{0}-{1}-resourceType-{2}-location', parameters('identifier'), parameters('stampIndex'), parameters('environmentShortName'))]",
-            "namingConvention_Global": "[format('resourceType-{0}-location', parameters('environmentShortName'))]",
-            "namingConvention_Shared": "[format('{0}-resourceType-{1}-location', parameters('identifier'), parameters('environmentShortName'))]",
+            "resourceAbbreviation": "resourceAbbreviation",
+            "serviceName": "serviceName",
+            "networkName": "avd",
+            "locationAbbreviation": "locationAbbreviation",
+            "namingConvention": "[format('{0}-{1}-{2}-{3}-{4}-{5}-{6}', parameters('identifier'), parameters('stampIndex'), variables('resourceAbbreviation'), variables('serviceName'), variables('networkName'), parameters('environmentShortName'), variables('locationAbbreviation'))]",
+            "namingConvention_Global": "[format('{0}-{1}-{2}-{3}-{4}', variables('resourceAbbreviation'), variables('serviceName'), variables('networkName'), parameters('environmentShortName'), variables('locationAbbreviation'))]",
+            "namingConvention_Shared": "[format('{0}-{1}-{2}-{3}-{4}-{5}', parameters('identifier'), variables('resourceAbbreviation'), variables('serviceName'), variables('networkName'), parameters('environmentShortName'), variables('locationAbbreviation'))]",
             "cloudEndpointSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
             "privateDnsZoneSuffixes_AzureAutomation": {
               "AzureCloud": "net",
@@ -1017,22 +1023,22 @@
             "locations": "[variables('$fxv#0')[environment().name]]",
             "resourceAbbreviations": "[variables('$fxv#1')]",
             "agentSvcPrivateDnsZoneName": "[format('privatelink.agentsvc.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudEndpointSuffix')))]",
-            "automationAccountDiagnosticSettingName": "[replace(replace(variables('namingConvention'), 'resourceType', format('diag-{0}', variables('resourceAbbreviations').automationAccounts)), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "automationAccountName": "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').automationAccounts), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "automationAccountNetworkInterfaceName": "[replace(replace(variables('namingConvention'), 'resourceType', format('nic-DSCAndHybridWorker-{0}', variables('resourceAbbreviations').automationAccounts)), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "automationAccountPrivateEndpointName": "[replace(replace(variables('namingConvention'), 'resourceType', format('pe-DSCAndHybridWorker-{0}', variables('resourceAbbreviations').automationAccounts)), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "availabilitySetNamePrefix": "[format('{0}-', replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').availabilitySets), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation))]",
+            "automationAccountDiagnosticSettingName": "[replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').diagnosticSettings), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "automationAccountName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').automationAccounts), variables('serviceName'), variables('resourceAbbreviations').automationAccounts), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "automationAccountNetworkInterfaceName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').networkInterfaces), variables('serviceName'), format('DSCAndHybridWorker-{0}', variables('resourceAbbreviations').automationAccounts)), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "automationAccountPrivateEndpointName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').privateEndpoints), variables('serviceName'), format('DSCAndHybridWorker-{0}', variables('resourceAbbreviations').automationAccounts)), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "availabilitySetNamePrefix": "[format('{0}-', replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').availabilitySets), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation))]",
             "avdGlobalPrivateDnsZoneName": "[format('privatelink-global.wvd.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureVirtualDesktop')[environment().name], variables('cloudEndpointSuffix')))]",
             "avdPrivateDnsZoneName": "[format('privatelink.wvd.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureVirtualDesktop')[environment().name], variables('cloudEndpointSuffix')))]",
             "azureAutomationPrivateDnsZoneName": "[format('privatelink.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudEndpointSuffix')))]",
             "backupPrivateDnsZoneName": "[format('privatelink.{0}.backup.{1}', variables('locations')[parameters('locationVirtualMachines')].recoveryServicesGeo, coalesce(variables('privateDnsZoneSuffixes_Backup')[environment().name], variables('cloudEndpointSuffix')))]",
             "blobPrivateDnsZoneName": "[format('privatelink.blob.{0}', environment().suffixes.storage)]",
-            "dataCollectionRuleAssociationName": "[format('{0}-avdi', replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').dataCollectionRuleAssociations), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation))]",
+            "dataCollectionRuleAssociationName": "[format('{0}-avdi', replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').dataCollectionRuleAssociations), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation))]",
             "dataCollectionRuleName": "[format('microsoft-avdi-{0}', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "desktopApplicationGroupName": "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').desktopApplicationGroups), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "diskAccessName": "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').diskAccesses), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "diskEncryptionSetName": "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').diskEncryptionSets), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "diskNamePrefix": "[format('{0}-', replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').disks), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation))]",
+            "desktopApplicationGroupName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').desktopApplicationGroups), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "diskAccessName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').diskAccesses), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "diskEncryptionSetName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').diskEncryptionSets), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "diskNamePrefix": "[format('{0}-', replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').disks), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation))]",
             "filePrivateDnsZoneName": "[format('privatelink.file.{0}', environment().suffixes.storage)]",
             "fileShareNames": {
               "CloudCacheProfileContainer": [
@@ -1050,59 +1056,59 @@
                 "profile-containers"
               ]
             },
-            "hostPoolDiagnosticSettingName": "[replace(replace(variables('namingConvention'), 'resourceType', format('diag-{0}', variables('resourceAbbreviations').hostPools)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "hostPoolName": "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').hostPools), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "hostPoolNetworkInterfaceName": "[replace(replace(variables('namingConvention'), 'resourceType', format('nic-{0}', variables('resourceAbbreviations').hostPools)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "hostPoolPrivateEndpointName": "[replace(replace(variables('namingConvention'), 'resourceType', format('pe-{0}', variables('resourceAbbreviations').hostPools)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "keyVaultName": "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').keyVaults), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "keyVaultNetworkInterfaceName": "[replace(replace(variables('namingConvention'), 'resourceType', format('nic-{0}', variables('resourceAbbreviations').keyVaults)), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "hostPoolDiagnosticSettingName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').diagnosticSettings), variables('serviceName'), variables('resourceAbbreviations').hostPools), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "hostPoolName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').hostPools), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "hostPoolNetworkInterfaceName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').networkInterfaces), variables('serviceName'), variables('resourceAbbreviations').hostPools), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "hostPoolPrivateEndpointName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').privateEndpoints), variables('serviceName'), variables('resourceAbbreviations').hostPools), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "keyVaultName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').keyVaults), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "keyVaultNetworkInterfaceName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').networkInterfaces), variables('serviceName'), variables('resourceAbbreviations').keyVaults), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
             "keyVaultPrivateDnsZoneName": "[replace(format('privatelink{0}', environment().suffixes.keyvaultDns), 'vault', 'vaultcore')]",
-            "keyVaultPrivateEndpointName": "[replace(replace(variables('namingConvention'), 'resourceType', format('pe-{0}', variables('resourceAbbreviations').keyVaults)), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "logAnalyticsWorkspaceName": "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').logAnalyticsWorkspaces), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "netAppAccountName": "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').netAppAccounts), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "netAppCapacityPoolName": "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').netAppCapacityPools), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "networkInterfaceNamePrefix": "[format('{0}-', replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').networkInterfaces), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation))]",
+            "keyVaultPrivateEndpointName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').privateEndpoints), variables('serviceName'), variables('resourceAbbreviations').keyVaults), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "logAnalyticsWorkspaceName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').logAnalyticsWorkspaces), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "netAppAccountName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').netAppAccounts), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "netAppCapacityPoolName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').netAppCapacityPools), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "networkInterfaceNamePrefix": "[format('{0}-', replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').networkInterfaces), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation))]",
             "networkSecurityGroupNames": [
-              "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').networkSecurityGroups), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-              "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').networkSecurityGroups), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]"
+              "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').networkSecurityGroups), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+              "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').networkSecurityGroups), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]"
             ],
             "monitorPrivateDnsZoneName": "[format('privatelink.monitor.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudEndpointSuffix')))]",
             "odsOpinsightsPrivateDnsZoneName": "[format('privatelink.ods.opinsights.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudEndpointSuffix')))]",
             "omsOpinsightsPrivateDnsZoneName": "[format('privatelink.oms.opinsights.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudEndpointSuffix')))]",
             "queuePrivateDnsZoneName": "[format('privatelink.queue.{0}', environment().suffixes.storage)]",
-            "recoveryServicesVaultName": "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').recoveryServicesVaults), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "recoveryServicesVaultNetworkInterfaceName": "[replace(replace(variables('namingConvention'), 'resourceType', format('nic-{0}', variables('resourceAbbreviations').recoveryServicesVaults)), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "recoveryServicesVaultPrivateEndpointName": "[replace(replace(variables('namingConvention'), 'resourceType', format('pe-{0}', variables('resourceAbbreviations').recoveryServicesVaults)), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "resourceGroupControlPlane": "[replace(replace(variables('namingConvention'), 'resourceType', format('{0}-controlPlane-avd', variables('resourceAbbreviations').resourceGroups)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "resourceGroupFeedWorkspace": "[replace(replace(variables('namingConvention_Shared'), 'resourceType', format('{0}-feedWorkspace-avd', variables('resourceAbbreviations').resourceGroups)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "resourceGroupGlobalWorkspace": "[replace(replace(variables('namingConvention_Global'), 'resourceType', format('{0}-globalWorkspace-avd', variables('resourceAbbreviations').resourceGroups)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "resourceGroupHosts": "[replace(replace(variables('namingConvention'), 'resourceType', format('{0}-sessionHosts-avd', variables('resourceAbbreviations').resourceGroups)), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "resourceGroupManagement": "[replace(replace(variables('namingConvention'), 'resourceType', format('{0}-management-avd', variables('resourceAbbreviations').resourceGroups)), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "recoveryServicesVaultName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').recoveryServicesVaults), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "recoveryServicesVaultNetworkInterfaceName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').networkInterfaces), variables('serviceName'), variables('resourceAbbreviations').recoveryServicesVaults), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "recoveryServicesVaultPrivateEndpointName": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').privateEndpoints), variables('serviceName'), variables('resourceAbbreviations').recoveryServicesVaults), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "resourceGroupControlPlane": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').resourceGroups), variables('serviceName'), 'controlPlane'), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "resourceGroupFeedWorkspace": "[replace(replace(replace(variables('namingConvention_Shared'), variables('resourceAbbreviation'), variables('resourceAbbreviations').resourceGroups), variables('serviceName'), 'feedWorkspace'), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "resourceGroupGlobalWorkspace": "[replace(replace(replace(variables('namingConvention_Global'), variables('resourceAbbreviation'), variables('resourceAbbreviations').resourceGroups), variables('serviceName'), 'globalWorkspace'), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "resourceGroupHosts": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').resourceGroups), variables('serviceName'), 'sessionHosts'), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "resourceGroupManagement": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').resourceGroups), variables('serviceName'), 'management'), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
             "resourceGroupsNetwork": [
-              "[replace(replace(variables('namingConvention'), 'resourceType', format('{0}-network-avd', variables('resourceAbbreviations').resourceGroups)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-              "[replace(replace(variables('namingConvention'), 'resourceType', format('{0}-network-avd', variables('resourceAbbreviations').resourceGroups)), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]"
+              "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').resourceGroups), variables('serviceName'), 'network'), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+              "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').resourceGroups), variables('serviceName'), 'network'), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]"
             ],
-            "resourceGroupStorage": "[replace(replace(variables('namingConvention'), 'resourceType', format('{0}-profileStorage-avd', variables('resourceAbbreviations').resourceGroups)), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "resourceGroupStorage": "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').resourceGroups), variables('serviceName'), 'profileStorage'), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
             "routeTables": [
-              "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').routeTables), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-              "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').routeTables), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]"
+              "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').routeTables), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+              "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').routeTables), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]"
             ],
-            "storageAccountNamePrefix": "[replace(replace(replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').storageAccounts), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentShortName'), first(parameters('environmentShortName'))), '-', '')]",
-            "storageAccountNetworkInterfaceNamePrefix": "[replace(replace(replace(variables('namingConvention'), 'resourceType', format('nic-{0}', variables('resourceAbbreviations').storageAccounts)), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentShortName'), first(parameters('environmentShortName')))]",
-            "storageAccountPrivateEndpointNamePrefix": "[replace(replace(replace(variables('namingConvention'), 'resourceType', format('pe-{0}', variables('resourceAbbreviations').storageAccounts)), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentShortName'), first(parameters('environmentShortName')))]",
-            "userAssignedIdentityNamePrefix": "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').userAssignedIdentities), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "virtualMachineNamePrefix": "[replace(replace(replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').virtualMachines), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentShortName'), first(parameters('environmentShortName'))), '-', '')]",
+            "storageAccountNamePrefix": "[replace(replace(replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').storageAccounts), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentShortName'), first(parameters('environmentShortName'))), '-', '')]",
+            "storageAccountNetworkInterfaceNamePrefix": "[replace(replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').networkInterfaces), variables('serviceName'), variables('resourceAbbreviations').storageAccounts), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentShortName'), first(parameters('environmentShortName')))]",
+            "storageAccountPrivateEndpointNamePrefix": "[replace(replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').privateEndpoints), variables('serviceName'), variables('resourceAbbreviations').storageAccounts), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentShortName'), first(parameters('environmentShortName')))]",
+            "userAssignedIdentityNamePrefix": "[replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').userAssignedIdentities), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
+            "virtualMachineNamePrefix": "[replace(replace(replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').virtualMachines), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentShortName'), first(parameters('environmentShortName'))), '-', '')]",
             "virtualNetworkNames": [
-              "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').virtualNetworks), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-              "[replace(replace(variables('namingConvention'), 'resourceType', variables('resourceAbbreviations').virtualNetworks), 'location', variables('locations')[parameters('locationVirtualMachines')].abbreviation)]"
+              "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').virtualNetworks), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+              "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').virtualNetworks), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]"
             ],
-            "workspaceFeedDiagnosticSettingName": "[replace(replace(variables('namingConvention_Shared'), 'resourceType', format('diag-feed-{0}', variables('resourceAbbreviations').workspaces)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "workspaceFeedName": "[replace(replace(variables('namingConvention_Shared'), 'resourceType', format('feed-{0}', variables('resourceAbbreviations').workspaces)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "workspaceFeedNetworkInterfaceName": "[replace(replace(variables('namingConvention_Shared'), 'resourceType', format('nic-feed-{0}', variables('resourceAbbreviations').workspaces)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "workspaceFeedPrivateEndpointName": "[replace(replace(variables('namingConvention_Shared'), 'resourceType', format('pe-feed-{0}', variables('resourceAbbreviations').workspaces)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "workspaceGlobalName": "[replace(replace(variables('namingConvention_Global'), 'resourceType', format('global-{0}', variables('resourceAbbreviations').workspaces)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "workspaceGlobalNetworkInterfaceName": "[replace(replace(variables('namingConvention_Global'), 'resourceType', format('nic-global-{0}', variables('resourceAbbreviations').workspaces)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]",
-            "workspaceGlobalPrivateEndpointName": "[replace(replace(variables('namingConvention_Global'), 'resourceType', format('pe-global-{0}', variables('resourceAbbreviations').workspaces)), 'location', variables('locations')[parameters('locationControlPlane')].abbreviation)]"
+            "workspaceFeedDiagnosticSettingName": "[replace(replace(replace(variables('namingConvention_Shared'), variables('resourceAbbreviation'), variables('resourceAbbreviations').diagnosticSettings), variables('serviceName'), format('feed-{0}', variables('resourceAbbreviations').workspaces)), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "workspaceFeedName": "[replace(replace(replace(variables('namingConvention_Shared'), variables('resourceAbbreviation'), format('feed-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "workspaceFeedNetworkInterfaceName": "[replace(replace(replace(variables('namingConvention_Shared'), variables('resourceAbbreviation'), variables('resourceAbbreviations').networkInterfaces), variables('serviceName'), format('feed-{0}', variables('resourceAbbreviations').workspaces)), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "workspaceFeedPrivateEndpointName": "[replace(replace(replace(variables('namingConvention_Shared'), variables('resourceAbbreviation'), variables('resourceAbbreviations').privateEndpoints), variables('serviceName'), format('feed-{0}', variables('resourceAbbreviations').workspaces)), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "workspaceGlobalName": "[replace(replace(replace(variables('namingConvention_Global'), variables('resourceAbbreviation'), format('global-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "workspaceGlobalNetworkInterfaceName": "[replace(replace(replace(variables('namingConvention_Global'), variables('resourceAbbreviation'), variables('resourceAbbreviations').networkInterfaces), variables('serviceName'), format('global-{0}', variables('resourceAbbreviations').workspaces)), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
+            "workspaceGlobalPrivateEndpointName": "[replace(replace(replace(variables('namingConvention_Global'), variables('resourceAbbreviation'), variables('resourceAbbreviations').privateEndpoints), variables('serviceName'), format('global-{0}', variables('resourceAbbreviations').workspaces)), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]"
           },
           "resources": [],
           "outputs": {
