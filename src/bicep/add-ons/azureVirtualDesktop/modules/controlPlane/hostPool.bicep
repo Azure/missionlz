@@ -1,7 +1,10 @@
 param activeDirectorySolution string
 param avdPrivateDnsZoneResourceId string
 param customRdpProperty string
+param hostPoolDiagnosticSettingName string
 param hostPoolName string
+param hostPoolNetworkInterfaceName string
+param hostPoolPrivateEndpointName string
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
 param location string
@@ -41,7 +44,6 @@ var hostPoolLogs = [
     enabled: true
   }
 ]
-var privateEndpointName = 'pe-${hostPoolName}'
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
   name: hostPoolName
@@ -69,16 +71,16 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: privateEndpointName
+  name: hostPoolPrivateEndpointName
   location: location
   tags: union({
     'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
   }, contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {})
   properties: {
-    customNetworkInterfaceName: 'nic-${hostPoolName}'
+    customNetworkInterfaceName: hostPoolNetworkInterfaceName
     privateLinkServiceConnections: [
       {
-        name: privateEndpointName
+        name: hostPoolPrivateEndpointName
         properties: {
           privateLinkServiceId: hostPool.id
           groupIds: [
@@ -108,8 +110,8 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   }
 }
 
-resource hostPoolDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (monitoring) {
-  name: 'diag-${hostPoolName}'
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (monitoring) {
+  name: hostPoolDiagnosticSettingName
   scope: hostPool
   properties: {
     logs: hostPoolLogs

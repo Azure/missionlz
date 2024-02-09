@@ -10,13 +10,11 @@ param logAnalyticsWorkspaceResourceId string
 param monitorPrivateDnsZoneId string
 param odsPrivateDnsZoneId string
 param omsPrivateDnsZoneId string
-param resourcePrefix string
+param privateLinkScopeName string
+param privateLinkScopeNetworkInterfaceName string
+param privateLinkScopePrivateEndpointName string
 param subnetResourceId string
 param tags object
-
-var privateEndpointName = replace(logAnalyticsWorkspaceName, resourcePrefix, '${resourcePrefix}-pe')
-var privateEndpointNetworkInterfaceName = replace(logAnalyticsWorkspaceName, resourcePrefix, '${resourcePrefix}-nic')
-var privateLinkScopeName = replace(logAnalyticsWorkspaceName, resourcePrefix, '${resourcePrefix}-pls')
 
 resource privateLinkScope 'microsoft.insights/privateLinkScopes@2021-09-01' = {
   name: privateLinkScopeName
@@ -38,14 +36,14 @@ resource scopedResource 'Microsoft.Insights/privateLinkScopes/scopedResources@20
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: privateEndpointName
+  name: privateLinkScopePrivateEndpointName
   location: location
   tags: tags
   properties: {
-    customNetworkInterfaceName: privateEndpointNetworkInterfaceName
+    customNetworkInterfaceName: privateLinkScopeNetworkInterfaceName
     privateLinkServiceConnections: [
       {
-        name: privateEndpointNetworkInterfaceName
+        name: privateLinkScopePrivateEndpointName
         properties: {
           privateLinkServiceId: privateLinkScope.id
           groupIds: [
@@ -64,7 +62,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
 }
 
 resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-04-01' = {
-  name: privateEndpointName
+  name: privateLinkScopePrivateEndpointName
   parent: privateEndpoint
   properties: {
     privateDnsZoneConfigs: [

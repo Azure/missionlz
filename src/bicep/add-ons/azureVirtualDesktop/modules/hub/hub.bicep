@@ -5,7 +5,9 @@ param globalWorkspacePrivateDnsZoneResourceId string
 param hubSubnetResourceId string
 param resourceGroupName string
 param timestamp string
-param workspaceNamePrefix string
+param workspaceGlobalName string
+param workspaceGlobalNetworkInterfaceName string
+param workspaceGlobalPrivateEndpointName string
 
 module virtualNetwork 'virtualNetwork.bicep' = if (!existingWorkspace) {
   scope: resourceGroup(split(hubSubnetResourceId, '/')[4])
@@ -33,7 +35,9 @@ module workspace 'workspace.bicep' = if (!existingWorkspace) {
     globalWorkspacePrivateDnsZoneResourceId: globalWorkspacePrivateDnsZoneResourceId
     location: !existingWorkspace ? virtualNetwork.outputs.location : ''
     subnetResourceId: hubSubnetResourceId
-    workspaceNamePrefix: workspaceNamePrefix
+    workspaceGlobalName: workspaceGlobalName
+    workspaceGlobalNetworkInterfaceName: workspaceGlobalNetworkInterfaceName
+    workspaceGlobalPrivateEndpointName: workspaceGlobalPrivateEndpointName
   }
   dependsOn: [
     rg_GlobalWorkspace

@@ -3,8 +3,11 @@ targetScope = 'subscription'
 param activeDirectorySolution string
 param artifactsUri string
 param artifactsStorageAccountResourceId string
+param automationAccountDiagnosticSettingName string
 param automationAccountName string
+param automationAccountNetworkInterfaceName string
 param automationAccountPrivateDnsZoneResourceId string
+param automationAccountPrivateEndpointName string
 param availability string
 param avdObjectId string
 param azureBlobsPrivateDnsZoneResourceId string
@@ -26,9 +29,10 @@ param fslogixStorageService string
 param hostPoolName string
 param hostPoolType string
 param imageDefinitionResourceId string
-param keyVaultAbbreviation string
 param keyVaultName string
+param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
+param keyVaultPrivateEndpointName string
 param locationVirtualMachines string
 param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceRetention int
@@ -59,7 +63,7 @@ param virtualMachineNamePrefix string
 param virtualMachinePassword string
 param virtualMachineUsername string
 param virtualMachineSize string
-param workspaceNamePrefix string
+param workspaceFeedName string
 
 var CpuCountMax = contains(hostPoolType, 'Pooled') ? 32 : 128
 var CpuCountMin = contains(hostPoolType, 'Pooled') ? 4 : 2
@@ -181,9 +185,10 @@ module customerManagedKeys 'customerManagedKeys.bicep' = {
   scope: resourceGroup(resourceGroupManagement)
   params: {
     environment: environmentShortName
-    keyVaultAbbreviation: keyVaultAbbreviation
     keyVaultName: keyVaultName
+    keyVaultNetworkInterfaceName: keyVaultNetworkInterfaceName
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
+    keyVaultPrivateEndpointName: keyVaultPrivateEndpointName
     location: locationVirtualMachines
     subnetResourceId: subnetResourceId
     tags: tags
@@ -247,7 +252,7 @@ module validations '../common/customScriptExtensions.bicep' = {
       '${artifactsUri}Get-Validations.ps1'
     ]
     location: locationVirtualMachines
-    parameters: '-ActiveDirectorySolution ${activeDirectorySolution} -CpuCountMax ${CpuCountMax} -CpuCountMin ${CpuCountMin} -DomainName ${empty(domainName) ? 'NotApplicable' : domainName} -Environment ${environment().name} -ImageDefinitionResourceId ${empty(imageDefinitionResourceId) ? 'NotApplicable' : imageDefinitionResourceId} -Location ${locationVirtualMachines} -SessionHostCount ${sessionHostCount} -StorageService ${storageService} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentity.outputs.clientId} -VirtualMachineSize ${virtualMachineSize} -VirtualNetworkName ${VirtualNetworkName} -VirtualNetworkResourceGroupName ${VirtualNetworkResourceGroupName} -WorkspaceNamePrefix ${workspaceNamePrefix} -WorkspaceResourceGroupName ${resourceGroupFeedWorkspace}'
+    parameters: '-ActiveDirectorySolution ${activeDirectorySolution} -CpuCountMax ${CpuCountMax} -CpuCountMin ${CpuCountMin} -DomainName ${empty(domainName) ? 'NotApplicable' : domainName} -Environment ${environment().name} -ImageDefinitionResourceId ${empty(imageDefinitionResourceId) ? 'NotApplicable' : imageDefinitionResourceId} -Location ${locationVirtualMachines} -SessionHostCount ${sessionHostCount} -StorageService ${storageService} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentity.outputs.clientId} -VirtualMachineSize ${virtualMachineSize} -VirtualNetworkName ${VirtualNetworkName} -VirtualNetworkResourceGroupName ${VirtualNetworkResourceGroupName} -WorkspaceFeedName ${workspaceFeedName} -WorkspaceResourceGroupName ${resourceGroupFeedWorkspace}'
     scriptFileName: 'Get-Validations.ps1'
     tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
     userAssignedIdentityClientId: deploymentUserAssignedIdentity.outputs.clientId
@@ -287,8 +292,11 @@ module automationAccount 'automationAccount.bicep' = if (scalingTool || fslogixS
   name: 'AutomationAccount_${timestamp}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
+    automationAccountDiagnosticSettingName: automationAccountDiagnosticSettingName
     automationAccountName: automationAccountName
+    automationAccountNetworkInterfaceName: automationAccountNetworkInterfaceName
     automationAccountPrivateDnsZoneResourceId: automationAccountPrivateDnsZoneResourceId
+    automationAccountPrivateEndpointName: automationAccountPrivateEndpointName
     location: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: enableMonitoring ? monitoring.outputs.logAnalyticsWorkspaceResourceId : ''
     monitoring: enableMonitoring

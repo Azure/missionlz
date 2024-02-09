@@ -6,9 +6,10 @@ Licensed under the MIT License.
 param diskEncryptionSetName string
 param deploymentNameSuffix string
 param keyVaultName string
+param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
+param keyVaultPrivateEndpointName string
 param location string
-param resourcePrefix string
 param subnetResourceId string
 param tags object
 param userAssignedIdentityName string
@@ -17,9 +18,10 @@ module keyVault '../modules/key-vault.bicep' = {
   name: 'deploy-key-vault-${deploymentNameSuffix}'
   params: {
     keyVaultName: keyVaultName
+    keyVaultNetworkInterfaceName: keyVaultNetworkInterfaceName
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
+    keyVaultPrivateEndpointName: keyVaultPrivateEndpointName
     location: location
-    resourcePrefix: resourcePrefix
     subnetResourceId: subnetResourceId
     tags: tags
   }

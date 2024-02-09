@@ -378,18 +378,21 @@ module network_hosts 'modules/network/networking.bicep' = if (length(deploymentL
 module management 'modules/management/management.bicep' = {
   name: 'Management_${timestamp}'
   params: {
+    //diskAccessName: resourceNames.outputs.diskAccessName
     activeDirectorySolution: activeDirectorySolution
     artifactsStorageAccountResourceId: artifactsStorageAccountResourceId
     artifactsUri: artifactsUri
+    automationAccountDiagnosticSettingName: resourceNames.outputs.automationAccountDiagnosticSettingName
     automationAccountName: resourceNames.outputs.automationAccountName
+    automationAccountNetworkInterfaceName: resourceNames.outputs.automationAccountNetworkInterfaceName
     automationAccountPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.azureAutomationPrivateDnsZoneName}'
+    automationAccountPrivateEndpointName: resourceNames.outputs.automationAccountPrivateEndpointName
     availability: availability
     avdObjectId: avdObjectId
     azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.blobPrivateDnsZoneName}'
     azurePowerShellModuleMsiName: azurePowerShellModuleMsiName 
     azureQueueStoragePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.queuePrivateDnsZoneName}'
     dataCollectionRuleName: resourceNames.outputs.dataCollectionRuleName
-    //diskAccessName: resourceNames.outputs.diskAccessName
     diskEncryptionSetName: resourceNames.outputs.diskEncryptionSetName
     diskNamePrefix: resourceNames.outputs.diskNamePrefix
     diskSku: diskSku
@@ -403,9 +406,10 @@ module management 'modules/management/management.bicep' = {
     hostPoolName: resourceNames.outputs.hostPoolName
     hostPoolType: hostPoolType
     imageDefinitionResourceId: imageDefinitionResourceId
-    keyVaultAbbreviation: resourceNames.outputs.resourceAbbreviations.keyVaults
     keyVaultName: resourceNames.outputs.keyVaultName
+    keyVaultNetworkInterfaceName: resourceNames.outputs.keyVaultNetworkInterfaceName
     keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.keyVaultPrivateDnsZoneName}'
+    keyVaultPrivateEndpointName: resourceNames.outputs.keyVaultPrivateEndpointName
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceName: resourceNames.outputs.logAnalyticsWorkspaceName
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
@@ -435,7 +439,7 @@ module management 'modules/management/management.bicep' = {
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
-    workspaceNamePrefix: resourceNames.outputs.workspaceFeedNamePrefix
+    workspaceFeedName: resourceNames.outputs.workspaceFeedName
   }
   dependsOn: [
     rgs
@@ -453,7 +457,9 @@ module hub 'modules/hub/hub.bicep' = {
     hubSubnetResourceId: hubSubnetResourceId
     resourceGroupName: resourceNames.outputs.resourceGroupGlobalWorkspace
     timestamp: timestamp
-    workspaceNamePrefix: resourceNames.outputs.workspaceGlobalNamePrefix
+    workspaceGlobalName: resourceNames.outputs.workspaceGlobalName
+    workspaceGlobalNetworkInterfaceName: resourceNames.outputs.workspaceGlobalNetworkInterfaceName
+    workspaceGlobalPrivateEndpointName: resourceNames.outputs.workspaceGlobalPrivateEndpointName
   }
 }
 
@@ -470,7 +476,10 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     desktopApplicationGroupName: resourceNames.outputs.desktopApplicationGroupName
     desktopFriendlyName: desktopFriendlyName
     existingFeedWorkspace: management.outputs.existingFeedWorkspace
+    hostPoolDiagnosticSettingName: resourceNames.outputs.hostPoolDiagnosticSettingName
     hostPoolName: resourceNames.outputs.hostPoolName
+    hostPoolNetworkInterfaceName: resourceNames.outputs.hostPoolNetworkInterfaceName
+    hostPoolPrivateEndpointName: resourceNames.outputs.hostPoolPrivateEndpointName
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     locationControlPlane: locationControlPlane
@@ -489,8 +498,11 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     timestamp: timestamp
     validationEnvironment: validationEnvironment
     vmTemplate: logic.outputs.vmTemplate
+    workspaceFeedDiagnoticSettingName: resourceNames.outputs.workspaceFeedDiagnosticSettingName
+    workspaceFeedName: resourceNames.outputs.workspaceFeedName
+    workspaceFeedNetworkInterfaceName: resourceNames.outputs.workspaceFeedNetworkInterfaceName
+    workspaceFeedPrivateEndpointName: resourceNames.outputs.workspaceFeedPrivateEndpointName
     workspaceFriendlyName: workspaceFriendlyName
-    workspaceNamePrefix: resourceNames.outputs.workspaceFeedNamePrefix
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
   dependsOn: [

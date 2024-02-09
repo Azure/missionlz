@@ -62,7 +62,7 @@ Param(
 
     [parameter(Mandatory)]
     [string]
-    $WorkspaceNamePrefix,
+    $WorkspaceFeedName,
 
     [parameter(Mandatory)]
     [string]
@@ -237,7 +237,7 @@ try
     ##############################################################
     # AVD Workspace Validation
     ##############################################################
-    $Workspace = Get-AzResource -ResourceGroupName $WorkspaceResourceGroupName -ResourceName $($WorkspaceNamePrefix + '-feed')
+    $Workspace = Get-AzResource -ResourceGroupName $WorkspaceResourceGroupName -ResourceName $WorkspaceFeedName
     Write-Log -Message "Existing Workspace Validation Succeeded" -Type 'INFO'
 
     Disconnect-AzAccount | Out-Null
