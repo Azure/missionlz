@@ -378,18 +378,21 @@ module network_hosts 'modules/network/networking.bicep' = if (length(deploymentL
 module management 'modules/management/management.bicep' = {
   name: 'Management_${timestamp}'
   params: {
+    //diskAccessName: resourceNames.outputs.diskAccessName
     activeDirectorySolution: activeDirectorySolution
     artifactsStorageAccountResourceId: artifactsStorageAccountResourceId
     artifactsUri: artifactsUri
+    automationAccountDiagnosticSettingName: resourceNames.outputs.automationAccountDiagnosticSettingName
     automationAccountName: resourceNames.outputs.automationAccountName
+    automationAccountNetworkInterfaceName: resourceNames.outputs.automationAccountNetworkInterfaceName
     automationAccountPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.azureAutomationPrivateDnsZoneName}'
+    automationAccountPrivateEndpointName: resourceNames.outputs.automationAccountPrivateEndpointName
     availability: availability
     avdObjectId: avdObjectId
     azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.blobPrivateDnsZoneName}'
     azurePowerShellModuleMsiName: azurePowerShellModuleMsiName 
     azureQueueStoragePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.queuePrivateDnsZoneName}'
     dataCollectionRuleName: resourceNames.outputs.dataCollectionRuleName
-    //diskAccessName: resourceNames.outputs.diskAccessName
     diskEncryptionSetName: resourceNames.outputs.diskEncryptionSetName
     diskNamePrefix: resourceNames.outputs.diskNamePrefix
     diskSku: diskSku
@@ -403,18 +406,22 @@ module management 'modules/management/management.bicep' = {
     hostPoolName: resourceNames.outputs.hostPoolName
     hostPoolType: hostPoolType
     imageDefinitionResourceId: imageDefinitionResourceId
-    keyVaultAbbreviation: resourceNames.outputs.resourceAbbreviations.keyVaults
     keyVaultName: resourceNames.outputs.keyVaultName
+    keyVaultNetworkInterfaceName: resourceNames.outputs.keyVaultNetworkInterfaceName
     keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.keyVaultPrivateDnsZoneName}'
+    keyVaultPrivateEndpointName: resourceNames.outputs.keyVaultPrivateEndpointName
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceName: resourceNames.outputs.logAnalyticsWorkspaceName
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     networkInterfaceNamePrefix: resourceNames.outputs.networkInterfaceNamePrefix
+    networkName: resourceNames.outputs.networkName
     organizationalUnitPath: organizationalUnitPath
     recoveryServices: recoveryServices
     recoveryServicesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.backupPrivateDnsZoneName}'
     recoveryServicesVaultName: resourceNames.outputs.recoveryServicesVaultName
+    recoveryServicesVaultNetworkInterfaceName: resourceNames.outputs.recoveryServicesVaultNetworkInterfaceName
+    recoveryServicesVaultPrivateEndpointName: resourceNames.outputs.recoveryServicesVaultPrivateEndpointName
     resourceGroupControlPlane: resourceNames.outputs.resourceGroupControlPlane
     resourceGroupFeedWorkspace: resourceNames.outputs.resourceGroupFeedWorkspace
     resourceGroupHosts: resourceNames.outputs.resourceGroupHosts
@@ -423,6 +430,7 @@ module management 'modules/management/management.bicep' = {
     roleDefinitions: logic.outputs.roleDefinitions
     scalingTool: scalingTool
     securityLogAnalyticsWorkspaceResourceId: securityLogAnalyticsWorkspaceResourceId
+    serviceName: resourceNames.outputs.serviceName
     sessionHostCount: sessionHostCount
     storageService: logic.outputs.storageService
     subnetResourceId: length(deploymentLocations) == 1 ? network_controlPlane.outputs.subnetResourceId : network_hosts.outputs.subnetResourceId
@@ -435,7 +443,7 @@ module management 'modules/management/management.bicep' = {
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
-    workspaceNamePrefix: resourceNames.outputs.workspaceFeedNamePrefix
+    workspaceFeedName: resourceNames.outputs.workspaceFeedName
   }
   dependsOn: [
     rgs
@@ -453,7 +461,9 @@ module hub 'modules/hub/hub.bicep' = {
     hubSubnetResourceId: hubSubnetResourceId
     resourceGroupName: resourceNames.outputs.resourceGroupGlobalWorkspace
     timestamp: timestamp
-    workspaceNamePrefix: resourceNames.outputs.workspaceGlobalNamePrefix
+    workspaceGlobalName: resourceNames.outputs.workspaceGlobalName
+    workspaceGlobalNetworkInterfaceName: resourceNames.outputs.workspaceGlobalNetworkInterfaceName
+    workspaceGlobalPrivateEndpointName: resourceNames.outputs.workspaceGlobalPrivateEndpointName
   }
 }
 
@@ -470,7 +480,10 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     desktopApplicationGroupName: resourceNames.outputs.desktopApplicationGroupName
     desktopFriendlyName: desktopFriendlyName
     existingFeedWorkspace: management.outputs.existingFeedWorkspace
+    hostPoolDiagnosticSettingName: resourceNames.outputs.hostPoolDiagnosticSettingName
     hostPoolName: resourceNames.outputs.hostPoolName
+    hostPoolNetworkInterfaceName: resourceNames.outputs.hostPoolNetworkInterfaceName
+    hostPoolPrivateEndpointName: resourceNames.outputs.hostPoolPrivateEndpointName
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     locationControlPlane: locationControlPlane
@@ -489,8 +502,11 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     timestamp: timestamp
     validationEnvironment: validationEnvironment
     vmTemplate: logic.outputs.vmTemplate
+    workspaceFeedDiagnoticSettingName: resourceNames.outputs.workspaceFeedDiagnosticSettingName
+    workspaceFeedName: resourceNames.outputs.workspaceFeedName
+    workspaceFeedNetworkInterfaceName: resourceNames.outputs.workspaceFeedNetworkInterfaceName
+    workspaceFeedPrivateEndpointName: resourceNames.outputs.workspaceFeedPrivateEndpointName
     workspaceFriendlyName: workspaceFriendlyName
-    workspaceNamePrefix: resourceNames.outputs.workspaceFeedNamePrefix
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
   dependsOn: [
@@ -534,8 +550,11 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     resourceGroupStorage: resourceNames.outputs.resourceGroupStorage
     securityPrincipalNames: map(securityPrincipals, item => item.name)
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
+    serviceName: resourceNames.outputs.serviceName
     smbServerLocation: logic.outputs.smbServerLocation
     storageAccountNamePrefix: resourceNames.outputs.storageAccountNamePrefix
+    storageAccountNetworkInterfaceNamePrefix: resourceNames.outputs.storageAccountNetworkInterfaceNamePrefix
+    storageAccountPrivateEndpointNamePrefix: resourceNames.outputs.storageAccountPrivateEndpointNamePrefix
     storageCount: storageCount
     storageEncryptionKeyName: management.outputs.storageEncryptionKeyName
     storageIndex: storageIndex
@@ -601,6 +620,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
       'None'
     ]
     networkInterfaceNamePrefix: resourceNames.outputs.networkInterfaceNamePrefix
+    networkName: resourceNames.outputs.networkName
     organizationalUnitPath: organizationalUnitPath
     pooledHostPool: logic.outputs.pooledHostPool
     recoveryServicesVaultName: resourceNames.outputs.recoveryServicesVaultName
@@ -615,6 +635,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     scalingSessionThresholdPerCPU: scalingSessionThresholdPerCPU
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     securityLogAnalyticsWorkspaceResourceId: securityLogAnalyticsWorkspaceResourceId
+    serviceName: resourceNames.outputs.serviceName
     sessionHostBatchCount: logic.outputs.sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
     storageAccountPrefix: resourceNames.outputs.storageAccountNamePrefix

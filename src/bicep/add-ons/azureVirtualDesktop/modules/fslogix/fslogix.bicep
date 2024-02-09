@@ -34,8 +34,11 @@ param resourceGroupManagement string
 param resourceGroupStorage string
 param securityPrincipalObjectIds array
 param securityPrincipalNames array
+param serviceName string
 param smbServerLocation string
 param storageAccountNamePrefix string
+param storageAccountNetworkInterfaceNamePrefix string
+param storageAccountPrivateEndpointNamePrefix string
 param storageCount int
 param storageEncryptionKeyName string
 param storageIndex int
@@ -116,7 +119,10 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     resourceGroupStorage: resourceGroupStorage
     securityPrincipalNames: securityPrincipalNames
     securityPrincipalObjectIds: securityPrincipalObjectIds
+    serviceName: serviceName
     storageAccountNamePrefix: storageAccountNamePrefix
+    storageAccountNetworkInterfaceNamePrefix: storageAccountNetworkInterfaceNamePrefix
+    storageAccountPrivateEndpointNamePrefix: storageAccountPrivateEndpointNamePrefix
     storageCount: storageCount
     storageEncryptionKeyName: storageEncryptionKeyName
     storageIndex: storageIndex

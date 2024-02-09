@@ -14,11 +14,11 @@ param subnetResourceId string
 param tags object
 param timestamp string
 param virtualMachineName string
-param workspaceNamePrefix string
+param workspaceFeedDiagnoticSettingName string
+param workspaceFeedName string
+param workspaceFeedNetworkInterfaceName string
+param workspaceFeedPrivateEndpointName string
 param workspacePublicNetworkAccess string
-
-var feedWorkspaceName = '${workspaceNamePrefix}-feed'
-var privateEndpointName = 'pe-${feedWorkspaceName}'
 
 module addApplicationGroups '../common/customScriptExtensions.bicep' = if (existing) {
   scope: resourceGroup(resourceGroupManagement)
@@ -28,7 +28,7 @@ module addApplicationGroups '../common/customScriptExtensions.bicep' = if (exist
       '${artifactsUri}Update-AvdWorkspace.ps1'
     ]
     location: locationVirtualMachines
-    parameters: '-ApplicationGroupReferences "${applicationGroupReferences}" -Environment ${environment().name} -ResourceGroupName ${resourceGroup().name} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentityClientId} -WorkspaceName ${feedWorkspaceName}'
+    parameters: '-ApplicationGroupReferences "${applicationGroupReferences}" -Environment ${environment().name} -ResourceGroupName ${resourceGroup().name} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentityClientId} -WorkspaceName ${workspaceFeedName}'
     scriptFileName: 'Update-AvdWorkspace.ps1'
     tags: union({
       'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
@@ -39,7 +39,7 @@ module addApplicationGroups '../common/customScriptExtensions.bicep' = if (exist
 }
 
 resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = if (!existing) {
-  name: feedWorkspaceName
+  name: workspaceFeedName
   location: locationControlPlane
   tags: {}
   properties: {
@@ -50,14 +50,14 @@ resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = if 
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = if (!existing) {
-  name: privateEndpointName
+  name: workspaceFeedPrivateEndpointName
   location: locationControlPlane
   tags: {}
   properties: {
-    customNetworkInterfaceName: 'nic-${feedWorkspaceName}'
+    customNetworkInterfaceName: workspaceFeedNetworkInterfaceName
     privateLinkServiceConnections: [
       {
-        name: privateEndpointName
+        name: workspaceFeedPrivateEndpointName
         properties: {
           privateLinkServiceId: workspace.id
           groupIds: [
@@ -87,8 +87,8 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   }
 }
 
-resource workspaceDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!existing && monitoring) {
-  name: 'diag-${feedWorkspaceName}'
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!existing && monitoring) {
+  name: workspaceFeedDiagnoticSettingName
   scope: workspace
   properties: {
     logs: [

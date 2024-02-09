@@ -41,6 +41,7 @@ param maxResourcesPerTemplateDeployment int
 param monitoring bool
 param netAppFileShares array
 param networkInterfaceNamePrefix string
+param networkName string
 param organizationalUnitPath string
 param pooledHostPool bool
 param enableRecoveryServices bool
@@ -57,6 +58,7 @@ param scalingMinimumNumberOfRdsh string
 param scalingSessionThresholdPerCPU string
 param securityPrincipalObjectIds array
 param securityLogAnalyticsWorkspaceResourceId string
+param serviceName string
 param sessionHostBatchCount int
 param sessionHostIndex int
 param storageAccountPrefix string
@@ -148,10 +150,12 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     monitoring: monitoring
     netAppFileShares: netAppFileShares
     networkInterfaceNamePrefix: networkInterfaceNamePrefix
+    networkName: networkName
     organizationalUnitPath: organizationalUnitPath
     resourceGroupControlPlane: resourceGroupControlPlane
     resourceGroupManagement: resourceGroupManagement
     securityLogAnalyticsWorkspaceResourceId: securityLogAnalyticsWorkspaceResourceId
+    serviceName: serviceName
     sessionHostCount: i == sessionHostBatchCount && divisionRemainderValue > 0 ? divisionRemainderValue : maxResourcesPerTemplateDeployment
     sessionHostIndex: i == 1 ? sessionHostIndex : ((i - 1) * maxResourcesPerTemplateDeployment) + sessionHostIndex
     storageAccountPrefix: storageAccountPrefix

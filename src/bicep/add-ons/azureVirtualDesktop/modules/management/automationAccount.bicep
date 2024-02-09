@@ -1,13 +1,14 @@
+param automationAccountDiagnosticSettingName string
 param automationAccountName string
+param automationAccountNetworkInterfaceName string
 param automationAccountPrivateDnsZoneResourceId string
+param automationAccountPrivateEndpointName string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param monitoring bool
 param subnetResourceId string
 param tags object
 param virtualMachineName string
-
-var privateEndpointName = 'pe-${automationAccountName}-DSCAndHybridWorker'
 
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2023-07-01' existing = {
   name: virtualMachineName
@@ -28,14 +29,14 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' 
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: privateEndpointName
+  name: automationAccountPrivateEndpointName
   location: location
   tags: contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}
   properties: {
-    customNetworkInterfaceName: 'nic-${automationAccountName}-DSCAndHybridWorker'
+    customNetworkInterfaceName: automationAccountNetworkInterfaceName
     privateLinkServiceConnections: [
       {
-        name: privateEndpointName
+        name: automationAccountPrivateEndpointName
         properties: {
           privateLinkServiceId: automationAccount.id
           groupIds: [
@@ -96,9 +97,9 @@ resource extension_HybridWorker 'Microsoft.Compute/virtualMachines/extensions@20
 }
 
 // Enables logging in a log analytics workspace for alerting and dashboards
-resource diagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (monitoring) {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (monitoring) {
   scope: automationAccount
-  name: 'diag-${automationAccountName}'
+  name: automationAccountDiagnosticSettingName
   properties: {
     logs: [
       {

@@ -22,10 +22,13 @@ targetScope = 'subscription'
 @description('A prefix, 3-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
 param resourcePrefix string
 
-@minLength(3)
-@maxLength(6)
-@description('A suffix, 3 to 6 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".')
-param resourceSuffix string = 'mlz'
+@allowed([
+  'dev'
+  'prod'
+  'test'
+])
+@description('The abbreviation for the environment.')
+param environmentAbbreviation string = 'dev'
 
 @description('The subscription ID for the Hub Network and resources. It defaults to the deployment subscription.')
 param hubSubscriptionId string = subscription().subscriptionId
@@ -513,7 +516,7 @@ param emailSecurityContact string = ''
 
   Here we define a naming conventions for resources.
 
-  First, we take `resourcePrefix` and `resourceSuffix` by params.
+  First, we take `resourcePrefix` and `environmentAbbreviation` by params.
   Then, using string interpolation "${}", we insert those values into a naming convention.
 
 */
@@ -521,8 +524,9 @@ param emailSecurityContact string = ''
 var locations = (loadJsonContent('data/locations.json'))[environment().name]
 var locationAbbreviation = locations[location].abbreviation
 var resourceToken = 'resource_token'
-var nameToken = 'name_token'
-var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}-${locationAbbreviation}'
+var serviceToken = 'service_token'
+var networkToken = 'network_token'
+var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${serviceToken}-${networkToken}-${environmentAbbreviation}-${locationAbbreviation}'
 
 /*
 
@@ -534,7 +538,7 @@ var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}
   `storageAccountNamingConvention` is a unique naming convention:
     
     In an effort to reduce the likelihood of naming collisions, 
-    we replace `unique_token` with a uniqueString() calculated by resourcePrefix, resourceSuffix, and the subscription ID
+    we replace `unique_token` with a uniqueString() calculated by resourcePrefix, environmentAbbreviation, and the subscription ID
 
 */
 
@@ -545,18 +549,20 @@ var diskEncryptionSetNamingConvention = replace(namingConvention, resourceToken,
 var diskNamingConvention = replace(namingConvention, resourceToken, 'disk')
 var firewallNamingConvention = replace(namingConvention, resourceToken, 'afw')
 var firewallPolicyNamingConvention = replace(namingConvention, resourceToken, 'afwp')
-var keyVaultNamingConvention = '${replace(replace(namingConvention, resourceToken, 'kv'), '-', '')}unique_token'
 var ipConfigurationNamingConvention = replace(namingConvention, resourceToken, 'ipconf')
+var keyVaultNamingConvention = '${replace(replace(namingConvention, resourceToken, 'kv'), '-', '')}unique_token'
 var logAnalyticsWorkspaceNamingConvention = replace(namingConvention, resourceToken, 'log')
 var networkInterfaceNamingConvention = replace(namingConvention, resourceToken, 'nic')
 var networkSecurityGroupNamingConvention = replace(namingConvention, resourceToken, 'nsg')
 var networkWatcherNamingConvention = replace(namingConvention, resourceToken, 'nw')
+var privateEndpointNamingConvention = replace(namingConvention, resourceToken, 'pe')
+var privateLinkScopeName = replace(namingConvention, resourceToken, 'pls')
 var publicIpAddressNamingConvention = replace(namingConvention, resourceToken, 'pip')
 var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
 var routeTableNamingConvention = replace(namingConvention, resourceToken, 'rt')
 var storageAccountNamingConvention = toLower('${replace(replace(namingConvention, resourceToken, 'st'), '-', '')}unique_token')
 var subnetNamingConvention = replace(namingConvention, resourceToken, 'snet')
-var userAssignedIdentityNamingConvention = replace(namingConvention, resourceToken, 'uaid')
+var userAssignedIdentityNamingConvention = replace(namingConvention, resourceToken, 'id')
 var virtualMachineNamingConvention = replace(namingConvention, resourceToken, 'vm')
 var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'vnet')
 
@@ -564,73 +570,85 @@ var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'v
 
 var hubName = 'hub'
 var hubShortName = 'hub'
-var hubDiskEncryptionSetName = replace(diskEncryptionSetNamingConvention, nameToken, hubName)
+var hubDiskEncryptionSetName = replace(replace(diskEncryptionSetNamingConvention, '-${serviceToken}', ''), networkToken, hubName)
 var hubKeyVaultName = take(hubKeyVaultUniqueName, 24)
-var hubKeyVaultShortName = replace(keyVaultNamingConvention, nameToken, hubShortName)
-var hubKeyVaultUniqueName = replace(hubKeyVaultShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, hubSubscriptionId))
+var hubKeyVaultNetworkInterfaceName = replace(replace(networkInterfaceNamingConvention, serviceToken, 'kv'), networkToken, hubName)
+var hubKeyVaultPrivateEndpointName = replace(replace(privateEndpointNamingConvention, serviceToken, 'kv'), networkToken, hubName)
+var hubKeyVaultShortName = replace(replace(keyVaultNamingConvention, serviceToken, ''), networkToken, hubShortName)
+var hubKeyVaultUniqueName = replace(hubKeyVaultShortName, 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, hubSubscriptionId))
 var hubLogStorageAccountName = take(hubLogStorageAccountUniqueName, 24)
-var hubLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, hubShortName)
-var hubLogStorageAccountUniqueName = replace(hubLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, hubSubscriptionId))
-var hubNetworkWatcherName = replace(networkWatcherNamingConvention, nameToken, hubName)
-var hubNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, hubName)
-var hubResourceGroupName = replace(resourceGroupNamingConvention, nameToken, hubName)
-var hubRouteTableName = replace(routeTableNamingConvention, nameToken, hubName)
-var hubSubnetName = replace(subnetNamingConvention, nameToken, hubName)
-var hubUserAssignedIdentityName = replace(userAssignedIdentityNamingConvention, nameToken, hubName)
-var hubVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, hubName)
+var hubLogStorageAccountNetworkInterfaceNamePrefix = replace(replace(networkInterfaceNamingConvention, serviceToken, '${serviceToken}-st'), networkToken, hubName)
+var hubLogStorageAccountPrivateEndpointNamePrefix = replace(replace(privateEndpointNamingConvention, serviceToken, '${serviceToken}-st'), networkToken, hubName)
+var hubLogStorageAccountShortName = replace(replace(storageAccountNamingConvention, serviceToken, ''), networkToken, hubShortName)
+var hubLogStorageAccountUniqueName = replace(hubLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, hubSubscriptionId))
+var hubNetworkWatcherName = replace(replace(networkWatcherNamingConvention, '-${serviceToken}', ''), networkToken, hubName)
+var hubNetworkSecurityGroupName = replace(replace(networkSecurityGroupNamingConvention, '-${serviceToken}', ''), networkToken, hubName)
+var hubResourceGroupName = replace(replace(resourceGroupNamingConvention, '-${serviceToken}', ''), networkToken, hubName)
+var hubRouteTableName = replace(replace(routeTableNamingConvention, '-${serviceToken}', ''), networkToken, hubName)
+var hubSubnetName = replace(replace(subnetNamingConvention, '-${serviceToken}', ''), networkToken, hubName)
+var hubUserAssignedIdentityName = replace(replace(userAssignedIdentityNamingConvention, '-${serviceToken}', ''), networkToken, hubName)
+var hubVirtualNetworkName = replace(replace(virtualNetworkNamingConvention, '-${serviceToken}', ''), networkToken, hubName)
 
 // IDENTITY NAMES
 
 var identityName = 'identity'
 var identityShortName = 'id'
 var identityLogStorageAccountName = take(identityLogStorageAccountUniqueName, 24)
-var identityLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, identityShortName)
-var identityLogStorageAccountUniqueName = replace(identityLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, identitySubscriptionId))
-var identityNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, identityName)
-var identityResourceGroupName = replace(resourceGroupNamingConvention, nameToken, identityName)
-var identityRouteTableName = replace(routeTableNamingConvention, nameToken, identityName)
-var identitySubnetName = replace(subnetNamingConvention, nameToken, identityName)
-var identityVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, identityName)
+var identityLogStorageAccountNetworkInterfaceName = replace(replace(networkInterfaceNamingConvention, serviceToken, '${serviceToken}-st'), networkToken, identityName)
+var identityLogStorageAccountPrivateEndpointName = replace(replace(privateEndpointNamingConvention, serviceToken, '${serviceToken}-st'), networkToken, identityName)
+var identityLogStorageAccountShortName = replace(replace(storageAccountNamingConvention, serviceToken, ''), networkToken, identityShortName)
+var identityLogStorageAccountUniqueName = replace(identityLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, identitySubscriptionId))
+var identityNetworkSecurityGroupName = replace(replace(networkSecurityGroupNamingConvention, '-${serviceToken}', ''), networkToken, identityName)
+var identityResourceGroupName = replace(replace(resourceGroupNamingConvention, '-${serviceToken}', ''), networkToken, identityName)
+var identityRouteTableName = replace(replace(routeTableNamingConvention, '-${serviceToken}', ''), networkToken, identityName)
+var identitySubnetName = replace(replace(subnetNamingConvention, '-${serviceToken}', ''), networkToken, identityName)
+var identityVirtualNetworkName = replace(replace(virtualNetworkNamingConvention, '-${serviceToken}', ''), networkToken, identityName)
 
 // OPERATIONS NAMES
 
 var operationsName = 'operations'
 var operationsShortName = 'ops'
 var operationsLogStorageAccountName = take(operationsLogStorageAccountUniqueName, 24)
-var operationsLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, operationsShortName)
-var operationsLogStorageAccountUniqueName = replace(operationsLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, operationsSubscriptionId))
-var operationsNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, operationsName)
-var operationsResourceGroupName = replace(resourceGroupNamingConvention, nameToken, operationsName)
-var operationsRouteTableName = replace(routeTableNamingConvention, nameToken, operationsName)
-var operationsSubnetName = replace(subnetNamingConvention, nameToken, operationsName)
-
-var operationsVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, operationsName)
+var operationsLogStorageAccountNetworkInterfaceName = replace(replace(networkInterfaceNamingConvention, serviceToken, '${serviceToken}-st'), networkToken, operationsName)
+var operationsLogStorageAccountPrivateEndpointName = replace(replace(privateEndpointNamingConvention, serviceToken, '${serviceToken}-st'), networkToken, operationsName)
+var operationsLogStorageAccountShortName = replace(replace(storageAccountNamingConvention, serviceToken, ''), networkToken, operationsShortName)
+var operationsLogStorageAccountUniqueName = replace(operationsLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, operationsSubscriptionId))
+var operationsNetworkSecurityGroupName = replace(replace(networkSecurityGroupNamingConvention, '-${serviceToken}', ''), networkToken, operationsName)
+var operationsPrivateLinkScopeName = replace(replace(privateLinkScopeName, '-${serviceToken}', ''), networkToken, operationsName)
+var operationsPrivateLinkScopeNetworkInterfaceName = replace(replace(networkInterfaceNamingConvention, serviceToken, 'pls'), networkToken, operationsName)
+var operationsPrivateLinkScopePrivateEndpointName = replace(replace(privateEndpointNamingConvention, serviceToken, 'pls'), networkToken, operationsName)
+var operationsResourceGroupName = replace(replace(resourceGroupNamingConvention, '-${serviceToken}', ''), networkToken, operationsName)
+var operationsRouteTableName = replace(replace(routeTableNamingConvention, '-${serviceToken}', ''), networkToken, operationsName)
+var operationsSubnetName = replace(replace(subnetNamingConvention, '-${serviceToken}', ''), networkToken, operationsName)
+var operationsVirtualNetworkName = replace(replace(virtualNetworkNamingConvention, '-${serviceToken}', ''), networkToken, operationsName)
 
 // SHARED SERVICES NAMES
 
 var sharedServicesName = 'sharedServices'
 var sharedServicesShortName = 'svcs'
 var sharedServicesLogStorageAccountName = take(sharedServicesLogStorageAccountUniqueName, 24)
-var sharedServicesLogStorageAccountShortName = replace(storageAccountNamingConvention, nameToken, sharedServicesShortName)
-var sharedServicesLogStorageAccountUniqueName = replace(sharedServicesLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, resourceSuffix, sharedServicesSubscriptionId))
-var sharedServicesNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, sharedServicesName)
-var sharedServicesResourceGroupName = replace(resourceGroupNamingConvention, nameToken, sharedServicesName)
-var sharedServicesRouteTableName = replace(routeTableNamingConvention, nameToken, sharedServicesName)
-var sharedServicesSubnetName = replace(subnetNamingConvention, nameToken, sharedServicesName)
-var sharedServicesVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, sharedServicesName)
+var sharedServicesLogStorageAccountPrivateEndpointName = replace(replace(privateEndpointNamingConvention, serviceToken, '${serviceToken}-st'), networkToken, sharedServicesName)
+var sharedServicesLogStorageAccountNetworkInterfaceName = replace(replace(networkInterfaceNamingConvention, serviceToken, '${serviceToken}-st'), networkToken, sharedServicesName)
+var sharedServicesLogStorageAccountShortName = replace(replace(storageAccountNamingConvention, serviceToken, ''), networkToken, sharedServicesShortName)
+var sharedServicesLogStorageAccountUniqueName = replace(sharedServicesLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, sharedServicesSubscriptionId))
+var sharedServicesNetworkSecurityGroupName = replace(replace(networkSecurityGroupNamingConvention, '-${serviceToken}', ''), networkToken, sharedServicesName)
+var sharedServicesResourceGroupName = replace(replace(resourceGroupNamingConvention, '-${serviceToken}', ''), networkToken, sharedServicesName)
+var sharedServicesRouteTableName = replace(replace(routeTableNamingConvention, '-${serviceToken}', ''), networkToken, sharedServicesName)
+var sharedServicesSubnetName = replace(replace(subnetNamingConvention, '-${serviceToken}', ''), networkToken, sharedServicesName)
+var sharedServicesVirtualNetworkName = replace(replace(virtualNetworkNamingConvention, '-${serviceToken}', ''), networkToken, sharedServicesName)
 
 // LOG ANALYTICS NAMES
 
-var logAnalyticsWorkspaceName = replace(logAnalyticsWorkspaceNamingConvention, nameToken, operationsName)
+var logAnalyticsWorkspaceName = replace(replace(logAnalyticsWorkspaceNamingConvention, '-${serviceToken}', ''), networkToken, operationsName)
 
 // FIREWALL NAMES
 
-var firewallName = replace(firewallNamingConvention, nameToken, hubName)
-var firewallPolicyName = replace(firewallPolicyNamingConvention, nameToken, hubName)
-var firewallClientIpConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'afw-client')
-var firewallClientPublicIPAddressName = replace(publicIpAddressNamingConvention, nameToken, 'afw-client')
-var firewallManagementIpConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'afw-mgmt')
-var firewallManagementPublicIPAddressName = replace(publicIpAddressNamingConvention, nameToken, 'afw-mgmt')
+var firewallName = replace(replace(firewallNamingConvention, '-${serviceToken}', ''), networkToken, hubName)
+var firewallPolicyName = replace(replace(firewallPolicyNamingConvention, '-${serviceToken}', ''), networkToken, hubName)
+var firewallClientIpConfigurationName = replace(replace(ipConfigurationNamingConvention, serviceToken, 'client-afw'), networkToken, hubName)
+var firewallClientPublicIPAddressName = replace(replace(publicIpAddressNamingConvention, serviceToken, 'client-afw'), networkToken, hubName)
+var firewallManagementIpConfigurationName = replace(replace(ipConfigurationNamingConvention, serviceToken, 'mgmt-afw'), networkToken, hubName)
+var firewallManagementPublicIPAddressName = replace(replace(publicIpAddressNamingConvention, serviceToken, 'mgmt-afw'), networkToken, hubName)
 
 // FIREWALL VALUES
 
@@ -641,17 +659,17 @@ var firewallPublicIpAddressAllocationMethod = 'Static'
 
 // REMOTE ACCESS NAMES
 
-var bastionHostName = replace(bastionHostNamingConvention, nameToken, hubName)
-var bastionHostPublicIPAddressName = replace(publicIpAddressNamingConvention, nameToken, 'bas')
-var bastionHostIPConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'bas')
-var linuxDiskName = replace(diskNamingConvention, nameToken, 'bas-linux')
-var linuxNetworkInterfaceName = replace(networkInterfaceNamingConvention, nameToken, 'bas-linux')
-var linuxNetworkInterfaceIpConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'bas-linux')
-var linuxVmName = replace(virtualMachineNamingConvention, nameToken, 'bas-linux')
-var windowsDiskName = replace(diskNamingConvention, nameToken, 'bas-windows')
-var windowsNetworkInterfaceName = replace(networkInterfaceNamingConvention, nameToken, 'bas-windows')
-var windowsNetworkInterfaceIpConfigurationName = replace(ipConfigurationNamingConvention, nameToken, 'bas-windows')
-var windowsVmName = replace(virtualMachineNamingConvention, nameToken, 'bas-windows')
+var bastionHostName = replace(replace(bastionHostNamingConvention, '-${serviceToken}', ''), networkToken, hubName)
+var bastionHostPublicIPAddressName = replace(replace(publicIpAddressNamingConvention, serviceToken, 'bas'), networkToken, hubName)
+var bastionHostIPConfigurationName = replace(replace(ipConfigurationNamingConvention, serviceToken, 'bas'), networkToken, hubName)
+var linuxDiskName = replace(replace(diskNamingConvention, serviceToken, 'linux'), networkToken, hubName)
+var linuxNetworkInterfaceName = replace(replace(networkInterfaceNamingConvention, serviceToken, 'linux'), networkToken, hubName)
+var linuxNetworkInterfaceIpConfigurationName = replace(replace(ipConfigurationNamingConvention, serviceToken, 'linux'), networkToken, hubName)
+var linuxVmName = replace(replace(virtualMachineNamingConvention, serviceToken, 'linux'), networkToken, hubName)
+var windowsDiskName = replace(replace(diskNamingConvention, serviceToken, 'windows'), networkToken, hubName)
+var windowsNetworkInterfaceName = replace(replace(networkInterfaceNamingConvention, serviceToken, 'windows'), networkToken, hubName)
+var windowsNetworkInterfaceIpConfigurationName = replace(replace(ipConfigurationNamingConvention, serviceToken, 'windows'), networkToken, hubName)
+var windowsVmName = replace(replace(virtualMachineNamingConvention, serviceToken, 'windows'), networkToken, hubName)
 
 // BASTION VALUES
 
@@ -667,6 +685,8 @@ var spokesCommon = [
     subscriptionId: operationsSubscriptionId
     resourceGroupName: operationsResourceGroupName
     logStorageAccountName: operationsLogStorageAccountName
+    logStorageAccountNetworkInterfaceNamePrefix: operationsLogStorageAccountNetworkInterfaceName
+    logStorageAccountPrivateEndpointNamePrefix: operationsLogStorageAccountPrivateEndpointName
     virtualNetworkName: operationsVirtualNetworkName
     virtualNetworkAddressPrefix: operationsVirtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: operationsVirtualNetworkDiagnosticsLogs
@@ -686,6 +706,8 @@ var spokesCommon = [
     subscriptionId: sharedServicesSubscriptionId
     resourceGroupName: sharedServicesResourceGroupName
     logStorageAccountName: sharedServicesLogStorageAccountName
+    logStorageAccountNetworkInterfaceNamePrefix: sharedServicesLogStorageAccountNetworkInterfaceName
+    logStorageAccountPrivateEndpointNamePrefix: sharedServicesLogStorageAccountPrivateEndpointName
     virtualNetworkName: sharedServicesVirtualNetworkName
     virtualNetworkAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: sharedServicesVirtualNetworkDiagnosticsLogs
@@ -707,6 +729,8 @@ var spokesIdentity = deployIdentity ? [
     subscriptionId: identitySubscriptionId
     resourceGroupName: identityResourceGroupName
     logStorageAccountName: identityLogStorageAccountName
+    logStorageAccountNetworkInterfaceNamePrefix: identityLogStorageAccountNetworkInterfaceName
+    logStorageAccountPrivateEndpointNamePrefix: identityLogStorageAccountPrivateEndpointName
     virtualNetworkName: identityVirtualNetworkName
     virtualNetworkAddressPrefix: identityVirtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: identityVirtualNetworkDiagnosticsLogs
@@ -727,7 +751,7 @@ var spokesIdentity = deployIdentity ? [
 
 var defaultTags = {
   resourcePrefix: resourcePrefix
-  resourceSuffix: resourceSuffix
+  environmentAbbreviation: environmentAbbreviation
   DeploymentType: 'MissionLandingZoneARM'
 }
 
@@ -914,9 +938,10 @@ module customerManagedKeys './core/hub-customer-managed-keys.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetName: hubDiskEncryptionSetName
     keyVaultName: hubKeyVaultName
+    keyVaultNetworkInterfaceName: hubKeyVaultNetworkInterfaceName
     keyVaultPrivateDnsZoneResourceId: privateDnsZones.outputs.keyvaultDnsPrivateDnsZoneId
+    keyVaultPrivateEndpointName: hubKeyVaultPrivateEndpointName
     location: location
-    resourcePrefix: resourcePrefix
     subnetResourceId: hubNetwork.outputs.subnetResourceId
     tags: calculatedTags
     userAssignedIdentityName: hubUserAssignedIdentityName
@@ -929,16 +954,18 @@ module azureMonitor './modules/azure-monitor.bicep' = if (contains(supportedClou
   name: 'deploy-azure-monitor-${deploymentNameSuffix}'
   scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
   params: {
+    agentsvcPrivateDnsZoneId: privateDnsZones.outputs.agentsvcPrivateDnsZoneId
+    location: location
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.id
     monitorPrivateDnsZoneId: privateDnsZones.outputs.monitorPrivateDnsZoneId
-    omsPrivateDnsZoneId: privateDnsZones.outputs.omsPrivateDnsZoneId
     odsPrivateDnsZoneId: privateDnsZones.outputs.odsPrivateDnsZoneId
-    agentsvcPrivateDnsZoneId: privateDnsZones.outputs.agentsvcPrivateDnsZoneId
-    location: location
-    tags: tags
-    resourcePrefix: resourcePrefix
+    omsPrivateDnsZoneId: privateDnsZones.outputs.omsPrivateDnsZoneId
+    privateLinkScopeName : operationsPrivateLinkScopeName
+    privateLinkScopeNetworkInterfaceName: operationsPrivateLinkScopeNetworkInterfaceName
+    privateLinkScopePrivateEndpointName : operationsPrivateLinkScopePrivateEndpointName
     subnetResourceId: spokeNetworks[0].outputs.subnetResourceId
+    tags: tags
   }
   dependsOn: [
     logAnalyticsWorkspace
@@ -1012,8 +1039,10 @@ module hubStorage './core/hub-storage.bicep' = {
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageAccountName: hubLogStorageAccountName
+    logStorageAccountNetworkInterfaceNamePrefix: hubLogStorageAccountNetworkInterfaceNamePrefix
+    logStorageAccountPrivateEndpointNamePrefix: hubLogStorageAccountPrivateEndpointNamePrefix
     logStorageSkuName: logStorageSkuName
-    resourcePrefix: resourcePrefix
+    serviceToken: serviceToken
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     subnetResourceId: hubNetwork.outputs.subnetResourceId
     tablesPrivateDnsZoneResourceId: privateDnsZones.outputs.tablePrivateDnsZoneId
@@ -1035,8 +1064,10 @@ module spokeStorage './core/spoke-storage.bicep' = [for (spoke, i) in spokes: {
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageAccountName: spoke.logStorageAccountName
+    logStorageAccountNetworkInterfaceNamePrefix: spoke.logStorageAccountNetworkInterfaceNamePrefix
+    logStorageAccountPrivateEndpointNamePrefix: spoke.logStorageAccountPrivateEndpointNamePrefix
     logStorageSkuName: logStorageSkuName
-    resourcePrefix: resourcePrefix
+    serviceToken: serviceToken
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     subnetResourceId: spokeNetworks[i].outputs.subnetResourceId
     tablesPrivateDnsZoneResourceId: privateDnsZones.outputs.tablePrivateDnsZoneId

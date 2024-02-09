@@ -1,27 +1,26 @@
 param globalWorkspacePrivateDnsZoneResourceId string
 param location string
 param subnetResourceId string
-param workspaceNamePrefix string
-
-var globalWorkspaceName = '${workspaceNamePrefix}-global'
-var privateEndpointName = 'pe-${globalWorkspaceName}'
+param workspaceGlobalName string
+param workspaceGlobalNetworkInterfaceName string
+param workspaceGlobalPrivateEndpointName string
 
 resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = {
-  name: globalWorkspaceName
+  name: workspaceGlobalName
   location: location
   tags: {}
   properties: {}
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: privateEndpointName
+  name: workspaceGlobalPrivateEndpointName
   location: location
   tags: {}
   properties: {
-    customNetworkInterfaceName: 'nic-${globalWorkspaceName}'
+    customNetworkInterfaceName: workspaceGlobalNetworkInterfaceName
     privateLinkServiceConnections: [
       {
-        name: privateEndpointName
+        name: workspaceGlobalPrivateEndpointName
         properties: {
           privateLinkServiceId: workspace.id
           groupIds: [

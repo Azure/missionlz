@@ -11,8 +11,10 @@ param domainJoinUserPrincipalName string
 param domainName string
 param location string
 param networkInterfaceNamePrefix string
+param networkName string
 param organizationalUnitPath string
 param securityLogAnalyticsWorkspaceResourceId string
+param serviceName string
 param subnet string
 param tagsNetworkInterfaces object
 param tagsVirtualMachines object
@@ -25,12 +27,12 @@ param virtualMachineNamePrefix string
 param virtualMachinePassword string
 param virtualMachineUsername string
 
-var networkInterfaceName = '${networkInterfaceNamePrefix}mgt'
+var networkInterfaceName = replace(networkInterfaceNamePrefix, serviceName, 'mgt-vm')
 var securitylogAnalyticsWorkspaceName = securityMonitoring ? split(securityLogAnalyticsWorkspaceResourceId, '/')[8] : ''
 var securityLogAnalyticsWorkspaceResourceGroupName = securityMonitoring ? split(securityLogAnalyticsWorkspaceResourceId, '/')[4] : resourceGroup().name
 var securityLogAnalyticsWorkspaceSubscriptionId = securityMonitoring ? split(securityLogAnalyticsWorkspaceResourceId, '/')[2] : subscription().subscriptionId
 var securityMonitoring = empty(securityLogAnalyticsWorkspaceResourceId) ? false : true
-var virtualMachineName = '${virtualMachineNamePrefix}mgt'
+var virtualMachineName = replace(replace(virtualMachineNamePrefix, serviceName, 'mgt'), networkName, '')
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = if (securityMonitoring) {
   scope: resourceGroup(securityLogAnalyticsWorkspaceSubscriptionId, securityLogAnalyticsWorkspaceResourceGroupName)
@@ -86,7 +88,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-11-01' = {
           }
           storageAccountType: diskSku
         }
-        name: '${diskNamePrefix}mgt'
+        name: replace(diskNamePrefix, serviceName, 'mgt-vm')
       }
       dataDisks: []
     }

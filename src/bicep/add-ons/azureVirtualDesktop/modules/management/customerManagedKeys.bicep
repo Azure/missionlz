@@ -1,9 +1,11 @@
 param diskEncryptionKeyExpirationInDays int = 30
 param environment string
-param keyVaultAbbreviation string
 param keyVaultName string
+param keyVaultNetworkInterfaceName string
+param keyVaultPrivateEndpointName string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
+param serviceName string
 param subnetResourceId string
 param tags object
 param timestamp string
@@ -37,14 +39,14 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: replace(keyVaultName, keyVaultAbbreviation, '${keyVaultAbbreviation}-pe')
+  name: keyVaultPrivateEndpointName
   location: location
   tags: contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}
   properties: {
-    customNetworkInterfaceName: replace(keyVaultName, keyVaultAbbreviation, '${keyVaultAbbreviation}-nic')
+    customNetworkInterfaceName: keyVaultNetworkInterfaceName
     privateLinkServiceConnections: [
       {
-        name: replace(keyVaultName, keyVaultAbbreviation, '${keyVaultAbbreviation}-nic')
+        name: keyVaultPrivateEndpointName
         properties: {
           privateLinkServiceId: vault.id
           groupIds: [
@@ -148,7 +150,7 @@ module userAssignedIdentity 'userAssignedIdentity.bicep' = {
   name: 'UAI_Encryption_${timestamp}'
   params: {
     location: location
-    name: '${userAssignedIdentityNamePrefix}-encryption'
+    name: replace(userAssignedIdentityNamePrefix, serviceName, 'encryption')
     tags: contains(tags, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tags['Microsoft.ManagedIdentity/userAssignedIdentities'] : {}
   }
 }

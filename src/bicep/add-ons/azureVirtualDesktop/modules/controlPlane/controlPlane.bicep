@@ -8,7 +8,10 @@ param deploymentUserAssignedIdentityClientId string
 param desktopApplicationGroupName string
 param desktopFriendlyName string
 param existingFeedWorkspace bool
+param hostPoolDiagnosticSettingName string
 param hostPoolName string
+param hostPoolNetworkInterfaceName string
+param hostPoolPrivateEndpointName string
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
 param locationControlPlane string
@@ -28,7 +31,10 @@ param timestamp string
 param validationEnvironment bool
 param vmTemplate string
 param workspaceFriendlyName string
-param workspaceNamePrefix string
+param workspaceFeedName string
+param workspaceFeedDiagnoticSettingName string
+param workspaceFeedNetworkInterfaceName string
+param workspaceFeedPrivateEndpointName string
 param workspacePublicNetworkAccess string
 
 module hostPool 'hostPool.bicep' = {
@@ -38,7 +44,10 @@ module hostPool 'hostPool.bicep' = {
     activeDirectorySolution: activeDirectorySolution
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
     customRdpProperty: customRdpProperty
+    hostPoolDiagnosticSettingName: hostPoolDiagnosticSettingName
     hostPoolName: hostPoolName
+    hostPoolNetworkInterfaceName: hostPoolNetworkInterfaceName
+    hostPoolPrivateEndpointName: hostPoolPrivateEndpointName
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     location: locationControlPlane
@@ -92,7 +101,10 @@ module workspace 'workspace.bicep' = {
     tags: tags
     timestamp: timestamp
     virtualMachineName: managementVirtualMachineName
-    workspaceNamePrefix: workspaceNamePrefix
+    workspaceFeedDiagnoticSettingName: workspaceFeedDiagnoticSettingName
+    workspaceFeedName: workspaceFeedName
+    workspaceFeedNetworkInterfaceName: workspaceFeedNetworkInterfaceName
+    workspaceFeedPrivateEndpointName: workspaceFeedPrivateEndpointName
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }

@@ -24,8 +24,11 @@ param resourceGroupManagement string
 param resourceGroupStorage string
 param securityPrincipalObjectIds array
 param securityPrincipalNames array
+param serviceName string
 @minLength(3)
 param storageAccountNamePrefix string
+param storageAccountNetworkInterfaceNamePrefix string
+param storageAccountPrivateEndpointNamePrefix string
 param storageCount int
 param storageEncryptionKeyName string
 param storageIndex int
@@ -166,14 +169,14 @@ module shares 'shares.bicep' = [for i in range(0, storageCount): {
 }]
 
 resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for i in range(0, storageCount): {
-  name: 'pe-${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}-file'
+  name: '${replace(storageAccountPrivateEndpointNamePrefix, serviceName, 'file')}-${padLeft(i + storageIndex, 2, '0')}'
   location: location
   tags: tagsPrivateEndpoints
   properties: {
-    customNetworkInterfaceName: 'nic-${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}-file'
+    customNetworkInterfaceName: '${replace(storageAccountNetworkInterfaceNamePrefix, serviceName, 'file')}-${padLeft(i + storageIndex, 2, '0')}'
     privateLinkServiceConnections: [
       {
-        name: 'pe-${storageAccounts[i].name}'
+        name: '${replace(storageAccountPrivateEndpointNamePrefix, serviceName, 'file')}-${padLeft(i + storageIndex, 2, '0')}'
         properties: {
           privateLinkServiceId: storageAccounts[i].id
           groupIds: [
@@ -190,7 +193,7 @@ resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for
 
 resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = [for i in range(0, storageCount): {
   parent: privateEndpoints[i]
-  name: '${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}'
+  name: '${storageAccountNamePrefix}-${padLeft(i + storageIndex, 2, '0')}'
   properties: {
     privateDnsZoneConfigs: [
       {

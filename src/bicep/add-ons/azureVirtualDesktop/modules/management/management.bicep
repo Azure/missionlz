@@ -3,8 +3,11 @@ targetScope = 'subscription'
 param activeDirectorySolution string
 param artifactsUri string
 param artifactsStorageAccountResourceId string
+param automationAccountDiagnosticSettingName string
 param automationAccountName string
+param automationAccountNetworkInterfaceName string
 param automationAccountPrivateDnsZoneResourceId string
+param automationAccountPrivateEndpointName string
 param availability string
 param avdObjectId string
 param azureBlobsPrivateDnsZoneResourceId string
@@ -26,18 +29,22 @@ param fslogixStorageService string
 param hostPoolName string
 param hostPoolType string
 param imageDefinitionResourceId string
-param keyVaultAbbreviation string
 param keyVaultName string
+param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
+param keyVaultPrivateEndpointName string
 param locationVirtualMachines string
 param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
 param networkInterfaceNamePrefix string
+param networkName string
 param organizationalUnitPath string
 param recoveryServices bool
 param recoveryServicesPrivateDnsZoneResourceId string
 param recoveryServicesVaultName string
+param recoveryServicesVaultNetworkInterfaceName string
+param recoveryServicesVaultPrivateEndpointName string
 param resourceGroupControlPlane string
 param resourceGroupFeedWorkspace string
 param resourceGroupHosts string
@@ -46,6 +53,7 @@ param resourceGroupStorage string
 param roleDefinitions object
 param scalingTool bool
 param securityLogAnalyticsWorkspaceResourceId string
+param serviceName string
 param sessionHostCount int
 param storageService string
 param subnetResourceId string
@@ -59,7 +67,7 @@ param virtualMachineNamePrefix string
 param virtualMachinePassword string
 param virtualMachineUsername string
 param virtualMachineSize string
-param workspaceNamePrefix string
+param workspaceFeedName string
 
 var CpuCountMax = contains(hostPoolType, 'Pooled') ? 32 : 128
 var CpuCountMin = contains(hostPoolType, 'Pooled') ? 4 : 2
@@ -135,7 +143,7 @@ module deploymentUserAssignedIdentity 'userAssignedIdentity.bicep' = {
   name: 'UserAssignedIdentity_${timestamp}'
   params: {
     location: locationVirtualMachines
-    name: '${userAssignedIdentityNamePrefix}-deployment'
+    name: replace(userAssignedIdentityNamePrefix, serviceName, 'deployment')
     tags: contains(tags, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tags['Microsoft.ManagedIdentity/userAssignedIdentities'] : {}
   }
 }
@@ -167,6 +175,7 @@ module artifacts 'artifacts.bicep' = {
   params: {
     location: locationVirtualMachines
     resourceGroupManagement: resourceGroupManagement
+    serviceName: serviceName
     storageAccountName: split(artifactsStorageAccountResourceId, '/')[8]
     subscriptionId: subscription().subscriptionId
     tags: tags
@@ -181,10 +190,12 @@ module customerManagedKeys 'customerManagedKeys.bicep' = {
   scope: resourceGroup(resourceGroupManagement)
   params: {
     environment: environmentShortName
-    keyVaultAbbreviation: keyVaultAbbreviation
     keyVaultName: keyVaultName
+    keyVaultNetworkInterfaceName: keyVaultNetworkInterfaceName
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
+    keyVaultPrivateEndpointName: keyVaultPrivateEndpointName
     location: locationVirtualMachines
+    serviceName: serviceName
     subnetResourceId: subnetResourceId
     tags: tags
     timestamp: timestamp
@@ -223,8 +234,10 @@ module virtualMachine 'virtualMachine.bicep' = {
     domainName: domainName
     location: locationVirtualMachines
     networkInterfaceNamePrefix: networkInterfaceNamePrefix
+    networkName: networkName
     organizationalUnitPath: organizationalUnitPath
     securityLogAnalyticsWorkspaceResourceId: securityLogAnalyticsWorkspaceResourceId
+    serviceName: serviceName
     subnet: split(subnetResourceId, '/')[10]
     tagsNetworkInterfaces: contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}
     tagsVirtualMachines: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
@@ -247,7 +260,7 @@ module validations '../common/customScriptExtensions.bicep' = {
       '${artifactsUri}Get-Validations.ps1'
     ]
     location: locationVirtualMachines
-    parameters: '-ActiveDirectorySolution ${activeDirectorySolution} -CpuCountMax ${CpuCountMax} -CpuCountMin ${CpuCountMin} -DomainName ${empty(domainName) ? 'NotApplicable' : domainName} -Environment ${environment().name} -ImageDefinitionResourceId ${empty(imageDefinitionResourceId) ? 'NotApplicable' : imageDefinitionResourceId} -Location ${locationVirtualMachines} -SessionHostCount ${sessionHostCount} -StorageService ${storageService} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentity.outputs.clientId} -VirtualMachineSize ${virtualMachineSize} -VirtualNetworkName ${VirtualNetworkName} -VirtualNetworkResourceGroupName ${VirtualNetworkResourceGroupName} -WorkspaceNamePrefix ${workspaceNamePrefix} -WorkspaceResourceGroupName ${resourceGroupFeedWorkspace}'
+    parameters: '-ActiveDirectorySolution ${activeDirectorySolution} -CpuCountMax ${CpuCountMax} -CpuCountMin ${CpuCountMin} -DomainName ${empty(domainName) ? 'NotApplicable' : domainName} -Environment ${environment().name} -ImageDefinitionResourceId ${empty(imageDefinitionResourceId) ? 'NotApplicable' : imageDefinitionResourceId} -Location ${locationVirtualMachines} -SessionHostCount ${sessionHostCount} -StorageService ${storageService} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentity.outputs.clientId} -VirtualMachineSize ${virtualMachineSize} -VirtualNetworkName ${VirtualNetworkName} -VirtualNetworkResourceGroupName ${VirtualNetworkResourceGroupName} -WorkspaceFeedName ${workspaceFeedName} -WorkspaceResourceGroupName ${resourceGroupFeedWorkspace}'
     scriptFileName: 'Get-Validations.ps1'
     tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
     userAssignedIdentityClientId: deploymentUserAssignedIdentity.outputs.clientId
@@ -287,8 +300,11 @@ module automationAccount 'automationAccount.bicep' = if (scalingTool || fslogixS
   name: 'AutomationAccount_${timestamp}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
+    automationAccountDiagnosticSettingName: automationAccountDiagnosticSettingName
     automationAccountName: automationAccountName
+    automationAccountNetworkInterfaceName: automationAccountNetworkInterfaceName
     automationAccountPrivateDnsZoneResourceId: automationAccountPrivateDnsZoneResourceId
+    automationAccountPrivateEndpointName: automationAccountPrivateEndpointName
     location: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: enableMonitoring ? monitoring.outputs.logAnalyticsWorkspaceResourceId : ''
     monitoring: enableMonitoring
@@ -308,6 +324,8 @@ module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryService
     azureQueueStoragePrivateDnsZoneResourceId: azureQueueStoragePrivateDnsZoneResourceId
     recoveryServicesPrivateDnsZoneResourceId: recoveryServicesPrivateDnsZoneResourceId
     recoveryServicesVaultName: recoveryServicesVaultName
+    recoveryServicesVaultNetworkInterfaceName: recoveryServicesVaultNetworkInterfaceName
+    recoveryServicesVaultPrivateEndpointName: recoveryServicesVaultPrivateEndpointName
     storageService: storageService
     subnetId: subnetResourceId
     tags: tags
