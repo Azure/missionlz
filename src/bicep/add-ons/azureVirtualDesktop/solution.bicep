@@ -73,8 +73,8 @@ param drainMode bool = false
   'prod' // Production
   'test' // Test
 ])
-@description('The short name for the target environment.')
-param environmentShortName string = 'dev'
+@description('The abbreviation for the target environment.')
+param environmentAbbreviation string = 'dev'
 
 @description('The file share size(s) in GB for the Fslogix storage solution.')
 param fslogixShareSizeInGB int = 100
@@ -164,9 +164,6 @@ param logAnalyticsWorkspaceRetention int = 30
 @description('The SKU for the Log Analytics Workspace to setup the AVD monitoring solution')
 param logAnalyticsWorkspaceSku string = 'PerGB2018'
 
-@description('The maximum number of sessions per AVD session host.')
-param maxSessionLimit int
-
 @description('Deploys the required monitoring resources to enable AVD Insights and monitor features in the automation account.')
 param monitoring bool = true
 
@@ -234,8 +231,14 @@ param tags object = {}
 @description('DO NOT MODIFY THIS VALUE! The timestamp is needed to differentiate deployments for certain Azure resources and must be set using a parameter.')
 param timestamp string = utcNow('yyyyMMddhhmmss')
 
+@description('The number of users per core is used to determine the maximum number of users per session host.')
+param usersPerCore int = 1
+
 @description('The validation environment setting on the AVD host pool determines whether the hostpool should receive AVD preview features for testing.')
 param validationEnvironment bool = false
+
+@description('The number of virtual CPUs per virtual machine for the selected virtual machine size.')
+param virtualMachineVirtualCpuCount int
 
 @allowed([
   'AzureMonitorAgent'
@@ -281,7 +284,7 @@ var resourceGroupsCount = 4 + length(deploymentLocations) + (fslogixStorageServi
 module resourceNames 'modules/resourceNames.bicep' = {
   name: 'ResourceNames_${timestamp}'
   params: {
-    environmentShortName: environmentShortName
+    environmentAbbreviation: environmentAbbreviation
     identifier: identifier
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
@@ -400,7 +403,7 @@ module management 'modules/management/management.bicep' = {
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
     enableMonitoring: monitoring
-    environmentShortName: environmentShortName
+    environmentAbbreviation: environmentAbbreviation
     fslogix: logic.outputs.fslogix
     fslogixStorageService: fslogixStorageService
     hostPoolName: resourceNames.outputs.hostPoolName
@@ -490,7 +493,7 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: monitoring ? management.outputs.logAnalyticsWorkspaceResourceId : ''
     managementVirtualMachineName: management.outputs.virtualMachineName
-    maxSessionLimit: maxSessionLimit
+    maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
     monitoring: monitoring
     resourceGroupControlPlane: resourceNames.outputs.resourceGroupControlPlane
     resourceGroupFeedWorkspace: resourceNames.outputs.resourceGroupFeedWorkspace
