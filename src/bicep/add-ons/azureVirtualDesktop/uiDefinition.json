@@ -380,20 +380,6 @@
               "label": "Workspace",
               "elements": [
                 {
-                  "name": "friendlyName",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Friendly name (feed)",
-                  "defaultValue": "",
-                  "placeholder": "Example: Information Technology",
-                  "toolTip": "Input the friendly name for the AVD workspace / identifier that will be displayed in the end user's client. This value should apply to all the stamp indexes within the same identifier.",
-                  "constraints": {
-                    "required": false,
-                    "regex": "^.{1,64}$",
-                    "validationMessage": "The value must be between 1 and 64 characters in length."
-                  },
-                  "visible": "[not(equals(steps('basics').scenario.profile, 'arcGisPro'))]"
-                },
-                {
                   "name": "publicNetworkAccess",
                   "type": "Microsoft.Common.DropDown",
                   "visible": true,
@@ -513,18 +499,48 @@
               ]
             },
             {
-              "name": "desktopFriendlyName",
-              "type": "Microsoft.Common.TextBox",
-              "label": "Desktop Friendly Name",
-              "defaultValue": "",
-              "placeholder": "Example: Help Desk",
-              "toolTip": "Input the friendly name for the AVD Session Desktop application that will be displayed in the end user's client.",
-              "constraints": {
-                "required": false,
-                "regex": "^.{1,64}$",
-                "validationMessage": "The value must be between 1 and 64 characters in length."
-              },
-              "visible": "[not(equals(steps('basics').scenario.profile, 'arcGisPro'))]"
+              "name": "friendlyNames",
+              "type": "Microsoft.Common.Section",
+              "label": "Friendly Names for AVD Client",
+              "visible": "[not(equals(steps('basics').scenario.profile, 'arcGisPro'))]",
+              "elements": [
+                {
+                  "name": "custom",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": true,
+                  "label": "Customize friendly names for AVD Client?",
+                  "defaultValue": false,
+                  "toolTip": "Choose whether to add custom names to the AVD feed workspace and the desktop for the AVD client."
+                },
+                {
+                  "name": "workspace",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Feed Workspace",
+                  "defaultValue": "",
+                  "placeholder": "Example: Information Technology",
+                  "toolTip": "Input the friendly name for the AVD workspace / identifier that will be displayed in the end user's client. This value should apply to all the stamp indexes within the same identifier.",
+                  "visible": "[steps('controlPlane').friendlyNames.custom]",
+                  "constraints": {
+                    "required": false,
+                    "regex": "^.{1,64}$",
+                    "validationMessage": "The value must be between 1 and 64 characters in length."
+                  }
+                },
+                {
+                  "name": "desktop",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Desktop",
+                  "defaultValue": "",
+                  "placeholder": "Example: Help Desk",
+                  "toolTip": "Input the friendly name for the AVD Session Desktop application that will be displayed in the end user's client.",
+                  "visible": "[steps('controlPlane').friendlyNames.custom]",
+                  "constraints": {
+                    "required": false,
+                    "regex": "^.{1,64}$",
+                    "validationMessage": "The value must be between 1 and 64 characters in length."
+                  }
+                }
+              ]
             }
           ]
         },
@@ -680,23 +696,47 @@
                   "visible": "[not(equals(steps('basics').scenario.profile, 'arcGisPro'))]"
                 },
                 {
-                  "name": "size",
+                  "name": "sizeGeneric",
                   "type": "Microsoft.Compute.SizeSelector",
                   "label": "Size",
                   "toolTip": "Select the size of the virtual machines. Multi-session hosts should have 4 - 24 vCPUs. Single session host should have 2 or more vCPUs.",
                   "recommendedSizes": [
-                    "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Standard_NV4as_v4', 'Standard_D4ads_v5')]"
+                    "Standard_D4ads_v5"
                   ],
                   "constraints": {
-                    "allowedSizes": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), parse('[\"Standard_NV4as_v4\",\"Standard_NV8as_v4\",\"Standard_NV16as_v4\",\"Standard_NV32as_v4\"]'), parse('[]'))]",
-                    "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachine.availability, 'AvailabilitySets'), 3, 1)]"
+                    "allowedSizes": [],
+                    "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachine.availability, 'AvailabilityZones'), 3, 1)]"
                   },
                   "options": {
                     "hideDiskTypeFilter": "[if(equals(steps('hosts').virtualMachine.diskSku, 'Premium_LRS'), true, false)]"
                   },
                   "osPlatform": "Windows",
                   "count": "[steps('hosts').virtualMachine.count]",
-                  "visible": true
+                  "visible": "[not(equals(steps('basics').scenario.profile, 'arcGisPro'))]"
+                },
+                {
+                  "name": "sizeArcGisPro",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select the size of the virtual machines. Multi-session hosts should have 4 - 24 vCPUs. Single session host should have 2 or more vCPUs.",
+                  "recommendedSizes": [
+                    "Standard_NV4as_v4"
+                  ],
+                  "constraints": {
+                    "allowedSizes": [
+                      "Standard_NV4as_v4",
+                      "Standard_NV8as_v4",
+                      "Standard_NV16as_v4",
+                      "Standard_NV32as_v4"
+                    ],
+                    "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachine.availability, 'AvailabilityZones'), 3, 1)]"
+                  },
+                  "options": {
+                    "hideDiskTypeFilter": "[if(equals(steps('hosts').virtualMachine.diskSku, 'Premium_LRS'), true, false)]"
+                  },
+                  "osPlatform": "Windows",
+                  "count": "[steps('hosts').virtualMachine.count]",
+                  "visible": "[equals(steps('basics').scenario.profile, 'arcGisPro')]"
                 }
               ]
             },
@@ -1558,7 +1598,7 @@
         "azurePowerShellModuleMsiName": "[steps('artifacts').files.azurePowerShellModuleMsiName.blobName]",
         "azureNetAppFilesSubnetAddressPrefix": "[if(and(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles')), steps('networking').controlPlane.subnetAddressCidrRangeAnf, steps('networking').hosts.subnetAddressCidrRangeAnf)]",
         "customRdpProperty": "[steps('controlPlane').hostPool.customRdpProperties]",
-        "desktopFriendlyName": "[steps('controlPlane').desktopFriendlyName]",
+        "desktopFriendlyName": "[steps('controlPlane').friendlyNames.desktop]",
         "disableBgpRoutePropagation": "[steps('networking').controlPlane.disableBgpRoutePropagation]",
         "diskSku": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Premium_LRS', steps('hosts').virtualMachine.diskSku)]",
         "domainJoinPassword": "[steps('hosts').domainJoinCredentials.password]",
@@ -1605,11 +1645,11 @@
         "validationEnvironment": "[steps('controlPlane').hostPool.validation]",
         "virtualMachineMonitoringAgent": "[steps('management').monitoring.agent]",
         "virtualMachinePassword": "[steps('hosts').localAdminCredentials.password]",
-        "virtualMachineSize": "[steps('hosts').virtualMachine.size]",
+        "virtualMachineSize": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), steps('hosts').virtualMachine.sizeArcGisPro, steps('hosts').virtualMachine.sizeGeneric)]",
         "virtualMachineUsername": "[steps('hosts').localAdminCredentials.username]",
         "virtualMachineVirtualCpuCount": "[first(map(filter(steps('basics').scenario.virtualMachineSizesApi.value, (item) => equals(item.name, steps('hosts').virtualMachine.size)), (item) => item.numberOfCores))]",
         "virtualNetworkAddressPrefixes": "[if(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), parse(concat('[\"', steps('networking').controlPlane.virtualNetworkAddressCidrRange, '\"]')), parse(concat('[\"', steps('networking').controlPlane.virtualNetworkAddressCidrRange, '\", \"', steps('networking').hosts.virtualNetworkAddressCidrRange, '\"]')))]",
-        "workspaceFriendlyName": "[steps('controlPlane').workspace.friendlyName]",
+        "workspaceFriendlyName": "[steps('controlPlane').friendlyNames.workspace]",
         "workspacePublicNetworkAccess": "[steps('controlPlane').workspace.publicNetworkAccess]"
       },
       "kind": "Subscription",
