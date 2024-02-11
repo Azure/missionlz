@@ -335,7 +335,7 @@
                   "type": "Microsoft.Common.TextBox",
                   "visible": true,
                   "label": "Custom RDP properties",
-                  "defaultValue": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;",
+                  "defaultValue": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'use multimon:i:1;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:2;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;', 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;')]",
                   "toolTip": "Specify the configuration for the RDP properties on the AVD host pool.",
                   "constraints": {
                     "required": true
@@ -413,7 +413,7 @@
                   "name": "subnet",
                   "type": "Microsoft.Common.DropDown",
                   "visible": true,
-                  "label": "Hub subnet (global workspace)",
+                  "label": "Hub subnet (global)",
                   "defaultValue": "[first(map(filter(steps('controlPlane').workspace.subnetsApi.value, (item) => and(and(not(equals(item.name, 'AzureFirewallSubnet')), not(equals(item.name, 'AzureFirewallManagementSubnet'))), not(equals(item.name, 'AzureBastionSubnet')))), (item) => item.name))]",
                   "filter": true,
                   "toolTip": "Select the existing Hub subnet for the AVD Global Workspace.",
