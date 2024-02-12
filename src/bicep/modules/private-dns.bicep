@@ -13,7 +13,7 @@ param identityVirtualNetworkResourceGroupName string
 param identityVirtualNetworkSubscriptionId string
 param tags object
 
-var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
+var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.azure.', ''), '/', '')
 var locations = (loadJsonContent('../data/locations.json'))[environment().name]
 var privateDnsZoneNames = union([
   'privatelink.agentsvc.azure-automation.${privateDnsZoneSuffixes_AzureAutomation[environment().name] ?? cloudSuffix}'
@@ -29,22 +29,30 @@ var privateDnsZoneNames = union([
   'privatelink.ods.opinsights.${privateDnsZoneSuffixes_Monitor[environment().name] ?? cloudSuffix}'
   'privatelink.oms.opinsights.${privateDnsZoneSuffixes_Monitor[environment().name] ?? cloudSuffix}'
 ], privateDnsZoneNames_Backup)
-var privateDnsZoneNames_Backup = [for location in items(locations): 'privatelink.${location.value.recoveryServicesGeo}.backup.${privateDnsZoneSuffixes_Backup[environment().name] ?? cloudSuffix}']
+var privateDnsZoneNames_Backup = [for location in items(locations): 'privatelink.${location.value.recoveryServicesGeo}.backup.windowsazure.${privateDnsZoneSuffixes_Backup[environment().name] ?? cloudSuffix}']
 var privateDnsZoneSuffixes_AzureAutomation = {
   AzureCloud: 'net'
   AzureUSGovernment: 'us'
+  USNat: null
+  USSec: null
 }
 var privateDnsZoneSuffixes_AzureVirtualDesktop = {
   AzureCloud: 'microsoft.com'
   AzureUSGovernment: 'azure.us'
+  USNat: null
+  USSec: null
 }
 var privateDnsZoneSuffixes_Backup = {
-  AzureCloud: 'windowsazure.com'
-  AzureUSGovernment: 'windowsazure.us'
+  AzureCloud: 'com'
+  AzureUSGovernment: 'us'
+  USNat: null
+  USSec: null
 }
 var privateDnsZoneSuffixes_Monitor = {
   AzureCloud: 'azure.com'
   AzureUSGovernment: 'azure.us'
+  USNat: null
+  USSec: null
 }
 var virtualNetworks = union([
   {
