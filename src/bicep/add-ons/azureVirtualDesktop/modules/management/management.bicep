@@ -23,7 +23,7 @@ param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
 param enableMonitoring bool
-param environmentShortName string
+param environmentAbbreviation string
 param fslogix bool
 param fslogixStorageService string
 param hostPoolName string
@@ -189,7 +189,7 @@ module customerManagedKeys 'customerManagedKeys.bicep' = {
   name: 'CustomerManagedKeys_${timestamp}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    environment: environmentShortName
+    environment: environmentAbbreviation
     keyVaultName: keyVaultName
     keyVaultNetworkInterfaceName: keyVaultNetworkInterfaceName
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId

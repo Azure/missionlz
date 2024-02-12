@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-param environmentShortName string
+param environmentAbbreviation string
 param identifier string
 param locationControlPlane string
 param locationVirtualMachines string
@@ -13,9 +13,9 @@ var resourceAbbreviation = 'resourceAbbreviation'
 var serviceName = 'serviceName'
 var networkName = 'avd'
 var locationAbbreviation = 'locationAbbreviation'
-var namingConvention = '${identifier}-${stampIndex}-${resourceAbbreviation}-${serviceName}-${networkName}-${environmentShortName}-${locationAbbreviation}'
-var namingConvention_Global = '${resourceAbbreviation}-${serviceName}-${networkName}-${environmentShortName}-${locationAbbreviation}'
-var namingConvention_Shared = '${identifier}-${resourceAbbreviation}-${serviceName}-${networkName}-${environmentShortName}-${locationAbbreviation}'
+var namingConvention = '${identifier}-${stampIndex}-${resourceAbbreviation}-${serviceName}-${networkName}-${environmentAbbreviation}-${locationAbbreviation}'
+var namingConvention_Global = '${resourceAbbreviation}-${serviceName}-${networkName}-${environmentAbbreviation}-${locationAbbreviation}'
+var namingConvention_Shared = '${identifier}-${resourceAbbreviation}-${serviceName}-${networkName}-${environmentAbbreviation}-${locationAbbreviation}'
 
 // SUPPORTING DATA
 var cloudEndpointSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
@@ -111,11 +111,11 @@ var routeTables = [
   replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.routeTables), '-${serviceName}', ''), locationAbbreviation, locations[locationControlPlane].abbreviation)
   replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.routeTables), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
 ]
-var storageAccountNamePrefix = replace(replace(replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.storageAccounts), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation), environmentShortName, first(environmentShortName)), '-', '')
-var storageAccountNetworkInterfaceNamePrefix = replace(replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.networkInterfaces), serviceName, resourceAbbreviations.storageAccounts), locationAbbreviation, locations[locationVirtualMachines].abbreviation), environmentShortName, first(environmentShortName))
-var storageAccountPrivateEndpointNamePrefix = replace(replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.privateEndpoints), serviceName, resourceAbbreviations.storageAccounts), locationAbbreviation, locations[locationVirtualMachines].abbreviation), environmentShortName, first(environmentShortName))
+var storageAccountNamePrefix = replace(replace(replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.storageAccounts), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation), environmentAbbreviation, first(environmentAbbreviation)), '-', '')
+var storageAccountNetworkInterfaceNamePrefix = replace(replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.networkInterfaces), serviceName, resourceAbbreviations.storageAccounts), locationAbbreviation, locations[locationVirtualMachines].abbreviation), environmentAbbreviation, first(environmentAbbreviation))
+var storageAccountPrivateEndpointNamePrefix = replace(replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.privateEndpoints), serviceName, resourceAbbreviations.storageAccounts), locationAbbreviation, locations[locationVirtualMachines].abbreviation), environmentAbbreviation, first(environmentAbbreviation))
 var userAssignedIdentityNamePrefix = replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.userAssignedIdentities), locationAbbreviation, locations[locationVirtualMachines].abbreviation)
-var virtualMachineNamePrefix = replace(replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.virtualMachines), locationAbbreviation, locations[locationVirtualMachines].abbreviation), environmentShortName, first(environmentShortName)), '-', '')
+var virtualMachineNamePrefix = replace(replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.virtualMachines), locationAbbreviation, locations[locationVirtualMachines].abbreviation), environmentAbbreviation, first(environmentAbbreviation)), '-', '')
 var virtualNetworkNames = [
   replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.virtualNetworks), '-${serviceName}', ''), locationAbbreviation, locations[locationControlPlane].abbreviation)
   replace(replace(replace(namingConvention, resourceAbbreviation, resourceAbbreviations.virtualNetworks), '-${serviceName}', ''), locationAbbreviation, locations[locationVirtualMachines].abbreviation)

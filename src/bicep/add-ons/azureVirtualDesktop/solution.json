@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.3.34343",
-      "templateHash": "18030163526956675516"
+      "templateHash": "799041900324480080"
     }
   },
   "parameters": {
@@ -78,7 +78,7 @@
     },
     "customRdpProperty": {
       "type": "string",
-      "defaultValue": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;",
+      "defaultValue": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;",
       "metadata": {
         "description": "The RDP properties to add or remove RDP functionality on the AVD host pool. The string must end with a semi-colon. Settings reference: https://learn.microsoft.com/windows-server/remote/remote-desktop-services/clients/rdp-files"
       }
@@ -137,7 +137,7 @@
         "description": "The drain mode option enables drain mode for the sessions hosts in this deployment to prevent users from accessing the hosts until they have been validated."
       }
     },
-    "environmentShortName": {
+    "environmentAbbreviation": {
       "type": "string",
       "defaultValue": "dev",
       "allowedValues": [
@@ -146,7 +146,7 @@
         "test"
       ],
       "metadata": {
-        "description": "The short name for the target environment."
+        "description": "The abbreviation for the target environment."
       }
     },
     "fslogixShareSizeInGB": {
@@ -301,12 +301,6 @@
         "description": "The SKU for the Log Analytics Workspace to setup the AVD monitoring solution"
       }
     },
-    "maxSessionLimit": {
-      "type": "int",
-      "metadata": {
-        "description": "The maximum number of sessions per AVD session host."
-      }
-    },
     "monitoring": {
       "type": "bool",
       "defaultValue": true,
@@ -448,11 +442,24 @@
         "description": "DO NOT MODIFY THIS VALUE! The timestamp is needed to differentiate deployments for certain Azure resources and must be set using a parameter."
       }
     },
+    "usersPerCore": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "The number of users per core is used to determine the maximum number of users per session host."
+      }
+    },
     "validationEnvironment": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
         "description": "The validation environment setting on the AVD host pool determines whether the hostpool should receive AVD preview features for testing."
+      }
+    },
+    "virtualMachineVirtualCpuCount": {
+      "type": "int",
+      "metadata": {
+        "description": "The number of virtual CPUs per virtual machine for the selected virtual machine size."
       }
     },
     "virtualMachineMonitoringAgent": {
@@ -528,8 +535,8 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "environmentShortName": {
-            "value": "[parameters('environmentShortName')]"
+          "environmentAbbreviation": {
+            "value": "[parameters('environmentAbbreviation')]"
           },
           "identifier": {
             "value": "[parameters('identifier')]"
@@ -551,11 +558,11 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.3.34343",
-              "templateHash": "6308965299810592998"
+              "templateHash": "2478040738242739476"
             }
           },
           "parameters": {
-            "environmentShortName": {
+            "environmentAbbreviation": {
               "type": "string"
             },
             "identifier": {
@@ -1000,9 +1007,9 @@
             "serviceName": "serviceName",
             "networkName": "avd",
             "locationAbbreviation": "locationAbbreviation",
-            "namingConvention": "[format('{0}-{1}-{2}-{3}-{4}-{5}-{6}', parameters('identifier'), parameters('stampIndex'), variables('resourceAbbreviation'), variables('serviceName'), variables('networkName'), parameters('environmentShortName'), variables('locationAbbreviation'))]",
-            "namingConvention_Global": "[format('{0}-{1}-{2}-{3}-{4}', variables('resourceAbbreviation'), variables('serviceName'), variables('networkName'), parameters('environmentShortName'), variables('locationAbbreviation'))]",
-            "namingConvention_Shared": "[format('{0}-{1}-{2}-{3}-{4}-{5}', parameters('identifier'), variables('resourceAbbreviation'), variables('serviceName'), variables('networkName'), parameters('environmentShortName'), variables('locationAbbreviation'))]",
+            "namingConvention": "[format('{0}-{1}-{2}-{3}-{4}-{5}-{6}', parameters('identifier'), parameters('stampIndex'), variables('resourceAbbreviation'), variables('serviceName'), variables('networkName'), parameters('environmentAbbreviation'), variables('locationAbbreviation'))]",
+            "namingConvention_Global": "[format('{0}-{1}-{2}-{3}-{4}', variables('resourceAbbreviation'), variables('serviceName'), variables('networkName'), parameters('environmentAbbreviation'), variables('locationAbbreviation'))]",
+            "namingConvention_Shared": "[format('{0}-{1}-{2}-{3}-{4}-{5}', parameters('identifier'), variables('resourceAbbreviation'), variables('serviceName'), variables('networkName'), parameters('environmentAbbreviation'), variables('locationAbbreviation'))]",
             "cloudEndpointSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
             "privateDnsZoneSuffixes_AzureAutomation": {
               "AzureCloud": "net",
@@ -1093,11 +1100,11 @@
               "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').routeTables), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
               "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').routeTables), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]"
             ],
-            "storageAccountNamePrefix": "[replace(replace(replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').storageAccounts), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentShortName'), first(parameters('environmentShortName'))), '-', '')]",
-            "storageAccountNetworkInterfaceNamePrefix": "[replace(replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').networkInterfaces), variables('serviceName'), variables('resourceAbbreviations').storageAccounts), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentShortName'), first(parameters('environmentShortName')))]",
-            "storageAccountPrivateEndpointNamePrefix": "[replace(replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').privateEndpoints), variables('serviceName'), variables('resourceAbbreviations').storageAccounts), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentShortName'), first(parameters('environmentShortName')))]",
+            "storageAccountNamePrefix": "[replace(replace(replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').storageAccounts), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), '-', '')]",
+            "storageAccountNetworkInterfaceNamePrefix": "[replace(replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').networkInterfaces), variables('serviceName'), variables('resourceAbbreviations').storageAccounts), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation')))]",
+            "storageAccountPrivateEndpointNamePrefix": "[replace(replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').privateEndpoints), variables('serviceName'), variables('resourceAbbreviations').storageAccounts), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation')))]",
             "userAssignedIdentityNamePrefix": "[replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').userAssignedIdentities), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]",
-            "virtualMachineNamePrefix": "[replace(replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').virtualMachines), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentShortName'), first(parameters('environmentShortName'))), '-', '')]",
+            "virtualMachineNamePrefix": "[replace(replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').virtualMachines), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), '-', '')]",
             "virtualNetworkNames": [
               "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').virtualNetworks), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationControlPlane')].abbreviation)]",
               "[replace(replace(replace(variables('namingConvention'), variables('resourceAbbreviation'), variables('resourceAbbreviations').virtualNetworks), format('-{0}', variables('serviceName')), ''), variables('locationAbbreviation'), variables('locations')[parameters('locationVirtualMachines')].abbreviation)]"
@@ -2890,8 +2897,8 @@
           "enableMonitoring": {
             "value": "[parameters('monitoring')]"
           },
-          "environmentShortName": {
-            "value": "[parameters('environmentShortName')]"
+          "environmentAbbreviation": {
+            "value": "[parameters('environmentAbbreviation')]"
           },
           "fslogix": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('Logic_{0}', parameters('timestamp'))), '2022-09-01').outputs.fslogix.value]"
@@ -3028,7 +3035,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.3.34343",
-              "templateHash": "11487646520353594492"
+              "templateHash": "7693085944855554195"
             }
           },
           "parameters": {
@@ -3095,7 +3102,7 @@
             "enableMonitoring": {
               "type": "bool"
             },
-            "environmentShortName": {
+            "environmentAbbreviation": {
               "type": "string"
             },
             "fslogix": {
@@ -3760,7 +3767,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "environment": {
-                    "value": "[parameters('environmentShortName')]"
+                    "value": "[parameters('environmentAbbreviation')]"
                   },
                   "keyVaultName": {
                     "value": "[parameters('keyVaultName')]"
@@ -6498,7 +6505,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('Management_{0}', parameters('timestamp'))), '2022-09-01').outputs.virtualMachineName.value]"
           },
           "maxSessionLimit": {
-            "value": "[parameters('maxSessionLimit')]"
+            "value": "[mul(parameters('usersPerCore'), parameters('virtualMachineVirtualCpuCount'))]"
           },
           "monitoring": {
             "value": "[parameters('monitoring')]"
@@ -6559,7 +6566,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.3.34343",
-              "templateHash": "13352333195132125801"
+              "templateHash": "14356988404339835709"
             }
           },
           "parameters": {
@@ -7267,7 +7274,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.3.34343",
-                      "templateHash": "6899448606452743793"
+                      "templateHash": "2209985937950190486"
                     }
                   },
                   "parameters": {
@@ -7345,7 +7352,7 @@
                       "tags": {},
                       "properties": {
                         "applicationGroupReferences": "[parameters('applicationGroupReferences')]",
-                        "friendlyName": "[format('{0} ({1})', parameters('friendlyName'), parameters('locationControlPlane'))]",
+                        "friendlyName": "[if(empty(parameters('friendlyName')), parameters('hostPoolName'), format('{0} ({1})', parameters('friendlyName'), parameters('locationControlPlane')))]",
                         "publicNetworkAccess": "[parameters('workspacePublicNetworkAccess')]"
                       }
                     },

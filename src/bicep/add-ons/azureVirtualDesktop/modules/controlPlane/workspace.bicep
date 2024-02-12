@@ -44,7 +44,7 @@ resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = if 
   tags: {}
   properties: {
     applicationGroupReferences: applicationGroupReferences
-    friendlyName: '${friendlyName} (${locationControlPlane})'
+    friendlyName: empty(friendlyName) ? hostPoolName : '${friendlyName} (${locationControlPlane})'
     publicNetworkAccess: workspacePublicNetworkAccess
   }
 }
