@@ -25,14 +25,14 @@ An Azure landing zone consists of platform landing zones and application landing
 
 <br>
 
-## Step 1 (optional)
+## Step 1
 
 :arrow_forward: The first step is to deploy [Mission Landing Zone](https://github.com/Azure/missionlz/blob/main/README.md). This allows organizations to start with a foundational landing zone that supports their application portfolios, regardless of whether the applications are being migrated or are newly developed and deployed to Azure. Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their workloads and teams.
 Mission Landing Zone provides a Secure Cloud Computing Architecture (SCCA) compliant hub and spoke network infrastructure. If you already have an Azure Landing Zone, you can skip this step. For more on what an Azure Landing Zone is, see here -> [Azure Landing Zone](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone).
 
 <br>
 
-## Step 2 (optional)
+## Step 2
 
  :arrow_forward: The second step is to create the Windows image which will be used to create the Azure Virtual Desktops. This image will have ArcGIS Pro pre-installed when you use this template ->  [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/Imaging/README.md). Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging#prequisites).
 
@@ -41,7 +41,7 @@ Mission Landing Zone provides a Secure Cloud Computing Architecture (SCCA) compl
 
 <br>
 
-## Step 3 (optional)
+## Step 3
 
  :arrow_forward: The third step is to deploy the Azure Virtual Desktop (AVD) solution will provide a fully operational [stamp](https://learn.microsoft.com/azure/architecture/patterns/deployment-stamp) in an Azure subscription adhering  to the [Zero Trust principles](https://learn.microsoft.com/security/zero-trust/azure-infrastructure-avd). This template represents the strategic design path and target technical state for Azure Virtual Desktop deployment. Many of the [common features](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/azureVirtualDesktop/docs/features) used with AVD have been automated in this solution for your convenience. Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azureVirtualDesktop/docs/prerequisites.md) and to review the parameter descriptions to the understand the consequences of your selections. Also, please review Esri's guidance on [VDI and ArcGIS Pro](https://architecture.arcgis.com/en/framework/architecture-practices/architectural-foundations/deployment-concepts/vdi-and-arcgis-pro.html).
 
@@ -54,7 +54,7 @@ This Azure Virtual Desktop Accelerator only addresses what gets deployed in the 
 
 <br>
 
-## Step 4 (optional)
+## Step 4
 
  :arrow_forward: The fourth step is to run the ArcGIS Enterprise on Azure accelerator. 
 
@@ -97,7 +97,7 @@ The below automation templates can be deployed in your Azure subscriptions by cl
 
 ## Zero Trust and Azure Imaging
 
-This [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging/README.MD)
+This [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/Imaging/README.md)
 solution for Azure allows you create images in an Azure environment that adheres to zero trust. While other options exist in Azure, they are either a manual processes or do not adhere to zero trust. This solution uses a storage account with a private endpoint to store applications and the existing, preconfigured resources that comply with Zero Trust principles. This solution will enable you to create an Windows image for Azure virtual desktop that comes with ArcGIS Pro pre installed.    Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging#prequisites).
 
 <!-- markdownlint-disable MD013 -->
@@ -112,7 +112,7 @@ solution for Azure allows you create images in an Azure environment that adheres
 
 ## The Azure Virtual Desktop (AVD) solution
 
-The [Azure Virtual Desktop (AVD) solution](https://github.com/jamasten/AzureVirtualDesktop/blob/main/README.md) provides an architectural approach and reference implementation to prepare landing zone subscriptions for a scalable Azure Virtual Desktop deployment. The Azure Virtual Desktop Landing Zone Accelerator (LZA) only addresses what gets deployed in the specific Azure Virtual Desktop landing zone subscriptions, as shown in the architectural diagram above. It is assumed that an appropriate Azure landing zone foundation is already setup.  Be sure to complete the necessary [prerequisites](https://github.com/jamasten/AzureVirtualDesktop/blob/main/docs/prerequisites.md)
+The [Azure Virtual Desktop (AVD) solution](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/azureVirtualDesktop#readme) provides an architectural approach and reference implementation to prepare landing zone subscriptions for a scalable Azure Virtual Desktop deployment. The Azure Virtual Desktop Landing Zone Accelerator (LZA) only addresses what gets deployed in the specific Azure Virtual Desktop landing zone subscriptions, as shown in the architectural diagram above. It is assumed that an appropriate Azure landing zone foundation is already setup.  Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azureVirtualDesktop/docs/prerequisites.md)
 
 <!-- markdownlint-disable MD013 -->
 1. Deploy The Azure Virtual Desktop (AVD) solution into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
@@ -126,7 +126,7 @@ The [Azure Virtual Desktop (AVD) solution](https://github.com/jamasten/AzureVirt
 
 ## ArcGIS on Azure
 
-In this ArcGIS on Azure accelerator, you have access to step by step guides covering various customer [scenarios](./Scenarios) that can help accelerate the development and deployment of ArcGIS on Azure which conform with best practices. This is a good starting point if you are **new** to Azure or Infrastructure-As-Code (IaC) . Each scenario aims to represent common customer use cases, with the goal of accelerating the deployment process using Infrastructure-As-Code (IaC) assets.
+In this ArcGIS on Azure accelerator, you have access to step by step guides covering various customer scenarios that can help accelerate the development and deployment of ArcGIS on Azure which conform with best practices. This is a good starting point if you are **new** to Azure or Infrastructure-As-Code (IaC) . Each scenario aims to represent common customer use cases, with the goal of accelerating the deployment process using Infrastructure-As-Code (IaC) assets.
 
 ### ArcGIS Enterprise base deployment single machine
 
