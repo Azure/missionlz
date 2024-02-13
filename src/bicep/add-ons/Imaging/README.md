@@ -1,6 +1,6 @@
-# Zero Trust and Azure Imaging
+# Azure Zero Trust Imaging
 
-This zero trust imaging solution for Azure allows you create images in an Azure environment that adheres to zero trust. While other options exist in Azure, its either a manual process or it doesn't adhere to zero trust. Azure Image Builder (AIB) is a great imaging service in Azure but does not adhere to zero trust. The service creates a staging resource group with a storage account that cannot be configured with a private endpoint.  This breaks the zero trust principles. This solution uses a storage account with a private endpoint to store applications and the existing, preconfigured resources that comply with the principles.
+This Azure imaging solution creates images using a zero trust process and resources. While other options exist in Azure, its either a manual process or it doesn't adhere to zero trust. For instance, Azure Image Builder (AIB) is a great imaging service but deploys a storage account that cannot be configured with a private endpoint.
 
 ```mermaid
 graph TD;
@@ -12,16 +12,15 @@ graph TD;
 
 ### Azure Resource Provider Feature for Encryption At Host
 
-This solution adheres to Zero Trust which dictates that all virtual machine disks must be encrypted. The encryption at host feature enables disk encryption on virtual machine temp and cache disks. To use this feature, a resource provider feature must enabled on your Azure subscription. Use the following PowerShell script to enable the feature:
+To adhere to zero trust principles, the virtual machine disks deployed in this solution must be encrypted. The encryption at host feature enables disk encryption on virtual machine temp and cache disks. To use this feature, a resource provider feature must enabled on your Azure subscription. Use the following PowerShell script to enable the feature:
 
 ```powershell
 Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Microsoft.Compute"
 ```
 
-### Required Permissions
+### Permissions
 
-Permissions:
-    Ensure the principal deploying the solution has "Owner" and "Key Vault Administrator" roles assigned on the target Azure subscription. This solution deploys role assignments at various scopes so the principal deploying this solution will need to be an Owner at the subscription scope for a successful deployment. It also deploys a key and secrets in a key vault to enhance security. A custom role may be used to reduce the scope of permisions required if your organization wants to use something other than they built in roles.
+Ensure the principal deploying the solution has "Owner" and "Key Vault Administrator" roles assigned on the target Azure subscription. This solution deploys role assignments at various scopes and a key vault with a key and secrets to enhance security. A custom role may be used to reduce the scope of permisions required if your organization wants to use something other than the built in roles.
 
 [Creating a custom role](https://learn.microsoft.com/en-us/azure/role-based-access-control/custom-roles)
 
@@ -32,7 +31,9 @@ Ensure the following software is installed on your client workstation:
 * [Azure Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep)
 * [Azure PowerShell Modules](https://learn.microsoft.com/en-us/powershell/azure/install-azure-powershell?view=azps-10.2.0)
 
-### Upload the following scripts and files to your storage account container
+### Artifacts
+
+Upload the following scripts and files to your storage account container:
 
 * [Az.Accounts 2.12.1 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Accounts/2.12.1)
 * [Az.Automation 1.9.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Automation/1.9.0)
@@ -48,15 +49,15 @@ Ensure the following software is installed on your client workstation:
 * [Remote Desktop WebRTC Redirector Service](https://aka.ms/msrdcwebrtcsvc/msi)
 * [ArcGIS Pro Installer - as Zip File](https://pro.arcgis.com/en/pro-app/latest/get-started/download-arcgis-pro.htm)
 
-    You can download ArcGIS Pro from My Esri or your ArcGIS Online organization.
-    Once the application is downloaded, if your windows OS image requires ArcGIS Pro you will need to create a ZIP file that contains all of the installation bits including the Windows Runtime.
+You can download ArcGIS Pro from My Esri or your ArcGIS Online organization.
+Once the application is downloaded, if your windows OS image requires ArcGIS Pro you will need to create a ZIP file that contains all of the installation bits including the Windows Runtime.
 
-    Example:
-    ![Alt text](images/arcGisProRuntimeExample.png)
+Example:
+![Alt text](images/arcGisProRuntimeExample.png)
 
-    | Software | Minimum requirement
-    |:---------|:--------:|
-    |  Microsoft .NET  |  [Microsoft .NET Desktop Runtime 6.0.5](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer) or a [later patch](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) release (6.0.6 and so on), using a Windows x64 installer, is required. The presence of Microsoft .NET Desktop Runtime 7 or later is inconsequential.|
+| Software | Minimum requirement |
+|----------|---------------------|
+|  Microsoft .NET  |  [Microsoft .NET Desktop Runtime 6.0.5](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer) or a [later patch](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) release (6.0.6 and so on), using a Windows x64 installer, is required. The presence of Microsoft .NET Desktop Runtime 7 or later is inconsequential.|
 
 ### Example Custom Installers
 
@@ -91,8 +92,8 @@ Get-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Micros
 1. Deploy Zero Trust Imaging into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
 
     | Azure Commercial | Azure Government |
-    | :--- | :--- |
-    [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FImaging%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FImaging%2FuiDefinition.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FImaging%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FImaging%2FuiDefinition.json) |
+    | ---------------- | ---------------- |
+    |[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FImaging%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FImaging%2FuiDefinition.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FImaging%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FImaging%2FuiDefinition.json) |
 <!-- markdownlint-enable MD013 -->
 
 ## Creating Template Spec for AirGapped Clouds

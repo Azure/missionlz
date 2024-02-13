@@ -20,7 +20,9 @@
 
 ### FSLogix
 
-If selected, this solution will deploy the required resources and configurations so that FSLogix is fully configured and ready for immediate use post deployment. Only Azure AD DS and AD DS are supported in this solution. Azure AD support is in "Public Preview" and will added after it is "Generally Available". Azure Files and Azure NetApp Files are the only two SMB storage services available in this solution.  A management VM is deployed to facilitate the domain join of Azure Files (AD DS only) and configures the NTFS permissions on the share(s). Azure Files can be deployed with either a public endpoint, [service endpoint](https://docs.microsoft.com/en-us/azure/storage/files/storage-files-networking-overview#public-endpoint-firewall-settings), or [private endpoint](https://docs.microsoft.com/en-us/azure/storage/files/storage-files-networking-overview#private-endpoints). With this solution, FSLogix containers can be configured in multiple ways:
+If selected, this solution will deploy the required resources and configurations so that FSLogix is fully configured and ready for immediate use post deployment. Only Entra Domain Services and AD DS are supported in this solution. Entra ID support is in the backlog and will be added in a future release.
+
+Azure Files and Azure NetApp Files are the only two SMB storage services available in this solution.  A management VM is deployed to facilitate the domain join of Azure Files (AD DS only) and configures the NTFS permissions on the share(s). With this solution, FSLogix containers can be configured in multiple ways:
 
 - Cloud Cache Profile Container
 - Cloud Cache Profile & Office Container
