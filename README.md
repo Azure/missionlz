@@ -34,7 +34,7 @@ Our intent is to enable IT Admins to use this software to:
 ## Mission Landing Zone Add-ons
 
 - [ESRI ArcGIS Pro & Enterprise with AVD](./docs/esri.md)
-- [AVD (Azure Virtual Desktop)](./src/bicep/add-ons/AVD/README.md)
+- [AVD (Azure Virtual Desktop)](./src/bicep/add-ons/azureVirtualDesktop/README.md)
 - [Zero Trust Imaging](./src/bicep/add-ons/Imaging/README.md)
 
 ## What is a Landing Zone?
