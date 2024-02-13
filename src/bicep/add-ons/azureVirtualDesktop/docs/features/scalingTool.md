@@ -20,7 +20,7 @@
 
 ### Scaling Tool
 
-This feature is automatically deployed if a "pooled" host pool is selected to help save on cost.  Based on the desired configuration, session hosts will scale up during peak hours and shutdown after peak hours.  It is recommended to use policies to manage idle and disconnected over using the built-in capability in this tool. In this solution, a managed identity is deployed on the Automation Account to reduce the privileges needed for tool.
+This feature is deployed if selected to help save on cost.  Based on the desired configuration, session hosts will scale up during peak hours and shutdown after peak hours.  It is recommended to use policies to manage idle and disconnected over using the built-in capability in this tool. In this solution, a managed identity is deployed on the Automation Account to reduce the privileges needed for tool.
 
 **Reference:** [Scaling Tool - Microsoft Docs](https://docs.microsoft.com/en-us/azure/virtual-desktop/scaling-automation-logic-apps)
 
