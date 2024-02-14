@@ -1,5 +1,8 @@
 # Mission LZ Deployment Guide for Terraform
 
+> [!WARNING]
+> The terraform code will be deprecated on June 30, 2024 and will no longer receive any updates.
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)  
