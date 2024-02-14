@@ -198,11 +198,11 @@
                   }
                 },
                 {
-                  "name": "virtualMachineSizesApi",
+                  "name": "virtualMachineSkusApi",
                   "type": "Microsoft.Solutions.ArmApiControl",
                   "request": {
                     "method": "GET",
-                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/locations/', steps('basics').scope.location.name, '/vmSizes?api-version=2023-09-01')]"
+                    "path": "[decodeUriComponent(concat(encodeUriComponent(steps('basics').scope.subscription.id), '%2Fproviders%2FMicrosoft.Compute%2Fskus%3Fapi-version%3D2021-07-01%26%24filter%3Dlocation%20eq%20%27', steps('basics').scope.location.name, '%27'))]"
                   }
                 }
               ]
@@ -1647,7 +1647,7 @@
         "virtualMachinePassword": "[steps('hosts').localAdminCredentials.password]",
         "virtualMachineSize": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), steps('hosts').virtualMachine.sizeArcGisPro, steps('hosts').virtualMachine.sizeGeneric)]",
         "virtualMachineUsername": "[steps('hosts').localAdminCredentials.username]",
-        "virtualMachineVirtualCpuCount": "[first(map(filter(steps('basics').scenario.virtualMachineSizesApi.value, (item) => equals(item.name, steps('hosts').virtualMachine.size)), (item) => item.numberOfCores))]",
+        "virtualMachineVirtualCpuCount": "[first(map(filter(first(map(filter(steps('basics').scenario.virtualMachineSkusApi.value, (item) => equals(item.name, if(equals(steps('basics').scenario.profile, 'arcGisPro'), steps('hosts').virtualMachine.sizeArcGisPro, steps('hosts').virtualMachine.sizeGeneric))), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))]",
         "virtualNetworkAddressPrefixes": "[if(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), parse(concat('[\"', steps('networking').controlPlane.virtualNetworkAddressCidrRange, '\"]')), parse(concat('[\"', steps('networking').controlPlane.virtualNetworkAddressCidrRange, '\", \"', steps('networking').hosts.virtualNetworkAddressCidrRange, '\"]')))]",
         "workspaceFriendlyName": "[steps('controlPlane').friendlyNames.workspace]",
         "workspacePublicNetworkAccess": "[steps('controlPlane').workspace.publicNetworkAccess]"
