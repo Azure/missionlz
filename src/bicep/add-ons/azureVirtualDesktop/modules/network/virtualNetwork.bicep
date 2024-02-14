@@ -16,9 +16,9 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-11-01' = {
     addressSpace: {
       addressPrefixes: vNetAddressPrefixes
     }
-    dhcpOptions: {
+    dhcpOptions: !empty(dnsServers)  ? {
       dnsServers: dnsServers
-    }
+    } : null
     subnets: [for item in subnets: {
       name: item.name
       properties: {

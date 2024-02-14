@@ -86,7 +86,7 @@ module spokeVirtualNetwork 'virtualNetwork.bicep' = {
   name: 'VirtualNetwork_${index}_${timestamp}'
   scope: resourceGroup(spokeSubscriptionId, spokeResourceGroup)
   params: {
-    dnsServers: hubVirtualNetwork.properties.dhcpOptions.dnsServers
+    dnsServers: contains(hubVirtualNetwork.properties, 'dhcpOptions') ? hubVirtualNetwork.properties.dhcpOptions.dnsServers : []
     location: location
     subnets: subnets
     udrName: userDefinedRoute.outputs.name
