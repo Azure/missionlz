@@ -29,7 +29,7 @@ var privateDnsZoneNames = union([
   'privatelink.ods.opinsights.${privateDnsZoneSuffixes_Monitor[environment().name] ?? cloudSuffix}'
   'privatelink.oms.opinsights.${privateDnsZoneSuffixes_Monitor[environment().name] ?? cloudSuffix}'
 ], privateDnsZoneNames_Backup)
-var privateDnsZoneNames_Backup = [for location in items(locations): (location.value.recoveryServicesGeo != '') ? 'privatelink.${location.value.recoveryServicesGeo}.backup.${privateDnsZoneSuffixes_Backup[environment().name ?? cloudSuffix]}' : null]
+var privateDnsZoneNames_Backup = [for location in items(locations): (!empty(location.value.recoveryServicesGeo)) ? 'privatelink.${location.value.recoveryServicesGeo}.backup.${privateDnsZoneSuffixes_Backup[environment().name ?? cloudSuffix]}' : null]
 var privateDnsZoneSuffixes_AzureAutomation = {
   AzureCloud: 'net'
   AzureUSGovernment: 'us'
