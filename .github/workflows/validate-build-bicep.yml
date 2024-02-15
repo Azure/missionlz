@@ -14,13 +14,7 @@ env:
 jobs:
   validate-build:
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      deployments: read
-      packages: none
-      pull-requests: write
-      security-events: write
+    permissions: read-all
     steps:
       - uses: actions/checkout@v4
         with:
