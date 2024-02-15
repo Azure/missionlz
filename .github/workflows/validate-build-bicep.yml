@@ -10,7 +10,7 @@ on:
     - 'src/bicep/**'
     - '!src/bicep/**.md'
 env:
-  BICEP_VERSION: 'v0.24.24'
+  BICEP_VERSION: ''
 jobs:
   validate-build:
     runs-on: ubuntu-latest
@@ -21,7 +21,7 @@ jobs:
       - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          az bicep install --version "$BICEP_VERSION"
+          az bicep install
           az bicep version
           az bicep build --file src/bicep/mlz.bicep --outfile src/bicep/mlz.json
           if [[ $(git status --porcelain) ]]; then
