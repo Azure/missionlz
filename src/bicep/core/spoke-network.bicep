@@ -2,10 +2,12 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+param deployNetworkWatcher bool
 param firewallSkuTier string
 param location string
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
+param networkWatcherName string
 param routeTableName string
 param routeTableRouteName string = 'default_route'
 param routeTableRouteAddressPrefix string = '0.0.0.0/0'
@@ -43,6 +45,15 @@ module routeTable '../modules/route-table.bicep' = {
   }
 }
 
+module networkWatcher '../modules/network-watcher.bicep' = if (deployNetworkWatcher) {
+  name: 'networkWatcher'
+  params: {
+    location: location
+    name: networkWatcherName
+    tags: tags
+  }
+}
+
 module virtualNetwork '../modules/virtual-network.bicep' = {
   name: 'virtualNetwork'
   params: {
@@ -69,6 +80,9 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     vNetDnsServers: vNetDnsServers
     firewallSkuTier: firewallSkuTier
   }
+  dependsOn: [
+    networkWatcher
+  ]
 }
 
 output virtualNetworkName string = virtualNetwork.outputs.name

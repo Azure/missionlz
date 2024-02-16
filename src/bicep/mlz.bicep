@@ -101,7 +101,7 @@ param sharedServicesSubnetAddressPrefix string = '10.0.120.0/27'
   'Premium'
   'Basic'
 ])
-@description('[Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.' )
+@description('[Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.')
 param firewallSkuTier string
 
 @allowed([
@@ -599,6 +599,7 @@ var identityLogStorageAccountPrivateEndpointName = replace(replace(privateEndpoi
 var identityLogStorageAccountShortName = replace(replace(storageAccountNamingConvention, serviceToken, ''), networkToken, identityShortName)
 var identityLogStorageAccountUniqueName = replace(identityLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, identitySubscriptionId))
 var identityNetworkSecurityGroupName = replace(replace(networkSecurityGroupNamingConvention, '-${serviceToken}', ''), networkToken, identityName)
+var identityNetworkWatcherName = replace(replace(networkWatcherNamingConvention, '-${serviceToken}', ''), networkToken, identityName)
 var identityResourceGroupName = replace(replace(resourceGroupNamingConvention, '-${serviceToken}', ''), networkToken, identityName)
 var identityRouteTableName = replace(replace(routeTableNamingConvention, '-${serviceToken}', ''), networkToken, identityName)
 var identitySubnetName = replace(replace(subnetNamingConvention, '-${serviceToken}', ''), networkToken, identityName)
@@ -614,6 +615,7 @@ var operationsLogStorageAccountPrivateEndpointName = replace(replace(privateEndp
 var operationsLogStorageAccountShortName = replace(replace(storageAccountNamingConvention, serviceToken, ''), networkToken, operationsShortName)
 var operationsLogStorageAccountUniqueName = replace(operationsLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, operationsSubscriptionId))
 var operationsNetworkSecurityGroupName = replace(replace(networkSecurityGroupNamingConvention, '-${serviceToken}', ''), networkToken, operationsName)
+var operationsNetworkWatcherName = replace(replace(networkWatcherNamingConvention, '-${serviceToken}', ''), networkToken, operationsName)
 var operationsPrivateLinkScopeName = replace(replace(privateLinkScopeName, '-${serviceToken}', ''), networkToken, operationsName)
 var operationsPrivateLinkScopeNetworkInterfaceName = replace(replace(networkInterfaceNamingConvention, serviceToken, 'pls'), networkToken, operationsName)
 var operationsPrivateLinkScopePrivateEndpointName = replace(replace(privateEndpointNamingConvention, serviceToken, 'pls'), networkToken, operationsName)
@@ -632,6 +634,7 @@ var sharedServicesLogStorageAccountNetworkInterfaceName = replace(replace(networ
 var sharedServicesLogStorageAccountShortName = replace(replace(storageAccountNamingConvention, serviceToken, ''), networkToken, sharedServicesShortName)
 var sharedServicesLogStorageAccountUniqueName = replace(sharedServicesLogStorageAccountShortName, 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, sharedServicesSubscriptionId))
 var sharedServicesNetworkSecurityGroupName = replace(replace(networkSecurityGroupNamingConvention, '-${serviceToken}', ''), networkToken, sharedServicesName)
+var sharedServicesNetworkWatcherName = replace(replace(networkWatcherNamingConvention, '-${serviceToken}', ''), networkToken, sharedServicesName)
 var sharedServicesResourceGroupName = replace(replace(resourceGroupNamingConvention, '-${serviceToken}', ''), networkToken, sharedServicesName)
 var sharedServicesRouteTableName = replace(replace(routeTableNamingConvention, '-${serviceToken}', ''), networkToken, sharedServicesName)
 var sharedServicesSubnetName = replace(replace(subnetNamingConvention, '-${serviceToken}', ''), networkToken, sharedServicesName)
@@ -684,6 +687,7 @@ var spokesCommon = [
     name: operationsName
     subscriptionId: operationsSubscriptionId
     resourceGroupName: operationsResourceGroupName
+    deployUniqueResources: contains([ hubSubscriptionId ], operationsSubscriptionId) ? false : true
     logStorageAccountName: operationsLogStorageAccountName
     logStorageAccountNetworkInterfaceNamePrefix: operationsLogStorageAccountNetworkInterfaceName
     logStorageAccountPrivateEndpointNamePrefix: operationsLogStorageAccountPrivateEndpointName
@@ -695,6 +699,7 @@ var spokesCommon = [
     networkSecurityGroupRules: operationsNetworkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: operationsNetworkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: operationsNetworkSecurityGroupDiagnosticsMetrics
+    networkWatcherName: operationsNetworkWatcherName
     routeTableName: operationsRouteTableName
     subnetName: operationsSubnetName
     subnetAddressPrefix: operationsSubnetAddressPrefix
@@ -705,6 +710,7 @@ var spokesCommon = [
     name: sharedServicesName
     subscriptionId: sharedServicesSubscriptionId
     resourceGroupName: sharedServicesResourceGroupName
+    deployUniqueResources: contains([ hubSubscriptionId, operationsSubscriptionId ], sharedServicesSubscriptionId) ? false : true
     logStorageAccountName: sharedServicesLogStorageAccountName
     logStorageAccountNetworkInterfaceNamePrefix: sharedServicesLogStorageAccountNetworkInterfaceName
     logStorageAccountPrivateEndpointNamePrefix: sharedServicesLogStorageAccountPrivateEndpointName
@@ -716,6 +722,7 @@ var spokesCommon = [
     networkSecurityGroupRules: sharedServicesNetworkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: sharedServicesNetworkSecurityGroupDiagnosticsMetrics
+    networkWatcherName: sharedServicesNetworkWatcherName
     routeTableName: sharedServicesRouteTableName
     subnetName: sharedServicesSubnetName
     subnetAddressPrefix: sharedServicesSubnetAddressPrefix
@@ -728,6 +735,7 @@ var spokesIdentity = deployIdentity ? [
     name: identityName
     subscriptionId: identitySubscriptionId
     resourceGroupName: identityResourceGroupName
+    deployUniqueResources: contains([ hubSubscriptionId, operationsSubscriptionId, sharedServicesSubscriptionId ], identitySubscriptionId) ? false : true
     logStorageAccountName: identityLogStorageAccountName
     logStorageAccountNetworkInterfaceNamePrefix: identityLogStorageAccountNetworkInterfaceName
     logStorageAccountPrivateEndpointNamePrefix: identityLogStorageAccountPrivateEndpointName
@@ -739,6 +747,7 @@ var spokesIdentity = deployIdentity ? [
     networkSecurityGroupRules: identityNetworkSecurityGroupRules
     networkSecurityGroupDiagnosticsLogs: identityNetworkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
+    networkWatcherName: identityNetworkWatcherName
     routeTableName: identityRouteTableName
     subnetName: identitySubnetName
     subnetAddressPrefix: identitySubnetAddressPrefix
@@ -860,9 +869,12 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
   name: 'deploy-vnet-${spoke.name}-${deploymentNameSuffix}'
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
+    deployNetworkWatcher: spoke.deployUniqueResources
+    firewallSkuTier: firewallSkuTier
     location: location
     networkSecurityGroupName: spoke.networkSecurityGroupName
     networkSecurityGroupRules: spoke.networkSecurityGroupRules
+    networkWatcherName: spoke.networkWatcherName
     routeTableName: spoke.routeTableName
     routeTableRouteNextHopIpAddress: firewallClientPrivateIpAddress
     subnetAddressPrefix: spoke.subnetAddressPrefix
@@ -872,8 +884,6 @@ module spokeNetworks './core/spoke-network.bicep' = [for spoke in spokes: {
     tags: calculatedTags
     virtualNetworkAddressPrefix: spoke.virtualNetworkAddressPrefix
     virtualNetworkName: spoke.virtualNetworkName
-
-    firewallSkuTier: firewallSkuTier
     vNetDnsServers: [ hubNetwork.outputs.firewallPrivateIPAddress ]
   }
   dependsOn: [
@@ -961,9 +971,9 @@ module azureMonitor './modules/azure-monitor.bicep' = if (contains(supportedClou
     monitorPrivateDnsZoneId: privateDnsZones.outputs.monitorPrivateDnsZoneId
     odsPrivateDnsZoneId: privateDnsZones.outputs.odsPrivateDnsZoneId
     omsPrivateDnsZoneId: privateDnsZones.outputs.omsPrivateDnsZoneId
-    privateLinkScopeName : operationsPrivateLinkScopeName
+    privateLinkScopeName: operationsPrivateLinkScopeName
     privateLinkScopeNetworkInterfaceName: operationsPrivateLinkScopeNetworkInterfaceName
-    privateLinkScopePrivateEndpointName : operationsPrivateLinkScopePrivateEndpointName
+    privateLinkScopePrivateEndpointName: operationsPrivateLinkScopePrivateEndpointName
     subnetResourceId: spokeNetworks[0].outputs.subnetResourceId
     tags: tags
   }
@@ -1136,7 +1146,7 @@ module hubSubscriptionActivityLogging './modules/central-logging.bicep' = {
   ]
 }
 
-module spokeSubscriptionActivityLogging './modules/central-logging.bicep' = [for spoke in spokes: if (spoke.subscriptionId != hubSubscriptionId) {
+module spokeSubscriptionActivityLogging './modules/central-logging.bicep' = [for spoke in spokes: if (spoke.deployUniqueResources) {
   name: 'activity-logs-${spoke.name}-${deploymentNameSuffix}'
   scope: subscription(spoke.subscriptionId)
   params: {
