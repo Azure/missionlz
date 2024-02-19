@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "6748957602055240740"
+      "templateHash": "15127050233787149227"
     }
   },
   "parameters": {
@@ -1273,6 +1273,7 @@
     "identityLogStorageAccountShortName": "[replace(replace(variables('storageAccountNamingConvention'), variables('serviceToken'), ''), variables('networkToken'), variables('identityShortName'))]",
     "identityLogStorageAccountUniqueName": "[replace(variables('identityLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('identitySubscriptionId')))]",
     "identityNetworkSecurityGroupName": "[replace(replace(variables('networkSecurityGroupNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('identityName'))]",
+    "identityNetworkWatcherName": "[replace(replace(variables('networkWatcherNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('identityName'))]",
     "identityResourceGroupName": "[replace(replace(variables('resourceGroupNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('identityName'))]",
     "identityRouteTableName": "[replace(replace(variables('routeTableNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('identityName'))]",
     "identitySubnetName": "[replace(replace(variables('subnetNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('identityName'))]",
@@ -1285,6 +1286,7 @@
     "operationsLogStorageAccountShortName": "[replace(replace(variables('storageAccountNamingConvention'), variables('serviceToken'), ''), variables('networkToken'), variables('operationsShortName'))]",
     "operationsLogStorageAccountUniqueName": "[replace(variables('operationsLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('operationsSubscriptionId')))]",
     "operationsNetworkSecurityGroupName": "[replace(replace(variables('networkSecurityGroupNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('operationsName'))]",
+    "operationsNetworkWatcherName": "[replace(replace(variables('networkWatcherNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('operationsName'))]",
     "operationsPrivateLinkScopeName": "[replace(replace(variables('privateLinkScopeName'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('operationsName'))]",
     "operationsPrivateLinkScopeNetworkInterfaceName": "[replace(replace(variables('networkInterfaceNamingConvention'), variables('serviceToken'), 'pls'), variables('networkToken'), variables('operationsName'))]",
     "operationsPrivateLinkScopePrivateEndpointName": "[replace(replace(variables('privateEndpointNamingConvention'), variables('serviceToken'), 'pls'), variables('networkToken'), variables('operationsName'))]",
@@ -1300,6 +1302,7 @@
     "sharedServicesLogStorageAccountShortName": "[replace(replace(variables('storageAccountNamingConvention'), variables('serviceToken'), ''), variables('networkToken'), variables('sharedServicesShortName'))]",
     "sharedServicesLogStorageAccountUniqueName": "[replace(variables('sharedServicesLogStorageAccountShortName'), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('sharedServicesSubscriptionId')))]",
     "sharedServicesNetworkSecurityGroupName": "[replace(replace(variables('networkSecurityGroupNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('sharedServicesName'))]",
+    "sharedServicesNetworkWatcherName": "[replace(replace(variables('networkWatcherNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('sharedServicesName'))]",
     "sharedServicesResourceGroupName": "[replace(replace(variables('resourceGroupNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('sharedServicesName'))]",
     "sharedServicesRouteTableName": "[replace(replace(variables('routeTableNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('sharedServicesName'))]",
     "sharedServicesSubnetName": "[replace(replace(variables('subnetNamingConvention'), format('-{0}', variables('serviceToken')), ''), variables('networkToken'), variables('sharedServicesName'))]",
@@ -1333,6 +1336,7 @@
         "name": "[variables('operationsName')]",
         "subscriptionId": "[parameters('operationsSubscriptionId')]",
         "resourceGroupName": "[variables('operationsResourceGroupName')]",
+        "deployUniqueResources": "[if(contains(createArray(parameters('hubSubscriptionId')), parameters('operationsSubscriptionId')), false(), true())]",
         "logStorageAccountName": "[variables('operationsLogStorageAccountName')]",
         "logStorageAccountNetworkInterfaceNamePrefix": "[variables('operationsLogStorageAccountNetworkInterfaceName')]",
         "logStorageAccountPrivateEndpointNamePrefix": "[variables('operationsLogStorageAccountPrivateEndpointName')]",
@@ -1344,6 +1348,7 @@
         "networkSecurityGroupRules": "[parameters('operationsNetworkSecurityGroupRules')]",
         "networkSecurityGroupDiagnosticsLogs": "[parameters('operationsNetworkSecurityGroupDiagnosticsLogs')]",
         "networkSecurityGroupDiagnosticsMetrics": "[parameters('operationsNetworkSecurityGroupDiagnosticsMetrics')]",
+        "networkWatcherName": "[variables('operationsNetworkWatcherName')]",
         "routeTableName": "[variables('operationsRouteTableName')]",
         "subnetName": "[variables('operationsSubnetName')]",
         "subnetAddressPrefix": "[parameters('operationsSubnetAddressPrefix')]",
@@ -1354,6 +1359,7 @@
         "name": "[variables('sharedServicesName')]",
         "subscriptionId": "[parameters('sharedServicesSubscriptionId')]",
         "resourceGroupName": "[variables('sharedServicesResourceGroupName')]",
+        "deployUniqueResources": "[if(contains(createArray(parameters('hubSubscriptionId'), parameters('operationsSubscriptionId')), parameters('sharedServicesSubscriptionId')), false(), true())]",
         "logStorageAccountName": "[variables('sharedServicesLogStorageAccountName')]",
         "logStorageAccountNetworkInterfaceNamePrefix": "[variables('sharedServicesLogStorageAccountNetworkInterfaceName')]",
         "logStorageAccountPrivateEndpointNamePrefix": "[variables('sharedServicesLogStorageAccountPrivateEndpointName')]",
@@ -1365,6 +1371,7 @@
         "networkSecurityGroupRules": "[parameters('sharedServicesNetworkSecurityGroupRules')]",
         "networkSecurityGroupDiagnosticsLogs": "[parameters('sharedServicesNetworkSecurityGroupDiagnosticsLogs')]",
         "networkSecurityGroupDiagnosticsMetrics": "[parameters('sharedServicesNetworkSecurityGroupDiagnosticsMetrics')]",
+        "networkWatcherName": "[variables('sharedServicesNetworkWatcherName')]",
         "routeTableName": "[variables('sharedServicesRouteTableName')]",
         "subnetName": "[variables('sharedServicesSubnetName')]",
         "subnetAddressPrefix": "[parameters('sharedServicesSubnetAddressPrefix')]",
@@ -1372,7 +1379,7 @@
         "subnetPrivateLinkServiceNetworkPolicies": "Disabled"
       }
     ],
-    "spokesIdentity": "[if(parameters('deployIdentity'), createArray(createObject('name', variables('identityName'), 'subscriptionId', parameters('identitySubscriptionId'), 'resourceGroupName', variables('identityResourceGroupName'), 'logStorageAccountName', variables('identityLogStorageAccountName'), 'logStorageAccountNetworkInterfaceNamePrefix', variables('identityLogStorageAccountNetworkInterfaceName'), 'logStorageAccountPrivateEndpointNamePrefix', variables('identityLogStorageAccountPrivateEndpointName'), 'virtualNetworkName', variables('identityVirtualNetworkName'), 'virtualNetworkAddressPrefix', parameters('identityVirtualNetworkAddressPrefix'), 'virtualNetworkDiagnosticsLogs', parameters('identityVirtualNetworkDiagnosticsLogs'), 'virtualNetworkDiagnosticsMetrics', parameters('identityVirtualNetworkDiagnosticsMetrics'), 'networkSecurityGroupName', variables('identityNetworkSecurityGroupName'), 'networkSecurityGroupRules', parameters('identityNetworkSecurityGroupRules'), 'networkSecurityGroupDiagnosticsLogs', parameters('identityNetworkSecurityGroupDiagnosticsLogs'), 'networkSecurityGroupDiagnosticsMetrics', parameters('identityNetworkSecurityGroupDiagnosticsMetrics'), 'routeTableName', variables('identityRouteTableName'), 'subnetName', variables('identitySubnetName'), 'subnetAddressPrefix', parameters('identitySubnetAddressPrefix'), 'subnetPrivateEndpointNetworkPolicies', 'Disabled', 'subnetPrivateLinkServiceNetworkPolicies', 'Disabled')), createArray())]",
+    "spokesIdentity": "[if(parameters('deployIdentity'), createArray(createObject('name', variables('identityName'), 'subscriptionId', parameters('identitySubscriptionId'), 'resourceGroupName', variables('identityResourceGroupName'), 'deployUniqueResources', if(contains(createArray(parameters('hubSubscriptionId'), parameters('operationsSubscriptionId'), parameters('sharedServicesSubscriptionId')), parameters('identitySubscriptionId')), false(), true()), 'logStorageAccountName', variables('identityLogStorageAccountName'), 'logStorageAccountNetworkInterfaceNamePrefix', variables('identityLogStorageAccountNetworkInterfaceName'), 'logStorageAccountPrivateEndpointNamePrefix', variables('identityLogStorageAccountPrivateEndpointName'), 'virtualNetworkName', variables('identityVirtualNetworkName'), 'virtualNetworkAddressPrefix', parameters('identityVirtualNetworkAddressPrefix'), 'virtualNetworkDiagnosticsLogs', parameters('identityVirtualNetworkDiagnosticsLogs'), 'virtualNetworkDiagnosticsMetrics', parameters('identityVirtualNetworkDiagnosticsMetrics'), 'networkSecurityGroupName', variables('identityNetworkSecurityGroupName'), 'networkSecurityGroupRules', parameters('identityNetworkSecurityGroupRules'), 'networkSecurityGroupDiagnosticsLogs', parameters('identityNetworkSecurityGroupDiagnosticsLogs'), 'networkSecurityGroupDiagnosticsMetrics', parameters('identityNetworkSecurityGroupDiagnosticsMetrics'), 'networkWatcherName', variables('identityNetworkWatcherName'), 'routeTableName', variables('identityRouteTableName'), 'subnetName', variables('identitySubnetName'), 'subnetAddressPrefix', parameters('identitySubnetAddressPrefix'), 'subnetPrivateEndpointNetworkPolicies', 'Disabled', 'subnetPrivateLinkServiceNetworkPolicies', 'Disabled')), createArray())]",
     "defaultTags": {
       "resourcePrefix": "[parameters('resourcePrefix')]",
       "environmentAbbreviation": "[parameters('environmentAbbreviation')]",
@@ -2922,6 +2929,12 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "deployNetworkWatcher": {
+            "value": "[variables('spokes')[copyIndex()].deployUniqueResources]"
+          },
+          "firewallSkuTier": {
+            "value": "[parameters('firewallSkuTier')]"
+          },
           "location": {
             "value": "[parameters('location')]"
           },
@@ -2930,6 +2943,9 @@
           },
           "networkSecurityGroupRules": {
             "value": "[variables('spokes')[copyIndex()].networkSecurityGroupRules]"
+          },
+          "networkWatcherName": {
+            "value": "[variables('spokes')[copyIndex()].networkWatcherName]"
           },
           "routeTableName": {
             "value": "[variables('spokes')[copyIndex()].routeTableName]"
@@ -2958,9 +2974,6 @@
           "virtualNetworkName": {
             "value": "[variables('spokes')[copyIndex()].virtualNetworkName]"
           },
-          "firewallSkuTier": {
-            "value": "[parameters('firewallSkuTier')]"
-          },
           "vNetDnsServers": {
             "value": [
               "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPrivateIPAddress.value]"
@@ -2974,10 +2987,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12984866997767801372"
+              "templateHash": "705252534783500241"
             }
           },
           "parameters": {
+            "deployNetworkWatcher": {
+              "type": "bool"
+            },
             "firewallSkuTier": {
               "type": "string"
             },
@@ -2989,6 +3005,9 @@
             },
             "networkSecurityGroupRules": {
               "type": "array"
+            },
+            "networkWatcherName": {
+              "type": "string"
             },
             "routeTableName": {
               "type": "string"
@@ -3206,6 +3225,61 @@
               }
             },
             {
+              "condition": "[parameters('deployNetworkWatcher')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "networkWatcher",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "name": {
+                    "value": "[parameters('networkWatcherName')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.25.53.49325",
+                      "templateHash": "7393503353750877364"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/networkWatchers",
+                      "apiVersion": "2021-02-01",
+                      "name": "[parameters('name')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {}
+                    }
+                  ]
+                }
+              }
+            },
+            {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "virtualNetwork",
@@ -3325,6 +3399,7 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'networkSecurityGroup')]",
+                "[resourceId('Microsoft.Resources/deployments', 'networkWatcher')]",
                 "[resourceId('Microsoft.Resources/deployments', 'routeTable')]"
               ]
             }
@@ -7809,7 +7884,7 @@
         "name": "spokeSubscriptionActivityLogging",
         "count": "[length(variables('spokes'))]"
       },
-      "condition": "[not(equals(variables('spokes')[copyIndex()].subscriptionId, parameters('hubSubscriptionId')))]",
+      "condition": "[variables('spokes')[copyIndex()].deployUniqueResources]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('activity-logs-{0}-{1}', variables('spokes')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
