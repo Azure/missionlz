@@ -41,7 +41,7 @@ param azurePowerShellModuleMsiName string
 @description('The RDP properties to add or remove RDP functionality on the AVD host pool. The string must end with a semi-colon. Settings reference: https://learn.microsoft.com/windows-server/remote/remote-desktop-services/clients/rdp-files')
 param customRdpProperty string = 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;'
 
-@description('The friendly name for the Desktop application in the desktop application group.')
+@description('The friendly name for the SessionDesktop application in the desktop application group.')
 param desktopFriendlyName string = ''
 
 @description('Disabling BGP route propagation is a route table configuration that prevents the propagation of on-premises routes to network interfaces in the associated subnets.')
@@ -281,8 +281,8 @@ var deploymentLocations = union([
 var resourceGroupsCount = 4 + length(deploymentLocations) + (fslogixStorageService == 'None' ? 0 : 1)
 
 // Resource Names
-module resourceNames 'modules/resourceNames.bicep' = {
-  name: 'ResourceNames_${timestamp}'
+module names 'modules/resourceNames.bicep' = {
+  name: 'Names_${timestamp}'
   params: {
     environmentAbbreviation: environmentAbbreviation
     identifier: identifier
@@ -300,25 +300,25 @@ module logic 'modules/logic.bicep' = {
     deploymentLocations: deploymentLocations
     diskSku: diskSku
     domainName: domainName
-    fileShareNames: resourceNames.outputs.fileShareNames
+    fileShareNames: names.outputs.resources.fileShareNames
     fslogixContainerType: fslogixContainerType
     fslogixStorageService: fslogixStorageService
     hostPoolType: hostPoolType
     imageOffer: imageOffer
     imagePublisher: imagePublisher
     imageSku: imageSku
-    locations: resourceNames.outputs.locations
+    locations: names.outputs.locations
     locationVirtualMachines: locationVirtualMachines
-    resourceGroupControlPlane: resourceNames.outputs.resourceGroupControlPlane
-    resourceGroupFeedWorkspace: resourceNames.outputs.resourceGroupFeedWorkspace
-    resourceGroupHosts: resourceNames.outputs.resourceGroupHosts
-    resourceGroupManagement: resourceNames.outputs.resourceGroupManagement
-    resourceGroupsNetwork: resourceNames.outputs.resourceGroupsNetwork
-    resourceGroupStorage: resourceNames.outputs.resourceGroupStorage
+    resourceGroupControlPlane: names.outputs.resources.resourceGroupControlPlane
+    resourceGroupFeedWorkspace: names.outputs.resources.resourceGroupFeedWorkspace
+    resourceGroupHosts: names.outputs.resources.resourceGroupHosts
+    resourceGroupManagement: names.outputs.resources.resourceGroupManagement
+    resourceGroupsNetwork: names.outputs.resources.resourceGroupsNetwork
+    resourceGroupStorage: names.outputs.resources.resourceGroupStorage
     securityPrincipals: securityPrincipals
     sessionHostCount: sessionHostCount
     sessionHostIndex: sessionHostIndex
-    virtualMachineNamePrefix: resourceNames.outputs.virtualMachineNamePrefix
+    virtualMachineNamePrefix: names.outputs.resources.virtualMachineNamePrefix
     virtualMachineSize: virtualMachineSize
   }
 }
@@ -342,13 +342,13 @@ module network_controlPlane 'modules/network/networking.bicep' =  {
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     index: 0
     location: deploymentLocations[0]
-    networkSecurityGroupName: resourceNames.outputs.networkSecurityGroupNames[0]
-    resourceGroupNetwork: resourceNames.outputs.resourceGroupsNetwork[0]
-    routeTableName: resourceNames.outputs.routeTables[0]
+    networkSecurityGroupName: names.outputs.resources.networkSecurityGroupNames[0]
+    resourceGroupNetwork: names.outputs.resources.resourceGroupsNetwork[0]
+    routeTableName: names.outputs.resources.routeTableNames[0]
     subnetAddressPrefixes: subnetAddressPrefixes
     timestamp: timestamp
     virtualNetworkAddressPrefixes: virtualNetworkAddressPrefixes
-    virtualNetworkName: resourceNames.outputs.virtulNetworkNames[0]
+    virtualNetworkName: names.outputs.resources.virtualNetworkNames[0]
   }
   dependsOn: [
     rgs
@@ -364,13 +364,13 @@ module network_hosts 'modules/network/networking.bicep' = if (length(deploymentL
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     index: 1
     location: deploymentLocations[1]
-    networkSecurityGroupName: resourceNames.outputs.networkSecurityGroupNames[1]
-    resourceGroupNetwork: length(deploymentLocations) == 1 ? resourceNames.outputs.resourceGroupsNetwork[0] : resourceNames.outputs.resourceGroupsNetwork[1]
-    routeTableName: resourceNames.outputs.routeTables[1]
+    networkSecurityGroupName: names.outputs.resources.networkSecurityGroupNames[1]
+    resourceGroupNetwork: length(deploymentLocations) == 1 ? names.outputs.resources.resourceGroupsNetwork[0] : names.outputs.resources.resourceGroupsNetwork[1]
+    routeTableName: names.outputs.resources.routeTableNames[1]
     subnetAddressPrefixes: subnetAddressPrefixes
     timestamp: timestamp
     virtualNetworkAddressPrefixes: virtualNetworkAddressPrefixes
-    virtualNetworkName: resourceNames.outputs.virtulNetworkNames[1]
+    virtualNetworkName: names.outputs.resources.virtualNetworkNames[1]
   }
   dependsOn: [
     rgs
@@ -381,23 +381,23 @@ module network_hosts 'modules/network/networking.bicep' = if (length(deploymentL
 module management 'modules/management/management.bicep' = {
   name: 'Management_${timestamp}'
   params: {
-    //diskAccessName: resourceNames.outputs.diskAccessName
+    //diskAccessName: names.outputs.resources.diskAccessName
     activeDirectorySolution: activeDirectorySolution
     artifactsStorageAccountResourceId: artifactsStorageAccountResourceId
     artifactsUri: artifactsUri
-    automationAccountDiagnosticSettingName: resourceNames.outputs.automationAccountDiagnosticSettingName
-    automationAccountName: resourceNames.outputs.automationAccountName
-    automationAccountNetworkInterfaceName: resourceNames.outputs.automationAccountNetworkInterfaceName
-    automationAccountPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.azureAutomationPrivateDnsZoneName}'
-    automationAccountPrivateEndpointName: resourceNames.outputs.automationAccountPrivateEndpointName
+    automationAccountDiagnosticSettingName: names.outputs.resources.automationAccountDiagnosticSettingName
+    automationAccountName: names.outputs.resources.automationAccountName
+    automationAccountNetworkInterfaceName: names.outputs.resources.automationAccountNetworkInterfaceName
+    automationAccountPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${names.outputs.resources.azureAutomationPrivateDnsZoneName}'
+    automationAccountPrivateEndpointName: names.outputs.resources.automationAccountPrivateEndpointName
     availability: availability
     avdObjectId: avdObjectId
-    azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.blobPrivateDnsZoneName}'
+    azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${names.outputs.resources.blobPrivateDnsZoneName}'
     azurePowerShellModuleMsiName: azurePowerShellModuleMsiName 
-    azureQueueStoragePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.queuePrivateDnsZoneName}'
-    dataCollectionRuleName: resourceNames.outputs.dataCollectionRuleName
-    diskEncryptionSetName: resourceNames.outputs.diskEncryptionSetName
-    diskNamePrefix: resourceNames.outputs.diskNamePrefix
+    azureQueueStoragePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${names.outputs.resources.queuePrivateDnsZoneName}'
+    dataCollectionRuleName: names.outputs.resources.dataCollectionRuleName
+    diskEncryptionSetName: names.outputs.resources.diskEncryptionSetName
+    diskNamePrefix: names.outputs.resources.diskNamePrefix
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -406,47 +406,47 @@ module management 'modules/management/management.bicep' = {
     environmentAbbreviation: environmentAbbreviation
     fslogix: logic.outputs.fslogix
     fslogixStorageService: fslogixStorageService
-    hostPoolName: resourceNames.outputs.hostPoolName
+    hostPoolName: names.outputs.resources.hostPoolName
     hostPoolType: hostPoolType
     imageDefinitionResourceId: imageDefinitionResourceId
-    keyVaultName: resourceNames.outputs.keyVaultName
-    keyVaultNetworkInterfaceName: resourceNames.outputs.keyVaultNetworkInterfaceName
-    keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.keyVaultPrivateDnsZoneName}'
-    keyVaultPrivateEndpointName: resourceNames.outputs.keyVaultPrivateEndpointName
+    keyVaultName: names.outputs.resources.keyVaultName
+    keyVaultNetworkInterfaceName: names.outputs.resources.keyVaultNetworkInterfaceName
+    keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${names.outputs.resources.keyVaultPrivateDnsZoneName}'
+    keyVaultPrivateEndpointName: names.outputs.resources.keyVaultPrivateEndpointName
     locationVirtualMachines: locationVirtualMachines
-    logAnalyticsWorkspaceName: resourceNames.outputs.logAnalyticsWorkspaceName
+    logAnalyticsWorkspaceName: names.outputs.resources.logAnalyticsWorkspaceName
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
-    networkInterfaceNamePrefix: resourceNames.outputs.networkInterfaceNamePrefix
-    networkName: resourceNames.outputs.networkName
+    networkInterfaceNamePrefix: names.outputs.resources.networkInterfaceNamePrefix
+    networkName: names.outputs.networkName
     organizationalUnitPath: organizationalUnitPath
     recoveryServices: recoveryServices
-    recoveryServicesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.backupPrivateDnsZoneName}'
-    recoveryServicesVaultName: resourceNames.outputs.recoveryServicesVaultName
-    recoveryServicesVaultNetworkInterfaceName: resourceNames.outputs.recoveryServicesVaultNetworkInterfaceName
-    recoveryServicesVaultPrivateEndpointName: resourceNames.outputs.recoveryServicesVaultPrivateEndpointName
-    resourceGroupControlPlane: resourceNames.outputs.resourceGroupControlPlane
-    resourceGroupFeedWorkspace: resourceNames.outputs.resourceGroupFeedWorkspace
-    resourceGroupHosts: resourceNames.outputs.resourceGroupHosts
-    resourceGroupManagement: resourceNames.outputs.resourceGroupManagement
-    resourceGroupStorage: resourceNames.outputs.resourceGroupStorage
+    recoveryServicesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${names.outputs.resources.backupPrivateDnsZoneName}'
+    recoveryServicesVaultName: names.outputs.resources.recoveryServicesVaultName
+    recoveryServicesVaultNetworkInterfaceName: names.outputs.resources.recoveryServicesVaultNetworkInterfaceName
+    recoveryServicesVaultPrivateEndpointName: names.outputs.resources.recoveryServicesVaultPrivateEndpointName
+    resourceGroupControlPlane: names.outputs.resources.resourceGroupControlPlane
+    resourceGroupFeedWorkspace: names.outputs.resources.resourceGroupFeedWorkspace
+    resourceGroupHosts: names.outputs.resources.resourceGroupHosts
+    resourceGroupManagement: names.outputs.resources.resourceGroupManagement
+    resourceGroupStorage: names.outputs.resources.resourceGroupStorage
     roleDefinitions: logic.outputs.roleDefinitions
     scalingTool: scalingTool
     securityLogAnalyticsWorkspaceResourceId: securityLogAnalyticsWorkspaceResourceId
-    serviceName: resourceNames.outputs.serviceName
+    serviceName: names.outputs.serviceName
     sessionHostCount: sessionHostCount
     storageService: logic.outputs.storageService
     subnetResourceId: length(deploymentLocations) == 1 ? network_controlPlane.outputs.subnetResourceId : network_hosts.outputs.subnetResourceId
     tags: tags
     timestamp: timestamp
     timeZone: logic.outputs.timeZone
-    userAssignedIdentityNamePrefix: resourceNames.outputs.userAssignedIdentityNamePrefix
+    userAssignedIdentityNamePrefix: names.outputs.resources.userAssignedIdentityNamePrefix
     virtualMachineMonitoringAgent: virtualMachineMonitoringAgent
-    virtualMachineNamePrefix: resourceNames.outputs.virtualMachineNamePrefix
+    virtualMachineNamePrefix: names.outputs.resources.virtualMachineNamePrefix
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
-    workspaceFeedName: resourceNames.outputs.workspaceFeedName
+    workspaceFeedName: names.outputs.resources.workspaceFeedName
   }
   dependsOn: [
     rgs
@@ -460,13 +460,13 @@ module hub 'modules/hub/hub.bicep' = {
   scope: subscription(split(hubSubnetResourceId, '/')[2])
   params: {
     existingWorkspace: management.outputs.existingFeedWorkspace
-    globalWorkspacePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.avdGlobalPrivateDnsZoneName}'
+    globalWorkspacePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${names.outputs.resources.avdGlobalPrivateDnsZoneName}'
     hubSubnetResourceId: hubSubnetResourceId
-    resourceGroupName: resourceNames.outputs.resourceGroupGlobalWorkspace
+    resourceGroupName: names.outputs.resources.resourceGroupGlobalWorkspace
     timestamp: timestamp
-    workspaceGlobalName: resourceNames.outputs.workspaceGlobalName
-    workspaceGlobalNetworkInterfaceName: resourceNames.outputs.workspaceGlobalNetworkInterfaceName
-    workspaceGlobalPrivateEndpointName: resourceNames.outputs.workspaceGlobalPrivateEndpointName
+    workspaceGlobalName: names.outputs.resources.workspaceGlobalName
+    workspaceGlobalNetworkInterfaceName: names.outputs.resources.workspaceGlobalNetworkInterfaceName
+    workspaceGlobalPrivateEndpointName: names.outputs.resources.workspaceGlobalPrivateEndpointName
   }
 }
 
@@ -477,16 +477,16 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
   params: {
     activeDirectorySolution: activeDirectorySolution
     artifactsUri: artifactsUri
-    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.avdPrivateDnsZoneName}'
+    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${names.outputs.resources.avdPrivateDnsZoneName}'
     customRdpProperty: customRdpProperty
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
-    desktopApplicationGroupName: resourceNames.outputs.desktopApplicationGroupName
-    desktopFriendlyName: desktopFriendlyName
+    desktopApplicationGroupName: names.outputs.resources.desktopApplicationGroupName
+    desktopFriendlyName: empty(desktopFriendlyName) ? string(stampIndex) : desktopFriendlyName
     existingFeedWorkspace: management.outputs.existingFeedWorkspace
-    hostPoolDiagnosticSettingName: resourceNames.outputs.hostPoolDiagnosticSettingName
-    hostPoolName: resourceNames.outputs.hostPoolName
-    hostPoolNetworkInterfaceName: resourceNames.outputs.hostPoolNetworkInterfaceName
-    hostPoolPrivateEndpointName: resourceNames.outputs.hostPoolPrivateEndpointName
+    hostPoolDiagnosticSettingName: names.outputs.resources.hostPoolDiagnosticSettingName
+    hostPoolName: names.outputs.resources.hostPoolName
+    hostPoolNetworkInterfaceName: names.outputs.resources.hostPoolNetworkInterfaceName
+    hostPoolPrivateEndpointName: names.outputs.resources.hostPoolPrivateEndpointName
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     locationControlPlane: locationControlPlane
@@ -495,9 +495,9 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
     monitoring: monitoring
-    resourceGroupControlPlane: resourceNames.outputs.resourceGroupControlPlane
-    resourceGroupFeedWorkspace: resourceNames.outputs.resourceGroupFeedWorkspace
-    resourceGroupManagement: resourceNames.outputs.resourceGroupManagement
+    resourceGroupControlPlane: names.outputs.resources.resourceGroupControlPlane
+    resourceGroupFeedWorkspace: names.outputs.resources.resourceGroupFeedWorkspace
+    resourceGroupManagement: names.outputs.resources.resourceGroupManagement
     roleDefinitions: logic.outputs.roleDefinitions
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     subnetResourceId: network_controlPlane.outputs.subnetResourceId
@@ -505,11 +505,11 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     timestamp: timestamp
     validationEnvironment: validationEnvironment
     vmTemplate: logic.outputs.vmTemplate
-    workspaceFeedDiagnoticSettingName: resourceNames.outputs.workspaceFeedDiagnosticSettingName
-    workspaceFeedName: resourceNames.outputs.workspaceFeedName
-    workspaceFeedNetworkInterfaceName: resourceNames.outputs.workspaceFeedNetworkInterfaceName
-    workspaceFeedPrivateEndpointName: resourceNames.outputs.workspaceFeedPrivateEndpointName
-    workspaceFriendlyName: workspaceFriendlyName
+    workspaceFeedDiagnoticSettingName: names.outputs.resources.workspaceFeedDiagnosticSettingName
+    workspaceFeedName: names.outputs.resources.workspaceFeedName
+    workspaceFeedNetworkInterfaceName: names.outputs.resources.workspaceFeedNetworkInterfaceName
+    workspaceFeedPrivateEndpointName: names.outputs.resources.workspaceFeedPrivateEndpointName
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? names.outputs.resources.workspaceFriendlyName : '${workspaceFriendlyName} (${locationControlPlane})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
   dependsOn: [
@@ -523,9 +523,9 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     activeDirectoryConnection: management.outputs.validateANFfActiveDirectory
     activeDirectorySolution: activeDirectorySolution
     artifactsUri: artifactsUri
-    automationAccountName: resourceNames.outputs.automationAccountName
+    automationAccountName: names.outputs.resources.automationAccountName
     availability: availability
-    azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${resourceNames.outputs.filePrivateDnsZoneName}'
+    azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${names.outputs.resources.filePrivateDnsZoneName}'
     delegatedSubnetId: management.outputs.validateANFSubnetId
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     dnsServers: management.outputs.validateANFDnsServers
@@ -537,27 +537,27 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
-    hostPoolName: resourceNames.outputs.hostPoolName
+    hostPoolName: names.outputs.resources.hostPoolName
     hostPoolType: hostPoolType
     keyVaultUri: management.outputs.keyVaultUri
     location: locationVirtualMachines
     managementVirtualMachineName: management.outputs.virtualMachineName
-    netAppAccountName: resourceNames.outputs.netAppAccountName
-    netAppCapacityPoolName: resourceNames.outputs.netAppCapacityPoolName
+    netAppAccountName: names.outputs.resources.netAppAccountName
+    netAppCapacityPoolName: names.outputs.resources.netAppCapacityPoolName
     netbios: logic.outputs.netbios
     organizationalUnitPath: organizationalUnitPath
     recoveryServices: recoveryServices
-    recoveryServicesVaultName: resourceNames.outputs.recoveryServicesVaultName
-    resourceGroupControlPlane: resourceNames.outputs.resourceGroupControlPlane
-    resourceGroupManagement: resourceNames.outputs.resourceGroupManagement
-    resourceGroupStorage: resourceNames.outputs.resourceGroupStorage
+    recoveryServicesVaultName: names.outputs.resources.recoveryServicesVaultName
+    resourceGroupControlPlane: names.outputs.resources.resourceGroupControlPlane
+    resourceGroupManagement: names.outputs.resources.resourceGroupManagement
+    resourceGroupStorage: names.outputs.resources.resourceGroupStorage
     securityPrincipalNames: map(securityPrincipals, item => item.name)
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    serviceName: resourceNames.outputs.serviceName
+    serviceName: names.outputs.serviceName
     smbServerLocation: logic.outputs.smbServerLocation
-    storageAccountNamePrefix: resourceNames.outputs.storageAccountNamePrefix
-    storageAccountNetworkInterfaceNamePrefix: resourceNames.outputs.storageAccountNetworkInterfaceNamePrefix
-    storageAccountPrivateEndpointNamePrefix: resourceNames.outputs.storageAccountPrivateEndpointNamePrefix
+    storageAccountNamePrefix: names.outputs.resources.storageAccountNamePrefix
+    storageAccountNetworkInterfaceNamePrefix: names.outputs.resources.storageAccountNetworkInterfaceNamePrefix
+    storageAccountPrivateEndpointNamePrefix: names.outputs.resources.storageAccountPrivateEndpointNamePrefix
     storageCount: storageCount
     storageEncryptionKeyName: management.outputs.storageEncryptionKeyName
     storageIndex: storageIndex
@@ -584,19 +584,19 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     artifactsUri: artifactsUri
     artifactsUserAssignedIdentityClientId: management.outputs.artifactsUserAssignedIdentityClientId
     artifactsUserAssignedIdentityResourceId: management.outputs.artifactsUserAssignedIdentityResourceId
-    automationAccountName: resourceNames.outputs.automationAccountName
+    automationAccountName: names.outputs.resources.automationAccountName
     availability: availability
-    availabilitySetNamePrefix: resourceNames.outputs.availabilitySetNamePrefix
+    availabilitySetNamePrefix: names.outputs.resources.availabilitySetNamePrefix
     availabilitySetsCount: logic.outputs.availabilitySetsCount
     availabilitySetsIndex: logic.outputs.beginAvSetRange
     availabilityZones: management.outputs.validateAvailabilityZones
     avdAgentBootLoaderMsiName: avdAgentBootLoaderMsiName
     avdAgentMsiName: avdAgentMsiName
-    dataCollectionRuleAssociationName: resourceNames.outputs.dataCollectionRuleAssociationName
+    dataCollectionRuleAssociationName: names.outputs.resources.dataCollectionRuleAssociationName
     dataCollectionRuleResourceId: management.outputs.dataCollectionRuleResourceId
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     diskEncryptionSetResourceId: management.outputs.diskEncryptionSetResourceId
-    diskNamePrefix: resourceNames.outputs.diskNamePrefix
+    diskNamePrefix: names.outputs.resources.diskNamePrefix
     diskSku: diskSku
     divisionRemainderValue: logic.outputs.divisionRemainderValue
     domainJoinPassword: domainJoinPassword
@@ -607,7 +607,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     enableScalingTool: scalingTool
     fslogix: logic.outputs.fslogix
     fslogixContainerType: fslogixContainerType
-    hostPoolName: resourceNames.outputs.hostPoolName
+    hostPoolName: names.outputs.resources.hostPoolName
     hostPoolType: hostPoolType
     hybridRunbookWorkerGroupName: management.outputs.hybridRunbookWorkerGroupName
     imageOffer: imageOffer
@@ -615,21 +615,21 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     imageSku: imageSku
     imageDefinitionResourceId: imageDefinitionResourceId
     location: locationVirtualMachines
-    logAnalyticsWorkspaceName: resourceNames.outputs.logAnalyticsWorkspaceName
+    logAnalyticsWorkspaceName: names.outputs.resources.logAnalyticsWorkspaceName
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: logic.outputs.maxResourcesPerTemplateDeployment
     monitoring: monitoring
     netAppFileShares: logic.outputs.fslogix ? fslogix.outputs.netAppShares : [
       'None'
     ]
-    networkInterfaceNamePrefix: resourceNames.outputs.networkInterfaceNamePrefix
-    networkName: resourceNames.outputs.networkName
+    networkInterfaceNamePrefix: names.outputs.resources.networkInterfaceNamePrefix
+    networkName: names.outputs.networkName
     organizationalUnitPath: organizationalUnitPath
     pooledHostPool: logic.outputs.pooledHostPool
-    recoveryServicesVaultName: resourceNames.outputs.recoveryServicesVaultName
-    resourceGroupControlPlane: resourceNames.outputs.resourceGroupControlPlane
-    resourceGroupHosts: resourceNames.outputs.resourceGroupHosts
-    resourceGroupManagement: resourceNames.outputs.resourceGroupManagement
+    recoveryServicesVaultName: names.outputs.resources.recoveryServicesVaultName
+    resourceGroupControlPlane: names.outputs.resources.resourceGroupControlPlane
+    resourceGroupHosts: names.outputs.resources.resourceGroupHosts
+    resourceGroupManagement: names.outputs.resources.resourceGroupManagement
     roleDefinitions: logic.outputs.roleDefinitions
     scalingBeginPeakTime: scalingBeginPeakTime
     scalingEndPeakTime: scalingEndPeakTime
@@ -638,10 +638,10 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     scalingSessionThresholdPerCPU: scalingSessionThresholdPerCPU
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     securityLogAnalyticsWorkspaceResourceId: securityLogAnalyticsWorkspaceResourceId
-    serviceName: resourceNames.outputs.serviceName
+    serviceName: names.outputs.serviceName
     sessionHostBatchCount: logic.outputs.sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
-    storageAccountPrefix: resourceNames.outputs.storageAccountNamePrefix
+    storageAccountPrefix: names.outputs.resources.storageAccountNamePrefix
     storageCount: storageCount
     storageIndex: storageIndex
     storageService: logic.outputs.storageService
@@ -652,7 +652,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     timestamp: timestamp
     timeZone: logic.outputs.timeZone
     virtualMachineMonitoringAgent: virtualMachineMonitoringAgent
-    virtualMachineNamePrefix: resourceNames.outputs.virtualMachineNamePrefix
+    virtualMachineNamePrefix: names.outputs.resources.virtualMachineNamePrefix
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
@@ -670,7 +670,7 @@ module cleanUp 'modules/cleanUp/cleanUp.bicep' = {
   params: {
     fslogixStorageService: fslogixStorageService
     location: locationVirtualMachines
-    resourceGroupManagement: resourceNames.outputs.resourceGroupManagement
+    resourceGroupManagement: names.outputs.resources.resourceGroupManagement
     scalingTool: scalingTool
     timestamp: timestamp
     userAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
