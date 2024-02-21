@@ -3,7 +3,6 @@ param artifactsUri string
 param avdPrivateDnsZoneResourceId string
 param deploymentUserAssignedIdentityClientId string
 param existing bool
-param friendlyName string
 param hostPoolName string
 param locationControlPlane string
 param locationVirtualMachines string
@@ -18,6 +17,7 @@ param workspaceFeedDiagnoticSettingName string
 param workspaceFeedName string
 param workspaceFeedNetworkInterfaceName string
 param workspaceFeedPrivateEndpointName string
+param workspaceFriendlyName string
 param workspacePublicNetworkAccess string
 
 module addApplicationGroups '../common/customScriptExtensions.bicep' = if (existing) {
@@ -44,7 +44,7 @@ resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = if 
   tags: {}
   properties: {
     applicationGroupReferences: applicationGroupReferences
-    friendlyName: empty(friendlyName) ? hostPoolName : '${friendlyName} (${locationControlPlane})'
+    friendlyName: workspaceFriendlyName
     publicNetworkAccess: workspacePublicNetworkAccess
   }
 }
