@@ -30,11 +30,11 @@ param tags object
 param timestamp string
 param validationEnvironment bool
 param vmTemplate string
-param workspaceFriendlyName string
-param workspaceFeedName string
 param workspaceFeedDiagnoticSettingName string
+param workspaceFeedName string
 param workspaceFeedNetworkInterfaceName string
 param workspaceFeedPrivateEndpointName string
+param workspaceFriendlyName string
 param workspacePublicNetworkAccess string
 
 module hostPool 'hostPool.bicep' = {
@@ -90,7 +90,6 @@ module workspace 'workspace.bicep' = {
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
     existing: existingFeedWorkspace
-    friendlyName: workspaceFriendlyName
     hostPoolName: hostPoolName
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
@@ -105,6 +104,7 @@ module workspace 'workspace.bicep' = {
     workspaceFeedName: workspaceFeedName
     workspaceFeedNetworkInterfaceName: workspaceFeedNetworkInterfaceName
     workspaceFeedPrivateEndpointName: workspaceFeedPrivateEndpointName
+    workspaceFriendlyName: workspaceFriendlyName
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }
