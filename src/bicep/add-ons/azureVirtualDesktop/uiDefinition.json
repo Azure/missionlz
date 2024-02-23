@@ -431,6 +431,18 @@
               "visible": true,
               "elements": [
                 {
+                  "name": "description",
+                  "type": "Microsoft.Common.TextBlock",
+                  "visible": true,
+                  "options": {
+                    "text": "To access Azure Virtual Desktop, your end users will need to be assigned to the Desktop Applicaiton Group and if applicable, be given permissions on the storage service for FSLogix. Select the desired security groups below to give access to this AVD stamp. If deploying FSLogix, storage will be deployed for each group to support sharding. Be sure your groups are sized appropriately for each shard.",
+                    "link": {
+                      "label": "Learn more about FSLogix storage options for sizing your groups.",
+                      "uri": "https://learn.microsoft.com/azure/virtual-desktop/store-fslogix-profile"
+                    }
+                  }
+                },
+                {
                   "name": "groupsApi",
                   "type": "Microsoft.Solutions.GraphApiControl",
                   "request": {
@@ -455,7 +467,7 @@
                 {
                   "name": "groupsGrid",
                   "type": "Microsoft.Common.EditableGrid",
-                  "ariaLabel": "Enter the security groups for access to AVD and if applicable, FSLogix. If deploying FSLogix, a storage account will be deployed for each group to support sharding.",
+                  "ariaLabel": "Input the security groups for access to AVD and if applicable, FSLogix. The object ID is a property on the group and can be found in Entra ID.",
                   "label": "Security Groups",
                   "visible": "[empty(steps('controlPlane').assignment.groupsApi)]",
                   "constraints": {
@@ -508,7 +520,7 @@
                   "name": "custom",
                   "type": "Microsoft.Common.CheckBox",
                   "visible": true,
-                  "label": "Customize friendly names for AVD Client?",
+                  "label": "Custom friendly names?",
                   "defaultValue": false,
                   "toolTip": "Choose whether to add custom names to the AVD feed workspace and the desktop for the AVD client."
                 },
@@ -518,7 +530,7 @@
                   "label": "Feed Workspace",
                   "defaultValue": "",
                   "placeholder": "Example: Information Technology",
-                  "toolTip": "Input the friendly name for the AVD workspace / identifier that will be displayed in the end user's client. This value should apply to all the stamp indexes within the same identifier.",
+                  "toolTip": "Input the friendly name for the AVD workspace that will be displayed in the end user's client. This value should apply to all the stamp indexes within the same identifier and would mostly likely represent your business unit or project.",
                   "visible": "[steps('controlPlane').friendlyNames.custom]",
                   "constraints": {
                     "required": false,
@@ -532,7 +544,7 @@
                   "label": "Desktop",
                   "defaultValue": "",
                   "placeholder": "Example: Help Desk",
-                  "toolTip": "Input the friendly name for the AVD Session Desktop application that will be displayed in the end user's client.",
+                  "toolTip": "Input the friendly name for the AVD Session Desktop application that will be displayed in the end user's client. This value should represent the workload (eg., Help Desk, Development, or Administration) that will be supported on the host pool.",
                   "visible": "[steps('controlPlane').friendlyNames.custom]",
                   "constraints": {
                     "required": false,

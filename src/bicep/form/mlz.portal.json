@@ -482,6 +482,14 @@
                     "required": true
                   },
                   "visible": true
+                },
+                {
+                  "name": "firewallSkuDescription",
+                  "type": "Microsoft.Common.InfoBox",
+                  "options": {
+                    "style": "Warning",
+                    "text": "Please validate the SKU availability in your region before deploying as there can be differences between clouds."
+                  }
                 }
               ]
             },
