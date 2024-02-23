@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "2997341967307820704"
+      "templateHash": "4831725724423831749"
     }
   },
   "parameters": {
@@ -124,42 +124,42 @@
     },
     "identityVirtualNetworkAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.110.0/26",
+      "defaultValue": "10.0.105.0/26",
       "metadata": {
         "description": "The CIDR Virtual Network Address Prefix for the Identity Virtual Network."
       }
     },
     "identitySubnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.110.0/27",
+      "defaultValue": "10.0.105.0/26",
       "metadata": {
         "description": "The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space."
       }
     },
     "operationsVirtualNetworkAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.115.0/26",
+      "defaultValue": "10.0.110.0/26",
       "metadata": {
         "description": "The CIDR Virtual Network Address Prefix for the Operations Virtual Network."
       }
     },
     "operationsSubnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.115.0/27",
+      "defaultValue": "10.0.110.0/26",
       "metadata": {
         "description": "The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space."
       }
     },
     "sharedServicesVirtualNetworkAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.120.0/26",
+      "defaultValue": "10.0.115.0/26",
       "metadata": {
         "description": "The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network."
       }
     },
     "sharedServicesSubnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.120.0/27",
+      "defaultValue": "10.0.115.0/26",
       "metadata": {
         "description": "The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space."
       }

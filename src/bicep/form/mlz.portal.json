@@ -503,7 +503,7 @@
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Identity Virtual Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.110.0/26",
+                  "defaultValue": "10.0.105.0/26",
                   "toolTip": "Specify an address CIDR range within the range [10,26].",
                   "constraints": {
                     "required": true,
@@ -519,7 +519,7 @@
                   "name": "subnetAddressCidrRange",
                   "label": "Identity Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.110.0/27",
+                  "defaultValue": "10.0.105.0/26",
                   "toolTip": "Specify a CIDR range for the default subnet within the Identity Virtual Network range [26,28].",
                   "constraints": {
                     "required": true,
@@ -558,7 +558,7 @@
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Operations Virtual Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.115.0/26",
+                  "defaultValue": "10.0.110.0/26",
                   "toolTip": "Specify an address CIDR range within the range [10,26].",
                   "constraints": {
                     "required": true,
@@ -574,7 +574,7 @@
                   "name": "subnetAddressCidrRange",
                   "label": "Operations Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.115.0/27",
+                  "defaultValue": "10.0.110.0/26",
                   "toolTip": "Specify a CIDR range for the default subnet within the Operations Virtual Network range [26,28].",
                   "constraints": {
                     "required": true,
@@ -613,7 +613,7 @@
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Shared Services Virtual Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.120.0/26",
+                  "defaultValue": "10.0.115.0/26",
                   "toolTip": "Specify an address CIDR range within the range [10,26].",
                   "constraints": {
                     "required": true,
@@ -629,7 +629,7 @@
                   "name": "subnetAddressCidrRange",
                   "label": "Shared Services Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.120.0/27",
+                  "defaultValue": "10.0.115.0/26",
                   "toolTip": "Specify a CIDR range for the default subnet within the Shared Services Virtual Network range [26,28].",
                   "constraints": {
                     "required": true,

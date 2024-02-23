@@ -77,22 +77,22 @@ param firewallClientSubnetAddressPrefix string = '10.0.100.0/26'
 param firewallManagementSubnetAddressPrefix string = '10.0.100.64/26'
 
 @description('The CIDR Virtual Network Address Prefix for the Identity Virtual Network.')
-param identityVirtualNetworkAddressPrefix string = '10.0.110.0/26'
+param identityVirtualNetworkAddressPrefix string = '10.0.105.0/26'
 
 @description('The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.')
-param identitySubnetAddressPrefix string = '10.0.110.0/27'
+param identitySubnetAddressPrefix string = '10.0.105.0/26'
 
 @description('The CIDR Virtual Network Address Prefix for the Operations Virtual Network.')
-param operationsVirtualNetworkAddressPrefix string = '10.0.115.0/26'
+param operationsVirtualNetworkAddressPrefix string = '10.0.110.0/26'
 
 @description('The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.')
-param operationsSubnetAddressPrefix string = '10.0.115.0/27'
+param operationsSubnetAddressPrefix string = '10.0.110.0/26'
 
 @description('The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.')
-param sharedServicesVirtualNetworkAddressPrefix string = '10.0.120.0/26'
+param sharedServicesVirtualNetworkAddressPrefix string = '10.0.115.0/26'
 
 @description('The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.')
-param sharedServicesSubnetAddressPrefix string = '10.0.120.0/27'
+param sharedServicesSubnetAddressPrefix string = '10.0.115.0/26'
 
 // FIREWALL PARAMETERS
 
