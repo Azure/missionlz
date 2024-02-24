@@ -31,6 +31,7 @@ param installProject bool
 param installPublisher bool
 param installSkypeForBusiness bool
 param installTeams bool
+param installUpdates bool
 param installVirtualDesktopOptimizationTool bool
 param installVisio bool
 param installWord bool
@@ -55,12 +56,14 @@ param teamsInstaller string
 param templateSpecResourceId string
 param time string = utcNow()
 param timeZone string
+param updateService string
 param userAssignedIdentityClientId string
 param userAssignedIdentityPrincipalId string
 param userAssignedIdentityResourceId string
 param vcRedistInstaller string
 param vDOTInstaller string
 param virtualMachineSize string
+param wsusServer string
 
 var parameters = {
   arcGisProInstaller: arcGisProInstaller
@@ -87,6 +90,7 @@ var parameters = {
   installPublisher: string(installPublisher)
   installSkypeForBusiness: string(installSkypeForBusiness)
   installTeams: string(installTeams)
+  installUpdates: string(installUpdates)
   installVirtualDesktopOptimizationTool: string(installVirtualDesktopOptimizationTool)
   installVisio: string(installVisio)
   installWord: string(installWord)
@@ -109,12 +113,14 @@ var parameters = {
   teamsInstaller: teamsInstaller
   templateSpecResourceId: templateSpecResourceId
   tenantId: tenantId
+  updateService: updateService
   userAssignedIdentityClientId: userAssignedIdentityClientId
   userAssignedIdentityPrincipalId: userAssignedIdentityPrincipalId
   userAssignedIdentityResourceId: userAssignedIdentityResourceId
   vcRedistInstaller: vcRedistInstaller
   vDOTInstaller: vDOTInstaller
   virtualMachineSize: virtualMachineSize
+  wsusServer: wsusServer
 }
 var privateEndpointName = 'pe-${automationAccountName}'
 var runbookName = 'New-AzureZeroTrustImageBuild'
