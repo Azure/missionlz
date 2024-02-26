@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.24.24.22086",
-      "templateHash": "12103867855652889702"
+      "version": "0.25.53.49325",
+      "templateHash": "8620326453620693104"
     }
   },
   "parameters": {
@@ -17,28 +17,24 @@
     },
     "adminUsername": {
       "type": "string",
-      "defaultValue": "xadmin",
       "metadata": {
         "description": "Virtual Machine admin username"
       }
     },
     "applicationGatewayPrivateIpAddress": {
       "type": "string",
-      "defaultValue": "172.0.1.9",
       "metadata": {
         "description": "Application Gateway Private IP Address"
       }
     },
     "applicationGatewaySubnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "172.0.1.0/28",
       "metadata": {
         "description": "Application Gateway Subnet Address Prefix"
       }
     },
     "arcgisServiceAccountIsDomainAccount": {
       "type": "bool",
-      "defaultValue": false,
       "metadata": {
         "description": "ArcGIS Service Account Is Domain Account"
       }
@@ -51,14 +47,12 @@
     },
     "arcgisServiceAccountUserName": {
       "type": "string",
-      "defaultValue": "arcgis",
       "metadata": {
         "description": "ArcGIS Service Account User Name"
       }
     },
     "architecture": {
       "type": "string",
-      "defaultValue": "singletier",
       "allowedValues": [
         "singletier",
         "multitier"
@@ -69,27 +63,8 @@
     },
     "azureFirewallName": {
       "type": "string",
-      "defaultValue": "es1-afw-hub-dev-va",
       "metadata": {
         "description": "Azure Firewall Name"
-      }
-    },
-    "dataStoreTypesForBaseDeployment": {
-      "type": "array",
-      "defaultValue": [
-        "Relational",
-        "TileCache",
-        "SpatioTemporal",
-        "ObjectStore"
-      ],
-      "allowedValues": [
-        "Relational",
-        "TileCache",
-        "SpatioTemporal",
-        "ObjectStore"
-      ],
-      "metadata": {
-        "description": "Data Store Types for Base Deployment Servers"
       }
     },
     "dataStoreVirtualMachineOSDiskSize": {
@@ -113,21 +88,18 @@
     },
     "debugMode": {
       "type": "bool",
-      "defaultValue": false,
       "metadata": {
         "description": "Debug Mode for ESRI"
       }
     },
     "defaultSubnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "172.0.0.0/24",
       "metadata": {
         "description": "Default Subnet Address Prefix"
       }
     },
     "deployDefender": {
       "type": "bool",
-      "defaultValue": false,
       "metadata": {
         "description": "Deploy Defender"
       }
@@ -141,14 +113,16 @@
     },
     "deployPolicy": {
       "type": "bool",
-      "defaultValue": false,
       "metadata": {
         "description": "Deploy Policy"
       }
     },
+    "diskEncryptionSetResourceId": {
+      "type": "string"
+    },
     "emailSecurityContact": {
       "type": "string",
-      "defaultValue": "micdz@microsoft.com",
+      "defaultValue": "",
       "metadata": {
         "description": "Email Security Contact"
       }
@@ -162,7 +136,6 @@
     },
     "enableGraphDataStore": {
       "type": "bool",
-      "defaultValue": false,
       "metadata": {
         "description": "Enable Graph Data Store"
       }
@@ -176,14 +149,12 @@
     },
     "enableMonitoring": {
       "type": "bool",
-      "defaultValue": false,
       "metadata": {
         "description": "Enable Monitoring"
       }
     },
     "enableObjectDataStore": {
       "type": "bool",
-      "defaultValue": true,
       "metadata": {
         "description": "Enable Object Data Store"
       }
@@ -204,7 +175,6 @@
     },
     "enableSpatiotemporalBigDataStore": {
       "type": "bool",
-      "defaultValue": true,
       "metadata": {
         "description": "Enable Spatiotemporal Big Data Store"
       }
@@ -218,7 +188,6 @@
     },
     "enableTileCacheDataStore": {
       "type": "bool",
-      "defaultValue": true,
       "metadata": {
         "description": "Enable Tile Cache Data Store"
       }
@@ -243,13 +212,6 @@
         "description": "External DNS Hostname"
       }
     },
-    "externalDnsHostnamePrefix": {
-      "type": "string",
-      "defaultValue": "m11",
-      "metadata": {
-        "description": "External DNS Hostname Prefix"
-      }
-    },
     "graphDataStoreVirtualMachineOSDiskSize": {
       "type": "int",
       "defaultValue": 128,
@@ -271,21 +233,18 @@
     },
     "hubResourceGroupName": {
       "type": "string",
-      "defaultValue": "es1-rg-hub-dev-va",
       "metadata": {
         "description": "Hub Resource Group Name"
       }
     },
     "hubSubscriptionId": {
       "type": "string",
-      "defaultValue": "f4972a61-1083-4904-a4e2-a790107320bf",
       "metadata": {
         "description": "Hub Subscription Id"
       }
     },
     "hubVirtualNetworkName": {
       "type": "string",
-      "defaultValue": "es1-vnet-hub-dev-va",
       "metadata": {
         "description": "Hub Virtual Network Name"
       }
@@ -299,7 +258,7 @@
     },
     "isObjectDataStoreClustered": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Is Object Data Store Clustered"
       }
@@ -320,7 +279,7 @@
     },
     "joinWindowsDomain": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Join Windows Domain"
       }
@@ -334,7 +293,7 @@
     },
     "logAnalyticsWorkspaceName": {
       "type": "string",
-      "defaultValue": "es1-log-operations-dev-va",
+      "defaultValue": "",
       "metadata": {
         "description": "Log Analytics Workspace Name"
       }
@@ -376,8 +335,8 @@
     },
     "numberOfObjectDataStoreVirtualMachines": {
       "type": "int",
-      "defaultValue": 3,
-      "minValue": 3,
+      "defaultValue": 1,
+      "minValue": 1,
       "metadata": {
         "description": "Number of object data store virtual machines"
       }
@@ -417,7 +376,7 @@
     },
     "ouPath": {
       "type": "string",
-      "defaultValue": "OU=ESRI;DC=mikedzikowski;DC=com",
+      "defaultValue": "",
       "metadata": {
         "description": "OU Path if using domain join for the virtual machines."
       }
@@ -431,14 +390,23 @@
     },
     "portalLicenseFile": {
       "type": "string",
-      "defaultValue": "[variables('$fxv#0')]",
       "metadata": {
         "description": "Portal License File"
       }
     },
     "portalLicenseUserTypeId": {
       "type": "string",
-      "defaultValue": "creatorUT",
+      "allowedValues": [
+        "creatorUT",
+        "editorUT",
+        "fieldWorkerUT",
+        "GISProfessionalAdvUT",
+        "GISProfessionalBasicUT",
+        "GISProfessionalStdUT",
+        "IndoorsUserUT",
+        "insightsAnalystUT",
+        "viewerUT"
+      ],
       "metadata": {
         "description": "Portal License User Type Id"
       }
@@ -470,23 +438,14 @@
     },
     "primarySiteAdministratorAccountUserName": {
       "type": "string",
-      "defaultValue": "sadmin",
       "metadata": {
         "description": "Primary Site Administrator Account User Name"
       }
     },
     "resourcePrefix": {
       "type": "string",
-      "defaultValue": "tr3",
       "metadata": {
         "description": "Resource Prefix"
-      }
-    },
-    "resourceSuffix": {
-      "type": "string",
-      "defaultValue": "m11",
-      "metadata": {
-        "description": "Resource Suffix"
       }
     },
     "secondaryDnsHostName": {
@@ -503,8 +462,7 @@
       }
     },
     "serverLicenseFile": {
-      "type": "string",
-      "defaultValue": "[variables('$fxv#1')]"
+      "type": "string"
     },
     "spatiotemporalBigDataStoreVirtualMachineOSDiskSize": {
       "type": "int",
@@ -523,8 +481,7 @@
       ]
     },
     "spokelogAnalyticsWorkspaceResourceId": {
-      "type": "string",
-      "defaultValue": "/subscriptions/f4972a61-1083-4904-a4e2-a790107320bf/resourceGroups/es1-rg-operations-dev-va/providers/Microsoft.OperationalInsights/workspaces/es1-log-operations-dev-va"
+      "type": "string"
     },
     "tags": {
       "type": "object",
@@ -551,14 +508,12 @@
     },
     "useAzureFiles": {
       "type": "bool",
-      "defaultValue": true,
       "metadata": {
         "description": "Use cloud storage value"
       }
     },
     "useCloudStorage": {
       "type": "bool",
-      "defaultValue": true,
       "metadata": {
         "description": "useCloudStorage value"
       }
@@ -591,37 +546,49 @@
     },
     "virtualNetworkAddressPrefix": {
       "type": "string",
-      "defaultValue": "172.0.0.0/16",
       "metadata": {
         "description": "The virtual network address prefix"
       }
     },
     "windowsDomainAdministratorPassword": {
       "type": "securestring",
+      "defaultValue": "",
       "metadata": {
         "description": "The password for the Windows domain administrator account."
       }
     },
     "windowsDomainAdministratorUserName": {
       "type": "string",
-      "defaultValue": "esri",
+      "defaultValue": "",
       "metadata": {
         "description": "The username for the Windows domain administrator account."
       }
     },
     "windowsDomainName": {
       "type": "string",
-      "defaultValue": "mikedzikowski.com",
+      "defaultValue": "",
       "metadata": {
         "description": "The name of the Windows domain."
       }
     },
     "workloadSubscriptionId": {
       "type": "string",
-      "defaultValue": "f4972a61-1083-4904-a4e2-a790107320bf",
+      "defaultValue": "",
       "metadata": {
         "description": "The GUID of the workload subscription."
       }
+    },
+    "certificatePassword": {
+      "type": "securestring"
+    },
+    "certificateFileName": {
+      "type": "string"
+    },
+    "hubStorageAccountName": {
+      "type": "string"
+    },
+    "hubContainerName": {
+      "type": "string"
     }
   },
   "variables": {
@@ -667,13 +634,34 @@
         "input": "[format('vm-esri-tc-{0}', range(0, parameters('numberOfTileCacheDataStoreVirtualMachineNames'))[copyIndex('tileCacheDataStoreVirtualMachines')])]"
       }
     ],
-    "$fxv#0": "eyJNeUVzcmkiOnsidmVyc2lvbiI6IjExLjEiLCJkZWZpbml0aW9ucyI6eyJ1c2VyVHlwZXMiOlt7ImlkIjoiY3JlYXRvclVUIiwibmFtZSI6IkNyZWF0b3IiLCJkZXNjcmlwdGlvbiI6IkNyZWF0b3IiLCJsZXZlbCI6IjIiLCJpc0VzcmlEZWZhdWx0Ijp0cnVlLCJhcHBzIjpbeyJpc0FwcEJ1bmRsZSI6ZmFsc2UsImlkIjoicnVudGltZXN0YW5kYXJkIiwiZW50aXRsZW1lbnRzIjpbInJ1bnRpbWVzdGFuZGFyZCJdfSx7ImlzQXBwQnVuZGxlIjp0cnVlLCJpZCI6Im9mZmljZUFwcHNBQiIsImVudGl0bGVtZW50cyI6W119LHsiaXNBcHBCdW5kbGUiOnRydWUsImlkIjoiZXNzZW50aWFsQXBwc0FCIiwiZW50aXRsZW1lbnRzIjpbXX0seyJpc0FwcEJ1bmRsZSI6dHJ1ZSwiaWQiOiJmaWVsZEFwcHNBQiIsImVudGl0bGVtZW50cyI6W119XX1dLCJhcHBCdW5kbGVzIjpbeyJuYW1lIjoiT2ZmaWNlIEFwcHMiLCJkZXNjcmlwdGlvbiI6Ik9mZmljZSBBcHBzIiwiYXBwQnVuZGxlSXRlbUlkIjoib2ZmaWNlQXBwc0FCIiwiYXBwcyI6W3siaWQiOiJtYXBzZm9yT2ZmaWNlIiwiZW50aXRsZW1lbnRzIjpbIm1hcHNmb3JPZmZpY2UiXX0seyJpZCI6Im1hcHNmb3JTaGFyZXBvaW50IiwiZW50aXRsZW1lbnRzIjpbIm1hcHNmb3JTaGFyZXBvaW50Il19XX0seyJuYW1lIjoiRXNzZW50aWFsIEFwcHMiLCJkZXNjcmlwdGlvbiI6IkVzc2VudGlhbCBBcHBzIiwiYXBwQnVuZGxlSXRlbUlkIjoiZXNzZW50aWFsQXBwc0FCIiwiYXBwcyI6W3siaWQiOiJhcmNnaXNhZG9iZWNjIiwiZW50aXRsZW1lbnRzIjpbImFyY2dpc2Fkb2JlY2MiXX0seyJpZCI6ImFyY2dpc3Bvd2VyYmkiLCJlbnRpdGxlbWVudHMiOlsiYXJjZ2lzcG93ZXJiaSJdfSx7ImlkIjoiUXVpY2tDYXB0dXJlV2ViRGVzaWduZXIiLCJlbnRpdGxlbWVudHMiOlsiUXVpY2tDYXB0dXJlV2ViRGVzaWduZXIiXX0seyJpZCI6ImV4cGVyaWVuY2VCdWlsZGVyIiwiZW50aXRsZW1lbnRzIjpbImV4cGVyaWVuY2VCdWlsZGVyIl19LHsiaWQiOiJhcmNnaXNzdG9yeW1hcHMiLCJlbnRpdGxlbWVudHMiOlsiYXJjZ2lzc3RvcnltYXBzIl19LHsiaWQiOiJIdWJmb3JBcmNHSVMiLCJlbnRpdGxlbWVudHMiOlsiSHViZm9yQXJjR0lTIl19LHsiaWQiOiJ3ZWJhcHBidWlsZGVyIiwiZW50aXRsZW1lbnRzIjpbIndlYmFwcGJ1aWxkZXIiXX0seyJpZCI6InN0b3J5bWFwcyIsImVudGl0bGVtZW50cyI6WyJzdG9yeW1hcHMiXX0seyJpZCI6ImFwcHN0dWRpbyIsImVudGl0bGVtZW50cyI6WyJhcHBzdHVkaW8iXX0seyJpZCI6Im9wc2Rhc2hib2FyZCIsImVudGl0bGVtZW50cyI6WyJvcHNkYXNoYm9hcmQiXX0seyJpZCI6Im9yZ3dlYnNpdGUiLCJlbnRpdGxlbWVudHMiOlsib3Jnd2Vic2l0ZSJdfSx7ImlkIjoiZGFzaGJvYXJkcyIsImVudGl0bGVtZW50cyI6WyJkYXNoYm9hcmRzIl19LHsiaWQiOiJhcmNnaXN3ZWJBcHBzIiwiZW50aXRsZW1lbnRzIjpbImluc3RhbnRhcHBzIiwic2NlbmVWaWV3ZXIiLCJtYXBWaWV3ZXIiLCJwcmVzZW50YXRpb25BcHAiLCJhY3Rpdml0eURhc2hib2FyZCIsInRlbXBsYXRlcyJdfV19LHsibmFtZSI6IkZpZWxkIEFwcHMiLCJkZXNjcmlwdGlvbiI6IkZpZWxkIEFwcHMiLCJhcHBCdW5kbGVJdGVtSWQiOiJmaWVsZEFwcHNBQiIsImFwcHMiOlt7ImlkIjoiZmllbGRtYXBzIiwiZW50aXRsZW1lbnRzIjpbImZpZWxkbWFwcyJdfSx7ImlkIjoid29ya2ZvcmNlIiwiZW50aXRsZW1lbnRzIjpbIndvcmtmb3JjZSJdfSx7ImlkIjoiY29sbGVjdG9yIiwiZW50aXRsZW1lbnRzIjpbImNvbGxlY3RvciJdfSx7ImlkIjoic3VydmV5MTIzIiwiZW50aXRsZW1lbnRzIjpbInN1cnZleTEyMyJdfSx7ImlkIjoiUXVpY2tDYXB0dXJlIiwiZW50aXRsZW1lbnRzIjpbIlF1aWNrQ2FwdHVyZSJdfV19XX0sInByb3Zpc2lvbiI6eyJleHRlbnNpb25zIjpbXSwidXNlclR5cGVzIjpbeyJpZCI6ImNyZWF0b3JVVCIsIm1heFVzZXJzIjoxLCJzdGFydERhdGUiOjE2OTExMDcyMDAwMDAsImFwcHMiOm51bGx9LHsiaWQiOiJjcmVhdG9yVVQiLCJtYXhVc2VycyI6MCwic3RhcnREYXRlIjoxNzE3NDU5MjAwMDAwLCJhcHBzIjpudWxsfV0sImFwcEJ1bmRsZXMiOltdLCJhcHBzIjpbXX0sInBvcnRhbENhcGFiaWxpdGllcyI6W10sImxpY2Vuc2VNYW5hZ2VtZW50IjpudWxsLCJmaWxlSWQiOjQyNzY1Mn0sInNpZ25hdHVyZSI6Im9jZ2NQd1poajlpVVFkTnZVc0hJaFkrNCtRb0RMcUhlZ1kvRWdaMFVKRnJwcDArRmRZUU5meGNRelJMOG9MdWcwQ0trNXVJREdlZlFCczhTZVBqSm84Y2JlZDd1VE9ibHhEZjhoWXRPOTU3SkRvU1hDWU5zOWVRVCtISGY1K0YwbFpwbkhLaFFXZ0RWQVUwK1VibXB0RGRFbUZQTk9mM1g4MUlIdktYYmVBQT0ifQ==",
-    "$fxv#1": "Ly8gQXJjR0lTR0lTU2VydmVyQWR2YW5jZWRfQXJjR0lTU2VydmVyXzEzNTc4NTQucHJ2Yw0KDQovL1Byb3Zpc2lvbg0KUHJvdmlzaW9uIElEPTExMjcxOUEwLUQ0NDItNDI1NC1CQTBDM0YxRDA1NzQ0RDE1DQpDb21tZW50PQ0KDQoNCi8vIFVzZXIgSW5mb3JtYXRpb24NCkZpcnN0IE5hbWU9TWF0dA0KTGFzdCBOYW1lPUhhbGxlbmJvcmcNCk9yZ2FuaXphdGlvbj1NaWNyb3NvZnQgQ29ycA0KRGVwYXJ0bWVudD1TdXBwbHkgQ2hhaW4gJiBFbmVyZ3kgRGVwdA0KRW1haWw9bWhhbGxlbmJvcmdAbWljcm9zb2Z0LmNvbQ0KQWRkcmVzcyAxPTEgTWljcm9zb2Z0IFdheQ0KQ2l0eT1SZWRtb25kDQpTdGF0ZS9Qcm92aW5jZT1XQQ0KTG9jYXRpb24gQ29kZT1VUw0KTG9jYXRpb249VVMNClppcC9Qb3N0YWwgQ29kZT05ODA1Mi04MzAwDQpQaG9uZSBOdW1iZXI9KzEgKDc4MSkgNDY0MTQzMA0KLy8gVmVyc2lvbj0xMS4xDQoNCi8vIEZlYXR1cmVzIGFuZCBhdXRob3JpemF0aW9uIG51bWJlcnMNCkFyY0dJUyBTZXJ2ZXI9RUNQMDExMTM3OTM2DQo=",
-    "applicationGatewayName": "[format('ag-esri-{0}', parameters('resourceSuffix'))]",
-    "availabilitySetName": "[format('avset-esri-{0}', parameters('resourceSuffix'))]",
+    "resourceSuffix": "[parameters('resourcePrefix')]",
+    "externalDnsHostnamePrefix": "[parameters('resourcePrefix')]",
+    "applicationGatewayName": "[format('ag-esri-{0}', variables('resourceSuffix'))]",
+    "availabilitySetName": "[format('avset-esri-{0}', variables('resourceSuffix'))]",
     "container": "artifacts",
-    "dataStoreTypesForBaseDeploymentServers": "[join(parameters('dataStoreTypesForBaseDeployment'), ',')]",
+    "keyVaultCertificatesOfficer": "[resourceId('Microsoft.Authorization/roleDefinitions', 'a4417e6f-fecd-4de8-b567-7b0420556985')]",
+    "keyVaultName": "[format('kv-esri-{0}', variables('resourceSuffix'))]",
+    "keyVaultSecretsOfficer": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7')]",
+    "networkInterfaceName": "[format('nic-esri-{0}', variables('resourceSuffix'))]",
+    "portalContext": "portal",
+    "portalLicenseFileName": "portalLicense.json",
+    "privatelink_blob_name": "[format('privatelink.blob.{0}', environment().suffixes.storage)]",
+    "privatelink_keyvaultDns_name": "[replace(format('privatelink{0}', environment().suffixes.keyvaultDns), 'vault', 'vaultcore')]",
+    "publicIpAddressName": "[format('pip-esri-{0}', variables('resourceSuffix'))]",
+    "resourceGroupName": "[format('rg-esri-enterprise-{0}', variables('resourceSuffix'))]",
+    "serverContext": "server",
+    "serverLicenseFileName": "serverLicense.prvc",
+    "subscriptionId": "[subscription().subscriptionId]",
+    "userAssignedManagedIdentityName": "[format('uami-esri-{0}', variables('resourceSuffix'))]",
+    "virtualMachineName": "[format('vm-esri-{0}', variables('resourceSuffix'))]",
     "dataStoreVirtualMachineNames": "[join(variables('dataStoreVirtualMachines'), ',')]",
+    "fileShareVirtualMachineName": "[join(variables('fileShareVirtualMachines'), ',')]",
+    "graphDataStoreVirtualMachineNames": "[join(variables('graphDataStoreVirtualMachines'), ',')]",
+    "objectDataStoreVirtualMachineNames": "[join(variables('objectDataStoreVirtualMachines'), ',')]",
+    "portalVirtualMachineNames": "[join(variables('portalVirtualMachines'), ',')]",
+    "serverVirtualMachineNames": "[join(variables('serverVirtualMachines'), ',')]",
+    "spatiotemporalBigDataStoreVirtualMachineNames": "[join(variables('spatiotemporalBigDataStoreVirtualMachines'), ',')]",
+    "tileCacheDataStoreVirtualMachineNames": "[join(variables('tileCacheDataStoreVirtualMachines'), ',')]",
     "dscDataStoreFunction": "DataStoreConfiguration",
     "dscGraphDataStoreFunction": "GraphDataStoreConfiguration",
     "dscObjectDataStoreFunction": "ObjectDataStoreConfiguration",
@@ -682,29 +670,7 @@
     "dscSingleTierConfiguration": "BaseDeploymentSingleTierConfiguration",
     "dscsSatiotemporalBigDataStoreFunction": "SpatiotemporalBigDataStoreConfiguration",
     "dscTileCacheDataStoreDscFunction": "TileCacheDataStoreConfiguration",
-    "fileShareDscScriptFunction": "FileShareConfiguration",
-    "fileShareVirtualMachineName": "[join(variables('fileShareVirtualMachines'), ',')]",
-    "graphDataStoreVirtualMachineNames": "[join(variables('graphDataStoreVirtualMachines'), ',')]",
-    "keyVaultCertificatesOfficer": "[resourceId('Microsoft.Authorization/roleDefinitions', 'a4417e6f-fecd-4de8-b567-7b0420556985')]",
-    "keyVaultName": "[format('kv-esri-{0}', parameters('resourceSuffix'))]",
-    "keyVaultSecretsOfficer": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7')]",
-    "networkInterfaceName": "[format('nic-esri-{0}', parameters('resourceSuffix'))]",
-    "objectDataStoreVirtualMachineNames": "[join(variables('objectDataStoreVirtualMachines'), ',')]",
-    "portalContext": "portal",
-    "portalLicenseFileName": "ArcGIS_Enterprise_Portal_111_427652_20230804.json",
-    "portalVirtualMachineNames": "[join(variables('portalVirtualMachines'), ',')]",
-    "privatelink_blob_name": "[format('privatelink.blob.{0}', environment().suffixes.storage)]",
-    "privatelink_keyvaultDns_name": "[replace(format('privatelink{0}', environment().suffixes.keyvaultDns), 'vault', 'vaultcore')]",
-    "publicIpAddressName": "[format('pip-esri-{0}', parameters('resourceSuffix'))]",
-    "resourceGroupName": "[format('rg-esri-enterprise-{0}', parameters('resourceSuffix'))]",
-    "serverContext": "server",
-    "serverLicenseFileName": "ArcGISGISServerAdvanced_ArcGISServer_1357854.prvc",
-    "serverVirtualMachineNames": "[join(variables('serverVirtualMachines'), ',')]",
-    "spatiotemporalBigDataStoreVirtualMachineNames": "[join(variables('spatiotemporalBigDataStoreVirtualMachines'), ',')]",
-    "subscriptionId": "[subscription().subscriptionId]",
-    "tileCacheDataStoreVirtualMachineNames": "[join(variables('tileCacheDataStoreVirtualMachines'), ',')]",
-    "userAssignedManagedIdentityName": "[format('uami-esri-{0}', parameters('resourceSuffix'))]",
-    "virtualMachineName": "[format('vm-esri-{0}', parameters('resourceSuffix'))]"
+    "fileShareDscScriptFunction": "FileShareConfiguration"
   },
   "resources": [
     {
@@ -713,6 +679,73 @@
       "name": "[variables('resourceGroupName')]",
       "location": "[parameters('location')]",
       "tags": "[parameters('tags')]"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('deploy-single-tier-datastore-types-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[variables('subscriptionId')]",
+      "resourceGroup": "[variables('resourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "enableSpatiotemporalBigDataStore": {
+            "value": "[parameters('enableSpatiotemporalBigDataStore')]"
+          },
+          "enableTileCacheDataStore": {
+            "value": "[parameters('enableTileCacheDataStore')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.25.53.49325",
+              "templateHash": "5270944557613161485"
+            }
+          },
+          "parameters": {
+            "enableTileCacheDataStore": {
+              "type": "bool",
+              "defaultValue": true
+            },
+            "enableSpatiotemporalBigDataStore": {
+              "type": "bool",
+              "defaultValue": false
+            }
+          },
+          "variables": {
+            "copy": [
+              {
+                "name": "dataStoreTypesForSingleTier",
+                "count": "[length(variables('singleTierDataStoreTypes'))]",
+                "input": "[if(or(or(equals(variables('singleTierDataStoreTypes')[copyIndex('dataStoreTypesForSingleTier')], 'Relational'), equals(variables('singleTierDataStoreTypes')[copyIndex('dataStoreTypesForSingleTier')], 'TileCache')), equals(variables('singleTierDataStoreTypes')[copyIndex('dataStoreTypesForSingleTier')], 'SpatioTemporal')), variables('singleTierDataStoreTypes')[copyIndex('dataStoreTypesForSingleTier')], 'Relational')]"
+              }
+            ],
+            "singleTierDataStoreTypes": [
+              "Relational",
+              "[if(parameters('enableTileCacheDataStore'), 'TileCache', 'Relational')]",
+              "[if(parameters('enableSpatiotemporalBigDataStore'), 'SpatioTemporal', 'Relational')]"
+            ],
+            "dataStoreTypesForBaseDeployment": "[union(variables('singleTierDataStoreTypes'), variables('dataStoreTypesForSingleTier'))]"
+          },
+          "resources": [],
+          "outputs": {
+            "dataStoreTypesForBaseDeploymentServers": {
+              "type": "string",
+              "value": "[join(variables('dataStoreTypesForBaseDeployment'), ',')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]"
+      ]
     },
     {
       "type": "Microsoft.Resources/deployments",
@@ -782,6 +815,9 @@
           },
           "workloadSubscriptionId": {
             "value": "[parameters('workloadSubscriptionId')]"
+          },
+          "joinWindowsDomain": {
+            "value": "[parameters('joinWindowsDomain')]"
           }
         },
         "template": {
@@ -790,8 +826,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "3553861596988713872"
+              "version": "0.25.53.49325",
+              "templateHash": "15689759985796572441"
             }
           },
           "parameters": {
@@ -871,7 +907,7 @@
             },
             "workloadName": {
               "type": "string",
-              "defaultValue": "esr"
+              "defaultValue": "esri"
             },
             "workloadSubscriptionId": {
               "type": "string"
@@ -884,6 +920,9 @@
             },
             "defaultSubnetAddressPrefix": {
               "type": "string"
+            },
+            "joinWindowsDomain": {
+              "type": "bool"
             }
           },
           "variables": {
@@ -944,6 +983,9 @@
                   },
                   "vNetDnsServers": {
                     "value": "[parameters('vNetDnsServers')]"
+                  },
+                  "joinWindowsDomain": {
+                    "value": "[parameters('joinWindowsDomain')]"
                   }
                 },
                 "template": {
@@ -952,8 +994,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "16290412611536015111"
+                      "version": "0.25.53.49325",
+                      "templateHash": "7888736618865067370"
                     }
                   },
                   "parameters": {
@@ -989,6 +1031,9 @@
                     },
                     "vNetDnsServers": {
                       "type": "array"
+                    },
+                    "joinWindowsDomain": {
+                      "type": "bool"
                     }
                   },
                   "resources": [
@@ -1004,7 +1049,7 @@
                             "[parameters('virtualNetworkAddressPrefix')]"
                           ]
                         },
-                        "dhcpOptions": "[if(not(equals(parameters('vNetDnsServers'), null())), createObject('dnsServers', parameters('vNetDnsServers')), null())]",
+                        "dhcpOptions": "[if(and(not(equals(parameters('vNetDnsServers'), null())), equals(parameters('joinWindowsDomain'), true())), createObject('dnsServers', parameters('vNetDnsServers')), null())]",
                         "subnets": [
                           {
                             "name": "default",
@@ -1108,8 +1153,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.24.24.22086",
-                              "templateHash": "13414905854231628944"
+                              "version": "0.25.53.49325",
+                              "templateHash": "1726237017278964707"
                             }
                           },
                           "parameters": {
@@ -1248,8 +1293,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "1352997920612289656"
+                      "version": "0.25.53.49325",
+                      "templateHash": "16252707641537943975"
                     }
                   },
                   "parameters": {
@@ -1294,8 +1339,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.24.24.22086",
-                              "templateHash": "9853575474833495545"
+                              "version": "0.25.53.49325",
+                              "templateHash": "13171060180511860684"
                             }
                           },
                           "parameters": {
@@ -1360,8 +1405,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "2058971036831358476"
+                      "version": "0.25.53.49325",
+                      "templateHash": "9196694096178430314"
                     }
                   },
                   "parameters": {
@@ -1403,8 +1448,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.24.24.22086",
-                              "templateHash": "9853575474833495545"
+                              "version": "0.25.53.49325",
+                              "templateHash": "13171060180511860684"
                             }
                           },
                           "parameters": {
@@ -1464,8 +1509,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "3850477028148266020"
+                      "version": "0.25.53.49325",
+                      "templateHash": "1143091436527176685"
                     }
                   },
                   "parameters": {
@@ -1569,8 +1614,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "16693295535307781768"
+                      "version": "0.25.53.49325",
+                      "templateHash": "11415464425329332848"
                     }
                   },
                   "parameters": {
@@ -1751,8 +1796,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.24.24.22086",
-                              "templateHash": "8686326864657481429"
+                              "version": "0.25.53.49325",
+                              "templateHash": "15536832716681446548"
                             }
                           },
                           "parameters": {
@@ -1829,8 +1874,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "17349871984393503749"
+                      "version": "0.25.53.49325",
+                      "templateHash": "3655671661053884718"
                     }
                   },
                   "parameters": {
@@ -2013,8 +2058,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "17398199403731213097"
+              "version": "0.25.53.49325",
+              "templateHash": "13063222660422489809"
             }
           },
           "parameters": {
@@ -2093,8 +2138,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "17061162659983741932"
+              "version": "0.25.53.49325",
+              "templateHash": "12459413568187234865"
             }
           },
           "parameters": {
@@ -2136,7 +2181,7 @@
             {
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2023-01-01",
-              "name": "[format('{0}esri', variables('uniqueStorageName'))]",
+              "name": "[format('saesri{0}', variables('uniqueStorageName'))]",
               "location": "[parameters('location')]",
               "tags": "[if(contains(parameters('tags'), 'Microsoft.Storage/storageAccounts'), parameters('tags')['Microsoft.Storage/storageAccounts'], createObject())]",
               "sku": {
@@ -2166,7 +2211,7 @@
               "condition": "[parameters('useCloudStorage')]",
               "type": "Microsoft.Storage/storageAccounts/fileServices",
               "apiVersion": "2023-01-01",
-              "name": "[format('{0}/{1}', format('{0}esri', variables('uniqueStorageName')), 'default')]",
+              "name": "[format('{0}/{1}', format('saesri{0}', variables('uniqueStorageName')), 'default')]",
               "properties": {
                 "protocolSettings": {
                   "smb": {}
@@ -2180,80 +2225,80 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', format('{0}esri', variables('uniqueStorageName')))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', format('saesri{0}', variables('uniqueStorageName')))]"
               ]
             },
             {
               "condition": "[parameters('useCloudStorage')]",
               "type": "Microsoft.Storage/storageAccounts/queueServices",
               "apiVersion": "2023-01-01",
-              "name": "[format('{0}/{1}', format('{0}esri', variables('uniqueStorageName')), 'default')]",
+              "name": "[format('{0}/{1}', format('saesri{0}', variables('uniqueStorageName')), 'default')]",
               "properties": {
                 "cors": {
                   "corsRules": []
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', format('{0}esri', variables('uniqueStorageName')))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', format('saesri{0}', variables('uniqueStorageName')))]"
               ]
             },
             {
               "condition": "[parameters('useCloudStorage')]",
               "type": "Microsoft.Storage/storageAccounts/tableServices",
               "apiVersion": "2023-01-01",
-              "name": "[format('{0}/{1}', format('{0}esri', variables('uniqueStorageName')), 'default')]",
+              "name": "[format('{0}/{1}', format('saesri{0}', variables('uniqueStorageName')), 'default')]",
               "properties": {
                 "cors": {
                   "corsRules": []
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', format('{0}esri', variables('uniqueStorageName')))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', format('saesri{0}', variables('uniqueStorageName')))]"
               ]
             },
             {
               "condition": "[parameters('useCloudStorage')]",
               "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
               "apiVersion": "2023-01-01",
-              "name": "[format('{0}/{1}/{2}', format('{0}esri', variables('uniqueStorageName')), 'default', parameters('fileShareName'))]",
+              "name": "[format('{0}/{1}/{2}', format('saesri{0}', variables('uniqueStorageName')), 'default', parameters('fileShareName'))]",
               "properties": {
                 "accessTier": "TransactionOptimized",
                 "shareQuota": 5120,
                 "enabledProtocols": "SMB"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', format('{0}esri', variables('uniqueStorageName')), 'default')]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', format('saesri{0}', variables('uniqueStorageName')), 'default')]"
               ]
             },
             {
               "type": "Microsoft.Storage/storageAccounts/blobServices",
               "apiVersion": "2021-02-01",
-              "name": "[format('{0}/{1}', format('{0}esri', variables('uniqueStorageName')), 'default')]",
+              "name": "[format('{0}/{1}', format('saesri{0}', variables('uniqueStorageName')), 'default')]",
               "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', format('{0}esri', variables('uniqueStorageName')))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', format('saesri{0}', variables('uniqueStorageName')))]"
               ]
             },
             {
               "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
               "apiVersion": "2021-02-01",
-              "name": "[format('{0}/{1}/{2}', format('{0}esri', variables('uniqueStorageName')), 'default', parameters('containerName'))]",
+              "name": "[format('{0}/{1}/{2}', format('saesri{0}', variables('uniqueStorageName')), 'default', parameters('containerName'))]",
               "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', format('{0}esri', variables('uniqueStorageName')), 'default')]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', format('saesri{0}', variables('uniqueStorageName')), 'default')]"
               ]
             }
           ],
           "outputs": {
             "storageEndpoint": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}esri', variables('uniqueStorageName'))), '2023-01-01').primaryEndpoints.blob]"
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('saesri{0}', variables('uniqueStorageName'))), '2023-01-01').primaryEndpoints.blob]"
             },
             "storageAccountName": {
               "type": "string",
-              "value": "[format('{0}esri', variables('uniqueStorageName'))]"
+              "value": "[format('saesri{0}', variables('uniqueStorageName'))]"
             },
             "cloudStorageAccountCredentialsUserName": {
               "type": "string",
-              "value": "[format('{0}{1}', format('{0}esri', variables('uniqueStorageName')), replace(split(reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}esri', variables('uniqueStorageName'))), '2023-01-01').primaryEndpoints.blob, format('https://{0}', format('{0}esri', variables('uniqueStorageName'))))[1], '/', ''))]"
+              "value": "[format('{0}{1}', format('saesri{0}', variables('uniqueStorageName')), replace(split(reference(resourceId('Microsoft.Storage/storageAccounts', format('saesri{0}', variables('uniqueStorageName'))), '2023-01-01').primaryEndpoints.blob, format('https://{0}', format('saesri{0}', variables('uniqueStorageName'))))[1], '/', ''))]"
             }
           }
         }
@@ -2276,7 +2321,7 @@
         "mode": "Incremental",
         "parameters": {
           "hostname": {
-            "value": "[parameters('externalDnsHostnamePrefix')]"
+            "value": "[variables('externalDnsHostnamePrefix')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -2297,8 +2342,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "6179697160012144824"
+              "version": "0.25.53.49325",
+              "templateHash": "10597862567641223345"
             }
           },
           "parameters": {
@@ -2392,8 +2437,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "6084140178254085459"
+              "version": "0.25.53.49325",
+              "templateHash": "5148179938108229521"
             }
           },
           "parameters": {
@@ -2459,8 +2504,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "6084140178254085459"
+              "version": "0.25.53.49325",
+              "templateHash": "5148179938108229521"
             }
           },
           "parameters": {
@@ -2526,8 +2571,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "6084140178254085459"
+              "version": "0.25.53.49325",
+              "templateHash": "5148179938108229521"
             }
           },
           "parameters": {
@@ -2593,8 +2638,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "6084140178254085459"
+              "version": "0.25.53.49325",
+              "templateHash": "5148179938108229521"
             }
           },
           "parameters": {
@@ -2660,8 +2705,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "6084140178254085459"
+              "version": "0.25.53.49325",
+              "templateHash": "5148179938108229521"
             }
           },
           "parameters": {
@@ -2727,8 +2772,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "6084140178254085459"
+              "version": "0.25.53.49325",
+              "templateHash": "5148179938108229521"
             }
           },
           "parameters": {
@@ -2794,8 +2839,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "6084140178254085459"
+              "version": "0.25.53.49325",
+              "templateHash": "5148179938108229521"
             }
           },
           "parameters": {
@@ -2881,15 +2926,11 @@
           "storageAccountName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
-          "subnetResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
-          },
+          "subnetResourceId": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value), createObject('value', 'none'))]",
           "tags": {
             "value": "[parameters('tags')]"
           },
-          "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
-          },
+          "userAssignedIdentityResourceId": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value), createObject('value', 'none'))]",
           "virtualMachineName": {
             "value": "[variables('virtualMachineName')]"
           },
@@ -2912,8 +2953,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "12299696823390330851"
+              "version": "0.25.53.49325",
+              "templateHash": "12377944352393046008"
             }
           },
           "parameters": {
@@ -3034,7 +3075,7 @@
                 "publisher": "esri"
               },
               "properties": {
-                "availabilitySet": "[if(not(equals(parameters('serverFunction'), 'fileshare')), variables('availabilitySetId'), null())]",
+                "availabilitySet": "[if(and(not(equals(parameters('serverFunction'), 'fileshare')), equals(parameters('architecture'), 'multitier')), variables('availabilitySetId'), null())]",
                 "hardwareProfile": {
                   "vmSize": "[parameters('virtualMachineSize')]"
                 },
@@ -3183,20 +3224,6 @@
                 "typeHandlerVersion": "1.0",
                 "autoUpgradeMinorVersion": true,
                 "enableAutomaticUpgrade": true
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Compute/virtualMachines/extensions",
-              "apiVersion": "2021-04-01",
-              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'Microsoft.Azure.NetworkWatcher')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "publisher": "Microsoft.Azure.NetworkWatcher",
-                "type": "NetworkWatcherAgentWindows",
-                "typeHandlerVersion": "1.4"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -3280,9 +3307,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-server-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
-          },
+          "availabilitySetName": "[if(equals(parameters('architecture'), 'multitier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-server-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -3335,8 +3360,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "12299696823390330851"
+              "version": "0.25.53.49325",
+              "templateHash": "12377944352393046008"
             }
           },
           "parameters": {
@@ -3457,7 +3482,7 @@
                 "publisher": "esri"
               },
               "properties": {
-                "availabilitySet": "[if(not(equals(parameters('serverFunction'), 'fileshare')), variables('availabilitySetId'), null())]",
+                "availabilitySet": "[if(and(not(equals(parameters('serverFunction'), 'fileshare')), equals(parameters('architecture'), 'multitier')), variables('availabilitySetId'), null())]",
                 "hardwareProfile": {
                   "vmSize": "[parameters('virtualMachineSize')]"
                 },
@@ -3606,20 +3631,6 @@
                 "typeHandlerVersion": "1.0",
                 "autoUpgradeMinorVersion": true,
                 "enableAutomaticUpgrade": true
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Compute/virtualMachines/extensions",
-              "apiVersion": "2021-04-01",
-              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'Microsoft.Azure.NetworkWatcher')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "publisher": "Microsoft.Azure.NetworkWatcher",
-                "type": "NetworkWatcherAgentWindows",
-                "typeHandlerVersion": "1.4"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -3704,9 +3715,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-portal-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
-          },
+          "availabilitySetName": "[if(equals(parameters('architecture'), 'multitier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-portal-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -3759,8 +3768,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "12299696823390330851"
+              "version": "0.25.53.49325",
+              "templateHash": "12377944352393046008"
             }
           },
           "parameters": {
@@ -3881,7 +3890,7 @@
                 "publisher": "esri"
               },
               "properties": {
-                "availabilitySet": "[if(not(equals(parameters('serverFunction'), 'fileshare')), variables('availabilitySetId'), null())]",
+                "availabilitySet": "[if(and(not(equals(parameters('serverFunction'), 'fileshare')), equals(parameters('architecture'), 'multitier')), variables('availabilitySetId'), null())]",
                 "hardwareProfile": {
                   "vmSize": "[parameters('virtualMachineSize')]"
                 },
@@ -4030,20 +4039,6 @@
                 "typeHandlerVersion": "1.0",
                 "autoUpgradeMinorVersion": true,
                 "enableAutomaticUpgrade": true
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Compute/virtualMachines/extensions",
-              "apiVersion": "2021-04-01",
-              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'Microsoft.Azure.NetworkWatcher')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "publisher": "Microsoft.Azure.NetworkWatcher",
-                "type": "NetworkWatcherAgentWindows",
-                "typeHandlerVersion": "1.4"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -4128,9 +4123,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-datastore-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
-          },
+          "availabilitySetName": "[if(equals(parameters('architecture'), 'multitier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-datastore-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -4183,8 +4176,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "12299696823390330851"
+              "version": "0.25.53.49325",
+              "templateHash": "12377944352393046008"
             }
           },
           "parameters": {
@@ -4305,7 +4298,7 @@
                 "publisher": "esri"
               },
               "properties": {
-                "availabilitySet": "[if(not(equals(parameters('serverFunction'), 'fileshare')), variables('availabilitySetId'), null())]",
+                "availabilitySet": "[if(and(not(equals(parameters('serverFunction'), 'fileshare')), equals(parameters('architecture'), 'multitier')), variables('availabilitySetId'), null())]",
                 "hardwareProfile": {
                   "vmSize": "[parameters('virtualMachineSize')]"
                 },
@@ -4454,20 +4447,6 @@
                 "typeHandlerVersion": "1.0",
                 "autoUpgradeMinorVersion": true,
                 "enableAutomaticUpgrade": true
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Compute/virtualMachines/extensions",
-              "apiVersion": "2021-04-01",
-              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'Microsoft.Azure.NetworkWatcher')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "publisher": "Microsoft.Azure.NetworkWatcher",
-                "type": "NetworkWatcherAgentWindows",
-                "typeHandlerVersion": "1.4"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -4607,8 +4586,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "12299696823390330851"
+              "version": "0.25.53.49325",
+              "templateHash": "12377944352393046008"
             }
           },
           "parameters": {
@@ -4729,7 +4708,7 @@
                 "publisher": "esri"
               },
               "properties": {
-                "availabilitySet": "[if(not(equals(parameters('serverFunction'), 'fileshare')), variables('availabilitySetId'), null())]",
+                "availabilitySet": "[if(and(not(equals(parameters('serverFunction'), 'fileshare')), equals(parameters('architecture'), 'multitier')), variables('availabilitySetId'), null())]",
                 "hardwareProfile": {
                   "vmSize": "[parameters('virtualMachineSize')]"
                 },
@@ -4878,20 +4857,6 @@
                 "typeHandlerVersion": "1.0",
                 "autoUpgradeMinorVersion": true,
                 "enableAutomaticUpgrade": true
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Compute/virtualMachines/extensions",
-              "apiVersion": "2021-04-01",
-              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'Microsoft.Azure.NetworkWatcher')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "publisher": "Microsoft.Azure.NetworkWatcher",
-                "type": "NetworkWatcherAgentWindows",
-                "typeHandlerVersion": "1.4"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -4975,7 +4940,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": "[if(parameters('enableSpatiotemporalBigDataStore'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-spatiotemporal-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
+          "availabilitySetName": "[if(and(equals(parameters('architecture'), 'multitier'), parameters('enableSpatiotemporalBigDataStore')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-spatiotemporal-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -5028,8 +4993,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "12299696823390330851"
+              "version": "0.25.53.49325",
+              "templateHash": "12377944352393046008"
             }
           },
           "parameters": {
@@ -5150,7 +5115,7 @@
                 "publisher": "esri"
               },
               "properties": {
-                "availabilitySet": "[if(not(equals(parameters('serverFunction'), 'fileshare')), variables('availabilitySetId'), null())]",
+                "availabilitySet": "[if(and(not(equals(parameters('serverFunction'), 'fileshare')), equals(parameters('architecture'), 'multitier')), variables('availabilitySetId'), null())]",
                 "hardwareProfile": {
                   "vmSize": "[parameters('virtualMachineSize')]"
                 },
@@ -5299,20 +5264,6 @@
                 "typeHandlerVersion": "1.0",
                 "autoUpgradeMinorVersion": true,
                 "enableAutomaticUpgrade": true
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Compute/virtualMachines/extensions",
-              "apiVersion": "2021-04-01",
-              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'Microsoft.Azure.NetworkWatcher')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "publisher": "Microsoft.Azure.NetworkWatcher",
-                "type": "NetworkWatcherAgentWindows",
-                "typeHandlerVersion": "1.4"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -5397,7 +5348,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": "[if(parameters('enableTileCacheDataStore'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-tilecache-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
+          "availabilitySetName": "[if(and(equals(parameters('architecture'), 'multitier'), parameters('enableTileCacheDataStore')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-tilecache-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -5450,8 +5401,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "12299696823390330851"
+              "version": "0.25.53.49325",
+              "templateHash": "12377944352393046008"
             }
           },
           "parameters": {
@@ -5572,7 +5523,7 @@
                 "publisher": "esri"
               },
               "properties": {
-                "availabilitySet": "[if(not(equals(parameters('serverFunction'), 'fileshare')), variables('availabilitySetId'), null())]",
+                "availabilitySet": "[if(and(not(equals(parameters('serverFunction'), 'fileshare')), equals(parameters('architecture'), 'multitier')), variables('availabilitySetId'), null())]",
                 "hardwareProfile": {
                   "vmSize": "[parameters('virtualMachineSize')]"
                 },
@@ -5721,20 +5672,6 @@
                 "typeHandlerVersion": "1.0",
                 "autoUpgradeMinorVersion": true,
                 "enableAutomaticUpgrade": true
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Compute/virtualMachines/extensions",
-              "apiVersion": "2021-04-01",
-              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'Microsoft.Azure.NetworkWatcher')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "publisher": "Microsoft.Azure.NetworkWatcher",
-                "type": "NetworkWatcherAgentWindows",
-                "typeHandlerVersion": "1.4"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -5819,7 +5756,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": "[if(parameters('enableGraphDataStore'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-graph-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
+          "availabilitySetName": "[if(and(equals(parameters('architecture'), 'multitier'), parameters('enableGraphDataStore')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-graph-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -5872,8 +5809,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "12299696823390330851"
+              "version": "0.25.53.49325",
+              "templateHash": "12377944352393046008"
             }
           },
           "parameters": {
@@ -5994,7 +5931,7 @@
                 "publisher": "esri"
               },
               "properties": {
-                "availabilitySet": "[if(not(equals(parameters('serverFunction'), 'fileshare')), variables('availabilitySetId'), null())]",
+                "availabilitySet": "[if(and(not(equals(parameters('serverFunction'), 'fileshare')), equals(parameters('architecture'), 'multitier')), variables('availabilitySetId'), null())]",
                 "hardwareProfile": {
                   "vmSize": "[parameters('virtualMachineSize')]"
                 },
@@ -6143,20 +6080,6 @@
                 "typeHandlerVersion": "1.0",
                 "autoUpgradeMinorVersion": true,
                 "enableAutomaticUpgrade": true
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Compute/virtualMachines/extensions",
-              "apiVersion": "2021-04-01",
-              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'Microsoft.Azure.NetworkWatcher')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "publisher": "Microsoft.Azure.NetworkWatcher",
-                "type": "NetworkWatcherAgentWindows",
-                "typeHandlerVersion": "1.4"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -6241,7 +6164,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": "[if(parameters('enableObjectDataStore'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-odata-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
+          "availabilitySetName": "[if(and(equals(parameters('architecture'), 'multitier'), parameters('enableObjectDataStore')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-odata-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -6294,8 +6217,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "12299696823390330851"
+              "version": "0.25.53.49325",
+              "templateHash": "12377944352393046008"
             }
           },
           "parameters": {
@@ -6416,7 +6339,7 @@
                 "publisher": "esri"
               },
               "properties": {
-                "availabilitySet": "[if(not(equals(parameters('serverFunction'), 'fileshare')), variables('availabilitySetId'), null())]",
+                "availabilitySet": "[if(and(not(equals(parameters('serverFunction'), 'fileshare')), equals(parameters('architecture'), 'multitier')), variables('availabilitySetId'), null())]",
                 "hardwareProfile": {
                   "vmSize": "[parameters('virtualMachineSize')]"
                 },
@@ -6571,20 +6494,6 @@
               ]
             },
             {
-              "type": "Microsoft.Compute/virtualMachines/extensions",
-              "apiVersion": "2021-04-01",
-              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'Microsoft.Azure.NetworkWatcher')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "publisher": "Microsoft.Azure.NetworkWatcher",
-                "type": "NetworkWatcherAgentWindows",
-                "typeHandlerVersion": "1.4"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
-              ]
-            },
-            {
               "condition": "[parameters('enableMonitoring')]",
               "type": "Microsoft.Compute/virtualMachines/extensions",
               "apiVersion": "2023-03-01",
@@ -6653,7 +6562,7 @@
             "value": "[variables('keyVaultCertificatesOfficer')]"
           },
           "keyVaultName": {
-            "value": "[variables('keyVaultName')]"
+            "value": "[take(format('{0}-{1}', variables('keyVaultName'), uniqueString(subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName')), variables('keyVaultName'))), 24)]"
           },
           "keyVaultSecretsOfficerRoleDefinitionResourceId": {
             "value": "[variables('keyVaultSecretsOfficer')]"
@@ -6686,8 +6595,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "16858194243027068177"
+              "version": "0.25.53.49325",
+              "templateHash": "914074942159784023"
             }
           },
           "parameters": {
@@ -6871,8 +6780,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "7643159478700486253"
+              "version": "0.25.53.49325",
+              "templateHash": "5090590128667393654"
             }
           },
           "parameters": {
@@ -6911,6 +6820,67 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
+      "name": "[format('assign-role-sa-02-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[parameters('hubSubscriptionId')]",
+      "resourceGroup": "[parameters('hubResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "principalId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
+          },
+          "storageAccountName": {
+            "value": "[parameters('hubStorageAccountName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.25.53.49325",
+              "templateHash": "5090590128667393654"
+            }
+          },
+          "parameters": {
+            "principalId": {
+              "type": "string"
+            },
+            "storageAccountName": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "roleDefinitionId": "ba92f5b4-2d11-453d-a403-e96b0029c9fe"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('storageAccountName'))]",
+              "name": "[guid(parameters('principalId'), variables('roleDefinitionId'), parameters('storageAccountName'))]",
+              "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]",
+                "principalId": "[parameters('principalId')]",
+                "principalType": "ServicePrincipal"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
       "name": "[format('assign-role-vm-02-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
@@ -6933,8 +6903,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "3444926648128925089"
+              "version": "0.25.53.49325",
+              "templateHash": "7496800676699721325"
             }
           },
           "parameters": {
@@ -6970,7 +6940,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('deploy-artifacts-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('deploy-management-vm-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
@@ -6979,17 +6949,47 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "containerName": {
-            "value": "[variables('container')]"
+          "location": {
+            "value": "[parameters('location')]"
           },
-          "identityId": {
+          "subnetResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "userAssignedIdentityResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+          },
+          "virtualMachineName": {
+            "value": "[take(format('vm-esri-mgmt-{0})', variables('resourceSuffix')), 15)]"
+          },
+          "certificateFileName": {
+            "value": "[parameters('certificateFileName')]"
+          },
+          "certificatePassword": {
+            "value": "[parameters('certificatePassword')]"
+          },
+          "hubContainerName": {
+            "value": "[parameters('hubContainerName')]"
+          },
+          "diskEncryptionSetResourceId": {
+            "value": "[parameters('diskEncryptionSetResourceId')]"
+          },
+          "externalDnsHostname": {
+            "value": "[parameters('externalDnsHostname')]"
+          },
+          "hybridUseBenefit": {
+            "value": false
           },
           "keyVaultName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
-          "location": {
-            "value": "[parameters('location')]"
+          "localAdministratorPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "localAdministratorUsername": {
+            "value": "[parameters('adminUsername')]"
           },
           "portalLicenseFile": {
             "value": "[parameters('portalLicenseFile')]"
@@ -7003,11 +7003,17 @@
           "serverLicenseFileName": {
             "value": "[variables('serverLicenseFileName')]"
           },
-          "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+          "userAssignedIdentityPrincipalId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
           },
-          "tags": {
-            "value": "[parameters('tags')]"
+          "userAssignedIdentityClientId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.clientId.value]"
+          },
+          "hubStorageAccountName": {
+            "value": "[parameters('hubStorageAccountName')]"
+          },
+          "esriStorageAccountName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           }
         },
         "template": {
@@ -7016,21 +7022,48 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "15591137024821901344"
+              "version": "0.25.53.49325",
+              "templateHash": "2626435873311024959"
             }
           },
           "parameters": {
-            "containerName": {
+            "hubContainerName": {
               "type": "string"
             },
-            "identityId": {
+            "diskEncryptionSetResourceId": {
               "type": "string"
             },
-            "keyVaultName": {
-              "type": "string"
+            "hybridUseBenefit": {
+              "type": "bool"
+            },
+            "localAdministratorPassword": {
+              "type": "securestring"
+            },
+            "localAdministratorUsername": {
+              "type": "securestring"
             },
             "location": {
+              "type": "string"
+            },
+            "hubStorageAccountName": {
+              "type": "string"
+            },
+            "subnetResourceId": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            },
+            "userAssignedIdentityClientId": {
+              "type": "string"
+            },
+            "userAssignedIdentityPrincipalId": {
+              "type": "string"
+            },
+            "userAssignedIdentityResourceId": {
+              "type": "string"
+            },
+            "virtualMachineName": {
               "type": "string"
             },
             "portalLicenseFile": {
@@ -7045,75 +7078,307 @@
             "serverLicenseFileName": {
               "type": "string"
             },
-            "storageAccountName": {
+            "keyVaultName": {
               "type": "string"
             },
-            "tags": {
-              "type": "object"
+            "certificatePassword": {
+              "type": "securestring"
             },
-            "utcValue": {
-              "type": "string",
-              "defaultValue": "[utcNow()]"
+            "certificateFileName": {
+              "type": "string"
+            },
+            "externalDnsHostname": {
+              "type": "string"
+            },
+            "esriStorageAccountName": {
+              "type": "string"
             }
-          },
-          "variables": {
-            "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]"
           },
           "resources": [
             {
-              "type": "Microsoft.Resources/deploymentScripts",
-              "apiVersion": "2020-10-01",
-              "name": "licenseFiles",
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2023-04-01",
+              "name": "[format('nic-{0}', parameters('virtualMachineName'))]",
               "location": "[parameters('location')]",
-              "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                  "[format('{0}', parameters('identityId'))]": {}
-                }
-              },
-              "kind": "AzurePowerShell",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject())]",
               "properties": {
-                "arguments": "[format('-Location {0} -portalLicensefile {1} -portalLicenseFileName {2} -serverLicenseFileName {3} -serverLicensefile {4} -StorageAccountName {5} -ContainerName {6} -utcValue {7}', parameters('location'), parameters('portalLicenseFile'), parameters('portalLicenseFileName'), parameters('serverLicenseFileName'), parameters('serverLicenseFile'), parameters('storageAccountName'), parameters('containerName'), parameters('utcValue'))]",
-                "environmentVariables": [],
-                "containerSettings": {},
-                "forceUpdateTag": "[parameters('utcValue')]",
-                "azPowerShellVersion": "8.3",
-                "timeout": "PT30M",
-                "scriptContent": "        param(\r\n        [string]$ContainerName,\r\n        [string]$PortalLicensefile,\r\n        [string]$PortalLicenseFileName,\r\n        [string]$ServerLicensefile,\r\n        [string]$ServerLicenseFileName,\r\n        [string]$StorageAccountName\r\n      )\r\n      New-Item -ItemType File $portalLicenseFileName\r\n      New-Item -ItemType File $serverLicenseFileName\r\n      $plf = \"/mnt/azscripts/azscriptinput/$portalLicenseFileName\"\r\n      $slf = \"/mnt/azscripts/azscriptinput/$serverLicenseFileName\"\r\n      $portalLicense = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($portalLicensefile))\r\n      $portalLicense | Out-File $plf\r\n      $serverLicense = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($serverLicensefile))\r\n      $serverLicense | Out-File $slf\r\n      # upload blobs to container using managed identity assigned to deployment script\r\n      $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -UseConnectedAccount\r\n      Set-AzStorageBlobContent -File $plf -Container $containerName -Blob $portalLicenseFileName -Context $ctx -Force\r\n      Set-AzStorageBlobContent -File $slf -Container $containerName -Blob $serverLicenseFileName -Context $ctx -Force\r\n    ",
-                "cleanupPreference": "OnSuccess",
-                "retentionInterval": "P1D"
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "subnet": {
+                        "id": "[parameters('subnetResourceId')]"
+                      },
+                      "primary": true,
+                      "privateIPAddressVersion": "IPv4"
+                    }
+                  }
+                ],
+                "enableAcceleratedNetworking": true,
+                "enableIPForwarding": false
               }
             },
             {
-              "type": "Microsoft.Resources/deploymentScripts",
-              "apiVersion": "2020-10-01",
-              "name": "createAddCertificate",
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2022-03-01",
+              "name": "[parameters('virtualMachineName')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Resources/deploymentScripts'), parameters('tags')['Microsoft.Resources/deploymentScripts'], createObject())]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                  "[format('{0}', parameters('identityId'))]": {}
+                  "[format('{0}', parameters('userAssignedIdentityResourceId'))]": {}
                 }
               },
-              "kind": "AzurePowerShell",
               "properties": {
-                "arguments": "[format('-Location {0} -KeyVaultName {1} -StorageAccountName {2} -ContainerName {3} -CloudSuffix {4} -utcValue {5}', parameters('location'), parameters('keyVaultName'), parameters('storageAccountName'), parameters('containerName'), variables('cloudSuffix'), parameters('utcValue'))]",
-                "environmentVariables": [],
-                "containerSettings": {},
-                "forceUpdateTag": "[parameters('utcValue')]",
-                "azPowerShellVersion": "8.3",
-                "timeout": "PT30M",
-                "scriptContent": "        param(\r\n        [string]$ContainerName,\r\n        [string]$KeyVaultName,\r\n        [string]$Location,\r\n        [string]$StorageAccountName,\r\n        [string]$CloudSuffix\r\n      )\r\n      # download required files from ESRI github repo\r\n      Invoke-WebRequest https://github.com/Esri/arcgis-azure-templates/raw/main/Releases/11.1/DSC.zip -OutFile ./DSC.zip\r\n      Invoke-WebRequest https://github.com/Esri/arcgis-azure-templates/raw/main/Releases/11.1/GenerateSSLCerts.ps1 -OutFile ./GenerateSSLCerts.ps1\r\n      #Invoke-WebRequest https://github.com/Esri/arcgis-azure-templates/raw/main/SelfSignedCertificates/wildcard.${location}.cloudapp.usgovcloudapi.net.pfx -OutFile ./wildcard.usgovvirginia.cloudapp.usgovcloudapi.net.pfx\r\n      Invoke-WebRequest https://github.com/mikedzikowski/testcert/raw/main/wildcard_mikedzikowski_com.pfx -OutFile ./wildcard_mikedzikowski_com.pfx\r\n      \r\n      # import self-signed certificate into key vault\r\n      $file = \"wildcard_mikedzikowski_com.pfx\"\r\n      $password = ConvertTo-SecureString -String \"miked123\" -AsPlainText -Force\r\n      $cert = Get-Content ./wildcard_mikedzikowski_com.pfx -AsByteStream\r\n      $base64String = ([System.Convert]::ToBase64String($Cert))\r\n      Import-AzKeyVaultCertificate -VaultName $keyVaultName -FilePath ./wildcard_mikedzikowski_com.pfx -Name \"pfx$location\" -Password $password\r\n      Start-Sleep 10\r\n      # export Azure Key Vault certificate to .cer file\r\n      $azKeyVaultCert = Get-AzKeyVaultCertificate -VaultName $keyVaultName -Name \"pfx$location\"\r\n      Write-Output $azKeyVaultCert\r\n      $azKeyVaultCertBytes = $azKeyVaultCert.Certificate.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)\r\n      Write-Output $azKeyVaultCertBytes\r\n      $certificateName = \"wildcardesri.mikedzikowski.com-PublicKey.cer\"\r\n      Write-Output $certificateName\r\n      $cerCertFile = \"/mnt/azscripts/azscriptinput/$certificateName\"\r\n      Write-Output $cerCertFile\r\n      [System.IO.File]::WriteAllBytes($cerCertFile, $azKeyVaultCertBytes)\r\n      if((Test-Path -Path $cerCertFile) -eq $true)\r\n      {\r\n          Write-Host \"Exported certificate to file - $certificateName\"\r\n      }\r\n      else {\r\n          Write-Host \"Public key was not exported\"\r\n      }\r\n      # upload blobs to container using managed identity assigned to deployment script\r\n      $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -UseConnectedAccount\r\n      Set-AzStorageBlobContent -File $certificateName -Container $containerName -Blob $certificateName -Context $ctx -Force\r\n      Set-AzStorageBlobContent -File ./DSC.zip -Container $containerName -Blob DSC.zip -Context $ctx -Force\r\n      Set-AzStorageBlobContent -File ./wildcard_mikedzikowski_com.pfx -Container $containerName -Blob \"wildcard_mikedzikowski_com.pfx\" -Context $ctx -Force\r\n      Set-AzStorageBlobContent -File ./GenerateSSLCerts.ps1 -Container $containerName -Blob GenerateSSLCerts.ps1 -Context $ctx -Force\r\n      $DeploymentScriptOutputs = @{}\r\n      $DeploymentScriptOutputs['text'] = $Base64String\r\n    ",
-                "cleanupPreference": "OnSuccess",
-                "retentionInterval": "P1D"
-              }
+                "hardwareProfile": {
+                  "vmSize": "Standard_D2s_v3"
+                },
+                "osProfile": {
+                  "computerName": "[parameters('virtualMachineName')]",
+                  "adminUsername": "[parameters('localAdministratorUsername')]",
+                  "adminPassword": "[parameters('localAdministratorPassword')]",
+                  "windowsConfiguration": {
+                    "provisionVMAgent": true,
+                    "enableAutomaticUpdates": true,
+                    "patchSettings": {
+                      "patchMode": "AutomaticByOS",
+                      "assessmentMode": "ImageDefault"
+                    }
+                  }
+                },
+                "storageProfile": {
+                  "imageReference": {
+                    "publisher": "MicrosoftWindowsServer",
+                    "offer": "WindowsServer",
+                    "sku": "2022-datacenter-core-g2",
+                    "version": "latest"
+                  },
+                  "osDisk": {
+                    "caching": "ReadWrite",
+                    "createOption": "FromImage",
+                    "deleteOption": "Delete",
+                    "managedDisk": {
+                      "diskEncryptionSet": {
+                        "id": "[parameters('diskEncryptionSetResourceId')]"
+                      },
+                      "storageAccountType": "Premium_LRS"
+                    },
+                    "name": "[format('disk-{0}', parameters('virtualMachineName'))]",
+                    "osType": "Windows"
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', format('nic-{0}', parameters('virtualMachineName')))]",
+                      "properties": {
+                        "deleteOption": "Delete"
+                      }
+                    }
+                  ]
+                },
+                "diagnosticsProfile": {
+                  "bootDiagnostics": {
+                    "enabled": false
+                  }
+                },
+                "securityProfile": {
+                  "encryptionAtHost": true,
+                  "uefiSettings": {
+                    "secureBootEnabled": true,
+                    "vTpmEnabled": true
+                  },
+                  "securityType": "TrustedLaunch"
+                },
+                "licenseType": "[if(parameters('hybridUseBenefit'), 'Windows_Server', null())]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', format('nic-{0}', parameters('virtualMachineName')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines/runCommands",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'rc-azModules')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "treatFailureAsDeploymentFailure": true,
+                "asyncExecution": false,
+                "parameters": [
+                  {
+                    "name": "ContainerName",
+                    "value": "[parameters('hubContainerName')]"
+                  },
+                  {
+                    "name": "StorageAccountName",
+                    "value": "[parameters('hubStorageAccountName')]"
+                  },
+                  {
+                    "name": "StorageEndpoint",
+                    "value": "[environment().suffixes.storage]"
+                  },
+                  {
+                    "name": "UserAssignedIdentityObjectId",
+                    "value": "[parameters('userAssignedIdentityPrincipalId')]"
+                  }
+                ],
+                "source": {
+                  "script": "        param(\r\n          [string]$ContainerName,\r\n          [string]$StorageAccountName,\r\n          [string]$StorageEndpoint,\r\n          [string]$UserAssignedIdentityObjectId\r\n        )\r\n        $ErrorActionPreference = \"Stop\"\r\n        $StorageAccountUrl = \"https://\" + $StorageAccountName + \".blob.\" + $StorageEndpoint + \"/\"\r\n        $TokenUri = \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId\"\r\n        $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token\r\n        $BlobNames = @('az.accounts.2.13.1.nupkg','az.automation.1.9.0.nupkg','az.compute.5.7.0.nupkg','az.resources.6.6.0.nupkg','az.keyvault.4.12.0.nupkg', 'az.storage.5.1.0.nupkg')\r\n        foreach($BlobName in $BlobNames)\r\n        {\r\n          do\r\n          {\r\n              try\r\n              {\r\n                  Write-Output \"Download Attempt $i\"\r\n                  Invoke-WebRequest -Headers @{\"x-ms-version\"=\"2017-11-09\"; Authorization =\"Bearer $AccessToken\"} -Uri \"$StorageAccountUrl$ContainerName/$BlobName\" -OutFile \"$env:windir\\temp\\$BlobName\"\r\n              }\r\n              catch [System.Net.WebException]\r\n              {\r\n                  Start-Sleep -Seconds 60\r\n                  $i++\r\n                  if($i -gt 10){throw}\r\n                  continue\r\n              }\r\n              catch\r\n              {\r\n                  $Output = $_ | select *\r\n                  Write-Output $Output\r\n                  throw\r\n              }\r\n          }\r\n          until(Test-Path -Path $env:windir\\temp\\$BlobName)\r\n          Start-Sleep -Seconds 5\r\n          Unblock-File -Path $env:windir\\temp\\$BlobName\r\n          $BlobZipName = $Blobname.Replace('nupkg','zip')\r\n          Rename-Item -Path $env:windir\\temp\\$BlobName -NewName $BlobZipName\r\n          $BlobNameArray = $BlobName.Split('.')\r\n          $ModuleFolderName = $BlobNameArray[0] + '.' + $BlobNameArray[1]\r\n          $VersionFolderName = $BlobNameArray[2] + '.' + $BlobNameArray[3]+ '.' + $BlobNameArray[4]\r\n          $ModulesDirectory = \"C:\\Program Files\\WindowsPowerShell\\Modules\"\r\n          New-Item -Path $ModulesDirectory -Name $ModuleFolderName -ItemType \"Directory\" -Force\r\n          Expand-Archive -Path $env:windir\\temp\\$BlobZipName -DestinationPath \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\" -Force\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\_rels\" -Force -Recurse\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\package\" -Force -Recurse\r\n          Remove-Item -LiteralPath \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\[Content_Types].xml\" -Force\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\$ModuleFolderName.nuspec\" -Force\r\n        }\r\n        Remove-Item -Path \"$env:windir\\temp\\az*\" -Force\r\n      "
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines/runCommands",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'rc-esriScriptArtifacts')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "treatFailureAsDeploymentFailure": true,
+                "asyncExecution": false,
+                "parameters": [
+                  {
+                    "name": "ContainerName",
+                    "value": "[parameters('hubContainerName')]"
+                  },
+                  {
+                    "name": "Environment",
+                    "value": "[environment().name]"
+                  },
+                  {
+                    "name": "StorageAccountName",
+                    "value": "[parameters('esriStorageAccountName')]"
+                  },
+                  {
+                    "name": "StorageEndpoint",
+                    "value": "[environment().suffixes.storage]"
+                  },
+                  {
+                    "name": "UserAssignedIdentityClientId",
+                    "value": "[parameters('userAssignedIdentityClientId')]"
+                  },
+                  {
+                    "name": "UserAssignedIdentityObjectId",
+                    "value": "[parameters('userAssignedIdentityPrincipalId')]"
+                  },
+                  {
+                    "name": "location",
+                    "value": "[parameters('location')]"
+                  },
+                  {
+                    "name": "subscription",
+                    "value": "[subscription().subscriptionId]"
+                  }
+                ],
+                "source": {
+                  "script": "      param(\r\n        [string]$ContainerName,\r\n        [string]$certificatePassword,\r\n        [string]$environment,\r\n        [string]$StorageAccountName,\r\n        [string]$UserAssignedIdentityObjectId,\r\n        [string]$UserAssignedIdentityClientId,\r\n        [string]$location,\r\n        [string]$fqdn,\r\n        [string]$subscription\r\n      )\r\n      $ErrorActionPreference = 'Stop'\r\n      Connect-AzAccount -Environment $Environment -Subscription $subscription -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n      Invoke-WebRequest https://github.com/Esri/arcgis-azure-templates/raw/main/Releases/11.1/DSC.zip -OutFile ./DSC.zip\r\n      Invoke-WebRequest https://github.com/Esri/arcgis-azure-templates/raw/main/Releases/11.1/GenerateSSLCerts.ps1 -OutFile ./GenerateSSLCerts.ps1\r\n      $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -UseConnectedAccount\r\n      Set-AzStorageBlobContent -File ./DSC.zip -Container $containerName -Blob DSC.zip -Context $ctx -Force\r\n      Set-AzStorageBlobContent -File ./GenerateSSLCerts.ps1 -Container $containerName -Blob GenerateSSLCerts.ps1 -Context $ctx -Force\r\n      "
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/runCommands', parameters('virtualMachineName'), 'rc-azModules')]",
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines/runCommands",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'rc-licenseAndCertificateArtifacts')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "treatFailureAsDeploymentFailure": true,
+                "asyncExecution": false,
+                "parameters": [
+                  {
+                    "name": "ContainerName",
+                    "value": "[parameters('hubContainerName')]"
+                  },
+                  {
+                    "name": "StorageAccountName",
+                    "value": "[parameters('hubStorageAccountName')]"
+                  },
+                  {
+                    "name": "StorageEndpoint",
+                    "value": "[environment().suffixes.storage]"
+                  },
+                  {
+                    "name": "Environment",
+                    "value": "[environment().name]"
+                  },
+                  {
+                    "name": "UserAssignedIdentityClientId",
+                    "value": "[parameters('userAssignedIdentityClientId')]"
+                  },
+                  {
+                    "name": "UserAssignedIdentityObjectId",
+                    "value": "[parameters('userAssignedIdentityPrincipalId')]"
+                  },
+                  {
+                    "name": "PortalLicensefile",
+                    "value": "[parameters('portalLicenseFile')]"
+                  },
+                  {
+                    "name": "PortalLicenseFileName",
+                    "value": "[parameters('portalLicenseFileName')]"
+                  },
+                  {
+                    "name": "ServerLicensefile",
+                    "value": "[parameters('serverLicenseFile')]"
+                  },
+                  {
+                    "name": "ServerLicenseFileName",
+                    "value": "[parameters('serverLicenseFileName')]"
+                  },
+                  {
+                    "name": "location",
+                    "value": "[parameters('location')]"
+                  },
+                  {
+                    "name": "fqdn",
+                    "value": "[parameters('externalDnsHostname')]"
+                  },
+                  {
+                    "name": "keyVault",
+                    "value": "[parameters('keyVaultName')]"
+                  },
+                  {
+                    "name": "certificateFileName",
+                    "value": "[parameters('certificateFileName')]"
+                  },
+                  {
+                    "name": "certificatePassword",
+                    "value": "[parameters('certificatePassword')]"
+                  },
+                  {
+                    "name": "subscription",
+                    "value": "[subscription().subscriptionId]"
+                  },
+                  {
+                    "name": "EsriStorageAccount",
+                    "value": "[parameters('esriStorageAccountName')]"
+                  }
+                ],
+                "source": {
+                  "script": "      param(\r\n        [string]$ContainerName,\r\n        [string]$CertificateFileName,\r\n        [string]$CertificatePassword,\r\n        [string]$StorageAccountName,\r\n        [string]$StorageEndpoint,\r\n        [string]$UserAssignedIdentityObjectId,\r\n        [string]$UserAssignedIdentityClientId,\r\n        [string]$PortalLicenseFileName,\r\n        [string]$PortalLicenseFile,\r\n        [string]$ServerLicensefile,\r\n        [string]$ServerLicenseFileName,\r\n        [string]$TenantId,\r\n        [string]$Location,\r\n        [string]$Fqdn,\r\n        [string]$Subscription,\r\n        [string]$KeyVaultName,\r\n        [string]$EsriStorageAccount,\r\n        [string]$Environment\r\n      )\r\n      New-Item -ItemType File \"$env:windir\\temp\\$portalLicenseFileName\"\r\n      New-Item -ItemType File \"$env:windir\\temp\\$serverLicenseFileName\"\r\n\r\n      $plf = \"$env:windir\\temp\\$portalLicenseFileName\"\r\n      $slf = \"$env:windir\\temp\\$serverLicenseFileName\"\r\n\r\n\r\n      $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False\r\n\r\n      $portalLicense = [System.Text.UTF8Encoding]::UTF8.GetString([System.Convert]::FromBase64String($portalLicensefile))\r\n      [System.IO.File]::WriteAllLines($plf, $portalLicense, $Utf8NoBomEncoding)\r\n\r\n      $serverLicense = [System.Text.UTF8Encoding]::UTF8.GetString([System.Convert]::FromBase64String($serverLicensefile))\r\n      [System.IO.File]::WriteAllLines($slf, $serverLicense, $Utf8NoBomEncoding)\r\n\r\n      Import-Module az.keyvault\r\n      Connect-AzAccount -Environment $Environment -Subscription $Subscription -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n      $StorageAccountUrl = \"https://\" + $StorageAccountName + \".blob.\" + $StorageEndpoint\r\n      $TokenUri = \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId\"\r\n      $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token\r\n      $BlobNames = @($certificateFileName)\r\n      Invoke-WebRequest -Headers @{\"x-ms-version\"=\"2017-11-09\"; Authorization =\"Bearer $AccessToken\"} -Uri \"$StorageAccountUrl/$ContainerName/$BlobNames\" -OutFile $env:windir\\temp\\$certificateFileName -Verbose\r\n      $pfx = \"$env:windir\\temp\\$CertificateFileName\"\r\n      $base64 = [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($pfx))\r\n      $Password = ConvertTo-SecureString -String $CertificatePassword -AsPlainText -Force\r\n      $cert = Import-AzKeyVaultCertificate -VaultName $keyVaultName -Name \"pfx$location\" -FilePath $pfx -Password $Password\r\n      $azKeyVaultCert = Get-AzKeyVaultCertificate -VaultName  $keyVaultName -Name \"pfx$location\"\r\n      $azKeyVaultCertBytes = $azKeyVaultCert.Certificate.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)\r\n      $publicCertificateName = \"wildcard$fqdn-PublicKey.cer\"\r\n      $cerCertFile = \"$env:windir\\temp\\$publicCertificateName\"\r\n      Write-Output $cerCertFile\r\n      [System.IO.File]::WriteAllBytes($cerCertFile, $azKeyVaultCertBytes)\r\n      $ctx = New-AzStorageContext -StorageAccountName $esriStorageAccount -UseConnectedAccount\r\n      Set-AzStorageBlobContent -File $cerCertFile -Container $containerName -Blob $publicCertificateName -Context $ctx -Force\r\n      Set-AzStorageBlobContent -File $pfx -Container $containerName -Blob $CertificateFileName -Context $ctx -Force\r\n      Set-AzStorageBlobContent -File $plf -Container $containerName -Properties @{\"ContentEncoding\" = \"UTF-8\"} -Blob $portalLicenseFileName -Context $ctx -Force\r\n      Set-AzStorageBlobContent -File $slf -Container $containerName -Properties @{\"ContentEncoding\" = \"UTF-8\"} -Blob $serverLicenseFileName -Context $ctx -Force\r\n      "
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/runCommands', parameters('virtualMachineName'), 'rc-esriScriptArtifacts')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/runCommands', parameters('virtualMachineName'), 'rc-azModules')]",
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
             }
           ],
           "outputs": {
-            "frontendCertificate": {
+            "name": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', 'createAddCertificate'), '2020-10-01').outputs.text]"
+              "value": "[parameters('virtualMachineName')]"
             }
           }
         }
@@ -7124,9 +7389,9 @@
         "multiTierPortalVirtualMachines",
         "multiTierServerVirtualMachines",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-sa-02-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-sa-01-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-vm-02-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-virtual-machine-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
@@ -7172,8 +7437,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "16934144233445974653"
+              "version": "0.25.53.49325",
+              "templateHash": "2926232851170070046"
             }
           },
           "parameters": {
@@ -7260,8 +7525,8 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-artifacts-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-management-vm-{0}', parameters('deploymentNameSuffix')))]",
         "multiTierFileServerVirtualMachines",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-virtual-machine-{0}', parameters('deploymentNameSuffix')))]",
@@ -7396,9 +7661,7 @@
           "graphDataStoreVirtualMachines": {
             "value": "[variables('graphDataStoreVirtualMachines')]"
           },
-          "iDns": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-esri-fileserver-{0}-{1}', 0, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceInternalDomainNameSuffix.value]"
-          },
+          "iDns": "[if(equals(parameters('architecture'), 'multitier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-esri-fileserver-{0}-{1}', 0, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceInternalDomainNameSuffix.value), createObject('value', ''))]",
           "isMultiMachineTileCacheDataStore": {
             "value": "[parameters('isMultiMachineTileCacheDataStore')]"
           },
@@ -7463,7 +7726,7 @@
             "value": "[variables('resourceGroupName')]"
           },
           "resourceSuffix": {
-            "value": "[parameters('resourceSuffix')]"
+            "value": "[variables('resourceSuffix')]"
           },
           "secondaryDnsHostName": {
             "value": "[parameters('secondaryDnsHostName')]"
@@ -7539,8 +7802,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "9659338114437841656"
+              "version": "0.25.53.49325",
+              "templateHash": "8549079728153072381"
             }
           },
           "parameters": {
@@ -7874,8 +8137,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "109463967457899033"
+                      "version": "0.25.53.49325",
+                      "templateHash": "2272051739957917928"
                     }
                   },
                   "parameters": {
@@ -8085,8 +8348,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "15327936776501295740"
+                      "version": "0.25.53.49325",
+                      "templateHash": "16637963091666454214"
                     }
                   },
                   "parameters": {
@@ -8103,8 +8366,7 @@
                       "type": "string"
                     },
                     "joinWindowsDomain": {
-                      "type": "bool",
-                      "defaultValue": false
+                      "type": "bool"
                     },
                     "keyVaultUri": {
                       "type": "string"
@@ -8631,8 +8893,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "3281377029628545889"
+                      "version": "0.25.53.49325",
+                      "templateHash": "12153920269033634168"
                     }
                   },
                   "parameters": {
@@ -8803,8 +9065,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "15394692126982797477"
+                      "version": "0.25.53.49325",
+                      "templateHash": "14198876395082719379"
                     }
                   },
                   "parameters": {
@@ -9081,8 +9343,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "15068024200808749958"
+                      "version": "0.25.53.49325",
+                      "templateHash": "9624832812648379742"
                     }
                   },
                   "parameters": {
@@ -9325,8 +9587,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "3767455116188625292"
+                      "version": "0.25.53.49325",
+                      "templateHash": "8148021555067297629"
                     }
                   },
                   "parameters": {
@@ -9552,8 +9814,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "9195578248982107081"
+                      "version": "0.25.53.49325",
+                      "templateHash": "13970262993101723294"
                     }
                   },
                   "parameters": {
@@ -9781,8 +10043,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "80377191210412907"
+                      "version": "0.25.53.49325",
+                      "templateHash": "4950995578330901412"
                     }
                   },
                   "parameters": {
@@ -10012,8 +10274,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "9362140145904517942"
+                      "version": "0.25.53.49325",
+                      "templateHash": "2301298317961509591"
                     }
                   },
                   "parameters": {
@@ -10272,8 +10534,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "18009590051840748658"
+                      "version": "0.25.53.49325",
+                      "templateHash": "7890406381032549921"
                     }
                   },
                   "parameters": {
@@ -10474,6 +10736,7 @@
                 "dscEsriObjectDataStoreServers",
                 "dscEsriServers",
                 "dscEsriSpatioTemporalServers",
+                "dscEsriTileCacheServers",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-fileshare-dsc-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-privatednszone-{0}', parameters('deploymentNameSuffix')))]"
@@ -10483,9 +10746,9 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-artifacts-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-management-vm-{0}', parameters('deploymentNameSuffix')))]",
         "multiTierDatastoreServerVirtualMachines",
         "multiTierFileServerVirtualMachines",
         "multiTierGraphVirtualMachines",
@@ -10532,7 +10795,7 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.cloudStorageAccountCredentialsUserName.value]"
           },
           "dataStoreTypesForBaseDeploymentServers": {
-            "value": "[variables('dataStoreTypesForBaseDeploymentServers')]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-single-tier-datastore-types-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataStoreTypesForBaseDeploymentServers.value]"
           },
           "debugMode": {
             "value": "[parameters('debugMode')]"
@@ -10553,7 +10816,7 @@
             "value": "[parameters('enableVirtualMachineDataDisk')]"
           },
           "hostname": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-pip-address-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.pipFqdn.value]"
+            "value": "[parameters('externalDnsHostname')]"
           },
           "isTileCacheDataStoreClustered": {
             "value": "[parameters('isTileCacheDataStoreClustered')]"
@@ -10580,7 +10843,7 @@
             "value": "[parameters('primarySiteAdministratorAccountUserName')]"
           },
           "publicKeySSLCertificateFileName": {
-            "value": "[format('wildcard{0}-PublicKey.cer', replace(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-pip-address-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.pipFqdn.value, parameters('externalDnsHostnamePrefix'), ''))]"
+            "value": "[format('wildcard{0}-PublicKey.cer', parameters('externalDnsHostname'))]"
           },
           "serverContext": {
             "value": "[variables('serverContext')]"
@@ -10611,6 +10874,52 @@
           },
           "selfSignedSSLCertificatePassword": {
             "value": "[parameters('selfSignedCertificatePassword')]"
+          },
+          "applicationGatewayName": {
+            "value": "[variables('applicationGatewayName')]"
+          },
+          "applicationGatewayPrivateIPAddress": {
+            "value": "[parameters('applicationGatewayPrivateIpAddress')]"
+          },
+          "externalDnsHostname": {
+            "value": "[parameters('externalDnsHostname')]"
+          },
+          "iDns": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-virtual-machine-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceInternalDomainNameSuffix.value), createObject('value', 'none'))]",
+          "joinWindowsDomain": {
+            "value": "[parameters('joinWindowsDomain')]"
+          },
+          "keyVaultUri": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+          },
+          "portalBackendSslCert": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.portalBackendSSLCert.value]"
+          },
+          "publicIpId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-pip-address-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.pipId.value]"
+          },
+          "resourceGroupName": {
+            "value": "[variables('resourceGroupName')]"
+          },
+          "resourceSuffix": {
+            "value": "[variables('resourceSuffix')]"
+          },
+          "serverBackendSSLCert": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.serverBackendSSLCert.value]"
+          },
+          "userAssignedIdenityResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+          },
+          "virtualNetworkName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
+          },
+          "windowsDomainName": {
+            "value": "[parameters('windowsDomainName')]"
+          },
+          "architecture": {
+            "value": "[parameters('architecture')]"
+          },
+          "virtualNetworkId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkResourceId.value]"
           }
         },
         "template": {
@@ -10619,8 +10928,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "14886592837483824466"
+              "version": "0.25.53.49325",
+              "templateHash": "8718588062385813890"
             }
           },
           "parameters": {
@@ -10723,9 +11032,738 @@
             },
             "selfSignedSSLCertificatePassword": {
               "type": "securestring"
+            },
+            "applicationGatewayName": {
+              "type": "string"
+            },
+            "externalDnsHostname": {
+              "type": "string"
+            },
+            "iDns": {
+              "type": "string"
+            },
+            "joinWindowsDomain": {
+              "type": "bool"
+            },
+            "keyVaultUri": {
+              "type": "string"
+            },
+            "portalBackendSslCert": {
+              "type": "string"
+            },
+            "publicIpId": {
+              "type": "string"
+            },
+            "resourceGroupName": {
+              "type": "string"
+            },
+            "resourceSuffix": {
+              "type": "string"
+            },
+            "serverBackendSSLCert": {
+              "type": "string"
+            },
+            "subscriptionId": {
+              "type": "string",
+              "defaultValue": "[subscription().subscriptionId]"
+            },
+            "userAssignedIdenityResourceId": {
+              "type": "string"
+            },
+            "virtualNetworkName": {
+              "type": "string"
+            },
+            "applicationGatewayPrivateIPAddress": {
+              "type": "string"
+            },
+            "windowsDomainName": {
+              "type": "string"
+            },
+            "architecture": {
+              "type": "string"
+            },
+            "virtualNetworkId": {
+              "type": "string"
             }
           },
           "resources": [
+            {
+              "condition": "[and(equals(parameters('architecture'), 'multitier'), equals(parameters('joinWindowsDomain'), false()))]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-privatednszone-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('subscriptionId')]",
+              "resourceGroup": "[parameters('resourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "externalDnsHostname": {
+                    "value": "[parameters('externalDnsHostname')]"
+                  },
+                  "applicationGatewayPrivateIPAddress": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.applicationGatewayPrivateIpAddress.value]"
+                  },
+                  "virtualNetworkId": {
+                    "value": "[parameters('virtualNetworkId')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.25.53.49325",
+                      "templateHash": "12153920269033634168"
+                    }
+                  },
+                  "parameters": {
+                    "externalDnsHostname": {
+                      "type": "string"
+                    },
+                    "virtualNetworkId": {
+                      "type": "string"
+                    },
+                    "applicationGatewayPrivateIPAddress": {
+                      "type": "string"
+                    }
+                  },
+                  "variables": {
+                    "privateDNSZoneName": "[format('{0}.{1}', split(parameters('externalDnsHostname'), '.')[1], split(parameters('externalDnsHostname'), '.')[2])]",
+                    "aRecordName": "[split(parameters('externalDnsHostname'), '.')[0]]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/privateDnsZones",
+                      "apiVersion": "2020-06-01",
+                      "name": "[variables('privateDNSZoneName')]",
+                      "location": "global",
+                      "properties": {}
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/{1}', variables('privateDNSZoneName'), 'vnetLink')]",
+                      "location": "global",
+                      "properties": {
+                        "virtualNetwork": {
+                          "id": "[parameters('virtualNetworkId')]"
+                        },
+                        "registrationEnabled": false
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDNSZoneName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones/A",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/{1}', variables('privateDNSZoneName'), variables('aRecordName'))]",
+                      "properties": {
+                        "ttl": 3600,
+                        "aRecords": [
+                          {
+                            "ipv4Address": "[parameters('applicationGatewayPrivateIPAddress')]"
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDNSZoneName'))]"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('subscriptionId')]",
+              "resourceGroup": "[parameters('resourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "applicationGatewayName": {
+                    "value": "[parameters('applicationGatewayName')]"
+                  },
+                  "applicationGatewayPrivateIpAddress": {
+                    "value": "[parameters('applicationGatewayPrivateIPAddress')]"
+                  },
+                  "externalDnsHostName": {
+                    "value": "[parameters('externalDnsHostname')]"
+                  },
+                  "iDns": {
+                    "value": "[parameters('iDns')]"
+                  },
+                  "joinWindowsDomain": {
+                    "value": "[parameters('joinWindowsDomain')]"
+                  },
+                  "keyVaultUri": {
+                    "value": "[parameters('keyVaultUri')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "portalBackendSslCert": {
+                    "value": "[parameters('portalBackendSslCert')]"
+                  },
+                  "portalVirtualMachineNames": {
+                    "value": "[parameters('virtualMachineName')]"
+                  },
+                  "publicIpId": {
+                    "value": "[parameters('publicIpId')]"
+                  },
+                  "resourceGroup": {
+                    "value": "[parameters('resourceGroupName')]"
+                  },
+                  "resourceSuffix": {
+                    "value": "[parameters('resourceSuffix')]"
+                  },
+                  "serverBackendSSLCert": {
+                    "value": "[parameters('serverBackendSSLCert')]"
+                  },
+                  "serverVirtualMachineNames": {
+                    "value": "[parameters('virtualMachineName')]"
+                  },
+                  "userAssignedIdenityResourceId": {
+                    "value": "[parameters('userAssignedIdenityResourceId')]"
+                  },
+                  "virtualNetworkName": {
+                    "value": "[parameters('virtualNetworkName')]"
+                  },
+                  "windowsDomainName": {
+                    "value": "[parameters('windowsDomainName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.25.53.49325",
+                      "templateHash": "16637963091666454214"
+                    }
+                  },
+                  "parameters": {
+                    "applicationGatewayName": {
+                      "type": "string"
+                    },
+                    "applicationGatewayPrivateIpAddress": {
+                      "type": "string"
+                    },
+                    "externalDnsHostName": {
+                      "type": "string"
+                    },
+                    "iDns": {
+                      "type": "string"
+                    },
+                    "joinWindowsDomain": {
+                      "type": "bool"
+                    },
+                    "keyVaultUri": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "portalBackendSslCert": {
+                      "type": "string"
+                    },
+                    "portalVirtualMachineNames": {
+                      "type": "string"
+                    },
+                    "publicIpId": {
+                      "type": "string"
+                    },
+                    "resourceGroup": {
+                      "type": "string"
+                    },
+                    "resourceSuffix": {
+                      "type": "string"
+                    },
+                    "serverBackendSSLCert": {
+                      "type": "string"
+                    },
+                    "serverVirtualMachineNames": {
+                      "type": "string"
+                    },
+                    "userAssignedIdenityResourceId": {
+                      "type": "string"
+                    },
+                    "virtualNetworkName": {
+                      "type": "string"
+                    },
+                    "windowsDomainName": {
+                      "type": "string"
+                    }
+                  },
+                  "variables": {
+                    "serverBackEndVirtualMachines": "[split(parameters('serverVirtualMachineNames'), ',')]",
+                    "portalBackEndVirtualMachines": "[split(parameters('portalVirtualMachineNames'), ',')]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/applicationGateways",
+                      "apiVersion": "2023-06-01",
+                      "name": "[parameters('applicationGatewayName')]",
+                      "location": "[parameters('location')]",
+                      "tags": {},
+                      "identity": {
+                        "type": "UserAssigned",
+                        "userAssignedIdentities": {
+                          "[format('{0}', parameters('userAssignedIdenityResourceId'))]": {}
+                        }
+                      },
+                      "properties": {
+                        "sku": {
+                          "name": "Standard_v2",
+                          "tier": "Standard_v2",
+                          "capacity": 2
+                        },
+                        "gatewayIPConfigurations": [
+                          {
+                            "name": "appGatewayIpConfig",
+                            "properties": {
+                              "subnet": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'appGatewaySubnet')]"
+                              }
+                            }
+                          }
+                        ],
+                        "sslCertificates": [
+                          {
+                            "name": "frontendCert",
+                            "properties": {
+                              "keyVaultSecretId": "[format('{0}secrets/pfx{1}', parameters('keyVaultUri'), parameters('location'))]"
+                            }
+                          }
+                        ],
+                        "trustedRootCertificates": [
+                          {
+                            "name": "serverBackendSSLCert",
+                            "properties": {
+                              "data": "[parameters('serverBackendSSLCert')]"
+                            }
+                          },
+                          {
+                            "name": "portalBackendSSLCert",
+                            "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/trustedRootCertificates', parameters('applicationGatewayName'), 'portalBackendSSLCert')]",
+                            "properties": {
+                              "data": "[parameters('portalBackendSslCert')]"
+                            }
+                          }
+                        ],
+                        "trustedClientCertificates": [],
+                        "sslProfiles": [],
+                        "frontendIPConfigurations": [
+                          {
+                            "name": "pipIpConfig",
+                            "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/frontendIPConfigurations', parameters('applicationGatewayName'), format('EnterpriseAppGatewayFrontendIP{0}', parameters('resourceSuffix')))]",
+                            "properties": {
+                              "privateIPAllocationMethod": "Dynamic",
+                              "publicIPAddress": {
+                                "id": "[parameters('publicIpId')]"
+                              }
+                            }
+                          },
+                          {
+                            "name": "[format('EnterpriseAppGatewayFrontendIP{0}', parameters('resourceSuffix'))]",
+                            "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/frontendIPConfigurations', parameters('applicationGatewayName'), format('EnterpriseAppGatewayFrontendIP{0}', parameters('resourceSuffix')))]",
+                            "properties": {
+                              "privateIPAddress": "[parameters('applicationGatewayPrivateIpAddress')]",
+                              "privateIPAllocationMethod": "Static",
+                              "subnet": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'appGatewaySubnet')]"
+                              }
+                            }
+                          }
+                        ],
+                        "frontendPorts": [
+                          {
+                            "name": "[format('EnterprisePort443{0}', parameters('resourceSuffix'))]",
+                            "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/frontendPorts', parameters('applicationGatewayName'), format('EnterprisePort443{0}', parameters('resourceSuffix')))]",
+                            "properties": {
+                              "port": 443
+                            }
+                          },
+                          {
+                            "name": "[format('EnterprisePort80{0}', parameters('resourceSuffix'))]",
+                            "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/frontendPorts', parameters('applicationGatewayName'), format('EnterprisePort80{0}', parameters('resourceSuffix')))]",
+                            "properties": {
+                              "port": 80
+                            }
+                          }
+                        ],
+                        "backendAddressPools": [
+                          {
+                            "name": "[format('ServerBackendPool{0}', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "copy": [
+                                {
+                                  "name": "backendAddresses",
+                                  "count": "[length(variables('serverBackEndVirtualMachines'))]",
+                                  "input": {
+                                    "fqdn": "[if(parameters('joinWindowsDomain'), format('{0}.{1}', variables('serverBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('windowsDomainName')), format('{0}.{1}', variables('serverBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('iDns')))]"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "name": "[format('{0}PortalBackendPool', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "copy": [
+                                {
+                                  "name": "backendAddresses",
+                                  "count": "[length(variables('portalBackEndVirtualMachines'))]",
+                                  "input": {
+                                    "fqdn": "[if(parameters('joinWindowsDomain'), format('{0}.{1}', variables('portalBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('windowsDomainName')), format('{0}.{1}', variables('portalBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('iDns')))]"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "loadDistributionPolicies": [],
+                        "backendHttpSettingsCollection": [
+                          {
+                            "name": "[format('PortalHttpsSetting{0}', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "port": 7443,
+                              "protocol": "Https",
+                              "cookieBasedAffinity": "Disabled",
+                              "connectionDraining": {
+                                "enabled": true,
+                                "drainTimeoutInSec": 60
+                              },
+                              "pickHostNameFromBackendAddress": true,
+                              "path": "/arcgis/",
+                              "requestTimeout": 180,
+                              "probe": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/probes', parameters('applicationGatewayName'), format('{0}PortalProbeName', parameters('resourceSuffix')))]"
+                              },
+                              "trustedRootCertificates": [
+                                {
+                                  "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/trustedRootCertificates', parameters('applicationGatewayName'), 'portalBackendSSLCert')]"
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "name": "[format('ServerHttpsSetting{0}', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "port": 6443,
+                              "protocol": "Https",
+                              "cookieBasedAffinity": "Disabled",
+                              "connectionDraining": {
+                                "enabled": true,
+                                "drainTimeoutInSec": 60
+                              },
+                              "pickHostNameFromBackendAddress": true,
+                              "path": "/arcgis/",
+                              "requestTimeout": 180,
+                              "probe": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/probes', parameters('applicationGatewayName'), format('{0}ServerProbeName', parameters('resourceSuffix')))]"
+                              },
+                              "trustedRootCertificates": [
+                                {
+                                  "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/trustedRootCertificates', parameters('applicationGatewayName'), 'serverBackendSSLCert')]"
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "backendSettingsCollection": [],
+                        "httpListeners": [
+                          {
+                            "name": "[format('{0}HttpEnterpriseDeploymentListner', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "frontendIPConfiguration": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/frontendIPConfigurations', parameters('applicationGatewayName'), format('EnterpriseAppGatewayFrontendIP{0}', parameters('resourceSuffix')))]"
+                              },
+                              "frontendPort": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/frontendPorts', parameters('applicationGatewayName'), format('EnterprisePort80{0}', parameters('resourceSuffix')))]"
+                              },
+                              "protocol": "Http",
+                              "hostNames": [
+                                "[parameters('externalDnsHostName')]"
+                              ],
+                              "requireServerNameIndication": false
+                            }
+                          },
+                          {
+                            "name": "[format('{0}HttpsEnterpriseDeploymentListner', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "frontendIPConfiguration": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/frontendIPConfigurations', parameters('applicationGatewayName'), format('EnterpriseAppGatewayFrontendIP{0}', parameters('resourceSuffix')))]"
+                              },
+                              "frontendPort": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/frontendPorts', parameters('applicationGatewayName'), format('EnterprisePort443{0}', parameters('resourceSuffix')))]"
+                              },
+                              "protocol": "Https",
+                              "sslCertificate": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/sslCertificates', parameters('applicationGatewayName'), 'frontendCert')]"
+                              },
+                              "hostNames": [
+                                "[parameters('externalDnsHostName')]"
+                              ],
+                              "requireServerNameIndication": false
+                            }
+                          }
+                        ],
+                        "listeners": [],
+                        "urlPathMaps": [
+                          {
+                            "name": "[format('{0}EnterprisePathMap', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "defaultBackendAddressPool": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/backendAddressPools', parameters('applicationGatewayName'), format('ServerBackendPool{0}', parameters('resourceSuffix')))]"
+                              },
+                              "defaultBackendHttpSettings": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection', parameters('applicationGatewayName'), format('ServerHttpsSetting{0}', parameters('resourceSuffix')))]"
+                              },
+                              "pathRules": [
+                                {
+                                  "name": "serverPathRule",
+                                  "properties": {
+                                    "paths": [
+                                      "/server/*",
+                                      "/server"
+                                    ],
+                                    "backendAddressPool": {
+                                      "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/backendAddressPools', parameters('applicationGatewayName'), format('ServerBackendPool{0}', parameters('resourceSuffix')))]"
+                                    },
+                                    "backendHttpSettings": {
+                                      "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection', parameters('applicationGatewayName'), format('ServerHttpsSetting{0}', parameters('resourceSuffix')))]"
+                                    },
+                                    "rewriteRuleSet": {
+                                      "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/rewriteRuleSets', parameters('applicationGatewayName'), format('{0}ServerRewriteRuleSet', parameters('resourceSuffix')))]"
+                                    }
+                                  }
+                                },
+                                {
+                                  "name": "portalPathRule",
+                                  "properties": {
+                                    "paths": [
+                                      "/portal/*",
+                                      "/portal"
+                                    ],
+                                    "backendAddressPool": {
+                                      "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/backendAddressPools', parameters('applicationGatewayName'), format('{0}PortalBackendPool', parameters('resourceSuffix')))]"
+                                    },
+                                    "backendHttpSettings": {
+                                      "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection', parameters('applicationGatewayName'), format('PortalHttpsSetting{0}', parameters('resourceSuffix')))]"
+                                    },
+                                    "rewriteRuleSet": {
+                                      "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/rewriteRuleSets', parameters('applicationGatewayName'), format('{0}PortalRewriteRuleSet', parameters('resourceSuffix')))]"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "requestRoutingRules": [
+                          {
+                            "name": "[format('{0}EnterpriseRequestRoutingRule', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "ruleType": "PathBasedRouting",
+                              "priority": 10,
+                              "httpListener": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/httpListeners', parameters('applicationGatewayName'), format('{0}HttpsEnterpriseDeploymentListner', parameters('resourceSuffix')))]"
+                              },
+                              "urlPathMap": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/urlPathMaps', parameters('applicationGatewayName'), format('{0}EnterprisePathMap', parameters('resourceSuffix')))]"
+                              }
+                            }
+                          },
+                          {
+                            "name": "[format('{0}HttpToHttpsEnterpriseRequestRoutingRule', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "ruleType": "Basic",
+                              "priority": 20,
+                              "httpListener": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/httpListeners', parameters('applicationGatewayName'), format('{0}HttpEnterpriseDeploymentListner', parameters('resourceSuffix')))]"
+                              },
+                              "redirectConfiguration": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/redirectConfigurations', parameters('applicationGatewayName'), format('{0}EnterpriseHttpToHttps', parameters('resourceSuffix')))]"
+                              }
+                            }
+                          }
+                        ],
+                        "routingRules": [],
+                        "probes": [
+                          {
+                            "name": "[format('{0}ServerProbeName', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "protocol": "Https",
+                              "path": "/arcgis/rest/info/healthcheck",
+                              "interval": 30,
+                              "timeout": 30,
+                              "unhealthyThreshold": 3,
+                              "pickHostNameFromBackendHttpSettings": true,
+                              "minServers": 0,
+                              "match": {
+                                "statusCodes": [
+                                  "200"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "name": "[format('{0}PortalProbeName', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "protocol": "Https",
+                              "path": "/arcgis/portaladmin/healthCheck",
+                              "interval": 30,
+                              "timeout": 30,
+                              "unhealthyThreshold": 3,
+                              "pickHostNameFromBackendHttpSettings": true,
+                              "minServers": 0,
+                              "match": {
+                                "statusCodes": [
+                                  "200"
+                                ]
+                              }
+                            }
+                          }
+                        ],
+                        "rewriteRuleSets": [
+                          {
+                            "name": "[format('{0}PortalRewriteRuleSet', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "rewriteRules": [
+                                {
+                                  "ruleSequence": 50,
+                                  "conditions": [],
+                                  "name": "XForwardedHostRewrite",
+                                  "actionSet": {
+                                    "requestHeaderConfigurations": [
+                                      {
+                                        "headerName": "X-Forwarded-Host",
+                                        "headerValue": "{http_req_host}"
+                                      }
+                                    ],
+                                    "responseHeaderConfigurations": []
+                                  }
+                                },
+                                {
+                                  "ruleSequence": 100,
+                                  "conditions": [
+                                    {
+                                      "variable": "http_resp_Location",
+                                      "pattern": "(https?):\\/\\/[^\\/]+:7443\\/(?:arcgis|portal)(.*)$",
+                                      "ignoreCase": true,
+                                      "negate": false
+                                    }
+                                  ],
+                                  "name": "PortalRewrite",
+                                  "actionSet": {
+                                    "requestHeaderConfigurations": [],
+                                    "responseHeaderConfigurations": [
+                                      {
+                                        "headerName": "RewriteLocationValue",
+                                        "headerValue": "{http_resp_Location_1}://{http_req_host}/portal{http_resp_Location_2}"
+                                      },
+                                      {
+                                        "headerName": "Location",
+                                        "headerValue": "{http_resp_Location_1}://{http_req_host}/portal{http_resp_Location_2}"
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "name": "[format('{0}ServerRewriteRuleSet', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "rewriteRules": [
+                                {
+                                  "ruleSequence": 50,
+                                  "conditions": [],
+                                  "name": "XForwardedHostRewrite",
+                                  "actionSet": {
+                                    "requestHeaderConfigurations": [
+                                      {
+                                        "headerName": "X-Forwarded-Host",
+                                        "headerValue": "{http_req_host}"
+                                      }
+                                    ],
+                                    "responseHeaderConfigurations": []
+                                  }
+                                },
+                                {
+                                  "ruleSequence": 100,
+                                  "conditions": [
+                                    {
+                                      "variable": "http_resp_Location",
+                                      "pattern": "(https?):\\/\\/[^\\/]+:6443\\/(?:arcgis|server)(.*)$",
+                                      "ignoreCase": true,
+                                      "negate": false
+                                    }
+                                  ],
+                                  "name": "ServerRewrite",
+                                  "actionSet": {
+                                    "requestHeaderConfigurations": [],
+                                    "responseHeaderConfigurations": [
+                                      {
+                                        "headerName": "RewriteLocationValue",
+                                        "headerValue": "{http_resp_Location_1}://{http_req_host}/server{http_resp_Location_2}"
+                                      },
+                                      {
+                                        "headerName": "Location",
+                                        "headerValue": "{http_resp_Location_1}://{http_req_host}/server{http_resp_Location_2}"
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "redirectConfigurations": [
+                          {
+                            "name": "[format('{0}EnterpriseHttpToHttps', parameters('resourceSuffix'))]",
+                            "properties": {
+                              "redirectType": "Permanent",
+                              "targetListener": {
+                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/httpListeners', parameters('applicationGatewayName'), format('{0}HttpsEnterpriseDeploymentListner', parameters('resourceSuffix')))]"
+                              },
+                              "includePath": true,
+                              "includeQueryString": true,
+                              "requestRoutingRules": [
+                                {
+                                  "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/applicationGateways/requestRoutingRules', parameters('applicationGatewayName'), format('{0}HttpToHttpsEnterpriseRequestRoutingRule', parameters('resourceSuffix')))]"
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "privateLinkConfigurations": []
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "applicationGatewayPrivateIpAddress": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '2023-06-01').frontendIPConfigurations[1].properties.privateIPAddress]"
+                    }
+                  }
+                }
+              }
+            },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
@@ -10839,8 +11877,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "17063739466446558762"
+                      "version": "0.25.53.49325",
+                      "templateHash": "3414202048346312870"
                     }
                   },
                   "parameters": {
@@ -11041,17 +12079,26 @@
                     }
                   ]
                 }
-              }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-privatednszone-{0}', parameters('deploymentNameSuffix')))]"
+              ]
             }
           ]
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-artifacts-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-management-vm-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-pip-address-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-single-tier-datastore-types-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-virtual-machine-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }
   ]

@@ -6,6 +6,7 @@ param availabilitySetName string
 param domainJoinOptions int = 3
 param enableMonitoring bool
 param joinWindowsDomain bool
+// param joinEntraDomain bool
 param location string = resourceGroup().location
 param networkInterfaceName string
 param ouPath string
@@ -75,7 +76,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2023-03-01' = {
     publisher: 'esri'
   }
   properties: {
-    availabilitySet: (serverFunction != 'fileshare') ? availabilitySetId : null
+    availabilitySet: (serverFunction != 'fileshare' && architecture == 'multitier') ? availabilitySetId : null
     hardwareProfile: {
       vmSize: virtualMachineSize
     }
@@ -139,6 +140,24 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
   }
 }
+
+// resource aadLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (joinEntraDomain && (!joinWindowsDomain)) {
+//   parent: virtualMachine
+//   name: 'AADLoginForWindows'
+//   location: location
+//   tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+//   properties: {
+//     publisher: 'Microsoft.Azure.ActiveDirectory'
+//     type: 'AADLoginForWindows'
+//     typeHandlerVersion: '2.0'
+//     autoUpgradeMinorVersion: true
+//     settings: intune ? {
+//       mdmId: '0000000a-0000-0000-c000-000000000000'
+//     } : null
+//   }
+//   dependsOn: [
+//   ]
+// }
 
 resource jsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = if (!empty(windowsDomainAdministratorUserName) && !empty(windowsDomainName) && !empty(ouPath) && (joinWindowsDomain)) {
   parent: virtualMachine
@@ -214,16 +233,16 @@ resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-0
   }
 }
 
-resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
-  parent: virtualMachine
-  name: 'Microsoft.Azure.NetworkWatcher'
-  location: location
-  properties: {
-    publisher: 'Microsoft.Azure.NetworkWatcher'
-    type: 'NetworkWatcherAgentWindows'
-    typeHandlerVersion: '1.4'
-  }
-}
+// resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+//   parent: virtualMachine
+//   name: 'Microsoft.Azure.NetworkWatcher'
+//   location: location
+//   properties: {
+//     publisher: 'Microsoft.Azure.NetworkWatcher'
+//     type: 'NetworkWatcherAgentWindows'
+//     typeHandlerVersion: '1.4'
+//   }
+// }
 
 resource azureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = if (enableMonitoring) {
   parent: virtualMachine

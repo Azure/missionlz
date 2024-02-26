@@ -9,7 +9,7 @@ param virtualNetworkAddressPrefix string
 param virtualNetworkName string
 param defaultSubnetAddressPrefix string
 param vNetDnsServers array
-
+param joinWindowsDomain bool
 
 // module networkSecurityGroup 'network-security-group.bicep' = {
 //   name: 'networkSecurityGroup'
@@ -41,7 +41,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-04-01' = {
         virtualNetworkAddressPrefix
       ]
     }
-    dhcpOptions: vNetDnsServers != null ? {
+    dhcpOptions: (vNetDnsServers != null && joinWindowsDomain == true) ? {
       dnsServers: vNetDnsServers
     } : null
     subnets: [

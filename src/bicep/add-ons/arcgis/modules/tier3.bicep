@@ -45,12 +45,12 @@ param resourceGroupName string
 param tags object = {}
 param virtualNetworkAddressPrefix string
 param vNetDnsServers array = [firewallPrivateIPAddress]
-param workloadName string = 'esr'
+param workloadName string = 'esri'
 param workloadSubscriptionId string
 param applicationGatewayName string
 param applicationGatewaySubnetAddressPrefix string
 param defaultSubnetAddressPrefix string
-
+param joinWindowsDomain bool
 
 /*
 
@@ -96,6 +96,7 @@ module spokeNetwork 'virtualNetwork.bicep' = {
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkName: workloadVirtualNetworkName
     vNetDnsServers: vNetDnsServers
+    joinWindowsDomain: joinWindowsDomain
   }
 }
 

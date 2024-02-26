@@ -2,7 +2,7 @@ param applicationGatewayName string
 param applicationGatewayPrivateIpAddress string
 param externalDnsHostName string
 param iDns string
-param joinWindowsDomain bool = false
+param joinWindowsDomain bool
 param keyVaultUri string
 param location string
 param portalBackendSslCert string
@@ -14,7 +14,7 @@ param serverBackendSSLCert string
 param serverVirtualMachineNames string
 param userAssignedIdenityResourceId string
 param virtualNetworkName string
-param windowsDomainName string 
+param windowsDomainName string
 
 var serverBackEndVirtualMachines = split(serverVirtualMachineNames, ',')
 var portalBackEndVirtualMachines = split(portalVirtualMachineNames, ',')

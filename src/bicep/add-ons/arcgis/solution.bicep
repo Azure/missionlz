@@ -3,34 +3,28 @@ targetScope = 'subscription'
 @description('Virtual Machine admin password')
 param adminPassword string
 @description('Virtual Machine admin username')
-param adminUsername string = 'xadmin'
+param adminUsername string
 @description('Application Gateway Private IP Address')
-param applicationGatewayPrivateIpAddress string = '172.0.1.9'
+param applicationGatewayPrivateIpAddress string
 @description('Application Gateway Subnet Address Prefix')
-param applicationGatewaySubnetAddressPrefix string = '172.0.1.0/28'
+param applicationGatewaySubnetAddressPrefix string
 @description('ArcGIS Service Account Is Domain Account')
-param arcgisServiceAccountIsDomainAccount bool = false
+param arcgisServiceAccountIsDomainAccount bool
 @secure()
 @description('ArcGIS Service Account Password')
 param arcgisServiceAccountPassword string
 @description('ArcGIS Service Account User Name')
-param arcgisServiceAccountUserName string = 'arcgis'
+param arcgisServiceAccountUserName string
 @allowed([
   'singletier'
   'multitier'
 ])
 @description('Architecture for ESRI. Single Tier or Multi Tier.')
-param architecture string = 'singletier'
+param architecture string
 @description('Azure Firewall Name')
-param azureFirewallName string = 'es1-afw-hub-dev-va'
-@description('Data Store Types for Base Deployment Servers')
-@allowed([
-  'Relational'
-  'TileCache'
-  'SpatioTemporal'
-  'ObjectStore'
-])
-param dataStoreTypesForBaseDeployment array = ['Relational', 'TileCache', 'SpatioTemporal','ObjectStore']
+param azureFirewallName string
+// @description('Data Store Types for Base Deployment Servers')
+// param dataStoreTypesForBaseDeployment array = []
 @description('Data Store Virtual Machine OS Disk Size')
 @allowed([
   64
@@ -46,45 +40,44 @@ param dataStoreTypesForBaseDeployment array = ['Relational', 'TileCache', 'Spati
 ])
 param dataStoreVirtualMachineOSDiskSize int = 128
 @description('Debug Mode for ESRI')
-param debugMode bool = false
+param debugMode bool
 @description('Default Subnet Address Prefix')
-param defaultSubnetAddressPrefix string = '172.0.0.0/24'
+param defaultSubnetAddressPrefix string
 @description('Deploy Defender')
-param deployDefender bool = false
+param deployDefender bool
 @description('Deployment Name Suffix')
 param deploymentNameSuffix string = utcNow('yyMMddHHs')
 @description('Deploy Policy')
-param deployPolicy bool = false
+param deployPolicy bool
+param diskEncryptionSetResourceId string
 @description('Email Security Contact')
-param emailSecurityContact string = 'micdz@microsoft.com'
+param emailSecurityContact string = ''
 @description('Enable Data Store Virtual Machine Data Disk')
 param enableDataStoreVirtualMachineDataDisk bool = false
 @description('Enable Graph Data Store')
-param enableGraphDataStore bool = false
+param enableGraphDataStore bool
 @description('Enable Graph Data Store Virtual Machine Data Disk')
 param enableGraphDataStoreVirtualMachineDataDisk bool = false
 @description('Enable Monitoring')
-param enableMonitoring bool = false
+param enableMonitoring bool
 @description('Enable Object Data Store')
-param enableObjectDataStore bool = true
+param enableObjectDataStore bool
 @description('Enable Object Data Store Virtual Machine Data Disk')
 param enableObjectDataStoreVirtualMachineDataDisk bool = false
 @description('Enable Server Log Harvester Plugin')
 param enableServerLogHarvesterPlugin bool = false
 @description('Enable Spatiotemporal Big Data Store')
-param enableSpatiotemporalBigDataStore bool = true
+param enableSpatiotemporalBigDataStore bool
 @description('Enable Spatiotemporal Big Data Store Virtual Machine Data Disk')
 param enableSpatiotemporalBigDataStoreVirtualMachineDataDisk bool = false
 @description('Enable Tile Cache Data Store')
-param enableTileCacheDataStore bool = true
+param enableTileCacheDataStore bool
 @description('Enable Tile Cache Data Store Virtual Machine Data Disk')
 param enableTileCacheDataStoreVirtualMachineDataDisk bool = false
 @description('Enable Virtual Machine Data Disk')
 param enableVirtualMachineDataDisk bool = false
 @description('External DNS Hostname')
 param externalDnsHostname string
-@description('External DNS Hostname Prefix')
-param externalDnsHostnamePrefix string = 'm11'
 @description('Graph Data Store Virtual Machine OS Disk Size')
 @allowed([
   64
@@ -100,25 +93,25 @@ param externalDnsHostnamePrefix string = 'm11'
 ])
 param graphDataStoreVirtualMachineOSDiskSize int = 128
 @description('Hub Resource Group Name')
-param hubResourceGroupName string = 'es1-rg-hub-dev-va'
+param hubResourceGroupName string
 @description('Hub Subscription Id')
-param hubSubscriptionId string = 'f4972a61-1083-4904-a4e2-a790107320bf'
+param hubSubscriptionId string
 @description('Hub Virtual Network Name')
-param hubVirtualNetworkName string = 'es1-vnet-hub-dev-va'
+param hubVirtualNetworkName string
 @description('Is Multi Machine Tile Cache Data Store')
 param isMultiMachineTileCacheDataStore bool = false
 @description('Is Object Data Store Clustered')
-param isObjectDataStoreClustered bool = true
+param isObjectDataStoreClustered bool = false
 @description('Is Tile Cache Data Store Clustered')
 param isTileCacheDataStoreClustered bool = false
 @description('Updating Certificates')
 param isUpdatingCertificates bool = false
 @description('Join Windows Domain')
-param joinWindowsDomain bool = true
+param joinWindowsDomain bool = false
 @description('Location')
 param location string = deployment().location
 @description('Log Analytics Workspace Name')
-param logAnalyticsWorkspaceName string = 'es1-log-operations-dev-va'
+param logAnalyticsWorkspaceName string = ''
 @description('Number of data store virtual machines')
 param numberOfDataStoreVirtualMachines int = 2
 @description('Number of Esri servers')
@@ -130,8 +123,8 @@ param numberOfFileShareVirtualMachineNames int = 1
 @description('Number of graph data store virtual machines')
 param numberOfGraphDataStoreVirtualMachineNames int = 1
 @description('Number of object data store virtual machines')
-@minValue(3)
-param numberOfObjectDataStoreVirtualMachines int = 3 // min value of 3 if clustering
+@minValue(1)
+param numberOfObjectDataStoreVirtualMachines int = 1 // min value of 3 if clustering
 @description('Number of portal virtual machines')
 param numberOfPortalVirtualMachines int = 2
 @description('Number of tile cache data store virtual machines')
@@ -151,13 +144,24 @@ param numberOfTileCacheDataStoreVirtualMachineNames int = 1
 ])
 param objectDataStoreVirtualMachineOSDiskSize int = 128
 @description('OU Path if using domain join for the virtual machines.')
-param ouPath string = 'OU=ESRI;DC=mikedzikowski;DC=com'
+param ouPath string = ''
 @description('Policy')
 param policy string = ''
 @description('Portal License File')
-param portalLicenseFile string = loadFileAsBase64('ArcGIS_Enterprise_Portal_111_427652_20230804.json')
+param portalLicenseFile string
 @description('Portal License User Type Id')
-param portalLicenseUserTypeId string = 'creatorUT'
+@allowed([
+  'creatorUT'
+  'editorUT'
+  'fieldWorkerUT'
+  'GISProfessionalAdvUT'
+  'GISProfessionalBasicUT'
+  'GISProfessionalStdUT'
+  'IndoorsUserUT'
+  'insightsAnalystUT'
+  'viewerUT'
+])
+param portalLicenseUserTypeId string
 @description('Portal Virtual Machine OS Disk Size')
 @allowed([
   64
@@ -176,17 +180,15 @@ param portalVirtualMachineOSDiskSize int = 128
 @description('Primary Site Administrator Account Password')
 param primarySiteAdministratorAccountPassword string
 @description('Primary Site Administrator Account User Name')
-param primarySiteAdministratorAccountUserName string = 'sadmin'
+param primarySiteAdministratorAccountUserName string
 @description('Resource Prefix')
-param resourcePrefix string = 'tr3'
-@description('Resource Suffix')
-param resourceSuffix string = 'm11'
+param resourcePrefix string
 @description('Secondary Host Name')
 param secondaryDnsHostName string = ''
 @secure()
 @description('Certificate Password')
 param selfSignedCertificatePassword string
-param serverLicenseFile string = loadFileAsBase64('ArcGISGISServerAdvanced_ArcGISServer_1357854.prvc')
+param serverLicenseFile string
 @allowed([
   64
   128
@@ -200,7 +202,7 @@ param serverLicenseFile string = loadFileAsBase64('ArcGISGISServerAdvanced_ArcGI
   32767
 ])
 param spatiotemporalBigDataStoreVirtualMachineOSDiskSize int = 128
-param spokelogAnalyticsWorkspaceResourceId string = '/subscriptions/f4972a61-1083-4904-a4e2-a790107320bf/resourceGroups/es1-rg-operations-dev-va/providers/Microsoft.OperationalInsights/workspaces/es1-log-operations-dev-va'
+param spokelogAnalyticsWorkspaceResourceId string
 param tags object = {}
 @description('tileCacheDataStoreVirtualMachineOSDiskSize value')
 @allowed([
@@ -217,9 +219,9 @@ param tags object = {}
 ])
 param tileCacheDataStoreVirtualMachineOSDiskSize int = 128
 @description('Use cloud storage value')
-param useAzureFiles bool = true
+param useAzureFiles bool
 @description('useCloudStorage value')
-param useCloudStorage bool = true
+param useCloudStorage bool
 @description('The size of the virtual machine OS disk')
 @allowed([
   64
@@ -237,23 +239,64 @@ param virtualMachineOSDiskSize int = 128
 @description('The size of the virtual machines')
 param virtualMachineSize string = 'Standard_DS4_v2'
 @description('The virtual network address prefix')
-param virtualNetworkAddressPrefix string = '172.0.0.0/16'
+param virtualNetworkAddressPrefix string
 @secure()
 @description('The password for the Windows domain administrator account.')
-param windowsDomainAdministratorPassword string
+param windowsDomainAdministratorPassword string = ''
 @description('The username for the Windows domain administrator account.')
-param windowsDomainAdministratorUserName string = 'esri'
+param windowsDomainAdministratorUserName string = ''
 @description('The name of the Windows domain.')
-param windowsDomainName string = 'mikedzikowski.com'
+param windowsDomainName string = ''
 @description('The GUID of the workload subscription.')
-param workloadSubscriptionId string = 'f4972a61-1083-4904-a4e2-a790107320bf'
+param workloadSubscriptionId string = ''
 
+@secure()
+param certificatePassword string
+param certificateFileName string
+param hubStorageAccountName string
+param hubContainerName string
+
+// Resource Naming
+var resourceSuffix = resourcePrefix
+var externalDnsHostnamePrefix = resourcePrefix
 var applicationGatewayName = 'ag-esri-${resourceSuffix}'
 var availabilitySetName = 'avset-esri-${resourceSuffix}'
 var container = 'artifacts'
-var dataStoreTypesForBaseDeploymentServers = join(dataStoreTypesForBaseDeployment , ',')
-var dataStoreVirtualMachineNames  = join(dataStoreVirtualMachines,',')
-var dataStoreVirtualMachines = [for  i in range(0, numberOfDataStoreVirtualMachines) : 'vm-esri-ds-${i}']
+var keyVaultCertificatesOfficer = resourceId('Microsoft.Authorization/roleDefinitions', 'a4417e6f-fecd-4de8-b567-7b0420556985')
+var keyVaultName = 'kv-esri-${resourceSuffix}'
+var keyVaultSecretsOfficer = resourceId('Microsoft.Authorization/roleDefinitions', 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7')
+var networkInterfaceName = 'nic-esri-${resourceSuffix}'
+var portalContext = 'portal'
+var portalLicenseFileName = 'portalLicense.json' //FIX THIS
+var privatelink_blob_name = 'privatelink.blob.${environment().suffixes.storage}'
+var privatelink_keyvaultDns_name = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
+var publicIpAddressName = 'pip-esri-${resourceSuffix}'
+var resourceGroupName = 'rg-esri-enterprise-${resourceSuffix}'
+var serverContext = 'server'
+var serverLicenseFileName = 'serverLicense.prvc' //FIX THIS
+var subscriptionId = subscription().subscriptionId
+var userAssignedManagedIdentityName = 'uami-esri-${resourceSuffix}'
+var virtualMachineName = 'vm-esri-${resourceSuffix}'
+
+// Virtual Machine Names
+var dataStoreVirtualMachineNames = join(dataStoreVirtualMachines, ',')
+var dataStoreVirtualMachines = [for i in range(0, numberOfDataStoreVirtualMachines): 'vm-esri-ds-${i}']
+var fileShareVirtualMachineName = join(fileShareVirtualMachines, ',')
+var fileShareVirtualMachines = [for i in range(0, numberOfFileShareVirtualMachineNames): 'vm-esri-fl-${i}']
+var graphDataStoreVirtualMachineNames = join(graphDataStoreVirtualMachines, ',')
+var graphDataStoreVirtualMachines = [for i in range(0, numberOfGraphDataStoreVirtualMachineNames): 'vm-esri-gr-${i}']
+var objectDataStoreVirtualMachineNames = join(objectDataStoreVirtualMachines, ',')
+var objectDataStoreVirtualMachines = [for i in range(0, numberOfObjectDataStoreVirtualMachines): 'vm-esri-od-${i}']
+var portalVirtualMachineNames = join(portalVirtualMachines, ',')
+var portalVirtualMachines = [for i in range(0, numberOfPortalVirtualMachines): 'vm-esri-pr-${i}']
+var serverVirtualMachineNames = join(serverVirtualMachines, ',')
+var serverVirtualMachines = [for i in range(0, numberOfEsriServers): 'vm-esri-sv-${i}']
+var spatiotemporalBigDataStoreVirtualMachineNames = join(spatiotemporalBigDataStoreVirtualMachines, ',')
+var spatiotemporalBigDataStoreVirtualMachines = [for i in range(0, numberOfEsrispatiotemporalBigDataStoreVirtualMachines): 'vm-esri-sp-${i}']
+var tileCacheDataStoreVirtualMachineNames = join(tileCacheDataStoreVirtualMachines, ',')
+var tileCacheDataStoreVirtualMachines = [for i in range(0, numberOfTileCacheDataStoreVirtualMachineNames): 'vm-esri-tc-${i}']
+
+// DSC Functions
 var dscDataStoreFunction = 'DataStoreConfiguration'
 var dscGraphDataStoreFunction = 'GraphDataStoreConfiguration'
 var dscObjectDataStoreFunction = 'ObjectDataStoreConfiguration'
@@ -263,35 +306,31 @@ var dscSingleTierConfiguration = 'BaseDeploymentSingleTierConfiguration'
 var dscsSatiotemporalBigDataStoreFunction = 'SpatiotemporalBigDataStoreConfiguration'
 var dscTileCacheDataStoreDscFunction = 'TileCacheDataStoreConfiguration'
 var fileShareDscScriptFunction = 'FileShareConfiguration'
-var fileShareVirtualMachineName  = join(fileShareVirtualMachines, ',')
-var fileShareVirtualMachines = [for  i in range(0, numberOfFileShareVirtualMachineNames) : 'vm-esri-fl-${i}']
-var graphDataStoreVirtualMachineNames  = join(graphDataStoreVirtualMachines, ',')
-var graphDataStoreVirtualMachines = [for  i in range(0, numberOfGraphDataStoreVirtualMachineNames) : 'vm-esri-gr-${i}']
-var keyVaultCertificatesOfficer = resourceId('Microsoft.Authorization/roleDefinitions', 'a4417e6f-fecd-4de8-b567-7b0420556985')
-var keyVaultName = 'kv-esri-${resourceSuffix}'
-var keyVaultSecretsOfficer = resourceId('Microsoft.Authorization/roleDefinitions', 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7')
-var networkInterfaceName = 'nic-esri-${resourceSuffix}'
-var objectDataStoreVirtualMachineNames  = join(objectDataStoreVirtualMachines, ',')
-var objectDataStoreVirtualMachines = [for  i in range(0, numberOfObjectDataStoreVirtualMachines) : 'vm-esri-od-${i}']
-var portalContext = 'portal'
-var portalLicenseFileName = 'ArcGIS_Enterprise_Portal_111_427652_20230804.json' //FIX THIS
-var portalVirtualMachineNames  = join(portalVirtualMachines, ',')
-var portalVirtualMachines = [for  i in range(0, numberOfPortalVirtualMachines) : 'vm-esri-pr-${i}']
-var privatelink_blob_name = 'privatelink.blob.${environment().suffixes.storage}'
-var privatelink_keyvaultDns_name = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
-var publicIpAddressName = 'pip-esri-${resourceSuffix}'
-var resourceGroupName = 'rg-esri-enterprise-${resourceSuffix}'
-var serverContext = 'server'
-var serverLicenseFileName = 'ArcGISGISServerAdvanced_ArcGISServer_1357854.prvc' //FIX THIS
-var serverVirtualMachineNames  = join(serverVirtualMachines, ',')
-var serverVirtualMachines = [for  i in range(0, numberOfEsriServers) : 'vm-esri-sv-${i}']
-var spatiotemporalBigDataStoreVirtualMachineNames  = join(spatiotemporalBigDataStoreVirtualMachines, ',')
-var spatiotemporalBigDataStoreVirtualMachines = [for  i in range(0, numberOfEsrispatiotemporalBigDataStoreVirtualMachines) : 'vm-esri-sp-${i}']
-var subscriptionId = subscription().subscriptionId
-var tileCacheDataStoreVirtualMachineNames  = join(tileCacheDataStoreVirtualMachines, ',')
-var tileCacheDataStoreVirtualMachines = [for  i in range(0, numberOfTileCacheDataStoreVirtualMachineNames) : 'vm-esri-tc-${i}']
-var userAssignedManagedIdentityName = 'uami-esri-${resourceSuffix}'
-var virtualMachineName = 'vm-esri-${resourceSuffix}'
+
+
+// Naming conventions
+// var locations = (loadJsonContent('../../data/locations.json'))[environment().name]
+// var locationAbbreviation = locations[location].abbreviation
+// var resourceToken = 'resource_token'
+// var serviceToken = 'service_token'
+// var networkToken = 'network_token'
+// var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${serviceToken}-${networkToken}-${environmentAbbreviation}-${locationAbbreviation}'
+
+// var keyVaultNamingConvention = '${replace(replace(namingConvention, resourceToken, 'kv'), '-', '')}unique_token'
+// var logAnalyticsWorkspaceNamingConvention = replace(namingConvention, resourceToken, 'log')
+// var networkInterfaceNamingConvention = replace(namingConvention, resourceToken, 'nic')
+// var networkSecurityGroupNamingConvention = replace(namingConvention, resourceToken, 'nsg')
+// var networkWatcherNamingConvention = replace(namingConvention, resourceToken, 'nw')
+// var privateEndpointNamingConvention = replace(namingConvention, resourceToken, 'pe')
+// var privateLinkScopeName = replace(namingConvention, resourceToken, 'pls')
+// var publicIpAddressNamingConvention = replace(namingConvention, resourceToken, 'pip')
+// var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
+// var routeTableNamingConvention = replace(namingConvention, resourceToken, 'rt')
+// var storageAccountNamingConvention = toLower('${replace(replace(namingConvention, resourceToken, 'st'), '-', '')}unique_token')
+// var subnetNamingConvention = replace(namingConvention, resourceToken, 'snet')
+// var userAssignedIdentityNamingConvention = replace(namingConvention, resourceToken, 'id')
+// var virtualMachineNamingConvention = replace(namingConvention, resourceToken, 'vm')
+// var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'vnet')
 
 resource privateDnsZone_blob 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
   scope: resourceGroup(subscriptionId, hubResourceGroupName)
@@ -313,10 +352,27 @@ resource azureFirewall 'Microsoft.Network/azureFirewalls@2023-05-01' existing = 
   name: azureFirewallName
 }
 
+resource hubStorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  name: hubStorageAccountName
+}
+
 resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = {
   name: resourceGroupName
   location: location
   tags: tags
+}
+
+module singleTierDataStoreTypes 'modules/singleTierDatastoreTypes.bicep' = {
+  name: 'deploy-single-tier-datastore-types-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
+  params: {
+    enableSpatiotemporalBigDataStore: enableSpatiotemporalBigDataStore
+    enableTileCacheDataStore: enableTileCacheDataStore
+  }
+  dependsOn: [
+    rg
+  ]
 }
 
 module tier3 'modules/tier3.bicep' = {
@@ -327,7 +383,7 @@ module tier3 'modules/tier3.bicep' = {
     applicationGatewaySubnetAddressPrefix: applicationGatewaySubnetAddressPrefix
     defaultSubnetAddressPrefix: defaultSubnetAddressPrefix
     deployDefender: deployDefender
-    deployPolicy:  deployPolicy
+    deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
     firewallPrivateIPAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
     hubResourceGroupName: hubResourceGroupName
@@ -342,9 +398,9 @@ module tier3 'modules/tier3.bicep' = {
     resourcePrefix: resourcePrefix
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     workloadSubscriptionId: workloadSubscriptionId
+    joinWindowsDomain: joinWindowsDomain
   }
-  dependsOn: [
-  ]
+  dependsOn: []
 }
 
 module userAssignedIdentity './modules/userAssignedManagedIdentity.bicep' = {
@@ -368,8 +424,8 @@ module storage './modules/storageAccount.bicep' = {
     location: location
     tags: tags
     useCloudStorage: useCloudStorage
-   }
-   dependsOn:[
+  }
+  dependsOn: [
     tier3
   ]
 }
@@ -496,9 +552,9 @@ module singleTierVirtualMachine 'modules/virtualMachine.bicep' = if (architectur
     ouPath: ouPath
     serverFunction: 'singletier'
     storageAccountName: storage.outputs.storageAccountName
-    subnetResourceId: tier3.outputs.subnetResourceId
+    subnetResourceId: architecture == 'singletier' ? tier3.outputs.subnetResourceId : 'none'
     tags: tags
-    userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
+    userAssignedIdentityResourceId: architecture == 'singletier' ? userAssignedIdentity.outputs.resourceId : 'none'
     virtualMachineName: virtualMachineName
     windowsDomainAdministratorPassword: windowsDomainAdministratorPassword
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
@@ -511,14 +567,14 @@ module singleTierVirtualMachine 'modules/virtualMachine.bicep' = if (architectur
 }
 
 @batchSize(5)
-module multiTierServerVirtualMachines 'modules/virtualMachine.bicep' =  [for (server, i) in serverVirtualMachines : if (architecture == 'multitier')  {
+module multiTierServerVirtualMachines 'modules/virtualMachine.bicep' = [for (server, i) in serverVirtualMachines: if (architecture == 'multitier') {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'deploy-esri-server-${i}-${deploymentNameSuffix}'
   params: {
     adminPassword: adminPassword
     adminUsername: adminUsername
     architecture: architecture
-    availabilitySetName: serverAvailabilitySet.outputs.name
+    availabilitySetName: architecture == 'multitier' ? serverAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
     joinWindowsDomain: joinWindowsDomain
     location: location
@@ -541,14 +597,14 @@ module multiTierServerVirtualMachines 'modules/virtualMachine.bicep' =  [for (se
 }]
 
 @batchSize(5)
-module multiTierPortalVirtualMachines 'modules/virtualMachine.bicep' =  [for (server, i) in portalVirtualMachines : if (architecture == 'multitier') {
+module multiTierPortalVirtualMachines 'modules/virtualMachine.bicep' = [for (server, i) in portalVirtualMachines: if (architecture == 'multitier') {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'deploy-esri-portal-${i}-${deploymentNameSuffix}'
   params: {
     adminPassword: adminPassword
     adminUsername: adminUsername
     architecture: architecture
-    availabilitySetName: portalAvailabilitySet.outputs.name
+    availabilitySetName: architecture == 'multitier' ? portalAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
     joinWindowsDomain: joinWindowsDomain
     location: location
@@ -571,14 +627,14 @@ module multiTierPortalVirtualMachines 'modules/virtualMachine.bicep' =  [for (se
 }]
 
 @batchSize(5)
-module multiTierDatastoreServerVirtualMachines 'modules/virtualMachine.bicep' =  [for (server, i) in dataStoreVirtualMachines : if (architecture == 'multitier')  {
+module multiTierDatastoreServerVirtualMachines 'modules/virtualMachine.bicep' = [for (server, i) in dataStoreVirtualMachines: if (architecture == 'multitier') {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'deploy-esri-datastore-${i}-${deploymentNameSuffix}'
   params: {
     adminPassword: adminPassword
     adminUsername: adminUsername
     architecture: architecture
-    availabilitySetName: dataStoreAvailabilitySet.outputs.name
+    availabilitySetName: architecture == 'multitier' ? dataStoreAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
     joinWindowsDomain: joinWindowsDomain
     location: location
@@ -601,7 +657,7 @@ module multiTierDatastoreServerVirtualMachines 'modules/virtualMachine.bicep' = 
 }]
 
 @batchSize(5)
-module multiTierFileServerVirtualMachines 'modules/virtualMachine.bicep' =  [for (server, i) in fileShareVirtualMachines: if (architecture == 'multitier')  {
+module multiTierFileServerVirtualMachines 'modules/virtualMachine.bicep' = [for (server, i) in fileShareVirtualMachines: if (architecture == 'multitier') {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'deploy-esri-fileserver-${i}-${deploymentNameSuffix}'
   params: {
@@ -631,14 +687,14 @@ module multiTierFileServerVirtualMachines 'modules/virtualMachine.bicep' =  [for
 }]
 
 @batchSize(5)
-module multiTierSpatiotemporalBigDataStoreVirtualMachines 'modules/virtualMachine.bicep' =  [for (server, i) in spatiotemporalBigDataStoreVirtualMachines : if (architecture == 'multitier' && enableSpatiotemporalBigDataStore)  {
+module multiTierSpatiotemporalBigDataStoreVirtualMachines 'modules/virtualMachine.bicep' = [for (server, i) in spatiotemporalBigDataStoreVirtualMachines: if (architecture == 'multitier' && enableSpatiotemporalBigDataStore) {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'deploy-esri-spatiotemporal-${i}-${deploymentNameSuffix}'
   params: {
     adminPassword: adminPassword
     adminUsername: adminUsername
     architecture: architecture
-    availabilitySetName: enableSpatiotemporalBigDataStore ? spatiotemporalAvailabilitySet.outputs.name : 'none'
+    availabilitySetName: architecture == 'multitier' && enableSpatiotemporalBigDataStore ? spatiotemporalAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
     joinWindowsDomain: joinWindowsDomain
     location: location
@@ -661,14 +717,14 @@ module multiTierSpatiotemporalBigDataStoreVirtualMachines 'modules/virtualMachin
 }]
 
 @batchSize(5)
-module multiTierTileCacheVirtualMachines 'modules/virtualMachine.bicep' =  [for (server, i) in tileCacheDataStoreVirtualMachines : if (architecture == 'multitier' && enableTileCacheDataStore)  {
+module multiTierTileCacheVirtualMachines 'modules/virtualMachine.bicep' = [for (server, i) in tileCacheDataStoreVirtualMachines: if (architecture == 'multitier' && enableTileCacheDataStore) {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'deploy-esri-tilecache-${i}-${deploymentNameSuffix}'
   params: {
     adminPassword: adminPassword
     adminUsername: adminUsername
     architecture: architecture
-    availabilitySetName: enableTileCacheDataStore ? tileCacheAvailabilitySet.outputs.name : 'none'
+    availabilitySetName: architecture == 'multitier' && enableTileCacheDataStore ? tileCacheAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
     joinWindowsDomain: joinWindowsDomain
     location: location
@@ -691,14 +747,14 @@ module multiTierTileCacheVirtualMachines 'modules/virtualMachine.bicep' =  [for 
 }]
 
 @batchSize(5)
-module multiTierGraphVirtualMachines 'modules/virtualMachine.bicep' =  [for (server, i) in graphDataStoreVirtualMachines : if (architecture == 'multitier' && enableGraphDataStore)  {
+module multiTierGraphVirtualMachines 'modules/virtualMachine.bicep' = [for (server, i) in graphDataStoreVirtualMachines: if (architecture == 'multitier' && enableGraphDataStore) {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'deploy-esri-graph-${i}-${deploymentNameSuffix}'
   params: {
     adminPassword: adminPassword
     adminUsername: adminUsername
     architecture: architecture
-    availabilitySetName: enableGraphDataStore ? graphAvailabilitySet.outputs.name : 'none'
+    availabilitySetName: architecture == 'multitier' && enableGraphDataStore ? graphAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
     joinWindowsDomain: joinWindowsDomain
     location: location
@@ -721,14 +777,14 @@ module multiTierGraphVirtualMachines 'modules/virtualMachine.bicep' =  [for (ser
 }]
 
 @batchSize(5)
-module multiTierObjectDataStoreVirtualMachines 'modules/virtualMachine.bicep' =  [for (server, i) in objectDataStoreVirtualMachines : if (architecture == 'multitier' && enableObjectDataStore)  {
+module multiTierObjectDataStoreVirtualMachines 'modules/virtualMachine.bicep' = [for (server, i) in objectDataStoreVirtualMachines: if (architecture == 'multitier' && enableObjectDataStore) {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'deploy-esri-odata-${i}-${deploymentNameSuffix}'
   params: {
     adminPassword: adminPassword
     adminUsername: adminUsername
     architecture: architecture
-    availabilitySetName: enableObjectDataStore ? odataAvailabilitySet.outputs.name : 'none'
+    availabilitySetName: architecture == 'multitier' && enableObjectDataStore ? odataAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
     joinWindowsDomain: joinWindowsDomain
     location: location
@@ -757,7 +813,7 @@ module keyVault './modules/keyVault.bicep' = {
     domainJoinPassword: joinWindowsDomain ? windowsDomainAdministratorPassword : 'None'
     domainJoinUserPrincipalName: joinWindowsDomain ? windowsDomainAdministratorUserName : 'None'
     keyVaultCertificatesOfficerRoleDefinitionResourceId: keyVaultCertificatesOfficer
-    keyVaultName: keyVaultName
+    keyVaultName: take('${keyVaultName}-${uniqueString(rg.id, keyVaultName)}', 24)
     keyVaultSecretsOfficerRoleDefinitionResourceId: keyVaultSecretsOfficer
     localAdministratorPassword: adminPassword
     localAdministratorUsername: adminUsername
@@ -768,7 +824,6 @@ module keyVault './modules/keyVault.bicep' = {
     userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
   }
   dependsOn: [
-    rg
     tier3
   ]
 }
@@ -776,9 +831,22 @@ module keyVault './modules/keyVault.bicep' = {
 module roleAssignmentStorageAccount './modules/roleAssignmentStorageAccount.bicep' = {
   name: 'assign-role-sa-01-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
-  params:{
+  params: {
     principalId: userAssignedIdentity.outputs.principalId
     storageAccountName: storage.outputs.storageAccountName
+  }
+  dependsOn: [
+    keyVault
+    tier3
+  ]
+}
+
+module roleAssignmentHubStorageAccount './modules/roleAssignmentStorageAccount.bicep' = {
+  name: 'assign-role-sa-02-${deploymentNameSuffix}'
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  params: {
+    principalId: userAssignedIdentity.outputs.principalId
+    storageAccountName: hubStorageAccount.name
   }
   dependsOn: [
     keyVault
@@ -789,7 +857,7 @@ module roleAssignmentStorageAccount './modules/roleAssignmentStorageAccount.bice
 module roleAssignmentVirtualMachineContributor './modules/roleAssignmentVirtualMachineContributor.bicep' = {
   name: 'assign-role-vm-02-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
-  params:{
+  params: {
     principalId: userAssignedIdentity.outputs.principalId
     resourceGroupName: resourceGroupName
   }
@@ -798,29 +866,68 @@ module roleAssignmentVirtualMachineContributor './modules/roleAssignmentVirtualM
   ]
 }
 
-module artifacts './modules/artifacts.bicep' = {
-  name: 'deploy-artifacts-${deploymentNameSuffix}'
+// module artifacts './modules/artifacts.bicep' = {
+//   name: 'deploy-artifacts-${deploymentNameSuffix}'
+//   scope: resourceGroup(subscriptionId, resourceGroupName)
+//   params: {
+//     containerName: container
+//     identityId: userAssignedIdentity.outputs.resourceId
+//     keyVaultName: keyVault.outputs.name
+//     location: location
+//     portalLicenseFile: portalLicenseFile
+//     portalLicenseFileName: portalLicenseFileName
+//     serverLicenseFile: serverLicenseFile
+//     serverLicenseFileName: serverLicenseFileName
+//     storageAccountName: storage.outputs.storageAccountName
+//     tags: tags
+//   }
+//   dependsOn: [
+//     multiTierFileServerVirtualMachines
+//     multiTierPortalVirtualMachines
+//     multiTierServerVirtualMachines
+//     rg
+//     roleAssignmentStorageAccount
+//     roleAssignmentVirtualMachineContributor
+//     tier3
+//   ]
+// }
+
+module managementVm 'modules/managementVirtualMachine.bicep' = {
+  name: 'deploy-management-vm-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    containerName: container
-    identityId: userAssignedIdentity.outputs.resourceId
-    keyVaultName: keyVault.outputs.name
     location: location
+    subnetResourceId: tier3.outputs.subnetResourceId
+    tags: tags
+    userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
+    virtualMachineName: take('vm-esri-mgmt-${resourceSuffix})', 15)
+    certificateFileName: certificateFileName
+    certificatePassword: certificatePassword
+    hubContainerName: hubContainerName
+    diskEncryptionSetResourceId: diskEncryptionSetResourceId
+    externalDnsHostname: externalDnsHostname
+    hybridUseBenefit: false
+    keyVaultName: keyVault.outputs.name
+    localAdministratorPassword: adminPassword
+    localAdministratorUsername: adminUsername
     portalLicenseFile: portalLicenseFile
     portalLicenseFileName: portalLicenseFileName
     serverLicenseFile: serverLicenseFile
     serverLicenseFileName: serverLicenseFileName
-    storageAccountName: storage.outputs.storageAccountName
-    tags: tags
+    userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
+    userAssignedIdentityClientId: userAssignedIdentity.outputs.clientId
+    hubStorageAccountName: hubStorageAccount.name
+    esriStorageAccountName: storage.outputs.storageAccountName
   }
   dependsOn: [
+    rg
+    userAssignedIdentity
+    roleAssignmentHubStorageAccount
+    roleAssignmentStorageAccount
+    roleAssignmentVirtualMachineContributor
     multiTierFileServerVirtualMachines
     multiTierPortalVirtualMachines
     multiTierServerVirtualMachines
-    rg
-    roleAssignmentStorageAccount
-    roleAssignmentVirtualMachineContributor
-    singleTierVirtualMachine
     tier3
   ]
 }
@@ -832,7 +939,7 @@ module certificates './modules/certificates.bicep' = {
     fileUri: '${storage.outputs.storageEndpoint}${container}/GenerateSSLCerts.ps1'
     location: location
     portalInternalCertificateFileName: ''
-    portalVirtualMachineNames: architecture == 'singletier'? virtualMachineName : portalVirtualMachineNames
+    portalVirtualMachineNames: architecture == 'singletier' ? virtualMachineName : portalVirtualMachineNames
     serverInternalCertificateFileName: ''
     serverVirtualMachineNames: architecture == 'singletier' ? virtualMachineName : serverVirtualMachineNames
     tags: tags
@@ -842,7 +949,8 @@ module certificates './modules/certificates.bicep' = {
   dependsOn: [
     keyVault
     rg
-    artifacts
+    // artifacts
+    managementVm
     multiTierFileServerVirtualMachines
     singleTierVirtualMachine
     tier3
@@ -850,109 +958,110 @@ module certificates './modules/certificates.bicep' = {
 }
 
 module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' = if (architecture == 'multitier') {
-name: 'deploy-esri-multitier-${deploymentNameSuffix}'
-scope: resourceGroup(subscriptionId, resourceGroupName)
-params: {
-  adminPassword: adminPassword
-  adminUsername: adminUsername
-  applicationGatewayName: applicationGatewayName
-  applicationGatewayPrivateIPAddress: applicationGatewayPrivateIpAddress
-  arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
-  arcgisServiceAccountPassword: arcgisServiceAccountPassword
-  arcgisServiceAccountUserName: arcgisServiceAccountUserName
-  architecture: architecture
-  cloudStorageAccountCredentialsUserName: storage.outputs.cloudStorageAccountCredentialsUserName
-  dataStoreVirtualMachineNames: dataStoreVirtualMachineNames
-  dataStoreVirtualMachineOSDiskSize: dataStoreVirtualMachineOSDiskSize
-  dataStoreVirtualMachines: dataStoreVirtualMachines
-  debugMode: debugMode
-  deploymentNameSuffix: deploymentNameSuffix
-  dscDataStoreFunction: dscDataStoreFunction
-  dscGraphDataStoreFunction: dscGraphDataStoreFunction
-  dscObjectDataStoreFunction: dscObjectDataStoreFunction
-  dscPortalFunction: dscPortalFunction
-  dscServerScriptFunction: dscServerScriptFunction
-  dscSpatioTemporalFunction: dscsSatiotemporalBigDataStoreFunction
-  dscTileCacheFunction: dscTileCacheDataStoreDscFunction
-  enableDataStoreVirtualMachineDataDisk: enableDataStoreVirtualMachineDataDisk
-  enableGraphDataStore: enableGraphDataStore
-  enableGraphDataStoreVirtualMachineDataDisk: enableGraphDataStoreVirtualMachineDataDisk
-  enableObjectDataStore: enableObjectDataStore
-  enableObjectDataStoreVirtualMachineDataDisk: enableObjectDataStoreVirtualMachineDataDisk
-  enableServerLogHarvesterPlugin: enableServerLogHarvesterPlugin
-  enableSpatiotemporalBigDataStore: enableSpatiotemporalBigDataStore
-  enableSpatiotemporalBigDataStoreVirtualMachineDataDisk: enableSpatiotemporalBigDataStoreVirtualMachineDataDisk
-  enableTileCacheDataStore: enableTileCacheDataStore
-  enableTileCacheDataStoreVirtualMachineDataDisk: enableTileCacheDataStoreVirtualMachineDataDisk
-  enableVirtualMachineDataDisk: enableVirtualMachineDataDisk
-  externalDnsHostname: externalDnsHostname
-  fileShareDscScriptFunction: fileShareDscScriptFunction
-  fileShareVirtualMachineName: fileShareVirtualMachineName
-  graphDataStoreVirtualMachineNames: graphDataStoreVirtualMachineNames
-  graphDataStoreVirtualMachineOSDiskSize: graphDataStoreVirtualMachineOSDiskSize
-  graphDataStoreVirtualMachines: graphDataStoreVirtualMachines
-  iDns: multiTierFileServerVirtualMachines[0].outputs.networkInterfaceInternalDomainNameSuffix
-  isMultiMachineTileCacheDataStore: isMultiMachineTileCacheDataStore
-  isObjectDataStoreClustered: isObjectDataStoreClustered
-  isTileCacheDataStoreClustered: isTileCacheDataStoreClustered
-  isUpdatingCertificates: isUpdatingCertificates
-  joinWindowsDomain: joinWindowsDomain
-  keyVaultUri: keyVault.outputs.keyVaultUri
-  location: location
-  objectDataStoreVirtualMachineNames: objectDataStoreVirtualMachineNames
-  objectDataStoreVirtualMachineOSDiskSize: objectDataStoreVirtualMachineOSDiskSize
-  objectDataStoreVirtualMachines: objectDataStoreVirtualMachines
-  portalBackendSslCert: certificates.outputs.portalBackendSSLCert
-  portalContext: portalContext
-  portalLicenseFileName: portalLicenseFileName
-  portalLicenseUserTypeId: portalLicenseUserTypeId
-  portalVirtualMachineNames: portalVirtualMachineNames
-  portalVirtualMachineOSDiskSize: portalVirtualMachineOSDiskSize
-  portalVirtualMachines: portalVirtualMachines
-  primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
-  primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
-  publicIpId: publicIpAddress.outputs.pipId
-  resourceGroupName: resourceGroupName
-  resourceSuffix: resourceSuffix
-  secondaryDnsHostName: secondaryDnsHostName
-  selfSignedSSLCertificatePassword: selfSignedCertificatePassword
-  serverBackendSSLCert: certificates.outputs.serverBackendSSLCert
-  serverContext: serverContext
-  serverLicenseFileName: serverLicenseFileName
-  serverVirtualMachineNames: serverVirtualMachineNames
-  serverVirtualMachines: serverVirtualMachines
-  spatiotemporalBigDataStoreVirtualMachineNames: spatiotemporalBigDataStoreVirtualMachineNames
-  spatiotemporalBigDataStoreVirtualMachineOSDiskSize: spatiotemporalBigDataStoreVirtualMachineOSDiskSize
-  spatiotemporalBigDataStoreVirtualMachines: spatiotemporalBigDataStoreVirtualMachines
-  storageAccountName: storage.outputs.storageAccountName
-  storageUriPrefix: '${storage.outputs.storageEndpoint}${container}/'
-  tags: tags
-  tileCacheDataStoreVirtualMachineOSDiskSize: tileCacheDataStoreVirtualMachineOSDiskSize
-  tileCacheVirtualMachineNames: tileCacheDataStoreVirtualMachineNames
-  tileCacheVirtualMachines: tileCacheDataStoreVirtualMachines
-  useAzureFiles: useAzureFiles
-  useCloudStorage: useCloudStorage
-  userAssignedIdenityResourceId: userAssignedIdentity.outputs.resourceId
-  virtualMachineOSDiskSize: virtualMachineOSDiskSize
-  virtualNetworkId: tier3.outputs.virtualNetworkResourceId
-  virtualNetworkName: tier3.outputs.virtualNetworkName
-  windowsDomainName: joinWindowsDomain ? windowsDomainName : 'none'
-}
-dependsOn: [
-  artifacts
-  certificates
-  multiTierDatastoreServerVirtualMachines
-  multiTierFileServerVirtualMachines
-  multiTierGraphVirtualMachines
-  multiTierGraphVirtualMachines
-  multiTierObjectDataStoreVirtualMachines
-  multiTierPortalVirtualMachines
-  multiTierServerVirtualMachines
-  multiTierSpatiotemporalBigDataStoreVirtualMachines
-  multiTierTileCacheVirtualMachines
-  publicIpAddress
-  tier3
-]
+  name: 'deploy-esri-multitier-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
+  params: {
+    adminPassword: adminPassword
+    adminUsername: adminUsername
+    applicationGatewayName: applicationGatewayName
+    applicationGatewayPrivateIPAddress: applicationGatewayPrivateIpAddress
+    arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
+    arcgisServiceAccountPassword: arcgisServiceAccountPassword
+    arcgisServiceAccountUserName: arcgisServiceAccountUserName
+    architecture: architecture
+    cloudStorageAccountCredentialsUserName: storage.outputs.cloudStorageAccountCredentialsUserName
+    dataStoreVirtualMachineNames: dataStoreVirtualMachineNames
+    dataStoreVirtualMachineOSDiskSize: dataStoreVirtualMachineOSDiskSize
+    dataStoreVirtualMachines: dataStoreVirtualMachines
+    debugMode: debugMode
+    deploymentNameSuffix: deploymentNameSuffix
+    dscDataStoreFunction: dscDataStoreFunction
+    dscGraphDataStoreFunction: dscGraphDataStoreFunction
+    dscObjectDataStoreFunction: dscObjectDataStoreFunction
+    dscPortalFunction: dscPortalFunction
+    dscServerScriptFunction: dscServerScriptFunction
+    dscSpatioTemporalFunction: dscsSatiotemporalBigDataStoreFunction
+    dscTileCacheFunction: dscTileCacheDataStoreDscFunction
+    enableDataStoreVirtualMachineDataDisk: enableDataStoreVirtualMachineDataDisk
+    enableGraphDataStore: enableGraphDataStore
+    enableGraphDataStoreVirtualMachineDataDisk: enableGraphDataStoreVirtualMachineDataDisk
+    enableObjectDataStore: enableObjectDataStore
+    enableObjectDataStoreVirtualMachineDataDisk: enableObjectDataStoreVirtualMachineDataDisk
+    enableServerLogHarvesterPlugin: enableServerLogHarvesterPlugin
+    enableSpatiotemporalBigDataStore: enableSpatiotemporalBigDataStore
+    enableSpatiotemporalBigDataStoreVirtualMachineDataDisk: enableSpatiotemporalBigDataStoreVirtualMachineDataDisk
+    enableTileCacheDataStore: enableTileCacheDataStore
+    enableTileCacheDataStoreVirtualMachineDataDisk: enableTileCacheDataStoreVirtualMachineDataDisk
+    enableVirtualMachineDataDisk: enableVirtualMachineDataDisk
+    externalDnsHostname: externalDnsHostname
+    fileShareDscScriptFunction: fileShareDscScriptFunction
+    fileShareVirtualMachineName: fileShareVirtualMachineName
+    graphDataStoreVirtualMachineNames: graphDataStoreVirtualMachineNames
+    graphDataStoreVirtualMachineOSDiskSize: graphDataStoreVirtualMachineOSDiskSize
+    graphDataStoreVirtualMachines: graphDataStoreVirtualMachines
+    iDns: architecture == 'multitier' ? multiTierFileServerVirtualMachines[0].outputs.networkInterfaceInternalDomainNameSuffix : ''
+    isMultiMachineTileCacheDataStore: isMultiMachineTileCacheDataStore
+    isObjectDataStoreClustered: isObjectDataStoreClustered
+    isTileCacheDataStoreClustered: isTileCacheDataStoreClustered
+    isUpdatingCertificates: isUpdatingCertificates
+    joinWindowsDomain: joinWindowsDomain
+    keyVaultUri: keyVault.outputs.keyVaultUri
+    location: location
+    objectDataStoreVirtualMachineNames: objectDataStoreVirtualMachineNames
+    objectDataStoreVirtualMachineOSDiskSize: objectDataStoreVirtualMachineOSDiskSize
+    objectDataStoreVirtualMachines: objectDataStoreVirtualMachines
+    portalBackendSslCert: certificates.outputs.portalBackendSSLCert
+    portalContext: portalContext
+    portalLicenseFileName: portalLicenseFileName
+    portalLicenseUserTypeId: portalLicenseUserTypeId
+    portalVirtualMachineNames: portalVirtualMachineNames
+    portalVirtualMachineOSDiskSize: portalVirtualMachineOSDiskSize
+    portalVirtualMachines: portalVirtualMachines
+    primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
+    primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
+    publicIpId: publicIpAddress.outputs.pipId
+    resourceGroupName: resourceGroupName
+    resourceSuffix: resourceSuffix
+    secondaryDnsHostName: secondaryDnsHostName
+    selfSignedSSLCertificatePassword: selfSignedCertificatePassword
+    serverBackendSSLCert: certificates.outputs.serverBackendSSLCert
+    serverContext: serverContext
+    serverLicenseFileName: serverLicenseFileName
+    serverVirtualMachineNames: serverVirtualMachineNames
+    serverVirtualMachines: serverVirtualMachines
+    spatiotemporalBigDataStoreVirtualMachineNames: spatiotemporalBigDataStoreVirtualMachineNames
+    spatiotemporalBigDataStoreVirtualMachineOSDiskSize: spatiotemporalBigDataStoreVirtualMachineOSDiskSize
+    spatiotemporalBigDataStoreVirtualMachines: spatiotemporalBigDataStoreVirtualMachines
+    storageAccountName: storage.outputs.storageAccountName
+    storageUriPrefix: '${storage.outputs.storageEndpoint}${container}/'
+    tags: tags
+    tileCacheDataStoreVirtualMachineOSDiskSize: tileCacheDataStoreVirtualMachineOSDiskSize
+    tileCacheVirtualMachineNames: tileCacheDataStoreVirtualMachineNames
+    tileCacheVirtualMachines: tileCacheDataStoreVirtualMachines
+    useAzureFiles: useAzureFiles
+    useCloudStorage: useCloudStorage
+    userAssignedIdenityResourceId: userAssignedIdentity.outputs.resourceId
+    virtualMachineOSDiskSize: virtualMachineOSDiskSize
+    virtualNetworkId: tier3.outputs.virtualNetworkResourceId
+    virtualNetworkName: tier3.outputs.virtualNetworkName
+    windowsDomainName: joinWindowsDomain ? windowsDomainName : 'none'
+  }
+  dependsOn: [
+    // artifacts
+    managementVm
+    certificates
+    multiTierDatastoreServerVirtualMachines
+    multiTierFileServerVirtualMachines
+    multiTierGraphVirtualMachines
+    multiTierGraphVirtualMachines
+    multiTierObjectDataStoreVirtualMachines
+    multiTierPortalVirtualMachines
+    multiTierServerVirtualMachines
+    multiTierSpatiotemporalBigDataStoreVirtualMachines
+    multiTierTileCacheVirtualMachines
+    publicIpAddress
+    tier3
+  ]
 }
 
 module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architecture == 'singletier') {
@@ -965,14 +1074,14 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
     arcgisServiceAccountUserName: arcgisServiceAccountUserName
     cloudStorageAccountCredentialsUserName: storage.outputs.cloudStorageAccountCredentialsUserName
-    dataStoreTypesForBaseDeploymentServers: dataStoreTypesForBaseDeploymentServers
+    dataStoreTypesForBaseDeploymentServers: singleTierDataStoreTypes.outputs.dataStoreTypesForBaseDeploymentServers
     debugMode: debugMode
     deploymentNameSuffix: deploymentNameSuffix
     dscConfiguration: dscSingleTierConfiguration
     dscScript: '${dscSingleTierConfiguration}.ps1'
     enableServerLogHarvesterPlugin: enableServerLogHarvesterPlugin
     enableVirtualMachineDataDisk: enableVirtualMachineDataDisk
-    hostname: publicIpAddress.outputs.pipFqdn
+    hostname: externalDnsHostname
     isTileCacheDataStoreClustered: isTileCacheDataStoreClustered
     isUpdatingCertificates: isUpdatingCertificates
     location: location
@@ -981,7 +1090,7 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     portalLicenseUserTypeId: portalLicenseUserTypeId
     primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
     primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
-    publicKeySSLCertificateFileName: 'wildcard${replace(publicIpAddress.outputs.pipFqdn, externalDnsHostnamePrefix, '')}-PublicKey.cer'
+    publicKeySSLCertificateFileName: 'wildcard${externalDnsHostname}-PublicKey.cer'
     serverContext: serverContext
     serverLicenseFileName: serverLicenseFileName
     storageAccountName: storage.outputs.storageAccountName
@@ -992,10 +1101,27 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     virtualMachineName: virtualMachineName
     virtualMachineOSDiskSize: virtualMachineOSDiskSize
     selfSignedSSLCertificatePassword: selfSignedCertificatePassword
+    applicationGatewayName: applicationGatewayName
+    applicationGatewayPrivateIPAddress: applicationGatewayPrivateIpAddress
+    externalDnsHostname: externalDnsHostname
+    iDns: architecture == 'singletier' ? singleTierVirtualMachine.outputs.networkInterfaceInternalDomainNameSuffix : 'none'
+    joinWindowsDomain: joinWindowsDomain
+    keyVaultUri: keyVault.outputs.keyVaultUri
+    portalBackendSslCert: certificates.outputs.portalBackendSSLCert
+    publicIpId: publicIpAddress.outputs.pipId
+    resourceGroupName: rg.name
+    resourceSuffix: resourceSuffix
+    serverBackendSSLCert: certificates.outputs.serverBackendSSLCert
+    userAssignedIdenityResourceId: userAssignedIdentity.outputs.resourceId
+    virtualNetworkName: tier3.outputs.virtualNetworkName
+    windowsDomainName: windowsDomainName
+    architecture: architecture
+    virtualNetworkId: tier3.outputs.virtualNetworkResourceId
   }
   dependsOn: [
     certificates
-    artifacts
+    // artifacts
+    managementVm
     singleTierVirtualMachine
   ]
 }

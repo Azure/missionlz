@@ -35,10 +35,68 @@ param virtualMachineName string
 param virtualMachineOSDiskSize int
 @secure()
 param selfSignedSSLCertificatePassword string
+param applicationGatewayName string
+param externalDnsHostname string
+// param externalDnsHostnamePrefix string
+param iDns string
+param joinWindowsDomain bool
+param keyVaultUri string
+param portalBackendSslCert string
+param publicIpId string
+param resourceGroupName string
+param resourceSuffix string
+param serverBackendSSLCert string
+param subscriptionId string = subscription().subscriptionId
+param userAssignedIdenityResourceId string
+param virtualNetworkName string
+param applicationGatewayPrivateIPAddress string
+param windowsDomainName string
+param architecture string
+param virtualNetworkId string
+
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   scope: resourceGroup(subscription().subscriptionId, resourceGroup().name)
   name: storageAccountName
+}
+
+module privateDnsZone 'privateDnsZone.bicep' = if (architecture == 'multitier' && joinWindowsDomain == false) {
+  name: 'deploy-privatednszone-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
+  params: {
+    externalDnsHostname: externalDnsHostname
+    applicationGatewayPrivateIPAddress: multiTierApplicationGateway.outputs.applicationGatewayPrivateIpAddress
+    virtualNetworkId: virtualNetworkId
+  }
+  dependsOn: [
+  ]
+}
+
+module multiTierApplicationGateway 'esriEnterpriseApplicationGatewayMultiTier.bicep' = {
+  name: 'deploy-applicationgateway-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
+  params: {
+    applicationGatewayName: applicationGatewayName
+    applicationGatewayPrivateIpAddress: applicationGatewayPrivateIPAddress
+    externalDnsHostName: externalDnsHostname
+    iDns: iDns
+    joinWindowsDomain: joinWindowsDomain
+    keyVaultUri: keyVaultUri
+    location: location
+    portalBackendSslCert: portalBackendSslCert
+    portalVirtualMachineNames: virtualMachineName
+    publicIpId: publicIpId
+    resourceGroup: resourceGroupName
+    resourceSuffix: resourceSuffix
+    serverBackendSSLCert: serverBackendSSLCert
+    serverVirtualMachineNames: virtualMachineName
+    userAssignedIdenityResourceId: userAssignedIdenityResourceId
+    virtualNetworkName: virtualNetworkName
+    windowsDomainName: windowsDomainName
+  }
+  dependsOn: [
+
+  ]
 }
 
 module desiredStateConfiguration 'desiredStateConfiguration.bicep' = {
@@ -77,5 +135,9 @@ module desiredStateConfiguration 'desiredStateConfiguration.bicep' = {
     storageAccountName: storageAccount.name
     selfSignedSSLCertificatePassword: selfSignedSSLCertificatePassword
   }
+  dependsOn: [
+    multiTierApplicationGateway
+    privateDnsZone
+  ]
 }
 

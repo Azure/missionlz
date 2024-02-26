@@ -415,6 +415,7 @@ module dscEsriPortalServers 'dscEsriPortal.bicep' = [for (server, i) in portalVi
     dscEsriSpatioTemporalServers
     dscEsriGraphDataStoreServers
     dscEsriObjectDataStoreServers
+    dscEsriTileCacheServers
     multiTierApplicationGateway
     privateDnsZone
   ]

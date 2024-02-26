@@ -2,74 +2,118 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "resourceGroupName": {
-      "value": "a14-test-rg"
-    },
-    "deploymentPrefix": {
-      "value": "a14"
-    },
-    "externalDnsHostname": {
-      "value": "a14"
+    "adminPassword": {
+      "value": "123mikeD123!"
     },
     "adminUsername": {
       "value": "xadmin"
     },
-    "adminPassword": {
-      "value": "123mikeD123!"
+    "applicationGatewayPrivateIpAddress": {
+      "value": ""
     },
-    "virtualMachineName": {
-      "value": "esri-test"
-    },
-    "virtualMachineOSDiskSize": {
-      "value": 0
-    },
-    "dscConfiguration": {
-      "value": "BaseDeploymentSingleTierConfiguration"
-    },
-    "dscScript": {
-      "value": "BaseDeploymentSingleTierConfiguration.ps1"
-    },
-    "arcgisServiceAccountUserName": {
-      "value": "arcgis"
-    },
-    "arcgisServiceAccountPassword": {
-      "value": "mikeD123!"
+    "applicationGatewaySubnetAddressPrefix": {
+      "value": ""
     },
     "arcgisServiceAccountIsDomainAccount": {
       "value": false
     },
-    "primarySiteAdministratorAccountUserName": {
-      "value": "sadmin"
+    "arcgisServiceAccountPassword": {
+      "value": "mikeD123!"
     },
-    "primarySiteAdministratorAccountPassword": {
-      "value": "MIKED."
+    "arcgisServiceAccountUserName": {
+      "value": "arcgis"
+    },
+    "architecture": {},
+    "azureFirewallName": {
+      "value": ""
+    },
+    "dataStoreTypesForBaseDeployment": {},
+    "debugMode": {
+      "value": false
+    },
+    "defaultSubnetAddressPrefix": {
+      "value": ""
+    },
+    "deployDefender": {
+      "value": false
+    },
+    "deployPolicy": {
+      "value": false
+    },
+    "diskEncryptionSetResourceId": {
+      "value": ""
+    },
+    "enableGraphDataStore": {
+      "value": false
+    },
+    "enableMonitoring": {
+      "value": true
+    },
+    "enableObjectDataStore": {
+      "value": false
+    },
+    "enableSpatiotemporalBigDataStore": {
+      "value": false
+    },
+    "enableTileCacheDataStore": {
+      "value": false
+    },
+    "externalDnsHostname": {
+      "value": "a14"
+    },
+    "hubResourceGroupName": {
+      "value": ""
+    },
+    "hubSubscriptionId": {
+      "value": ""
+    },
+    "logAnalyticsWorkspaceName": {
+      "value": ""
+    },
+    "portalLicenseFile": {
+      "value": ""
     },
     "portalLicenseUserTypeId": {
       "value": "creatorUT"
     },
-    "dataStoreTypesForBaseDeploymentServers": {
-      "value": "Relational"
+    "primarySiteAdministratorAccountPassword": {
+      "value": "MIKED."
     },
-    "cloudStorageAccountName": {
+    "primarySiteAdministratorAccountUserName": {
+      "value": "sadmin"
+    },
+    "resourcePrefix": {
       "value": ""
     },
-    "cloudStorageAccountKey": {
+    "selfSignedCertificatePassword": {
       "value": ""
     },
-    "enableServerLogHarvesterPlugin": {
+    "serverLicenseFile": {
+      "value": ""
+    },
+    "spokelogAnalyticsWorkspaceResourceId": {
+      "value": ""
+    },
+    "useAzureFiles": {
       "value": false
     },
-    "container": {
-      "value": "artifacts"
-    },
-    "joinWindowsDomain": {
+    "useCloudStorage": {
       "value": false
     },
-    "windowsDomainName": {
+    "virtualNetworkAddressPrefix": {
       "value": ""
     },
-    "enableMonitoring": {
-        "value": true
+    "certificatePassword": {
+      "value": ""
+    },
+    "certificateFileName": {
+      "value": ""
+    },
+    "hubStorageAccountName": {
+      "value": ""
+    },
+    "hubContainerName": {
+      "value": ""
     }
   }
 }

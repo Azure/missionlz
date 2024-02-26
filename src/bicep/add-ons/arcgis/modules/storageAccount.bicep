@@ -24,7 +24,7 @@ var uniqueStorageName = take('${uniqueString(resourceGroup().id)}', 10)
 // ]
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: '${uniqueStorageName}esri'
+  name: 'saesri${uniqueStorageName}'
   location: location
   tags: contains(tags, 'Microsoft.Storage/storageAccounts') ? tags['Microsoft.Storage/storageAccounts'] : {}
   sku: {
