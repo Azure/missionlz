@@ -1069,7 +1069,7 @@
                   "label": "Subnet CIDR range (Azure NetApp Files)",
                   "type": "Microsoft.Common.TextBox",
                   "visible": "[and(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles'))]",
-                  "defaultValue": "[concat(10.0.13', steps('basics').naming.stampIndex, '.', if(not(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location)), '64/26', '128/25'))]",
+                  "defaultValue": "[concat('10.0.13', steps('basics').naming.stampIndex, '.', if(not(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location)), '64/26', '128/25'))]",
                   "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24].",
                   "constraints": {
                     "required": true,
