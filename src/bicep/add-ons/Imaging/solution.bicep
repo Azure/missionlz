@@ -126,6 +126,8 @@ param installSkypeForBusiness bool
 @description('Determines whether to install Teams.')
 param installTeams bool
 
+@description('Determines whether to install Microsoft/Windows Updates.')
+param installUpdates bool = false
 @description('Determines whether to install the Virtual Desktop Optimization Tool.')
 param installVirtualDesktopOptimizationTool bool
 
@@ -210,6 +212,17 @@ param tags object = {}
 @description('The file name of the Teams installer in Azure Blobs.')
 param teamsInstaller string = ''
 
+@allowed([
+  'WU'
+  'MU'
+  'WSUS'
+  'DCAT'
+  'STORE'
+  'OTHER'
+])
+@description('Determines if the updates service. (Default: \'MU\')')
+param updateService string = 'MU'
+
 @description('The name of the user assigned identity resource.')
 param userAssignedIdentityName string
 
@@ -227,6 +240,9 @@ param virtualMachineSize string
 
 @description('The workload subscription id.')
 param workloadSubscriptionId string
+
+@description('The WSUS Server Url if WSUS is specified. (i.e., https://wsus.corp.contoso.com:8531)')
+param wsusServer string = ''
 
 var imageDefinitionName = empty(computeGalleryImageResourceId) ? '${imageDefinitionNamePrefix}-${marketplaceImageSKU}' : '${imageDefinitionNamePrefix}-${split(computeGalleryImageResourceId, '/')[10]}'
 var imageVirtualMachineName = take('vmimg-${uniqueString(deploymentNameSuffix)}', 15)
@@ -385,6 +401,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     installPublisher: installPublisher
     installSkypeForBusiness: installSkypeForBusiness
     installTeams: installTeams
+    installUpdates: installUpdates
     installVirtualDesktopOptimizationTool: installVirtualDesktopOptimizationTool
     installVisio: installVisio
     installWord: installWord
@@ -410,12 +427,14 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     tags: tags
     teamsInstaller: teamsInstaller
     timeZone: timeZones[location]
+    updateService: updateService
     userAssignedIdentityClientId: baseline.outputs.userAssignedIdentityClientId
     userAssignedIdentityPrincipalId: baseline.outputs.userAssignedIdentityPrincipalId
     userAssignedIdentityResourceId: baseline.outputs.userAssignedIdentityResourceId
     vcRedistInstaller: vcRedistInstaller
     vDOTInstaller: vDOTInstaller
     virtualMachineSize: virtualMachineSize
+    wsusServer: wsusServer
   }
   dependsOn: [
     tier3
@@ -451,6 +470,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     installPublisher: installPublisher
     installSkypeForBusiness: installSkypeForBusiness
     installTeams: installTeams
+    installUpdates: installUpdates
     installVirtualDesktopOptimizationTool: installVirtualDesktopOptimizationTool
     installVisio: installVisio
     installWord: installWord
@@ -470,12 +490,14 @@ module imageBuild 'modules/imageBuild.bicep' = {
     subnetResourceId: tier3.outputs.subnetResourceId
     tags: tags
     teamsInstaller: teamsInstaller
+    updateService: updateService
     userAssignedIdentityClientId: baseline.outputs.userAssignedIdentityClientId
     userAssignedIdentityPrincipalId: baseline.outputs.userAssignedIdentityPrincipalId
     userAssignedIdentityResourceId: baseline.outputs.userAssignedIdentityResourceId
     vcRedistInstaller: vcRedistInstaller
     vDOTInstaller: vDOTInstaller
     virtualMachineSize: virtualMachineSize
+    wsusServer: wsusServer
   }
   dependsOn: [
     buildAutomation

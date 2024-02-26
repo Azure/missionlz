@@ -25,6 +25,7 @@ param installProject bool = false
 param installPublisher bool = false
 param installSkypeForBusiness bool = false
 param installTeams bool = false
+param installUpdates bool = false
 param installVirtualDesktopOptimizationTool bool = false
 param installVisio bool = false
 param installWord bool = false
@@ -47,12 +48,15 @@ param storageAccountResourceId string
 param subnetResourceId string
 param tags object = {}
 param teamsInstaller string = ''
+
+param updateService string = 'MicrosoftUpdate'
 param userAssignedIdentityClientId string
 param userAssignedIdentityPrincipalId string
 param userAssignedIdentityResourceId string
 param vcRedistInstaller string = ''
 param vDOTInstaller string = ''
 param virtualMachineSize string
+param wsusServer string = ''
 
 var autoImageVersion = '${imageMajorVersion}.${imageSuffix}.${imageMinorVersion}'
 var imageSuffix = take(deploymentNameSuffix, 9)
@@ -142,7 +146,7 @@ module addCustomizations 'customizations.bicep' = {
   ]
 }
 
-module restartVirtualMachine 'restartVirtualMachine.bicep' = {
+module restartVirtualMachine1 'restartVirtualMachine.bicep' = {
   name: 'restart-vm-${deploymentNameSuffix}'
   params: {
     imageVirtualMachineName: virtualMachine.outputs.name
@@ -157,6 +161,34 @@ module restartVirtualMachine 'restartVirtualMachine.bicep' = {
   ]
 }
 
+module microsoftUdpates 'microsoftUpdates.bicep' = if(installUpdates) {
+  name: 'microsoft-updates-${deploymentNameSuffix}'
+  params: {
+    imageVirtualMachineName: virtualMachine.outputs.name
+    location: location
+    tags: tags
+    updateService: updateService
+    wsusServer: wsusServer
+  }
+  dependsOn: [
+    restartVirtualMachine1
+  ]
+}
+
+module restartVirtualMachine2 'restartVirtualMachine.bicep' = {
+  name: 'restart-vm-${deploymentNameSuffix}'
+  params: {
+    imageVirtualMachineName: virtualMachine.outputs.name
+    resourceGroupName: resourceGroupName
+    location: location
+    tags: tags
+    userAssignedIdentityClientId: userAssignedIdentityClientId
+    virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
+  }
+  dependsOn: [
+    microsoftUdpates
+  ]
+}
 module sysprepVirtualMachine 'sysprepVirtualMachine.bicep' = {
   name: 'sysprep-vm-${deploymentNameSuffix}'
   params: {
@@ -165,7 +197,8 @@ module sysprepVirtualMachine 'sysprepVirtualMachine.bicep' = {
     virtualMachineName: virtualMachine.outputs.name
   }
   dependsOn: [
-    restartVirtualMachine
+    restartVirtualMachine1
+    restartVirtualMachine2
   ]
 }
 
