@@ -498,14 +498,14 @@ param policy string = 'NISTRev4'
 // MICROSOFT DEFENDER PARAMETERS
 
 @description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
-param deployDefender bool = false
+param deployDefender bool = true
 
 @allowed([
   'Standard'
   'Free'
 ])
 @description('[Standard/Free] The SKU for Defender. It defaults to "Standard".')
-param defenderSkuTier string = 'Standard'
+param defenderSkuTier string = 'Free'
 
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string = ''
