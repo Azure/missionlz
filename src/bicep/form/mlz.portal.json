@@ -669,7 +669,7 @@
               "name": "complianceDescriptionTextBlock",
               "type": "Microsoft.Common.TextBlock",
               "options": {
-                "text": "To support the on-going security and compliance of your landing zone, by default MLZ deploys the free cloud security posture management features of Defender for Cloud, such as: secure score, recommendations in securely configuring resources.\\nSecure Score measures compliance against the Microsoft Cloud Security Benchmark, which is a security framework derived from Microsoft best practices, and NIST/CIS security Controls.",
+                "text": "To support the on-going security and compliance of your landing zone, by default MLZ deploys the free cloud security posture management features of Defender for Cloud, such as: secure score, recommendations in securely configuring resources.  Secure Score measures compliance against the Microsoft Cloud Security Benchmark, which is a security framework derived from Microsoft best practices, and NIST/CIS security Controls.",
                 "link": {
                   "label": "Learn more",
                   "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
@@ -678,14 +678,14 @@
             },
             {
               "name": "policySection",
-              "label": "Enable Azure Policy",
+              "label": "Assign Additional Federal Regulatory Compliance Policies",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
                   "name": "policySubsetDetailsTextBlock",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Mission Landing Zone comes bundled with a relevant subset of available Azure policies."
+                    "text": "To assist with security compliance, MLZ can deploy additional regulatory compliance frameworks to your landing zone."
                   }
                 },
                 {
@@ -747,21 +747,21 @@
             },
             {
               "name": "defenderSection",
-              "label": "Enable Microsoft Defender for Cloud",
+              "label": "Enable the paid features of Microsoft Defender for Cloud",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
                   "name": "defenderSubscriptionDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Mission Landing Zone can activate Microsoft Defender for Cloud for each subscription it is deployed into."
+                    "text": "MLZ has the option of activiating the paid features of Defender for Cloud, such as: Defender Cloud Security Posture Management (DCSPM) and workload protection plans for additional monitoring/threat protection for resources, such as: servers, storage."
                   }
                 },
                 {
                   "name": "defenderOptionalDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Enabling Microsoft Defender for Cloud is optional, but recommended."
+                    "text": "Enabling paid features of Microsoft Defender for Cloud is optional, but recommended."
                   }
                 },
                 {
@@ -796,21 +796,21 @@
             },
             {
               "name": "sentinelSection",
-              "label": "Enable Azure Sentinel",
+              "label": "Enable Microsoft Sentinel",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
                   "name": "sentinelSectionDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Mission Landing Zone can activate Azure Sentinel for the Log Analytics Workspace it deploys."
+                    "text": "MLZ can deploy Microsoft Sentinel to the Log Analytics Workspace, for its Security information and event management (SIEM) and Security orchestration, automation, and response (SOAR).  Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities.."
                   }
                 },
                 {
                   "name": "sentinelOptionalDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Enabling Azure Sentinel is optional, but recommended."
+                    "text": "Enabling Microsoft Sentinel is optional, but recommended."
                   }
                 },
                 {
