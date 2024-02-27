@@ -663,13 +663,13 @@
         },
         {
           "name": "compliance",
-          "label": "Compliance",
+          "label": "Security and Compliance",
           "elements": [
             {
               "name": "complianceDescriptionTextBlock",
               "type": "Microsoft.Common.TextBlock",
               "options": {
-                "text": "To support the on-going security and compliance of your landing zone, MLZ deploys, by default, the free cloud security posture management features of Defender for Cloud - to enable such features as: secure score, recommendations in securely configuring resources.  Secure Score measures compliance against the Microsoft Cloud Security Benchmark, which is a security framework derived from Microsoft best practices, and NIST/CIS security Controls.",
+                "text": "To support the on-going security and compliance of your landing zone, by default MLZ deploys the free cloud security posture management features of Defender for Cloud, such as: secure score, recommendations in securely configuring resources.\\nSecure Score measures compliance against the Microsoft Cloud Security Benchmark, which is a security framework derived from Microsoft best practices, and NIST/CIS security Controls.",
                 "link": {
                   "label": "Learn more",
                   "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
