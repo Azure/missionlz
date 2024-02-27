@@ -60,7 +60,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing 
   name: storageAccountName
 }
 
-module privateDnsZone 'privateDnsZone.bicep' = if (architecture == 'multitier' && joinWindowsDomain == false) {
+module privateDnsZone 'privateDnsZone.bicep' = if (architecture == 'singletier' && joinWindowsDomain == false) {
   name: 'deploy-privatednszone-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {

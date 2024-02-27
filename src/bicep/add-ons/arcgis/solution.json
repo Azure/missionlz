@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "8620326453620693104"
+      "templateHash": "16743945518611640342"
     }
   },
   "parameters": {
@@ -247,27 +247,6 @@
       "type": "string",
       "metadata": {
         "description": "Hub Virtual Network Name"
-      }
-    },
-    "isMultiMachineTileCacheDataStore": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Is Multi Machine Tile Cache Data Store"
-      }
-    },
-    "isObjectDataStoreClustered": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Is Object Data Store Clustered"
-      }
-    },
-    "isTileCacheDataStoreClustered": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Is Tile Cache Data Store Clustered"
       }
     },
     "isUpdatingCertificates": {
@@ -670,7 +649,10 @@
     "dscSingleTierConfiguration": "BaseDeploymentSingleTierConfiguration",
     "dscsSatiotemporalBigDataStoreFunction": "SpatiotemporalBigDataStoreConfiguration",
     "dscTileCacheDataStoreDscFunction": "TileCacheDataStoreConfiguration",
-    "fileShareDscScriptFunction": "FileShareConfiguration"
+    "fileShareDscScriptFunction": "FileShareConfiguration",
+    "isObjectDataStoreClustered": "[if(greaterOrEquals(parameters('numberOfObjectDataStoreVirtualMachines'), 3), true(), false())]",
+    "isTileCacheDataStoreClustered": "[if(greaterOrEquals(parameters('numberOfTileCacheDataStoreVirtualMachineNames'), 1), true(), false())]",
+    "isMultiMachineTileCacheDataStore": "[if(greaterOrEquals(parameters('numberOfTileCacheDataStoreVirtualMachineNames'), 1), true(), false())]"
   },
   "resources": [
     {
@@ -7663,13 +7645,13 @@
           },
           "iDns": "[if(equals(parameters('architecture'), 'multitier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-esri-fileserver-{0}-{1}', 0, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceInternalDomainNameSuffix.value), createObject('value', ''))]",
           "isMultiMachineTileCacheDataStore": {
-            "value": "[parameters('isMultiMachineTileCacheDataStore')]"
+            "value": "[variables('isMultiMachineTileCacheDataStore')]"
           },
           "isObjectDataStoreClustered": {
-            "value": "[parameters('isObjectDataStoreClustered')]"
+            "value": "[variables('isObjectDataStoreClustered')]"
           },
           "isTileCacheDataStoreClustered": {
-            "value": "[parameters('isTileCacheDataStoreClustered')]"
+            "value": "[variables('isTileCacheDataStoreClustered')]"
           },
           "isUpdatingCertificates": {
             "value": "[parameters('isUpdatingCertificates')]"
@@ -10819,7 +10801,7 @@
             "value": "[parameters('externalDnsHostname')]"
           },
           "isTileCacheDataStoreClustered": {
-            "value": "[parameters('isTileCacheDataStoreClustered')]"
+            "value": "[variables('isTileCacheDataStoreClustered')]"
           },
           "isUpdatingCertificates": {
             "value": "[parameters('isUpdatingCertificates')]"
@@ -10929,7 +10911,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "8718588062385813890"
+              "templateHash": "3375379722036633923"
             }
           },
           "parameters": {
@@ -11088,7 +11070,7 @@
           },
           "resources": [
             {
-              "condition": "[and(equals(parameters('architecture'), 'multitier'), equals(parameters('joinWindowsDomain'), false()))]",
+              "condition": "[and(equals(parameters('architecture'), 'singletier'), equals(parameters('joinWindowsDomain'), false()))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-privatednszone-{0}', parameters('deploymentNameSuffix'))]",

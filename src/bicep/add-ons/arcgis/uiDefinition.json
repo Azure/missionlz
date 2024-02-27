@@ -322,13 +322,11 @@
                                     "name": "userPrincipalName",
                                     "type": "Microsoft.Common.TextBox",
                                     "visible": "[steps('server').domain.joinWindowsDomain]",
-                                    "label": "Domain join user principal name",
+                                    "label": "User principal name",
                                     "toolTip": "Enter the user principal name with domain join privileges.",
-                                    "placeholder": "",
+                                    "placeholder": "admin",
+                                    "required": true,
                                     "constraints": {
-                                        "required": true,
-                                        "regex": "^[a-z0-9A-Z_.-]+@(?:[a-z0-9]+\\.)+[a-z]+$",
-                                        "validationMessage": "The value must be a valid user principal name."
                                     }
                                 },
                                 {
@@ -398,7 +396,7 @@
                                     "type": "Microsoft.Common.CheckBox",
                                     "label": "Use Azure Storage",
                                     "defaultValue": false,
-                                    "visible": "[steps('server').domain.joinWindowsDomain]",
+                                    "visible": "[steps('server').esri.architecture]",
                                     "toolTip": "Indicates whether the server is store esri portal and server content on an Azure storage file share."
                                 },
                                 {
@@ -672,7 +670,7 @@
                                     "defaultValue": 1,
                                     "toolTip": "Input the ESRI relation data store server virtual machines",
                                     "min": 1,
-                                    "max": 10,
+                                    "max": 2,
                                     "showStepMarkers": false,
                                     "constraints": {
                                         "required": true
@@ -727,7 +725,7 @@
                                     "label": "Object Datastore",
                                     "defaultValue": 1,
                                     "toolTip": "Input the ESRI object data store server virtual machines",
-                                    "min": 1,
+                                    "min": 3,
                                     "max": 9,
                                     "showStepMarkers": false,
                                     "constraints": {
@@ -1000,8 +998,8 @@
                 "spokelogAnalyticsWorkspaceResourceId": "[steps('spoke').spokeVirtualNetwork.logAnalyticsWorkspace.id]",
                 "selfSignedCertificatePassword": "[steps('licenses').files.certificatepassword]",
                 "tags": "[steps('tags').tags]",
-                "useCloudStorage": "[if(equals(steps('server').domain.joinWindowsDomain, true), steps('server').configuration.useAzureStorage, false)]",
-                "useAzureFiles": "[if(equals(steps('server').domain.joinWindowsDomain, true), steps('server').configuration.useAzureStorage, false)]",
+                "useCloudStorage": "[if(equals(steps('server').esri.architecture, true), steps('server').configuration.useAzureStorage, false)]",
+                "useAzureFiles": "[if(equals(steps('server').esri.architecture, true), steps('server').configuration.useAzureStorage, false)]",
                 "virtualNetworkAddressPrefix": "[steps('spoke').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange]",
                 "virtualMachineOSDiskSize": "[steps('server').configuration.osDiskSize]",
                 "windowsDomainAdministratorPassword": "[if(equals(steps('server').domain.joinWindowsDomain, true), steps('server').domain.password, '')]",

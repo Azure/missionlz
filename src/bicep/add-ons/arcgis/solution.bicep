@@ -98,12 +98,12 @@ param hubResourceGroupName string
 param hubSubscriptionId string
 @description('Hub Virtual Network Name')
 param hubVirtualNetworkName string
-@description('Is Multi Machine Tile Cache Data Store')
-param isMultiMachineTileCacheDataStore bool = false
-@description('Is Object Data Store Clustered')
-param isObjectDataStoreClustered bool = false
-@description('Is Tile Cache Data Store Clustered')
-param isTileCacheDataStoreClustered bool = false
+// @description('Is Multi Machine Tile Cache Data Store')
+// param isMultiMachineTileCacheDataStore bool = false
+// @description('Is Object Data Store Clustered')
+// param isObjectDataStoreClustered bool = false
+// @description('Is Tile Cache Data Store Clustered')
+// param isTileCacheDataStoreClustered bool = false
 @description('Updating Certificates')
 param isUpdatingCertificates bool = false
 @description('Join Windows Domain')
@@ -307,6 +307,11 @@ var dscsSatiotemporalBigDataStoreFunction = 'SpatiotemporalBigDataStoreConfigura
 var dscTileCacheDataStoreDscFunction = 'TileCacheDataStoreConfiguration'
 var fileShareDscScriptFunction = 'FileShareConfiguration'
 
+// dynamic cluster
+var isObjectDataStoreClustered = numberOfObjectDataStoreVirtualMachines >= 3 ? true : false
+var isTileCacheDataStoreClustered = numberOfTileCacheDataStoreVirtualMachineNames >= 1 ? true : false
+var isMultiMachineTileCacheDataStore = numberOfTileCacheDataStoreVirtualMachineNames >= 1 ? true : false
+
 
 // Naming conventions
 // var locations = (loadJsonContent('../../data/locations.json'))[environment().name]
@@ -332,15 +337,15 @@ var fileShareDscScriptFunction = 'FileShareConfiguration'
 // var virtualMachineNamingConvention = replace(namingConvention, resourceToken, 'vm')
 // var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'vnet')
 
-resource privateDnsZone_blob 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
-  scope: resourceGroup(subscriptionId, hubResourceGroupName)
-  name: privatelink_blob_name
-}
+// resource privateDnsZone_blob 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
+//   scope: resourceGroup(subscriptionId, hubResourceGroupName)
+//   name: privatelink_blob_name
+// }
 
-resource privateDnsZone_keyvaultDns 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
-  scope: resourceGroup(subscriptionId, hubResourceGroupName)
-  name: privatelink_keyvaultDns_name
-}
+// resource privateDnsZone_keyvaultDns 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
+//   scope: resourceGroup(subscriptionId, hubResourceGroupName)
+//   name: privatelink_keyvaultDns_name
+// }
 
 resource hubVirtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' existing = {
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
@@ -363,7 +368,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = {
   tags: tags
 }
 
-module singleTierDataStoreTypes 'modules/singleTierDatastoreTypes.bicep' = {
+module singleTierDataStoreTypes 'modules/singleTierDatastoreTypes.bicep' = if (architecture == 'singletier'){
   name: 'deploy-single-tier-datastore-types-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
