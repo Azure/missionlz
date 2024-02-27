@@ -8,12 +8,12 @@ This repository has several default address spaces configured throughout the Mis
 
 ## Virtual Networks
 
-| Solution | Network               | Address Space    |
-| -------- | --------------------- | ---------------- |
-| MLZ      | Hub                   | 10.0.100.0       |
-| MLZ      | Identity              | 10.0.105.0       |
-| MLZ      | Operations            | 10.0.110.0       |
-| MLZ      | Shared Services       | 10.0.115.0       |
-| Add-On   | Tier 3                | 10.0.120.0       |
-| Add-On   | Imaging               | 10.0.125.0       |
-| Add-On   | Azure Virtual Desktop | 10.0.130 - 139.0 |
+| Solution | Network               | Address Space     |
+| -------- | --------------------- | ----------------- |
+| MLZ      | Hub                   | 10.0.100.0/24     |
+| MLZ      | Identity              | 10.0.105.0/26     |
+| MLZ      | Operations            | 10.0.110.0/26     |
+| MLZ      | Shared Services       | 10.0.115.0/26     |
+| Add-On   | Tier 3                | 10.0.120.0/24     |
+| Add-On   | Imaging               | 10.0.125.0/24     |
+| Add-On   | Azure Virtual Desktop | 10.0.130-139.0/24 |
