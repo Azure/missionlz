@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "16743945518611640342"
+      "templateHash": "4285961012699942666"
     }
   },
   "parameters": {
@@ -624,8 +624,6 @@
     "networkInterfaceName": "[format('nic-esri-{0}', variables('resourceSuffix'))]",
     "portalContext": "portal",
     "portalLicenseFileName": "portalLicense.json",
-    "privatelink_blob_name": "[format('privatelink.blob.{0}', environment().suffixes.storage)]",
-    "privatelink_keyvaultDns_name": "[replace(format('privatelink{0}', environment().suffixes.keyvaultDns), 'vault', 'vaultcore')]",
     "publicIpAddressName": "[format('pip-esri-{0}', variables('resourceSuffix'))]",
     "resourceGroupName": "[format('rg-esri-enterprise-{0}', variables('resourceSuffix'))]",
     "serverContext": "server",
@@ -663,6 +661,7 @@
       "tags": "[parameters('tags')]"
     },
     {
+      "condition": "[equals(parameters('architecture'), 'singletier')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-single-tier-datastore-types-{0}', parameters('deploymentNameSuffix'))]",
@@ -674,12 +673,8 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "enableSpatiotemporalBigDataStore": {
-            "value": "[parameters('enableSpatiotemporalBigDataStore')]"
-          },
-          "enableTileCacheDataStore": {
-            "value": "[parameters('enableTileCacheDataStore')]"
-          }
+          "enableSpatiotemporalBigDataStore": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', parameters('enableSpatiotemporalBigDataStore')), createObject('value', false()))]",
+          "enableTileCacheDataStore": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', parameters('enableTileCacheDataStore')), createObject('value', false()))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -10776,9 +10771,7 @@
           "cloudStorageAccountCredentialsUserName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.cloudStorageAccountCredentialsUserName.value]"
           },
-          "dataStoreTypesForBaseDeploymentServers": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-single-tier-datastore-types-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataStoreTypesForBaseDeploymentServers.value]"
-          },
+          "dataStoreTypesForBaseDeploymentServers": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-single-tier-datastore-types-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataStoreTypesForBaseDeploymentServers.value), createObject('value', 'none'))]",
           "debugMode": {
             "value": "[parameters('debugMode')]"
           },

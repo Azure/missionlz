@@ -268,8 +268,8 @@ var keyVaultSecretsOfficer = resourceId('Microsoft.Authorization/roleDefinitions
 var networkInterfaceName = 'nic-esri-${resourceSuffix}'
 var portalContext = 'portal'
 var portalLicenseFileName = 'portalLicense.json' //FIX THIS
-var privatelink_blob_name = 'privatelink.blob.${environment().suffixes.storage}'
-var privatelink_keyvaultDns_name = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
+// var privatelink_blob_name = 'privatelink.blob.${environment().suffixes.storage}'
+// var privatelink_keyvaultDns_name = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
 var publicIpAddressName = 'pip-esri-${resourceSuffix}'
 var resourceGroupName = 'rg-esri-enterprise-${resourceSuffix}'
 var serverContext = 'server'
@@ -368,12 +368,12 @@ resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = {
   tags: tags
 }
 
-module singleTierDataStoreTypes 'modules/singleTierDatastoreTypes.bicep' = if (architecture == 'singletier'){
+module singleTierDataStoreTypes 'modules/singleTierDatastoreTypes.bicep' = if (architecture == 'singletier') {
   name: 'deploy-single-tier-datastore-types-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    enableSpatiotemporalBigDataStore: enableSpatiotemporalBigDataStore
-    enableTileCacheDataStore: enableTileCacheDataStore
+    enableSpatiotemporalBigDataStore: (architecture == 'singletier') ? enableSpatiotemporalBigDataStore : false
+    enableTileCacheDataStore:  (architecture == 'singletier') ? enableTileCacheDataStore : false
   }
   dependsOn: [
     rg
@@ -871,32 +871,6 @@ module roleAssignmentVirtualMachineContributor './modules/roleAssignmentVirtualM
   ]
 }
 
-// module artifacts './modules/artifacts.bicep' = {
-//   name: 'deploy-artifacts-${deploymentNameSuffix}'
-//   scope: resourceGroup(subscriptionId, resourceGroupName)
-//   params: {
-//     containerName: container
-//     identityId: userAssignedIdentity.outputs.resourceId
-//     keyVaultName: keyVault.outputs.name
-//     location: location
-//     portalLicenseFile: portalLicenseFile
-//     portalLicenseFileName: portalLicenseFileName
-//     serverLicenseFile: serverLicenseFile
-//     serverLicenseFileName: serverLicenseFileName
-//     storageAccountName: storage.outputs.storageAccountName
-//     tags: tags
-//   }
-//   dependsOn: [
-//     multiTierFileServerVirtualMachines
-//     multiTierPortalVirtualMachines
-//     multiTierServerVirtualMachines
-//     rg
-//     roleAssignmentStorageAccount
-//     roleAssignmentVirtualMachineContributor
-//     tier3
-//   ]
-// }
-
 module managementVm 'modules/managementVirtualMachine.bicep' = {
   name: 'deploy-management-vm-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
@@ -925,15 +899,15 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
     esriStorageAccountName: storage.outputs.storageAccountName
   }
   dependsOn: [
-    rg
-    userAssignedIdentity
-    roleAssignmentHubStorageAccount
-    roleAssignmentStorageAccount
-    roleAssignmentVirtualMachineContributor
     multiTierFileServerVirtualMachines
     multiTierPortalVirtualMachines
     multiTierServerVirtualMachines
+    rg
+    roleAssignmentHubStorageAccount
+    roleAssignmentStorageAccount
+    roleAssignmentVirtualMachineContributor
     tier3
+    userAssignedIdentity
   ]
 }
 
@@ -953,10 +927,9 @@ module certificates './modules/certificates.bicep' = {
   }
   dependsOn: [
     keyVault
-    rg
-    // artifacts
     managementVm
     multiTierFileServerVirtualMachines
+    rg
     singleTierVirtualMachine
     tier3
   ]
@@ -1052,7 +1025,6 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' = if (ar
     windowsDomainName: joinWindowsDomain ? windowsDomainName : 'none'
   }
   dependsOn: [
-    // artifacts
     managementVm
     certificates
     multiTierDatastoreServerVirtualMachines
@@ -1079,7 +1051,7 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
     arcgisServiceAccountUserName: arcgisServiceAccountUserName
     cloudStorageAccountCredentialsUserName: storage.outputs.cloudStorageAccountCredentialsUserName
-    dataStoreTypesForBaseDeploymentServers: singleTierDataStoreTypes.outputs.dataStoreTypesForBaseDeploymentServers
+    dataStoreTypesForBaseDeploymentServers: (architecture == 'singletier') ? singleTierDataStoreTypes.outputs.dataStoreTypesForBaseDeploymentServers : 'none'
     debugMode: debugMode
     deploymentNameSuffix: deploymentNameSuffix
     dscConfiguration: dscSingleTierConfiguration
@@ -1125,7 +1097,6 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
   }
   dependsOn: [
     certificates
-    // artifacts
     managementVm
     singleTierVirtualMachine
   ]

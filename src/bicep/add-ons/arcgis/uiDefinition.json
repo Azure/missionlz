@@ -322,7 +322,7 @@
                                     "name": "userPrincipalName",
                                     "type": "Microsoft.Common.TextBox",
                                     "visible": "[steps('server').domain.joinWindowsDomain]",
-                                    "label": "User principal name",
+                                    "label": "User principal name (do not include @ domainname)",
                                     "toolTip": "Enter the user principal name with domain join privileges.",
                                     "placeholder": "admin",
                                     "required": true,
@@ -538,7 +538,7 @@
                                 {
                                     "name": "externalDnsHostname",
                                     "type": "Microsoft.Common.TextBox",
-                                    "label": "External DNS hostname prefix",
+                                    "label": "Fully Qualified Domain Name (FQDN) prefix for the portal.",
                                     "toolTip": "Input the external DNS hostname prefix for the portal.",
                                     "placeholder": "Example: esri.contoso.com",
                                     "constraints": {
