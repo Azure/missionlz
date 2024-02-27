@@ -689,7 +689,7 @@
                                     "constraints": {
                                         "required": true
                                     },
-                                    "visible": true
+                                    "visible": "[steps('datastoretypes').dataStores.tilecache]"
                                 },
                                 {
                                     "name": "numberOfSpatioTemporalDataStoreMachines",
@@ -703,7 +703,7 @@
                                     "constraints": {
                                         "required": true
                                     },
-                                    "visible": true
+                                    "visible": "[steps('datastoretypes').dataStores.spatioTemporal]"
                                 },
                                 {
                                     "name": "numberOfGraphStoreDataStoreMachines",
@@ -717,7 +717,7 @@
                                     "constraints": {
                                         "required": true
                                     },
-                                    "visible": true
+                                    "visible": "[steps('datastoretypes').dataStores.graphstore]"
                                 },
                                 {
                                     "name": "numberOfObjectStoreDataStoreMachines",
@@ -731,7 +731,7 @@
                                     "constraints": {
                                         "required": true
                                     },
-                                    "visible": true
+                                    "visible": "[steps('datastoretypes').dataStores.objectstore]"
                                 }
                             ]
                         }
@@ -982,12 +982,12 @@
                 "numberOfDataStoreVirtualMachines": "[steps('datastoretypes').multitier.numnberOfPortalMachines]",
                 "numberOfEsriServers": "[steps('datastoretypes').multitier.numnberOfServerMachines]",
                 "numberOfFileShareVirtualMachines": "[steps('datastoretypes').multitier.numberOfFileShareMachines]",
-                "numberOfGraphDataStoreVirtualMachines": "[steps('datastoretypes').multitier.numberOfGraphStoreDataStoreMachines]",
-                "numberOfObjectStoreDataStoreVirtualMachines": "[steps('datastoretypes').multitier.numberOfObjectStoreDataStoreMachines]",
+                "numberOfGraphDataStoreVirtualMachines": "[if(equals(steps('datastoretypes').dataStores.graphstore, true), steps('datastoretypes').multitier.numberOfGraphStoreDataStoreMachines, 0)]",
+                "numberOfObjectStoreDataStoreVirtualMachines": "[if(equals(steps('datastoretypes').dataStores.objectstore, true), steps('datastoretypes').multitier.numberOfObjectStoreDataStoreMachines, 0)]",
                 "numberOfPortalVirtualMachines": "[steps('datastoretypes').multitier.numnberOfPortalMachines]",
                 "numberOfRelationalDataStoreVirtualMachines": "[steps('datastoretypes').multitier.numberOfDataStoreMachines]",
-                "numberOfEsrispatiotemporalBigDataStoreVirtualMachines": "[steps('datastoretypes').multitier.numberOfSpatioTemporalDataStoreMachines]",
-                "numberOfTileCacheDataStoreVirtualMachines": "[steps('datastoretypes').multitier.numberOfTilecacheDataStoreMachines]",
+                "numberOfEsrispatiotemporalBigDataStoreVirtualMachines": "[if(equals(steps('datastoretypes').dataStores.spatioTemporal, true), steps('datastoretypes').multitier.numberOfSpatioTemporalDataStoreMachines, 0)]",
+                "numberOfTileCacheDataStoreVirtualMachines": "[if(equals(steps('datastoretypes').dataStores.tilecache, true), steps('datastoretypes').multitier.numberOfTilecacheDataStoreMachines, 0)]",
                 "portalLicenseFile": "[steps('licenses').files.portal]",
                 "portalLicenseUserTypeId": "[steps('licenses').files.licenseUserType]",
                 "primarySiteAdministratorAccountPassword": "[steps('portal').primarySiteAdministratorAccount.password]",
