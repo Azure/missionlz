@@ -860,8 +860,8 @@
                       {
                         "label": "Defender for Containers",
                         "description": "Provides security posture management, vulnerability assessment, run-time threat protection, and deployment-montioring for containers.",
-                        "value": "StorageAccounts"
-                      },
+                        "value": "Containers"
+                      }
                     ]
                   },
                   "visible": "[steps('compliance').defenderSection.deployDefender]"
