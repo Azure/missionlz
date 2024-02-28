@@ -780,7 +780,7 @@
                   "placeholder": "",
                   "defaultValue": "",
                   "toolTip": "Check feature availability of paid Defender for Cloud features",
-                  "multiselect": false,
+                  "multiselect": true,
                   "selectAll": false,
                   "filter": true,
                   "filterPlaceholder": "Filter items ...",
@@ -878,21 +878,21 @@
                   "name": "sentinelSectionDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "MLZ can deploy Microsoft Sentinel to the Log Analytics Workspace, for its Security information and event management (SIEM) and Security orchestration, automation, and response (SOAR).  Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities.."
+                    "text": "MLZ can deploy Microsoft Sentinel to the Log Analytics Workspace, for its Security information and event management (SIEM) and Security orchestration, automation, and response (SOAR)."
                   }
                 },
                 {
                   "name": "sentinelOptionalDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Enabling Microsoft Sentinel is optional, but recommended."
+                    "text": "Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities."
                   }
                 },
                 {
                   "name": "deploySentinel",
                   "type": "Microsoft.Common.CheckBox",
-                  "label": "Enable Azure Sentinel?",
-                  "toolTip": "Check here to enable Azure Sentinel Center for the Log Analytics Workspace Mission Landing Zone deploys.",
+                  "label": "Enable Microsoft Sentinel?",
+                  "toolTip": "Check here to enable Microsoft Sentinel for your landing zone.",
                   "constraints": {
                     "required": false
                   }
