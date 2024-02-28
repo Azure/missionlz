@@ -17,3 +17,4 @@ This repository has several default address spaces configured throughout the Mis
 | Add-On   | Tier 3                | 10.0.120.0/24     |
 | Add-On   | Imaging               | 10.0.125.0/24     |
 | Add-On   | Azure Virtual Desktop | 10.0.130-139.0/24 |
+| Add-On   | ESRI Enterprise       | 10.0.140.0/24     |
