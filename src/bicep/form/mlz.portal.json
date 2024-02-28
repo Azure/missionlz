@@ -854,7 +854,7 @@
                       },
                       {
                         "label": "Defender for Storage",
-                        "description": "Detect unusual and potentially harmful attempts to access or exploit your storage accounts using advanced threat detection capabilities and Microsoft Threat Intelligence data to provide contextual security alerts.",
+                        "description": "Detect unusual and potentially harmful attempts to access or exploit your storage accounts using: advanced threat detection capabilities and Microsoft Threat Intelligence data to provide contextual security alerts.",
                         "value": "StorageAccounts"
                       },
                       {
@@ -866,7 +866,6 @@
                   },
                   "visible": "[steps('compliance').defenderSection.deployDefender]"
                 },
-
                 {
                   "name": "emailSecurityContact",
                   "type": "Microsoft.Common.TextBox",
