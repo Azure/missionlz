@@ -747,14 +747,14 @@
             },
             {
               "name": "defenderSection",
-              "label": "Select the workload protection plans that are part of Microsoft Defender for Cloud",
+              "label": "Turn on additional paid workload protection plans that are part of Microsoft Defender for Cloud",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
                   "name": "defenderSubscriptionDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "For further enhanced protection, MLZ has the option of activiating the paid features of Defender for Cloud, such as: Defender Cloud Security Posture Management (DCSPM) and workload protection plans for additional threat protection for resources, such as: servers, storage."
+                    "text": "For further enhanced protection, MLZ has the option of activiating the paid features of Defender for Cloud, such as: Defender Cloud Security Posture Management (DCSPM) and workload protection plans for additional threat protection for resources, such as: servers, storage, and more."
                   }
                 },
                 {
@@ -763,7 +763,7 @@
                   "options": {
                     "text": "Enabling the paid workload protection features of Microsoft Defender for Cloud is recommended.",
                     "link": {
-                      "label": "Learn more about Defender for Cloud",
+                      "label": "Learn more about Defender for Cloud workload protection features",
                       "uri": "https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction#protect-cloud-workloads"
                     }
                   }
@@ -774,14 +774,14 @@
                   "visible": true,
                   "options": {
                     "icon": "Info",
-                    "text": "Please refer to the following link to confirm what workload protection features are available in the in Azure Commercial and Azure Government Clouds.",
+                    "text": "Click the link to open a new broser tab, to confirm what workload protection features are available in the in Azure Commercial and Azure Government Clouds.",
                     "uri": "https://learn.microsoft.com/en-us/azure/security/fundamentals/feature-availability#microsoft-defender-for-cloud"
                   }
                 },
                 {
                   "name": "deployDefender",
                   "type": "Microsoft.Common.CheckBox",
-                  "label": "Enable Microsoft Defender for Cloud?",
+                  "label": "Enable selected paid workload protection plans for Microsoft Defender for Cloud ?",
                   "toolTip": "Check here to enable Microsoft Defender for Cloud for the subscriptions used to deploy Mission Landing Zone.",
                   "constraints": {
                     "required": false
