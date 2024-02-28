@@ -669,9 +669,9 @@
               "name": "complianceDescriptionTextBlock",
               "type": "Microsoft.Common.TextBlock",
               "options": {
-                "text": "To support the on-going security and compliance of your landing zone, by default MLZ deploys the free cloud security posture management features of Defender for Cloud, such as: secure score, recommendations in securely configuring resources.  Secure Score measures compliance against the Microsoft Cloud Security Benchmark, which is a security framework derived from Microsoft best practices, and NIST/CIS security Controls.",
+                "text": "To support the on-going security and compliance of your landing zone, by default - MLZ deploys the free cloud security posture management features of Defender for Cloud, such as: secure score, which is powered  by the Microsoft Cloud Security Benchmark.  The Microsoft Cloud Security Benchmark is a security framework derived from Microsoft best practices, and NIST/CIS security Controls.",
                 "link": {
-                  "label": "Learn more",
+                  "label": "Learn more about Defender for Cloud",
                   "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
                 }
               }
@@ -747,21 +747,35 @@
             },
             {
               "name": "defenderSection",
-              "label": "Enable the paid features of Microsoft Defender for Cloud",
+              "label": "Select the workload protection plans that are part of Microsoft Defender for Cloud",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
                   "name": "defenderSubscriptionDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "MLZ has the option of activiating the paid features of Defender for Cloud, such as: Defender Cloud Security Posture Management (DCSPM) and workload protection plans for additional monitoring/threat protection for resources, such as: servers, storage."
+                    "text": "For further enhanced protection, MLZ has the option of activiating the paid features of Defender for Cloud, such as: Defender Cloud Security Posture Management (DCSPM) and workload protection plans for additional monitoring/threat protection for resources, such as: servers, storage."
                   }
                 },
                 {
                   "name": "defenderOptionalDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Enabling paid features of Microsoft Defender for Cloud is optional, but recommended."
+                    "text": "Enabling the paid workload protection features of Microsoft Defender for Cloud is recommended.",
+                    "link": {
+                      "label": "Learn more about Defender for Cloud",
+                      "uri": "https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction#protect-cloud-workloads"
+                    }
+                  }
+                },
+                {
+                  "name": "Checkavailability",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": true,
+                  "options": {
+                    "icon": "Info",
+                    "text": "Please refer to the following link to confirm what workload protection features are available in the in Azure Commercial and Azure Government Clouds. ",
+                    "uri": "https://learn.microsoft.com/en-us/azure/security/fundamentals/feature-availability#microsoft-defender-for-cloud"
                   }
                 },
                 {
@@ -790,59 +804,64 @@
                     "allowedValues": [
                       {
                         "label": "Defender CSPM",
-                        "description": "Defender for Cloud Security Posture Management",
+                        "description": "Provides enhanced posture management tools, such as: attack paths, cloud security explorer, and governance",
                         "value": "CloudPosture"
                       },
                       {
-                        "label": "Servers",
-                        "description": "Defender for Servers",
+                        "label": "Defender for Servers",
+                        "description": "Provide server protections through Microsoft Defender for Endpoint or extended protection with just-in-time network access, file integrity monitoring, vulnerability assessment, and more.",
                         "value": "VirtualMachines"
                       },
                       {
                         "label": "Defender for API",
-                        "description": "Defender for API",
+                        "description": "Safeguards APIs throughout their lifecycle, offering detection, response coverage, and vulnerability prioritization",
                         "value": "Api"
                       },
                       {
                         "label": "Defender for App Services",
-                        "description": "Defender for App Services",
+                        "description": "Diagnose weaknesses in your application infrastructure that can leave your environment susceptible to attack.",
                         "value": "AppServices"
                       },
                       {
                         "label": "Defender for Resource Manager",
-                        "description": "Defender for Resource Manager",
+                        "description": "Protects against suspicious Azure Resource Mnagement operations, use of exploitation toolkits, and lateral movement.",
                         "value": "Arm"
                       },
                       {
                         "label": "Defender for Azure Cosmos DB",
-                        "description": "Defender for Azure Cosmos DB",
+                        "description": "detects potential SQL injections, known bad actors based on Microsoft Threat Intelligence, suspicious access patterns, and potential exploitation of your database through compromised identities, or malicious insiders.",
                         "value": "CosmosDbs"
                       },
                       {
                         "label": "Defender for Key Vault",
-                        "description": "Defender for Key Vault",
+                        "description": "Detects unusual and potentially harmful attempts to access or exploit Key Vault accounts. This layer of protection helps you address threats even if you're not a security expert, and without the need to manage third-party security monitoring systems.",
                         "value": "KeyVaults"
                       },
                       {
                         "label": "Defender for open-source relational databases",
-                        "description": "Defender for open-source relational databases",
+                        "description": "Provide alerts when it detects anomalous database access and query patterns as well as suspicious database activities",
                         "value": "OpenSourceRelationalDatabases"
                       },
                       {
                         "label": "Defender for SQL Server on machines",
-                        "description": "Defender for SQL Server on machines",
+                        "description": "Identify and mitigate potential database vulnerabilities and detecting anomalous activities that could indicate threats to your databases.",
                         "value": "SqlServerVirtualMachines"
                       },
                       {
                         "label": "Defender for Azure SQL",
-                        "description": "Defender for Azure SQL",
+                        "description": "Provides vulnerability assessment and threat protection for Azure SQL.",
                         "value": "SqlServers"
                       },
                       {
                         "label": "Defender for Storage",
-                        "description": "Defender for Storage",
+                        "description": "Detect unusual and potentially harmful attempts to access or exploit your storage accounts using advanced threat detection capabilities and Microsoft Threat Intelligence data to provide contextual security alerts.",
                         "value": "StorageAccounts"
-                      }
+                      },
+                      {
+                        "label": "Defender for Containers",
+                        "description": "Provides security posture management, vulnerability assessment, run-time threat protection, and deployment-montioring for containers.",
+                        "value": "StorageAccounts"
+                      },
                     ]
                   },
                   "visible": "[steps('compliance').defenderSection.deployDefender]"
@@ -878,7 +897,11 @@
                   "name": "sentinelSectionDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "MLZ can deploy Microsoft Sentinel to the Log Analytics Workspace, for its Security information and event management (SIEM) and Security orchestration, automation, and response (SOAR)."
+                    "text": "MLZ can deploy Microsoft Sentinel to the Log Analytics Workspace, for its Security information and event management (SIEM) and Security orchestration, automation, and response (SOAR).",
+                    "link": {
+                      "label": "Learn more about Microsoft Sentinel",
+                      "uri": "https://learn.microsoft.com/en-us/azure/sentinel/overview"
+                    }
                   }
                 },
                 {
