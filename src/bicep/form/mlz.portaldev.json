@@ -865,7 +865,7 @@
                     ],
                     "validations": [
                       {
-                        "isValid": "[if(and((equals(environment().name, toLower('AzureGovernment)),not(contains(steps('compliance').defenderSection.deployDefenderPlans,'Api')))),equals(1,1),equals(0,1))]",
+                        "isValid": "[if(and((equals(environment().name, toLower('AzureGovernment')),not(contains(steps('compliance').defenderSection.deployDefenderPlans,'Api')))),equals(1,1),equals(0,1))]",
                         "message": "Plan not available in Azure Gov Region. Please check documentation for feature availability."
                       }
                     ]
