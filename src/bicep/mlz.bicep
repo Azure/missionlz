@@ -510,6 +510,13 @@ param defenderSkuTier string = 'Free'
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string = ''
 
+@allowed([
+  'Standard'
+  'Free'
+])
+@description('Paid Workload Protection plans for Defende for Cloud')
+param deployDefenderPlans array = ['VirtualMachines']
+
 /*
 
   NAMING CONVENTION
@@ -1205,6 +1212,7 @@ module hubDefender './modules/defender.bicep' = if (deployDefender) {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     emailSecurityContact: emailSecurityContact
     defenderSkuTier: defenderSkuTier
+    defenderPlans: deployDefenderPlans
   }
 }
 
@@ -1215,6 +1223,7 @@ module spokeDefender './modules/defender.bicep' = [for spoke in spokes: if ((dep
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     emailSecurityContact: emailSecurityContact
     defenderSkuTier: defenderSkuTier
+    defenderPlans: deployDefenderPlans
   }
 }]
 

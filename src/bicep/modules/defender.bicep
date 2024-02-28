@@ -34,6 +34,8 @@ param bundle array = (environment().name == 'AzureCloud') ? [
   'VirtualMachines'
 ] : []
 
+param defenderPlans array = ['VirtualMachines']
+
 @description('Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off')
 param enableAutoProvisioning bool = true
 var autoProvisioning = enableAutoProvisioning ? 'On' : 'Off'
@@ -52,7 +54,7 @@ param defenderSkuTier string = 'Standard'
 
 // defender
 @batchSize(1)
-resource defenderPricing 'Microsoft.Security/pricings@2023-01-01' = [for name in bundle: {
+resource defenderPricing 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: {
   name: name
   properties: {
     pricingTier: defenderSkuTier
