@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "14067791636409520295"
+      "templateHash": "13326998728768628746"
     }
   },
   "parameters": {
@@ -823,6 +823,29 @@
       "defaultValue": "",
       "metadata": {
         "description": "Email address of the contact, in the form of john@doe.com"
+      }
+    },
+    "deployDefenderPlans": {
+      "type": "array",
+      "defaultValue": [
+        "VirtualMachines"
+      ],
+      "allowedValues": [
+        "Api",
+        "AppServices",
+        "Arm",
+        "CloudPosture",
+        "Containers",
+        "CosmosDbs",
+        "KeyVaults",
+        "OpenSourceRelationalDatabases",
+        "SqlServers",
+        "SqlServerVirtualMachines",
+        "StorageAccounts",
+        "VirtualMachines"
+      ],
+      "metadata": {
+        "description": "Paid Workload Protection plans for Defende for Cloud"
       }
     }
   },
@@ -8625,6 +8648,9 @@
           },
           "defenderSkuTier": {
             "value": "[parameters('defenderSkuTier')]"
+          },
+          "defenderPlans": {
+            "value": "[parameters('deployDefenderPlans')]"
           }
         },
         "template": {
@@ -8634,13 +8660,15 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "3655671661053884718"
+              "templateHash": "10802987283001068809"
             }
           },
           "parameters": {
-            "bundle": {
+            "defenderPlans": {
               "type": "array",
-              "defaultValue": "[if(equals(environment().name, 'AzureCloud'), createArray('Api', 'AppServices', 'Arm', 'CloudPosture', 'Containers', 'CosmosDbs', 'KeyVaults', 'OpenSourceRelationalDatabases', 'SqlServers', 'SqlServerVirtualMachines', 'StorageAccounts', 'VirtualMachines'), if(equals(environment().name, 'AzureUSGovernment'), createArray('Arm', 'Containers', 'OpenSourceRelationalDatabases', 'SqlServers', 'SqlServerVirtualMachines', 'StorageAccounts', 'VirtualMachines'), createArray()))]"
+              "defaultValue": [
+                "VirtualMachines"
+              ]
             },
             "enableAutoProvisioning": {
               "type": "bool",
@@ -8670,7 +8698,7 @@
             },
             "defenderSkuTier": {
               "type": "string",
-              "defaultValue": "Standard",
+              "defaultValue": "Free",
               "metadata": {
                 "description": "[Standard/Free] The SKU for Defender. It defaults to \"Standard\"."
               }
@@ -8683,13 +8711,13 @@
             {
               "copy": {
                 "name": "defenderPricing",
-                "count": "[length(parameters('bundle'))]",
+                "count": "[length(parameters('defenderPlans'))]",
                 "mode": "serial",
                 "batchSize": 1
               },
               "type": "Microsoft.Security/pricings",
               "apiVersion": "2023-01-01",
-              "name": "[parameters('bundle')[copyIndex()]]",
+              "name": "[parameters('defenderPlans')[copyIndex()]]",
               "properties": {
                 "pricingTier": "[parameters('defenderSkuTier')]"
               }
@@ -8776,6 +8804,9 @@
           },
           "defenderSkuTier": {
             "value": "[parameters('defenderSkuTier')]"
+          },
+          "defenderPlans": {
+            "value": "[parameters('deployDefenderPlans')]"
           }
         },
         "template": {
@@ -8785,13 +8816,15 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "3655671661053884718"
+              "templateHash": "10802987283001068809"
             }
           },
           "parameters": {
-            "bundle": {
+            "defenderPlans": {
               "type": "array",
-              "defaultValue": "[if(equals(environment().name, 'AzureCloud'), createArray('Api', 'AppServices', 'Arm', 'CloudPosture', 'Containers', 'CosmosDbs', 'KeyVaults', 'OpenSourceRelationalDatabases', 'SqlServers', 'SqlServerVirtualMachines', 'StorageAccounts', 'VirtualMachines'), if(equals(environment().name, 'AzureUSGovernment'), createArray('Arm', 'Containers', 'OpenSourceRelationalDatabases', 'SqlServers', 'SqlServerVirtualMachines', 'StorageAccounts', 'VirtualMachines'), createArray()))]"
+              "defaultValue": [
+                "VirtualMachines"
+              ]
             },
             "enableAutoProvisioning": {
               "type": "bool",
@@ -8821,7 +8854,7 @@
             },
             "defenderSkuTier": {
               "type": "string",
-              "defaultValue": "Standard",
+              "defaultValue": "Free",
               "metadata": {
                 "description": "[Standard/Free] The SKU for Defender. It defaults to \"Standard\"."
               }
@@ -8834,13 +8867,13 @@
             {
               "copy": {
                 "name": "defenderPricing",
-                "count": "[length(parameters('bundle'))]",
+                "count": "[length(parameters('defenderPlans'))]",
                 "mode": "serial",
                 "batchSize": 1
               },
               "type": "Microsoft.Security/pricings",
               "apiVersion": "2023-01-01",
-              "name": "[parameters('bundle')[copyIndex()]]",
+              "name": "[parameters('defenderPlans')[copyIndex()]]",
               "properties": {
                 "pricingTier": "[parameters('defenderSkuTier')]"
               }

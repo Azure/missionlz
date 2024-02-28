@@ -511,8 +511,21 @@ param defenderSkuTier string = 'Free'
 param emailSecurityContact string = ''
 
 @allowed([
-  'Standard'
-  'Free'
+    'Api'
+    'AppServices'
+    'Arm'
+    'CloudPosture'
+    //'ContainerRegistry' (deprecated)
+    'Containers'
+    'CosmosDbs'
+    //'Dns' (deprecated)
+    'KeyVaults'
+    //'KubernetesService' (deprecated)
+    'OpenSourceRelationalDatabases'
+    'SqlServers'
+    'SqlServerVirtualMachines'
+    'StorageAccounts'
+    'VirtualMachines'
 ])
 @description('Paid Workload Protection plans for Defende for Cloud')
 param deployDefenderPlans array = ['VirtualMachines']

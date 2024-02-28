@@ -841,12 +841,12 @@
                       {
                         "label": "Defender for Storage",
                         "description": "Defender for Storage",
-                        "value": "StorageAccountsde"
+                        "value": "StorageAccounts"
                       }
                     ]
                   },
                   "visible": "[steps('compliance').defenderSection.deployDefender]"
-                }
+                },
 
                 {
                   "name": "emailSecurityContact",

@@ -5,35 +5,6 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-param bundle array = (environment().name == 'AzureCloud') ? [
-  'Api'
-  'AppServices'
-  'Arm'
-  'CloudPosture'
-  //'ContainerRegistry' (deprecated)
-  'Containers'
-  'CosmosDbs'
-  //'Dns' (deprecated)
-  'KeyVaults'
-  //'KubernetesService' (deprecated)
-  'OpenSourceRelationalDatabases'
-  'SqlServers'
-  'SqlServerVirtualMachines'
-  'StorageAccounts'
-  'VirtualMachines'
-] : (environment().name == 'AzureUSGovernment') ? [
-  'Arm'
-  //'ContainerRegistry' (deprecated)
-  'Containers'
-  //'Dns' (deprecated)
-  //'KubernetesService' (deprecated)
-  'OpenSourceRelationalDatabases'
-  'SqlServers'
-  'SqlServerVirtualMachines'
-  'StorageAccounts'
-  'VirtualMachines'
-] : []
-
 param defenderPlans array = ['VirtualMachines']
 
 @description('Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off')
@@ -50,7 +21,7 @@ param emailSecurityContact string
 param policySetDescription string = 'The Microsoft Cloud Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Microsoft Cloud Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.'
 
 @description('[Standard/Free] The SKU for Defender. It defaults to "Standard".')
-param defenderSkuTier string = 'Standard'
+param defenderSkuTier string = 'Free'
 
 // defender
 @batchSize(1)
