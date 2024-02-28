@@ -1143,6 +1143,7 @@
       "parameters": {
         "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
         "deployDefender": "[steps('compliance').defenderSection.deployDefender]",
+        "defenderSkuTier": "[if(steps('compliance').defenderSection.deployDefender, 'Standard', 'Free')]",
         "deployDefenderPlans": "[steps('compliance').defenderSection.deployDefenderPlans]",
         "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
