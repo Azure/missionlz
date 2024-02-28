@@ -1,0 +1,1189 @@
+{
+  "$schema": "<relative path to createFormUI.schema.json>",
+  "view": {
+    "kind": "Form",
+    "properties": {
+      "title": "Mission Landing Zone",
+      "isWizard": true,
+      "steps": [
+        {
+          "name": "basics",
+          "label": "Basics",
+          "elements": [
+            {
+              "name": "basicsDescriptionTextBlock",
+              "type": "Microsoft.Common.TextBlock",
+              "options": {
+                "text": "Mission Landing Zone is a prescriptive reference architecture with reference implementation of a SCCA compliant Hub and Spoke virtual network provided by Microsoft.",
+                "link": {
+                  "label": "https://aka.ms/missionlz",
+                  "uri": "https://aka.ms/missionlz"
+                }
+              }
+            },
+            {
+              "name": "armApiControls",
+              "label": "",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "subscriptionApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "subscriptions?api-version=2020-01-01"
+                  }
+                },
+                {
+                  "name": "locationsApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "locations?api-version=2019-11-01"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "selectSubscriptions",
+              "label": "Select Subscription(s)",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "subscriptionDetailsText",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Mission Landing Zone is configured for deployment into a single subscription or many subscriptions depending on your needs for resource counts, subscription boundaries, or billing."
+                  }
+                }
+              ]
+            },
+            {
+              "name": "hubSection",
+              "label": "Hub",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "hubSectionTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "All network traffic is directed through the Azure Firewall residing in the Hub Virtual Network and houses the Azure Bastion host for secure remote access into the network."
+                  }
+                },
+                {
+                  "name": "hubSubscriptionId",
+                  "label": "Hub Subscription",
+                  "type": "Microsoft.Common.DropDown",
+                  "defaultValue": "",
+                  "toolTip": "Select the Subscription for your Mission Landing Zone Hub network, firewall, and remote access resources.",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "filter": true,
+                  "filterPlaceholder": "Filter items ...",
+                  "multiLine": true,
+                  "constraints": {
+                    "allowedValues": "[map(steps('basics').armApiControls.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "required": true
+                  }
+                }
+              ]
+            },
+            {
+              "name": "identitySection",
+              "label": "Identity",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "identitySectionTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "The Identity spoke can be used to house Active Directory and other AuthN and AuthZ solutions."
+                  }
+                },
+                {
+                  "name": "deployIdentity",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Deploy identity resources?",
+                  "toolTip": "Check here to create the identity resources.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "identitySubscriptionId",
+                  "label": "Identity Subscription",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": "[steps('basics').identitySection.deployIdentity]",
+                  "defaultValue": "",
+                  "toolTip": "Select the Subscription for your Mission Landing Zone Identity network.",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "filter": true,
+                  "filterPlaceholder": "Filter items ...",
+                  "multiLine": true,
+                  "constraints": {
+                    "allowedValues": "[map(steps('basics').armApiControls.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "required": true
+                  }
+                }
+              ]
+            },
+            {
+              "name": "operationsSection",
+              "label": "Operations",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "operationsSectionTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "The Operations spoke can be used for operational tasks like logging and administration of workloads."
+                  }
+                },
+                {
+                  "name": "operationsSubscriptionId",
+                  "label": "Operations Subscription",
+                  "type": "Microsoft.Common.DropDown",
+                  "defaultValue": "",
+                  "toolTip": "Select the Subscription for your Mission Landing Zone Operations network.",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "filter": true,
+                  "filterPlaceholder": "Filter items ...",
+                  "multiLine": true,
+                  "constraints": {
+                    "allowedValues": "[map(steps('basics').armApiControls.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "required": true
+                  }
+                }
+              ]
+            },
+            {
+              "name": "sharedServicesSection",
+              "label": "Shared Services",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "sharedServicesSectionTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "The Shared Services spoke can be used to host services that are used by multiple workloads like source control and container registries."
+                  }
+                },
+                {
+                  "name": "sharedServicesSubscriptionId",
+                  "label": "Shared Services Subscription",
+                  "type": "Microsoft.Common.DropDown",
+                  "defaultValue": "",
+                  "toolTip": "Select the Subscription for your Mission Landing Zone Shared Services network.",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "filter": true,
+                  "filterPlaceholder": "Filter items ...",
+                  "multiLine": true,
+                  "constraints": {
+                    "allowedValues": "[map(steps('basics').armApiControls.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "required": true
+                  }
+                }
+              ]
+            },
+            {
+              "name": "locationSection",
+              "label": "Location",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "infoBoxLocation",
+                  "type": "Microsoft.Common.InfoBox",
+                  "options": {
+                    "text": "Since not all service features are available in all regions, Mission Landing Zone is available in a subset of regions.",
+                    "style": "Info"
+                  }
+                },
+                {
+                  "name": "location",
+                  "type": "Microsoft.Common.LocationSelector",
+                  "label": "Location",
+                  "toolTip": "Select the deployment location for MLZ.",
+                  "resourceTypes": [
+                    "Microsoft.Compute/virtualMachines"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "namingSection",
+              "label": "Mission Landing Zone Name",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "resourcePrefix",
+                  "label": "Resource Naming Prefix",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "",
+                  "toolTip": "Specify a prefix (min 3 and max 6 lowercase characters and numbers) to prepend to all resources.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[a-z][a-z0-9]{1,5}$",
+                        "message": "The prefix must contain alphanumeric characters, begin with a letter, letters must be lowercase, and the length must be between 3 to 6 characters."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "environmentAbbreviation",
+                  "label": "Environment Abbreviation",
+                  "type": "Microsoft.Common.DropDown",
+                  "defaultValue": "dev",
+                  "toolTip": "Select an abbreviation for the target environment. This value will be used as a component in the naming convention.",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "filter": true,
+                  "filterPlaceholder": "Filter items...",
+                  "multiLine": true,
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "dev",
+                        "description": "Development",
+                        "value": "dev"
+                      },
+                      {
+                        "label": "test",
+                        "description": "Test",
+                        "value": "test"
+                      },
+                      {
+                        "label": "prod",
+                        "description": "Production",
+                        "value": "prod"
+                      }
+                    ],
+                    "required": true
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "networking",
+          "label": "Networking",
+          "elements": [
+            {
+              "name": "networkDescriptionTextBlock",
+              "type": "Microsoft.Common.TextBlock",
+              "options": {
+                "text": "Mission Landing Zone deploys virtual networks configured for SCCA compliance."
+              }
+            },
+            {
+              "name": "dodNeedsDescriptionTextBlock",
+              "type": "Microsoft.Common.TextBlock",
+              "options": {
+                "text": "SCCA guidance and architectures are specific to DoD customers, but they also help civilian customers comply with Trusted Internet Connections (TIC) guidance and help commercial customers that want to implement a secure DMZ to protect their Azure environments.",
+                "link": {
+                  "label": "Learn more",
+                  "uri": "https://docs.microsoft.com/en-us/azure/azure-government/compliance/secure-azure-computing-architecture"
+                }
+              }
+            },
+            {
+              "name": "infoBoxVirtualNetworkOverlap",
+              "type": "Microsoft.Common.InfoBox",
+              "options": {
+                "text": "Make sure that the address spaces do not overlap with each other for the Hub, Identity, Operations, or Shared Services networks.",
+                "style": "Info"
+              }
+            },
+            {
+              "name": "hubVirtualNetwork",
+              "label": "Hub Virtual Network",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "superNetworkAddressCidrRange",
+                  "label": "Super Network CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.96.0/19",
+                  "toolTip": "Specify an address CIDR range within the range [10,24].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-3]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "virtualNetworkAddressCidrRange",
+                  "label": "Hub Virtual Network CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.100.0/24",
+                  "toolTip": "Specify an address CIDR range within the range [10,24].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-4]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within super network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within super network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within super network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange, '/')), last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within super network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "subnetAddressCidrRange",
+                  "label": "Hub Subnet CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.100.128/27",
+                  "toolTip": "Specify a CIDR range for the default subnet within the Hub Virtual Network range [24,28].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').hubVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').hubVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').hubVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').hubVirtualNetwork.subnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "firewallClientSubnetAddressCidrRange",
+                  "label": "Firewall Client Subnet CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.100.64/26",
+                  "toolTip": "Specify a CIDR range for the Azure Firewall Client subnet within the Hub Virtual Network range. It must be of size /26 or larger.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-6]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,26]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "firewallManagementSubnetAddressCidrRange",
+                  "label": "Firewall Management Subnet CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.100.0/26",
+                  "toolTip": "Specify a CIDR range for the Azure Firewall Management subnet within the Hub Virtual Network range. It must be of size /26 or larger.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-6]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,26]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').hubVirtualNetwork.firewallManagementSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').hubVirtualNetwork.firewallManagementSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').hubVirtualNetwork.firewallManagementSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').hubVirtualNetwork.firewallManagementSubnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "firewallSkuTier",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Firewall SKU",
+                  "placeholder": "",
+                  "defaultValue": ["Premium"],
+                  "toolTip": "Selecting a value other than Premium will reduce the security of the MLZ environment and your environment no longer be SCCA compliant. The Premium SKU is recommended for all production environments that require TLS inspection and SCCA.",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "filter": false,
+                  "filterPlaceholder": "Filter items ...",
+                  "multiLine": false,
+                  "defaultDescription": "Firewall SKU",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "Premium",
+                        "description": "Azure Firewall Premium is recommended to secure highly sensitive applications (such as payment processing). It supports advanced threat protection capabilities like malware and TLS inspection.",
+                        "value": "Premium"
+                      },
+                      {
+                        "label": "Standard",
+                        "description": "Azure Firewall Standard is recommended for customers looking for Layer 3 through Layer 7 firewall and needs autoscaling to handle peak traffic periods of up to 30 Gbps. It supports enterprise features like threat intelligence, DNS proxy, custom DNS, and web categories.",
+                        "value": "Standard"
+                      },
+                      {
+                        "label": "Basic",
+                        "description": "Azure Firewall Basic is recommended for SMB customers with throughput needs of 250 Mbps.",
+                        "value": "Basic"
+                      }
+                    ],
+                    "required": true
+                  },
+                  "visible": true
+                },
+                {
+                  "name": "firewallSkuDescription",
+                  "type": "Microsoft.Common.InfoBox",
+                  "options": {
+                    "style": "Warning",
+                    "text": "Please validate the SKU availability in your region before deploying as there can be differences between clouds."
+                  }
+                }
+              ]
+            },
+            {
+              "name": "identityVirtualNetwork",
+              "label": "Identity Virtual Network",
+              "type": "Microsoft.Common.Section",
+              "visible": "[steps('basics').identitySection.deployIdentity]",
+              "elements": [
+                {
+                  "name": "virtualNetworkAddressCidrRange",
+                  "label": "Identity Virtual Network CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.110.0/26",
+                  "toolTip": "Specify an address CIDR range within the range [10,26].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-6]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,26]."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "subnetAddressCidrRange",
+                  "label": "Identity Subnet CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.110.0/27",
+                  "toolTip": "Specify a CIDR range for the default subnet within the Identity Virtual Network range [26,28].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[6-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [26,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').identityVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').identityVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').identityVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').identityVirtualNetwork.subnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "operationsVirtualNetwork",
+              "label": "Operations Virtual Network",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "virtualNetworkAddressCidrRange",
+                  "label": "Operations Virtual Network CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.115.0/26",
+                  "toolTip": "Specify an address CIDR range within the range [10,26].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-6]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,26]."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "subnetAddressCidrRange",
+                  "label": "Operations Subnet CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.115.0/27",
+                  "toolTip": "Specify a CIDR range for the default subnet within the Operations Virtual Network range [26,28].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[6-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [26,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').operationsVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').operationsVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').operationsVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').operationsVirtualNetwork.subnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "sharedServicesVirtualNetwork",
+              "label": "Shared Services Virtual Network",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "virtualNetworkAddressCidrRange",
+                  "label": "Shared Services Virtual Network CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.120.0/26",
+                  "toolTip": "Specify an address CIDR range within the range [10,26].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-6]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,26]."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "subnetAddressCidrRange",
+                  "label": "Shared Services Subnet CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.120.0/27",
+                  "toolTip": "Specify a CIDR range for the default subnet within the Shared Services Virtual Network range [26,28].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[6-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [26,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "compliance",
+          "label": "Security and Compliance",
+          "elements": [
+            {
+              "name": "complianceDescriptionTextBlock",
+              "type": "Microsoft.Common.TextBlock",
+              "options": {
+                "text": "To support the on-going security and compliance of your landing zone, by default - MLZ deploys the free cloud security posture management features of Defender for Cloud, such as: secure score, which is powered  by the Microsoft Cloud Security Benchmark.  The Microsoft Cloud Security Benchmark is a security framework derived from Microsoft best practices, and NIST/CIS security Controls.",
+                "link": {
+                  "label": "Learn more about Defender for Cloud",
+                  "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
+                }
+              }
+            },
+            {
+              "name": "policySection",
+              "label": "Assign Additional Federal Regulatory Compliance Policies",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "policySubsetDetailsTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "To assist with security compliance, MLZ can deploy additional regulatory compliance frameworks to your landing zone."
+                  }
+                },
+                {
+                  "name": "policyOptionalTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Enabling policies is optional, but recommended."
+                  }
+                },
+                {
+                  "name": "deployPolicy",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Create policy assignments?",
+                  "toolTip": "Check here to create policy assignments for the resources created by Mission Landing Zone.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "policy",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Policy Assignment",
+                  "placeholder": "",
+                  "defaultValue": "NIST SP 800-53",
+                  "toolTip": "DoD IL5 is only available in AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "filter": true,
+                  "filterPlaceholder": "Filter items ...",
+                  "multiLine": true,
+                  "defaultDescription": "Select one of the bundled built-in policy assignments.",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "NIST SP 800-53 Rev4",
+                        "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
+                        "value": "NISTRev4"
+                      },
+                      {
+                        "label": "NIST SP 800-53 Rev5",
+                        "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
+                        "value": "NISTRev5"
+                      },
+                      {
+                        "label": "DoD IL5",
+                        "description": "The Defense Information Systems Agency (DISA) is an agency of the US Department of Defense (DoD) that is responsible for developing and maintaining the DoD Cloud Computing Security Requirements Guide (SRG). These policies are only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
+                        "value": "IL5"
+                      },
+                      {
+                        "label": "CMMC",
+                        "description": "The Cybersecurity Maturity Model Certification (CMMC) is a new framework developed by the US Department of Defense (DoD) that requires formal third-party audits of defense industrial base (DIB) contractor cybersecurity practices.",
+                        "value": "CMMC"
+                      }
+                    ]
+                  },
+                  "visible": "[steps('compliance').policySection.deployPolicy]"
+                }
+              ]
+            },
+            {
+              "name": "defenderSection",
+              "label": "Turn on additional paid workload protection plans that are part of Microsoft Defender for Cloud",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "defenderSubscriptionDetailsText",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "For further enhanced protection, MLZ has the option of activiating the paid features of Defender for Cloud, such as: Defender Cloud Security Posture Management (DCSPM) and workload protection plans for additional threat protection for resources, such as: servers, storage, and more."
+                  }
+                },
+                {
+                  "name": "defenderOptionalDetailsText",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Enabling the paid workload protection features of Microsoft Defender for Cloud is recommended.",
+                    "link": {
+                      "label": "Learn more about Defender for Cloud workload protection features",
+                      "uri": "https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction#protect-cloud-workloads"
+                    }
+                  }
+                },
+                {
+                  "name": "Checkavailability",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": true,
+                  "options": {
+                    "icon": "Info",
+                    "text": "Click the link to open a new browser tab, to confirm what workload protection features are available in the in Azure Commercial and Azure Government Clouds.",
+                    "uri": "https://learn.microsoft.com/en-us/azure/security/fundamentals/feature-availability#microsoft-defender-for-cloud"
+                  }
+                },
+                {
+                  "name": "deployDefender",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable selected paid workload protection plans for Microsoft Defender for Cloud ?",
+                  "toolTip": "Check here to enable Microsoft Defender for Cloud for the subscriptions used to deploy Mission Landing Zone.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "deployDefenderPlans",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Defender for Cloud Paid Features",
+                  "placeholder": "",
+                  "defaultValue": "",
+                  "toolTip": "Check feature availability of paid Defender for Cloud features",
+                  "multiselect": true,
+                  "selectAll": false,
+                  "filter": true,
+                  "filterPlaceholder": "Filter items ...",
+                  "multiLine": true,
+                  "defaultDescription": "Select paid Defender for Cloud features.",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "Defender CSPM",
+                        "description": "Provides enhanced posture management tools, such as: attack paths, cloud security explorer, and governance",
+                        "value": "CloudPosture"
+                      },
+                      {
+                        "label": "Defender for Servers",
+                        "description": "Provide server protections through Microsoft Defender for Endpoint or extended protection with just-in-time network access, file integrity monitoring, vulnerability assessment, and more.",
+                        "value": "VirtualMachines"
+                      },
+                      {
+                        "label": "Defender for API",
+                        "description": "Safeguards APIs throughout their lifecycle, offering detection, response coverage, and vulnerability prioritization",
+                        "value": "Api"
+                      },
+                      {
+                        "label": "Defender for App Services",
+                        "description": "Diagnose weaknesses in your application infrastructure that can leave your environment susceptible to attack.",
+                        "value": "AppServices"
+                      },
+                      {
+                        "label": "Defender for Resource Manager",
+                        "description": "Protects against suspicious Azure Resource Mnagement operations, use of exploitation toolkits, and lateral movement.",
+                        "value": "Arm"
+                      },
+                      {
+                        "label": "Defender for Azure Cosmos DB",
+                        "description": "detects potential SQL injections, known bad actors based on Microsoft Threat Intelligence, suspicious access patterns, and potential exploitation of your database through compromised identities, or malicious insiders.",
+                        "value": "CosmosDbs"
+                      },
+                      {
+                        "label": "Defender for Key Vault",
+                        "description": "Detects unusual and potentially harmful attempts to access or exploit Key Vault accounts. This layer of protection helps you address threats even if you're not a security expert, and without the need to manage third-party security monitoring systems.",
+                        "value": "KeyVaults"
+                      },
+                      {
+                        "label": "Defender for open-source relational databases",
+                        "description": "Provide alerts when it detects anomalous database access and query patterns as well as suspicious database activities",
+                        "value": "OpenSourceRelationalDatabases"
+                      },
+                      {
+                        "label": "Defender for SQL Server on machines",
+                        "description": "Identify and mitigate potential database vulnerabilities and detecting anomalous activities that could indicate threats to your databases.",
+                        "value": "SqlServerVirtualMachines"
+                      },
+                      {
+                        "label": "Defender for Azure SQL",
+                        "description": "Provides vulnerability assessment and threat protection for Azure SQL.",
+                        "value": "SqlServers"
+                      },
+                      {
+                        "label": "Defender for Storage",
+                        "description": "Detect unusual and potentially harmful attempts to access or exploit your storage accounts using: advanced threat detection capabilities and Microsoft Threat Intelligence data to provide contextual security alerts.",
+                        "value": "StorageAccounts"
+                      },
+                      {
+                        "label": "Defender for Containers",
+                        "description": "Provides security posture management, vulnerability assessment, run-time threat protection, and deployment-montioring for containers.",
+                        "value": "Containers"
+                      }
+                    ],
+                    "validations": [
+                      {
+                        "isValid": "[if(and((equals(environment().name, toLower('AzureGovernment)),not(contains(steps('compliance').defenderSection.deployDefenderPlan,'Api')))),equals(1,1),equals(0,1))]",
+                        "message": "Plan not available in Azure Gov Region. Please check documentation for feature availability."
+                      }
+                    ]
+                  },
+                  "visible": "[steps('compliance').defenderSection.deployDefender]"
+                },
+                {
+                  "name": "emailSecurityContact",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Security Contact E-Mail Address",
+                  "defaultValue": "",
+                  "toolTip": "Provide an e-mail address as a security contact for Microsoft Defender for Cloud",
+                  "placeholder": "johndoe@contoso.com",
+                  "multiLine": false,
+                  "constraints": {
+                    "required": "[steps('compliance').defenderSection.deployDefender]",
+                    "validations": [
+                      {
+                        "regex": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
+                        "message": "Provide a valid e-mail address"
+                      }
+                    ]
+                  },
+                  "visible": "[steps('compliance').defenderSection.deployDefender]"
+                }
+              ]
+            },
+            {
+              "name": "sentinelSection",
+              "label": "Enable Microsoft Sentinel",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "sentinelSectionDetailsText",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "MLZ can deploy Microsoft Sentinel to the Log Analytics Workspace, for its Security information and event management (SIEM) and Security orchestration, automation, and response (SOAR).",
+                    "link": {
+                      "label": "Learn more about Microsoft Sentinel",
+                      "uri": "https://learn.microsoft.com/en-us/azure/sentinel/overview"
+                    }
+                  }
+                },
+                {
+                  "name": "sentinelOptionalDetailsText",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities."
+                  }
+                },
+                {
+                  "name": "deploySentinel",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable Microsoft Sentinel?",
+                  "toolTip": "Check here to enable Microsoft Sentinel for your landing zone.",
+                  "constraints": {
+                    "required": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "remoteAccess",
+          "label": "Remote Access",
+          "elements": [
+            {
+              "name": "remoteAccessDescriptionTextBlock",
+              "type": "Microsoft.Common.TextBlock",
+              "options": {
+                "text": "Mission Landing Zone can provision a Windows and a Linux virtual machine to securely access the network remotely using Azure Bastion hosts.",
+                "link": {
+                  "label": "Learn more",
+                  "uri": "https://docs.microsoft.com/en-us/azure/bastion/bastion-overview"
+                }
+              }
+            },
+            {
+              "name": "remoteAccessSection",
+              "label": "Enable Remote Access",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "remoteAccessOptionalTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Enabling remote access is optional, but recommended."
+                  }
+                },
+                {
+                  "name": "deployRemoteAccess",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Remotely access the network?",
+                  "toolTip": "Check here to create an Azure Bastion Host and virtual machines to remotely access the network.",
+                  "constraints": {
+                    "required": false
+                  }
+                }
+              ]
+            },
+            {
+              "name": "azureBastionSubnetSection",
+              "label": "Azure Bastion Subnet",
+              "type": "Microsoft.Common.Section",
+              "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
+              "elements": [
+                {
+                  "name": "remoteAccessSubnetTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Specify a CIDR range for the Azure Bastion Host subnet within the Hub Virtual Network range. It must be of size /26 or larger."
+                  }
+                },
+                {
+                  "name": "bastionSubnetAddressCidrRange",
+                  "label": "Azure Bastion Subnet CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
+                  "defaultValue": "10.0.100.192/26",
+                  "toolTip": "[concat('Specify a CIDR range for the Azure Bastion Host subnet within the Hub Virtual Network range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '. It must be of size /26 or larger.')]",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-6]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,26]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "[concat('First octet not within the Hub virtual network CIDR range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "[concat('Second octet not within the Hub virtual network CIDR range: ',  steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "[concat('Third octet not within the Hub virtual network CIDR range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange, '/')))]",
+                        "message": "[concat('Subnet mask not within the Hub virtual network CIDR range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "windowsVmSection",
+              "label": "Windows Virtual Machine",
+              "type": "Microsoft.Common.Section",
+              "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
+              "elements": [
+                {
+                  "name": "windowsVmDescriptionTextblock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Provide an administrator username and password for the Windows virtual machine."
+                  }
+                },
+                {
+                  "name": "windowsVmAdminUsername",
+                  "type": "Microsoft.Compute.UserNameTextBox",
+                  "label": "Username",
+                  "defaultValue": "",
+                  "toolTip": "",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-z0-9A-Z]{1,30}$",
+                    "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
+                  },
+                  "osPlatform": "Windows",
+                  "visible": true
+                },
+                {
+                  "name": "windowsVmAdminPassword",
+                  "label": {
+                    "password": "Password",
+                    "confirmPassword": "Confirm password"
+                  },
+                  "type": "Microsoft.Common.PasswordBox",
+                  "defaultValue": "",
+                  "toolTip": "Specify an administrator password for the Windows virtual machine used to remote into the network.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{12,72}$",
+                    "validationMessage": "The password must be alphanumeric, contain at least 12 characters, and have at least 1 letter, 1 number and one special character."
+                  },
+                  "options": {
+                    "hideConfirmation": false
+                  }
+                },
+                {
+                  "name": "hybridUseBenefit",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable Hybrid Use Benefit?",
+                  "toolTip": "Check here to enable the Hybrid Use Benefit on your virtual machines.",
+                  "constraints": {
+                    "required": false
+                  }
+                }
+              ]
+            },
+            {
+              "name": "linuxVmSection",
+              "label": "Linux Virtual Machine",
+              "type": "Microsoft.Common.Section",
+              "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
+              "elements": [
+                {
+                  "name": "linuxVmDescriptionTextblock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Provide an administrator username and password for the Linux virtual machine."
+                  }
+                },
+                {
+                  "name": "linuxVmAdminUsername",
+                  "type": "Microsoft.Compute.UserNameTextBox",
+                  "label": "Username",
+                  "defaultValue": "",
+                  "toolTip": "",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-z0-9A-Z]{1,30}$",
+                    "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
+                  },
+                  "osPlatform": "Linux",
+                  "visible": true
+                },
+                {
+                  "name": "linuxVmAdminPasswordOrKey",
+                  "type": "Microsoft.Common.PasswordBox",
+                  "label": {
+                    "password": "Password",
+                    "confirmPassword": "Confirm password"
+                  },
+                  "toolTip": "Specify an administrator password for the Linux virtual machine used to remote into the network.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{12,72}$",
+                    "validationMessage": "The password must be alphanumeric, contain at least 12 characters, and have at least 1 letter, 1 number and one special character."
+                  },
+                  "options": {
+                    "hideConfirmation": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "tags",
+          "label": "Tags",
+          "subLabel": {
+            "preValidation": "Provide tags that will be used for all resources.",
+            "postValidation": "Done"
+          },
+          "bladeTitle": "Tags",
+          "bladeSubtitle": "Tags",
+          "elements": [
+            {
+              "name": "tagsByResource",
+              "label": "Tags by Resource",
+              "type": "Microsoft.Common.TagsByResource",
+              "visible": true,
+              "resources": [
+                "MissionLandingZone"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "outputs": {
+      "kind": "Subscription",
+      "location": "[steps('basics').locationSection.location.name]",
+      "subscriptionId": "[steps('basics').hubSection.hubSubscriptionId]",
+      "parameters": {
+        "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
+        "deployDefender": "[steps('compliance').defenderSection.deployDefender]",
+        "defenderSkuTier": "[if(steps('compliance').defenderSection.deployDefender, 'Standard', 'Free')]",
+        "deployDefenderPlans": "[steps('compliance').defenderSection.deployDefenderPlans]",
+        "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
+        "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
+        "deployRemoteAccess": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
+        "deploySentinel": "[steps('compliance').sentinelSection.deploySentinel]",
+        "emailSecurityContact": "[steps('compliance').defenderSection.emailSecurityContact]",
+        "firewallClientSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange]",
+        "firewallManagementSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallManagementSubnetAddressCidrRange]",
+        "firewallSupernetIPAddress": "[steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange]",
+        "firewallSkuTier": "[steps('networking').hubVirtualNetwork.firewallSkuTier]",
+        "hubSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.subnetAddressCidrRange]",
+        "hubSubscriptionId": "[replace(steps('basics').hubSection.hubSubscriptionId, '/subscriptions/', '')]",
+        "hubVirtualNetworkAddressPrefix": "[steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange]",
+        "hybridUseBenefit": "[steps('remoteAccess').windowsVmSection.hybridUseBenefit]",
+        "identitySubnetAddressPrefix": "[steps('networking').identityVirtualNetwork.subnetAddressCidrRange]",
+        "identitySubscriptionId": "[if(steps('basics').identitySection.deployIdentity, replace(steps('basics').identitySection.identitySubscriptionId, '/subscriptions/', ''), replace(steps('basics').hubSection.hubSubscriptionId, '/subscriptions/', ''))]",
+        "identityVirtualNetworkAddressPrefix": "[steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange]",
+        "linuxVmAdminPasswordOrKey": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.authenticationType, 'password'), steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.password, steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.sshPublicKey)]",
+        "linuxVmAdminUsername": "[steps('remoteAccess').linuxVmSection.linuxVmAdminUsername]",
+        "linuxVmAuthenticationType": "password",
+        "location": "[steps('basics').locationSection.location.name]",
+        "operationsSubnetAddressPrefix": "[steps('networking').operationsVirtualNetwork.subnetAddressCidrRange]",
+        "operationsSubscriptionId": "[replace(steps('basics').operationsSection.operationsSubscriptionId, '/subscriptions/', '')]",
+        "operationsVirtualNetworkAddressPrefix": "[steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange]",
+        "policy": "[steps('compliance').policySection.policy]",
+        "resourcePrefix": "[steps('basics').namingSection.resourcePrefix]",
+        "environmentAbbreviation": "[steps('basics').namingSection.environmentAbbreviation]",
+        "sharedServicesSubnetAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange]",
+        "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
+        "sharedServicesVirtualNetworkAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange]",
+        "tags": "[if(not(contains(steps('tags').tagsByResource, 'MissionLandingZone')), parse('{}'), first(map(parse(concat('[', string(steps('tags').tagsByResource), ']')), (item) => item.MissionLandingZone)))]",
+        "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword.password]",
+        "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]"
+      }
+    }
+  }
+}
