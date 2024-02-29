@@ -696,7 +696,7 @@
             },
             {
               "name": "defenderSection",
-              "label": "Defender for Cloud - Workload Protection and advanced management features",
+              "label": "Defender for Cloud - Workload Protection Plans and other advanced management features",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
@@ -710,9 +710,9 @@
                   "name": "defenderOptionalDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Enabling the paid workload protection features of Microsoft Defender for Cloud is recommended.",
+                    "text": "Enabling the additional paid features of Microsoft Defender for Cloud is recommended.",
                     "link": {
-                      "label": "Learn more about Defender for Cloud workload protection features",
+                      "label": "Click here to Learn more about Defender for Cloud workload protection features",
                       "uri": "https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction#protect-cloud-workloads"
                     }
                   }
@@ -720,8 +720,8 @@
                 {
                   "name": "deployDefender",
                   "type": "Microsoft.Common.CheckBox",
-                  "label": "Enable selected paid workload protection plans for Microsoft Defender for Cloud ?",
-                  "toolTip": "Check here to enable Microsoft Defender for Cloud for the subscriptions used to deploy Mission Landing Zone.",
+                  "label": "Enable additional features for Microsoft Defender for Cloud?",
+                  "toolTip": "Check here to enable additional paid features of Microsoft Defender for Cloud.",
                   "constraints": {
                     "required": false
                   }
@@ -739,7 +739,7 @@
                 {
                   "name": "deployDefenderPlans",
                   "type": "Microsoft.Common.DropDown",
-                  "label": "Defender for Cloud Paid Features",
+                  "label": "Defender for Cloud Additional Features",
                   "placeholder": "",
                   "defaultValue": "VirtualMachines",
                   "toolTip": "Check feature availability of paid Defender for Cloud features",
@@ -838,28 +838,28 @@
             },
             {
               "name": "policySection",
-              "label": "Assign Additional Federal Regulatory Compliance Policies",
+              "label": "Assign Regulatory Compliance Policies",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
                   "name": "policySubsetDetailsTextBlock",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "To assist with security compliance, MLZ can deploy additional regulatory compliance frameworks to your landing zone."
+                    "text": "To assist with security compliance, MLZ can deploy additional regulatory compliance frameworks, powered by Azure Policy, to your landing zone."
                   }
                 },
                 {
                   "name": "policyOptionalTextBlock",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Enabling policies is optional, but recommended."
+                    "text": "Enabling policies is optional, but recommended if your organization must follow certain standards."
                   }
                 },
                 {
                   "name": "deployPolicy",
                   "type": "Microsoft.Common.CheckBox",
                   "label": "Create policy assignments?",
-                  "toolTip": "Check here to create policy assignments for the resources created by Mission Landing Zone.",
+                  "toolTip": "Check here to assign regulatory compliance policy assignments for the Mission Landing Zone.",
                   "constraints": {
                     "required": false
                   }
