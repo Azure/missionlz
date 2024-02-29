@@ -809,7 +809,7 @@
                   "visible": "[steps('compliance').defenderSection.deployDefender]"
                 },
                 {
-                  "name": "deployDefenderPlans-MAC",
+                  "name": "deployDefenderPlansMAC",
                   "type": "Microsoft.Common.DropDown",
                   "label": "Defender for Cloud Paid Features",
                   "placeholder": "",
@@ -890,7 +890,7 @@
                   "visible": "[and(steps('compliance').defenderSection.deployDefender],equals(steps('compliance').defenderSection.deployDefenderCloudType,'AzureCloud'))]"
                 },
                 {
-                  "name": "deployDefenderPlans-MAG",
+                  "name": "deployDefenderPlansMAG",
                   "type": "Microsoft.Common.DropDown",
                   "label": "Defender for Cloud Paid Features",
                   "placeholder": "",
@@ -1248,7 +1248,7 @@
         "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
         "deployDefender": "[steps('compliance').defenderSection.deployDefender]",
         "defenderSkuTier": "[if(steps('compliance').defenderSection.deployDefender, 'Standard', 'Free')]",
-        "deployDefenderPlans": "[if(steps('compliance').defenderSection.deployDefenderPlans-MAC,steps('compliance').defenderSection.deployDefenderPlans-MAC,steps('compliance').defenderSection.deployDefenderPlans-MAG)]",
+        "deployDefenderPlans": "[if(contains(steps('compliance').defenderSection.deployDefenderPlansMAC,'AzureCloud'),steps('compliance').defenderSection.deployDefenderPlansMAC,steps('compliance').defenderSection.deployDefenderPlansMAG)]",
         "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
         "deployRemoteAccess": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
