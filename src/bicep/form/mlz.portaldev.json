@@ -811,7 +811,7 @@
                 {
                   "name": "deployDefenderPlansMAC",
                   "type": "Microsoft.Common.DropDown",
-                  "label": "Defender for Cloud Paid Features",
+                  "label": "Defender for Cloud Paid Features in Microsoft Azure Cloud",
                   "placeholder": "",
                   "defaultValue": "",
                   "toolTip": "Check feature availability of paid Defender for Cloud features",
@@ -887,12 +887,12 @@
                     "validations": [
                     ]
                   },
-                  "visible": "[and(steps('compliance').defenderSection.deployDefender],equals(steps('compliance').defenderSection.deployDefenderCloudType,'AzureCloud'))]"
+                  "visible": "[and(steps('compliance').defenderSection.deployDefender,equals(steps('compliance').defenderSection.deployDefenderCloudType,'AzureCloud'))]"
                 },
                 {
                   "name": "deployDefenderPlansMAG",
                   "type": "Microsoft.Common.DropDown",
-                  "label": "Defender for Cloud Paid Features",
+                  "label": "Defender for Cloud Paid Features in Microsoft Azure Government",
                   "placeholder": "",
                   "defaultValue": "",
                   "toolTip": "Check feature availability of paid Defender for Cloud features",
@@ -968,7 +968,7 @@
                     "validations": [
                     ]
                   },
-                  "visible": "[and(steps('compliance').defenderSection.deployDefender],equals(steps('compliance').defenderSection.deployDefenderCloudType,'AzureUsGovernment'))]"
+                  "visible": "[and(steps('compliance').defenderSection.deployDefender,equals(steps('compliance').defenderSection.deployDefenderCloudType,'AzureUsGovernment'))]"
                 },
                 {
                   "name": "emailSecurityContact",
