@@ -788,7 +788,28 @@
                   }
                 },
                 {
-                  "name": "deployDefenderPlans",
+                  "name": "deployDefenderCloudType",
+                  "type": "Microsoft.Common.OptionsGroup",
+                  "label": "Select Azure Cloud Environment",
+                  "defaultValue": "AzureCloud",
+                  "toolTip": "",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "Microsoft Azure Cloud",
+                        "value": "AzureCloud"
+                      },
+                      {
+                        "label": "Microsoft Azure Government",
+                        "value": "AzureUsGovernment"
+                      }
+                    ],
+                    "required": true
+                  },
+                  "visible": "[steps('compliance').defenderSection.deployDefender]"
+                },
+                {
+                  "name": "deployDefenderPlans-MAC",
                   "type": "Microsoft.Common.DropDown",
                   "label": "Defender for Cloud Paid Features",
                   "placeholder": "",
@@ -864,13 +885,90 @@
                       }
                     ],
                     "validations": [
-                      {
-                        "isValid": "[if(and((equals(environment().name, toLower('AzureUSGovernment')),not(contains(steps('compliance').defenderSection.deployDefenderPlans,'Api')))),equals(1,1),equals(0,1))]",
-                        "message": "Plan not available in Azure Gov Region. Please check documentation for feature availability."
-                      }
                     ]
                   },
-                  "visible": "[steps('compliance').defenderSection.deployDefender]"
+                  "visible": "[and(steps('compliance').defenderSection.deployDefender],equals(steps('compliance').defenderSection.deployDefenderCloudType,'AzureCloud'))]"
+                },
+                {
+                  "name": "deployDefenderPlans-MAG",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Defender for Cloud Paid Features",
+                  "placeholder": "",
+                  "defaultValue": "",
+                  "toolTip": "Check feature availability of paid Defender for Cloud features",
+                  "multiselect": true,
+                  "selectAll": false,
+                  "filter": true,
+                  "filterPlaceholder": "Filter items ...",
+                  "multiLine": true,
+                  "defaultDescription": "Select paid Defender for Cloud features.",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "Defender CSPM",
+                        "description": "Provides enhanced posture management tools, such as: attack paths, cloud security explorer, and governance",
+                        "value": "CloudPosture"
+                      },
+                      {
+                        "label": "Defender for Servers",
+                        "description": "Provide server protections through Microsoft Defender for Endpoint or extended protection with just-in-time network access, file integrity monitoring, vulnerability assessment, and more.",
+                        "value": "VirtualMachines"
+                      },
+                      {
+                        "label": "Defender for API",
+                        "description": "Safeguards APIs throughout their lifecycle, offering detection, response coverage, and vulnerability prioritization",
+                        "value": "Api"
+                      },
+                      {
+                        "label": "Defender for App Services",
+                        "description": "Diagnose weaknesses in your application infrastructure that can leave your environment susceptible to attack.",
+                        "value": "AppServices"
+                      },
+                      {
+                        "label": "Defender for Resource Manager",
+                        "description": "Protects against suspicious Azure Resource Mnagement operations, use of exploitation toolkits, and lateral movement.",
+                        "value": "Arm"
+                      },
+                      {
+                        "label": "Defender for Azure Cosmos DB",
+                        "description": "detects potential SQL injections, known bad actors based on Microsoft Threat Intelligence, suspicious access patterns, and potential exploitation of your database through compromised identities, or malicious insiders.",
+                        "value": "CosmosDbs"
+                      },
+                      {
+                        "label": "Defender for Key Vault",
+                        "description": "Detects unusual and potentially harmful attempts to access or exploit Key Vault accounts. This layer of protection helps you address threats even if you're not a security expert, and without the need to manage third-party security monitoring systems.",
+                        "value": "KeyVaults"
+                      },
+                      {
+                        "label": "Defender for open-source relational databases",
+                        "description": "Provide alerts when it detects anomalous database access and query patterns as well as suspicious database activities",
+                        "value": "OpenSourceRelationalDatabases"
+                      },
+                      {
+                        "label": "Defender for SQL Server on machines",
+                        "description": "Identify and mitigate potential database vulnerabilities and detecting anomalous activities that could indicate threats to your databases.",
+                        "value": "SqlServerVirtualMachines"
+                      },
+                      {
+                        "label": "Defender for Azure SQL",
+                        "description": "Provides vulnerability assessment and threat protection for Azure SQL.",
+                        "value": "SqlServers"
+                      },
+                      {
+                        "label": "Defender for Storage",
+                        "description": "Detect unusual and potentially harmful attempts to access or exploit your storage accounts using: advanced threat detection capabilities and Microsoft Threat Intelligence data to provide contextual security alerts.",
+                        "value": "StorageAccounts"
+                      },
+                      {
+                        "label": "Defender for Containers",
+                        "description": "Provides security posture management, vulnerability assessment, run-time threat protection, and deployment-montioring for containers.",
+                        "value": "Containers"
+                      }
+                    ],
+                    "validations": [
+                    ]
+                  },
+                  "visible": "[and(steps('compliance').defenderSection.deployDefender],equals(steps('compliance').defenderSection.deployDefenderCloudType,'AzureUsGovernment'))]"
                 },
                 {
                   "name": "emailSecurityContact",
@@ -1150,7 +1248,7 @@
         "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
         "deployDefender": "[steps('compliance').defenderSection.deployDefender]",
         "defenderSkuTier": "[if(steps('compliance').defenderSection.deployDefender, 'Standard', 'Free')]",
-        "deployDefenderPlans": "[steps('compliance').defenderSection.deployDefenderPlans]",
+        "deployDefenderPlans": "[if(steps('compliance').defenderSection.deployDefenderPlans-MAC,steps('compliance').defenderSection.deployDefenderPlans-MAC,steps('compliance').defenderSection.deployDefenderPlans-MAG]",
         "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
         "deployRemoteAccess": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
