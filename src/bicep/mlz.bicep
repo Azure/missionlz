@@ -65,34 +65,34 @@ param tags object = {}
 // NETWORK ADDRESS SPACE PARAMETERS
 
 @description('The CIDR Virtual Network Address Prefix for the Hub Virtual Network.')
-param hubVirtualNetworkAddressPrefix string = '10.0.100.0/24'
+param hubVirtualNetworkAddressPrefix string = '10.0.128.0/23'
 
 @description('The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.')
-param hubSubnetAddressPrefix string = '10.0.100.128/27'
+param hubSubnetAddressPrefix string = '10.0.128.128/26'
 
 @description('The CIDR Subnet Address Prefix for the Azure Firewall Subnet. It must be in the Hub Virtual Network space. It must be /26.')
-param firewallClientSubnetAddressPrefix string = '10.0.100.0/26'
+param firewallClientSubnetAddressPrefix string = '10.0.128.0/26'
 
 @description('The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.')
-param firewallManagementSubnetAddressPrefix string = '10.0.100.64/26'
+param firewallManagementSubnetAddressPrefix string = '10.0.128.64/26'
 
 @description('The CIDR Virtual Network Address Prefix for the Identity Virtual Network.')
-param identityVirtualNetworkAddressPrefix string = '10.0.105.0/26'
+param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
 
 @description('The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.')
-param identitySubnetAddressPrefix string = '10.0.105.0/26'
+param identitySubnetAddressPrefix string = '10.0.130.0/24'
 
 @description('The CIDR Virtual Network Address Prefix for the Operations Virtual Network.')
-param operationsVirtualNetworkAddressPrefix string = '10.0.110.0/26'
+param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
 
 @description('The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.')
-param operationsSubnetAddressPrefix string = '10.0.110.0/26'
+param operationsSubnetAddressPrefix string = '10.0.131.0/24'
 
 @description('The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.')
-param sharedServicesVirtualNetworkAddressPrefix string = '10.0.115.0/26'
+param sharedServicesVirtualNetworkAddressPrefix string = '10.0.132.0/24'
 
 @description('The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.')
-param sharedServicesSubnetAddressPrefix string = '10.0.115.0/26'
+param sharedServicesSubnetAddressPrefix string = '10.0.132.0/24'
 
 // FIREWALL PARAMETERS
 
@@ -157,7 +157,7 @@ param firewallClientPublicIPAddressAvailabilityZones array = []
 param firewallManagementPublicIPAddressAvailabilityZones array = []
 
 @description('Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses')
-param firewallSupernetIPAddress string = '10.0.96.0/19'
+param firewallSupernetIPAddress string = '10.0.128.0/18'
 
 @description('An array of Public IP Address Diagnostic Logs for the Azure Firewall. See https://docs.microsoft.com/en-us/azure/ddos-protection/diagnostic-logging?tabs=DDoSProtectionNotifications#configure-ddos-diagnostic-logs for valid settings.')
 param publicIPAddressDiagnosticsLogs array = [
@@ -390,7 +390,7 @@ param logStorageSkuName string = 'Standard_GRS'
 param deployRemoteAccess bool = false
 
 @description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
-param bastionHostSubnetAddressPrefix string = '10.0.100.160/27'
+param bastionHostSubnetAddressPrefix string = '10.0.128.192/26'
 
 @description('The Azure Bastion Public IP Address Availability Zones. It defaults to "No-Zone" because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.')
 param bastionHostPublicIPAddressAvailabilityZones array = []
