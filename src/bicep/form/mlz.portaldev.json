@@ -813,7 +813,7 @@
                   "type": "Microsoft.Common.DropDown",
                   "label": "Defender for Cloud Paid Features in Microsoft Azure Cloud",
                   "placeholder": "",
-                  "defaultValue": "",
+                  "defaultValue": "VirtualMachines",
                   "toolTip": "Check feature availability of paid Defender for Cloud features",
                   "multiselect": true,
                   "selectAll": false,
@@ -894,7 +894,7 @@
                   "type": "Microsoft.Common.DropDown",
                   "label": "Defender for Cloud Paid Features in Microsoft Azure Government",
                   "placeholder": "",
-                  "defaultValue": "",
+                  "defaultValue": "VirtualMachines",
                   "toolTip": "Check feature availability of paid Defender for Cloud features",
                   "multiselect": true,
                   "selectAll": false,
@@ -905,39 +905,14 @@
                   "constraints": {
                     "allowedValues": [
                       {
-                        "label": "Defender CSPM",
-                        "description": "Provides enhanced posture management tools, such as: attack paths, cloud security explorer, and governance",
-                        "value": "CloudPosture"
-                      },
-                      {
                         "label": "Defender for Servers",
                         "description": "Provide server protections through Microsoft Defender for Endpoint or extended protection with just-in-time network access, file integrity monitoring, vulnerability assessment, and more.",
                         "value": "VirtualMachines"
                       },
                       {
-                        "label": "Defender for API",
-                        "description": "Safeguards APIs throughout their lifecycle, offering detection, response coverage, and vulnerability prioritization",
-                        "value": "Api"
-                      },
-                      {
-                        "label": "Defender for App Services",
-                        "description": "Diagnose weaknesses in your application infrastructure that can leave your environment susceptible to attack.",
-                        "value": "AppServices"
-                      },
-                      {
                         "label": "Defender for Resource Manager",
                         "description": "Protects against suspicious Azure Resource Mnagement operations, use of exploitation toolkits, and lateral movement.",
                         "value": "Arm"
-                      },
-                      {
-                        "label": "Defender for Azure Cosmos DB",
-                        "description": "detects potential SQL injections, known bad actors based on Microsoft Threat Intelligence, suspicious access patterns, and potential exploitation of your database through compromised identities, or malicious insiders.",
-                        "value": "CosmosDbs"
-                      },
-                      {
-                        "label": "Defender for Key Vault",
-                        "description": "Detects unusual and potentially harmful attempts to access or exploit Key Vault accounts. This layer of protection helps you address threats even if you're not a security expert, and without the need to manage third-party security monitoring systems.",
-                        "value": "KeyVaults"
                       },
                       {
                         "label": "Defender for open-source relational databases",
