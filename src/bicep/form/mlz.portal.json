@@ -664,90 +664,39 @@
         {
           "name": "compliance",
           "label": "Security and Compliance",
-          "elements": [
+          "elements": [            
             {
               "name": "complianceDescriptionTextBlock",
               "type": "Microsoft.Common.TextBlock",
               "options": {
-                "text": "To support the on-going security and compliance of your landing zone, by default - MLZ deploys the free cloud security posture management features of Defender for Cloud, such as: secure score, which is powered  by the Microsoft Cloud Security Benchmark.  The Microsoft Cloud Security Benchmark is a security framework derived from Microsoft best practices, and NIST/CIS security Controls.",
+                "text": "To support the on-going security and compliance of your landing zone, MLZ provides options for configuring: Defender for Cloud, Regulatory Compliance Policies, and Microsoft Sentinel.",
                 "link": {
-                  "label": "Learn more about Defender for Cloud",
-                  "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
+                  "label": "Click here to learn more about recommended security best practices",
+                  "uri": "https://learn.microsoft.com/en-us/azure/security/fundamentals/operational-best-practices"
                 }
               }
             },
             {
-              "name": "policySection",
-              "label": "Assign Additional Federal Regulatory Compliance Policies",
+              "name": "defenderFreeSection",
+              "label": "Defender for Cloud - Cloud Security Posture Management",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "policySubsetDetailsTextBlock",
+                  "name": "CSPMTextBox",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "To assist with security compliance, MLZ can deploy additional regulatory compliance frameworks to your landing zone."
+                    "text": "To support the on-going security and compliance of your landing zone, by default - MLZ deploys the free cloud security posture management features of Defender for Cloud, such as: secure score, which is powered by the Microsoft Cloud Security Benchmark. The Microsoft Cloud Security Benchmark is a security framework derived from Microsoft best practices, and NIST/CIS security Controls.",
+                    "link": {
+                      "label": "Click here to learn more about Defender for Cloud",
+                      "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
+                    }
                   }
-                },
-                {
-                  "name": "policyOptionalTextBlock",
-                  "type": "Microsoft.Common.TextBlock",
-                  "options": {
-                    "text": "Enabling policies is optional, but recommended."
-                  }
-                },
-                {
-                  "name": "deployPolicy",
-                  "type": "Microsoft.Common.CheckBox",
-                  "label": "Create policy assignments?",
-                  "toolTip": "Check here to create policy assignments for the resources created by Mission Landing Zone.",
-                  "constraints": {
-                    "required": false
-                  }
-                },
-                {
-                  "name": "policy",
-                  "type": "Microsoft.Common.DropDown",
-                  "label": "Policy Assignment",
-                  "placeholder": "",
-                  "defaultValue": "NIST SP 800-53",
-                  "toolTip": "DoD IL5 is only available in AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
-                  "multiselect": false,
-                  "selectAll": false,
-                  "filter": true,
-                  "filterPlaceholder": "Filter items ...",
-                  "multiLine": true,
-                  "defaultDescription": "Select one of the bundled built-in policy assignments.",
-                  "constraints": {
-                    "allowedValues": [
-                      {
-                        "label": "NIST SP 800-53 Rev4",
-                        "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
-                        "value": "NISTRev4"
-                      },
-                      {
-                        "label": "NIST SP 800-53 Rev5",
-                        "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
-                        "value": "NISTRev5"
-                      },
-                      {
-                        "label": "DoD IL5",
-                        "description": "The Defense Information Systems Agency (DISA) is an agency of the US Department of Defense (DoD) that is responsible for developing and maintaining the DoD Cloud Computing Security Requirements Guide (SRG). These policies are only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
-                        "value": "IL5"
-                      },
-                      {
-                        "label": "CMMC",
-                        "description": "The Cybersecurity Maturity Model Certification (CMMC) is a new framework developed by the US Department of Defense (DoD) that requires formal third-party audits of defense industrial base (DIB) contractor cybersecurity practices.",
-                        "value": "CMMC"
-                      }
-                    ]
-                  },
-                  "visible": "[steps('compliance').policySection.deployPolicy]"
                 }
               ]
             },
             {
               "name": "defenderSection",
-              "label": "Turn on additional paid workload protection plans that are part of Microsoft Defender for Cloud",
+              "label": "Defender for Cloud - Workload Protection and advanced management features",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
@@ -769,16 +718,6 @@
                   }
                 },
                 {
-                  "name": "Checkavailability",
-                  "type": "Microsoft.Common.InfoBox",
-                  "visible": true,
-                  "options": {
-                    "icon": "Info",
-                    "text": "Click the link to open a new browser tab, to confirm what workload protection features are available in the in Azure Commercial and Azure Government Clouds.",
-                    "uri": "https://learn.microsoft.com/en-us/azure/security/fundamentals/feature-availability#microsoft-defender-for-cloud"
-                  }
-                },
-                {
                   "name": "deployDefender",
                   "type": "Microsoft.Common.CheckBox",
                   "label": "Enable selected paid workload protection plans for Microsoft Defender for Cloud ?",
@@ -786,6 +725,16 @@
                   "constraints": {
                     "required": false
                   }
+                },
+                {
+                  "name": "Checkavailability",
+                  "type": "Microsoft.Common.InfoBox",
+                  "options": {
+                    "icon": "Info",
+                    "text": "Click the link to open a new browser tab, to confirm what workload protection features are available in the in Azure Commercial and Azure Government Clouds.",
+                    "uri": "https://learn.microsoft.com/en-us/azure/security/fundamentals/feature-availability#microsoft-defender-for-cloud"
+                  },
+                  "visible": "[steps('compliance').defenderSection.deployDefender]"
                 },
                 {
                   "name": "deployDefenderPlans",
@@ -884,6 +833,75 @@
                     ]
                   },
                   "visible": "[steps('compliance').defenderSection.deployDefender]"
+                }
+              ]
+            },
+            {
+              "name": "policySection",
+              "label": "Assign Additional Federal Regulatory Compliance Policies",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "policySubsetDetailsTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "To assist with security compliance, MLZ can deploy additional regulatory compliance frameworks to your landing zone."
+                  }
+                },
+                {
+                  "name": "policyOptionalTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Enabling policies is optional, but recommended."
+                  }
+                },
+                {
+                  "name": "deployPolicy",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Create policy assignments?",
+                  "toolTip": "Check here to create policy assignments for the resources created by Mission Landing Zone.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "policy",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Policy Assignment",
+                  "placeholder": "",
+                  "defaultValue": "NIST SP 800-53",
+                  "toolTip": "DoD IL5 is only available in AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "filter": true,
+                  "filterPlaceholder": "Filter items ...",
+                  "multiLine": true,
+                  "defaultDescription": "Select one of the bundled built-in policy assignments.",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "NIST SP 800-53 Rev4",
+                        "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
+                        "value": "NISTRev4"
+                      },
+                      {
+                        "label": "NIST SP 800-53 Rev5",
+                        "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
+                        "value": "NISTRev5"
+                      },
+                      {
+                        "label": "DoD IL5",
+                        "description": "The Defense Information Systems Agency (DISA) is an agency of the US Department of Defense (DoD) that is responsible for developing and maintaining the DoD Cloud Computing Security Requirements Guide (SRG). These policies are only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
+                        "value": "IL5"
+                      },
+                      {
+                        "label": "CMMC",
+                        "description": "The Cybersecurity Maturity Model Certification (CMMC) is a new framework developed by the US Department of Defense (DoD) that requires formal third-party audits of defense industrial base (DIB) contractor cybersecurity practices.",
+                        "value": "CMMC"
+                      }
+                    ]
+                  },
+                  "visible": "[steps('compliance').policySection.deployPolicy]"
                 }
               ]
             },
