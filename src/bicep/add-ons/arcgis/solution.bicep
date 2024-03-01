@@ -98,12 +98,6 @@ param hubResourceGroupName string
 param hubSubscriptionId string
 @description('Hub Virtual Network Name')
 param hubVirtualNetworkName string
-// @description('Is Multi Machine Tile Cache Data Store')
-// param isMultiMachineTileCacheDataStore bool = false
-// @description('Is Object Data Store Clustered')
-// param isObjectDataStoreClustered bool = false
-// @description('Is Tile Cache Data Store Clustered')
-// param isTileCacheDataStoreClustered bool = false
 @description('Updating Certificates')
 param isUpdatingCertificates bool = false
 @description('Join Windows Domain')
@@ -253,23 +247,27 @@ param workloadSubscriptionId string = ''
 @secure()
 param certificatePassword string
 param certificateFileName string
-param hubStorageAccountName string
-param hubContainerName string
+param artifactsStorageAccountName string
+param artifactsContainerName string
+param artifactsStorageAccountResourceGroupName string
+param artifactsStorageAccountSubscriptionId string
 
 // Resource Naming
 var resourceSuffix = resourcePrefix
-var externalDnsHostnamePrefix = resourcePrefix
+// var externalDnsHostnamePrefix = resourcePrefix
 var applicationGatewayName = 'ag-esri-${resourceSuffix}'
 var availabilitySetName = 'avset-esri-${resourceSuffix}'
 var container = 'artifacts'
 var keyVaultCertificatesOfficer = resourceId('Microsoft.Authorization/roleDefinitions', 'a4417e6f-fecd-4de8-b567-7b0420556985')
 var keyVaultName = 'kv-esri-${resourceSuffix}'
 var keyVaultSecretsOfficer = resourceId('Microsoft.Authorization/roleDefinitions', 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7')
+var keyVaultCryptoOfficer = resourceId('Microsoft.Authorization/roleDefinitions', '14b46e9e-c2b7-41b4-b07b-48a6ebf60603')
 var networkInterfaceName = 'nic-esri-${resourceSuffix}'
 var portalContext = 'portal'
 var portalLicenseFileName = 'portalLicense.json' //FIX THIS
-// var privatelink_blob_name = 'privatelink.blob.${environment().suffixes.storage}'
-// var privatelink_keyvaultDns_name = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
+var privatelink_blob_name = 'privatelink.blob.${environment().suffixes.storage}'
+var privatelink_keyvaultDns_name = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
+var privatelink_file_name = 'privatelink.file.${environment().suffixes.storage}'
 var publicIpAddressName = 'pip-esri-${resourceSuffix}'
 var resourceGroupName = 'rg-esri-enterprise-${resourceSuffix}'
 var serverContext = 'server'
@@ -312,7 +310,6 @@ var isObjectDataStoreClustered = numberOfObjectDataStoreVirtualMachines >= 3 ? t
 var isTileCacheDataStoreClustered = numberOfTileCacheDataStoreVirtualMachineNames >= 1 ? true : false
 var isMultiMachineTileCacheDataStore = numberOfTileCacheDataStoreVirtualMachineNames >= 1 ? true : false
 
-
 // Naming conventions
 // var locations = (loadJsonContent('../../data/locations.json'))[environment().name]
 // var locationAbbreviation = locations[location].abbreviation
@@ -337,15 +334,20 @@ var isMultiMachineTileCacheDataStore = numberOfTileCacheDataStoreVirtualMachineN
 // var virtualMachineNamingConvention = replace(namingConvention, resourceToken, 'vm')
 // var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'vnet')
 
-// resource privateDnsZone_blob 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
-//   scope: resourceGroup(subscriptionId, hubResourceGroupName)
-//   name: privatelink_blob_name
-// }
+resource privateDnsZone_blob 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  name: privatelink_blob_name
+}
 
-// resource privateDnsZone_keyvaultDns 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
-//   scope: resourceGroup(subscriptionId, hubResourceGroupName)
-//   name: privatelink_keyvaultDns_name
-// }
+resource privateDnsZone_file 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  name: privatelink_file_name
+}
+
+resource privateDnsZone_keyvaultDns 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  name: privatelink_keyvaultDns_name
+}
 
 resource hubVirtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' existing = {
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
@@ -357,9 +359,9 @@ resource azureFirewall 'Microsoft.Network/azureFirewalls@2023-05-01' existing = 
   name: azureFirewallName
 }
 
-resource hubStorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  name: hubStorageAccountName
+resource artifactsStorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
+  scope: resourceGroup(hubSubscriptionId, artifactsStorageAccountResourceGroupName)
+  name: artifactsStorageAccountName
 }
 
 resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = {
@@ -373,7 +375,7 @@ module singleTierDataStoreTypes 'modules/singleTierDatastoreTypes.bicep' = if (a
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     enableSpatiotemporalBigDataStore: (architecture == 'singletier') ? enableSpatiotemporalBigDataStore : false
-    enableTileCacheDataStore:  (architecture == 'singletier') ? enableTileCacheDataStore : false
+    enableTileCacheDataStore: (architecture == 'singletier') ? enableTileCacheDataStore : false
   }
   dependsOn: [
     rg
@@ -399,11 +401,11 @@ module tier3 'modules/tier3.bicep' = {
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
     policy: policy
+    privatelink_keyvaultDns_name: split(privateDnsZone_keyvaultDns.id, '/')[8]
     resourceGroupName: rg.name
     resourcePrefix: resourcePrefix
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     workloadSubscriptionId: workloadSubscriptionId
-    joinWindowsDomain: joinWindowsDomain
   }
   dependsOn: []
 }
@@ -429,6 +431,12 @@ module storage './modules/storageAccount.bicep' = {
     location: location
     tags: tags
     useCloudStorage: useCloudStorage
+    blobsPrivateDnsZoneResourceId: privateDnsZone_blob.id
+    filePrivateDnsZoneResourceId: privateDnsZone_file.id
+    subnetResourceId: tier3.outputs.subnetResourceId
+    keyVaultUri: keyVault.outputs.keyVaultUri
+    storageEncryptionKeyName: keyVault.outputs.storageKeyName
+    userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
   }
   dependsOn: [
     tier3
@@ -439,7 +447,7 @@ module publicIpAddress './modules/publicIpAddress.bicep' = {
   name: 'deploy-pip-address-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    hostname: externalDnsHostnamePrefix
+    hostname: 'esri-${resourcePrefix}${uniqueString(resourceGroupName)}'
     location: location
     publicIpAddressName: publicIpAddressName
     publicIpAllocationMethod: 'Static'
@@ -827,6 +835,9 @@ module keyVault './modules/keyVault.bicep' = {
     primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
     tags: tags
     userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
+    keyVaultPrivateDnsZoneResourceId: privateDnsZone_keyvaultDns.id
+    subnetResourceId: tier3.outputs.subnetResourceId
+    keyVaultCryptoOfficerRoleDefinitionResourceId: keyVaultCryptoOfficer
   }
   dependsOn: [
     tier3
@@ -846,12 +857,12 @@ module roleAssignmentStorageAccount './modules/roleAssignmentStorageAccount.bice
   ]
 }
 
-module roleAssignmentHubStorageAccount './modules/roleAssignmentStorageAccount.bicep' = {
+module roleAssignmentArtifactsStorageAccount './modules/roleAssignmentStorageAccount.bicep' = {
   name: 'assign-role-sa-02-${deploymentNameSuffix}'
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  scope: resourceGroup(artifactsStorageAccountSubscriptionId, artifactsStorageAccountResourceGroupName)
   params: {
     principalId: userAssignedIdentity.outputs.principalId
-    storageAccountName: hubStorageAccount.name
+    storageAccountName: artifactsStorageAccount.name
   }
   dependsOn: [
     keyVault
@@ -882,7 +893,7 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
     virtualMachineName: take('vm-esri-mgmt-${resourceSuffix})', 15)
     certificateFileName: certificateFileName
     certificatePassword: certificatePassword
-    hubContainerName: hubContainerName
+    artifactsContainerName: artifactsContainerName
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     externalDnsHostname: externalDnsHostname
     hybridUseBenefit: false
@@ -895,7 +906,7 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
     serverLicenseFileName: serverLicenseFileName
     userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
     userAssignedIdentityClientId: userAssignedIdentity.outputs.clientId
-    hubStorageAccountName: hubStorageAccount.name
+    artifactsStorageAccountName: artifactsStorageAccount.name
     esriStorageAccountName: storage.outputs.storageAccountName
   }
   dependsOn: [
@@ -903,7 +914,7 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
     multiTierPortalVirtualMachines
     multiTierServerVirtualMachines
     rg
-    roleAssignmentHubStorageAccount
+    roleAssignmentArtifactsStorageAccount
     roleAssignmentStorageAccount
     roleAssignmentVirtualMachineContributor
     tier3
@@ -1023,6 +1034,7 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' = if (ar
     virtualNetworkId: tier3.outputs.virtualNetworkResourceId
     virtualNetworkName: tier3.outputs.virtualNetworkName
     windowsDomainName: joinWindowsDomain ? windowsDomainName : 'none'
+    hubVirtualNetworkId: hubVirtualNetwork.id
   }
   dependsOn: [
     managementVm
@@ -1079,7 +1091,6 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     virtualMachineOSDiskSize: virtualMachineOSDiskSize
     selfSignedSSLCertificatePassword: selfSignedCertificatePassword
     applicationGatewayName: applicationGatewayName
-    applicationGatewayPrivateIPAddress: applicationGatewayPrivateIpAddress
     externalDnsHostname: externalDnsHostname
     iDns: architecture == 'singletier' ? singleTierVirtualMachine.outputs.networkInterfaceInternalDomainNameSuffix : 'none'
     joinWindowsDomain: joinWindowsDomain
@@ -1094,6 +1105,8 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     windowsDomainName: windowsDomainName
     architecture: architecture
     virtualNetworkId: tier3.outputs.virtualNetworkResourceId
+    hubVirtualNetworkId: hubVirtualNetwork.id
+    applicationGatewayPrivateIpAddress: applicationGatewayPrivateIpAddress
   }
   dependsOn: [
     certificates

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "4285961012699942666"
+      "templateHash": "625064113747195805"
     }
   },
   "parameters": {
@@ -563,10 +563,16 @@
     "certificateFileName": {
       "type": "string"
     },
-    "hubStorageAccountName": {
+    "artifactsStorageAccountName": {
       "type": "string"
     },
-    "hubContainerName": {
+    "artifactsContainerName": {
+      "type": "string"
+    },
+    "artifactsStorageAccountResourceGroupName": {
+      "type": "string"
+    },
+    "artifactsStorageAccountSubscriptionId": {
       "type": "string"
     }
   },
@@ -614,16 +620,19 @@
       }
     ],
     "resourceSuffix": "[parameters('resourcePrefix')]",
-    "externalDnsHostnamePrefix": "[parameters('resourcePrefix')]",
     "applicationGatewayName": "[format('ag-esri-{0}', variables('resourceSuffix'))]",
     "availabilitySetName": "[format('avset-esri-{0}', variables('resourceSuffix'))]",
     "container": "artifacts",
     "keyVaultCertificatesOfficer": "[resourceId('Microsoft.Authorization/roleDefinitions', 'a4417e6f-fecd-4de8-b567-7b0420556985')]",
     "keyVaultName": "[format('kv-esri-{0}', variables('resourceSuffix'))]",
     "keyVaultSecretsOfficer": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7')]",
+    "keyVaultCryptoOfficer": "[resourceId('Microsoft.Authorization/roleDefinitions', '14b46e9e-c2b7-41b4-b07b-48a6ebf60603')]",
     "networkInterfaceName": "[format('nic-esri-{0}', variables('resourceSuffix'))]",
     "portalContext": "portal",
     "portalLicenseFileName": "portalLicense.json",
+    "privatelink_blob_name": "[format('privatelink.blob.{0}', environment().suffixes.storage)]",
+    "privatelink_keyvaultDns_name": "[replace(format('privatelink{0}', environment().suffixes.keyvaultDns), 'vault', 'vaultcore')]",
+    "privatelink_file_name": "[format('privatelink.file.{0}', environment().suffixes.storage)]",
     "publicIpAddressName": "[format('pip-esri-{0}', variables('resourceSuffix'))]",
     "resourceGroupName": "[format('rg-esri-enterprise-{0}', variables('resourceSuffix'))]",
     "serverContext": "server",
@@ -781,6 +790,9 @@
           "policy": {
             "value": "[parameters('policy')]"
           },
+          "privatelink_keyvaultDns_name": {
+            "value": "[split(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Network/privateDnsZones', variables('privatelink_keyvaultDns_name')), '/')[8]]"
+          },
           "resourceGroupName": {
             "value": "[variables('resourceGroupName')]"
           },
@@ -792,9 +804,6 @@
           },
           "workloadSubscriptionId": {
             "value": "[parameters('workloadSubscriptionId')]"
-          },
-          "joinWindowsDomain": {
-            "value": "[parameters('joinWindowsDomain')]"
           }
         },
         "template": {
@@ -804,7 +813,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "15689759985796572441"
+              "templateHash": "10391599748242317627"
             }
           },
           "parameters": {
@@ -898,8 +907,8 @@
             "defaultSubnetAddressPrefix": {
               "type": "string"
             },
-            "joinWindowsDomain": {
-              "type": "bool"
+            "privatelink_keyvaultDns_name": {
+              "type": "string"
             }
           },
           "variables": {
@@ -960,9 +969,6 @@
                   },
                   "vNetDnsServers": {
                     "value": "[parameters('vNetDnsServers')]"
-                  },
-                  "joinWindowsDomain": {
-                    "value": "[parameters('joinWindowsDomain')]"
                   }
                 },
                 "template": {
@@ -972,7 +978,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "7888736618865067370"
+                      "templateHash": "14637209376232418497"
                     }
                   },
                   "parameters": {
@@ -1008,9 +1014,6 @@
                     },
                     "vNetDnsServers": {
                       "type": "array"
-                    },
-                    "joinWindowsDomain": {
-                      "type": "bool"
                     }
                   },
                   "resources": [
@@ -1026,7 +1029,7 @@
                             "[parameters('virtualNetworkAddressPrefix')]"
                           ]
                         },
-                        "dhcpOptions": "[if(and(not(equals(parameters('vNetDnsServers'), null())), equals(parameters('joinWindowsDomain'), true())), createObject('dnsServers', parameters('vNetDnsServers')), null())]",
+                        "dhcpOptions": "[if(not(equals(parameters('vNetDnsServers'), null())), createObject('dnsServers', parameters('vNetDnsServers')), null())]",
                         "subnets": [
                           {
                             "name": "default",
@@ -1052,7 +1055,7 @@
                               ],
                               "delegations": [],
                               "privateEndpointNetworkPolicies": "Disabled",
-                              "privateLinkServiceNetworkPolicies": "Enabled"
+                              "privateLinkServiceNetworkPolicies": "Disabled"
                             },
                             "type": "Microsoft.Network/virtualNetworks/subnets"
                           }
@@ -1235,6 +1238,69 @@
                   }
                 }
               }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-virtualNetworkLink--{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('hubSubscriptionId')]",
+              "resourceGroup": "[parameters('hubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "privatelink_keyvaultDns_name": {
+                    "value": "[parameters('privatelink_keyvaultDns_name')]"
+                  },
+                  "workloadVirtualNetworkName": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-spokeNetwork--{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.vNetName.value]"
+                  },
+                  "virtualNetworkId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-spokeNetwork--{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.vNetid.value]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.25.53.49325",
+                      "templateHash": "5494060180519033511"
+                    }
+                  },
+                  "parameters": {
+                    "privatelink_keyvaultDns_name": {
+                      "type": "string"
+                    },
+                    "workloadVirtualNetworkName": {
+                      "type": "string"
+                    },
+                    "virtualNetworkId": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/{1}', parameters('privatelink_keyvaultDns_name'), parameters('workloadVirtualNetworkName'))]",
+                      "location": "global",
+                      "properties": {
+                        "virtualNetwork": {
+                          "id": "[parameters('virtualNetworkId')]"
+                        },
+                        "registrationEnabled": false
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-spokeNetwork--{0}', parameters('deploymentNameSuffix')))]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -2107,6 +2173,24 @@
           },
           "useCloudStorage": {
             "value": "[parameters('useCloudStorage')]"
+          },
+          "blobsPrivateDnsZoneResourceId": {
+            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Network/privateDnsZones', variables('privatelink_blob_name'))]"
+          },
+          "filePrivateDnsZoneResourceId": {
+            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Network/privateDnsZones', variables('privatelink_file_name'))]"
+          },
+          "subnetResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+          },
+          "keyVaultUri": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+          },
+          "storageEncryptionKeyName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
+          },
+          "userAssignedIdentityResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           }
         },
         "template": {
@@ -2116,7 +2200,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12459413568187234865"
+              "templateHash": "291649890771312075"
             }
           },
           "parameters": {
@@ -2143,16 +2227,38 @@
             "tags": {
               "type": "object"
             },
+            "subnetResourceId": {
+              "type": "string"
+            },
+            "blobsPrivateDnsZoneResourceId": {
+              "type": "string"
+            },
+            "filePrivateDnsZoneResourceId": {
+              "type": "string"
+            },
             "fileShareName": {
               "type": "string",
               "defaultValue": "fileshare"
             },
             "useCloudStorage": {
               "type": "bool"
+            },
+            "userAssignedIdentityResourceId": {
+              "type": "string"
+            },
+            "keyVaultUri": {
+              "type": "string"
+            },
+            "storageEncryptionKeyName": {
+              "type": "string"
             }
           },
           "variables": {
-            "uniqueStorageName": "[take(format('{0}', uniqueString(resourceGroup().id)), 10)]"
+            "uniqueStorageName": "[take(format('{0}', uniqueString(resourceGroup().id)), 10)]",
+            "zones": [
+              "[parameters('blobsPrivateDnsZoneResourceId')]",
+              "[parameters('filePrivateDnsZoneResourceId')]"
+            ]
           },
           "resources": [
             {
@@ -2164,23 +2270,58 @@
               "sku": {
                 "name": "[parameters('storageSKU')]"
               },
+              "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                  "[format('{0}', parameters('userAssignedIdentityResourceId'))]": {}
+                }
+              },
               "kind": "StorageV2",
               "properties": {
                 "accessTier": "Hot",
-                "allowBlobPublicAccess": true,
+                "allowBlobPublicAccess": false,
                 "allowCrossTenantReplication": false,
                 "allowedCopyScope": "PrivateLink",
                 "allowSharedKeyAccess": true,
                 "defaultToOAuthAuthentication": false,
                 "dnsEndpointType": "Standard",
+                "encryption": {
+                  "identity": {
+                    "userAssignedIdentity": "[parameters('userAssignedIdentityResourceId')]"
+                  },
+                  "keySource": "Microsoft.KeyVault",
+                  "keyvaultproperties": {
+                    "keyvaulturi": "[parameters('keyVaultUri')]",
+                    "keyname": "[parameters('storageEncryptionKeyName')]"
+                  },
+                  "requireInfrastructureEncryption": true,
+                  "services": {
+                    "blob": {
+                      "keyType": "Account",
+                      "enabled": true
+                    },
+                    "file": {
+                      "keyType": "Account",
+                      "enabled": true
+                    },
+                    "queue": {
+                      "keyType": "Account",
+                      "enabled": true
+                    },
+                    "table": {
+                      "keyType": "Account",
+                      "enabled": true
+                    }
+                  }
+                },
                 "minimumTlsVersion": "TLS1_2",
                 "networkAcls": {
                   "bypass": "AzureServices",
                   "virtualNetworkRules": [],
                   "ipRules": [],
-                  "defaultAction": "Allow"
+                  "defaultAction": "Deny"
                 },
-                "publicNetworkAccess": "Enabled",
+                "publicNetworkAccess": "Disabled",
                 "supportsHttpsTrafficOnly": true
               }
             },
@@ -2262,6 +2403,60 @@
               "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', format('saesri{0}', variables('uniqueStorageName')), 'default')]"
               ]
+            },
+            {
+              "copy": {
+                "name": "privateEndpoints",
+                "count": "[length(variables('zones'))]"
+              },
+              "type": "Microsoft.Network/privateEndpoints",
+              "apiVersion": "2023-04-01",
+              "name": "[format('esri-pe-{0}-{1}', format('saesri{0}', variables('uniqueStorageName')), copyIndex())]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "customNetworkInterfaceName": "[format('esri-nic-{0}-{1}', format('saesri{0}', variables('uniqueStorageName')), copyIndex())]",
+                "privateLinkServiceConnections": [
+                  {
+                    "name": "[format('esri-pl-{0}', copyIndex())]",
+                    "properties": {
+                      "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', format('saesri{0}', variables('uniqueStorageName')))]",
+                      "groupIds": [
+                        "[split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]]"
+                      ]
+                    }
+                  }
+                ],
+                "subnet": {
+                  "id": "[parameters('subnetResourceId')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', format('saesri{0}', variables('uniqueStorageName')))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "privateDnsZoneGroups",
+                "count": "[length(variables('zones'))]"
+              },
+              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+              "apiVersion": "2021-08-01",
+              "name": "[format('{0}/{1}', format('esri-pe-{0}-{1}', format('saesri{0}', variables('uniqueStorageName')), copyIndex()), format('saesri{0}', variables('uniqueStorageName')))]",
+              "properties": {
+                "privateDnsZoneConfigs": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "privateDnsZoneId": "[variables('zones')[copyIndex()]]"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', format('esri-pe-{0}-{1}', format('saesri{0}', variables('uniqueStorageName')), copyIndex()))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', format('saesri{0}', variables('uniqueStorageName')))]"
+              ]
             }
           ],
           "outputs": {
@@ -2281,8 +2476,10 @@
         }
       },
       "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -2298,7 +2495,7 @@
         "mode": "Incremental",
         "parameters": {
           "hostname": {
-            "value": "[variables('externalDnsHostnamePrefix')]"
+            "value": "[format('esri-{0}{1}', parameters('resourcePrefix'), uniqueString(variables('resourceGroupName')))]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -6564,6 +6761,15 @@
           },
           "userAssignedIdentityPrincipalId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
+          },
+          "keyVaultPrivateDnsZoneResourceId": {
+            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Network/privateDnsZones', variables('privatelink_keyvaultDns_name'))]"
+          },
+          "subnetResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+          },
+          "keyVaultCryptoOfficerRoleDefinitionResourceId": {
+            "value": "[variables('keyVaultCryptoOfficer')]"
           }
         },
         "template": {
@@ -6573,7 +6779,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "914074942159784023"
+              "templateHash": "17994024948989454154"
             }
           },
           "parameters": {
@@ -6590,6 +6796,9 @@
               "type": "string"
             },
             "keyVaultSecretsOfficerRoleDefinitionResourceId": {
+              "type": "string"
+            },
+            "keyVaultCryptoOfficerRoleDefinitionResourceId": {
               "type": "string"
             },
             "localAdministratorPassword": {
@@ -6612,6 +6821,16 @@
             },
             "userAssignedIdentityPrincipalId": {
               "type": "string"
+            },
+            "subnetResourceId": {
+              "type": "string"
+            },
+            "keyVaultPrivateDnsZoneResourceId": {
+              "type": "string"
+            },
+            "diskEncryptionKeyExpirationInDays": {
+              "type": "int",
+              "defaultValue": 30
             }
           },
           "variables": {
@@ -6650,20 +6869,102 @@
               "location": "[parameters('location')]",
               "tags": "[if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject())]",
               "properties": {
-                "tenantId": "[subscription().tenantId]",
+                "enabledForDeployment": true,
+                "enabledForDiskEncryption": true,
+                "enabledForTemplateDeployment": true,
+                "enablePurgeProtection": true,
+                "enableRbacAuthorization": true,
+                "enableSoftDelete": true,
+                "networkAcls": {
+                  "bypass": "AzureServices",
+                  "defaultAction": "Deny",
+                  "ipRules": [],
+                  "virtualNetworkRules": []
+                },
+                "publicNetworkAccess": "Disabled",
                 "sku": {
                   "family": "A",
                   "name": "standard"
                 },
-                "enabledForDeployment": true,
-                "enabledForTemplateDeployment": true,
-                "enabledForDiskEncryption": false,
-                "enableRbacAuthorization": true,
-                "enableSoftDelete": true,
-                "networkAcls": {
-                  "bypass": "AzureServices"
-                }
+                "softDeleteRetentionInDays": 7,
+                "tenantId": "[subscription().tenantId]"
               }
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/keys",
+              "apiVersion": "2022-07-01",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'DiskEncryptionKey')]",
+              "properties": {
+                "attributes": {
+                  "enabled": true
+                },
+                "keySize": 4096,
+                "kty": "RSA",
+                "rotationPolicy": {
+                  "attributes": {
+                    "expiryTime": "[format('P{0}D', string(parameters('diskEncryptionKeyExpirationInDays')))]"
+                  },
+                  "lifetimeActions": [
+                    {
+                      "action": {
+                        "type": "Notify"
+                      },
+                      "trigger": {
+                        "timeBeforeExpiry": "P10D"
+                      }
+                    },
+                    {
+                      "action": {
+                        "type": "Rotate"
+                      },
+                      "trigger": {
+                        "timeAfterCreate": "[format('P{0}D', string(sub(parameters('diskEncryptionKeyExpirationInDays'), 7)))]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/keys",
+              "apiVersion": "2022-07-01",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'StorageEncryptionKey')]",
+              "properties": {
+                "attributes": {
+                  "enabled": true
+                },
+                "keySize": 4096,
+                "kty": "RSA",
+                "rotationPolicy": {
+                  "attributes": {
+                    "expiryTime": "[format('P{0}D', string(parameters('diskEncryptionKeyExpirationInDays')))]"
+                  },
+                  "lifetimeActions": [
+                    {
+                      "action": {
+                        "type": "Notify"
+                      },
+                      "trigger": {
+                        "timeBeforeExpiry": "P10D"
+                      }
+                    },
+                    {
+                      "action": {
+                        "type": "Rotate"
+                      },
+                      "trigger": {
+                        "timeAfterCreate": "[format('P{0}D', string(sub(parameters('diskEncryptionKeyExpirationInDays'), 7)))]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
             },
             {
               "copy": {
@@ -6708,6 +7009,65 @@
               "dependsOn": [
                 "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
               ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-10-01-preview",
+              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+              "name": "[guid(parameters('userAssignedIdentityPrincipalId'), parameters('keyVaultCryptoOfficerRoleDefinitionResourceId'), resourceGroup().id)]",
+              "properties": {
+                "roleDefinitionId": "[parameters('keyVaultCryptoOfficerRoleDefinitionResourceId')]",
+                "principalId": "[parameters('userAssignedIdentityPrincipalId')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateEndpoints",
+              "apiVersion": "2023-04-01",
+              "name": "[format('pe-{0}', parameters('keyVaultName'))]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "customNetworkInterfaceName": "[format('nic-{0}', parameters('keyVaultName'))]",
+                "privateLinkServiceConnections": [
+                  {
+                    "name": "[format('pe-{0}', parameters('keyVaultName'))]",
+                    "properties": {
+                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                      "groupIds": [
+                        "vault"
+                      ]
+                    }
+                  }
+                ],
+                "subnet": {
+                  "id": "[parameters('subnetResourceId')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+              "apiVersion": "2021-08-01",
+              "name": "[format('{0}/{1}', format('pe-{0}', parameters('keyVaultName')), parameters('keyVaultName'))]",
+              "properties": {
+                "privateDnsZoneConfigs": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', format('pe-{0}', parameters('keyVaultName')))]"
+              ]
             }
           ],
           "outputs": {
@@ -6719,9 +7079,21 @@
               "type": "string",
               "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
             },
+            "keyUriWithVersion": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), 'DiskEncryptionKey'), '2022-07-01').keyUriWithVersion]"
+            },
+            "keyVaultResourceId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+            },
             "keyVaultUri": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2021-10-01').vaultUri]"
+            },
+            "storageKeyName": {
+              "type": "string",
+              "value": "StorageEncryptionKey"
             }
           }
         }
@@ -6798,8 +7170,8 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('assign-role-sa-02-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[parameters('hubSubscriptionId')]",
-      "resourceGroup": "[parameters('hubResourceGroupName')]",
+      "subscriptionId": "[parameters('artifactsStorageAccountSubscriptionId')]",
+      "resourceGroup": "[parameters('artifactsStorageAccountResourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -6810,7 +7182,7 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
           },
           "storageAccountName": {
-            "value": "[parameters('hubStorageAccountName')]"
+            "value": "[parameters('artifactsStorageAccountName')]"
           }
         },
         "template": {
@@ -6947,8 +7319,8 @@
           "certificatePassword": {
             "value": "[parameters('certificatePassword')]"
           },
-          "hubContainerName": {
-            "value": "[parameters('hubContainerName')]"
+          "artifactsContainerName": {
+            "value": "[parameters('artifactsContainerName')]"
           },
           "diskEncryptionSetResourceId": {
             "value": "[parameters('diskEncryptionSetResourceId')]"
@@ -6986,8 +7358,8 @@
           "userAssignedIdentityClientId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.clientId.value]"
           },
-          "hubStorageAccountName": {
-            "value": "[parameters('hubStorageAccountName')]"
+          "artifactsStorageAccountName": {
+            "value": "[parameters('artifactsStorageAccountName')]"
           },
           "esriStorageAccountName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
@@ -7000,11 +7372,11 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "2626435873311024959"
+              "templateHash": "7547286764850790257"
             }
           },
           "parameters": {
-            "hubContainerName": {
+            "artifactsContainerName": {
               "type": "string"
             },
             "diskEncryptionSetResourceId": {
@@ -7022,7 +7394,7 @@
             "location": {
               "type": "string"
             },
-            "hubStorageAccountName": {
+            "artifactsStorageAccountName": {
               "type": "string"
             },
             "subnetResourceId": {
@@ -7187,11 +7559,11 @@
                 "parameters": [
                   {
                     "name": "ContainerName",
-                    "value": "[parameters('hubContainerName')]"
+                    "value": "[parameters('artifactsContainerName')]"
                   },
                   {
                     "name": "StorageAccountName",
-                    "value": "[parameters('hubStorageAccountName')]"
+                    "value": "[parameters('artifactsStorageAccountName')]"
                   },
                   {
                     "name": "StorageEndpoint",
@@ -7222,7 +7594,7 @@
                 "parameters": [
                   {
                     "name": "ContainerName",
-                    "value": "[parameters('hubContainerName')]"
+                    "value": "[parameters('artifactsContainerName')]"
                   },
                   {
                     "name": "Environment",
@@ -7274,11 +7646,11 @@
                 "parameters": [
                   {
                     "name": "ContainerName",
-                    "value": "[parameters('hubContainerName')]"
+                    "value": "[parameters('artifactsContainerName')]"
                   },
                   {
                     "name": "StorageAccountName",
-                    "value": "[parameters('hubStorageAccountName')]"
+                    "value": "[parameters('artifactsStorageAccountName')]"
                   },
                   {
                     "name": "StorageEndpoint",
@@ -7342,7 +7714,7 @@
                   }
                 ],
                 "source": {
-                  "script": "      param(\r\n        [string]$ContainerName,\r\n        [string]$CertificateFileName,\r\n        [string]$CertificatePassword,\r\n        [string]$StorageAccountName,\r\n        [string]$StorageEndpoint,\r\n        [string]$UserAssignedIdentityObjectId,\r\n        [string]$UserAssignedIdentityClientId,\r\n        [string]$PortalLicenseFileName,\r\n        [string]$PortalLicenseFile,\r\n        [string]$ServerLicensefile,\r\n        [string]$ServerLicenseFileName,\r\n        [string]$TenantId,\r\n        [string]$Location,\r\n        [string]$Fqdn,\r\n        [string]$Subscription,\r\n        [string]$KeyVaultName,\r\n        [string]$EsriStorageAccount,\r\n        [string]$Environment\r\n      )\r\n      New-Item -ItemType File \"$env:windir\\temp\\$portalLicenseFileName\"\r\n      New-Item -ItemType File \"$env:windir\\temp\\$serverLicenseFileName\"\r\n\r\n      $plf = \"$env:windir\\temp\\$portalLicenseFileName\"\r\n      $slf = \"$env:windir\\temp\\$serverLicenseFileName\"\r\n\r\n\r\n      $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False\r\n\r\n      $portalLicense = [System.Text.UTF8Encoding]::UTF8.GetString([System.Convert]::FromBase64String($portalLicensefile))\r\n      [System.IO.File]::WriteAllLines($plf, $portalLicense, $Utf8NoBomEncoding)\r\n\r\n      $serverLicense = [System.Text.UTF8Encoding]::UTF8.GetString([System.Convert]::FromBase64String($serverLicensefile))\r\n      [System.IO.File]::WriteAllLines($slf, $serverLicense, $Utf8NoBomEncoding)\r\n\r\n      Import-Module az.keyvault\r\n      Connect-AzAccount -Environment $Environment -Subscription $Subscription -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n      $StorageAccountUrl = \"https://\" + $StorageAccountName + \".blob.\" + $StorageEndpoint\r\n      $TokenUri = \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId\"\r\n      $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token\r\n      $BlobNames = @($certificateFileName)\r\n      Invoke-WebRequest -Headers @{\"x-ms-version\"=\"2017-11-09\"; Authorization =\"Bearer $AccessToken\"} -Uri \"$StorageAccountUrl/$ContainerName/$BlobNames\" -OutFile $env:windir\\temp\\$certificateFileName -Verbose\r\n      $pfx = \"$env:windir\\temp\\$CertificateFileName\"\r\n      $base64 = [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($pfx))\r\n      $Password = ConvertTo-SecureString -String $CertificatePassword -AsPlainText -Force\r\n      $cert = Import-AzKeyVaultCertificate -VaultName $keyVaultName -Name \"pfx$location\" -FilePath $pfx -Password $Password\r\n      $azKeyVaultCert = Get-AzKeyVaultCertificate -VaultName  $keyVaultName -Name \"pfx$location\"\r\n      $azKeyVaultCertBytes = $azKeyVaultCert.Certificate.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)\r\n      $publicCertificateName = \"wildcard$fqdn-PublicKey.cer\"\r\n      $cerCertFile = \"$env:windir\\temp\\$publicCertificateName\"\r\n      Write-Output $cerCertFile\r\n      [System.IO.File]::WriteAllBytes($cerCertFile, $azKeyVaultCertBytes)\r\n      $ctx = New-AzStorageContext -StorageAccountName $esriStorageAccount -UseConnectedAccount\r\n      Set-AzStorageBlobContent -File $cerCertFile -Container $containerName -Blob $publicCertificateName -Context $ctx -Force\r\n      Set-AzStorageBlobContent -File $pfx -Container $containerName -Blob $CertificateFileName -Context $ctx -Force\r\n      Set-AzStorageBlobContent -File $plf -Container $containerName -Properties @{\"ContentEncoding\" = \"UTF-8\"} -Blob $portalLicenseFileName -Context $ctx -Force\r\n      Set-AzStorageBlobContent -File $slf -Container $containerName -Properties @{\"ContentEncoding\" = \"UTF-8\"} -Blob $serverLicenseFileName -Context $ctx -Force\r\n      "
+                  "script": "      param(\r\n        [string]$ContainerName,\r\n        [string]$CertificateFileName,\r\n        [string]$CertificatePassword,\r\n        [string]$StorageAccountName,\r\n        [string]$StorageEndpoint,\r\n        [string]$UserAssignedIdentityObjectId,\r\n        [string]$UserAssignedIdentityClientId,\r\n        [string]$PortalLicenseFileName,\r\n        [string]$PortalLicenseFile,\r\n        [string]$ServerLicensefile,\r\n        [string]$ServerLicenseFileName,\r\n        [string]$TenantId,\r\n        [string]$Location,\r\n        [string]$Fqdn,\r\n        [string]$Subscription,\r\n        [string]$KeyVaultName,\r\n        [string]$EsriStorageAccount,\r\n        [string]$Environment\r\n      )\r\n      New-Item -ItemType File \"$env:windir\\temp\\$portalLicenseFileName\"\r\n      New-Item -ItemType File \"$env:windir\\temp\\$serverLicenseFileName\"\r\n\r\n      $plf = \"$env:windir\\temp\\$portalLicenseFileName\"\r\n      $slf = \"$env:windir\\temp\\$serverLicenseFileName\"\r\n\r\n\r\n      $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False\r\n\r\n      $portalLicense = [System.Text.UTF8Encoding]::UTF8.GetString([System.Convert]::FromBase64String($portalLicensefile))\r\n      [System.IO.File]::WriteAllLines($plf, $portalLicense, $Utf8NoBomEncoding)\r\n\r\n      $serverLicense = [System.Text.UTF8Encoding]::UTF8.GetString([System.Convert]::FromBase64String($serverLicensefile))\r\n      [System.IO.File]::WriteAllLines($slf, $serverLicense, $Utf8NoBomEncoding)\r\n\r\n      Import-Module az.keyvault\r\n      Connect-AzAccount -Environment $Environment -Subscription $Subscription -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n      $ctx = New-AzStorageContext -StorageAccountName $esriStorageAccount -UseConnectedAccount\r\n      $StorageAccountUrl = \"https://\" + $StorageAccountName + \".blob.\" + $StorageEndpoint\r\n      $TokenUri = \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId\"\r\n      $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token\r\n      $BlobNames = @($certificateFileName)\r\n      Invoke-WebRequest -Headers @{\"x-ms-version\"=\"2017-11-09\"; Authorization =\"Bearer $AccessToken\"} -Uri \"$StorageAccountUrl/$ContainerName/$BlobNames\" -OutFile $env:windir\\temp\\$certificateFileName -Verbose\r\n      $pfx = \"$env:windir\\temp\\$CertificateFileName\"\r\n      Set-AzStorageBlobContent -File $pfx -Container $containerName -Blob $CertificateFileName -Context $ctx -Force\r\n      $base64 = [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($pfx))\r\n      $Password = ConvertTo-SecureString -String $CertificatePassword -AsPlainText -Force\r\n      $cert = Import-AzKeyVaultCertificate -VaultName $keyVaultName -Name \"pfx$location\" -FilePath $pfx -Password $Password\r\n      $azKeyVaultCert = Get-AzKeyVaultCertificate -VaultName  $keyVaultName -Name \"pfx$location\"\r\n      $azKeyVaultCertBytes = $azKeyVaultCert.Certificate.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)\r\n      $publicCertificateName = \"wildcard$fqdn-PublicKey.cer\"\r\n      $cerCertFile = \"$env:windir\\temp\\$publicCertificateName\"\r\n      Write-Output $cerCertFile\r\n      [System.IO.File]::WriteAllBytes($cerCertFile, $azKeyVaultCertBytes)\r\n      #$ctx = New-AzStorageContext -StorageAccountName $esriStorageAccount -UseConnectedAccount\r\n      Set-AzStorageBlobContent -File $cerCertFile -Container $containerName -Blob $publicCertificateName -Context $ctx -Force\r\n      #Set-AzStorageBlobContent -File $pfx -Container $containerName -Blob $CertificateFileName -Context $ctx -Force\r\n      Set-AzStorageBlobContent -File $plf -Container $containerName -Properties @{\"ContentEncoding\" = \"UTF-8\"} -Blob $portalLicenseFileName -Context $ctx -Force\r\n      Set-AzStorageBlobContent -File $slf -Container $containerName -Properties @{\"ContentEncoding\" = \"UTF-8\"} -Blob $serverLicenseFileName -Context $ctx -Force\r\n      "
                 }
               },
               "dependsOn": [
@@ -7366,7 +7738,7 @@
         "multiTierPortalVirtualMachines",
         "multiTierServerVirtualMachines",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-sa-02-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('artifactsStorageAccountSubscriptionId'), parameters('artifactsStorageAccountResourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-sa-02-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-sa-01-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-vm-02-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
@@ -7771,7 +8143,10 @@
           "virtualNetworkName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
           },
-          "windowsDomainName": "[if(parameters('joinWindowsDomain'), createObject('value', parameters('windowsDomainName')), createObject('value', 'none'))]"
+          "windowsDomainName": "[if(parameters('joinWindowsDomain'), createObject('value', parameters('windowsDomainName')), createObject('value', 'none'))]",
+          "hubVirtualNetworkId": {
+            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Network/virtualNetworks', parameters('hubVirtualNetworkName'))]"
+          }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -7780,7 +8155,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "8549079728153072381"
+              "templateHash": "14188255688665372199"
             }
           },
           "parameters": {
@@ -8039,6 +8414,9 @@
               "type": "string"
             },
             "windowsDomainName": {
+              "type": "string"
+            },
+            "hubVirtualNetworkId": {
               "type": "string"
             }
           },
@@ -8838,7 +9216,8 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-fileshare-dsc-{0}', parameters('deploymentNameSuffix')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-fileshare-dsc-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-privatednszone-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
             {
@@ -8858,10 +9237,13 @@
                     "value": "[parameters('externalDnsHostname')]"
                   },
                   "applicationGatewayPrivateIPAddress": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.applicationGatewayPrivateIpAddress.value]"
+                    "value": "[parameters('applicationGatewayPrivateIPAddress')]"
                   },
                   "virtualNetworkId": {
                     "value": "[parameters('virtualNetworkId')]"
+                  },
+                  "hubVirtualNetworkId": {
+                    "value": "[parameters('hubVirtualNetworkId')]"
                   }
                 },
                 "template": {
@@ -8871,7 +9253,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "12153920269033634168"
+                      "templateHash": "8133433986821957993"
                     }
                   },
                   "parameters": {
@@ -8882,6 +9264,9 @@
                       "type": "string"
                     },
                     "applicationGatewayPrivateIPAddress": {
+                      "type": "string"
+                    },
+                    "hubVirtualNetworkId": {
                       "type": "string"
                     }
                   },
@@ -8900,11 +9285,26 @@
                     {
                       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
                       "apiVersion": "2020-06-01",
-                      "name": "[format('{0}/{1}', variables('privateDNSZoneName'), 'vnetLink')]",
+                      "name": "[format('{0}/{1}', variables('privateDNSZoneName'), 'esri-link')]",
                       "location": "global",
                       "properties": {
                         "virtualNetwork": {
                           "id": "[parameters('virtualNetworkId')]"
+                        },
+                        "registrationEnabled": false
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDNSZoneName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/{1}', variables('privateDNSZoneName'), 'hub-link')]",
+                      "location": "global",
+                      "properties": {
+                        "virtualNetwork": {
+                          "id": "[parameters('hubVirtualNetworkId')]"
                         },
                         "registrationEnabled": false
                       },
@@ -8928,12 +9328,15 @@
                         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDNSZoneName'))]"
                       ]
                     }
-                  ]
+                  ],
+                  "outputs": {
+                    "privateDNSZoneName": {
+                      "type": "string",
+                      "value": "[variables('privateDNSZoneName')]"
+                    }
+                  }
                 }
-              },
-              "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]"
-              ]
+              }
             },
             {
               "copy": {
@@ -9223,8 +9626,8 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-fileshare-dsc-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-fileshare-dsc-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-privatednszone-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
@@ -9478,9 +9881,9 @@
                 }
               },
               "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
                 "dscEsriServers",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-fileshare-dsc-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-privatednszone-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
@@ -9697,11 +10100,11 @@
                 }
               },
               "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
                 "dscEsriDataStoreServers",
                 "dscEsriObjectDataStoreServers",
                 "dscEsriServers",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-fileshare-dsc-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-privatednszone-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
@@ -9932,11 +10335,11 @@
                 }
               },
               "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
                 "dscEsriDataStoreServers",
                 "dscEsriGraphDataStoreServers",
                 "dscEsriServers",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-fileshare-dsc-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-privatednszone-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
@@ -10159,12 +10562,12 @@
                 }
               },
               "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
                 "dscEsriDataStoreServers",
                 "dscEsriObjectDataStoreServers",
                 "dscEsriServers",
                 "dscEsriSpatioTemporalServers",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-fileshare-dsc-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-privatednszone-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
@@ -10388,10 +10791,10 @@
                 }
               },
               "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
                 "dscEsriDataStoreServers",
                 "dscEsriServers",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-fileshare-dsc-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-privatednszone-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
@@ -10708,6 +11111,7 @@
                 }
               },
               "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
                 "dscEsriDataStoreServers",
                 "dscEsriGraphDataStoreServers",
                 "dscEsriObjectDataStoreServers",
@@ -10715,7 +11119,6 @@
                 "dscEsriSpatioTemporalServers",
                 "dscEsriTileCacheServers",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-fileshare-dsc-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-privatednszone-{0}', parameters('deploymentNameSuffix')))]"
               ]
             }
@@ -10853,9 +11256,6 @@
           "applicationGatewayName": {
             "value": "[variables('applicationGatewayName')]"
           },
-          "applicationGatewayPrivateIPAddress": {
-            "value": "[parameters('applicationGatewayPrivateIpAddress')]"
-          },
           "externalDnsHostname": {
             "value": "[parameters('externalDnsHostname')]"
           },
@@ -10895,6 +11295,12 @@
           },
           "virtualNetworkId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkResourceId.value]"
+          },
+          "hubVirtualNetworkId": {
+            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Network/virtualNetworks', parameters('hubVirtualNetworkName'))]"
+          },
+          "applicationGatewayPrivateIpAddress": {
+            "value": "[parameters('applicationGatewayPrivateIpAddress')]"
           }
         },
         "template": {
@@ -10904,7 +11310,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "3375379722036633923"
+              "templateHash": "2371243971893233246"
             }
           },
           "parameters": {
@@ -10921,6 +11327,9 @@
               "type": "securestring"
             },
             "arcgisServiceAccountUserName": {
+              "type": "string"
+            },
+            "applicationGatewayPrivateIpAddress": {
               "type": "string"
             },
             "cloudStorageAccountCredentialsUserName": {
@@ -11048,9 +11457,6 @@
             "virtualNetworkName": {
               "type": "string"
             },
-            "applicationGatewayPrivateIPAddress": {
-              "type": "string"
-            },
             "windowsDomainName": {
               "type": "string"
             },
@@ -11058,6 +11464,9 @@
               "type": "string"
             },
             "virtualNetworkId": {
+              "type": "string"
+            },
+            "hubVirtualNetworkId": {
               "type": "string"
             }
           },
@@ -11079,10 +11488,13 @@
                     "value": "[parameters('externalDnsHostname')]"
                   },
                   "applicationGatewayPrivateIPAddress": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.applicationGatewayPrivateIpAddress.value]"
+                    "value": "[parameters('applicationGatewayPrivateIpAddress')]"
                   },
                   "virtualNetworkId": {
                     "value": "[parameters('virtualNetworkId')]"
+                  },
+                  "hubVirtualNetworkId": {
+                    "value": "[parameters('hubVirtualNetworkId')]"
                   }
                 },
                 "template": {
@@ -11092,7 +11504,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "12153920269033634168"
+                      "templateHash": "8133433986821957993"
                     }
                   },
                   "parameters": {
@@ -11103,6 +11515,9 @@
                       "type": "string"
                     },
                     "applicationGatewayPrivateIPAddress": {
+                      "type": "string"
+                    },
+                    "hubVirtualNetworkId": {
                       "type": "string"
                     }
                   },
@@ -11121,11 +11536,26 @@
                     {
                       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
                       "apiVersion": "2020-06-01",
-                      "name": "[format('{0}/{1}', variables('privateDNSZoneName'), 'vnetLink')]",
+                      "name": "[format('{0}/{1}', variables('privateDNSZoneName'), 'esri-link')]",
                       "location": "global",
                       "properties": {
                         "virtualNetwork": {
                           "id": "[parameters('virtualNetworkId')]"
+                        },
+                        "registrationEnabled": false
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDNSZoneName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                      "apiVersion": "2020-06-01",
+                      "name": "[format('{0}/{1}', variables('privateDNSZoneName'), 'hub-link')]",
+                      "location": "global",
+                      "properties": {
+                        "virtualNetwork": {
+                          "id": "[parameters('hubVirtualNetworkId')]"
                         },
                         "registrationEnabled": false
                       },
@@ -11149,12 +11579,15 @@
                         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDNSZoneName'))]"
                       ]
                     }
-                  ]
+                  ],
+                  "outputs": {
+                    "privateDNSZoneName": {
+                      "type": "string",
+                      "value": "[variables('privateDNSZoneName')]"
+                    }
+                  }
                 }
-              },
-              "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-applicationgateway-{0}', parameters('deploymentNameSuffix')))]"
-              ]
+              }
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -11172,7 +11605,7 @@
                     "value": "[parameters('applicationGatewayName')]"
                   },
                   "applicationGatewayPrivateIpAddress": {
-                    "value": "[parameters('applicationGatewayPrivateIPAddress')]"
+                    "value": "[parameters('applicationGatewayPrivateIpAddress')]"
                   },
                   "externalDnsHostName": {
                     "value": "[parameters('externalDnsHostname')]"
@@ -11737,7 +12170,10 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-privatednszone-{0}', parameters('deploymentNameSuffix')))]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",

@@ -1,22 +1,30 @@
 param applicationGatewayName string
-param frontEndCert string
-param hostname string
+param applicationGatewayPrivateIpAddress string
+param externalDnsHostName string
 param iDns string
+param joinWindowsDomain bool
+param keyVaultUri string
 param location string
 param portalBackendSslCert string
+param portalVirtualMachineNames string
 param publicIpId string
 param resourceGroup string
 param resourceSuffix string
 param serverBackendSSLCert string
-param tags object
+param serverVirtualMachineNames string
 param userAssignedIdenityResourceId string
 param virtualNetworkName string
-param vmName string
+param windowsDomainName string
+// param privateDnsDomainName string
 
-resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNameSuffix@2023-04-01' = {
+var serverBackEndVirtualMachines = split(serverVirtualMachineNames, ',')
+var portalBackEndVirtualMachines = split(portalVirtualMachineNames, ',')
+
+resource applicationGateway 'Microsoft.Network/applicationGateways@2023-06-01' = {
   name: applicationGatewayName
   location: location
-  tags: contains(tags, 'Microsoft.Network/applicationGateways') ? tags['Microsoft.Network/applicationGateways'] : {}
+  tags: {
+  }
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -32,7 +40,6 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
     gatewayIPConfigurations: [
       {
         name: 'appGatewayIpConfig'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/gatewayIPConfigurations', applicationGatewayName, 'appGatewayIpConfig')
         properties: {
           subnet: {
             id: resourceId(resourceGroup, 'Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, 'appGatewaySubnet')
@@ -44,8 +51,7 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
       {
         name: 'frontendCert'
         properties: {
-          data: frontEndCert
-          password: '*.${location}.cloudapp.azure.com'
+          keyVaultSecretId: '${keyVaultUri}secrets/pfx${location}'
         }
       }
     ]
@@ -68,12 +74,23 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
     sslProfiles: []
     frontendIPConfigurations: [
       {
-        name: 'EnterpriseAppGatewayFrontendIP${resourceSuffix}'
+        name: 'pipIpConfig'
         id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, 'EnterpriseAppGatewayFrontendIP${resourceSuffix}')
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
             id: publicIpId
+          }
+        }
+      }
+      {
+        name: 'EnterpriseAppGatewayFrontendIP${resourceSuffix}'
+        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, 'EnterpriseAppGatewayFrontendIP${resourceSuffix}')
+        properties: {
+          privateIPAddress: applicationGatewayPrivateIpAddress
+          privateIPAllocationMethod: 'Static'
+          subnet: {
+            id: resourceId(resourceGroup, 'Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, 'appGatewaySubnet')
           }
         }
       }
@@ -97,24 +114,18 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
     backendAddressPools: [
       {
         name: 'ServerBackendPool${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, 'ServerBackendPool${resourceSuffix}')
         properties: {
-          backendAddresses: [
-            {
-              fqdn: '${vmName}.${iDns}'
-            }
-          ]
+            backendAddresses: [for vm in serverBackEndVirtualMachines : {
+              fqdn: joinWindowsDomain ? '${vm}.${windowsDomainName}' : '${vm}.${iDns}'
+            }]
         }
       }
       {
-        name: 'PortalBackendPool${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName , 'PortalBackendPool${resourceSuffix}')
+        name: '${resourceSuffix}PortalBackendPool'
         properties: {
-          backendAddresses: [
-            {
-              fqdn: '${vmName}.${iDns}'
-            }
-          ]
+          backendAddresses: [for vm in portalBackEndVirtualMachines : {
+              fqdn: joinWindowsDomain ? '${vm}.${windowsDomainName}' : '${vm}.${iDns}'
+            }]
         }
       }
     ]
@@ -122,7 +133,6 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
     backendHttpSettingsCollection: [
       {
         name: 'PortalHttpsSetting${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, 'PortalHttpsSetting${resourceSuffix}')
         properties: {
           port: 7443
           protocol: 'Https'
@@ -135,7 +145,7 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
           path: '/arcgis/'
           requestTimeout: 180
           probe: {
-            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/probes', applicationGatewayName, 'PortalProbeName${resourceSuffix}')
+            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/probes', applicationGatewayName, '${resourceSuffix}PortalProbeName')
           }
           trustedRootCertificates: [
             {
@@ -146,7 +156,6 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
       }
       {
         name: 'ServerHttpsSetting${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, 'ServerHttpsSetting${resourceSuffix}')
         properties: {
           port: 6443
           protocol: 'Https'
@@ -159,7 +168,7 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
           path: '/arcgis/'
           requestTimeout: 180
           probe: {
-            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/probes', applicationGatewayName, 'ServerProbeName${resourceSuffix}')
+            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/probes', applicationGatewayName, '${resourceSuffix}ServerProbeName')
           }
           trustedRootCertificates: [
             {
@@ -172,8 +181,7 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
     backendSettingsCollection: []
     httpListeners: [
       {
-        name: 'HttpEnterpriseDeploymentListner${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, 'HttpEnterpriseDeploymentListner${resourceSuffix}')
+        name: '${resourceSuffix}HttpEnterpriseDeploymentListner'
         properties: {
           frontendIPConfiguration: {
             id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, 'EnterpriseAppGatewayFrontendIP${resourceSuffix}')
@@ -182,15 +190,14 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
             id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'EnterprisePort80${resourceSuffix}')
           }
           protocol: 'Http'
-          hostNames: [
-            '${hostname}.${location}.cloudapp.azure.com'
+          hostNames:  [
+            externalDnsHostName
           ]
           requireServerNameIndication: false
         }
       }
       {
-        name: 'HttpsEnterpriseDeploymentListner${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, 'HttpsEnterpriseDeploymentListner${resourceSuffix}')
+        name: '${resourceSuffix}HttpsEnterpriseDeploymentListner'
         properties: {
           frontendIPConfiguration: {
             id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, 'EnterpriseAppGatewayFrontendIP${resourceSuffix}')
@@ -203,7 +210,7 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
             id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/sslCertificates', applicationGatewayName, 'frontendCert')
           }
           hostNames: [
-            '${hostname}.${location}.cloudapp.azure.com'
+            externalDnsHostName
           ]
           requireServerNameIndication: false
         }
@@ -212,8 +219,7 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
     listeners: []
     urlPathMaps: [
       {
-        name: 'EnterprisePathMap${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/urlPathMaps', applicationGatewayName, 'EnterprisePathMap${resourceSuffix}')
+        name: '${resourceSuffix}EnterprisePathMap'
         properties: {
           defaultBackendAddressPool: {
             id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, 'ServerBackendPool${resourceSuffix}')
@@ -224,10 +230,10 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
           pathRules: [
             {
               name: 'serverPathRule'
-              id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules', applicationGatewayName, 'EnterprisePathMap${resourceSuffix}', 'serverPathRule')
               properties: {
                 paths: [
                   '/server/*'
+                  '/server'
                 ]
                 backendAddressPool: {
                   id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, 'ServerBackendPool${resourceSuffix}')
@@ -236,26 +242,25 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
                   id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, 'ServerHttpsSetting${resourceSuffix}')
                 }
                 rewriteRuleSet: {
-                  id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, 'ServerRewriteRuleSet${resourceSuffix}')
+                  id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, '${resourceSuffix}ServerRewriteRuleSet')
                 }
               }
             }
             {
               name: 'portalPathRule'
-              id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules', applicationGatewayName, 'EnterprisePathMap${resourceSuffix}', 'portalPathRule')
               properties: {
                 paths: [
                   '/portal/*'
                   '/portal'
                 ]
                 backendAddressPool: {
-                  id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, 'PortalBackendPool${resourceSuffix}')
+                  id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, '${resourceSuffix}PortalBackendPool')
                 }
                 backendHttpSettings: {
                   id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, 'PortalHttpsSetting${resourceSuffix}')
                 }
                 rewriteRuleSet: {
-                  id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, 'PortalRewriteRuleSet${resourceSuffix}')
+                  id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, '${resourceSuffix}PortalRewriteRuleSet')
                 }
               }
             }
@@ -265,30 +270,28 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
     ]
     requestRoutingRules: [
       {
-        name: 'EnterpriseRequestRoutingRule${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/requestRoutingRules', applicationGatewayName, 'EnterpriseRequestRoutingRule${resourceSuffix}')
+        name: '${resourceSuffix}EnterpriseRequestRoutingRule'
         properties: {
           ruleType: 'PathBasedRouting'
           priority: 10
           httpListener: {
-            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, 'HttpsEnterpriseDeploymentListner${resourceSuffix}')
+            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, '${resourceSuffix}HttpsEnterpriseDeploymentListner')
           }
           urlPathMap: {
-            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/urlPathMaps', applicationGatewayName, 'EnterprisePathMap${resourceSuffix}')
+            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/urlPathMaps', applicationGatewayName, '${resourceSuffix}EnterprisePathMap')
           }
         }
       }
       {
-        name: 'HttpToHttpsEnterpriseRequestRoutingRule${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/requestRoutingRules', applicationGatewayName, 'HttpToHttpsEnterpriseRequestRoutingRule${resourceSuffix}')
+        name: '${resourceSuffix}HttpToHttpsEnterpriseRequestRoutingRule'
         properties: {
           ruleType: 'Basic'
           priority: 20
           httpListener: {
-            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, 'HttpEnterpriseDeploymentListner${resourceSuffix}')
+            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, '${resourceSuffix}HttpEnterpriseDeploymentListner')
           }
           redirectConfiguration: {
-            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/redirectConfigurations', applicationGatewayName, 'EnterpriseHttpToHttps${resourceSuffix}')
+            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/redirectConfigurations', applicationGatewayName, '${resourceSuffix}EnterpriseHttpToHttps')
           }
         }
       }
@@ -296,8 +299,7 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
     routingRules: []
     probes: [
       {
-        name: 'ServerProbeName${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/probes', applicationGatewayName, 'ServerProbeName${resourceSuffix}')
+        name: '${resourceSuffix}ServerProbeName'
         properties: {
           protocol: 'Https'
           path: '/arcgis/rest/info/healthcheck'
@@ -314,8 +316,7 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
         }
       }
       {
-        name: 'PortalProbeName${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/probes', applicationGatewayName, 'PortalProbeName${resourceSuffix}')
+        name: '${resourceSuffix}PortalProbeName'
         properties: {
           protocol: 'Https'
           path: '/arcgis/portaladmin/healthCheck'
@@ -334,8 +335,7 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
     ]
     rewriteRuleSets: [
       {
-        name: 'PortalRewriteRuleSet${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, 'PortalRewriteRuleSet${resourceSuffix}')
+        name: '${resourceSuffix}PortalRewriteRuleSet'
         properties: {
           rewriteRules: [
             {
@@ -381,8 +381,7 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
         }
       }
       {
-        name: 'ServerRewriteRuleSet${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, 'ServerRewriteRuleSet${resourceSuffix}')
+        name: '${resourceSuffix}ServerRewriteRuleSet'
         properties: {
           rewriteRules: [
             {
@@ -430,25 +429,66 @@ resource applicationGateway 'Microsoft.Network/networkInterfaceInternalDomainNam
     ]
     redirectConfigurations: [
       {
-        name: 'EnterpriseHttpToHttps${resourceSuffix}'
-        id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/redirectConfigurations', applicationGatewayName, 'EnterpriseHttpToHttps${resourceSuffix}')
+        name: '${resourceSuffix}EnterpriseHttpToHttps'
         properties: {
           redirectType: 'Permanent'
           targetListener: {
-            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, 'HttpsEnterpriseDeploymentListner${resourceSuffix}')
+            id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, '${resourceSuffix}HttpsEnterpriseDeploymentListner')
           }
           includePath: true
           includeQueryString: true
           requestRoutingRules: [
             {
-              id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/requestRoutingRules', applicationGatewayName, 'HttpToHttpsEnterpriseRequestRoutingRule${resourceSuffix}')
+              id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/requestRoutingRules', applicationGatewayName, '${resourceSuffix}HttpToHttpsEnterpriseRequestRoutingRule')
             }
           ]
         }
       }
     ]
-    privateLinkConfigurations: []
+    privateLinkConfigurations: [
+      // {
+      //   name: 'pl'
+      //   id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/privateLinkConfigurations', applicationGatewayName, 'pl')
+      //   properties: {
+      //     ipConfigurations: [
+      //       {
+      //         name: 'privateLinkIpConfig1'
+      //         id: resourceId(resourceGroup, 'Microsoft.Network/applicationGateways/privateLinkConfigurations/ipConfigurations', applicationGatewayName, 'pl', 'privateLinkIpConfig1')
+      //         properties: {
+      //           privateIPAllocationMethod: 'Dynamic'
+      //           primary: false
+      //           subnet: {
+      //             id: resourceId(resourceGroup, 'Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, 'appGatewaySubnet')
+      //           }
+      //         }
+      //       }
+      //     ]
+      //   }
+      // }
+    ]
   }
 }
 
-output appGwid string = applicationGateway.id
+// resource privateEndpoint 'Microsoft.Network/privateEndpoints@2021-02-01' = {
+//   name: 'pe'
+//   location: location
+//   properties: {
+//     privateLinkServiceConnections: [
+//       {
+//         name: 'pl'
+//         properties: {
+//           privateLinkServiceId: keyVault.id
+//           groupIds: [
+//             '${applicationGatewayName}-privIp'
+//           ]
+//         }
+//       }
+//     ]
+//     manualPrivateLinkServiceConnections: []
+//     subnet: {
+//       id: resourceId(resourceGroup, 'Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, 'appGatewaySubnet')
+//     }
+//   }
+// }
+
+output applicationGatewayPrivateIpAddress string = applicationGateway.properties.frontendIPConfigurations[1].properties.privateIPAddress

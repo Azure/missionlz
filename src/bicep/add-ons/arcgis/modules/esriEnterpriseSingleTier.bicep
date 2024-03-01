@@ -5,6 +5,7 @@ param arcgisServiceAccountIsDomainAccount bool
 @secure()
 param arcgisServiceAccountPassword string
 param arcgisServiceAccountUserName string
+param applicationGatewayPrivateIpAddress string
 param cloudStorageAccountCredentialsUserName string
 param dataStoreTypesForBaseDeploymentServers string
 param debugMode bool
@@ -49,11 +50,10 @@ param serverBackendSSLCert string
 param subscriptionId string = subscription().subscriptionId
 param userAssignedIdenityResourceId string
 param virtualNetworkName string
-param applicationGatewayPrivateIPAddress string
 param windowsDomainName string
 param architecture string
 param virtualNetworkId string
-
+param hubVirtualNetworkId string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   scope: resourceGroup(subscription().subscriptionId, resourceGroup().name)
@@ -65,19 +65,20 @@ module privateDnsZone 'privateDnsZone.bicep' = if (architecture == 'singletier' 
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     externalDnsHostname: externalDnsHostname
-    applicationGatewayPrivateIPAddress: multiTierApplicationGateway.outputs.applicationGatewayPrivateIpAddress
+    applicationGatewayPrivateIPAddress: applicationGatewayPrivateIpAddress
     virtualNetworkId: virtualNetworkId
+    hubVirtualNetworkId: hubVirtualNetworkId
   }
   dependsOn: [
   ]
 }
 
-module multiTierApplicationGateway 'esriEnterpriseApplicationGatewayMultiTier.bicep' = {
+module applicationGateway 'applicationGateway.bicep' = {
   name: 'deploy-applicationgateway-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     applicationGatewayName: applicationGatewayName
-    applicationGatewayPrivateIpAddress: applicationGatewayPrivateIPAddress
+    applicationGatewayPrivateIpAddress: applicationGatewayPrivateIpAddress
     externalDnsHostName: externalDnsHostname
     iDns: iDns
     joinWindowsDomain: joinWindowsDomain
@@ -95,7 +96,7 @@ module multiTierApplicationGateway 'esriEnterpriseApplicationGatewayMultiTier.bi
     windowsDomainName: windowsDomainName
   }
   dependsOn: [
-
+    privateDnsZone
   ]
 }
 
@@ -136,7 +137,7 @@ module desiredStateConfiguration 'desiredStateConfiguration.bicep' = {
     selfSignedSSLCertificatePassword: selfSignedSSLCertificatePassword
   }
   dependsOn: [
-    multiTierApplicationGateway
+    applicationGateway
     privateDnsZone
   ]
 }

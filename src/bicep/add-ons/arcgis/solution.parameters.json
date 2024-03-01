@@ -3,10 +3,10 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminPassword": {
-      "value": "123mikeD123!"
+      "value": ""
     },
     "adminUsername": {
-      "value": "xadmin"
+      "value": ""
     },
     "applicationGatewayPrivateIpAddress": {
       "value": ""
@@ -18,10 +18,10 @@
       "value": false
     },
     "arcgisServiceAccountPassword": {
-      "value": "mikeD123!"
+      "value": ""
     },
     "arcgisServiceAccountUserName": {
-      "value": "arcgis"
+      "value": ""
     },
     "architecture": {},
     "azureFirewallName": {
@@ -46,7 +46,7 @@
       "value": false
     },
     "enableMonitoring": {
-      "value": true
+      "value": false
     },
     "enableObjectDataStore": {
       "value": false
@@ -58,7 +58,7 @@
       "value": false
     },
     "externalDnsHostname": {
-      "value": "a14"
+      "value": ""
     },
     "hubResourceGroupName": {
       "value": ""
@@ -72,14 +72,12 @@
     "portalLicenseFile": {
       "value": ""
     },
-    "portalLicenseUserTypeId": {
-      "value": "creatorUT"
-    },
+    "portalLicenseUserTypeId": {},
     "primarySiteAdministratorAccountPassword": {
-      "value": "MIKED."
+      "value": ""
     },
     "primarySiteAdministratorAccountUserName": {
-      "value": "sadmin"
+      "value": ""
     },
     "resourcePrefix": {
       "value": ""

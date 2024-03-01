@@ -1,6 +1,8 @@
 param externalDnsHostname string
 param virtualNetworkId string
 param applicationGatewayPrivateIPAddress string
+param hubVirtualNetworkId string
+
 
 var privateDNSZoneName ='${split(externalDnsHostname, '.')[1]}.${split(externalDnsHostname, '.')[2]}'
 var aRecordName = split(externalDnsHostname, '.')[0]
@@ -11,13 +13,25 @@ resource privatezone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   properties: {}
 }
 
-resource vnetlink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource esriLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
   parent: privatezone
-  name: 'vnetLink'
+  name: 'esri-link'
   location: 'global'
   properties: {
     virtualNetwork: {
       id: virtualNetworkId
+    }
+    registrationEnabled: false
+   }
+}
+
+resource hubLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  parent: privatezone
+  name: 'hub-link'
+  location: 'global'
+  properties: {
+    virtualNetwork: {
+      id: hubVirtualNetworkId
     }
     registrationEnabled: false
    }
@@ -36,3 +50,5 @@ resource webrecord 'Microsoft.Network/privateDnsZones/A@2020-06-01' = {
     ]
   }
 }
+
+output privateDNSZoneName string = privateDNSZoneName

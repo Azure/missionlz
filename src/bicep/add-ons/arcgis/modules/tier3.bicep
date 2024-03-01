@@ -50,7 +50,8 @@ param workloadSubscriptionId string
 param applicationGatewayName string
 param applicationGatewaySubnetAddressPrefix string
 param defaultSubnetAddressPrefix string
-param joinWindowsDomain bool
+param privatelink_keyvaultDns_name string
+// param joinWindowsDomain bool
 
 /*
 
@@ -96,8 +97,19 @@ module spokeNetwork 'virtualNetwork.bicep' = {
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkName: workloadVirtualNetworkName
     vNetDnsServers: vNetDnsServers
-    joinWindowsDomain: joinWindowsDomain
   }
+}
+
+module link './virtualNetworkLink.bicep' = {
+  name: 'deploy-virtualNetworkLink--${deploymentNameSuffix}'
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  params: {
+    privatelink_keyvaultDns_name: privatelink_keyvaultDns_name
+    workloadVirtualNetworkName: spokeNetwork.outputs.vNetName
+    virtualNetworkId: spokeNetwork.outputs.vNetid 
+  }
+  dependsOn: [
+  ]
 }
 
 module workloadVirtualNetworkPeerings './spoke-network-peering.bicep' = {

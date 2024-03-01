@@ -9,7 +9,8 @@ param virtualNetworkAddressPrefix string
 param virtualNetworkName string
 param defaultSubnetAddressPrefix string
 param vNetDnsServers array
-param joinWindowsDomain bool
+param privatelink_keyvaultDns_name string
+// param joinWindowsDomain bool
 
 // module networkSecurityGroup 'network-security-group.bicep' = {
 //   name: 'networkSecurityGroup'
@@ -20,6 +21,9 @@ param joinWindowsDomain bool
 //     tags: tags
 //   }
 // }
+resource privateDnsZone_keyvaultDns 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
+  name: privatelink_keyvaultDns_name
+}
 
 module routeTable 'route-table.bicep' = {
   name: 'routeTable'
@@ -41,7 +45,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-04-01' = {
         virtualNetworkAddressPrefix
       ]
     }
-    dhcpOptions: (vNetDnsServers != null && joinWindowsDomain == true) ? {
+    dhcpOptions: (vNetDnsServers != null) ? {
       dnsServers: vNetDnsServers
     } : null
     subnets: [
@@ -69,7 +73,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-04-01' = {
           ]
           delegations: []
           privateEndpointNetworkPolicies: 'Disabled'
-          privateLinkServiceNetworkPolicies: 'Enabled'
+          privateLinkServiceNetworkPolicies: 'Disabled'
         }
         type: 'Microsoft.Network/virtualNetworks/subnets'
       }
@@ -107,6 +111,18 @@ resource defaultSubnet 'Microsoft.Network/virtualNetworks/subnets@2023-04-01' = 
       id: routeTable.outputs.id
     }
   }
+}
+
+resource keyVaultLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  parent: privateDnsZone_keyvaultDns
+  name: '${virtualNetwork.name}-link'
+  location: 'global'
+  properties: {
+    virtualNetwork: {
+      id: virtualNetwork.id
+    }
+    registrationEnabled: false
+   }
 }
 
 output subnetResourceId string = defaultSubnet.id

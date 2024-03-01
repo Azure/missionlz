@@ -12,16 +12,20 @@ param location string
 ])
 param storageSKU string = 'Standard_GRS'
 param tags object
-// param subnetResourceId string
-// param resourcePrefix string
-// param blobsPrivateDnsZoneResourceId string
+param subnetResourceId string
+param blobsPrivateDnsZoneResourceId string
+param filePrivateDnsZoneResourceId string
 param fileShareName string = 'fileshare'
 param useCloudStorage bool
+param userAssignedIdentityResourceId string
+param keyVaultUri string
+param storageEncryptionKeyName string
 
 var uniqueStorageName = take('${uniqueString(resourceGroup().id)}', 10)
-// var zones = [
-//   blobsPrivateDnsZoneResourceId
-// ]
+var zones = [
+  blobsPrivateDnsZoneResourceId
+  filePrivateDnsZoneResourceId
+]
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: 'saesri${uniqueStorageName}'
@@ -30,23 +34,58 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   sku: {
     name: storageSKU
   }
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${userAssignedIdentityResourceId}': {}
+    }
+  }
   kind: 'StorageV2'
   properties: {
     accessTier: 'Hot'
-    allowBlobPublicAccess: true
+    allowBlobPublicAccess: false
     allowCrossTenantReplication: false
     allowedCopyScope: 'PrivateLink'
     allowSharedKeyAccess: true
     defaultToOAuthAuthentication: false
     dnsEndpointType: 'Standard'
+    encryption: {
+      identity: {
+        userAssignedIdentity: userAssignedIdentityResourceId
+      }
+      keySource: 'Microsoft.KeyVault'
+      keyvaultproperties: {
+        keyvaulturi: keyVaultUri
+        keyname: storageEncryptionKeyName
+      }
+      requireInfrastructureEncryption: true
+      services: {
+        blob: {
+          keyType: 'Account'
+          enabled: true
+        }
+        file: {
+          keyType: 'Account'
+          enabled: true
+        }
+        queue: {
+          keyType: 'Account'
+          enabled: true
+        }
+        table: {
+          keyType: 'Account'
+          enabled: true
+        }
+      }
+    }
     minimumTlsVersion: 'TLS1_2'
     networkAcls: {
       bypass: 'AzureServices'
       virtualNetworkRules: []
       ipRules: []
-      defaultAction: 'Allow'
+      defaultAction: 'Deny'
     }
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'Disabled'
     supportsHttpsTrafficOnly: true
   }
 }
@@ -110,6 +149,44 @@ resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@20
   parent: blobService
   name: containerName
 }
+
+resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for (zone, i) in zones: {
+  name: 'esri-pe-${storageAccount.name}-${i}'
+  location: location
+  tags: tags
+  properties: {
+    customNetworkInterfaceName: 'esri-nic-${storageAccount.name}-${i}'
+    privateLinkServiceConnections: [
+      {
+        name: 'esri-pl-${i}'
+        properties: {
+          privateLinkServiceId: storageAccount.id
+          groupIds: [
+            split(split(zone, '/')[8], '.')[1]
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: subnetResourceId
+    }
+  }
+}]
+
+resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = [for (zone, i) in zones: {
+  parent: privateEndpoints[i]
+  name: storageAccount.name
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          privateDnsZoneId: zone
+        }
+      }
+    ]
+  }
+}]
 
 output storageEndpoint string = storageAccount.properties.primaryEndpoints.blob
 output storageAccountName string = storageAccount.name

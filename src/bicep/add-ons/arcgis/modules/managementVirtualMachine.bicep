@@ -1,4 +1,4 @@
-param hubContainerName string
+param artifactsContainerName string
 param diskEncryptionSetResourceId string
 param hybridUseBenefit bool
 @secure()
@@ -6,7 +6,7 @@ param localAdministratorPassword string
 @secure()
 param localAdministratorUsername string
 param location string
-param hubStorageAccountName string
+param artifactsStorageAccountName string
 param subnetResourceId string
 param tags object
 param userAssignedIdentityClientId string
@@ -25,7 +25,7 @@ param externalDnsHostname string
 param esriStorageAccountName string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
-  name: hubStorageAccountName
+  name: artifactsStorageAccountName
 }
 
 resource esriStorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
@@ -143,7 +143,7 @@ resource modules 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
     parameters: [
       {
         name: 'ContainerName'
-        value: hubContainerName
+        value: artifactsContainerName
       }
       {
         name: 'StorageAccountName'
@@ -229,7 +229,7 @@ resource esriArtifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01
     parameters: [
       {
         name: 'ContainerName'
-        value: hubContainerName
+        value: artifactsContainerName
       }
       {
         name: 'Environment'
@@ -300,7 +300,7 @@ resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
     parameters: [
       {
         name: 'ContainerName'
-        value: hubContainerName
+        value: artifactsContainerName
       }
       {
         name: 'StorageAccountName'
@@ -406,12 +406,14 @@ resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
 
       Import-Module az.keyvault
       Connect-AzAccount -Environment $Environment -Subscription $Subscription -Identity -AccountId $UserAssignedIdentityClientId | Out-Null
+      $ctx = New-AzStorageContext -StorageAccountName $esriStorageAccount -UseConnectedAccount
       $StorageAccountUrl = "https://" + $StorageAccountName + ".blob." + $StorageEndpoint
       $TokenUri = "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId"
       $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token
       $BlobNames = @($certificateFileName)
       Invoke-WebRequest -Headers @{"x-ms-version"="2017-11-09"; Authorization ="Bearer $AccessToken"} -Uri "$StorageAccountUrl/$ContainerName/$BlobNames" -OutFile $env:windir\temp\$certificateFileName -Verbose
       $pfx = "$env:windir\temp\$CertificateFileName"
+      Set-AzStorageBlobContent -File $pfx -Container $containerName -Blob $CertificateFileName -Context $ctx -Force
       $base64 = [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($pfx))
       $Password = ConvertTo-SecureString -String $CertificatePassword -AsPlainText -Force
       $cert = Import-AzKeyVaultCertificate -VaultName $keyVaultName -Name "pfx$location" -FilePath $pfx -Password $Password
@@ -421,9 +423,9 @@ resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
       $cerCertFile = "$env:windir\temp\$publicCertificateName"
       Write-Output $cerCertFile
       [System.IO.File]::WriteAllBytes($cerCertFile, $azKeyVaultCertBytes)
-      $ctx = New-AzStorageContext -StorageAccountName $esriStorageAccount -UseConnectedAccount
+      #$ctx = New-AzStorageContext -StorageAccountName $esriStorageAccount -UseConnectedAccount
       Set-AzStorageBlobContent -File $cerCertFile -Container $containerName -Blob $publicCertificateName -Context $ctx -Force
-      Set-AzStorageBlobContent -File $pfx -Container $containerName -Blob $CertificateFileName -Context $ctx -Force
+      #Set-AzStorageBlobContent -File $pfx -Container $containerName -Blob $CertificateFileName -Context $ctx -Force
       Set-AzStorageBlobContent -File $plf -Container $containerName -Properties @{"ContentEncoding" = "UTF-8"} -Blob $portalLicenseFileName -Context $ctx -Force
       Set-AzStorageBlobContent -File $slf -Container $containerName -Properties @{"ContentEncoding" = "UTF-8"} -Blob $serverLicenseFileName -Context $ctx -Force
       '''
