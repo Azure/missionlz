@@ -1036,7 +1036,7 @@
                   "name": "subnetAddressCidrRangeWorkload",
                   "label": "Subnet CIDR range (Workload)",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/2', if(or(and(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles')), not(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location))), '5', '4'))]",
+                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/2', if(and(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles')), '5', '4'))]",
                   "toolTip": "Specify a CIDR range for the workload subnet within the AVD spoke virtual network range [24,28].",
                   "constraints": {
                     "required": true,
@@ -1133,7 +1133,7 @@
                   "name": "subnetAddressCidrRangeWorkload",
                   "label": "Subnet CIDR range (Workload)",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.0/2', if(and(not(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location)), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles')), '5', '4'))]",
+                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.0/2', if(equals(steps('userProfiles').storage.service, 'AzureNetAppFiles'), '5', '4'))]",
                   "toolTip": "Specify a CIDR range for the default subnet within the AVD Hosts spoke virtual network range [24,28].",
                   "constraints": {
                     "required": true,
