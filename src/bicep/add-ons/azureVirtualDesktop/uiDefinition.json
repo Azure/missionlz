@@ -1020,14 +1020,14 @@
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Virtual network CIDR range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.121.0/24",
+                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/24')]",
                   "toolTip": "Specify an address CIDR range within the range [10,26].",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-6]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [10,26]."
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-4]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
                       }
                     ]
                   }
@@ -1036,8 +1036,8 @@
                   "name": "subnetAddressCidrRangeWorkload",
                   "label": "Subnet CIDR range (Workload)",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "[concat('10.0.121.0/2', if(and(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles')), '5', '4'))]",
-                  "toolTip": "Specify a CIDR range for the workload subnet within the AVD spoke virtual network range [24].",
+                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/2', if(and(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles')), '5', '4'))]",
+                  "toolTip": "Specify a CIDR range for the workload subnet within the AVD spoke virtual network range [24,28].",
                   "constraints": {
                     "required": true,
                     "validations": [
@@ -1069,8 +1069,8 @@
                   "label": "Subnet CIDR range (Azure NetApp Files)",
                   "type": "Microsoft.Common.TextBox",
                   "visible": "[and(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles'))]",
-                  "defaultValue": "10.0.121.128/25",
-                  "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24].",
+                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.128/25')]",
+                  "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24,28].",
                   "constraints": {
                     "required": true,
                     "validations": [
@@ -1117,14 +1117,14 @@
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Virtual network CIDR range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.122.0/24",
+                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.0/24')]",
                   "toolTip": "Specify an address CIDR range within the range [10,24].",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-6]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [10,26]."
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-4]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
                       }
                     ]
                   }
@@ -1133,14 +1133,14 @@
                   "name": "subnetAddressCidrRangeWorkload",
                   "label": "Subnet CIDR range (Workload)",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "[concat('10.0.122.0/2', if(and(not(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location)), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles')), '5', '4'))]",
-                  "toolTip": "Specify a CIDR range for the default subnet within the AVD Hosts spoke virtual network range [24].",
+                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.0/2', if(equals(steps('userProfiles').storage.service, 'AzureNetAppFiles'), '5', '4'))]",
+                  "toolTip": "Specify a CIDR range for the default subnet within the AVD Hosts spoke virtual network range [24,28].",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
                         "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [26,28]."
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
                       },
                       {
                         "isValid": "[if(greaterOrEquals(last(split(steps('networking').hosts.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hosts.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').hosts.subnetAddressCidrRangeWorkload, '/')), '.'), 1))), true)]",
@@ -1166,8 +1166,8 @@
                   "label": "Subnet CIDR range (Azure NetApp Files)",
                   "type": "Microsoft.Common.TextBox",
                   "visible": "[and(not(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location)), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles'))]",
-                  "defaultValue": "10.0.122.128/25",
-                  "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [26].",
+                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.128/25')]",
+                  "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24,28].",
                   "constraints": {
                     "required": true,
                     "validations": [

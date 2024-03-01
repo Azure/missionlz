@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "8912363601065196823"
+      "templateHash": "7871696901103463946"
     }
   },
   "parameters": {
@@ -424,8 +424,13 @@
     },
     "subnetAddressPrefixes": {
       "type": "array",
+      "defaultValue": [
+        "10.0.140.0/24"
+      ],
+      "minLength": 1,
+      "maxLength": 2,
       "metadata": {
-        "description": "The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s)."
+        "description": "The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network."
       }
     },
     "tags": {
@@ -494,8 +499,13 @@
     },
     "virtualNetworkAddressPrefixes": {
       "type": "array",
+      "defaultValue": [
+        "10.0.140.0/24"
+      ],
+      "minLength": 1,
+      "maxLength": 2,
       "metadata": {
-        "description": "The address prefix for the new spoke virtual network(s)."
+        "description": "The address prefix for the new spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network."
       }
     },
     "workspaceFriendlyName": {

@@ -308,7 +308,7 @@
                   "name": "superNetworkAddressCidrRange",
                   "label": "Super Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.96.0/19",
+                  "defaultValue": "10.0.128.0/18",
                   "toolTip": "Specify an address CIDR range within the range [10,24].",
                   "constraints": {
                     "required": true,
@@ -324,7 +324,7 @@
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Hub Virtual Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.100.0/24",
+                  "defaultValue": "10.0.128.0/23",
                   "toolTip": "Specify an address CIDR range within the range [10,24].",
                   "constraints": {
                     "required": true,
@@ -356,7 +356,7 @@
                   "name": "subnetAddressCidrRange",
                   "label": "Hub Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.100.128/27",
+                  "defaultValue": "10.0.128.128/26",
                   "toolTip": "Specify a CIDR range for the default subnet within the Hub Virtual Network range [24,28].",
                   "constraints": {
                     "required": true,
@@ -388,7 +388,7 @@
                   "name": "firewallClientSubnetAddressCidrRange",
                   "label": "Firewall Client Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.100.64/26",
+                  "defaultValue": "10.0.128.64/26",
                   "toolTip": "Specify a CIDR range for the Azure Firewall Client subnet within the Hub Virtual Network range. It must be of size /26 or larger.",
                   "constraints": {
                     "required": true,
@@ -420,7 +420,7 @@
                   "name": "firewallManagementSubnetAddressCidrRange",
                   "label": "Firewall Management Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.100.0/26",
+                  "defaultValue": "10.0.128.0/26",
                   "toolTip": "Specify a CIDR range for the Azure Firewall Management subnet within the Hub Virtual Network range. It must be of size /26 or larger.",
                   "constraints": {
                     "required": true,
@@ -503,14 +503,14 @@
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Identity Virtual Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.110.0/26",
-                  "toolTip": "Specify an address CIDR range within the range [10,26].",
+                  "defaultValue": "10.0.130.0/24",
+                  "toolTip": "Specify an address CIDR range within the range [10,24].",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-6]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [10,26]."
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-4]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
                       }
                     ]
                   }
@@ -519,14 +519,14 @@
                   "name": "subnetAddressCidrRange",
                   "label": "Identity Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.110.0/27",
-                  "toolTip": "Specify a CIDR range for the default subnet within the Identity Virtual Network range [26,28].",
+                  "defaultValue": "10.0.130.0/24",
+                  "toolTip": "Specify a CIDR range for the default subnet within the Identity Virtual Network range [24,28].",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[6-8]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [26,28]."
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
                       },
                       {
                         "isValid": "[if(greaterOrEquals(last(split(steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').identityVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
@@ -558,14 +558,14 @@
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Operations Virtual Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.115.0/26",
-                  "toolTip": "Specify an address CIDR range within the range [10,26].",
+                  "defaultValue": "10.0.131.0/24",
+                  "toolTip": "Specify an address CIDR range within the range [10,24].",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-6]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [10,26]."
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-4]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
                       }
                     ]
                   }
@@ -574,14 +574,14 @@
                   "name": "subnetAddressCidrRange",
                   "label": "Operations Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.115.0/27",
-                  "toolTip": "Specify a CIDR range for the default subnet within the Operations Virtual Network range [26,28].",
+                  "defaultValue": "10.0.131.0/24",
+                  "toolTip": "Specify a CIDR range for the default subnet within the Operations Virtual Network range [24,28].",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[6-8]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [26,28]."
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
                       },
                       {
                         "isValid": "[if(greaterOrEquals(last(split(steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').operationsVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
@@ -613,14 +613,14 @@
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Shared Services Virtual Network CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.120.0/26",
-                  "toolTip": "Specify an address CIDR range within the range [10,26].",
+                  "defaultValue": "10.0.132.0/24",
+                  "toolTip": "Specify an address CIDR range within the range [10,24].",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-6]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [10,26]."
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-4]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
                       }
                     ]
                   }
@@ -629,14 +629,14 @@
                   "name": "subnetAddressCidrRange",
                   "label": "Shared Services Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.120.0/27",
-                  "toolTip": "Specify a CIDR range for the default subnet within the Shared Services Virtual Network range [26,28].",
+                  "defaultValue": "10.0.132.0/24",
+                  "toolTip": "Specify a CIDR range for the default subnet within the Shared Services Virtual Network range [24,28].",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[6-8]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [26,28]."
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
                       },
                       {
                         "isValid": "[if(greaterOrEquals(last(split(steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
@@ -882,7 +882,7 @@
                   "label": "Azure Bastion Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
                   "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
-                  "defaultValue": "10.0.100.192/26",
+                  "defaultValue": "10.0.128.192/26",
                   "toolTip": "[concat('Specify a CIDR range for the Azure Bastion Host subnet within the Hub Virtual Network range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '. It must be of size /26 or larger.')]",
                   "constraints": {
                     "required": true,

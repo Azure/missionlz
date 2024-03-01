@@ -55,7 +55,7 @@ param emailSecurityContact string = mlzDeploymentVariables.emailSecurityContact.
 
 
 @description('The address prefix for the network spoke vnet.')
-param virtualNetworkAddressPrefix string = '10.0.125.0/26'
+param virtualNetworkAddressPrefix string = '10.0.133.0/24'
 
 @description('An array of Network Diagnostic Logs to enable for the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.')
 param virtualNetworkDiagnosticsLogs array = []
@@ -83,7 +83,7 @@ param networkSecurityGroupDiagnosticsLogs array = [
 param networkSecurityGroupDiagnosticsMetrics array = []
 
 @description('The CIDR Virtual Network Address Prefix for the Workload Virtual Network.')
-param subnetAddressPrefix string = '10.0.125.0/27'
+param subnetAddressPrefix string = '10.0.133.0/24'
 
 @description('An array of Service Endpoints to enable for the Operations subnet. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview for valid settings.')
 param subnetServiceEndpoints array = []

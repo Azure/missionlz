@@ -65,34 +65,34 @@ param tags object = {}
 // NETWORK ADDRESS SPACE PARAMETERS
 
 @description('The CIDR Virtual Network Address Prefix for the Hub Virtual Network.')
-param hubVirtualNetworkAddressPrefix string = '10.0.100.0/24'
+param hubVirtualNetworkAddressPrefix string = '10.0.128.0/23'
 
 @description('The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.')
-param hubSubnetAddressPrefix string = '10.0.100.128/27'
+param hubSubnetAddressPrefix string = '10.0.128.128/26'
 
 @description('The CIDR Subnet Address Prefix for the Azure Firewall Subnet. It must be in the Hub Virtual Network space. It must be /26.')
-param firewallClientSubnetAddressPrefix string = '10.0.100.0/26'
+param firewallClientSubnetAddressPrefix string = '10.0.128.0/26'
 
 @description('The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.')
-param firewallManagementSubnetAddressPrefix string = '10.0.100.64/26'
+param firewallManagementSubnetAddressPrefix string = '10.0.128.64/26'
 
 @description('The CIDR Virtual Network Address Prefix for the Identity Virtual Network.')
-param identityVirtualNetworkAddressPrefix string = '10.0.110.0/26'
+param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
 
 @description('The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.')
-param identitySubnetAddressPrefix string = '10.0.110.0/27'
+param identitySubnetAddressPrefix string = '10.0.130.0/24'
 
 @description('The CIDR Virtual Network Address Prefix for the Operations Virtual Network.')
-param operationsVirtualNetworkAddressPrefix string = '10.0.115.0/26'
+param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
 
 @description('The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.')
-param operationsSubnetAddressPrefix string = '10.0.115.0/27'
+param operationsSubnetAddressPrefix string = '10.0.131.0/24'
 
 @description('The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.')
-param sharedServicesVirtualNetworkAddressPrefix string = '10.0.120.0/26'
+param sharedServicesVirtualNetworkAddressPrefix string = '10.0.132.0/24'
 
 @description('The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.')
-param sharedServicesSubnetAddressPrefix string = '10.0.120.0/27'
+param sharedServicesSubnetAddressPrefix string = '10.0.132.0/24'
 
 // FIREWALL PARAMETERS
 
@@ -157,7 +157,7 @@ param firewallClientPublicIPAddressAvailabilityZones array = []
 param firewallManagementPublicIPAddressAvailabilityZones array = []
 
 @description('Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses')
-param firewallSupernetIPAddress string = '10.0.96.0/19'
+param firewallSupernetIPAddress string = '10.0.128.0/18'
 
 @description('An array of Public IP Address Diagnostic Logs for the Azure Firewall. See https://docs.microsoft.com/en-us/azure/ddos-protection/diagnostic-logging?tabs=DDoSProtectionNotifications#configure-ddos-diagnostic-logs for valid settings.')
 param publicIPAddressDiagnosticsLogs array = [
@@ -390,7 +390,7 @@ param logStorageSkuName string = 'Standard_GRS'
 param deployRemoteAccess bool = false
 
 @description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
-param bastionHostSubnetAddressPrefix string = '10.0.100.160/27'
+param bastionHostSubnetAddressPrefix string = '10.0.128.192/26'
 
 @description('The Azure Bastion Public IP Address Availability Zones. It defaults to "No-Zone" because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.')
 param bastionHostPublicIPAddressAvailabilityZones array = []
@@ -1216,66 +1216,4 @@ module spokeDefender './modules/defender.bicep' = [for spoke in spokes: if ((dep
     emailSecurityContact: emailSecurityContact
     defenderSkuTier: defenderSkuTier
   }
-}]
-
-/*
-
-  OUTPUTS
-
-  Here, we emit objects to be used post-deployment.
-  
-  A user can reference these outputs with the `az deployment sub show` command like this:
-
-    az deployment sub show --name <your deployment name> --query properties.outputs
-
-  With that output as JSON you could pass it as arguments to another deployment using the Shared Variable File Pattern:
-    https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/patterns-shared-variable-file
-  
-  The output is a JSON object, you can use your favorite tool, like PowerShell or jq, to parse the values you need.
-
-*/
-
-output mlzResourcePrefix string = resourcePrefix
-
-output firewallPrivateIPAddress string = hubNetwork.outputs.firewallPrivateIPAddress
-
-output hub object = {
-  subscriptionId: hubSubscriptionId
-  resourceGroupName: hubResourceGroup.outputs.name
-  resourceGroupResourceId: hubResourceGroup.outputs.id
-  virtualNetworkName: hubNetwork.outputs.virtualNetworkName
-  virtualNetworkResourceId: hubNetwork.outputs.virtualNetworkResourceId
-  subnetName: hubNetwork.outputs.subnetName
-  subnetResourceId: hubNetwork.outputs.subnetResourceId
-  subnetAddressPrefix: hubNetwork.outputs.subnetAddressPrefix
-  networkSecurityGroupName: hubNetwork.outputs.networkSecurityGroupName
-  networkSecurityGroupResourceId: hubNetwork.outputs.networkSecurityGroupResourceId
-}
-
-output deployDefender bool = deployDefender
-
-output emailSecurityContact string = emailSecurityContact
-
-output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.outputs.name
-
-output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.outputs.id
-
-output diagnosticStorageAccountName string = operationsLogStorageAccountName
-
-output policyName string = policy
-
-output deployPolicy bool = deployPolicy
-
-output spokes array = [for (spoke, i) in spokes: {
-  name: spoke.name
-  subscriptionId: spoke.subscriptionId
-  resourceGroupName: spokeResourceGroups[i].outputs.name
-  resourceGroupId: spokeResourceGroups[i].outputs.id
-  virtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
-  virtualNetworkResourceId: spokeNetworks[i].outputs.virtualNetworkResourceId
-  subnetName: spokeNetworks[i].outputs.subnetName
-  subnetResourceId: spokeNetworks[i].outputs.subnetResourceId
-  subnetAddressPrefix: spokeNetworks[i].outputs.subnetAddressPrefix
-  networkSecurityGroupName: spokeNetworks[i].outputs.networkSecurityGroupName
-  networkSecurityGroupResourceId: spokeNetworks[i].outputs.networkSecurityGroupResourceId
 }]
