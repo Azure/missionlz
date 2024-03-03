@@ -12,7 +12,7 @@ param supportedClouds array = [
 ]
 
 // Export Activity Log to LAW
-resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = [for (network, i) in networks: if ( contains(supportedClouds, environment().name) && network.deployUniqueResources ) {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = [for (network, i) in networks: if ( contains(supportedClouds, environment().name) ) {
   name: 'diag-activity-log-${network.subscriptionId}'
   properties: {
     workspaceId: logAnalyticsWorkspaceId

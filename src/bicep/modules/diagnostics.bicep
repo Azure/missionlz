@@ -1,5 +1,6 @@
 targetScope = 'subscription'
 
+param deploymentNameSuffix string
 param firewallDiagnosticsLogs array
 param firewallDiagnosticsMetrics array
 param logAnalyticsWorkspaceResourceId string
@@ -15,13 +16,32 @@ param virtualNetworkDiagnosticsMetrics array
 var hub = first(filter(networks, network => network.name == 'hub'))
 var hubResourceGroupName = hub.resourceGroupName
 var hubSubscriptionId = hub.subscriptionId
+var operations = first(filter(networks, network => network.name == 'operations'))
 var publicIPAddressNames = [
   hub.firewallClientPublicIPAddressName
   hub.firewallManagementPublicIPAddressName
 ]
 
+module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = [for (network, i) in networks: if (network.deployUniqueResources) {
+  name: 'deploy-activity-diags-${network.name}-${deploymentNameSuffix}'
+  scope: subscription(network.subscriptionId)
+  params: {
+    logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
+    networks: networks
+  }
+}]
+
+module logAnalyticsDiagnosticLogging 'log-analytics-diagnostic-setting.bicep' = {
+  name: 'deploy-law-diag-${deploymentNameSuffix}'
+  scope: resourceGroup(operations.subscriptionId, operations.resourceGroupName)
+  params: {
+    diagnosticStorageAccountName: operations.logStorageAccountName
+    logAnalyticsWorkspaceName: split(logAnalyticsWorkspaceResourceId, '/')[8]
+  }
+}
+
 module networkSecurityGroupDiagnostics '../modules/network-security-group-diagnostics.bicep' = [for (network, i) in networks: {
-  name: 'networkSecurityGroupDiagnostics'
+  name: 'deploy-nsg-diags-${network.name}-${deploymentNameSuffix}'
   scope: resourceGroup(network.subscriptionId, network.resourceGroupName)
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
@@ -33,7 +53,7 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
 }]
 
 module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' = [for (network, i) in networks: {
-  name: 'virtualNetworkDiagnostics'
+  name: 'deploy-vnet-diags-${network.name}-${deploymentNameSuffix}'
   scope: resourceGroup(network.subscriptionId, network.resourceGroupName)
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
@@ -45,7 +65,7 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
 }]
 
 module publicIpAddressDiagnostics '../modules/public-ip-address-diagnostics.bicep' = [for publicIPAddressName in publicIPAddressNames: {
-  name: 'publicIPAddressDiagnostics_${publicIPAddressName}'
+  name: 'deploy-pip-diags-${publicIPAddressName}-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     hubStorageAccountResourceId: storageAccountResourceIds[0]
@@ -57,7 +77,7 @@ module publicIpAddressDiagnostics '../modules/public-ip-address-diagnostics.bice
 }]
 
 module firewallDiagnostics '../modules/firewall-diagnostics.bicep' = {
-  name: 'firewallDiagnostics'
+  name: 'deploy-afw-diags-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId

@@ -710,8 +710,9 @@ module storage 'modules/storage.bicep' = {
 // DIAGONSTIC LOGGING
 
 module diagnostics 'modules/diagnostics.bicep' = {
-  name: 'deploy-resource-diag-settings-${deploymentNameSuffix}'
+  name: 'deploy-resource-diag-${deploymentNameSuffix}'
   params: {
+    deploymentNameSuffix: deploymentNameSuffix
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
@@ -729,47 +730,9 @@ module diagnostics 'modules/diagnostics.bicep' = {
   ]
 }
 
-// ACTIVITY LOG DIAGNOSTIC SETTINGS
-
-module activityLogDiagnosticSettings 'modules/activity-log-diagnostic-settings.bicep' = {
-  name: 'deploy-activity-diag-settings-${deploymentNameSuffix}'
-  scope: subscription(hubSubscriptionId)
-  params: {
-    logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-    networks: logic.outputs.networks
-  }
-  dependsOn: [
-    networking
-  ]
-}
-
-module spokeSubscriptionActivityLogging './modules/central-logging.bicep' = [for spoke in spokes: if (spoke.deployUniqueResources) {
-  name: 'activity-logs-${spoke.name}-${deploymentNameSuffix}'
-  scope: subscription(spoke.subscriptionId)
-  params: {
-    diagnosticSettingName: 'log-${spoke.name}-sub-activity-to-${logAnalyticsWorkspace.outputs.name}'
-    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
-  }
-  dependsOn: [
-    spokeNetworks
-  ]
-}]
-
-module logAnalyticsDiagnosticLogging './modules/log-analytics-diagnostic-logging.bicep' = {
-  name: 'deploy-diagnostic-logging-${deploymentNameSuffix}'
-  scope: resourceGroup(operationsSubscriptionId, operationsResourceGroupName)
-  params: {
-    diagnosticStorageAccountName: operationsLogStorageAccountName
-    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-  }
-  dependsOn: [
-    spokeStorage
-  ]
-}
-
 // POLICY ASSIGNMENTS
 
-module hubPolicyAssignment './modules/policy-assignment.bicep' = if (deployPolicy) {
+module policy 'modules/policy.bicep' = if (deployPolicy) {
   name: 'assign-policy-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
@@ -781,17 +744,7 @@ module hubPolicyAssignment './modules/policy-assignment.bicep' = if (deployPolic
   }
 }
 
-module spokePolicyAssignments './modules/policy-assignment.bicep' = [for spoke in spokes: if (deployPolicy) {
-  name: 'assign-policy-${spoke.name}-${deploymentNameSuffix}'
-  scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
-  params: {
-    builtInAssignment: policy
-    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    logAnalyticsWorkspaceResourceGroupName: logAnalyticsWorkspace.outputs.resourceGroupName
-    operationsSubscriptionId: operationsSubscriptionId
-    location: location
-  }
-}]
+
 
 // MICROSOFT DEFENDER FOR CLOUD
 
