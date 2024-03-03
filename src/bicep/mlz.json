@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "17193733280033434059"
+      "templateHash": "7053574900597687801"
     }
   },
   "parameters": {
@@ -1484,7 +1484,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "7636498459834581019"
+              "templateHash": "7320763192642397534"
             }
           },
           "parameters": {
@@ -1640,7 +1640,7 @@
                 "networkSecurityGroupName": "[replace(replace(parameters('resources').networkSecurityGroup, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, variables('operationsName'))]",
                 "networkSecurityGroupRules": "[parameters('operationsNetworkSecurityGroupRules')]",
                 "networkWatcherName": "[replace(replace(parameters('resources').networkWatcher, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, variables('operationsName'))]",
-                "privateLinkScopeName": "[replace(replace(parameters('resources').privateLinkScopeName, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, variables('operationsName'))]",
+                "privateLinkScopeName": "[replace(replace(parameters('resources').privateLinkScope, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, variables('operationsName'))]",
                 "privateLinkScopeNetworkInterfaceName": "[replace(replace(parameters('resources').networkInterface, parameters('tokens').service, 'pls'), parameters('tokens').network, variables('operationsName'))]",
                 "privateLinkScopePrivateEndpointName": "[replace(replace(parameters('resources').privateEndpoint, parameters('tokens').service, 'pls'), parameters('tokens').network, variables('operationsName'))]",
                 "routeTableName": "[replace(replace(parameters('resources').routeTable, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, variables('operationsName'))]",

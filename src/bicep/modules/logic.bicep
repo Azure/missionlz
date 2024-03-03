@@ -97,7 +97,7 @@ var spokesCommon = [
     networkSecurityGroupName: replace(replace(resources.networkSecurityGroup, '-${tokens.service}', ''), tokens.network, operationsName)
     networkSecurityGroupRules: operationsNetworkSecurityGroupRules
     networkWatcherName: replace(replace(resources.networkWatcher, '-${tokens.service}', ''), tokens.network, operationsName)
-    privateLinkScopeName: replace(replace(resources.privateLinkScopeName, '-${tokens.service}', ''), tokens.network, operationsName)
+    privateLinkScopeName: replace(replace(resources.privateLinkScope, '-${tokens.service}', ''), tokens.network, operationsName)
     privateLinkScopeNetworkInterfaceName: replace(replace(resources.networkInterface, tokens.service, 'pls'), tokens.network, operationsName)
     privateLinkScopePrivateEndpointName: replace(replace(resources.privateEndpoint, tokens.service, 'pls'), tokens.network, operationsName)
     routeTableName: replace(replace(resources.routeTable, '-${tokens.service}', ''), tokens.network, operationsName)
