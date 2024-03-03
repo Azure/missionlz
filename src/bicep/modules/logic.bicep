@@ -46,6 +46,7 @@ var hub = {
   name: hubName
   subscriptionId: hubSubscriptionId
   resourceGroupName: replace(replace(resources.resourceGroup, '-${tokens.service}', ''), tokens.network, hubName)
+  deployUniqueResources: true
   bastionHostIPConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'bas'), tokens.network, hubName)
   bastionHostName: replace(replace(resources.bastionHost, '-${tokens.service}', ''), tokens.network, hubName)
   bastionHostPublicIPAddressName: replace(replace(resources.publicIpAddress, tokens.service, 'bas'), tokens.network, hubName)
