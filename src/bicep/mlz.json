@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "13004998317394069795"
+      "templateHash": "1314444430176962847"
     }
   },
   "parameters": {
@@ -7321,7 +7321,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "13749616009977621693"
+              "templateHash": "12448032150248851105"
             }
           },
           "parameters": {
@@ -7396,9 +7396,6 @@
                   "logAnalyticsWorkspaceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
-                  "networks": {
-                    "value": "[parameters('networks')]"
-                  },
                   "supportedClouds": {
                     "value": "[parameters('supportedClouds')]"
                   }
@@ -7410,15 +7407,12 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "7654502225184728351"
+                      "templateHash": "6094940624248562005"
                     }
                   },
                   "parameters": {
                     "logAnalyticsWorkspaceId": {
                       "type": "string"
-                    },
-                    "networks": {
-                      "type": "array"
                     },
                     "supportedClouds": {
                       "type": "array"
@@ -7426,14 +7420,10 @@
                   },
                   "resources": [
                     {
-                      "copy": {
-                        "name": "diagnosticSetting",
-                        "count": "[length(parameters('networks'))]"
-                      },
                       "condition": "[contains(parameters('supportedClouds'), environment().name)]",
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2017-05-01-preview",
-                      "name": "[format('diag-activity-log-{0}', parameters('networks')[copyIndex()].subscriptionId)]",
+                      "name": "[format('diag-activity-log-{0}', subscription().subscriptionId)]",
                       "properties": {
                         "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
                         "logs": [

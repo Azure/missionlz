@@ -5,12 +5,11 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param logAnalyticsWorkspaceId string
-param networks array
 param supportedClouds array
 
 // Export Activity Log to LAW
-resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = [for (network, i) in networks: if ( contains(supportedClouds, environment().name) ) {
-  name: 'diag-activity-log-${network.subscriptionId}'
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = if ( contains(supportedClouds, environment().name) ) {
+  name: 'diag-activity-log-${subscription().subscriptionId}'
   properties: {
     workspaceId: logAnalyticsWorkspaceId
     logs: [
@@ -48,4 +47,4 @@ resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2017-05-01-pre
       }
     ]
   }
-}]
+}

@@ -28,12 +28,11 @@ module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = 
   scope: subscription(network.subscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
-    networks: networks
     supportedClouds: supportedClouds
   }
 }]
 
-module logAnalyticsDiagnosticLogging 'log-analytics-diagnostic-setting.bicep' = {
+module logAnalyticsWorkspaceDiagnosticSetting 'log-analytics-diagnostic-setting.bicep' = {
   name: 'deploy-law-diag-${deploymentNameSuffix}'
   scope: resourceGroup(operations.subscriptionId, operations.resourceGroupName)
   params: {
