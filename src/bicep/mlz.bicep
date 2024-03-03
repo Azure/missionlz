@@ -731,7 +731,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
 
 // ACTIVITY LOG DIAGNOSTIC SETTINGS
 
-module activityLogDiagnosticSettings 'modules/activity-log-diagnostic-setting.bicep' = {
+module activityLogDiagnosticSettings 'modules/activity-log-diagnostic-settings.bicep' = {
   name: 'deploy-activity-diag-settings-${deploymentNameSuffix}'
   scope: subscription(hubSubscriptionId)
   params: {
