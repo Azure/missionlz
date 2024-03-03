@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "7053574900597687801"
+      "templateHash": "2917562389864775064"
     }
   },
   "parameters": {
@@ -1896,7 +1896,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "14537300340435644020"
+              "templateHash": "767672278521341800"
             }
           },
           "parameters": {
@@ -3890,8 +3890,8 @@
                     "value": "[variables('hub').subscriptionId]"
                   },
                   "identityVirtualNetworkName": "[if(parameters('deployIdentity'), createObject('value', variables('identity').virtualNetworkName), createObject('value', ''))]",
-                  "identityVirtualNetworkResourceGroupName": "[if(parameters('deployIdentity'), createObject('value', variables('identity').virtualNetworkName), createObject('value', ''))]",
-                  "identityVirtualNetworkSubscriptionId": "[if(parameters('deployIdentity'), createObject('value', variables('identity').virtualNetworkName), createObject('value', ''))]",
+                  "identityVirtualNetworkResourceGroupName": "[if(parameters('deployIdentity'), createObject('value', variables('identity').resourceGroupName), createObject('value', ''))]",
+                  "identityVirtualNetworkSubscriptionId": "[if(parameters('deployIdentity'), createObject('value', variables('identity').subscriptionId), createObject('value', ''))]",
                   "tags": {
                     "value": "[parameters('tags')]"
                   }

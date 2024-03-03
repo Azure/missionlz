@@ -125,8 +125,8 @@ module privateDnsZones 'private-dns.bicep' = {
     hubVirtualNetworkResourceGroupName: hub.resourceGroupName
     hubVirtualNetworkSubscriptionId: hub.subscriptionId
     identityVirtualNetworkName: deployIdentity ? identity.virtualNetworkName : ''
-    identityVirtualNetworkResourceGroupName: deployIdentity ? identity.virtualNetworkName : ''
-    identityVirtualNetworkSubscriptionId: deployIdentity ? identity.virtualNetworkName : ''
+    identityVirtualNetworkResourceGroupName: deployIdentity ? identity.resourceGroupName : ''
+    identityVirtualNetworkSubscriptionId: deployIdentity ? identity.subscriptionId : ''
     tags: tags
   }
   dependsOn: [
