@@ -732,23 +732,21 @@ module diagnostics 'modules/diagnostics.bicep' = {
 
 // POLICY ASSIGNMENTS
 
-module policy 'modules/policy.bicep' = if (deployPolicy) {
-  name: 'assign-policy-hub-${deploymentNameSuffix}'
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+module policyAssignments 'modules/policy-assignments.bicep' = if (deployPolicy) {
+  name: 'assign-policies-${deploymentNameSuffix}'
   params: {
-    builtInAssignment: policy
-    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
-    logAnalyticsWorkspaceResourceGroupName: logAnalyticsWorkspace.outputs.resourceGroupName
-    operationsSubscriptionId: operationsSubscriptionId
+    deploymentNameSuffix: deploymentNameSuffix
     location: location
+    logAnalyticsWorkspaceName: split(monitoring.outputs.logAnalyticsWorkspaceResourceId, '/')[8]
+    logAnalyticsWorkspaceResourceGroupName: split(monitoring.outputs.logAnalyticsWorkspaceResourceId, '/')[4]
+    networks: logic.outputs.networks
+    policy: policy
   }
 }
 
-
-
 // MICROSOFT DEFENDER FOR CLOUD
 
-module hubDefender './modules/defender.bicep' = if (deployDefender) {
+module defenderForCloud './modules/defender.bicep' = if (deployDefender) {
   name: 'set-hub-sub-defender-${deploymentNameSuffix}'
   scope: subscription(hubSubscriptionId)
   params: {
