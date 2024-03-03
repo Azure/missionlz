@@ -687,7 +687,7 @@ module remoteAccess 'modules/remote-access.bicep' = if (deployRemoteAccess) {
 // STORAGE FOR LOGGING
 
 module storage 'modules/storage.bicep' = {
-  name: 'deploy-log-storage-hub-${deploymentNameSuffix}'
+  name: 'deploy-log-storage-${deploymentNameSuffix}'
   params: {
     blobsPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.blob
     deployIdentity: deployIdentity

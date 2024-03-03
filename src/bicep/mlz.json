@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "5685378861748803123"
+      "templateHash": "13004998317394069795"
     }
   },
   "parameters": {
@@ -6911,7 +6911,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('deploy-log-storage-hub-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('deploy-log-storage-{0}', parameters('deploymentNameSuffix'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -7302,7 +7302,7 @@
             "value": "[parameters('publicIPAddressDiagnosticsMetrics')]"
           },
           "storageAccountResourceIds": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-log-storage-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountResourceIds.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-log-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountResourceIds.value]"
           },
           "supportedClouds": {
             "value": "[parameters('supportedClouds')]"
@@ -7860,7 +7860,7 @@
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-log-storage-hub-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-log-storage-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
