@@ -38,11 +38,11 @@ module storageAccount 'storage-account.bicep' = [for (network, i) in networks: {
 }]
 
 output storageAccountResourceIds array = union([
-  storageAccount[0].outputs.id
-  storageAccount[1].outputs.id
-  storageAccount[2].outputs.id
+  resourceId(networks[0].subscriptionId, networks[0].resourceGroupName, 'Microsoft.Storage/storageAccounts', networks[0].logStorageAccountName)
+  resourceId(networks[1].subscriptionId, networks[1].resourceGroupName, 'Microsoft.Storage/storageAccounts', networks[1].logStorageAccountName)
+  resourceId(networks[2].subscriptionId, networks[2].resourceGroupName, 'Microsoft.Storage/storageAccounts', networks[2].logStorageAccountName)
 ], deployIdentity ? [
-  storageAccount[3].outputs.id
+  resourceId(networks[3].subscriptionId, networks[3].resourceGroupName, 'Microsoft.Storage/storageAccounts', networks[3].logStorageAccountName)
 ] : []
 )
 

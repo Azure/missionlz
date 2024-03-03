@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "2917562389864775064"
+      "templateHash": "5685378861748803123"
     }
   },
   "parameters": {
@@ -6963,7 +6963,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "17038790577614589809"
+              "templateHash": "4766812242750274382"
             }
           },
           "parameters": {
@@ -7250,7 +7250,7 @@
           "outputs": {
             "storageAccountResourceIds": {
               "type": "array",
-              "value": "[union(createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networks')[copyIndex()].subscriptionId, parameters('networks')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', 'storage'), '2022-09-01').outputs.id.value, reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networks')[copyIndex()].subscriptionId, parameters('networks')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', 'storage'), '2022-09-01').outputs.id.value, reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networks')[copyIndex()].subscriptionId, parameters('networks')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', 'storage'), '2022-09-01').outputs.id.value), if(parameters('deployIdentity'), createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networks')[copyIndex()].subscriptionId, parameters('networks')[copyIndex()].resourceGroupName), 'Microsoft.Resources/deployments', 'storage'), '2022-09-01').outputs.id.value), createArray()))]"
+              "value": "[union(createArray(resourceId(parameters('networks')[0].subscriptionId, parameters('networks')[0].resourceGroupName, 'Microsoft.Storage/storageAccounts', parameters('networks')[0].logStorageAccountName), resourceId(parameters('networks')[1].subscriptionId, parameters('networks')[1].resourceGroupName, 'Microsoft.Storage/storageAccounts', parameters('networks')[1].logStorageAccountName), resourceId(parameters('networks')[2].subscriptionId, parameters('networks')[2].resourceGroupName, 'Microsoft.Storage/storageAccounts', parameters('networks')[2].logStorageAccountName)), if(parameters('deployIdentity'), createArray(resourceId(parameters('networks')[3].subscriptionId, parameters('networks')[3].resourceGroupName, 'Microsoft.Storage/storageAccounts', parameters('networks')[3].logStorageAccountName)), createArray()))]"
             }
           }
         }
