@@ -10,6 +10,7 @@ param networkSecurityGroupDiagnosticsMetrics array
 param publicIPAddressDiagnosticsLogs array
 param publicIPAddressDiagnosticsMetrics array
 param storageAccountResourceIds array
+param supportedClouds array
 param virtualNetworkDiagnosticsLogs array
 param virtualNetworkDiagnosticsMetrics array
 
@@ -28,6 +29,7 @@ module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = 
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
     networks: networks
+    supportedClouds: supportedClouds
   }
 }]
 
@@ -37,6 +39,7 @@ module logAnalyticsDiagnosticLogging 'log-analytics-diagnostic-setting.bicep' = 
   params: {
     diagnosticStorageAccountName: operations.logStorageAccountName
     logAnalyticsWorkspaceName: split(logAnalyticsWorkspaceResourceId, '/')[8]
+    supportedClouds: supportedClouds
   }
 }
 

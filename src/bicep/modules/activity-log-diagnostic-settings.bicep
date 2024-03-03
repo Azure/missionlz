@@ -6,10 +6,7 @@ targetScope = 'subscription'
 
 param logAnalyticsWorkspaceId string
 param networks array
-param supportedClouds array = [
-  'AzureCloud'
-  'AzureUSGovernment'
-]
+param supportedClouds array
 
 // Export Activity Log to LAW
 resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = [for (network, i) in networks: if ( contains(supportedClouds, environment().name) ) {

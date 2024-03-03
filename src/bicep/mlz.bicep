@@ -722,6 +722,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
     storageAccountResourceIds: storage.outputs.storageAccountResourceIds
+    supportedClouds: supportedClouds
     virtualNetworkDiagnosticsLogs: hubVirtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: hubVirtualNetworkDiagnosticsMetrics
   }
@@ -746,22 +747,13 @@ module policyAssignments 'modules/policy-assignments.bicep' = if (deployPolicy) 
 
 // MICROSOFT DEFENDER FOR CLOUD
 
-module defenderForCloud './modules/defender.bicep' = if (deployDefender) {
-  name: 'set-hub-sub-defender-${deploymentNameSuffix}'
-  scope: subscription(hubSubscriptionId)
+module defenderforClouds 'modules/defenderforClouds.bicep' = if (deployDefender) {
+  name: 'deploy-defender-${deploymentNameSuffix}'
   params: {
-    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
-    emailSecurityContact: emailSecurityContact
     defenderSkuTier: defenderSkuTier
+    deploymentNameSuffix: deploymentNameSuffix
+    emailSecurityContact: emailSecurityContact
+    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    networks: logic.outputs.networks
   }
 }
-
-module spokeDefender './modules/defender.bicep' = [for spoke in spokes: if ((deployDefender) && (spoke.subscriptionId != hubSubscriptionId)) {
-  name: 'set-${spoke.name}-sub-defender-${deploymentNameSuffix}'
-  scope: subscription(spoke.subscriptionId)
-  params: {
-    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
-    emailSecurityContact: emailSecurityContact
-    defenderSkuTier: defenderSkuTier
-  }
-}]

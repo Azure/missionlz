@@ -5,11 +5,7 @@ Licensed under the MIT License.
 
 param diagnosticStorageAccountName string
 param logAnalyticsWorkspaceName string
-
-param supportedClouds array = [
-  'AzureCloud'
-  'AzureUSGovernment'
-]
+param supportedClouds array
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
   name: logAnalyticsWorkspaceName
