@@ -248,62 +248,7 @@ var imageDefinitionName = empty(computeGalleryImageResourceId) ? '${imageDefinit
 var imageVirtualMachineName = take('vmimg-${uniqueString(deploymentNameSuffix)}', 15)
 var managementVirtualMachineName = empty(hybridWorkerName) ? take('vmmgt-${uniqueString(deploymentNameSuffix)}', 15) : hybridWorkerName
 var subscriptionId = subscription().subscriptionId
-var timeZones = {
-  australiacentral: 'AUS Eastern Standard Time'
-  australiacentral2: 'AUS Eastern Standard Time'
-  australiaeast: 'AUS Eastern Standard Time'
-  australiasoutheast: 'AUS Eastern Standard Time'
-  brazilsouth: 'E. South America Standard Time'
-  brazilsoutheast: 'E. South America Standard Time'
-  canadacentral: 'Eastern Standard Time'
-  canadaeast: 'Eastern Standard Time'
-  centralindia: 'India Standard Time'
-  centralus: 'Central Standard Time'
-  chinaeast: 'China Standard Time'
-  chinaeast2: 'China Standard Time'
-  chinanorth: 'China Standard Time'
-  chinanorth2: 'China Standard Time'
-  eastasia: 'China Standard Time'
-  eastus: 'Eastern Standard Time'
-  eastus2: 'Eastern Standard Time'
-  francecentral: 'Central Europe Standard Time'
-  francesouth: 'Central Europe Standard Time'
-  germanynorth: 'Central Europe Standard Time'
-  germanywestcentral: 'Central Europe Standard Time'
-  japaneast: 'Tokyo Standard Time'
-  japanwest: 'Tokyo Standard Time'
-  jioindiacentral: 'India Standard Time'
-  jioindiawest: 'India Standard Time'
-  koreacentral: 'Korea Standard Time'
-  koreasouth: 'Korea Standard Time'
-  northcentralus: 'Central Standard Time'
-  northeurope: 'GMT Standard Time'
-  norwayeast: 'Central Europe Standard Time'
-  norwaywest: 'Central Europe Standard Time'
-  southafricanorth: 'South Africa Standard Time'
-  southafricawest: 'South Africa Standard Time'
-  southcentralus: 'Central Standard Time'
-  southeastasia: 'Singapore Standard Time'
-  southindia: 'India Standard Time'
-  swedencentral: 'Central Europe Standard Time'
-  switzerlandnorth: 'Central Europe Standard Time'
-  switzerlandwest: 'Central Europe Standard Time'
-  uaecentral: 'Arabian Standard Time'
-  uaenorth: 'Arabian Standard Time'
-  uksouth: 'GMT Standard Time'
-  ukwest: 'GMT Standard Time'
-  usdodcentral: 'Central Standard Time'
-  usdodeast: 'Eastern Standard Time'
-  usgovarizona: 'Mountain Standard Time'
-  usgovtexas: 'Central Standard Time'
-  usgovvirginia: 'Eastern Standard Time'
-  westcentralus: 'Mountain Standard Time'
-  westeurope: 'Central Europe Standard Time'
-  westindia: 'India Standard Time'
-  westus: 'Pacific Standard Time'
-  westus2: 'Pacific Standard Time'
-  westus3: 'Mountain Standard Time'
-}
+var locations = (loadJsonContent('../../data/locations.json'))[environment().name]
 
 resource hubVirtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' existing = {
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
@@ -321,7 +266,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = if (!existingResou
   tags: tags
 }
 
-module tier3 'modules/tier3.bicep' = {
+module tier3 '../tier3/solution.bicep' = {
   name: 'tier3-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, (existingResourceGroup ? rg.name : resourceGroupName))
   params: {
@@ -426,7 +371,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     subscriptionId: subscriptionId
     tags: tags
     teamsInstaller: teamsInstaller
-    timeZone: timeZones[location]
+    timeZone: locations[location].timeZone
     updateService: updateService
     userAssignedIdentityClientId: baseline.outputs.userAssignedIdentityClientId
     userAssignedIdentityPrincipalId: baseline.outputs.userAssignedIdentityPrincipalId
