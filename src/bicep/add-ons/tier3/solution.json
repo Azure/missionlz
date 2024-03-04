@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "15590357244211255326"
+      "templateHash": "4394026248514387148"
     }
   },
   "parameters": {
@@ -173,12 +173,18 @@
     },
     "workloadName": {
       "type": "string",
+      "defaultValue": "tier3",
+      "minLength": 1,
+      "maxLength": 10,
       "metadata": {
         "description": "The name for the workload."
       }
     },
     "workloadShortName": {
       "type": "string",
+      "defaultValue": "t3",
+      "minLength": 1,
+      "maxLength": 3,
       "metadata": {
         "description": "The short name for the workload."
       }

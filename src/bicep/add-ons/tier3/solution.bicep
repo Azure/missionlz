@@ -89,11 +89,15 @@ param virtualNetworkDiagnosticsLogs array = []
 @description('The metrics to monitor for the workload Virtual Network.')
 param virtualNetworkDiagnosticsMetrics array = []
 
+@minLength(1)
+@maxLength(10)
 @description('The name for the workload.')
-param workloadName string
+param workloadName string = 'tier3'
 
+@minLength(1)
+@maxLength(3)
 @description('The short name for the workload.')
-param workloadShortName string
+param workloadShortName string = 't3'
 
 var calculatedTags = union(tags, defaultTags)
 var defaultTags = {
