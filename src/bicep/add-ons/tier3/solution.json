@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "4394026248514387148"
+      "templateHash": "13221838078193673312"
     }
   },
   "parameters": {
@@ -3618,5 +3618,11 @@
         }
       }
     }
-  ]
+  ],
+  "outputs": {
+    "subnetResourceId": {
+      "type": "string",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+    }
+  }
 }

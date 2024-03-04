@@ -237,3 +237,5 @@ module defenderForCloud '../../modules/defenderForCloud.bicep' = if (deployDefen
     emailSecurityContact: emailSecurityContact
   }
 }
+
+output subnetResourceId string = networking.outputs.subnetResourceId
