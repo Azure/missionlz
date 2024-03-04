@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "8597367261958072289"
+      "templateHash": "8986571617662686129"
     }
   },
   "parameters": {
@@ -26,6 +26,12 @@
       "defaultValue": "[utcNow()]",
       "metadata": {
         "description": "The suffix to append to the deployment name. It defaults to the current UTC date and time."
+      }
+    },
+    "deployNetworkWatcher": {
+      "type": "bool",
+      "metadata": {
+        "description": "Choose whether to deploy Network Watcher for the deployment location."
       }
     },
     "deployPolicy": {
@@ -940,7 +946,7 @@
             "value": "[parameters('deploymentNameSuffix')]"
           },
           "deployNetworkWatcher": {
-            "value": false
+            "value": "[parameters('deployNetworkWatcher')]"
           },
           "firewallSkuTier": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallResourceId'), '/')[2], split(parameters('firewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('firewallResourceId'), '/')[8]), '2020-11-01').sku.tier]"

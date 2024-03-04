@@ -13,6 +13,9 @@ param deployDefender bool
 @description('The suffix to append to the deployment name. It defaults to the current UTC date and time.')
 param deploymentNameSuffix string = utcNow()
 
+@description('Choose whether to deploy Network Watcher for the deployment location.')
+param deployNetworkWatcher bool
+
 @description('Choose whether to deploy a policy assignment.')
 param deployPolicy bool
 
@@ -147,7 +150,7 @@ module networking 'modules/networking.bicep' = {
   name: 'deploy-networking-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkWatcher: false
+    deployNetworkWatcher: deployNetworkWatcher
     firewallSkuTier: azureFirewall.properties.sku.tier
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     location: location

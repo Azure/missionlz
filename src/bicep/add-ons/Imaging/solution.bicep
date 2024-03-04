@@ -36,6 +36,9 @@ param deployDefender bool = false
 @description('The suffix to append to deployment names.')
 param deploymentNameSuffix string = utcNow('yyMMddHHs')
 
+@description('Choose whether to deploy a network watcher for deployment location.')
+param deployNetworkWatcher bool = false
+
 @description('Deploy Policy enabled.')
 param deployPolicy bool = false
 
@@ -290,6 +293,7 @@ module tier3 '../tier3/solution.bicep' = {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: deploymentNameSuffix
+    deployNetworkWatcher: deployNetworkWatcher
     deployPolicy:  deployPolicy
     emailSecurityContact: emailSecurityContact
     firewallResourceId: azureFirewallResourceId

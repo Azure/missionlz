@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "16903810405791711879"
+      "templateHash": "16877031254394052585"
     }
   },
   "parameters": {
@@ -86,6 +86,13 @@
       "defaultValue": "[utcNow('yyMMddHHs')]",
       "metadata": {
         "description": "The suffix to append to deployment names."
+      }
+    },
+    "deployNetworkWatcher": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Choose whether to deploy a network watcher for deployment location."
       }
     },
     "deployPolicy": {
@@ -985,6 +992,9 @@
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
+          "deployNetworkWatcher": {
+            "value": "[parameters('deployNetworkWatcher')]"
+          },
           "deployPolicy": {
             "value": "[parameters('deployPolicy')]"
           },
@@ -1047,7 +1057,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "8597367261958072289"
+              "templateHash": "8986571617662686129"
             }
           },
           "parameters": {
@@ -1068,6 +1078,12 @@
               "defaultValue": "[utcNow()]",
               "metadata": {
                 "description": "The suffix to append to the deployment name. It defaults to the current UTC date and time."
+              }
+            },
+            "deployNetworkWatcher": {
+              "type": "bool",
+              "metadata": {
+                "description": "Choose whether to deploy Network Watcher for the deployment location."
               }
             },
             "deployPolicy": {
@@ -1982,7 +1998,7 @@
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
                   "deployNetworkWatcher": {
-                    "value": false
+                    "value": "[parameters('deployNetworkWatcher')]"
                   },
                   "firewallSkuTier": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallResourceId'), '/')[2], split(parameters('firewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('firewallResourceId'), '/')[8]), '2020-11-01').sku.tier]"
