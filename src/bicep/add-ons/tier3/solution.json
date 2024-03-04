@@ -5,20 +5,20 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "5459016681330178856"
+      "templateHash": "8597367261958072289"
     }
   },
   "parameters": {
-    "deployDefender": {
-      "type": "bool",
-      "metadata": {
-        "description": "Choose whether to deploy Defender for Cloud."
-      }
-    },
     "deployActivityLogDiagnosticSetting": {
       "type": "bool",
       "metadata": {
         "description": "Choose whether to deploy a diagnostic setting for the Activity Log."
+      }
+    },
+    "deployDefender": {
+      "type": "bool",
+      "metadata": {
+        "description": "Choose whether to deploy Defender for Cloud."
       }
     },
     "deploymentNameSuffix": {

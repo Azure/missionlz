@@ -4,11 +4,11 @@ Licensed under the MIT License.
 */
 targetScope = 'subscription'
 
-@description('Choose whether to deploy Defender for Cloud.')
-param deployDefender bool
-
 @description('Choose whether to deploy a diagnostic setting for the Activity Log.')
 param deployActivityLogDiagnosticSetting bool
+
+@description('Choose whether to deploy Defender for Cloud.')
+param deployDefender bool
 
 @description('The suffix to append to the deployment name. It defaults to the current UTC date and time.')
 param deploymentNameSuffix string = utcNow()
