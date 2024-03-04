@@ -4,14 +4,6 @@ Licensed under the MIT License.
 */
 targetScope = 'subscription'
 
-@allowed([
-  'dev'
-  'prod'
-  'test'
-])
-@description('The abbreviation for the environment.')
-param environmentAbbreviation string = 'dev'
-
 @description('Choose whether to deploy Defender for Cloud.')
 param deployDefender bool
 
@@ -26,6 +18,14 @@ param deployPolicy bool
 
 @description('The email address to use for Defender for Cloud notifications.')
 param emailSecurityContact string
+
+@allowed([
+  'dev'
+  'prod'
+  'test'
+])
+@description('The abbreviation for the environment.')
+param environmentAbbreviation string = 'dev'
 
 @description('The resource ID of the Azure Firewall in the HUB.')
 param firewallResourceId string

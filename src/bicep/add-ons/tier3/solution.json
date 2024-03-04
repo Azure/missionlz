@@ -5,22 +5,10 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "13221838078193673312"
+      "templateHash": "5459016681330178856"
     }
   },
   "parameters": {
-    "environmentAbbreviation": {
-      "type": "string",
-      "defaultValue": "dev",
-      "allowedValues": [
-        "dev",
-        "prod",
-        "test"
-      ],
-      "metadata": {
-        "description": "The abbreviation for the environment."
-      }
-    },
     "deployDefender": {
       "type": "bool",
       "metadata": {
@@ -50,6 +38,18 @@
       "type": "string",
       "metadata": {
         "description": "The email address to use for Defender for Cloud notifications."
+      }
+    },
+    "environmentAbbreviation": {
+      "type": "string",
+      "defaultValue": "dev",
+      "allowedValues": [
+        "dev",
+        "prod",
+        "test"
+      ],
+      "metadata": {
+        "description": "The abbreviation for the environment."
       }
     },
     "firewallResourceId": {
