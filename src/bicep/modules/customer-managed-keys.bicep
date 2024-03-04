@@ -5,20 +5,20 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param deploymentNameSuffix string
-param hubProperties object
 param keyVaultPrivateDnsZoneResourceId string
 param location string
+param networkProperties object
 param subnetResourceId string
 param tags object
 
 module keyVault 'key-vault.bicep' = {
   name: 'deploy-key-vault-${deploymentNameSuffix}'
-  scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
+  scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
   params: {
-    keyVaultName: hubProperties.keyVaultName
-    keyVaultNetworkInterfaceName: hubProperties.keyVaultNetworkInterfaceName
+    keyVaultName: networkProperties.keyVaultName
+    keyVaultNetworkInterfaceName: networkProperties.keyVaultNetworkInterfaceName
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    keyVaultPrivateEndpointName: hubProperties.keyVaultPrivateEndpointName
+    keyVaultPrivateEndpointName: networkProperties.keyVaultPrivateEndpointName
     location: location
     subnetResourceId: subnetResourceId
     tags: tags
@@ -27,10 +27,10 @@ module keyVault 'key-vault.bicep' = {
 
 module diskEncryptionSet 'disk-encryption-set.bicep' = {
   name: 'deploy-disk-encryption-set_${deploymentNameSuffix}'
-  scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
+  scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: hubProperties.diskEncryptionSetName
+    diskEncryptionSetName: networkProperties.diskEncryptionSetName
     keyUrl: keyVault.outputs.keyUriWithVersion
     keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
@@ -40,10 +40,10 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = {
 
 module userAssignedIdentity 'user-assigned-identity.bicep' = {
   name: 'deploy-user-assigned-identity-${deploymentNameSuffix}'
-  scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
+  scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
   params: {
     location: location
-    name: hubProperties.userAssignedIdentityName
+    name: networkProperties.userAssignedIdentityName
     tags: tags
   }
 }
