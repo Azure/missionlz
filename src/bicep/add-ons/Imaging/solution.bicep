@@ -3,9 +3,6 @@ targetScope = 'subscription'
 @description('The file name of the ArcGIS Pro installer in Azure Blobs.')
 param arcGisProInstaller string = ''
 
-@description('Choose whether to deploy a diagnostic setting for the Activity Log.')
-param deployActivityLogDiagnosticSetting bool = false
-
 @description('The name for the action group resource.')
 param actionGroupName string = ''
 
@@ -30,22 +27,23 @@ param containerName string
 @description('The array of customizations to apply to the image.')
 param customizations array = []
 
+@description('Choose whether to deploy a diagnostic setting for the Activity Log.')
+param deployActivityLogDiagnosticSetting bool = false
+
+@description('Defender for Cloud enabled.')
+param deployDefender bool = false
+
+@description('The suffix to append to deployment names.')
+param deploymentNameSuffix string = utcNow('yyMMddHHs')
+
+@description('Deploy Policy enabled.')
+param deployPolicy bool = false
+
 @description('The resource ID of the disk encryption set to use for the management virtual machine.')
 param diskEncryptionSetResourceId string = ''
 
 @description('The distribution group for email notifications.')
 param distributionGroup string = ''
-
-
-@description('Defender for Cloud enabled.')
-param deployDefender bool = false
-
-@description('Deploy Policy enabled.')
-param deployPolicy bool = false
-
-
-@description('The suffix to append to deployment names.')
-param deploymentNameSuffix string = utcNow('yyMMddHHs')
 
 @secure()
 @description('The password for the domain join account.')
@@ -131,6 +129,7 @@ param installTeams bool
 
 @description('Determines whether to install Microsoft/Windows Updates.')
 param installUpdates bool = false
+
 @description('Determines whether to install the Virtual Desktop Optimization Tool.')
 param installVirtualDesktopOptimizationTool bool
 
@@ -203,7 +202,6 @@ param resourceGroupName string
 
 @description('The prefix for the resource names.')
 param resourcePrefix string
-
 
 @allowed([
   'AzureComputeGallery'

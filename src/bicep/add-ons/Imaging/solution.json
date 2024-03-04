@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "17323660342208942432"
+      "templateHash": "16903810405791711879"
     }
   },
   "parameters": {
@@ -14,13 +14,6 @@
       "defaultValue": "",
       "metadata": {
         "description": "The file name of the ArcGIS Pro installer in Azure Blobs."
-      }
-    },
-    "deployActivityLogDiagnosticSetting": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Choose whether to deploy a diagnostic setting for the Activity Log."
       }
     },
     "actionGroupName": {
@@ -74,6 +67,34 @@
         "description": "The array of customizations to apply to the image."
       }
     },
+    "deployActivityLogDiagnosticSetting": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Choose whether to deploy a diagnostic setting for the Activity Log."
+      }
+    },
+    "deployDefender": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Defender for Cloud enabled."
+      }
+    },
+    "deploymentNameSuffix": {
+      "type": "string",
+      "defaultValue": "[utcNow('yyMMddHHs')]",
+      "metadata": {
+        "description": "The suffix to append to deployment names."
+      }
+    },
+    "deployPolicy": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Deploy Policy enabled."
+      }
+    },
     "diskEncryptionSetResourceId": {
       "type": "string",
       "defaultValue": "",
@@ -86,27 +107,6 @@
       "defaultValue": "",
       "metadata": {
         "description": "The distribution group for email notifications."
-      }
-    },
-    "deployDefender": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Defender for Cloud enabled."
-      }
-    },
-    "deployPolicy": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Deploy Policy enabled."
-      }
-    },
-    "deploymentNameSuffix": {
-      "type": "string",
-      "defaultValue": "[utcNow('yyMMddHHs')]",
-      "metadata": {
-        "description": "The suffix to append to deployment names."
       }
     },
     "domainJoinPassword": {
