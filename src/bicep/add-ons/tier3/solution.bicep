@@ -2,58 +2,46 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
-targetScope = 'resourceGroup'
-/*
+targetScope = 'subscription'
 
-  PARAMETERS
+@allowed([
+  'dev'
+  'prod'
+  'test'
+])
+@description('The abbreviation for the environment.')
+param environmentAbbreviation string = 'dev'
 
-  Here are all the parameters a user can override.
-
-  These are the required parameters that Mission LZ Tier 3 workload does not provide a default for:
-    - resourcePrefix
-
-*/
-
-// REQUIRED PARAMETERS
-
-@minLength(3)
-@maxLength(10)
-@description('A prefix, 3 to 10 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".')
-param resourcePrefix string = 'zta'
-
-@minLength(3)
-@maxLength(6)
-@description('A suffix, 3 to 6 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".')
-param resourceSuffix string = 'mlz'
-
+@description('Choose whether to deploy Defender for Cloud.')
 param deployDefender bool
+
+@description('Choose whether to deploy a diagnostic setting for the Activity Log.')
+param deployActivityLogDiagnosticSetting bool
+
+@description('The suffix to append to the deployment name. It defaults to the current UTC date and time.')
 param deploymentNameSuffix string = utcNow()
+
+@description('Choose whether to deploy a policy assignment.')
 param deployPolicy bool
+
+@description('The email address to use for Defender for Cloud notifications.')
 param emailSecurityContact string
-param existingResourceGroup bool
-param firewallPrivateIPAddress string
-param hubResourceGroupName string
-param hubSubscriptionId string
-param hubVirtualNetworkName string
+
+@description('The resource ID of the Azure Firewall in the HUB.')
+param firewallResourceId string
+
+@description('The resource ID of the HUB Virtual Network.')
 param hubVirtualNetworkResourceId string
-param location string
-param logAnalyticsWorkspaceName string
+
+@description('The location for the deployment. It defaults to the location of the deployment.')
+param location string = deployment().location
+
+@description('The resource ID of the Log Analytics Workspace to use for log storage.')
 param logAnalyticsWorkspaceResourceId string
+
+@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
 param logStorageSkuName string = 'Standard_GRS'
-param networkSecurityGroupDiagnosticsMetrics array = []
-param networkSecurityGroupRules array = []
-param policy string
-param resourceGroupName string
-param subnetAddressPrefix string
-param subnetServiceEndpoints array = []
-param tags object = {}
-param virtualNetworkAddressPrefix string
-param virtualNetworkDiagnosticsLogs array = []
-param virtualNetworkDiagnosticsMetrics array = []
-param vNetDnsServers array = [firewallPrivateIPAddress]
-param workloadLogStorageAccountNameParameter string = 'null'
-param workloadName string = 'zta'
-param workloadSubscriptionId string
+
 @description('An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
 param networkSecurityGroupDiagnosticsLogs array = [
   {
@@ -66,134 +54,182 @@ param networkSecurityGroupDiagnosticsLogs array = [
   }
 ]
 
+@description('The metrics to monitor for the Network Security Group.')
+param networkSecurityGroupDiagnosticsMetrics array = []
 
-/*
+@description('The rules to apply to the Network Security Group.')
+param networkSecurityGroupRules array = []
 
-  NAMING CONVENTION
+@description('The policy to assign to the workload.')
+param policy string
 
-  Here we define a naming conventions for resources.
+@minLength(3)
+@maxLength(10)
+@description('A prefix, 3 to 10 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".')
+param resourcePrefix string
 
-  First, we take `resourcePrefix` and `resourceSuffix` by params.
-  Then, using string interpolation "${}", we insert those values into a naming convention.
+@description('The address prefix for the workload subnet.')
+param subnetAddressPrefix string
 
-*/
+@description('The supported clouds for the deployment. It defaults to "AzureCloud" and "AzureUSGovernment".')
+param supportedClouds array = [
+  'AzureCloud'
+  'AzureUSGovernment'
+]
 
-var resourceToken = 'resource_token'
-var nameToken = 'name_token'
-var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
-var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'vnet')
-var networkSecurityGroupNamingConvention = replace(namingConvention, resourceToken, 'nsg')
-var storageAccountNamingConvention = toLower('${resourcePrefix}st${nameToken}unique_storage_token')
-var subnetNamingConvention = replace(namingConvention, resourceToken, 'snet')
-var workloadLogStorageAccountNameTemplate = replace(storageAccountNamingConvention, nameToken, toLower(workloadName))
-var workloadLogStorageAccountUniqueName = replace(workloadLogStorageAccountNameTemplate, 'unique_storage_token', uniqueString(resourcePrefix, resourceSuffix, workloadSubscriptionId))
-var workloadLogStorageAccountNameVariable = take(workloadLogStorageAccountUniqueName, 23)
-var workloadVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, workloadName)
-var workloadNetworkSecurityGroupName = replace(networkSecurityGroupNamingConvention, nameToken, workloadName)
-var workloadSubnetName = replace(subnetNamingConvention, nameToken, workloadName)
-var logAnalyticsWorkspaceResourceId_split = split(logAnalyticsWorkspaceResourceId, '/')
-var workloadLogStorageAccountName = 'null' != workloadLogStorageAccountNameParameter ? workloadLogStorageAccountNameParameter : workloadLogStorageAccountNameVariable
+@description('The tags to apply to the resources.')
+param tags object = {}
+
+@description('The address prefix for the workload Virtual Network.')
+param virtualNetworkAddressPrefix string
+
+@description('The diagnostic logs to apply to the workload Virtual Network.')
+param virtualNetworkDiagnosticsLogs array = []
+
+@description('The metrics to monitor for the workload Virtual Network.')
+param virtualNetworkDiagnosticsMetrics array = []
+
+@description('The name for the workload.')
+param workloadName string
+
+@description('The short name for the workload.')
+param workloadShortName string
+
+var calculatedTags = union(tags, defaultTags)
 var defaultTags = {
   DeploymentType: 'MissionLandingZoneARM'
 }
-var calculatedTags = union(tags, defaultTags)
+var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
+var hubSubscriptionId = split(hubVirtualNetworkResourceId, '/')[2]
+var subscriptionId = subscription().subscriptionId
 
-
-resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' existing =  {
-  name: resourceGroupName
-  scope: subscription(workloadSubscriptionId)
+resource azureFirewall 'Microsoft.Network/azureFirewalls@2020-11-01' existing = {
+  name: split(firewallResourceId, '/')[8]
+  scope: resourceGroup(split(firewallResourceId, '/')[2], split(firewallResourceId, '/')[4])
 }
 
-module spokeNetwork '../../core/spoke-network.bicep' = {
-  name: 'spokeNetwork'
-  scope: az.resourceGroup(workloadSubscriptionId, (existingResourceGroup ? rg.name : resourceGroupName))
+module namingConvention '../../modules/naming-convention.bicep' = {
+  name: 'get-naming-${workloadShortName}-${deploymentNameSuffix}'
   params: {
+    environmentAbbreviation: environmentAbbreviation
+    location: location
+    resourcePrefix: resourcePrefix
+  }
+}
+
+module logic 'modules/logic.bicep' = {
+  name: 'get-logic-${workloadShortName}-${deploymentNameSuffix}'
+  params: {
+    environmentAbbreviation: environmentAbbreviation
+    resourcePrefix: resourcePrefix
+    resources: namingConvention.outputs.resources
+    subscriptionId: subscriptionId
+    tokens: namingConvention.outputs.tokens
+    workloadName: workloadName
+    workloadShortName: workloadShortName
+  }
+}
+
+module rg '../../modules/resource-group.bicep' = {
+  name: 'deploy-rg-${workloadShortName}-${deploymentNameSuffix}'
+  params: {
+    location: location
+    name: logic.outputs.network.resourceGroupName
     tags: calculatedTags
-    location:location
-    logStorageAccountName: workloadLogStorageAccountName
-    logStorageSkuName: logStorageSkuName
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    firewallPrivateIPAddress: firewallPrivateIPAddress
-    virtualNetworkName: workloadVirtualNetworkName
-    virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
-    vNetDnsServers: vNetDnsServers
-    virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
-    networkSecurityGroupName: workloadNetworkSecurityGroupName
+  }
+}
+
+module networking 'modules/networking.bicep' = {
+  name: 'deploy-networking-${workloadShortName}-${deploymentNameSuffix}'
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    deployNetworkWatcher: false
+    firewallSkuTier: azureFirewall.properties.sku.tier
+    hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
+    location: location
+    networkSecurityGroupName: logic.outputs.network.networkSecurityGroupName
     networkSecurityGroupRules: networkSecurityGroupRules
+    networkWatcherName: logic.outputs.network.networkWatcherName
+    resourceGroupName: logic.outputs.network.resourceGroupName
+    routeTableName: logic.outputs.network.routeTableName
+    routeTableRouteNextHopIpAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
+    subnetAddressPrefix: subnetAddressPrefix
+    subnetName: logic.outputs.network.subnetName
+    subscriptionId: subscriptionId
+    tags: tags
+    virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
+    virtualNetworkName: logic.outputs.network.virtualNetworkName
+    vNetDnsServers: [
+      azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
+    ]
+    workloadName: workloadName
+    workloadShortName: workloadShortName
+  }
+}
+
+module customerManagedKeys '../../modules/customer-managed-keys.bicep' = {
+  name: 'deploy-cmk-${workloadShortName}-${deploymentNameSuffix}'
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    keyVaultPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore'))
+    location: location
+    networkProperties: logic.outputs.network
+    subnetResourceId: networking.outputs.subnetResourceId
+    tags: calculatedTags
+  }
+}
+
+module storage 'modules/storage.bicep' = {
+  name: 'deploy-storage-${workloadShortName}-${deploymentNameSuffix}'
+  params: {
+    blobsPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.blob.${environment().suffixes.storage}')
+    keyVaultUri: customerManagedKeys.outputs.keyVaultUri
+    location: location
+    logStorageSkuName: logStorageSkuName
+    network: logic.outputs.network
+    serviceToken: namingConvention.outputs.tokens.service
+    storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
+    subnetResourceId: networking.outputs.subnetResourceId
+    tablesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.table.${environment().suffixes.storage}')
+    tags: calculatedTags
+    userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
+  }
+}
+
+module diagnostics 'modules/diagnostics.bicep' = {
+  name: 'deploy-diagnostics-${workloadShortName}-${deploymentNameSuffix}'
+  params: {
+    deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
+    deploymentNameSuffix: deploymentNameSuffix
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    network: logic.outputs.network
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
-    subnetName: workloadSubnetName
-    subnetAddressPrefix: subnetAddressPrefix
-    subnetServiceEndpoints: subnetServiceEndpoints
-    subnetPrivateEndpointNetworkPolicies: 'Disabled'
-    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
+    storageAccountResourceId: storage.outputs.storageAccountResourceId
+    supportedClouds: supportedClouds
+    virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
   }
 }
 
-module workloadVirtualNetworkPeerings '../../core/spoke-network-peering.bicep' = {
-  name: take('${workloadName}-to-hub-vnet-peering', 64)
-  scope: subscription(workloadSubscriptionId)
-  params: {
-    spokeName: workloadName
-    spokeResourceGroupName: (existingResourceGroup ? rg.name : resourceGroupName)
-    spokeVirtualNetworkName: spokeNetwork.outputs.virtualNetworkName
-    hubVirtualNetworkName: hubVirtualNetworkName
-    hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
-  }
-}
-
-module hubToWorkloadVirtualNetworkPeering '../../core/hub-network-peerings.bicep' = {
-  scope: az.resourceGroup(workloadSubscriptionId, (existingResourceGroup ? rg.name : resourceGroupName))
-  name: take('hub-to-${workloadName}-vnet-peering', 64)
-  params: {
-    hubVirtualNetworkName: hubVirtualNetworkName
-    hubResourceGroupName: hubResourceGroupName
-    spokeVirtualNetworkName: spokeNetwork.outputs.virtualNetworkName
-    spokeVirtualNetworkResourceId: spokeNetwork.outputs.virtualNetworkResourceId
-  }
-}
-
-module workloadSubscriptionActivityLogging '../../modules/central-logging.bicep' = if (workloadSubscriptionId != hubSubscriptionId) {
-  name: 'activity-logs-${spokeNetwork.name}-${resourceSuffix}'
-  scope: subscription(workloadSubscriptionId)
-  params: {
-    diagnosticSettingName: 'log-${spokeNetwork.name}-sub-activity-to-${logAnalyticsWorkspaceName}'
-    logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
-  }
-  dependsOn: [
-    spokeNetwork
-  ]
-}
-
-module workloadPolicyAssignment '../../modules/policy-assignment.bicep' = if (deployPolicy) {
+module policyAssignments '../../modules/policy-assignments.bicep' = if (deployPolicy) {
   name: 'assign-policy-${workloadName}-${deploymentNameSuffix}'
-  scope:  az.resourceGroup(workloadSubscriptionId, (existingResourceGroup ? rg.name : resourceGroupName))
   params: {
-    builtInAssignment: policy
-    logAnalyticsWorkspaceName: logAnalyticsWorkspaceResourceId_split[8]
-    logAnalyticsWorkspaceResourceGroupName: logAnalyticsWorkspaceResourceId_split[4]
+    deploymentNameSuffix: deploymentNameSuffix
     location: location
-    operationsSubscriptionId: logAnalyticsWorkspaceResourceId_split[2]
-   }
+    logAnalyticsWorkspaceName: split(logAnalyticsWorkspaceResourceId, '/')[8]
+    logAnalyticsWorkspaceResourceGroupName: split(logAnalyticsWorkspaceResourceId, '/')[4]
+    networks: [
+      logic.outputs.network
+    ]
+    policy: policy
   }
+}
 
-module spokeDefender '../../modules/defender.bicep' = if (deployDefender) {
+module defenderForCloud '../../modules/defenderForCloud.bicep' = if (deployDefender) {
   name: 'set-${workloadName}-sub-defender'
-  scope: subscription(workloadSubscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
     emailSecurityContact: emailSecurityContact
   }
 }
-
-output rg string = (existingResourceGroup ? rg.name : resourceGroupName)
-output location string = location
-output virtualNetworkName string = spokeNetwork.outputs.virtualNetworkName
-output virtualNetworkAddressPrefix string = spokeNetwork.outputs.virtualNetworkAddressPrefix
-output virtualNetworkResourceId string = spokeNetwork.outputs.virtualNetworkResourceId
-output subnetName string = spokeNetwork.outputs.subnetName
-output subnetAddressPrefix string = spokeNetwork.outputs.subnetAddressPrefix
-output subnetResourceId string = spokeNetwork.outputs.subnetResourceId
-output networkSecurityGroupName string = spokeNetwork.outputs.networkSecurityGroupName
-output networkSecurityGroupResourceId string = spokeNetwork.outputs.networkSecurityGroupResourceId
