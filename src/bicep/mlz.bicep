@@ -611,9 +611,9 @@ module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-hub-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    hubProperties: first(filter(logic.outputs.networks, network => network.name == 'hub')) 
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     location: location
+    networkProperties: first(filter(logic.outputs.networks, network => network.name == 'hub')) 
     subnetResourceId: networking.outputs.hubSubnetResourceId
     tags: calculatedTags
   }

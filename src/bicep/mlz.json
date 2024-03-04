@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "1314444430176962847"
+      "templateHash": "7316473932822515883"
     }
   },
   "parameters": {
@@ -4568,14 +4568,14 @@
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
-          "hubProperties": {
-            "value": "[first(filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networks.value, lambda('network', equals(lambdaVariables('network').name, 'hub'))))]"
-          },
           "keyVaultPrivateDnsZoneResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZoneResourceIds.value.keyVault]"
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "networkProperties": {
+            "value": "[first(filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networks.value, lambda('network', equals(lambdaVariables('network').name, 'hub'))))]"
           },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hubSubnetResourceId.value]"
@@ -4591,21 +4591,21 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "4457022482795061982"
+              "templateHash": "15773333571553716283"
             }
           },
           "parameters": {
             "deploymentNameSuffix": {
               "type": "string"
             },
-            "hubProperties": {
-              "type": "object"
-            },
             "keyVaultPrivateDnsZoneResourceId": {
               "type": "string"
             },
             "location": {
               "type": "string"
+            },
+            "networkProperties": {
+              "type": "object"
             },
             "subnetResourceId": {
               "type": "string"
@@ -4619,8 +4619,8 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))]",
-              "subscriptionId": "[parameters('hubProperties').subscriptionId]",
-              "resourceGroup": "[parameters('hubProperties').resourceGroupName]",
+              "subscriptionId": "[parameters('networkProperties').subscriptionId]",
+              "resourceGroup": "[parameters('networkProperties').resourceGroupName]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -4628,16 +4628,16 @@
                 "mode": "Incremental",
                 "parameters": {
                   "keyVaultName": {
-                    "value": "[parameters('hubProperties').keyVaultName]"
+                    "value": "[parameters('networkProperties').keyVaultName]"
                   },
                   "keyVaultNetworkInterfaceName": {
-                    "value": "[parameters('hubProperties').keyVaultNetworkInterfaceName]"
+                    "value": "[parameters('networkProperties').keyVaultNetworkInterfaceName]"
                   },
                   "keyVaultPrivateDnsZoneResourceId": {
                     "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
                   },
                   "keyVaultPrivateEndpointName": {
-                    "value": "[parameters('hubProperties').keyVaultPrivateEndpointName]"
+                    "value": "[parameters('networkProperties').keyVaultPrivateEndpointName]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -4862,8 +4862,8 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))]",
-              "subscriptionId": "[parameters('hubProperties').subscriptionId]",
-              "resourceGroup": "[parameters('hubProperties').resourceGroupName]",
+              "subscriptionId": "[parameters('networkProperties').subscriptionId]",
+              "resourceGroup": "[parameters('networkProperties').resourceGroupName]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -4874,13 +4874,13 @@
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
                   "diskEncryptionSetName": {
-                    "value": "[parameters('hubProperties').diskEncryptionSetName]"
+                    "value": "[parameters('networkProperties').diskEncryptionSetName]"
                   },
                   "keyUrl": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
                   },
                   "keyVaultResourceId": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -5025,15 +5025,15 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-user-assigned-identity-{0}', parameters('deploymentNameSuffix'))]",
-              "subscriptionId": "[parameters('hubProperties').subscriptionId]",
-              "resourceGroup": "[parameters('hubProperties').resourceGroupName]",
+              "subscriptionId": "[parameters('networkProperties').subscriptionId]",
+              "resourceGroup": "[parameters('networkProperties').resourceGroupName]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -5044,7 +5044,7 @@
                     "value": "[parameters('location')]"
                   },
                   "name": {
-                    "value": "[parameters('hubProperties').userAssignedIdentityName]"
+                    "value": "[parameters('networkProperties').userAssignedIdentityName]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -5170,19 +5170,19 @@
           "outputs": {
             "diskEncryptionSetResourceId": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
             },
             "keyVaultUri": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
             },
             "storageKeyName": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
             },
             "userAssignedIdentityResourceId": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-user-assigned-identity-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-user-assigned-identity-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
             }
           }
         }
