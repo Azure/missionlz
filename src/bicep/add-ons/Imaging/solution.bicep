@@ -3,6 +3,9 @@ targetScope = 'subscription'
 @description('The file name of the ArcGIS Pro installer in Azure Blobs.')
 param arcGisProInstaller string = ''
 
+@description('Choose whether to deploy a diagnostic setting for the Activity Log.')
+param deployActivityLogDiagnosticSetting bool = false
+
 @description('The name for the action group resource.')
 param actionGroupName string = ''
 
@@ -12,8 +15,8 @@ param automationAccountName string
 @description('The private DNS zone resource ID for the automation account resource.')
 param automationAccountPrivateDnsZoneResourceId string
 
-@description('The name of the Azure Firewall.')
-param azureFirewallName string
+@description('The resource ID for the Azure Firewall in the HUB.')
+param azureFirewallResourceId string
 
 @description('The resource ID of the compute gallery image.')
 param computeGalleryImageResourceId string = ''
@@ -156,8 +159,8 @@ param location string = deployment().location
 @description('The resource ID of the log analytics workspace if using build automation and desired.')
 param logAnalyticsWorkspaceResourceId string = ''
 
-@description('The log analytics workspace name.')
-param logAnalyticsWorkspaceName string
+@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
+param logStorageSkuName string = 'Standard_GRS'
 
 @description('The resource ID of the log analytics workspace if using build automation and desired.')
 param spokelogAnalyticsWorkspaceResourceId string
@@ -173,6 +176,15 @@ param marketplaceImageSKU string = ''
 
 @description('The file name of the msrdcwebrtcsvc installer in Azure Blobs.')
 param msrdcwebrtcsvcInstaller string = ''
+
+@description('The network security group diagnostics logs to apply to the subnet.')
+param networkSecurityGroupDiagnosticsLogs array = []
+
+@description('The network security group diagnostics metrics to apply to the subnet.')
+param networkSecurityGroupDiagnosticsMetrics array = []
+
+@description('The network security group rules to apply to the subnet.')
+param networkSecurityGroupRules array = []
 
 @description('The file name of the Office installer in Azure Blobs.')
 param officeInstaller string = ''
@@ -235,11 +247,24 @@ param vDOTInstaller string = ''
 @description('The virtual network address prefix.')
 param virtualNetworkAddressPrefix string
 
+@description('The logs for the diagnostic setting on the virtual network.')
+param virtualNetworkDiagnosticsLogs array = []
+
+@description('The metrics for the diagnostic setting on the virtual network.')
+param virtualNetworkDiagnosticsMetrics array = []
+
 @description('The size of the image virtual machine.')
 param virtualMachineSize string
 
-@description('The workload subscription id.')
-param workloadSubscriptionId string
+@minLength(1)
+@maxLength(10)
+@description('The name of the workload.')
+param workloadName string = 'imaging'
+
+@minLength(1)
+@maxLength(3)
+@description('The short name of the workload.')
+param workloadShortName string = 'img'
 
 @description('The WSUS Server Url if WSUS is specified. (i.e., https://wsus.corp.contoso.com:8531)')
 param wsusServer string = ''
@@ -255,11 +280,6 @@ resource hubVirtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' existi
   name: hubVirtualNetworkName
 }
 
-resource azureFirewall 'Microsoft.Network/azureFirewalls@2023-05-01' existing = {
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  name: azureFirewallName
-}
-
 resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = if (!existingResourceGroup) {
   name: resourceGroupName
   location: location
@@ -268,26 +288,28 @@ resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = if (!existingResou
 
 module tier3 '../tier3/solution.bicep' = {
   name: 'tier3-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, (existingResourceGroup ? rg.name : resourceGroupName))
   params: {
+    deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
+    deploymentNameSuffix: deploymentNameSuffix
     deployPolicy:  deployPolicy
     emailSecurityContact: emailSecurityContact
-    existingResourceGroup: existingResourceGroup
-    firewallPrivateIPAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
-    hubResourceGroupName: hubResourceGroupName
-    hubSubscriptionId: hubSubscriptionId
-    hubVirtualNetworkName: hubVirtualNetwork.name
+    firewallResourceId: azureFirewallResourceId
     hubVirtualNetworkResourceId: hubVirtualNetwork.id
     location: location
-    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
+    logStorageSkuName: logStorageSkuName
+    networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs 
+    networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
+    networkSecurityGroupRules: networkSecurityGroupRules
     policy: policy
-    resourceGroupName: existingResourceGroup ? resourceGroupName : rg.name
     resourcePrefix: resourcePrefix
     subnetAddressPrefix: subnetAddressPrefix
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
-    workloadSubscriptionId: workloadSubscriptionId
+    virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
+    workloadName: workloadName
+    workloadShortName: workloadShortName
   }
 }
 
