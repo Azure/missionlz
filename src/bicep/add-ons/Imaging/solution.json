@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "6701119043687879244"
+      "templateHash": "1285898712324361110"
     }
   },
   "parameters": {
@@ -359,7 +359,16 @@
     },
     "networkSecurityGroupDiagnosticsLogs": {
       "type": "array",
-      "defaultValue": [],
+      "defaultValue": [
+        {
+          "category": "NetworkSecurityGroupEvent",
+          "enabled": true
+        },
+        {
+          "category": "NetworkSecurityGroupRuleCounter",
+          "enabled": true
+        }
+      ],
       "metadata": {
         "description": "The network security group diagnostics logs to apply to the subnet."
       }

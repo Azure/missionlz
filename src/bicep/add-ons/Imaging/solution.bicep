@@ -167,7 +167,16 @@ param marketplaceImageSKU string = ''
 param msrdcwebrtcsvcInstaller string = ''
 
 @description('The network security group diagnostics logs to apply to the subnet.')
-param networkSecurityGroupDiagnosticsLogs array = []
+param networkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
 
 @description('The network security group diagnostics metrics to apply to the subnet.')
 param networkSecurityGroupDiagnosticsMetrics array = []
