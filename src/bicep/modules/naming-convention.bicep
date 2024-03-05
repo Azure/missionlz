@@ -39,7 +39,9 @@ var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${serviceTok
 
 // RESOURCE NAME CONVENTIONS WITH ABBREVIATIONS
 
+var automationAccountNamingConvention = replace(namingConvention, resourceToken, resourceAbbreviations.automationAccounts)
 var bastionHostNamingConvention = replace(namingConvention, resourceToken, resourceAbbreviations.bastionHosts)
+var computeGalleryNamingConvention = replace(replace(namingConvention, resourceToken, resourceAbbreviations.computeGallieries), '-', '_')
 var diskEncryptionSetNamingConvention = replace(namingConvention, resourceToken, resourceAbbreviations.diskEncryptionSets)
 var diskNamingConvention = replace(namingConvention, resourceToken, resourceAbbreviations.disks)
 var firewallNamingConvention = replace(namingConvention, resourceToken, resourceAbbreviations.azureFirewalls)
@@ -58,11 +60,13 @@ var routeTableNamingConvention = replace(namingConvention, resourceToken, resour
 var storageAccountNamingConvention = toLower('${replace(replace(namingConvention, resourceToken, resourceAbbreviations.storageAccounts), '-', '')}unique_token')
 var subnetNamingConvention = replace(namingConvention, resourceToken, resourceAbbreviations.subnets)
 var userAssignedIdentityNamingConvention = replace(namingConvention, resourceToken, resourceAbbreviations.userAssignedIdentities)
-var virtualMachineNamingConvention = replace(namingConvention, resourceToken, resourceAbbreviations.virtualMachines)
+var virtualMachineNamingConvention = replace(replace(replace(namingConvention, resourceToken, resourceAbbreviations.virtualMachines), '-', ''), environmentAbbreviation, first(environmentAbbreviation))
 var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, resourceAbbreviations.virtualNetworks)
 
 output resources object = {
+  automationAccount: automationAccountNamingConvention
   bastionHost: bastionHostNamingConvention
+  computeGallery: computeGalleryNamingConvention
   diskEncryptionSet: diskEncryptionSetNamingConvention
   disk: diskNamingConvention
   firewall: firewallNamingConvention
