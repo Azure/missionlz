@@ -241,4 +241,6 @@ module defenderForCloud '../../modules/defenderForCloud.bicep' = if (deployDefen
   }
 }
 
+output network object = logic.outputs.network
 output subnetResourceId string = networking.outputs.subnetResourceId
+output tokens object = namingConvention.outputs.tokens
