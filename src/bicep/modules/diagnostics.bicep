@@ -67,7 +67,7 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
 }]
 
 module publicIpAddressDiagnostics '../modules/public-ip-address-diagnostics.bicep' = [for publicIPAddressName in publicIPAddressNames: {
-  name: 'deploy-pip-diags-${publicIPAddressName}-${deploymentNameSuffix}'
+  name: 'deploy-pip-diags-${split(publicIPAddressName, '-')[2]}-${split(publicIPAddressName, '-')[3]}-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     hubStorageAccountResourceId: storageAccountResourceIds[0]
