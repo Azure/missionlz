@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "7316473932822515883"
+      "templateHash": "3577989145638949921"
     }
   },
   "parameters": {
@@ -871,7 +871,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "1861390543841002544"
+              "templateHash": "14774353717530262987"
             }
           },
           "parameters": {
@@ -1275,6 +1275,7 @@
               "availabilitySets": "avail",
               "azureFirewalls": "afw",
               "bastionHosts": "bas",
+              "computeGallieries": "cg",
               "dataCollectionRuleAssociations": "dcra",
               "dataCollectionRules": "dcr",
               "desktopApplicationGroups": "vdag",
@@ -1313,7 +1314,9 @@
             "serviceToken": "service_token",
             "networkToken": "network_token",
             "namingConvention": "[format('{0}-{1}-{2}-{3}-{4}-{5}', toLower(parameters('resourcePrefix')), variables('resourceToken'), variables('serviceToken'), variables('networkToken'), parameters('environmentAbbreviation'), variables('locationAbbreviation'))]",
+            "automationAccountNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').automationAccounts)]",
             "bastionHostNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').bastionHosts)]",
+            "computeGalleryNamingConvention": "[replace(replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').computeGallieries), '-', '_')]",
             "diskEncryptionSetNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').diskEncryptionSets)]",
             "diskNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').disks)]",
             "firewallNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').azureFirewalls)]",
@@ -1332,7 +1335,7 @@
             "storageAccountNamingConvention": "[toLower(format('{0}unique_token', replace(replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').storageAccounts), '-', '')))]",
             "subnetNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').subnets)]",
             "userAssignedIdentityNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').userAssignedIdentities)]",
-            "virtualMachineNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').virtualMachines)]",
+            "virtualMachineNamingConvention": "[replace(replace(replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').virtualMachines), '-', ''), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation')))]",
             "virtualNetworkNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').virtualNetworks)]"
           },
           "resources": [],
@@ -1340,7 +1343,9 @@
             "resources": {
               "type": "object",
               "value": {
+                "automationAccount": "[variables('automationAccountNamingConvention')]",
                 "bastionHost": "[variables('bastionHostNamingConvention')]",
+                "computeGallery": "[variables('computeGalleryNamingConvention')]",
                 "diskEncryptionSet": "[variables('diskEncryptionSetNamingConvention')]",
                 "disk": "[variables('diskNamingConvention')]",
                 "firewall": "[variables('firewallNamingConvention')]",
@@ -7321,7 +7326,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12448032150248851105"
+              "templateHash": "16623314259614548487"
             }
           },
           "parameters": {
@@ -7696,7 +7701,7 @@
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('deploy-pip-diags-{0}-{1}', variables('publicIPAddressNames')[copyIndex()], parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-pip-diags-{0}-{1}-{2}', split(variables('publicIPAddressNames')[copyIndex()], '-')[2], split(variables('publicIPAddressNames')[copyIndex()], '-')[3], parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[variables('hubSubscriptionId')]",
               "resourceGroup": "[variables('hubResourceGroupName')]",
               "properties": {
