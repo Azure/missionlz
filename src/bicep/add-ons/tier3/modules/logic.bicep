@@ -13,9 +13,11 @@ var network = {
   subscriptionId: subscriptionId
   resourceGroupName: replace(replace(resources.resourceGroup, '-${tokens.service}', ''), tokens.network, workloadName)
   deployUniqueResources: true
+  automationAccountName: replace(replace(resources.automationAccount, tokens.service, ''), tokens.network, workloadName)
   bastionHostIPConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'bas'), tokens.network, workloadName)
   bastionHostName: replace(replace(resources.bastionHost, '-${tokens.service}', ''), tokens.network, workloadName)
   bastionHostPublicIPAddressName: replace(replace(resources.publicIpAddress, tokens.service, 'bas'), tokens.network, workloadName)
+  computeGalleryName: replace(replace(resources.computeGallery, '-${tokens.service}', ''), tokens.network, workloadName)
   diskEncryptionSetName: replace(replace(resources.diskEncryptionSet, '-${tokens.service}', ''), tokens.network, workloadName)
   firewallClientIpConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'client-afw'), tokens.network, workloadName)
   firewallClientPublicIPAddressName: replace(replace(resources.publicIpAddress, tokens.service, 'client-afw'), tokens.network, workloadName)
@@ -29,7 +31,7 @@ var network = {
   linuxDiskName: replace(replace(resources.disk, tokens.service, 'linux'), tokens.network, workloadName)
   linuxNetworkInterfaceIpConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'linux'), tokens.network, workloadName)
   linuxNetworkInterfaceName: replace(replace(resources.networkInterface, tokens.service, 'linux'), tokens.network, workloadName)
-  linuxVmName: replace(replace(resources.virtualMachine, tokens.service, 'linux'), tokens.network, workloadName)
+  linuxVmName: replace(replace(resources.virtualMachine, tokens.service, 'l${tokens.service}'), tokens.network, workloadShortName)
   logStorageAccountName: take(replace(replace(replace(resources.storageAccount, tokens.service, ''), tokens.network, workloadShortName), 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, subscriptionId)), 24)
   logStorageAccountNetworkInterfaceNamePrefix: replace(replace(resources.networkInterface, tokens.service, '${tokens.service}-st'), tokens.network, workloadName)
   logStorageAccountPrivateEndpointNamePrefix: replace(replace(resources.privateEndpoint, tokens.service, '${tokens.service}-st'), tokens.network, workloadName)
@@ -42,7 +44,7 @@ var network = {
   windowsDiskName: replace(replace(resources.disk, tokens.service, 'windows'), tokens.network, workloadName)
   windowsNetworkInterfaceIpConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'windows'), tokens.network, workloadName)
   windowsNetworkInterfaceName: replace(replace(resources.networkInterface, tokens.service, 'windows'), tokens.network, workloadName)
-  windowsVmName: replace(replace(resources.virtualMachine, tokens.service, 'windows'), tokens.network, workloadName)
+  windowsVmName: replace(replace(resources.virtualMachine, tokens.service, 'w${tokens.service}'), tokens.network, workloadShortName)
 }
 
 output network object = network
