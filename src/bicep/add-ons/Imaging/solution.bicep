@@ -1,13 +1,10 @@
 targetScope = 'subscription'
 
-@description('The file name of the ArcGIS Pro installer in Azure Blobs.')
-param arcGisProInstaller string = ''
-
 @description('The name for the action group resource.')
 param actionGroupName string = ''
 
-@description('The name for the automation account resource.')
-param automationAccountName string
+@description('The file name of the ArcGIS Pro installer in Azure Blobs.')
+param arcGisProInstaller string = ''
 
 @description('The private DNS zone resource ID for the automation account resource.')
 param automationAccountPrivateDnsZoneResourceId string
@@ -15,11 +12,8 @@ param automationAccountPrivateDnsZoneResourceId string
 @description('The resource ID for the Azure Firewall in the HUB.')
 param azureFirewallResourceId string
 
-@description('The resource ID of the compute gallery image.')
+@description('The resource ID of the source compute gallery image.')
 param computeGalleryImageResourceId string = ''
-
-@description('The name of the compute gallery resource.')
-param computeGalleryName string
 
 @description('The name of the container in the storage account where the installer files are located.')
 param containerName string
@@ -64,29 +58,28 @@ param emailSecurityContact string
 @description('Determines whether to enable build automation.')
 param enableBuildAutomation bool
 
+@allowed([
+  'dev'
+  'prod'
+  'test'
+])
+@description('The abbreviation for the environment.')
+param environmentAbbreviation string = 'dev'
+
 @description('Determines whether to exclude the image from the latest version.')
 param excludeFromLatest bool = true
-
-@description('Determines whether to use an existing resource group.')
-param existingResourceGroup bool = false
 
 @description('The array of policy assignment IDs to exempt to prevent issues with the build process.')
 param exemptPolicyAssignmentIds array = []
 
-@description('The hub resource group name.')
-param hubResourceGroupName string
-
-@description('The name of hub subscription.')
-param hubSubscriptionId string
-
-@description('The hub virtual network name.')
-param hubVirtualNetworkName string
+@description('The resource ID for the hub virtual network.')
+param hubVirtualNetworkResourceId string
 
 @description('Determines whether to use the hybrid use benefit.')
 param hybridUseBenefit bool
 
-@description('The name of the hybrid worker (virtual machine) if using build automation.')
-param hybridWorkerName string = ''
+@description('The identifier for the resource names. This value should represent the workload, project, or business unit.')
+param identifier string
 
 @description('The name prefix for the image definition resource.')
 param imageDefinitionNamePrefix string
@@ -94,8 +87,8 @@ param imageDefinitionNamePrefix string
 @description('The major version for the name of the image version resource.')
 param imageMajorVersion int
 
-@description('The minor version for the name of the image version resource.')
-param imageMinorVersion int
+@description('The patch version for the name of the image version resource.')
+param imagePatchVersion int
 
 @description('Determines whether to install Access.')
 param installAccess bool
@@ -142,9 +135,6 @@ param installVisio bool
 @description('Determines whether to install Word.')
 param installWord bool
 
-@description('The name of the key vault resource.')
-param keyVaultName string
-
 @description('The private DNS zone resource ID for the key vault resource.')
 param keyVaultPrivateDnsZoneResourceId string
 
@@ -163,9 +153,6 @@ param logAnalyticsWorkspaceResourceId string = ''
 
 @description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
 param logStorageSkuName string = 'Standard_GRS'
-
-@description('The resource ID of the log analytics workspace if using build automation and desired.')
-param spokelogAnalyticsWorkspaceResourceId string
 
 @description('The marketplace image offer.')
 param marketplaceImageOffer string = ''
@@ -200,12 +187,6 @@ param policy string = ''
 @description('The count of replicas for the image version resource.')
 param replicaCount int
 
-@description('The name of the resource group.')
-param resourceGroupName string
-
-@description('The prefix for the resource names.')
-param resourcePrefix string
-
 @allowed([
   'AzureComputeGallery'
   'AzureMarketplace'
@@ -213,11 +194,20 @@ param resourcePrefix string
 @description('The type of source image.')
 param sourceImageType string
 
+@description('The resource ID of the log analytics workspace if using build automation and desired.')
+param spokelogAnalyticsWorkspaceResourceId string
+
 @description('The resource ID of the storage account where the installers and scripts are stored in Azure Blobs.')
 param storageAccountResourceId string
 
 @description('The subnet address prefix.')
 param subnetAddressPrefix string
+
+@description('The array of supported clouds for specific deployments.')
+param supportedClouds array = [
+  'AzureCloud'
+  'AzureUSGovernment'
+]
 
 @description('The key value pairs of meta data to apply to the resources.')
 param tags object = {}
@@ -236,14 +226,14 @@ param teamsInstaller string = ''
 @description('Determines if the updates service. (Default: \'MU\')')
 param updateService string = 'MU'
 
-@description('The name of the user assigned identity resource.')
-param userAssignedIdentityName string
-
 @description('The file name of the vcRedist installer in Azure Blobs.')
 param vcRedistInstaller string = ''
 
 @description('The file name of the vDOT installer in Azure Blobs.')
 param vDOTInstaller string = ''
+
+@description('The size of the image virtual machine.')
+param virtualMachineSize string
 
 @description('The virtual network address prefix.')
 param virtualNetworkAddressPrefix string
@@ -253,9 +243,6 @@ param virtualNetworkDiagnosticsLogs array = []
 
 @description('The metrics for the diagnostic setting on the virtual network.')
 param virtualNetworkDiagnosticsMetrics array = []
-
-@description('The size of the image virtual machine.')
-param virtualMachineSize string
 
 @minLength(1)
 @maxLength(10)
@@ -270,22 +257,13 @@ param workloadShortName string = 'img'
 @description('The WSUS Server Url if WSUS is specified. (i.e., https://wsus.corp.contoso.com:8531)')
 param wsusServer string = ''
 
+var calculatedTags = union(tags, defaultTags)
+var defaultTags = {
+  DeploymentType: 'MissionLandingZoneARM'
+}
 var imageDefinitionName = empty(computeGalleryImageResourceId) ? '${imageDefinitionNamePrefix}-${marketplaceImageSKU}' : '${imageDefinitionNamePrefix}-${split(computeGalleryImageResourceId, '/')[10]}'
-var imageVirtualMachineName = take('vmimg-${uniqueString(deploymentNameSuffix)}', 15)
-var managementVirtualMachineName = empty(hybridWorkerName) ? take('vmmgt-${uniqueString(deploymentNameSuffix)}', 15) : hybridWorkerName
 var subscriptionId = subscription().subscriptionId
 var locations = (loadJsonContent('../../data/locations.json'))[environment().name]
-
-resource hubVirtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' existing = {
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  name: hubVirtualNetworkName
-}
-
-resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = if (!existingResourceGroup) {
-  name: resourceGroupName
-  location: location
-  tags: tags
-}
 
 module tier3 '../tier3/solution.bicep' = {
   name: 'tier3-${deploymentNameSuffix}'
@@ -296,8 +274,9 @@ module tier3 '../tier3/solution.bicep' = {
     deployNetworkWatcher: deployNetworkWatcher
     deployPolicy:  deployPolicy
     emailSecurityContact: emailSecurityContact
+    environmentAbbreviation: environmentAbbreviation
     firewallResourceId: azureFirewallResourceId
-    hubVirtualNetworkResourceId: hubVirtualNetwork.id
+    hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     location: location
     logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
@@ -305,8 +284,10 @@ module tier3 '../tier3/solution.bicep' = {
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     networkSecurityGroupRules: networkSecurityGroupRules
     policy: policy
-    resourcePrefix: resourcePrefix
+    resourcePrefix: identifier
+    tags: calculatedTags
     subnetAddressPrefix: subnetAddressPrefix
+    supportedClouds: supportedClouds
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
@@ -318,21 +299,18 @@ module tier3 '../tier3/solution.bicep' = {
 module baseline 'modules/baseline.bicep' = {
   name: 'baseline-${deploymentNameSuffix}'
   params: {
-    computeGalleryName: computeGalleryName
+    computeGalleryName: tier3.outputs.network.computeGalleryName
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     enableBuildAutomation: enableBuildAutomation
     exemptPolicyAssignmentIds: exemptPolicyAssignmentIds
     location: location
-    resourceGroupName: existingResourceGroup ? resourceGroupName : rg.name
+    resourceGroupName: tier3.outputs.network.resourceGroupName
     storageAccountResourceId: storageAccountResourceId
     subscriptionId: subscriptionId
-    tags: tags
-    userAssignedIdentityName: userAssignedIdentityName
+    tags: calculatedTags
+    userAssignedIdentityName: tier3.outputs.network.userAssignedIdentityName
   }
-  dependsOn: [
-    tier3
-  ]
 }
 
 module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomation) {
@@ -340,7 +318,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
   params: {
     actionGroupName: actionGroupName
     arcGisProInstaller: arcGisProInstaller
-    automationAccountName: automationAccountName
+    automationAccountName: tier3.outputs.network.automationAccountName
     automationAccountPrivateDnsZoneResourceId: automationAccountPrivateDnsZoneResourceId
     computeGalleryImageResourceId: computeGalleryImageResourceId
     computeGalleryResourceId: baseline.outputs.computeGalleryResourceId
@@ -357,8 +335,8 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     hybridUseBenefit: hybridUseBenefit
     imageDefinitionName: imageDefinitionName
     imageMajorVersion: imageMajorVersion
-    imageMinorVersion: imageMinorVersion
-    imageVirtualMachineName: imageVirtualMachineName
+    imagePatchVersion: imagePatchVersion
+    imageVirtualMachineName: replace(tier3.outputs.network.virtualMachineName, tier3.outputs.tokens.service, 'bd')
     installAccess: installAccess
     installArcGisPro: installArcGisPro
     installExcel: installExcel
@@ -374,13 +352,13 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     installVirtualDesktopOptimizationTool: installVirtualDesktopOptimizationTool
     installVisio: installVisio
     installWord: installWord
-    keyVaultName: keyVaultName
+    keyVaultName: tier3.outputs.network.keyVaultName
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     localAdministratorPassword: localAdministratorPassword
     localAdministratorUsername: localAdministratorUsername
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    managementVirtualMachineName: managementVirtualMachineName
+    managementVirtualMachineName: replace(tier3.outputs.network.virtualMachineName, tier3.outputs.tokens.service, 'mg')
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
@@ -388,12 +366,12 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     officeInstaller: officeInstaller
     oUPath: oUPath
     replicaCount: replicaCount
-    resourceGroupName: existingResourceGroup ? resourceGroupName : rg.name
+    resourceGroupName: tier3.outputs.network.resourceGroupName
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnetResourceId
     subscriptionId: subscriptionId
-    tags: tags
+    tags: calculatedTags
     teamsInstaller: teamsInstaller
     timeZone: locations[location].timeZone
     updateService: updateService
@@ -412,11 +390,11 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
 
 module imageBuild 'modules/imageBuild.bicep' = {
   name: 'image-build-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, (existingResourceGroup ? rg.name : resourceGroupName))
+  scope: resourceGroup(subscriptionId, tier3.outputs.network.resourceGroupName)
   params: {
     arcGisProInstaller: arcGisProInstaller
     computeGalleryImageResourceId: computeGalleryImageResourceId
-    computeGalleryName: computeGalleryName
+    computeGalleryName: tier3.outputs.network.computeGalleryName
     containerName: containerName
     customizations: customizations
     deploymentNameSuffix: deploymentNameSuffix
@@ -426,8 +404,8 @@ module imageBuild 'modules/imageBuild.bicep' = {
     hybridUseBenefit: hybridUseBenefit
     imageDefinitionName: imageDefinitionName
     imageMajorVersion: imageMajorVersion
-    imageMinorVersion: imageMinorVersion
-    imageVirtualMachineName: imageVirtualMachineName
+    imagePatchVersion: imagePatchVersion
+    imageVirtualMachineName: replace(tier3.outputs.network.virtualMachineName, tier3.outputs.tokens.service, 'bd')
     installAccess: installAccess
     installArcGisPro: installArcGisPro
     installExcel: installExcel
@@ -443,11 +421,11 @@ module imageBuild 'modules/imageBuild.bicep' = {
     installVirtualDesktopOptimizationTool: installVirtualDesktopOptimizationTool
     installVisio: installVisio
     installWord: installWord
-    keyVaultName: keyVaultName
+    keyVaultName: tier3.outputs.network.keyVaultName
     localAdministratorPassword: localAdministratorPassword
     localAdministratorUsername: localAdministratorUsername
     location: location
-    managementVirtualMachineName: managementVirtualMachineName
+    managementVirtualMachineName: replace(tier3.outputs.network.virtualMachineName, tier3.outputs.tokens.service, 'mg')
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
@@ -457,7 +435,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnetResourceId
-    tags: tags
+    tags: calculatedTags
     teamsInstaller: teamsInstaller
     updateService: updateService
     userAssignedIdentityClientId: baseline.outputs.userAssignedIdentityClientId
@@ -470,6 +448,5 @@ module imageBuild 'modules/imageBuild.bicep' = {
   }
   dependsOn: [
     buildAutomation
-    tier3
   ]
 }
