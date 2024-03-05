@@ -390,7 +390,6 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
 
 module imageBuild 'modules/imageBuild.bicep' = {
   name: 'image-build-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, tier3.outputs.network.resourceGroupName)
   params: {
     arcGisProInstaller: arcGisProInstaller
     computeGalleryImageResourceId: computeGalleryImageResourceId
@@ -432,6 +431,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     replicaCount: replicaCount
+    resourceGroupName: tier3.outputs.network.resourceGroupName
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnetResourceId
