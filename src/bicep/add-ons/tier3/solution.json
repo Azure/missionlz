@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "8986571617662686129"
+      "templateHash": "12681595635406662251"
     }
   },
   "parameters": {
@@ -234,7 +234,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "1861390543841002544"
+              "templateHash": "14774353717530262987"
             }
           },
           "parameters": {
@@ -638,6 +638,7 @@
               "availabilitySets": "avail",
               "azureFirewalls": "afw",
               "bastionHosts": "bas",
+              "computeGallieries": "cg",
               "dataCollectionRuleAssociations": "dcra",
               "dataCollectionRules": "dcr",
               "desktopApplicationGroups": "vdag",
@@ -676,7 +677,9 @@
             "serviceToken": "service_token",
             "networkToken": "network_token",
             "namingConvention": "[format('{0}-{1}-{2}-{3}-{4}-{5}', toLower(parameters('resourcePrefix')), variables('resourceToken'), variables('serviceToken'), variables('networkToken'), parameters('environmentAbbreviation'), variables('locationAbbreviation'))]",
+            "automationAccountNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').automationAccounts)]",
             "bastionHostNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').bastionHosts)]",
+            "computeGalleryNamingConvention": "[replace(replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').computeGallieries), '-', '_')]",
             "diskEncryptionSetNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').diskEncryptionSets)]",
             "diskNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').disks)]",
             "firewallNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').azureFirewalls)]",
@@ -695,7 +698,7 @@
             "storageAccountNamingConvention": "[toLower(format('{0}unique_token', replace(replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').storageAccounts), '-', '')))]",
             "subnetNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').subnets)]",
             "userAssignedIdentityNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').userAssignedIdentities)]",
-            "virtualMachineNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').virtualMachines)]",
+            "virtualMachineNamingConvention": "[replace(replace(replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').virtualMachines), '-', ''), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation')))]",
             "virtualNetworkNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').virtualNetworks)]"
           },
           "resources": [],
@@ -703,7 +706,9 @@
             "resources": {
               "type": "object",
               "value": {
+                "automationAccount": "[variables('automationAccountNamingConvention')]",
                 "bastionHost": "[variables('bastionHostNamingConvention')]",
+                "computeGallery": "[variables('computeGalleryNamingConvention')]",
                 "diskEncryptionSet": "[variables('diskEncryptionSetNamingConvention')]",
                 "disk": "[variables('diskNamingConvention')]",
                 "firewall": "[variables('firewallNamingConvention')]",
@@ -778,7 +783,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "17007772485574863812"
+              "templateHash": "10839688955941884677"
             }
           },
           "parameters": {
@@ -810,9 +815,11 @@
               "subscriptionId": "[parameters('subscriptionId')]",
               "resourceGroupName": "[replace(replace(parameters('resources').resourceGroup, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, parameters('workloadName'))]",
               "deployUniqueResources": true,
+              "automationAccountName": "[replace(replace(parameters('resources').automationAccount, parameters('tokens').service, ''), parameters('tokens').network, parameters('workloadName'))]",
               "bastionHostIPConfigurationName": "[replace(replace(parameters('resources').ipConfiguration, parameters('tokens').service, 'bas'), parameters('tokens').network, parameters('workloadName'))]",
               "bastionHostName": "[replace(replace(parameters('resources').bastionHost, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, parameters('workloadName'))]",
               "bastionHostPublicIPAddressName": "[replace(replace(parameters('resources').publicIpAddress, parameters('tokens').service, 'bas'), parameters('tokens').network, parameters('workloadName'))]",
+              "computeGalleryName": "[replace(replace(parameters('resources').computeGallery, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, parameters('workloadName'))]",
               "diskEncryptionSetName": "[replace(replace(parameters('resources').diskEncryptionSet, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, parameters('workloadName'))]",
               "firewallClientIpConfigurationName": "[replace(replace(parameters('resources').ipConfiguration, parameters('tokens').service, 'client-afw'), parameters('tokens').network, parameters('workloadName'))]",
               "firewallClientPublicIPAddressName": "[replace(replace(parameters('resources').publicIpAddress, parameters('tokens').service, 'client-afw'), parameters('tokens').network, parameters('workloadName'))]",
@@ -826,7 +833,7 @@
               "linuxDiskName": "[replace(replace(parameters('resources').disk, parameters('tokens').service, 'linux'), parameters('tokens').network, parameters('workloadName'))]",
               "linuxNetworkInterfaceIpConfigurationName": "[replace(replace(parameters('resources').ipConfiguration, parameters('tokens').service, 'linux'), parameters('tokens').network, parameters('workloadName'))]",
               "linuxNetworkInterfaceName": "[replace(replace(parameters('resources').networkInterface, parameters('tokens').service, 'linux'), parameters('tokens').network, parameters('workloadName'))]",
-              "linuxVmName": "[replace(replace(parameters('resources').virtualMachine, parameters('tokens').service, 'linux'), parameters('tokens').network, parameters('workloadName'))]",
+              "linuxVmName": "[replace(replace(parameters('resources').virtualMachine, parameters('tokens').service, format('l{0}', parameters('tokens').service)), parameters('tokens').network, parameters('workloadShortName'))]",
               "logStorageAccountName": "[take(replace(replace(replace(parameters('resources').storageAccount, parameters('tokens').service, ''), parameters('tokens').network, parameters('workloadShortName')), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('subscriptionId'))), 24)]",
               "logStorageAccountNetworkInterfaceNamePrefix": "[replace(replace(parameters('resources').networkInterface, parameters('tokens').service, format('{0}-st', parameters('tokens').service)), parameters('tokens').network, parameters('workloadName'))]",
               "logStorageAccountPrivateEndpointNamePrefix": "[replace(replace(parameters('resources').privateEndpoint, parameters('tokens').service, format('{0}-st', parameters('tokens').service)), parameters('tokens').network, parameters('workloadName'))]",
@@ -839,7 +846,7 @@
               "windowsDiskName": "[replace(replace(parameters('resources').disk, parameters('tokens').service, 'windows'), parameters('tokens').network, parameters('workloadName'))]",
               "windowsNetworkInterfaceIpConfigurationName": "[replace(replace(parameters('resources').ipConfiguration, parameters('tokens').service, 'windows'), parameters('tokens').network, parameters('workloadName'))]",
               "windowsNetworkInterfaceName": "[replace(replace(parameters('resources').networkInterface, parameters('tokens').service, 'windows'), parameters('tokens').network, parameters('workloadName'))]",
-              "windowsVmName": "[replace(replace(parameters('resources').virtualMachine, parameters('tokens').service, 'windows'), parameters('tokens').network, parameters('workloadName'))]"
+              "windowsVmName": "[replace(replace(parameters('resources').virtualMachine, parameters('tokens').service, format('w{0}', parameters('tokens').service)), parameters('tokens').network, parameters('workloadShortName'))]"
             }
           },
           "resources": [],
@@ -3626,9 +3633,17 @@
     }
   ],
   "outputs": {
+    "network": {
+      "type": "object",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value]"
+    },
     "subnetResourceId": {
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+    },
+    "tokens": {
+      "type": "object",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value]"
     }
   }
 }
