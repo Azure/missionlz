@@ -12,7 +12,7 @@ param excludeFromLatest bool = true
 param hybridUseBenefit bool = false
 param imageDefinitionName string
 param imageMajorVersion int
-param imageMinorVersion int
+param imagePatchVersion int
 param imageVirtualMachineName string
 param installAccess bool = false
 param installArcGisPro bool = false
@@ -58,7 +58,7 @@ param vDOTInstaller string = ''
 param virtualMachineSize string
 param wsusServer string = ''
 
-var autoImageVersion = '${imageMajorVersion}.${imageSuffix}.${imageMinorVersion}'
+var autoImageVersion = '${imageMajorVersion}.${imageSuffix}.${imagePatchVersion}'
 var imageSuffix = take(deploymentNameSuffix, 9)
 var resourceGroupName = resourceGroup().name
 var storageAccountName = split(storageAccountResourceId, '/')[8]
