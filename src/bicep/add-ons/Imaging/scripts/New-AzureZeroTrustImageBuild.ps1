@@ -78,7 +78,7 @@ try
 			hybridUseBenefit = if($Values.hybridUseBenefit -eq 'true'){$true}else{$false}
 			imageDefinitionName = $Values.imageDefinitionName
 			imageMajorVersion = [int]$Values.imageMajorVersion
-			imageMinorVersion = [int]$Values.imageMinorVersion
+			imagePatchVersion = [int]$Values.imagePatchVersion
 			imageVirtualMachineName = $Values.imageVirtualMachineName
 			installAccess = if($Values.installAccess -eq 'true'){$true}else{$false}
 			installArcGisPro = if($Values.installArcGisPro -eq 'true'){$true}else{$false}
