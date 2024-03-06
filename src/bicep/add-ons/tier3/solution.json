@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "6891363186486956323"
+      "templateHash": "11255676527617110592"
     }
   },
   "parameters": {
@@ -3168,11 +3168,8 @@
           "location": {
             "value": "[parameters('location')]"
           },
-          "logAnalyticsWorkspaceName": {
-            "value": "[split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]]"
-          },
-          "logAnalyticsWorkspaceResourceGroupName": {
-            "value": "[split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]]"
+          "logAnalyticsWorkspaceResourceId": {
+            "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
           },
           "networks": {
             "value": [
@@ -3190,7 +3187,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "14160952386920224103"
+              "templateHash": "256355721797700603"
             }
           },
           "parameters": {
@@ -3200,10 +3197,7 @@
             "location": {
               "type": "string"
             },
-            "logAnalyticsWorkspaceName": {
-              "type": "string"
-            },
-            "logAnalyticsWorkspaceResourceGroupName": {
+            "logAnalyticsWorkspaceResourceId": {
               "type": "string"
             },
             "networks": {
@@ -3212,9 +3206,6 @@
             "policy": {
               "type": "string"
             }
-          },
-          "variables": {
-            "operations": "[first(filter(parameters('networks'), lambda('network', equals(lambdaVariables('network').name, 'operations'))))]"
           },
           "resources": [
             {
@@ -3236,14 +3227,8 @@
                   "builtInAssignment": {
                     "value": "[parameters('policy')]"
                   },
-                  "logAnalyticsWorkspaceName": {
-                    "value": "[parameters('logAnalyticsWorkspaceName')]"
-                  },
-                  "logAnalyticsWorkspaceResourceGroupName": {
-                    "value": "[parameters('logAnalyticsWorkspaceResourceGroupName')]"
-                  },
-                  "operationsSubscriptionId": {
-                    "value": "[variables('operations').subscriptionId]"
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -3256,7 +3241,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "11415464425329332848"
+                      "templateHash": "10054670634576893900"
                     }
                   },
                   "parameters": {
@@ -3273,13 +3258,7 @@
                         "description": "[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, default is NISTRev4. IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud."
                       }
                     },
-                    "logAnalyticsWorkspaceName": {
-                      "type": "string"
-                    },
-                    "logAnalyticsWorkspaceResourceGroupName": {
-                      "type": "string"
-                    },
-                    "operationsSubscriptionId": {
+                    "logAnalyticsWorkspaceResourceId": {
                       "type": "string"
                     },
                     "deployRemediation": {
@@ -3316,8 +3295,8 @@
                       "name": "[variables('assignmentName')]",
                       "location": "[parameters('location')]",
                       "properties": {
-                        "policyDefinitionId": "[createObject('NISTRev4', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f', 'parameters', json(replace(variables('$fxv#0'), '<LAWORKSPACE>', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))))), 'NISTRev5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f', 'parameters', json(variables('$fxv#1'))), 'IL5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197', 'parameters', json(replace(variables('$fxv#2'), '<LAWORKSPACE>', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))))), 'CMMC', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de', 'parameters', json(replace(variables('$fxv#3'), '<LAWORKSPACE>', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2021-06-01').customerId))))[variables('modifiedAssignment')].id]",
-                        "parameters": "[createObject('NISTRev4', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f', 'parameters', json(replace(variables('$fxv#0'), '<LAWORKSPACE>', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))))), 'NISTRev5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f', 'parameters', json(variables('$fxv#1'))), 'IL5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197', 'parameters', json(replace(variables('$fxv#2'), '<LAWORKSPACE>', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))))), 'CMMC', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de', 'parameters', json(replace(variables('$fxv#3'), '<LAWORKSPACE>', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2021-06-01').customerId))))[variables('modifiedAssignment')].parameters]"
+                        "policyDefinitionId": "[createObject('NISTRev4', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f', 'parameters', json(replace(variables('$fxv#0'), '<LAWORKSPACE>', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])))), 'NISTRev5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f', 'parameters', json(variables('$fxv#1'))), 'IL5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197', 'parameters', json(replace(variables('$fxv#2'), '<LAWORKSPACE>', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])))), 'CMMC', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de', 'parameters', json(replace(variables('$fxv#3'), '<LAWORKSPACE>', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]), '2021-06-01').customerId))))[variables('modifiedAssignment')].id]",
+                        "parameters": "[createObject('NISTRev4', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f', 'parameters', json(replace(variables('$fxv#0'), '<LAWORKSPACE>', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])))), 'NISTRev5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f', 'parameters', json(variables('$fxv#1'))), 'IL5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197', 'parameters', json(replace(variables('$fxv#2'), '<LAWORKSPACE>', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])))), 'CMMC', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de', 'parameters', json(replace(variables('$fxv#3'), '<LAWORKSPACE>', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]), '2021-06-01').customerId))))[variables('modifiedAssignment')].parameters]"
                       },
                       "identity": {
                         "type": "SystemAssigned"
@@ -3332,7 +3311,7 @@
                         "policyDefinitionId": "[tenantResourceId('Microsoft.Authorization/policySetDefinitions', '75714362-cae7-409e-9b99-a8e5075b7fad')]",
                         "parameters": {
                           "logAnalytics_1": {
-                            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])]"
                           }
                         }
                       },
@@ -3349,7 +3328,7 @@
                         "policyDefinitionId": "[tenantResourceId('Microsoft.Authorization/policySetDefinitions', '55f3eceb-5573-4f18-9695-226972c6d74a')]",
                         "parameters": {
                           "logAnalytics_1": {
-                            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])]"
                           }
                         }
                       },
@@ -3413,8 +3392,8 @@
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "[format('Assign-Laws-Role-Policy-{0}', resourceGroup().name)]",
-                      "subscriptionId": "[parameters('operationsSubscriptionId')]",
-                      "resourceGroup": "[parameters('logAnalyticsWorkspaceResourceGroupName')]",
+                      "subscriptionId": "[split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2]]",
+                      "resourceGroup": "[split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -3422,7 +3401,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "targetResourceId": {
-                            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('operationsSubscriptionId'), parameters('logAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])]"
                           },
                           "roleDefinitionId": {
                             "value": "[variables('lawsReaderRoleDefinitionId')]"

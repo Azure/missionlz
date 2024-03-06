@@ -670,8 +670,7 @@ module policyAssignments 'modules/policy-assignments.bicep' = if (deployPolicy) 
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     location: location
-    logAnalyticsWorkspaceName: split(monitoring.outputs.logAnalyticsWorkspaceResourceId, '/')[8]
-    logAnalyticsWorkspaceResourceGroupName: split(monitoring.outputs.logAnalyticsWorkspaceResourceId, '/')[4]
+    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     networks: logic.outputs.networks
     policy: policy
   }
