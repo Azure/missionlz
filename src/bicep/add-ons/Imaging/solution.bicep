@@ -36,9 +36,6 @@ param deployNetworkWatcher bool = false
 @description('Deploy Policy enabled.')
 param deployPolicy bool = false
 
-@description('The resource ID of the disk encryption set to use for the management virtual machine.')
-param diskEncryptionSetResourceId string = ''
-
 @description('The distribution group for email notifications.')
 param distributionGroup string = ''
 
@@ -310,7 +307,7 @@ module baseline 'modules/baseline.bicep' = {
   params: {
     computeGalleryName: tier3.outputs.network.computeGalleryName
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetResourceId: diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: tier3.outputs.diskEncryptionSetResourceId
     enableBuildAutomation: enableBuildAutomation
     exemptPolicyAssignmentIds: exemptPolicyAssignmentIds
     location: location
@@ -334,7 +331,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     containerName: containerName
     customizations: customizations
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetResourceId: diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: tier3.outputs.diskEncryptionSetResourceId
     distributionGroup: distributionGroup
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -406,7 +403,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     containerName: containerName
     customizations: customizations
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetResourceId: diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: tier3.outputs.diskEncryptionSetResourceId
     enableBuildAutomation: enableBuildAutomation
     excludeFromLatest: excludeFromLatest
     hybridUseBenefit: hybridUseBenefit
