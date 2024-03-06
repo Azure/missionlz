@@ -207,31 +207,7 @@ param identityVirtualNetworkDiagnosticsLogs array = []
 param identityVirtualNetworkDiagnosticsMetrics array = []
 
 @description('An array of Network Security Group Rules to apply to the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
-param identityNetworkSecurityGroupRules array = [
-  {
-    name: 'Allow-Traffic-From-Spokes'
-    properties: {
-      access: 'Allow'
-      description: 'Allow traffic from spokes'
-      destinationAddressPrefix: identityVirtualNetworkAddressPrefix
-      destinationPortRanges: [
-        '22'
-        '80'
-        '443'
-        '3389'
-      ]
-      direction: 'Inbound'
-      priority: 200
-      protocol: '*'
-      sourceAddressPrefixes: [
-        operationsVirtualNetworkAddressPrefix
-        sharedServicesVirtualNetworkAddressPrefix
-      ]
-      sourcePortRange: '*'
-    }
-    type: 'string'
-  }
-]
+param identityNetworkSecurityGroupRules array = []
 
 @description('An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
 param identityNetworkSecurityGroupDiagnosticsLogs array = [
@@ -257,31 +233,7 @@ param operationsVirtualNetworkDiagnosticsLogs array = []
 param operationsVirtualNetworkDiagnosticsMetrics array = []
 
 @description('An array of Network Security Group rules to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
-param operationsNetworkSecurityGroupRules array = [
-  {
-    name: 'Allow-Traffic-From-Spokes'
-    properties: {
-      access: 'Allow'
-      description: 'Allow traffic from spokes'
-      destinationAddressPrefix: operationsVirtualNetworkAddressPrefix
-      destinationPortRanges: [
-        '22'
-        '80'
-        '443'
-        '3389'
-      ]
-      direction: 'Inbound'
-      priority: 200
-      protocol: '*'
-      sourceAddressPrefixes: [
-        identityVirtualNetworkAddressPrefix
-        sharedServicesVirtualNetworkAddressPrefix
-      ]
-      sourcePortRange: '*'
-    }
-    type: 'string'
-  }
-]
+param operationsNetworkSecurityGroupRules array = []
 
 @description('An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
 param operationsNetworkSecurityGroupDiagnosticsLogs array = [
@@ -307,31 +259,7 @@ param sharedServicesVirtualNetworkDiagnosticsLogs array = []
 param sharedServicesVirtualNetworkDiagnosticsMetrics array = []
 
 @description('An array of Network Security Group rules to apply to the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings.')
-param sharedServicesNetworkSecurityGroupRules array = [
-  {
-    name: 'Allow-Traffic-From-Spokes'
-    properties: {
-      access: 'Allow'
-      description: 'Allow traffic from spokes'
-      destinationAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
-      destinationPortRanges: [
-        '22'
-        '80'
-        '443'
-        '3389'
-      ]
-      direction: 'Inbound'
-      priority: 200
-      protocol: '*'
-      sourceAddressPrefixes: [
-        operationsVirtualNetworkAddressPrefix
-        identityVirtualNetworkAddressPrefix
-      ]
-      sourcePortRange: '*'
-    }
-    type: 'string'
-  }
-]
+param sharedServicesNetworkSecurityGroupRules array = []
 
 @description('An array of Network Security Group diagnostic logs to apply to the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
 param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = [

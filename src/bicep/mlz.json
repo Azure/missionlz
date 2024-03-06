@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "2003031065712712888"
+      "templateHash": "14618049714067369133"
     }
   },
   "parameters": {
@@ -360,31 +360,7 @@
     },
     "identityNetworkSecurityGroupRules": {
       "type": "array",
-      "defaultValue": [
-        {
-          "name": "Allow-Traffic-From-Spokes",
-          "properties": {
-            "access": "Allow",
-            "description": "Allow traffic from spokes",
-            "destinationAddressPrefix": "[parameters('identityVirtualNetworkAddressPrefix')]",
-            "destinationPortRanges": [
-              "22",
-              "80",
-              "443",
-              "3389"
-            ],
-            "direction": "Inbound",
-            "priority": 200,
-            "protocol": "*",
-            "sourceAddressPrefixes": [
-              "[parameters('operationsVirtualNetworkAddressPrefix')]",
-              "[parameters('sharedServicesVirtualNetworkAddressPrefix')]"
-            ],
-            "sourcePortRange": "*"
-          },
-          "type": "string"
-        }
-      ],
+      "defaultValue": [],
       "metadata": {
         "description": "An array of Network Security Group Rules to apply to the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings."
       }
@@ -428,31 +404,7 @@
     },
     "operationsNetworkSecurityGroupRules": {
       "type": "array",
-      "defaultValue": [
-        {
-          "name": "Allow-Traffic-From-Spokes",
-          "properties": {
-            "access": "Allow",
-            "description": "Allow traffic from spokes",
-            "destinationAddressPrefix": "[parameters('operationsVirtualNetworkAddressPrefix')]",
-            "destinationPortRanges": [
-              "22",
-              "80",
-              "443",
-              "3389"
-            ],
-            "direction": "Inbound",
-            "priority": 200,
-            "protocol": "*",
-            "sourceAddressPrefixes": [
-              "[parameters('identityVirtualNetworkAddressPrefix')]",
-              "[parameters('sharedServicesVirtualNetworkAddressPrefix')]"
-            ],
-            "sourcePortRange": "*"
-          },
-          "type": "string"
-        }
-      ],
+      "defaultValue": [],
       "metadata": {
         "description": "An array of Network Security Group rules to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings."
       }
@@ -496,31 +448,7 @@
     },
     "sharedServicesNetworkSecurityGroupRules": {
       "type": "array",
-      "defaultValue": [
-        {
-          "name": "Allow-Traffic-From-Spokes",
-          "properties": {
-            "access": "Allow",
-            "description": "Allow traffic from spokes",
-            "destinationAddressPrefix": "[parameters('sharedServicesVirtualNetworkAddressPrefix')]",
-            "destinationPortRanges": [
-              "22",
-              "80",
-              "443",
-              "3389"
-            ],
-            "direction": "Inbound",
-            "priority": 200,
-            "protocol": "*",
-            "sourceAddressPrefixes": [
-              "[parameters('operationsVirtualNetworkAddressPrefix')]",
-              "[parameters('identityVirtualNetworkAddressPrefix')]"
-            ],
-            "sourcePortRange": "*"
-          },
-          "type": "string"
-        }
-      ],
+      "defaultValue": [],
       "metadata": {
         "description": "An array of Network Security Group rules to apply to the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings."
       }
