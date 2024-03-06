@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "405830242288504678"
+      "templateHash": "9118370621533121780"
     }
   },
   "parameters": {
@@ -786,7 +786,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "5635087304711478978"
+              "templateHash": "8020871820544198304"
             }
           },
           "parameters": {
@@ -814,7 +814,7 @@
           },
           "variables": {
             "network": {
-              "workloadName": "[parameters('workloadName')]",
+              "name": "[parameters('workloadName')]",
               "subscriptionId": "[parameters('subscriptionId')]",
               "resourceGroupName": "[replace(replace(parameters('resources').resourceGroup, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, parameters('workloadName'))]",
               "deployUniqueResources": true,

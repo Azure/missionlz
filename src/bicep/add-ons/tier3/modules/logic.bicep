@@ -9,7 +9,7 @@ param workloadName string
 param workloadShortName string
 
 var network = {
-  workloadName: workloadName
+  name: workloadName
   subscriptionId: subscriptionId
   resourceGroupName: replace(replace(resources.resourceGroup, '-${tokens.service}', ''), tokens.network, workloadName)
   deployUniqueResources: true
