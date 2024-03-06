@@ -43,6 +43,9 @@ param supportedClouds array = [
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
 param deployIdentity bool
 
+@description('Choose whether to deploy network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription.')
+param deployNetworkWatcher bool = false
+
 // RESOURCE NAMING PARAMETERS
 
 @description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
@@ -504,8 +507,9 @@ module networking 'modules/networking.bicep' = {
   params: {
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
     deployIdentity: deployIdentity
-    deployRemoteAccess: deployRemoteAccess
     deploymentNameSuffix: deploymentNameSuffix
+    deployNetworkWatcher: deployNetworkWatcher
+    deployRemoteAccess: deployRemoteAccess
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallSettings: {

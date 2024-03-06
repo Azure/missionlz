@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "14618049714067369133"
+      "templateHash": "12544604858846087978"
     }
   },
   "parameters": {
@@ -78,6 +78,13 @@
       "type": "bool",
       "metadata": {
         "description": "Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities."
+      }
+    },
+    "deployNetworkWatcher": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Choose whether to deploy network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription."
       }
     },
     "deploymentNameSuffix": {
@@ -1776,11 +1783,14 @@
           "deployIdentity": {
             "value": "[parameters('deployIdentity')]"
           },
-          "deployRemoteAccess": {
-            "value": "[parameters('deployRemoteAccess')]"
-          },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
+          },
+          "deployNetworkWatcher": {
+            "value": "[parameters('deployNetworkWatcher')]"
+          },
+          "deployRemoteAccess": {
+            "value": "[parameters('deployRemoteAccess')]"
           },
           "dnsServers": {
             "value": "[parameters('dnsServers')]"
@@ -1829,7 +1839,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "767672278521341800"
+              "templateHash": "9373053868854046482"
             }
           },
           "parameters": {
@@ -1839,11 +1849,14 @@
             "deployIdentity": {
               "type": "bool"
             },
-            "deployRemoteAccess": {
-              "type": "bool"
-            },
             "deploymentNameSuffix": {
               "type": "string"
+            },
+            "deployNetworkWatcher": {
+              "type": "bool"
+            },
+            "deployRemoteAccess": {
+              "type": "bool"
             },
             "dnsServers": {
               "type": "array"
@@ -1893,6 +1906,9 @@
                 "parameters": {
                   "bastionHostSubnetAddressPrefix": {
                     "value": "[parameters('bastionHostSubnetAddressPrefix')]"
+                  },
+                  "deployNetworkWatcher": {
+                    "value": "[parameters('deployNetworkWatcher')]"
                   },
                   "deployRemoteAccess": {
                     "value": "[parameters('deployRemoteAccess')]"
@@ -2009,12 +2025,15 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "690456171433154708"
+                      "templateHash": "15548392781677191666"
                     }
                   },
                   "parameters": {
                     "bastionHostSubnetAddressPrefix": {
                       "type": "string"
+                    },
+                    "deployNetworkWatcher": {
+                      "type": "bool"
                     },
                     "deployRemoteAccess": {
                       "type": "bool"
@@ -2320,6 +2339,7 @@
                       }
                     },
                     {
+                      "condition": "[parameters('deployNetworkWatcher')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "networkWatcher",

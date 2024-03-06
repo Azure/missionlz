@@ -2,8 +2,9 @@ targetScope = 'subscription'
 
 param bastionHostSubnetAddressPrefix string
 param deployIdentity bool
-param deployRemoteAccess bool
 param deploymentNameSuffix string
+param deployNetworkWatcher bool
+param deployRemoteAccess bool
 param dnsServers array
 param enableProxy bool
 param firewallSettings object
@@ -23,6 +24,7 @@ module hubNetwork 'hub-network.bicep' = {
   scope: resourceGroup(hub.subscriptionId, hub.resourceGroupName)
   params: {
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
+    deployNetworkWatcher: deployNetworkWatcher
     deployRemoteAccess: deployRemoteAccess
     dnsServers: dnsServers
     enableProxy: enableProxy
