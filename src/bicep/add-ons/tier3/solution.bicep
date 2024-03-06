@@ -172,6 +172,9 @@ module networking 'modules/networking.bicep' = {
     workloadName: workloadName
     workloadShortName: workloadShortName
   }
+  dependsOn: [
+    rg
+  ]
 }
 
 module customerManagedKeys '../../modules/customer-managed-keys.bicep' = {
