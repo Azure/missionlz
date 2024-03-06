@@ -1592,7 +1592,7 @@
         "subnetAddressPrefix": "[steps('networking').networking.subnetAddressCidrRange]",
         "tags": "[steps('tags').tags]",
         "teamsInstaller": "[if(equals(steps('customizations').office.installTeams, true), steps('customizations').office.teamsBlob.blobName,'')]",
-        "updateService": "[if(equals(steps('customizations').updates.installUpdates, true), steps('customizations').updates.updateService, '')]",
+        "updateService": "[if(equals(steps('customizations').updates.installUpdates, true), steps('customizations').updates.updateService, 'MU')]",
         "vcRedistInstaller": "[if(equals(steps('customizations').office.installTeams, true), steps('customizations').office.vcRedistInstaller.blobName,'')]",
         "vDOTInstaller": "[if(equals(steps('customizations').specialitySoftware.installVirtualDesktopOptimizationTool, true), steps('customizations').specialitySoftware.vDotBlob.blobName,'')]",
         "virtualMachineSize": "[steps('virtualMachines').vmSize]",
