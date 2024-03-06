@@ -243,35 +243,39 @@ param windowsDomainAdministratorUserName string = ''
 param windowsDomainName string = ''
 @description('The GUID of the workload subscription.')
 param workloadSubscriptionId string = ''
-
+@description('The certificate password.')
 @secure()
 param certificatePassword string
+@description('The certificate file name.')
 param certificateFileName string
+@description('The storage account where deployment artifacts are stored.')
 param artifactsStorageAccountName string
+@description('The name of the container where deployment artifacts are stored.')
 param artifactsContainerName string
+@description('The resource group where the artifacts storage account is located.')
 param artifactsStorageAccountResourceGroupName string
+@description('The subscription id of the artifacts storage account.')
 param artifactsStorageAccountSubscriptionId string
 
 // Resource Naming
 var resourceSuffix = resourcePrefix
-// var externalDnsHostnamePrefix = resourcePrefix
 var applicationGatewayName = 'ag-esri-${resourceSuffix}'
 var availabilitySetName = 'avset-esri-${resourceSuffix}'
 var container = 'artifacts'
 var keyVaultCertificatesOfficer = resourceId('Microsoft.Authorization/roleDefinitions', 'a4417e6f-fecd-4de8-b567-7b0420556985')
+var keyVaultCryptoOfficer = resourceId('Microsoft.Authorization/roleDefinitions', '14b46e9e-c2b7-41b4-b07b-48a6ebf60603')
 var keyVaultName = 'kv-esri-${resourceSuffix}'
 var keyVaultSecretsOfficer = resourceId('Microsoft.Authorization/roleDefinitions', 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7')
-var keyVaultCryptoOfficer = resourceId('Microsoft.Authorization/roleDefinitions', '14b46e9e-c2b7-41b4-b07b-48a6ebf60603')
 var networkInterfaceName = 'nic-esri-${resourceSuffix}'
 var portalContext = 'portal'
-var portalLicenseFileName = 'portalLicense.json' //FIX THIS
+var portalLicenseFileName = 'portalLicense.json'
 var privatelink_blob_name = 'privatelink.blob.${environment().suffixes.storage}'
-var privatelink_keyvaultDns_name = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
 var privatelink_file_name = 'privatelink.file.${environment().suffixes.storage}'
+var privatelink_keyvaultDns_name = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
 var publicIpAddressName = 'pip-esri-${resourceSuffix}'
 var resourceGroupName = 'rg-esri-enterprise-${resourceSuffix}'
 var serverContext = 'server'
-var serverLicenseFileName = 'serverLicense.prvc' //FIX THIS
+var serverLicenseFileName = 'serverLicense.prvc'
 var subscriptionId = subscription().subscriptionId
 var userAssignedManagedIdentityName = 'uami-esri-${resourceSuffix}'
 var virtualMachineName = 'vm-esri-${resourceSuffix}'
@@ -305,7 +309,7 @@ var dscsSatiotemporalBigDataStoreFunction = 'SpatiotemporalBigDataStoreConfigura
 var dscTileCacheDataStoreDscFunction = 'TileCacheDataStoreConfiguration'
 var fileShareDscScriptFunction = 'FileShareConfiguration'
 
-// dynamic cluster
+// dynamic cluster options
 var isObjectDataStoreClustered = numberOfObjectDataStoreVirtualMachines >= 3 ? true : false
 var isTileCacheDataStoreClustered = numberOfTileCacheDataStoreVirtualMachineNames >= 1 ? true : false
 var isMultiMachineTileCacheDataStore = numberOfTileCacheDataStoreVirtualMachineNames >= 1 ? true : false
@@ -988,6 +992,7 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' = if (ar
     graphDataStoreVirtualMachineNames: graphDataStoreVirtualMachineNames
     graphDataStoreVirtualMachineOSDiskSize: graphDataStoreVirtualMachineOSDiskSize
     graphDataStoreVirtualMachines: graphDataStoreVirtualMachines
+    hubVirtualNetworkId: hubVirtualNetwork.id
     iDns: architecture == 'multitier' ? multiTierFileServerVirtualMachines[0].outputs.networkInterfaceInternalDomainNameSuffix : ''
     isMultiMachineTileCacheDataStore: isMultiMachineTileCacheDataStore
     isObjectDataStoreClustered: isObjectDataStoreClustered
@@ -1034,7 +1039,6 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' = if (ar
     virtualNetworkId: tier3.outputs.virtualNetworkResourceId
     virtualNetworkName: tier3.outputs.virtualNetworkName
     windowsDomainName: joinWindowsDomain ? windowsDomainName : 'none'
-    hubVirtualNetworkId: hubVirtualNetwork.id
   }
   dependsOn: [
     managementVm
@@ -1059,9 +1063,12 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
   params: {
     adminPassword: adminPassword
     adminUsername: adminUsername
+    applicationGatewayName: applicationGatewayName
+    applicationGatewayPrivateIpAddress: applicationGatewayPrivateIpAddress
     arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
     arcgisServiceAccountUserName: arcgisServiceAccountUserName
+    architecture: architecture
     cloudStorageAccountCredentialsUserName: storage.outputs.cloudStorageAccountCredentialsUserName
     dataStoreTypesForBaseDeploymentServers: (architecture == 'singletier') ? singleTierDataStoreTypes.outputs.dataStoreTypesForBaseDeploymentServers : 'none'
     debugMode: debugMode
@@ -1070,16 +1077,27 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     dscScript: '${dscSingleTierConfiguration}.ps1'
     enableServerLogHarvesterPlugin: enableServerLogHarvesterPlugin
     enableVirtualMachineDataDisk: enableVirtualMachineDataDisk
+    externalDnsHostname: externalDnsHostname
     hostname: externalDnsHostname
+    hubVirtualNetworkId: hubVirtualNetwork.id
+    iDns: architecture == 'singletier' ? singleTierVirtualMachine.outputs.networkInterfaceInternalDomainNameSuffix : 'none'
     isTileCacheDataStoreClustered: isTileCacheDataStoreClustered
     isUpdatingCertificates: isUpdatingCertificates
+    joinWindowsDomain: joinWindowsDomain
+    keyVaultUri: keyVault.outputs.keyVaultUri
     location: location
+    portalBackendSslCert: certificates.outputs.portalBackendSSLCert
     portalContext: portalContext
     portalLicenseFileName: portalLicenseFileName
     portalLicenseUserTypeId: portalLicenseUserTypeId
     primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
     primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
+    publicIpId: publicIpAddress.outputs.pipId
     publicKeySSLCertificateFileName: 'wildcard${externalDnsHostname}-PublicKey.cer'
+    resourceGroupName: rg.name
+    resourceSuffix: resourceSuffix
+    selfSignedSSLCertificatePassword: selfSignedCertificatePassword
+    serverBackendSSLCert: certificates.outputs.serverBackendSSLCert
     serverContext: serverContext
     serverLicenseFileName: serverLicenseFileName
     storageAccountName: storage.outputs.storageAccountName
@@ -1087,26 +1105,12 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     tags: tags
     useAzureFiles: useAzureFiles
     useCloudStorage: useCloudStorage
+    userAssignedIdenityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineName: virtualMachineName
     virtualMachineOSDiskSize: virtualMachineOSDiskSize
-    selfSignedSSLCertificatePassword: selfSignedCertificatePassword
-    applicationGatewayName: applicationGatewayName
-    externalDnsHostname: externalDnsHostname
-    iDns: architecture == 'singletier' ? singleTierVirtualMachine.outputs.networkInterfaceInternalDomainNameSuffix : 'none'
-    joinWindowsDomain: joinWindowsDomain
-    keyVaultUri: keyVault.outputs.keyVaultUri
-    portalBackendSslCert: certificates.outputs.portalBackendSSLCert
-    publicIpId: publicIpAddress.outputs.pipId
-    resourceGroupName: rg.name
-    resourceSuffix: resourceSuffix
-    serverBackendSSLCert: certificates.outputs.serverBackendSSLCert
-    userAssignedIdenityResourceId: userAssignedIdentity.outputs.resourceId
+    virtualNetworkId: tier3.outputs.virtualNetworkResourceId
     virtualNetworkName: tier3.outputs.virtualNetworkName
     windowsDomainName: windowsDomainName
-    architecture: architecture
-    virtualNetworkId: tier3.outputs.virtualNetworkResourceId
-    hubVirtualNetworkId: hubVirtualNetwork.id
-    applicationGatewayPrivateIpAddress: applicationGatewayPrivateIpAddress
   }
   dependsOn: [
     certificates

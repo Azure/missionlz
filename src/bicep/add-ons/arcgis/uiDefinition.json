@@ -853,70 +853,77 @@
                                       "required": true
                                     },
                                     "visible": true
-                                },
-                                {
-                                    "name": "storageSelector",
-                                    "type": "Microsoft.Solutions.ResourceSelector",
-                                    "label": "Storage where your ESRI pre-req files uploaded",
-                                    "resourceType": "Microsoft.Storage/storageAccounts",
-                                    "required": true,
-                                    "options": {
-                                        "filter": {
-                                        }
-                                    }
-                                },
-                                {
-                                    "name": "containerApi",
-                                    "type": "Microsoft.Solutions.ArmApiControl",
-                                    "request": {
-                                        "method": "GET",
-                                        "path": "[concat(steps('licenses').files.storageSelector.id, '/blobServices/default/containers?api-version=2023-01-01')]"
-                                    }
-                                },
-                                {
-                                    "name": "container",
-                                    "type": "Microsoft.Common.DropDown",
-                                    "visible": true,
-                                    "label": "Container",
-                                    "defaultValue": "",
-                                    "toolTip": "Select an existing container where your ESRI pre-req files are uploaded.",
-                                    "constraints": {
-                                        "required": true,
-                                        "allowedValues": "[map(steps('licenses').files.containerApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
-                                    }
-                                },
-                                {
-                                    "name": "certificateFileName",
-                                    "type": "Microsoft.Common.TextBox",
-                                    "label": "Name",
-                                    "defaultValue": "",
-                                    "toolTip": "",
-                                    "placeholder": "wildcard_contoso_com.pfx",
-                                    "multiLine": false,
-                                    "constraints": {
-                                      "required": true,
-                                      "validations": [
-                                      ]
-                                    },
-                                    "visible": true,
-                                    "required": true
-                                  },
-                                {
-                                    "name": "certificatepassword",
-                                    "type": "Microsoft.Common.PasswordBox",
-                                    "visible": true,
-                                    "label": "certificate password",
-                                    "toolTip": "Enter the password associated with the certificate.",
-                                    "constraints": {
-                                        "required": true
-                                    },
-                                    "options": {
-                                        "hideConfirmation": true
-                                    }
                                 }
                             ]
                         }
                     ]
+                },
+                {
+                "name": "certificates",
+                "label": "Certificates",
+                "elements": [
+                    {
+                        "name": "storageSelector",
+                        "type": "Microsoft.Solutions.ResourceSelector",
+                        "label": "Storage where your ESRI pre-req files uploaded",
+                        "resourceType": "Microsoft.Storage/storageAccounts",
+                        "required": true,
+                        "options": {
+                            "filter": {
+                            }
+                        }
+                    },
+                    {
+                        "name": "containerApi",
+                        "type": "Microsoft.Solutions.ArmApiControl",
+                        "request": {
+                            "method": "GET",
+                            "path": "[concat(steps('licenses').files.storageSelector.id, '/blobServices/default/containers?api-version=2023-01-01')]"
+                        }
+                    },
+                    {
+                        "name": "container",
+                        "type": "Microsoft.Common.DropDown",
+                        "visible": true,
+                        "label": "Container",
+                        "defaultValue": "",
+                        "toolTip": "Select an existing container where your ESRI pre-req files are uploaded.",
+                        "constraints": {
+                            "required": true,
+                            "allowedValues": "[map(steps('licenses').files.containerApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
+                        }
+                    },
+                    {
+                        "name": "certificateFileName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Name",
+                        "defaultValue": "",
+                        "toolTip": "",
+                        "placeholder": "wildcard_contoso_com.pfx",
+                        "multiLine": false,
+                        "constraints": {
+                          "required": true,
+                          "validations": [
+                          ]
+                        },
+                        "visible": true,
+                        "required": true
+                      },
+                    {
+                        "name": "certificatepassword",
+                        "type": "Microsoft.Common.PasswordBox",
+                        "visible": true,
+                        "label": "certificate password",
+                        "toolTip": "Enter the password associated with the certificate.",
+                        "constraints": {
+                            "required": true
+                        },
+                        "options": {
+                            "hideConfirmation": true
+                        }
+                    }
+                ]
+
                 },
                 {
                     "name": "tags",
@@ -954,8 +961,8 @@
                 "arcgisServiceAccountUserName": "[steps('portal').arcgisServiceAccount.username]",
                 "architecture": "[if(equals(steps('server').esri.architecture, true), 'multitier', 'singletier')]",
                 "azureFirewallName": "[first(skip(split(steps('basics').hub.azureFirewall, '/'), 8))]",
-                "certificateFileName": "[steps('licenses').files.certificateFileName]",
-                "certificatePassword": "[steps('licenses').files.certificatepassword]",
+                "certificateFileName": "[steps('certificates').certificateFileName]",
+                "certificatePassword": "[steps('certificates').certificatepassword]",
                 "debugMode": "[steps('portal').configuration.debugMode]",
                 "defaultSubnetAddressPrefix": "[steps('spoke').spokeVirtualNetwork.esriSubnetAddressCidrRange]",
                 "deployDefender": false,
@@ -972,10 +979,10 @@
                 "hubResourceGroupName": "[first(skip(split(steps('basics').hub.azureFirewall, '/'), 4))]",
                 "hubSubscriptionId": "[replace(steps('basics').subscriptions.hub, '/subscriptions/', '')]",
                 "hubVirtualNetworkName": "[first(skip(split(steps('basics').hub.virtualNetwork, '/'), 8))]",
-                "artifactsStorageAccountName": "[steps('licenses').files.storageSelector.name]",
-                "artifactsContainerName": "[first(skip(split(steps('licenses').files.container, '/'), 12))]",
-                "artifactsStorageAccountResourceGroupName": "[first(skip(split(steps('licenses').files.storageSelector.id, '/'), 4))]",
-                "artifactsStorageAccountSubscriptionId" : "[first(skip(split(steps('licenses').files.storageSelector.id, '/'), 2))]",
+                "artifactsStorageAccountName": "[steps('certificates').storageSelector.name]",
+                "artifactsContainerName": "[first(skip(split(steps('certificates').container, '/'), 12))]",
+                "artifactsStorageAccountResourceGroupName": "[first(skip(split(steps('certificates').storageSelector.id, '/'), 4))]",
+                "artifactsStorageAccountSubscriptionId" : "[first(skip(split(steps('certificates').storageSelector.id, '/'), 2))]",
                 "isTileCacheDataStoreClustered": false,
                 "isUpdatingCertificates": false,
                 "joinWindowsDomain": "[steps('server').domain.joinWindowsDomain]",
@@ -998,7 +1005,7 @@
                 "resourceSuffix": "[steps('basics').naming.resourceSuffix]",
                 "serverLicenseFile": "[steps('licenses').files.server]",
                 "spokelogAnalyticsWorkspaceResourceId": "[steps('spoke').spokeVirtualNetwork.logAnalyticsWorkspace.id]",
-                "selfSignedCertificatePassword": "[steps('licenses').files.certificatepassword]",
+                "selfSignedCertificatePassword": "[steps('certificates').certificatepassword]",
                 "tags": "[steps('tags').tags]",
                 "useCloudStorage": "[if(equals(steps('server').esri.architecture, true), steps('server').configuration.useAzureStorage, false)]",
                 "useAzureFiles": "[if(equals(steps('server').esri.architecture, true), steps('server').configuration.useAzureStorage, false)]",
