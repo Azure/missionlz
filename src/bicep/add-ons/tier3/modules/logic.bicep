@@ -13,6 +13,7 @@ var network = {
   subscriptionId: subscriptionId
   resourceGroupName: replace(replace(resources.resourceGroup, '-${tokens.service}', ''), tokens.network, workloadName)
   deployUniqueResources: true
+  actionGroupName: replace(replace(resources.actionGroup, tokens.service, ''), tokens.network, workloadName)
   automationAccountName: replace(replace(resources.automationAccount, tokens.service, ''), tokens.network, workloadName)
   bastionHostIPConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'bas'), tokens.network, workloadName)
   bastionHostName: replace(replace(resources.bastionHost, '-${tokens.service}', ''), tokens.network, workloadName)

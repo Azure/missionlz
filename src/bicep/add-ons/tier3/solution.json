@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "7175103381059461246"
+      "templateHash": "405830242288504678"
     }
   },
   "parameters": {
@@ -234,7 +234,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "14774353717530262987"
+              "templateHash": "1875159740310035831"
             }
           },
           "parameters": {
@@ -634,6 +634,7 @@
               }
             },
             "$fxv#1": {
+              "actionGroups": "ag",
               "automationAccounts": "aa",
               "availabilitySets": "avail",
               "azureFirewalls": "afw",
@@ -677,6 +678,7 @@
             "serviceToken": "service_token",
             "networkToken": "network_token",
             "namingConvention": "[format('{0}-{1}-{2}-{3}-{4}-{5}', toLower(parameters('resourcePrefix')), variables('resourceToken'), variables('serviceToken'), variables('networkToken'), parameters('environmentAbbreviation'), variables('locationAbbreviation'))]",
+            "actionGroupNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').actionGroups)]",
             "automationAccountNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').automationAccounts)]",
             "bastionHostNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').bastionHosts)]",
             "computeGalleryNamingConvention": "[replace(replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').computeGallieries), '-', '_')]",
@@ -706,6 +708,7 @@
             "resources": {
               "type": "object",
               "value": {
+                "actionGroup": "[variables('actionGroupNamingConvention')]",
                 "automationAccount": "[variables('automationAccountNamingConvention')]",
                 "bastionHost": "[variables('bastionHostNamingConvention')]",
                 "computeGallery": "[variables('computeGalleryNamingConvention')]",
@@ -783,7 +786,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "10839688955941884677"
+              "templateHash": "5635087304711478978"
             }
           },
           "parameters": {
@@ -815,6 +818,7 @@
               "subscriptionId": "[parameters('subscriptionId')]",
               "resourceGroupName": "[replace(replace(parameters('resources').resourceGroup, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, parameters('workloadName'))]",
               "deployUniqueResources": true,
+              "actionGroupName": "[replace(replace(parameters('resources').actionGroup, parameters('tokens').service, ''), parameters('tokens').network, parameters('workloadName'))]",
               "automationAccountName": "[replace(replace(parameters('resources').automationAccount, parameters('tokens').service, ''), parameters('tokens').network, parameters('workloadName'))]",
               "bastionHostIPConfigurationName": "[replace(replace(parameters('resources').ipConfiguration, parameters('tokens').service, 'bas'), parameters('tokens').network, parameters('workloadName'))]",
               "bastionHostName": "[replace(replace(parameters('resources').bastionHost, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, parameters('workloadName'))]",

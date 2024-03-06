@@ -1,8 +1,5 @@
 targetScope = 'subscription'
 
-@description('The name for the action group resource.')
-param actionGroupName string = ''
-
 @description('The file name of the ArcGIS Pro installer in Azure Blobs.')
 param arcGisProInstaller string = ''
 
@@ -322,7 +319,7 @@ module baseline 'modules/baseline.bicep' = {
 module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomation) {
   name: 'build-automation-${deploymentNameSuffix}'
   params: {
-    actionGroupName: actionGroupName
+    actionGroupName: tier3.outputs.network.actionGroupName
     arcGisProInstaller: arcGisProInstaller
     automationAccountName: tier3.outputs.network.automationAccountName
     automationAccountPrivateDnsZoneResourceId: automationAccountPrivateDnsZoneResourceId

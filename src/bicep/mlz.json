@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "12544604858846087978"
+      "templateHash": "8404358611916087286"
     }
   },
   "parameters": {
@@ -806,7 +806,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "14774353717530262987"
+              "templateHash": "1875159740310035831"
             }
           },
           "parameters": {
@@ -1206,6 +1206,7 @@
               }
             },
             "$fxv#1": {
+              "actionGroups": "ag",
               "automationAccounts": "aa",
               "availabilitySets": "avail",
               "azureFirewalls": "afw",
@@ -1249,6 +1250,7 @@
             "serviceToken": "service_token",
             "networkToken": "network_token",
             "namingConvention": "[format('{0}-{1}-{2}-{3}-{4}-{5}', toLower(parameters('resourcePrefix')), variables('resourceToken'), variables('serviceToken'), variables('networkToken'), parameters('environmentAbbreviation'), variables('locationAbbreviation'))]",
+            "actionGroupNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').actionGroups)]",
             "automationAccountNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').automationAccounts)]",
             "bastionHostNamingConvention": "[replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').bastionHosts)]",
             "computeGalleryNamingConvention": "[replace(replace(variables('namingConvention'), variables('resourceToken'), variables('resourceAbbreviations').computeGallieries), '-', '_')]",
@@ -1278,6 +1280,7 @@
             "resources": {
               "type": "object",
               "value": {
+                "actionGroup": "[variables('actionGroupNamingConvention')]",
                 "automationAccount": "[variables('automationAccountNamingConvention')]",
                 "bastionHost": "[variables('bastionHostNamingConvention')]",
                 "computeGallery": "[variables('computeGalleryNamingConvention')]",

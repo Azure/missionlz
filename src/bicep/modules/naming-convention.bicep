@@ -39,6 +39,7 @@ var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${serviceTok
 
 // RESOURCE NAME CONVENTIONS WITH ABBREVIATIONS
 
+var actionGroupNamingConvention = replace(namingConvention, resourceToken, resourceAbbreviations.actionGroups)
 var automationAccountNamingConvention = replace(namingConvention, resourceToken, resourceAbbreviations.automationAccounts)
 var bastionHostNamingConvention = replace(namingConvention, resourceToken, resourceAbbreviations.bastionHosts)
 var computeGalleryNamingConvention = replace(replace(namingConvention, resourceToken, resourceAbbreviations.computeGallieries), '-', '_')
@@ -64,6 +65,7 @@ var virtualMachineNamingConvention = replace(replace(replace(namingConvention, r
 var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, resourceAbbreviations.virtualNetworks)
 
 output resources object = {
+  actionGroup: actionGroupNamingConvention
   automationAccount: automationAccountNamingConvention
   bastionHost: bastionHostNamingConvention
   computeGallery: computeGalleryNamingConvention
