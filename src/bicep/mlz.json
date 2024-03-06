@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "3577989145638949921"
+      "templateHash": "2003031065712712888"
     }
   },
   "parameters": {
@@ -1489,7 +1489,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "7320763192642397534"
+              "templateHash": "1796309994672046281"
             }
           },
           "parameters": {
@@ -1614,7 +1614,7 @@
               "linuxDiskName": "[replace(replace(parameters('resources').disk, parameters('tokens').service, 'linux'), parameters('tokens').network, variables('hubName'))]",
               "linuxNetworkInterfaceIpConfigurationName": "[replace(replace(parameters('resources').ipConfiguration, parameters('tokens').service, 'linux'), parameters('tokens').network, variables('hubName'))]",
               "linuxNetworkInterfaceName": "[replace(replace(parameters('resources').networkInterface, parameters('tokens').service, 'linux'), parameters('tokens').network, variables('hubName'))]",
-              "linuxVmName": "[replace(replace(parameters('resources').virtualMachine, parameters('tokens').service, 'linux'), parameters('tokens').network, variables('hubName'))]",
+              "linuxVmName": "[replace(replace(parameters('resources').virtualMachine, parameters('tokens').service, 'lra'), parameters('tokens').network, variables('hubName'))]",
               "logStorageAccountName": "[take(replace(replace(replace(parameters('resources').storageAccount, parameters('tokens').service, ''), parameters('tokens').network, variables('hubShortName')), 'unique_token', uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('hubSubscriptionId'))), 24)]",
               "logStorageAccountNetworkInterfaceNamePrefix": "[replace(replace(parameters('resources').networkInterface, parameters('tokens').service, format('{0}-st', parameters('tokens').service)), parameters('tokens').network, variables('hubName'))]",
               "logStorageAccountPrivateEndpointNamePrefix": "[replace(replace(parameters('resources').privateEndpoint, parameters('tokens').service, format('{0}-st', parameters('tokens').service)), parameters('tokens').network, variables('hubName'))]",
@@ -1627,7 +1627,7 @@
               "windowsDiskName": "[replace(replace(parameters('resources').disk, parameters('tokens').service, 'windows'), parameters('tokens').network, variables('hubName'))]",
               "windowsNetworkInterfaceIpConfigurationName": "[replace(replace(parameters('resources').ipConfiguration, parameters('tokens').service, 'windows'), parameters('tokens').network, variables('hubName'))]",
               "windowsNetworkInterfaceName": "[replace(replace(parameters('resources').networkInterface, parameters('tokens').service, 'windows'), parameters('tokens').network, variables('hubName'))]",
-              "windowsVmName": "[replace(replace(parameters('resources').virtualMachine, parameters('tokens').service, 'windows'), parameters('tokens').network, variables('hubName'))]"
+              "windowsVmName": "[replace(replace(parameters('resources').virtualMachine, parameters('tokens').service, 'wra'), parameters('tokens').network, variables('hubName'))]"
             },
             "spokes": "[union(variables('spokesCommon'), variables('spokesIdentity'))]",
             "spokesCommon": [

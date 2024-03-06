@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "1285898712324361110"
+      "templateHash": "16124068224234400845"
     }
   },
   "parameters": {
@@ -88,13 +88,6 @@
       "defaultValue": false,
       "metadata": {
         "description": "Deploy Policy enabled."
-      }
-    },
-    "diskEncryptionSetResourceId": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "The resource ID of the disk encryption set to use for the management virtual machine."
       }
     },
     "distributionGroup": {
@@ -1035,7 +1028,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12681595635406662251"
+              "templateHash": "7175103381059461246"
             }
           },
           "parameters": {
@@ -4663,6 +4656,10 @@
             }
           ],
           "outputs": {
+            "diskEncryptionSetResourceId": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
+            },
             "network": {
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value]"
@@ -4697,7 +4694,7 @@
             "value": "[parameters('deploymentNameSuffix')]"
           },
           "diskEncryptionSetResourceId": {
-            "value": "[parameters('diskEncryptionSetResourceId')]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
           },
           "enableBuildAutomation": {
             "value": "[parameters('enableBuildAutomation')]"
@@ -5234,7 +5231,7 @@
             "value": "[parameters('deploymentNameSuffix')]"
           },
           "diskEncryptionSetResourceId": {
-            "value": "[parameters('diskEncryptionSetResourceId')]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
           },
           "distributionGroup": {
             "value": "[parameters('distributionGroup')]"
@@ -9108,7 +9105,7 @@
             "value": "[parameters('deploymentNameSuffix')]"
           },
           "diskEncryptionSetResourceId": {
-            "value": "[parameters('diskEncryptionSetResourceId')]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
           },
           "enableBuildAutomation": {
             "value": "[parameters('enableBuildAutomation')]"
