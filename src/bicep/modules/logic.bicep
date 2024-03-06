@@ -63,7 +63,7 @@ var hub = {
   linuxDiskName: replace(replace(resources.disk, tokens.service, 'linux'), tokens.network, hubName)
   linuxNetworkInterfaceIpConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'linux'), tokens.network, hubName)
   linuxNetworkInterfaceName: replace(replace(resources.networkInterface, tokens.service, 'linux'), tokens.network, hubName)
-  linuxVmName: replace(replace(resources.virtualMachine, tokens.service, 'linux'), tokens.network, hubName)
+  linuxVmName: replace(replace(resources.virtualMachine, tokens.service, 'lra'), tokens.network, hubName)
   logStorageAccountName: take(replace(replace(replace(resources.storageAccount, tokens.service, ''), tokens.network, hubShortName), 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, hubSubscriptionId)), 24)
   logStorageAccountNetworkInterfaceNamePrefix: replace(replace(resources.networkInterface, tokens.service, '${tokens.service}-st'), tokens.network, hubName)
   logStorageAccountPrivateEndpointNamePrefix: replace(replace(resources.privateEndpoint, tokens.service, '${tokens.service}-st'), tokens.network, hubName)
@@ -76,7 +76,7 @@ var hub = {
   windowsDiskName: replace(replace(resources.disk, tokens.service, 'windows'), tokens.network, hubName)
   windowsNetworkInterfaceIpConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'windows'), tokens.network, hubName)
   windowsNetworkInterfaceName: replace(replace(resources.networkInterface, tokens.service, 'windows'), tokens.network, hubName)
-  windowsVmName: replace(replace(resources.virtualMachine, tokens.service, 'windows'), tokens.network, hubName)
+  windowsVmName: replace(replace(resources.virtualMachine, tokens.service, 'wra'), tokens.network, hubName)
 }
 
 // SPOKES
