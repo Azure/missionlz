@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "9252533542951006380"
+      "templateHash": "16063159427709318692"
     }
   },
   "parameters": {
@@ -9160,7 +9160,7 @@
             "value": "[parameters('location')]"
           },
           "managementVirtualMachineName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.virtualMachineName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'mg')]"
+            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.windowsVmName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'mg')]"
           },
           "marketplaceImageOffer": {
             "value": "[parameters('marketplaceImageOffer')]"

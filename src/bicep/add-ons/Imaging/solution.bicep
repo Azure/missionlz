@@ -430,7 +430,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     localAdministratorPassword: localAdministratorPassword
     localAdministratorUsername: localAdministratorUsername
     location: location
-    managementVirtualMachineName: replace(tier3.outputs.network.virtualMachineName, tier3.outputs.tokens.service, 'mg')
+    managementVirtualMachineName: replace(tier3.outputs.network.windowsVmName, tier3.outputs.tokens.service, 'mg')
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
