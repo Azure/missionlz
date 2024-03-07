@@ -1542,7 +1542,7 @@
         "policy": "[if(steps('compliance').policySection.deployPolicy, steps('compliance').policySection.policy, '')]",
         "replicaCount": "[steps('image').destination.replicaCount]",
         "sourceImageType": "[steps('image').source.type]",
-        "spokelogAnalyticsWorkspaceResourceId": "[steps('compliance').logAnalyticsWorkspace.id]",
+        "spokelogAnalyticsWorkspaceResourceId": "[steps('compliance').logAnalyticsWorkspace]",
         "storageAccountResourceId": "[steps('basics').artifacts.storageSelector.id]",
         "subnetAddressPrefix": "[steps('networking').networking.subnetAddressCidrRange]",
         "tags": "[steps('tags').tags]",
