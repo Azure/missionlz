@@ -149,7 +149,7 @@ module addCustomizations 'customizations.bicep' = {
 }
 
 module restartVirtualMachine1 'restartVirtualMachine.bicep' = {
-  name: 'restart-vm-${deploymentNameSuffix}'
+  name: 'restart-vm-1-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     imageVirtualMachineName: virtualMachine.outputs.name
@@ -180,7 +180,7 @@ module microsoftUdpates 'microsoftUpdates.bicep' = if(installUpdates) {
 }
 
 module restartVirtualMachine2 'restartVirtualMachine.bicep' = {
-  name: 'restart-vm-${deploymentNameSuffix}'
+  name: 'restart-vm-2-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     imageVirtualMachineName: virtualMachine.outputs.name
