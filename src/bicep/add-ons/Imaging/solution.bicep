@@ -254,13 +254,13 @@ param workloadShortName string = 'img'
 @description('The WSUS Server Url if WSUS is specified. (i.e., https://wsus.corp.contoso.com:8531)')
 param wsusServer string = ''
 
-var automationAccountPrivateDnsZoneResourceId = 'privatelink.azure-automation.${privateDnsZoneSuffixes_AzureAutomation[environment().name] ?? cloudSuffix}'
+var automationAccountPrivateDnsZoneResourceId = resourceId(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4], 'Microsoft.Network/privateDnsZones','privatelink.azure-automation.${privateDnsZoneSuffixes_AzureAutomation[environment().name] ?? cloudSuffix}')
 var calculatedTags = union(tags, defaultTags)
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.azure.', ''), '/', '')
 var defaultTags = {
   DeploymentType: 'MissionLandingZoneARM'
 }
-var keyVaultPrivateDnsZoneResourceId = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
+var keyVaultPrivateDnsZoneResourceId = resourceId(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4], 'Microsoft.Network/privateDnsZones', replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore'))
 var imageDefinitionName = empty(computeGalleryImageResourceId) ? '${imageDefinitionNamePrefix}-${marketplaceImageSKU}' : '${imageDefinitionNamePrefix}-${split(computeGalleryImageResourceId, '/')[10]}'
 var privateDnsZoneSuffixes_AzureAutomation = {
   AzureCloud: 'net'
