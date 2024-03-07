@@ -1325,6 +1325,14 @@
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
+                  "name": "workspaceSettingsApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Security/workspaceSettings?api-version=2017-08-01-preview')]"
+                  }
+                },
+                {
                   "name": "deployDefender",
                   "type": "Microsoft.Common.CheckBox",
                   "label": "Enable Defender for Cloud?",
@@ -1468,14 +1476,14 @@
         "containerName": "[first(skip(split(steps('basics').artifacts.container, '/'), 12))]",
         "customizations": "[if(equals(steps('customizations').customSoftware.installCustomSoftware, true), steps('customizations').customSoftware.customizations,'')]",
         "deployActivityLogDiagnosticSetting": "[empty(steps('compliance').diagnosticSettingsApi.value)]",
-        "deployDefender": "[steps('compliance').defenderForCloud.deployDefender]",
+        "deployDefender": "[and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value))]",
         "deployNetworkWatcher": "[empty(filter(steps('networking').networking.networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)))]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
         "distributionGroup": "[if(and(steps('automation').automation.enable, steps('automation').monitoring.enable), steps('automation').monitoring.distributionGroup, '')]",
         "domainJoinPassword": "[steps('automation').hybridWorker.domainJoinPassword]",
         "domainJoinUserPrincipalName": "[steps('automation').hybridWorker.domainJoinUserPrincipalName]",
         "domainName": "[if(steps('automation').automation.enable, steps('automation').hybridWorker.domainName, '')]",
-        "emailSecurityContact": "[steps('compliance').defenderForCloud.emailSecurityContact]",
+        "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '']",
         "enableBuildAutomation": "[steps('automation').automation.enable]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
         "excludeFromLatest": "[steps('image').destination.excludeFromLatest]",
