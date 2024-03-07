@@ -18,7 +18,7 @@ var network = {
   bastionHostIPConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'bas'), tokens.network, workloadName)
   bastionHostName: replace(replace(resources.bastionHost, '-${tokens.service}', ''), tokens.network, workloadName)
   bastionHostPublicIPAddressName: replace(replace(resources.publicIpAddress, tokens.service, 'bas'), tokens.network, workloadName)
-  computeGalleryName: replace(replace(resources.computeGallery, '-${tokens.service}', ''), tokens.network, workloadName)
+  computeGalleryName: replace(replace(resources.computeGallery, '_${tokens.service}', ''), tokens.network, workloadName)
   diskEncryptionSetName: replace(replace(resources.diskEncryptionSet, '-${tokens.service}', ''), tokens.network, workloadName)
   firewallClientIpConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'client-afw'), tokens.network, workloadName)
   firewallClientPublicIPAddressName: replace(replace(resources.publicIpAddress, tokens.service, 'client-afw'), tokens.network, workloadName)

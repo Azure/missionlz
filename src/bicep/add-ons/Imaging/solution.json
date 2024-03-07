@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "17368138576458697883"
+      "templateHash": "454663841191980378"
     }
   },
   "parameters": {
@@ -1018,7 +1018,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12468986030696051492"
+              "templateHash": "13654939355430297825"
             }
           },
           "parameters": {
@@ -1799,7 +1799,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "8020871820544198304"
+                      "templateHash": "16214742128972496947"
                     }
                   },
                   "parameters": {
@@ -1836,7 +1836,7 @@
                       "bastionHostIPConfigurationName": "[replace(replace(parameters('resources').ipConfiguration, parameters('tokens').service, 'bas'), parameters('tokens').network, parameters('workloadName'))]",
                       "bastionHostName": "[replace(replace(parameters('resources').bastionHost, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, parameters('workloadName'))]",
                       "bastionHostPublicIPAddressName": "[replace(replace(parameters('resources').publicIpAddress, parameters('tokens').service, 'bas'), parameters('tokens').network, parameters('workloadName'))]",
-                      "computeGalleryName": "[replace(replace(parameters('resources').computeGallery, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, parameters('workloadName'))]",
+                      "computeGalleryName": "[replace(replace(parameters('resources').computeGallery, format('_{0}', parameters('tokens').service), ''), parameters('tokens').network, parameters('workloadName'))]",
                       "diskEncryptionSetName": "[replace(replace(parameters('resources').diskEncryptionSet, format('-{0}', parameters('tokens').service), ''), parameters('tokens').network, parameters('workloadName'))]",
                       "firewallClientIpConfigurationName": "[replace(replace(parameters('resources').ipConfiguration, parameters('tokens').service, 'client-afw'), parameters('tokens').network, parameters('workloadName'))]",
                       "firewallClientPublicIPAddressName": "[replace(replace(parameters('resources').publicIpAddress, parameters('tokens').service, 'client-afw'), parameters('tokens').network, parameters('workloadName'))]",
