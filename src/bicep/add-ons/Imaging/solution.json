@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "13794349806226648804"
+      "templateHash": "6004099729485959350"
     }
   },
   "parameters": {
@@ -14,12 +14,6 @@
       "defaultValue": "",
       "metadata": {
         "description": "The file name of the ArcGIS Pro installer in Azure Blobs."
-      }
-    },
-    "automationAccountPrivateDnsZoneResourceId": {
-      "type": "string",
-      "metadata": {
-        "description": "The private DNS zone resource ID for the automation account resource."
       }
     },
     "azureFirewallResourceId": {
@@ -274,12 +268,6 @@
       "type": "bool",
       "metadata": {
         "description": "Determines whether to install Word."
-      }
-    },
-    "keyVaultPrivateDnsZoneResourceId": {
-      "type": "string",
-      "metadata": {
-        "description": "The private DNS zone resource ID for the key vault resource."
       }
     },
     "localAdministratorPassword": {
@@ -918,11 +906,20 @@
         }
       }
     },
+    "automationAccountPrivateDnsZoneResourceId": "[format('privatelink.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudSuffix')))]",
     "calculatedTags": "[union(parameters('tags'), variables('defaultTags'))]",
+    "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.azure.', ''), '/', '')]",
     "defaultTags": {
       "DeploymentType": "MissionLandingZoneARM"
     },
+    "keyVaultPrivateDnsZoneResourceId": "[replace(format('privatelink{0}', environment().suffixes.keyvaultDns), 'vault', 'vaultcore')]",
     "imageDefinitionName": "[if(empty(parameters('computeGalleryImageResourceId')), format('{0}-{1}', parameters('imageDefinitionNamePrefix'), parameters('marketplaceImageSKU')), format('{0}-{1}', parameters('imageDefinitionNamePrefix'), split(parameters('computeGalleryImageResourceId'), '/')[10]))]",
+    "privateDnsZoneSuffixes_AzureAutomation": {
+      "AzureCloud": "net",
+      "AzureUSGovernment": "us",
+      "USNat": null,
+      "USSec": null
+    },
     "subscriptionId": "[subscription().subscriptionId]",
     "locations": "[variables('$fxv#0')[environment().name]]"
   },
@@ -5190,7 +5187,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.automationAccountName]"
           },
           "automationAccountPrivateDnsZoneResourceId": {
-            "value": "[parameters('automationAccountPrivateDnsZoneResourceId')]"
+            "value": "[variables('automationAccountPrivateDnsZoneResourceId')]"
           },
           "computeGalleryImageResourceId": {
             "value": "[parameters('computeGalleryImageResourceId')]"
@@ -5292,7 +5289,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.keyVaultName]"
           },
           "keyVaultPrivateDnsZoneResourceId": {
-            "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+            "value": "[variables('keyVaultPrivateDnsZoneResourceId')]"
           },
           "localAdministratorPassword": {
             "value": "[parameters('localAdministratorPassword')]"

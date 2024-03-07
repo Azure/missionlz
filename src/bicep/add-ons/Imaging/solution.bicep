@@ -3,9 +3,6 @@ targetScope = 'subscription'
 @description('The file name of the ArcGIS Pro installer in Azure Blobs.')
 param arcGisProInstaller string = ''
 
-@description('The private DNS zone resource ID for the automation account resource.')
-param automationAccountPrivateDnsZoneResourceId string
-
 @description('The resource ID for the Azure Firewall in the HUB.')
 param azureFirewallResourceId string
 
@@ -128,9 +125,6 @@ param installVisio bool
 
 @description('Determines whether to install Word.')
 param installWord bool
-
-@description('The private DNS zone resource ID for the key vault resource.')
-param keyVaultPrivateDnsZoneResourceId string
 
 @secure()
 @description('The password for the local administrator account.')
@@ -260,11 +254,20 @@ param workloadShortName string = 'img'
 @description('The WSUS Server Url if WSUS is specified. (i.e., https://wsus.corp.contoso.com:8531)')
 param wsusServer string = ''
 
+var automationAccountPrivateDnsZoneResourceId = 'privatelink.azure-automation.${privateDnsZoneSuffixes_AzureAutomation[environment().name] ?? cloudSuffix}'
 var calculatedTags = union(tags, defaultTags)
+var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.azure.', ''), '/', '')
 var defaultTags = {
   DeploymentType: 'MissionLandingZoneARM'
 }
+var keyVaultPrivateDnsZoneResourceId = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
 var imageDefinitionName = empty(computeGalleryImageResourceId) ? '${imageDefinitionNamePrefix}-${marketplaceImageSKU}' : '${imageDefinitionNamePrefix}-${split(computeGalleryImageResourceId, '/')[10]}'
+var privateDnsZoneSuffixes_AzureAutomation = {
+  AzureCloud: 'net'
+  AzureUSGovernment: 'us'
+  USNat: null
+  USSec: null
+}
 var subscriptionId = subscription().subscriptionId
 var locations = (loadJsonContent('../../data/locations.json'))[environment().name]
 
