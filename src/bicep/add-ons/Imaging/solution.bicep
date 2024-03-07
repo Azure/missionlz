@@ -410,7 +410,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     imageDefinitionName: imageDefinitionName
     imageMajorVersion: imageMajorVersion
     imagePatchVersion: imagePatchVersion
-    imageVirtualMachineName: replace(tier3.outputs.network.virtualMachineName, tier3.outputs.tokens.service, 'bd')
+    imageVirtualMachineName: replace(tier3.outputs.network.windowsVmName, tier3.outputs.tokens.service, 'bd')
     installAccess: installAccess
     installArcGisPro: installArcGisPro
     installExcel: installExcel

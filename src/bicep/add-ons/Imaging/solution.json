@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "16063159427709318692"
+      "templateHash": "4549619070266824889"
     }
   },
   "parameters": {
@@ -9100,7 +9100,7 @@
             "value": "[parameters('imagePatchVersion')]"
           },
           "imageVirtualMachineName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.virtualMachineName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'bd')]"
+            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.windowsVmName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'bd')]"
           },
           "installAccess": {
             "value": "[parameters('installAccess')]"
