@@ -146,72 +146,42 @@
                   }
                 }
               ]
-            }
-          ]
-        },
-        {
-          "name": "networking",
-          "label": "Networking",
-          "elements": [
+            },
             {
-              "name": "networking",
-              "label": "Networking",
+              "name": "artifacts",
               "type": "Microsoft.Common.Section",
+              "label": "Deployment Artifacts",
               "elements": [
                 {
-                  "name": "virtualNetworkAddressCidrRange",
-                  "label": "Virtual network CIDR range",
-                  "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.134.0/24",
-                  "toolTip": "Specify an address CIDR range within the range [10,24].",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-4]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
-                      }
-                    ]
+                  "name": "storageSelector",
+                  "type": "Microsoft.Solutions.ResourceSelector",
+                  "label": "Select storage account",
+                  "resourceType": "Microsoft.Storage/storageAccounts",
+                  "options": {
+                    "filter": {
+                      "subscription": "[steps('basics').scope.subscription.id]",
+                      "location": "[steps('basics').scope.location.name]"
+                    }
                   }
                 },
                 {
-                  "name": "subnetAddressCidrRange",
-                  "label": "Subnet CIDR range",
-                  "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.134.0/24",
-                  "toolTip": "Specify a CIDR range for the default subnet within the Shared Services Virtual Network range [24].",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
-                      },
-                      {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').networking.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
-                        "message": "CIDR range not within virtual network CIDR range (first octet)."
-                      },
-                      {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').networking.subnetAddressCidrRange, '/')), '.'), 2))), true)]",
-                        "message": "CIDR range not within virtual network CIDR range (second octet)."
-                      },
-                      {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').networking.subnetAddressCidrRange, '/')), '.'), 3))), true)]",
-                        "message": "CIDR range not within virtual network CIDR range (third octet)."
-                      },
-                      {
-                        "isValid": "[lessOrEquals(last(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').networking.subnetAddressCidrRange, '/')))]",
-                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "networkWatchersApi",
+                  "name": "containerApi",
                   "type": "Microsoft.Solutions.ArmApiControl",
                   "request": {
                     "method": "GET",
-                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
+                    "path": "[concat(steps('basics').artifacts.storageSelector.id, '/blobServices/default/containers?api-version=2023-01-01')]"
+                  }
+                },
+                {
+                  "name": "container",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Container",
+                  "defaultValue": "",
+                  "toolTip": "Select an existing container.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[map(steps('basics').artifacts.containerApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
                   }
                 }
               ]
@@ -219,36 +189,36 @@
           ]
         },
         {
-          "name": "source",
-          "label": "Source",
+          "name": "image",
+          "label": "Image",
           "elements": [
             {
-              "name": "type",
-              "type": "Microsoft.Common.OptionsGroup",
-              "label": "Type of image",
-              "defaultValue": "Azure Marketplace",
-              "toolTip": "Select the desired Azure service for the source image.",
-              "constraints": {
-                "allowedValues": [
-                  {
-                    "label": "Azure Compute Gallery",
-                    "value": "AzureComputeGallery"
-                  },
-                  {
-                    "label": "Azure Marketplace",
-                    "value": "AzureMarketplace"
-                  }
-                ],
-                "required": true
-              },
-              "visible": true
-            },
-            {
-              "name": "marketplace",
+              "name": "source",
+              "label": "Source",
               "type": "Microsoft.Common.Section",
-              "label": "Azure Marketplace",
-              "visible": "[equals(steps('source').type, 'AzureMarketplace')]",
+              "visible": true,
               "elements": [
+                {
+                  "name": "type",
+                  "type": "Microsoft.Common.OptionsGroup",
+                  "label": "Type of image",
+                  "defaultValue": "Azure Marketplace",
+                  "toolTip": "Select the desired Azure service for the source image.",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "Azure Compute Gallery",
+                        "value": "AzureComputeGallery"
+                      },
+                      {
+                        "label": "Azure Marketplace",
+                        "value": "AzureMarketplace"
+                      }
+                    ],
+                    "required": true
+                  },
+                  "visible": true
+                },
                 {
                   "name": "publisher",
                   "type": "Microsoft.Common.OptionsGroup",
@@ -268,14 +238,14 @@
                     ],
                     "required": true
                   },
-                  "visible": true
+                  "visible": "[equals(steps('image').source.type, 'AzureMarketplace')]"
                 },
                 {
                   "name": "offersApi",
                   "type": "Microsoft.Solutions.ArmApiControl",
                   "request": {
                     "method": "GET",
-                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/locations/', steps('basics').scope.location.name, '/publishers/', steps('source').marketplace.publisher, '/artifacttypes/vmimage/offers?api-version=2023-07-01')]"
+                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/locations/', steps('basics').scope.location.name, '/publishers/', steps('image').source.publisher, '/artifacttypes/vmimage/offers?api-version=2023-07-01')]"
                   }
                 },
                 {
@@ -285,16 +255,17 @@
                   "defaultValue": "",
                   "toolTip": "Select the desired marketplace image offer.",
                   "constraints": {
-                    "allowedValues": "[map(steps('source').marketplace.offersApi, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
+                    "allowedValues": "[map(steps('image').source.offersApi, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
                     "required": true
-                  }
+                  },
+                  "visible": "[equals(steps('image').source.type, 'AzureMarketplace')]"
                 },
                 {
                   "name": "skusApi",
                   "type": "Microsoft.Solutions.ArmApiControl",
                   "request": {
                     "method": "GET",
-                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/locations/', steps('basics').scope.location.name, '/publishers/', steps('source').marketplace.publisher, '/artifacttypes/vmimage/offers/', steps('source').marketplace.offer, '/skus?api-version=2023-07-01')]"
+                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/locations/', steps('basics').scope.location.name, '/publishers/', steps('image').source.publisher, '/artifacttypes/vmimage/offers/', steps('image').source.offer, '/skus?api-version=2023-07-01')]"
                   }
                 },
                 {
@@ -304,18 +275,11 @@
                   "defaultValue": "win11-22h2-avd",
                   "toolTip": "Select the desired marketplace image SKU.",
                   "constraints": {
-                    "allowedValues": "[map(steps('source').marketplace.skusApi, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
+                    "allowedValues": "[map(steps('image').source.skusApi, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
                     "required": true
-                  }
-                }
-              ]
-            },
-            {
-              "name": "gallery",
-              "type": "Microsoft.Common.Section",
-              "label": "Compute Gallery",
-              "visible": "[equals(steps('source').type, 'AzureComputeGallery')]",
-              "elements": [
+                  },
+                  "visible": "[equals(steps('image').source.type, 'AzureMarketplace')]"
+                },
                 {
                   "name": "gallery",
                   "type": "Microsoft.Solutions.ResourceSelector",
@@ -326,14 +290,15 @@
                       "subscription": "onBasics",
                       "location": "onBasics"
                     }
-                  }
+                  },
+                  "visible": "[equals(steps('image').source.type, 'AzureComputeGallery')]"
                 },
                 {
                   "name": "imageDefinitionApi",
                   "type": "Microsoft.Solutions.ArmApiControl",
                   "request": {
                     "method": "GET",
-                    "path": "[concat(steps('source').gallery.gallery.id, '/images?api-version=2022-03-03')]"
+                    "path": "[concat(steps('image').source.gallery.gallery.id, '/images?api-version=2022-03-03')]"
                   }
                 },
                 {
@@ -343,36 +308,31 @@
                   "defaultValue": "",
                   "toolTip": "Select the desired image definition.",
                   "constraints": {
-                    "allowedValues": "[map(steps('source').gallery.imageDefinitionApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]",
+                    "allowedValues": "[map(steps('image').source.gallery.imageDefinitionApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]",
                     "required": true
-                  }
+                  },
+                  "visible": "[equals(steps('image').source.type, 'AzureComputeGallery')]"
                 }
               ]
-            }
-          ]
-        },
-        {
-          "name": "destination",
-          "label": "Destination",
-          "elements": [
-            {
-              "name": "imageDefinitionNamePrefix",
-              "type": "Microsoft.Common.TextBox",
-              "label": "Image definition name prefix",
-              "defaultValue": "",
-              "placeholder": "Example: developer"
             },
             {
-              "name": "imageVersion",
+              "name": "destination",
+              "label": "Destination",
               "type": "Microsoft.Common.Section",
-              "label": "Image version",
               "elements": [
+                {
+                  "name": "imageDefinitionNamePrefix",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Image definition name prefix",
+                  "defaultValue": "",
+                  "placeholder": "Example: developer"
+                },
                 {
                   "name": "replicaCount",
                   "type": "Microsoft.Common.Slider",
                   "min": 1,
                   "max": 50,
-                  "label": "Replica count",
+                  "label": "Image version - replica count",
                   "subLabel": "count",
                   "defaultValue": 1,
                   "showStepMarkers": false,
@@ -385,7 +345,7 @@
                 {
                   "name": "excludeFromLatest",
                   "type": "Microsoft.Common.CheckBox",
-                  "label": "Exclude from latest",
+                  "label": "Image version - exclude from latest",
                   "defaultValue": false,
                   "toolTip": "Determines whether the image version will be the latest available version."
                 },
@@ -394,7 +354,7 @@
                   "type": "Microsoft.Common.Slider",
                   "min": 1,
                   "max": 12,
-                  "label": "Major version",
+                  "label": "Image version - major version number",
                   "subLabel": "Maj. Version",
                   "defaultValue": 1,
                   "showStepMarkers": false,
@@ -410,7 +370,7 @@
                   "type": "Microsoft.Common.Slider",
                   "min": 1,
                   "max": 12,
-                  "label": "Patch version",
+                  "label": "Image version - patch version number",
                   "subLabel": "Patch Version",
                   "defaultValue": 1,
                   "showStepMarkers": false,
@@ -422,155 +382,6 @@
                   "required": true
                 }
               ]
-            }
-          ]
-        },
-        {
-          "name": "storage",
-          "label": "Storage",
-          "elements": [
-            {
-              "name": "storageSelector",
-              "type": "Microsoft.Solutions.ResourceSelector",
-              "label": "Select storage account",
-              "resourceType": "Microsoft.Storage/storageAccounts",
-              "options": {
-                "filter": {
-                  "subscription": "[steps('basics').scope.subscription.id]",
-                  "location": "[steps('basics').scope.location.name]"
-                }
-              }
-            },
-            {
-              "name": "containerApi",
-              "type": "Microsoft.Solutions.ArmApiControl",
-              "request": {
-                "method": "GET",
-                "path": "[concat(steps('storage').storageSelector.id, '/blobServices/default/containers?api-version=2023-01-01')]"
-              }
-            },
-            {
-              "name": "container",
-              "type": "Microsoft.Common.DropDown",
-              "visible": true,
-              "label": "Container",
-              "defaultValue": "",
-              "toolTip": "Select an existing container.",
-              "constraints": {
-                "required": true,
-                "allowedValues": "[map(steps('storage').containerApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
-              }
-            }
-          ]
-        },
-        {
-          "name": "virtualMachines",
-          "label": "Virtual Machines",
-          "elements": [
-            {
-              "name": "vmSkusApi",
-              "type": "Microsoft.Solutions.ArmApiControl",
-              "request": {
-                "method": "GET",
-                "path": "[decodeUriComponent(concat(encodeUriComponent(steps('basics').scope.subscription.id), '%2Fproviders%2FMicrosoft.Compute%2Fskus%3Fapi-version%3D2021-07-01%26%24filter%3Dlocation%20eq%20%27', steps('basics').scope.location.name, '%27'))]"
-              }
-            },
-            {
-              "name": "vmSize",
-              "type": "Microsoft.Common.DropDown",
-              "label": "Virtual Machine Size",
-              "defaultValue": [
-                "Standard_D4ads_v5"
-              ],
-              "toolTip": "Select the size of the virtual machines. Multi-session hosts should have 4 - 24 vCPUs. Single session host should have 2 or more vCPUs.",
-              "multiselect": false,
-              "selectAll": false,
-              "filter": true,
-              "filterPlaceholder": "Filter items ...",
-              "multiLine": true,
-              "defaultDescription": "",
-              "constraints": {
-                "allowedValues": "[map(filter(steps('virtualMachines').vmSkusApi.value, (item) => equals(item.resourceType, 'virtualMachines')), (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
-                "required": true
-              },
-              "visible": true
-            },
-            {
-              "name": "localAdminCredentials",
-              "type": "Microsoft.Common.Section",
-              "visible": true,
-              "label": "Local administrator credential",
-              "elements": [
-                {
-                  "name": "username",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Username",
-                  "defaultValue": "",
-                  "placeholder": "Example: xadmin",
-                  "toolTip": "Input the username for the local administrator account.",
-                  "constraints": {
-                    "required": true,
-                    "regex": "",
-                    "validationMessage": ""
-                  },
-                  "visible": true
-                },
-                {
-                  "name": "password",
-                  "type": "Microsoft.Common.PasswordBox",
-                  "label": {
-                    "password": "Password",
-                    "confirmPassword": "Confirm Password"
-                  },
-                  "toolTip": "Input the password for the local administrator account.",
-                  "constraints": {
-                    "required": true,
-                    "regex": "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=_!*<>()])(?=\\S+$).{12,123}$",
-                    "validationMessage": "The value must be within 12 to 123 characters, be alphanumeric, and include 1 lower case character, 1 upper case character, 1 number, and 1 special character that is not '\\' or '-'."
-                  },
-                  "options": {
-                    "hideConfirmation": false
-                  },
-                  "visible": true
-                }
-              ]
-            },
-            {
-              "name": "hybridUseBenefit",
-              "type": "Microsoft.Common.CheckBox",
-              "label": "Enable hybrid use benefit",
-              "defaultValue": false,
-              "toolTip": "Enables the hybrid use benefit to reduce the cost of Azure virutal machines when the appropriate licensing and software assurance has been purchased."
-            },
-            {
-              "name": "exemption",
-              "type": "Microsoft.Common.EditableGrid",
-              "ariaLabel": "Enter the policy IDs to exempt to prevent virtual machine extensions on the imaging virtual machines.",
-              "label": "Policy Exemptions",
-              "constraints": {
-                "width": "Full",
-                "rows": {
-                  "count": {
-                    "min": 0,
-                    "max": 100
-                  }
-                },
-                "columns": [
-                  {
-                    "id": "id",
-                    "header": "Policy Assignment Resource IDs for Exemption",
-                    "width": "1fr",
-                    "element": {
-                      "type": "Microsoft.Common.TextBox",
-                      "placeholder": "",
-                      "constraints": {
-                        "required": true,
-                        "validations": []
-                      }
-                    }
-                  }
-                ]
-              }
             }
           ]
         },
@@ -1202,60 +1013,131 @@
           ]
         },
         {
-          "name": "automation",
-          "label": "Build Automation",
+          "name": "virtualMachines",
+          "label": "Virtual Machines",
           "elements": [
             {
-              "name": "enable",
-              "type": "Microsoft.Common.CheckBox",
-              "label": "Enable build automation",
-              "defaultValue": true,
-              "toolTip": "Enables the automation of image builds using an Automation Account in a zero trust compliant configuration."
+              "name": "vmSkusApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[decodeUriComponent(concat(encodeUriComponent(steps('basics').scope.subscription.id), '%2Fproviders%2FMicrosoft.Compute%2Fskus%3Fapi-version%3D2021-07-01%26%24filter%3Dlocation%20eq%20%27', steps('basics').scope.location.name, '%27'))]"
+              }
             },
             {
-              "name": "privateDnsZones",
+              "name": "vmSize",
+              "type": "Microsoft.Compute.SizeSelector",
+              "label": "Size",
+              "toolTip": "Select the size of the build virtual machine.",
+              "recommendedSizes": [
+                "Standard_D4ads_v5"
+              ],
+              "constraints": {
+                "allowedSizes": [],
+                "numAvailabilityZonesRequired": 1
+              },
+              "options": {
+                "hideDiskTypeFilter": false
+              },
+              "osPlatform": "Windows",
+              "count": 1,
+              "visible": true
+            },
+            {
+              "name": "localAdminCredentials",
               "type": "Microsoft.Common.Section",
-              "label": "Private DNS zones",
-              "visible": "[steps('automation').enable]",
+              "visible": true,
+              "label": "Local administrator credential",
               "elements": [
                 {
-                  "name": "subscription",
-                  "visible": true,
-                  "type": "Microsoft.Common.SubscriptionSelector"
-                },
-                {
-                  "name": "api",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "request": {
-                    "method": "GET",
-                    "path": "[concat('/subscriptions/', steps('automation').privateDnsZones.subscription.subscriptionId, '/providers/Microsoft.Network/privateDnsZones?api-version=2018-09-01')]"
-                  }
-                },
-                {
-                  "name": "automationAccount",
-                  "type": "Microsoft.Common.DropDown",
-                  "visible": true,
-                  "label": "Automation account",
+                  "name": "username",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Username",
                   "defaultValue": "",
-                  "multiLine": true,
-                  "toolTip": "Select the existing Private DNS Zone for Azure Automation.",
+                  "placeholder": "Example: xadmin",
+                  "toolTip": "Input the username for the local administrator account.",
                   "constraints": {
                     "required": true,
-                    "allowedValues": "[map(filter(steps('automation').privateDnsZones.api.value, (item) => contains(item.name, 'privatelink.azure-automation.')), (item) => parse(concat('{\"label\":\"', item.name, '\",\"description\":\"Resource group: ', first(skip(split(item.id, '/'), 4)), '\",\"value\":\"', item.id, '\"}')))]"
-                  }
+                    "regex": "",
+                    "validationMessage": ""
+                  },
+                  "visible": true
                 },
                 {
-                  "name": "keyVault",
-                  "type": "Microsoft.Common.DropDown",
-                  "visible": true,
-                  "label": "Key vault",
-                  "defaultValue": "",
-                  "multiLine": true,
-                  "toolTip": "Select the existing Private DNS Zone for Key Vaults.",
+                  "name": "password",
+                  "type": "Microsoft.Common.PasswordBox",
+                  "label": {
+                    "password": "Password",
+                    "confirmPassword": "Confirm Password"
+                  },
+                  "toolTip": "Input the password for the local administrator account.",
                   "constraints": {
                     "required": true,
-                    "allowedValues": "[map(filter(steps('automation').privateDnsZones.api.value, (item) => contains(item.name, 'privatelink.vaultcore.')), (item) => parse(concat('{\"label\":\"', item.name, '\",\"description\":\"Resource group: ', first(skip(split(item.id, '/'), 4)), '\",\"value\":\"', item.id, '\"}')))]"
+                    "regex": "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=_!*<>()])(?=\\S+$).{12,123}$",
+                    "validationMessage": "The value must be within 12 to 123 characters, be alphanumeric, and include 1 lower case character, 1 upper case character, 1 number, and 1 special character that is not '\\' or '-'."
+                  },
+                  "options": {
+                    "hideConfirmation": false
+                  },
+                  "visible": true
+                }
+              ]
+            },
+            {
+              "name": "hybridUseBenefit",
+              "type": "Microsoft.Common.CheckBox",
+              "label": "Enable hybrid use benefit",
+              "defaultValue": false,
+              "toolTip": "Enables the hybrid use benefit to reduce the cost of Azure virutal machines when the appropriate licensing and software assurance has been purchased."
+            },
+            {
+              "name": "exemption",
+              "type": "Microsoft.Common.EditableGrid",
+              "ariaLabel": "Enter the policy IDs to exempt to prevent virtual machine extensions on the imaging virtual machines.",
+              "label": "Policy Exemptions",
+              "constraints": {
+                "width": "Full",
+                "rows": {
+                  "count": {
+                    "min": 0,
+                    "max": 100
                   }
+                },
+                "columns": [
+                  {
+                    "id": "id",
+                    "header": "Policy Assignment Resource IDs for Exemption",
+                    "width": "1fr",
+                    "element": {
+                      "type": "Microsoft.Common.TextBox",
+                      "placeholder": "",
+                      "constraints": {
+                        "required": true,
+                        "validations": []
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "automation",
+          "label": "Automation",
+          "elements": [
+            {
+              "name": "automation",
+              "type": "Microsoft.Common.Section",
+              "label": "Build Automation",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "enable",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable build automation",
+                  "defaultValue": true,
+                  "toolTip": "Enables the automation of image builds using an Automation Account in a zero trust compliant configuration."
                 }
               ]
             },
@@ -1263,7 +1145,7 @@
               "name": "hybridWorker",
               "type": "Microsoft.Common.Section",
               "label": "Hybrid Worker",
-              "visible": "[steps('automation').enable]",
+              "visible": "[steps('automation').automation.enable]",
               "elements": [
                 {
                   "name": "domainJoin",
@@ -1328,7 +1210,7 @@
               "name": "monitoring",
               "type": "Microsoft.Common.Section",
               "label": "Monitoring",
-              "visible": "[steps('automation').enable]",
+              "visible": "[steps('automation').automation.enable]",
               "elements": [
                 {
                   "name": "enable",
@@ -1365,48 +1247,110 @@
           ]
         },
         {
+          "name": "networking",
+          "label": "Networking",
+          "elements": [
+            {
+              "name": "networking",
+              "label": "Networking",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "virtualNetworkAddressCidrRange",
+                  "label": "Virtual network CIDR range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.134.0/24",
+                  "toolTip": "Specify an address CIDR range within the range [10,24].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-4]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "subnetAddressCidrRange",
+                  "label": "Subnet CIDR range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.134.0/24",
+                  "toolTip": "Specify a CIDR range for the default subnet within the Shared Services Virtual Network range [24].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').networking.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').networking.subnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').networking.subnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').networking.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').networking.subnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "networkWatchersApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "compliance",
           "label": "Compliance",
           "elements": [
             {
-              "name": "deployDefender",
-              "type": "Microsoft.Common.OptionsGroup",
-              "label": "Deploy Defender",
-              "defaultValue": [
-                "No"
-              ],
-              "toolTip": "Select True to deploy defender to the ZTA spoke",
-              "constraints": {
-                "allowedValues": [
-                  {
-                    "label": "True",
-                    "value": true
-                  },
-                  {
-                    "label": "False",
-                    "value": false
+              "name": "defenderForCloud",
+              "label": "Defender for Cloud",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "deployDefender",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable Defender for Cloud?",
+                  "toolTip": "Check here to to deploy defender for cloud to the target subscription.",
+                  "constraints": {
+                    "required": false
                   }
-                ],
-                "required": true
-              },
-              "visible": true
-            },
-            {
-              "name": "emailSecurityContact",
-              "type": "Microsoft.Common.TextBox",
-              "label": "Email",
-              "defaultValue": "",
-              "toolTip": "Please enter a valid email account",
-              "constraints": {
-                "required": false,
-                "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
-                "validationMessage": "Email is not valid. Please re-enter."
-              },
-              "visible": "[steps('compliance').deployDefender]"
+                },
+                {
+                  "name": "emailSecurityContact",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Email Address for Security Notifications",
+                  "defaultValue": "",
+                  "toolTip": "Please enter a valid email address for the security team.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
+                    "validationMessage": "Email is not valid. Please re-enter."
+                  },
+                  "visible": "[steps('compliance').defenderForCloud.deployDefender]"
+                }
+              ]
             },
             {
               "name": "policySection",
-              "label": "Enable Azure Policy",
+              "label": "Azure Policy",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
@@ -1426,7 +1370,7 @@
                 {
                   "name": "deployPolicy",
                   "type": "Microsoft.Common.CheckBox",
-                  "label": "Create policy assignments?",
+                  "label": "Deploy policy assignments?",
                   "toolTip": "Check here to create policy assignments for the resources created by Mission Landing Zone.",
                   "constraints": {
                     "required": false
@@ -1519,30 +1463,29 @@
     "outputs": {
       "parameters": {
         "arcGisProInstaller": "[if(equals(steps('customizations').specialitySoftware.installArcGisPro, true), steps('customizations').specialitySoftware.arcGisBlob.blobName,'')]",
-        "automationAccountPrivateDnsZoneResourceId": "[if(steps('automation').enable, steps('automation').privateDnsZones.automationAccount, '')]",
         "azureFirewallResourceId": "[steps('basics').hub.azureFirewall]",
-        "computeGalleryImageResourceId": "[if(equals(steps('source').type, 'AzureComputeGallery'), steps('source').gallery.imageDefinition, '')]",
-        "containerName": "[first(skip(split(steps('storage').container, '/'), 12))]",
+        "computeGalleryImageResourceId": "[if(equals(steps('image').source.type, 'AzureComputeGallery'), steps('image').source.gallery.imageDefinition, '')]",
+        "containerName": "[first(skip(split(steps('basics').artifacts.container, '/'), 12))]",
         "customizations": "[if(equals(steps('customizations').customSoftware.installCustomSoftware, true), steps('customizations').customSoftware.customizations,'')]",
         "deployActivityLogDiagnosticSetting": "[empty(steps('compliance').diagnosticSettingsApi.value)]",
-        "deployDefender": "[steps('compliance').deployDefender]",
+        "deployDefender": "[steps('compliance').defenderForCloud.deployDefender]",
         "deployNetworkWatcher": "[empty(filter(steps('networking').networking.networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)))]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
-        "distributionGroup": "[if(and(steps('automation').enable, steps('automation').monitoring.enable), steps('automation').monitoring.distributionGroup, '')]",
+        "distributionGroup": "[if(and(steps('automation').automation.enable, steps('automation').monitoring.enable), steps('automation').monitoring.distributionGroup, '')]",
         "domainJoinPassword": "[steps('automation').hybridWorker.domainJoinPassword]",
         "domainJoinUserPrincipalName": "[steps('automation').hybridWorker.domainJoinUserPrincipalName]",
-        "domainName": "[if(steps('automation').enable, steps('automation').hybridWorker.domainName, '')]",
-        "emailSecurityContact": "[steps('compliance').emailSecurityContact]",
-        "enableBuildAutomation": "[steps('automation').enable]",
+        "domainName": "[if(steps('automation').automation.enable, steps('automation').hybridWorker.domainName, '')]",
+        "emailSecurityContact": "[steps('compliance').defenderForCloud.emailSecurityContact]",
+        "enableBuildAutomation": "[steps('automation').automation.enable]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
-        "excludeFromLatest": "[steps('destination').imageVersion.excludeFromLatest]",
+        "excludeFromLatest": "[steps('image').destination.excludeFromLatest]",
         "exemptPolicyAssignmentIds": "[map(steps('virtualMachines').exemption, (item) => item.id)]",
         "hubVirtualNetworkResourceId": "[steps('basics').hub.virtualNetwork]",
         "hybridUseBenefit": "[steps('virtualMachines').hybridUseBenefit]",
         "identifier": "[steps('basics').naming.identifier]",
-        "imageDefinitionNamePrefix": "[steps('destination').imageDefinitionNamePrefix]",
-        "imageMajorVersion": "[steps('destination').imageVersion.majorVersion]",
-        "imagePatchVersion": "[steps('destination').imageVersion.patchVersion]",
+        "imageDefinitionNamePrefix": "[steps('image').destination.imageDefinitionNamePrefix]",
+        "imageMajorVersion": "[steps('image').destination.majorVersion]",
+        "imagePatchVersion": "[steps('image').destination.patchVersion]",
         "installAccess": "[if(steps('customizations').office.installOffice, steps('customizations').office.installAccess,'false')]",
         "installArcGisPro": "[if(steps('customizations').specialitySoftware.installArcGisPro, steps('customizations').specialitySoftware.installArcGisPro,'false')]",
         "installExcel": "[if(steps('customizations').office.installOffice, steps('customizations').office.installExcel,'false')]",
@@ -1558,22 +1501,21 @@
         "installVirtualDesktopOptimizationTool": "[steps('customizations').specialitySoftware.installVirtualDesktopOptimizationTool]",
         "installVisio": "[if(steps('customizations').office.installOffice, steps('customizations').office.installVisio,'false')]",
         "installWord": "[if(steps('customizations').office.installOffice, steps('customizations').office.installWord,'false')]",
-        "keyVaultPrivateDnsZoneResourceId": "[if(steps('automation').enable, steps('automation').privateDnsZones.keyVault, '')]",
         "localAdministratorPassword": "[steps('virtualMachines').localAdminCredentials.password]",
         "localAdministratorUsername": "[steps('virtualMachines').localAdminCredentials.username]",
         "location": "[steps('basics').scope.location.name]",
-        "logAnalyticsWorkspaceResourceId": "[if(and(steps('automation').enable, steps('automation').monitoring.enable), steps('automation').monitoring.logAnalyticsWorkspace.id, '')]",
-        "marketplaceImageOffer": "[if(equals(steps('source').type, 'AzureMarketplace'), steps('source').marketplace.offer, '')]",
-        "marketplaceImagePublisher": "[if(equals(steps('source').type, 'AzureMarketplace'), steps('source').marketplace.publisher, '')]",
-        "marketplaceImageSKU": "[if(equals(steps('source').type, 'AzureMarketplace'), steps('source').marketplace.sku, '')]",
+        "logAnalyticsWorkspaceResourceId": "[if(and(steps('automation').automation.enable, steps('automation').monitoring.enable), steps('automation').monitoring.logAnalyticsWorkspace.id, '')]",
+        "marketplaceImageOffer": "[if(equals(steps('image').source.type, 'AzureMarketplace'), steps('image').source.offer, '')]",
+        "marketplaceImagePublisher": "[if(equals(steps('image').source.type, 'AzureMarketplace'), steps('image').source.publisher, '')]",
+        "marketplaceImageSKU": "[if(equals(steps('image').source.type, 'AzureMarketplace'), steps('image').source.sku, '')]",
         "msrdcwebrtcsvcInstaller": "[if(steps('customizations').office.installTeams, steps('customizations').office.msrdcwebrtcsvcInstaller.blobName,'')]",
         "officeInstaller": "[if(steps('customizations').office.installOffice, steps('customizations').office.officeBlob.blobName,'')]",
-        "oUPath": "[if(and(steps('automation').enable, steps('automation').hybridWorker.domainJoin), steps('automation').hybridWorker.ouPath, '')]",
+        "oUPath": "[if(and(steps('automation').automation.enable, steps('automation').hybridWorker.domainJoin), steps('automation').hybridWorker.ouPath, '')]",
         "policy": "[if(steps('compliance').policySection.deployPolicy, steps('compliance').policySection.policy, '')]",
-        "replicaCount": "[steps('destination').imageVersion.replicaCount]",
-        "sourceImageType": "[steps('source').type]",
+        "replicaCount": "[steps('image').destination.replicaCount]",
+        "sourceImageType": "[steps('image').source.type]",
         "spokelogAnalyticsWorkspaceResourceId": "[steps('compliance').logAnalyticsWorkspace.id]",
-        "storageAccountResourceId": "[steps('storage').storageSelector.id]",
+        "storageAccountResourceId": "[steps('basics').artifacts.storageSelector.id]",
         "subnetAddressPrefix": "[steps('networking').networking.subnetAddressCidrRange]",
         "tags": "[steps('tags').tags]",
         "teamsInstaller": "[if(steps('customizations').office.installTeams, steps('customizations').office.teamsBlob.blobName,'')]",
