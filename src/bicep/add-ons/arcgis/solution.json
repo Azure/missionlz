@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "10231761792877403191"
+      "templateHash": "13100939443385565919"
     }
   },
   "parameters": {
@@ -592,6 +592,9 @@
       "metadata": {
         "description": "The subscription id of the artifacts storage account."
       }
+    },
+    "joinEntraDomain": {
+      "type": "bool"
     }
   },
   "variables": {
@@ -3137,6 +3140,9 @@
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -3146,7 +3152,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12377944352393046008"
+              "templateHash": "9955911423145569104"
             }
           },
           "parameters": {
@@ -3170,6 +3176,9 @@
               "type": "bool"
             },
             "joinWindowsDomain": {
+              "type": "bool"
+            },
+            "joinEntraDomain": {
               "type": "bool"
             },
             "location": {
@@ -3329,6 +3338,24 @@
                 "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2023-03-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "publisher": "Microsoft.Azure.ActiveDirectory",
+                "type": "AADLoginForWindows",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": null
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -3544,6 +3571,9 @@
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -3553,7 +3583,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12377944352393046008"
+              "templateHash": "9955911423145569104"
             }
           },
           "parameters": {
@@ -3577,6 +3607,9 @@
               "type": "bool"
             },
             "joinWindowsDomain": {
+              "type": "bool"
+            },
+            "joinEntraDomain": {
               "type": "bool"
             },
             "location": {
@@ -3736,6 +3769,24 @@
                 "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2023-03-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "publisher": "Microsoft.Azure.ActiveDirectory",
+                "type": "AADLoginForWindows",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": null
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -3952,6 +4003,9 @@
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -3961,7 +4015,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12377944352393046008"
+              "templateHash": "9955911423145569104"
             }
           },
           "parameters": {
@@ -3985,6 +4039,9 @@
               "type": "bool"
             },
             "joinWindowsDomain": {
+              "type": "bool"
+            },
+            "joinEntraDomain": {
               "type": "bool"
             },
             "location": {
@@ -4144,6 +4201,24 @@
                 "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2023-03-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "publisher": "Microsoft.Azure.ActiveDirectory",
+                "type": "AADLoginForWindows",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": null
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -4360,6 +4435,9 @@
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -4369,7 +4447,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12377944352393046008"
+              "templateHash": "9955911423145569104"
             }
           },
           "parameters": {
@@ -4393,6 +4471,9 @@
               "type": "bool"
             },
             "joinWindowsDomain": {
+              "type": "bool"
+            },
+            "joinEntraDomain": {
               "type": "bool"
             },
             "location": {
@@ -4552,6 +4633,24 @@
                 "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2023-03-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "publisher": "Microsoft.Azure.ActiveDirectory",
+                "type": "AADLoginForWindows",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": null
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -4770,6 +4869,9 @@
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -4779,7 +4881,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12377944352393046008"
+              "templateHash": "9955911423145569104"
             }
           },
           "parameters": {
@@ -4803,6 +4905,9 @@
               "type": "bool"
             },
             "joinWindowsDomain": {
+              "type": "bool"
+            },
+            "joinEntraDomain": {
               "type": "bool"
             },
             "location": {
@@ -4962,6 +5067,24 @@
                 "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2023-03-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "publisher": "Microsoft.Azure.ActiveDirectory",
+                "type": "AADLoginForWindows",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": null
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -5177,6 +5300,9 @@
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -5186,7 +5312,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12377944352393046008"
+              "templateHash": "9955911423145569104"
             }
           },
           "parameters": {
@@ -5210,6 +5336,9 @@
               "type": "bool"
             },
             "joinWindowsDomain": {
+              "type": "bool"
+            },
+            "joinEntraDomain": {
               "type": "bool"
             },
             "location": {
@@ -5369,6 +5498,24 @@
                 "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2023-03-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "publisher": "Microsoft.Azure.ActiveDirectory",
+                "type": "AADLoginForWindows",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": null
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -5585,6 +5732,9 @@
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -5594,7 +5744,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12377944352393046008"
+              "templateHash": "9955911423145569104"
             }
           },
           "parameters": {
@@ -5618,6 +5768,9 @@
               "type": "bool"
             },
             "joinWindowsDomain": {
+              "type": "bool"
+            },
+            "joinEntraDomain": {
               "type": "bool"
             },
             "location": {
@@ -5777,6 +5930,24 @@
                 "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2023-03-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "publisher": "Microsoft.Azure.ActiveDirectory",
+                "type": "AADLoginForWindows",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": null
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -5993,6 +6164,9 @@
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -6002,7 +6176,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12377944352393046008"
+              "templateHash": "9955911423145569104"
             }
           },
           "parameters": {
@@ -6026,6 +6200,9 @@
               "type": "bool"
             },
             "joinWindowsDomain": {
+              "type": "bool"
+            },
+            "joinEntraDomain": {
               "type": "bool"
             },
             "location": {
@@ -6185,6 +6362,24 @@
                 "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2023-03-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "publisher": "Microsoft.Azure.ActiveDirectory",
+                "type": "AADLoginForWindows",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": null
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -6401,6 +6596,9 @@
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -6410,7 +6608,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12377944352393046008"
+              "templateHash": "9955911423145569104"
             }
           },
           "parameters": {
@@ -6434,6 +6632,9 @@
               "type": "bool"
             },
             "joinWindowsDomain": {
+              "type": "bool"
+            },
+            "joinEntraDomain": {
               "type": "bool"
             },
             "location": {
@@ -6593,6 +6794,24 @@
                 "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2023-03-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "publisher": "Microsoft.Azure.ActiveDirectory",
+                "type": "AADLoginForWindows",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": null
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"

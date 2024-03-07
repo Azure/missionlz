@@ -256,6 +256,7 @@ param artifactsContainerName string
 param artifactsStorageAccountResourceGroupName string
 @description('The subscription id of the artifacts storage account.')
 param artifactsStorageAccountSubscriptionId string
+param joinEntraDomain bool
 
 // Resource Naming
 var resourceSuffix = resourcePrefix
@@ -577,6 +578,7 @@ module singleTierVirtualMachine 'modules/virtualMachine.bicep' = if (architectur
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
     virtualMachineSize: virtualMachineSize
+    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -607,6 +609,7 @@ module multiTierServerVirtualMachines 'modules/virtualMachine.bicep' = [for (ser
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
     virtualMachineSize: virtualMachineSize
+    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -637,6 +640,7 @@ module multiTierPortalVirtualMachines 'modules/virtualMachine.bicep' = [for (ser
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
     virtualMachineSize: virtualMachineSize
+    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -667,6 +671,7 @@ module multiTierDatastoreServerVirtualMachines 'modules/virtualMachine.bicep' = 
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
     virtualMachineSize: virtualMachineSize
+    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -697,6 +702,7 @@ module multiTierFileServerVirtualMachines 'modules/virtualMachine.bicep' = [for 
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
     virtualMachineSize: virtualMachineSize
+    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -727,6 +733,7 @@ module multiTierSpatiotemporalBigDataStoreVirtualMachines 'modules/virtualMachin
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
     virtualMachineSize: virtualMachineSize
+    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -757,6 +764,7 @@ module multiTierTileCacheVirtualMachines 'modules/virtualMachine.bicep' = [for (
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
     virtualMachineSize: virtualMachineSize
+    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -787,6 +795,7 @@ module multiTierGraphVirtualMachines 'modules/virtualMachine.bicep' = [for (serv
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
     virtualMachineSize: virtualMachineSize
+    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -817,6 +826,7 @@ module multiTierObjectDataStoreVirtualMachines 'modules/virtualMachine.bicep' = 
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
     virtualMachineSize: virtualMachineSize
+    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
