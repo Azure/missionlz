@@ -1483,7 +1483,7 @@
         "domainJoinPassword": "[steps('automation').hybridWorker.domainJoinPassword]",
         "domainJoinUserPrincipalName": "[steps('automation').hybridWorker.domainJoinUserPrincipalName]",
         "domainName": "[if(steps('automation').automation.enable, steps('automation').hybridWorker.domainName, '')]",
-        "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '']",
+        "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '')]",
         "enableBuildAutomation": "[steps('automation').automation.enable]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
         "excludeFromLatest": "[steps('image').destination.excludeFromLatest]",
