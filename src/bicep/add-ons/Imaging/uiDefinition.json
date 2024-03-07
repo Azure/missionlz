@@ -1348,20 +1348,6 @@
                   "options": {}
                 },
                 {
-                  "name": "actionGroup",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Action Group",
-                  "placeholder": "Example: ag-image-d-eu",
-                  "defaultValue": "",
-                  "toolTip": "Input the name for the action group.",
-                  "constraints": {
-                    "required": true,
-                    "regex": "",
-                    "validationMessage": ""
-                  },
-                  "visible": "[steps('automation').monitoring.enable]"
-                },
-                {
                   "name": "distributionGroup",
                   "type": "Microsoft.Common.TextBox",
                   "visible": "[steps('automation').monitoring.enable]",
@@ -1532,7 +1518,6 @@
     },
     "outputs": {
       "parameters": {
-        "actionGroupName": "[if(and(steps('automation').enable, steps('automation').monitoring.enable), steps('automation').monitoring.actionGroup, '')]",
         "arcGisProInstaller": "[if(equals(steps('customizations').specialitySoftware.installArcGisPro, true), steps('customizations').specialitySoftware.arcGisBlob.blobName,'')]",
         "automationAccountPrivateDnsZoneResourceId": "[if(steps('automation').enable, steps('automation').privateDnsZones.automationAccount, '')]",
         "azureFirewallResourceId": "[steps('basics').hub.azureFirewall]",
