@@ -233,6 +233,9 @@ module policyAssignments '../../modules/policy-assignments.bicep' = if (deployPo
     ]
     policy: policy
   }
+  dependsOn: [
+    rg
+  ]
 }
 
 module defenderForCloud '../../modules/defenderForCloud.bicep' = if (deployDefender) {
