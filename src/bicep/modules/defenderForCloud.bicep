@@ -5,34 +5,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-param bundle array = (environment().name == 'AzureCloud') ? [
-  'Api'
-  'AppServices'
-  'Arm'
-  'CloudPosture'
-  //'ContainerRegistry' (deprecated)
-  'Containers'
-  'CosmosDbs'
-  //'Dns' (deprecated)
-  'KeyVaults'
-  //'KubernetesService' (deprecated)
-  'OpenSourceRelationalDatabases'
-  'SqlServers'
-  'SqlServerVirtualMachines'
-  'StorageAccounts'
-  'VirtualMachines'
-] : (environment().name == 'AzureUSGovernment') ? [
-  'Arm'
-  //'ContainerRegistry' (deprecated)
-  'Containers'
-  //'Dns' (deprecated)
-  //'KubernetesService' (deprecated)
-  'OpenSourceRelationalDatabases'
-  'SqlServers'
-  'SqlServerVirtualMachines'
-  'StorageAccounts'
-  'VirtualMachines'
-] : []
+param defenderPlans array = ['VirtualMachines']
 
 @description('Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off')
 param enableAutoProvisioning bool = true
@@ -52,7 +25,7 @@ param defenderSkuTier string = 'Standard'
 
 // defender
 @batchSize(1)
-resource defenderPricing 'Microsoft.Security/pricings@2023-01-01' = [for name in bundle: {
+resource defenderPricing 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: {
   name: name
   properties: {
     pricingTier: defenderSkuTier

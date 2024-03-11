@@ -5,6 +5,7 @@ param deploymentNameSuffix string
 param emailSecurityContact string
 param logAnalyticsWorkspaceResourceId string
 param networks array
+param defenderPlans array = ['VirtualMachines']
 
 module defenderForCloud 'defenderForCloud.bicep' = [for network in networks: if (network.deployUniqueResources) {
   name: 'set-defender-${network.name}-${deploymentNameSuffix}'
@@ -13,5 +14,6 @@ module defenderForCloud 'defenderForCloud.bicep' = [for network in networks: if 
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
     emailSecurityContact: emailSecurityContact
     defenderSkuTier: defenderSkuTier
+    defenderPlans: defenderPlans
   }
 }]
