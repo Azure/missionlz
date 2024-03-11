@@ -448,7 +448,7 @@ param emailSecurityContact string = ''
   'VirtualMachines'
 ])
 @description('Paid Workload Protection plans for Defende for Cloud')
-param deployDefenderPlans array = ['VirtualMachines']
+param deployDefenderPlans array = []
 
 var calculatedTags = union(tags, defaultTags)
 var defaultTags = {

@@ -20,12 +20,20 @@ param emailSecurityContact string
 @description('Policy Initiative description field')
 param policySetDescription string = 'The Microsoft Cloud Security Benchmark initiative represents the policies and controls implementing security recommendations defined in Microsoft Cloud Security Benchmark v2, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender.'
 
-@description('[Standard/Free] The SKU for Defender. It defaults to "Standard".')
-param defenderSkuTier string = 'Standard'
+@description('[Standard/Free] The SKU for Defender. It defaults to "Free".')
+param defenderSkuTier string = 'Free'
 
-// defender
+// defender for cloud turn on free tier
+resource defenderPricing 'Microsoft.Security/pricings@2023-01-01' = if (empty(defenderPlans)) {
+  name: VirtualMachines
+  properties: {
+    pricingTier: defenderSkuTier
+  }
+}
+
+// defender for cloud turn on if we have 1 or more in defender plans
 @batchSize(1)
-resource defenderPricing 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: {
+resource defenderPricing 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans)) {
   name: name
   properties: {
     pricingTier: defenderSkuTier
