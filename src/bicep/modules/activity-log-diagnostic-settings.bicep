@@ -2,20 +2,14 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
-
-// scope
 targetScope = 'subscription'
 
-param diagnosticSettingName string
 param logAnalyticsWorkspaceId string
-param supportedClouds array = [
-  'AzureCloud'
-  'AzureUSGovernment'
-]
+param supportedClouds array
 
-//// Central activity logging to LAWS
-resource centralLoggingDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = if ( contains(supportedClouds, environment().name) ) {
-  name: diagnosticSettingName
+// Export Activity Log to LAW
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = if ( contains(supportedClouds, environment().name) ) {
+  name: 'diag-activity-log-${subscription().subscriptionId}'
   properties: {
     workspaceId: logAnalyticsWorkspaceId
     logs: [
@@ -53,5 +47,4 @@ resource centralLoggingDiagnosticSettings 'Microsoft.Insights/diagnosticSettings
       }
     ]
   }
-
 }

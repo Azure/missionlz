@@ -4,6 +4,7 @@ Licensed under the MIT License.
 */
 
 param bastionHostSubnetAddressPrefix string
+param deployNetworkWatcher bool
 param deployRemoteAccess bool
 param dnsServers array
 param enableProxy bool
@@ -114,7 +115,7 @@ module routeTable '../modules/route-table.bicep' = {
   }
 }
 
-module networkWatcher '../modules/network-watcher.bicep' = {
+module networkWatcher '../modules/network-watcher.bicep' = if (deployNetworkWatcher) {
   name: 'networkWatcher'
   params: {
     location: location

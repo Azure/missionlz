@@ -19,7 +19,7 @@ param excludeFromLatest bool
 param hybridUseBenefit bool
 param imageDefinitionName string
 param imageMajorVersion int
-param imageMinorVersion int
+param imagePatchVersion int
 param imageVirtualMachineName string
 param installAccess bool
 param installArcGisPro bool
@@ -32,6 +32,7 @@ param installProject bool
 param installPublisher bool
 param installSkypeForBusiness bool
 param installTeams bool
+param installUpdates bool
 param installVirtualDesktopOptimizationTool bool
 param installVisio bool
 param installWord bool
@@ -59,12 +60,14 @@ param subscriptionId string
 param tags object
 param teamsInstaller string
 param timeZone string
+param updateService string
 param userAssignedIdentityClientId string
 param userAssignedIdentityPrincipalId string
 param userAssignedIdentityResourceId string
 param vcRedistInstaller string
 param vDOTInstaller string
 param virtualMachineSize string
+param wsusServer string
 
 resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
   name: guid(subscription().id, 'KeyVaultDeployAction')
@@ -163,7 +166,7 @@ module automationAccount 'automationAccount.bicep' = {
     hybridUseBenefit: hybridUseBenefit
     imageDefinitionName: imageDefinitionName
     imageMajorVersion: imageMajorVersion
-    imageMinorVersion: imageMinorVersion
+    imagePatchVersion: imagePatchVersion
     imageVirtualMachineName: imageVirtualMachineName
     installAccess: installAccess
     installArcGisPro: installArcGisPro
@@ -176,6 +179,7 @@ module automationAccount 'automationAccount.bicep' = {
     installPublisher: installPublisher
     installSkypeForBusiness: installSkypeForBusiness
     installTeams: installTeams
+    installUpdates: installUpdates
     installVirtualDesktopOptimizationTool: installVirtualDesktopOptimizationTool
     installVisio: installVisio
     installWord: installWord
@@ -198,11 +202,13 @@ module automationAccount 'automationAccount.bicep' = {
     teamsInstaller: teamsInstaller
     templateSpecResourceId: templateSpec.outputs.resourceId
     timeZone: timeZone
+    updateService: updateService
     userAssignedIdentityClientId: userAssignedIdentityClientId
     userAssignedIdentityPrincipalId: userAssignedIdentityPrincipalId
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
     vcRedistInstaller: vcRedistInstaller
     vDOTInstaller: vDOTInstaller
     virtualMachineSize: virtualMachineSize
+    wsusServer: wsusServer
   }
 }

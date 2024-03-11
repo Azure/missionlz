@@ -103,7 +103,11 @@ resource applications 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01'
         $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token
         New-Item -Path $env:windir\temp -Name $Installer -ItemType "directory" -Force
         New-Item -Path $env:windir\temp\$Installer -Name 'Files' -ItemType "directory" -Force
-        Invoke-WebRequest -Headers @{"x-ms-version"="2017-11-09"; Authorization ="Bearer $AccessToken"} -Uri "$StorageAccountUrl$ContainerName/$BlobName" -OutFile $env:windir\temp\$Installer\Files\$Blobname
+        #Invoking WebClient to download blobs because it is more efficient than Invoke-WebRequest for large files.
+        $WebClient = New-Object System.Net.WebClient
+        $WebClient.Headers.Add('x-ms-version', '2017-11-09')
+        $webClient.Headers.Add("Authorization", "Bearer $AccessToken")
+        $webClient.DownloadFile("$StorageAccountUrl$ContainerName/$BlobName", "$env:windir\temp\$Installer\Files\$Blobname")
         Start-Sleep -Seconds 30
         Set-Location -Path $env:windir\temp\$Installer
         if($Blobname -like ("*.exe"))
@@ -608,3 +612,4 @@ resource argGisPro 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
     vdot
   ]
 }
+

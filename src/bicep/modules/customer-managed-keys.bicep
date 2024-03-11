@@ -2,36 +2,35 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+targetScope = 'subscription'
 
-param diskEncryptionSetName string
 param deploymentNameSuffix string
-param keyVaultName string
-param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
-param keyVaultPrivateEndpointName string
 param location string
+param networkProperties object
 param subnetResourceId string
 param tags object
-param userAssignedIdentityName string
 
-module keyVault '../modules/key-vault.bicep' = {
+module keyVault 'key-vault.bicep' = {
   name: 'deploy-key-vault-${deploymentNameSuffix}'
+  scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
   params: {
-    keyVaultName: keyVaultName
-    keyVaultNetworkInterfaceName: keyVaultNetworkInterfaceName
+    keyVaultName: networkProperties.keyVaultName
+    keyVaultNetworkInterfaceName: networkProperties.keyVaultNetworkInterfaceName
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    keyVaultPrivateEndpointName: keyVaultPrivateEndpointName
+    keyVaultPrivateEndpointName: networkProperties.keyVaultPrivateEndpointName
     location: location
     subnetResourceId: subnetResourceId
     tags: tags
   }
 }
 
-module diskEncryptionSet '../modules/disk-encryption-set.bicep' = {
+module diskEncryptionSet 'disk-encryption-set.bicep' = {
   name: 'deploy-disk-encryption-set_${deploymentNameSuffix}'
+  scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: diskEncryptionSetName
+    diskEncryptionSetName: networkProperties.diskEncryptionSetName
     keyUrl: keyVault.outputs.keyUriWithVersion
     keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
@@ -39,11 +38,12 @@ module diskEncryptionSet '../modules/disk-encryption-set.bicep' = {
   }
 }
 
-module userAssignedIdentity '../modules/user-assigned-identity.bicep' = {
+module userAssignedIdentity 'user-assigned-identity.bicep' = {
   name: 'deploy-user-assigned-identity-${deploymentNameSuffix}'
+  scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
   params: {
     location: location
-    name: userAssignedIdentityName
+    name: networkProperties.userAssignedIdentityName
     tags: tags
   }
 }

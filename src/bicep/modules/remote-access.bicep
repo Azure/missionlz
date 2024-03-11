@@ -2,21 +2,17 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+targetScope = 'subscription'
 
-param bastionHostIPConfigurationName string
-param bastionHostName string
 param bastionHostPublicIPAddressAllocationMethod string
 param bastionHostPublicIPAddressAvailabilityZones array
-param bastionHostPublicIPAddressName string
 param bastionHostPublicIPAddressSkuName string 
 param bastionHostSubnetResourceId string
 param diskEncryptionSetResourceId string
 param hubNetworkSecurityGroupResourceId string
+param hubProperties object
 param hubSubnetResourceId string
 param hybridUseBenefit bool
-param linuxDiskName string
-param linuxNetworkInterfaceIpConfigurationName string
-param linuxNetworkInterfaceName string
 param linuxNetworkInterfacePrivateIPAddressAllocationMethod string
 @secure()
 @minLength(12)
@@ -31,23 +27,18 @@ param linuxVmImageOffer string
 param linuxVmImagePublisher string
 param linuxVmImageSku string
 param linuxVmImageVersion string
-param linuxVmName string
 param linuxVmOsDiskCreateOption string
 param linuxVmOsDiskType string
 param linuxVmSize string
 param location string
 param logAnalyticsWorkspaceId string
 param tags object
-param windowsDiskName string
-param windowsNetworkInterfaceIpConfigurationName string
-param windowsNetworkInterfaceName string
 param windowsNetworkInterfacePrivateIPAddressAllocationMethod string
 @secure()
 @minLength(12)
 param windowsVmAdminPassword string
 param windowsVmAdminUsername string
 param windowsVmCreateOption string
-param windowsVmName string
 param windowsVmOffer string
 param windowsVmPublisher string
 param windowsVmSize string
@@ -57,14 +48,15 @@ param windowsVmVersion string
 
 module bastionHost '../modules/bastion-host.bicep' = {
   name: 'remoteAccess-bastionHost'
+  scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
   params: {
     bastionHostSubnetResourceId: bastionHostSubnetResourceId
-    ipConfigurationName: bastionHostIPConfigurationName
+    ipConfigurationName: hubProperties.bastionHostIPConfigurationName
     location: location
-    name: bastionHostName
+    name: hubProperties.bastionHostName
     publicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
     publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-    publicIPAddressName: bastionHostPublicIPAddressName
+    publicIPAddressName: hubProperties.bastionHostPublicIPAddressName
     publicIPAddressSkuName: bastionHostPublicIPAddressSkuName
     tags: tags
   }
@@ -72,10 +64,11 @@ module bastionHost '../modules/bastion-host.bicep' = {
 
 module linuxNetworkInterface '../modules/network-interface.bicep' = {
   name: 'remoteAccess-linuxNetworkInterface'
+  scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
   params: {
-    ipConfigurationName: linuxNetworkInterfaceIpConfigurationName
+    ipConfigurationName: hubProperties.linuxNetworkInterfaceIpConfigurationName
     location: location
-    name: linuxNetworkInterfaceName
+    name: hubProperties.linuxNetworkInterfaceName
     networkSecurityGroupId: hubNetworkSecurityGroupResourceId
     privateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
     subnetId: hubSubnetResourceId
@@ -85,15 +78,16 @@ module linuxNetworkInterface '../modules/network-interface.bicep' = {
 
 module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' = {
   name: 'remoteAccess-linuxVirtualMachine'
+  scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
   params: {
     adminPasswordOrKey: linuxVmAdminPasswordOrKey
     adminUsername: linuxVmAdminUsername
     authenticationType: linuxVmAuthenticationType
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskName: linuxDiskName
+    diskName: hubProperties.linuxDiskName
     location: location
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
-    name: linuxVmName
+    name: hubProperties.linuxVmName
     networkInterfaceName: linuxNetworkInterface.outputs.name
     osDiskCreateOption: linuxVmOsDiskCreateOption
     osDiskType: linuxVmOsDiskType
@@ -108,10 +102,11 @@ module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' = {
 
 module windowsNetworkInterface '../modules/network-interface.bicep' = {
   name: 'remoteAccess-windowsNetworkInterface'
+  scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
   params: {
-    ipConfigurationName: windowsNetworkInterfaceIpConfigurationName
+    ipConfigurationName: hubProperties.windowsNetworkInterfaceIpConfigurationName
     location: location
-    name: windowsNetworkInterfaceName
+    name: hubProperties.windowsNetworkInterfaceName
     networkSecurityGroupId: hubNetworkSecurityGroupResourceId
     privateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
     subnetId: hubSubnetResourceId
@@ -121,16 +116,17 @@ module windowsNetworkInterface '../modules/network-interface.bicep' = {
 
 module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' = {
   name: 'remoteAccess-windowsVirtualMachine'
+  scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
   params: {
     adminPassword: windowsVmAdminPassword
     adminUsername: windowsVmAdminUsername
     createOption: windowsVmCreateOption
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskName: windowsDiskName
+    diskName: hubProperties.windowsDiskName
     hybridUseBenefit: hybridUseBenefit
     location: location
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
-    name: windowsVmName
+    name: hubProperties.windowsVmName
     networkInterfaceName: windowsNetworkInterface.outputs.name
     offer: windowsVmOffer
     publisher: windowsVmPublisher

@@ -78,7 +78,7 @@ try
 			hybridUseBenefit = if($Values.hybridUseBenefit -eq 'true'){$true}else{$false}
 			imageDefinitionName = $Values.imageDefinitionName
 			imageMajorVersion = [int]$Values.imageMajorVersion
-			imageMinorVersion = [int]$Values.imageMinorVersion
+			imagePatchVersion = [int]$Values.imagePatchVersion
 			imageVirtualMachineName = $Values.imageVirtualMachineName
 			installAccess = if($Values.installAccess -eq 'true'){$true}else{$false}
 			installArcGisPro = if($Values.installArcGisPro -eq 'true'){$true}else{$false}
@@ -102,6 +102,7 @@ try
 			msrdcwebrtcsvcInstaller = $Values.msrdcwebrtcsvcInstaller
 			officeInstaller = $Values.officeInstaller
 			replicaCount = [int]$Values.replicaCount
+			resourceGroupName = $Values.resourceGroupName
 			runbookExecution = $true
 			sourceImageType = $Values.sourceImageType
 			storageAccountResourceId = $Values.storageAccountResourceId
@@ -116,7 +117,7 @@ try
         }
 		if($Values.customizations -ne '[]'){$TemplateParameters.Add('customizations', $Values.customizations)}
         if($Values.tags -ne '{}'){$TemplateParameters.Add('tags', $Values.tags)}
-		New-AzResourceGroupDeployment -ResourceGroupName $Values.resourceGroupName -TemplateSpecId $Values.templateSpecResourceId -TemplateParameterObject $TemplateParameters -DefaultProfile $AzureContext
+		New-AzDeployment -Location $Values.location -TemplateSpecId $Values.templateSpecResourceId -TemplateParameterObject $TemplateParameters -DefaultProfile $AzureContext
 		Write-Output "$DestinationImageDefinitionName | $DestinationGalleryResourceGroupName | Image build succeeded. New image version available in the destination Compute Gallery."
 	}
 	else 

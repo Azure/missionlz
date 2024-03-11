@@ -5,7 +5,7 @@ Licensed under the MIT License.
 
 param name string
 param location string
-param tags object = {}
+param tags object
 param retentionInDays int = 30
 param skuName string = 'PerGB2018'
 param workspaceCappingDailyQuotaGb int = -1
@@ -91,6 +91,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
 resource logAnalyticsSolutions 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = [for solution in solutions: if(solution.deploy) {
   name: '${solution.name}(${logAnalyticsWorkspace.name})'
   location: location
+  tags: tags
   properties: {
     workspaceResourceId: logAnalyticsWorkspace.id
   }
@@ -111,6 +112,4 @@ resource lock 'Microsoft.Authorization/locks@2016-09-01' = if (enableDeleteLock)
   }
 }
 
-output id string = logAnalyticsWorkspace.id
-output name string = logAnalyticsWorkspace.name
-output resourceGroupName string = resourceGroup().name
+output resourceId string = logAnalyticsWorkspace.id

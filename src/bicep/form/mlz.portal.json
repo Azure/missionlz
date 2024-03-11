@@ -658,6 +658,14 @@
                   }
                 }
               ]
+            },
+            {
+              "name": "networkWatchersApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[concat(steps('basics').hubSection.hubSubscriptionId, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
+              }
             }
           ]
         },
@@ -1047,6 +1055,7 @@
         "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
         "deployDefender": "[steps('compliance').defenderSection.deployDefender]",
         "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
+        "deployNetworkWatcher": "[empty(filter(steps('networking').networkWatchersApi.value, (item) => equals(item.location, steps('basics').locationSection.location.name)))]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
         "deployRemoteAccess": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
         "deploySentinel": "[steps('compliance').sentinelSection.deploySentinel]",
