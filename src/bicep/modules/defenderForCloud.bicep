@@ -5,6 +5,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+@description('Defender Paid protection Plans. Even if a customer selects the free sku, at least 1 paid protection plan must be specified.')
 param defenderPlans array = ['VirtualMachines']
 
 @description('Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off')
@@ -23,15 +24,7 @@ param policySetDescription string = 'The Microsoft Cloud Security Benchmark init
 @description('[Standard/Free] The SKU for Defender. It defaults to "Free".')
 param defenderSkuTier string = 'Free'
 
-// defender for cloud turn on free tier
-resource defenderPricing 'Microsoft.Security/pricings@2023-01-01' = if (empty(defenderPlans)) {
-  name: VirtualMachines
-  properties: {
-    pricingTier: defenderSkuTier
-  }
-}
-
-// defender for cloud turn on if we have 1 or more in defender plans
+// defender for cloud turn on for both free and standard sku
 @batchSize(1)
 resource defenderPricing 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans)) {
   name: name

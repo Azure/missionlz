@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "17188451929212839838"
+      "templateHash": "1798085528524062919"
     }
   },
   "parameters": {
@@ -780,7 +780,7 @@
         "VirtualMachines"
       ],
       "metadata": {
-        "description": "Paid Workload Protection plans for Defende for Cloud"
+        "description": "Paid Workload Protection plans for Defender for Cloud"
       }
     }
   },
@@ -8194,7 +8194,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "9470091997321390598"
+              "templateHash": "1713491053601057220"
             }
           },
           "parameters": {
@@ -8258,7 +8258,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "16265376822103678216"
+                      "templateHash": "7666181759292759353"
                     }
                   },
                   "parameters": {
@@ -8266,7 +8266,10 @@
                       "type": "array",
                       "defaultValue": [
                         "VirtualMachines"
-                      ]
+                      ],
+                      "metadata": {
+                        "description": "Defender Paid protection Plans. Even if a customer selects the free sku, at least 1 paid protection plan must be specified."
+                      }
                     },
                     "enableAutoProvisioning": {
                       "type": "bool",
@@ -8296,9 +8299,9 @@
                     },
                     "defenderSkuTier": {
                       "type": "string",
-                      "defaultValue": "Standard",
+                      "defaultValue": "Free",
                       "metadata": {
-                        "description": "[Standard/Free] The SKU for Defender. It defaults to \"Standard\"."
+                        "description": "[Standard/Free] The SKU for Defender. It defaults to \"Free\"."
                       }
                     }
                   },
@@ -8313,6 +8316,7 @@
                         "mode": "serial",
                         "batchSize": 1
                       },
+                      "condition": "[not(empty(parameters('defenderPlans')))]",
                       "type": "Microsoft.Security/pricings",
                       "apiVersion": "2023-01-01",
                       "name": "[parameters('defenderPlans')[copyIndex()]]",

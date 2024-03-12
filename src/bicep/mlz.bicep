@@ -430,6 +430,8 @@ param defenderSkuTier string = 'Free'
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string = ''
 
+//Allowed Values for paid workload protection Plans.  
+//Even if the customer wants the free tier, we must specify a plan from this list. This is why we specify VirtualMachines as a default value.
 @allowed([
   'Api'
   'AppServices'
@@ -447,8 +449,8 @@ param emailSecurityContact string = ''
   'StorageAccounts'
   'VirtualMachines'
 ])
-@description('Paid Workload Protection plans for Defende for Cloud')
-param deployDefenderPlans array = []
+@description('Paid Workload Protection plans for Defender for Cloud')
+param deployDefenderPlans array = ['VirtualMachines']
 
 var calculatedTags = union(tags, defaultTags)
 var defaultTags = {
