@@ -51,27 +51,27 @@ param subscriptionId string = subscription().subscriptionId
 param userAssignedIdenityResourceId string
 param virtualNetworkName string
 param windowsDomainName string
-param architecture string
-param virtualNetworkId string
-param hubVirtualNetworkId string
+// param architecture string
+// param virtualNetworkId string
+// param hubVirtualNetworkId string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   scope: resourceGroup(subscription().subscriptionId, resourceGroup().name)
   name: storageAccountName
 }
 
-module privateDnsZone 'privateDnsZone.bicep' = if (architecture == 'singletier' && joinWindowsDomain == false) {
-  name: 'deploy-privatednszone-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
-  params: {
-    externalDnsHostname: externalDnsHostname
-    applicationGatewayPrivateIPAddress: applicationGatewayPrivateIpAddress
-    virtualNetworkId: virtualNetworkId
-    hubVirtualNetworkId: hubVirtualNetworkId
-  }
-  dependsOn: [
-  ]
-}
+// module privateDnsZone 'privateDnsZone.bicep' = if (architecture == 'singletier' && joinWindowsDomain == false) {
+//   name: 'deploy-privatednszone-${deploymentNameSuffix}'
+//   scope: resourceGroup(subscriptionId, resourceGroupName)
+//   params: {
+//     externalDnsHostname: externalDnsHostname
+//     applicationGatewayPrivateIPAddress: applicationGatewayPrivateIpAddress
+//     virtualNetworkId: virtualNetworkId
+//     hubVirtualNetworkId: hubVirtualNetworkId
+//   }
+//   dependsOn: [
+//   ]
+// }
 
 module applicationGateway 'applicationGateway.bicep' = {
   name: 'deploy-applicationgateway-${deploymentNameSuffix}'
@@ -96,7 +96,7 @@ module applicationGateway 'applicationGateway.bicep' = {
     windowsDomainName: windowsDomainName
   }
   dependsOn: [
-    privateDnsZone
+    // privateDnsZone
   ]
 }
 
@@ -138,7 +138,7 @@ module desiredStateConfiguration 'desiredStateConfiguration.bicep' = {
   }
   dependsOn: [
     applicationGateway
-    privateDnsZone
+    // privateDnsZone
   ]
 }
 

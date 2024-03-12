@@ -21,7 +21,7 @@ resource esriLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06
     virtualNetwork: {
       id: virtualNetworkId
     }
-    registrationEnabled: false
+    registrationEnabled: true
    }
 }
 

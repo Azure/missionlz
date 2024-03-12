@@ -65,7 +65,7 @@ param useAzureFiles bool
 param useCloudStorage bool
 param userAssignedIdenityResourceId string
 param virtualMachineOSDiskSize int
-param virtualNetworkId string
+// param virtualNetworkId string
 param virtualNetworkName string
 @secure()
 param selfSignedSSLCertificatePassword string
@@ -88,7 +88,7 @@ param enableGraphDataStore bool
 param enableObjectDataStore bool
 param applicationGatewayPrivateIPAddress string
 param windowsDomainName string
-param hubVirtualNetworkId string
+// param hubVirtualNetworkId string
 
 // var privateDnsDomainName ='${split(externalDnsHostname, '.')[1]}.${split(externalDnsHostname, '.')[2]}'
 
@@ -143,22 +143,22 @@ module applicationGateway 'applicationGateway.bicep' = if (architecture == 'mult
   }
   dependsOn: [
     dscFileShare
-    privateDnsZone
+    // privateDnsZone
   ]
 }
 
-module privateDnsZone 'privateDnsZone.bicep' = if (architecture == 'multitier' && joinWindowsDomain == false) {
-  name: 'deploy-privatednszone-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
-  params: {
-    externalDnsHostname: externalDnsHostname
-    applicationGatewayPrivateIPAddress: applicationGatewayPrivateIPAddress
-    virtualNetworkId: virtualNetworkId
-    hubVirtualNetworkId: hubVirtualNetworkId
-  }
-  dependsOn: [
-  ]
-}
+// module privateDnsZone 'privateDnsZone.bicep' = if (architecture == 'multitier' && joinWindowsDomain == false) {
+//   name: 'deploy-privatednszone-${deploymentNameSuffix}'
+//   scope: resourceGroup(subscriptionId, resourceGroupName)
+//   params: {
+//     externalDnsHostname: externalDnsHostname
+//     applicationGatewayPrivateIPAddress: applicationGatewayPrivateIPAddress
+//     virtualNetworkId: virtualNetworkId
+//     hubVirtualNetworkId: hubVirtualNetworkId
+//   }
+//   dependsOn: [
+//   ]
+// }
 
 @batchSize(1)
 module dscEsriServers 'dscEsriServer.bicep' =  [for (server, i) in serverVirtualMachines : if (architecture == 'multitier') {
@@ -196,7 +196,7 @@ module dscEsriServers 'dscEsriServer.bicep' =  [for (server, i) in serverVirtual
   dependsOn: [
     dscFileShare
     applicationGateway
-    privateDnsZone
+    // privateDnsZone
   ]
 }]
 
@@ -232,7 +232,7 @@ module dscEsriDataStoreServers 'dscEsriDataStore.bicep' = [for (server, i) in da
     dscEsriServers
     dscFileShare
     applicationGateway
-    privateDnsZone
+    // privateDnsZone
   ]
 }]
 
@@ -266,7 +266,7 @@ module dscEsriSpatioTemporalServers 'dscEsriSpatioTemporal.bicep' = [for (server
     dscFileShare
     dscEsriObjectDataStoreServers
     applicationGateway
-    privateDnsZone
+    // privateDnsZone
   ]
 }]
 
@@ -303,7 +303,7 @@ module dscEsriTileCacheServers 'dscEsriTileCache.bicep' = [for (server, i) in ti
     dscFileShare
     dscEsriGraphDataStoreServers
     applicationGateway
-    privateDnsZone
+    // privateDnsZone
   ]
 }]
 
@@ -338,7 +338,7 @@ module dscEsriGraphDataStoreServers 'dscEsriGraphDataStore.bicep' = [for (server
     dscEsriObjectDataStoreServers
     dscEsriSpatioTemporalServers
     applicationGateway
-    privateDnsZone
+    // privateDnsZone
   ]
 }]
 
@@ -372,7 +372,7 @@ module dscEsriObjectDataStoreServers 'dscEsriObjectDataStore.bicep' = [for (serv
     dscEsriDataStoreServers
     dscFileShare
     applicationGateway
-    privateDnsZone
+    // privateDnsZone
   ]
 }]
 
@@ -422,7 +422,7 @@ module dscEsriPortalServers 'dscEsriPortal.bicep' = [for (server, i) in portalVi
     dscEsriObjectDataStoreServers
     dscEsriTileCacheServers
     applicationGateway
-    privateDnsZone
+    // privateDnsZone
   ]
 }]
 

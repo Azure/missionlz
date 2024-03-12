@@ -47,8 +47,8 @@ param defaultSubnetAddressPrefix string
 param deployDefender bool
 @description('Deployment Name Suffix')
 param deploymentNameSuffix string = utcNow('yyMMddHHs')
-@description('Deploy Policy')
-param deployPolicy bool
+// @description('Deploy Policy')
+// param deployPolicy bool
 param diskEncryptionSetResourceId string
 @description('Email Security Contact')
 param emailSecurityContact string = ''
@@ -139,8 +139,8 @@ param numberOfTileCacheDataStoreVirtualMachineNames int = 1
 param objectDataStoreVirtualMachineOSDiskSize int = 128
 @description('OU Path if using domain join for the virtual machines.')
 param ouPath string = ''
-@description('Policy')
-param policy string = ''
+// @description('Policy')
+// // param policy string = ''
 @description('Portal License File')
 param portalLicenseFile string
 @description('Portal License User Type Id')
@@ -391,26 +391,31 @@ module tier3 'modules/tier3.bicep' = {
   name: 'deploy-tier3-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, rg.name)
   params: {
+    // deployPolicy: deployPolicy
+    // policy: policy
     applicationGatewayName: applicationGatewayName
+    applicationGatewayPrivateIpAddress: applicationGatewayPrivateIpAddress
     applicationGatewaySubnetAddressPrefix: applicationGatewaySubnetAddressPrefix
+    architecture: architecture
     defaultSubnetAddressPrefix: defaultSubnetAddressPrefix
     deployDefender: deployDefender
-    deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
+    externalDnsHostname: externalDnsHostname
     firewallPrivateIPAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
     hubResourceGroupName: hubResourceGroupName
     hubSubscriptionId: hubSubscriptionId
+    hubVirtualNetworkId: hubVirtualNetwork.id
     hubVirtualNetworkName: hubVirtualNetwork.name
     hubVirtualNetworkResourceId: hubVirtualNetwork.id
     location: location
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
-    policy: policy
     privatelink_keyvaultDns_name: split(privateDnsZone_keyvaultDns.id, '/')[8]
     resourceGroupName: rg.name
     resourcePrefix: resourcePrefix
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     workloadSubscriptionId: workloadSubscriptionId
+    joinWindowsDomain: joinWindowsDomain
   }
   dependsOn: []
 }
@@ -1002,7 +1007,7 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' = if (ar
     graphDataStoreVirtualMachineNames: graphDataStoreVirtualMachineNames
     graphDataStoreVirtualMachineOSDiskSize: graphDataStoreVirtualMachineOSDiskSize
     graphDataStoreVirtualMachines: graphDataStoreVirtualMachines
-    hubVirtualNetworkId: hubVirtualNetwork.id
+    // hubVirtualNetworkId: hubVirtualNetwork.id
     iDns: architecture == 'multitier' ? multiTierFileServerVirtualMachines[0].outputs.networkInterfaceInternalDomainNameSuffix : ''
     isMultiMachineTileCacheDataStore: isMultiMachineTileCacheDataStore
     isObjectDataStoreClustered: isObjectDataStoreClustered
@@ -1046,7 +1051,7 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' = if (ar
     useCloudStorage: useCloudStorage
     userAssignedIdenityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineOSDiskSize: virtualMachineOSDiskSize
-    virtualNetworkId: tier3.outputs.virtualNetworkResourceId
+    // virtualNetworkId: tier3.outputs.virtualNetworkResourceId
     virtualNetworkName: tier3.outputs.virtualNetworkName
     windowsDomainName: joinWindowsDomain ? windowsDomainName : 'none'
   }
@@ -1078,7 +1083,7 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
     arcgisServiceAccountUserName: arcgisServiceAccountUserName
-    architecture: architecture
+    // architecture: architecture
     cloudStorageAccountCredentialsUserName: storage.outputs.cloudStorageAccountCredentialsUserName
     dataStoreTypesForBaseDeploymentServers: (architecture == 'singletier') ? singleTierDataStoreTypes.outputs.dataStoreTypesForBaseDeploymentServers : 'none'
     debugMode: debugMode
@@ -1089,7 +1094,7 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     enableVirtualMachineDataDisk: enableVirtualMachineDataDisk
     externalDnsHostname: externalDnsHostname
     hostname: externalDnsHostname
-    hubVirtualNetworkId: hubVirtualNetwork.id
+    // hubVirtualNetworkId: hubVirtualNetwork.id
     iDns: architecture == 'singletier' ? singleTierVirtualMachine.outputs.networkInterfaceInternalDomainNameSuffix : 'none'
     isTileCacheDataStoreClustered: isTileCacheDataStoreClustered
     isUpdatingCertificates: isUpdatingCertificates
@@ -1118,7 +1123,7 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     userAssignedIdenityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineName: virtualMachineName
     virtualMachineOSDiskSize: virtualMachineOSDiskSize
-    virtualNetworkId: tier3.outputs.virtualNetworkResourceId
+    // virtualNetworkId: tier3.outputs.virtualNetworkResourceId
     virtualNetworkName: tier3.outputs.virtualNetworkName
     windowsDomainName: windowsDomainName
   }

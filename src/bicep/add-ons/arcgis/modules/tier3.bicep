@@ -28,7 +28,7 @@ param resourceSuffix string = 'mlz'
 
 param deployDefender bool
 param deploymentNameSuffix string = utcNow()
-param deployPolicy bool
+// param deployPolicy bool
 param emailSecurityContact string
 param firewallPrivateIPAddress string
 param hubResourceGroupName string
@@ -39,7 +39,7 @@ param location string
 param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceResourceId string
 // param networkSecurityGroupRules array = []
-param policy string
+// param policy string
 param resourceGroupName string
 // param subnetAddressPrefix string
 param tags object = {}
@@ -51,7 +51,11 @@ param applicationGatewayName string
 param applicationGatewaySubnetAddressPrefix string
 param defaultSubnetAddressPrefix string
 param privatelink_keyvaultDns_name string
-// param joinWindowsDomain bool
+param hubVirtualNetworkId string
+param externalDnsHostname string
+param architecture string
+param applicationGatewayPrivateIpAddress string
+param joinWindowsDomain bool
 
 /*
 
@@ -70,7 +74,7 @@ var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}
 var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'vnet')
 var routeTableNamingConvention = replace(replace(namingConvention, nameToken, 'esri'), resourceToken, 'rt')
 var workloadVirtualNetworkName = replace(virtualNetworkNamingConvention, nameToken, workloadName)
-var logAnalyticsWorkspaceResourceId_split = split(logAnalyticsWorkspaceResourceId, '/')
+// var logAnalyticsWorkspaceResourceId_split = split(logAnalyticsWorkspaceResourceId, '/')
 var defaultTags = {
   DeploymentType: 'MissionLandingZoneARM'
 }
@@ -106,7 +110,7 @@ module link './virtualNetworkLink.bicep' = {
   params: {
     privatelink_keyvaultDns_name: privatelink_keyvaultDns_name
     workloadVirtualNetworkName: spokeNetwork.outputs.vNetName
-    virtualNetworkId: spokeNetwork.outputs.vNetid 
+    virtualNetworkId: spokeNetwork.outputs.vNetid
   }
   dependsOn: [
   ]
@@ -122,6 +126,10 @@ module workloadVirtualNetworkPeerings './spoke-network-peering.bicep' = {
     hubVirtualNetworkName: hubVirtualNetworkName
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
   }
+  dependsOn: [
+    spokeNetwork
+    link
+  ]
 }
 
 module hubToWorkloadVirtualNetworkPeering './hub-network-peering.bicep' = {
@@ -133,6 +141,11 @@ module hubToWorkloadVirtualNetworkPeering './hub-network-peering.bicep' = {
     spokeVirtualNetworkName: spokeNetwork.outputs.vNetName
     spokeVirtualNetworkResourceId: spokeNetwork.outputs.vNetid
   }
+  dependsOn:[
+    spokeNetwork
+    link
+    workloadVirtualNetworkPeerings
+  ]
 }
 
 module workloadSubscriptionActivityLogging '../../../modules/central-logging.bicep' = if (workloadSubscriptionId != hubSubscriptionId) {
@@ -147,17 +160,17 @@ module workloadSubscriptionActivityLogging '../../../modules/central-logging.bic
   ]
 }
 
-module workloadPolicyAssignment '../../../modules/policy-assignment.bicep' = if (deployPolicy) {
-  name: 'assign-policy-${workloadName}-${deploymentNameSuffix}'
-  scope:  az.resourceGroup(workloadSubscriptionId, rg.name)
-  params: {
-    builtInAssignment: policy
-    logAnalyticsWorkspaceName: logAnalyticsWorkspaceResourceId_split[8]
-    logAnalyticsWorkspaceResourceGroupName: logAnalyticsWorkspaceResourceId_split[4]
-    location: location
-    operationsSubscriptionId: logAnalyticsWorkspaceResourceId_split[2]
-   }
-  }
+// module workloadPolicyAssignment '../../../modules/policy-assignment.bicep' = if (deployPolicy) {
+//   name: 'assign-policy-${workloadName}-${deploymentNameSuffix}'
+//   scope:  az.resourceGroup(workloadSubscriptionId, rg.name)
+//   params: {
+//     builtInAssignment: policy
+//     logAnalyticsWorkspaceName: logAnalyticsWorkspaceResourceId_split[8]
+//     logAnalyticsWorkspaceResourceGroupName: logAnalyticsWorkspaceResourceId_split[4]
+//     location: location
+//     operationsSubscriptionId: logAnalyticsWorkspaceResourceId_split[2]
+//    }
+//   }
 
 module spokeDefender '../../../modules/defender.bicep' = if (deployDefender) {
   name: 'set-${workloadName}-sub-defender'
@@ -168,6 +181,22 @@ module spokeDefender '../../../modules/defender.bicep' = if (deployDefender) {
   }
 }
 
+module privateDnsZone 'privateDnsZone.bicep' = if (architecture == 'singletier' && joinWindowsDomain == false) {
+  name: 'deploy-privatednszone-${deploymentNameSuffix}'
+  scope: resourceGroup(workloadSubscriptionId, resourceGroupName)
+  params: {
+    externalDnsHostname: externalDnsHostname
+    applicationGatewayPrivateIPAddress: applicationGatewayPrivateIpAddress
+    virtualNetworkId: spokeNetwork.outputs.vNetid
+    hubVirtualNetworkId: hubVirtualNetworkId
+  }
+  dependsOn: [
+    spokeNetwork
+    hubToWorkloadVirtualNetworkPeering
+    workloadVirtualNetworkPeerings
+  ]
+}
+
 output rg string = rg.name
 output location string = location
 output virtualNetworkName string = spokeNetwork.outputs.vNetName
@@ -176,5 +205,3 @@ output virtualNetworkResourceId string = spokeNetwork.outputs.vNetid
 output subnetName string = spokeNetwork.outputs.subnetName
 output subnetAddressPrefix string = spokeNetwork.outputs.subnetAddressPrefix
 output subnetResourceId string = spokeNetwork.outputs.subnetResourceId
-// output networkSecurityGroupName string = spokeNetwork.outputs.networkSecurityGroupName
-// output networkSecurityGroupResourceId string = spokeNetwork.outputs.networkSecurityGroupResourceId

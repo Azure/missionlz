@@ -9,21 +9,7 @@ param virtualNetworkAddressPrefix string
 param virtualNetworkName string
 param defaultSubnetAddressPrefix string
 param vNetDnsServers array
-param privatelink_keyvaultDns_name string
-// param joinWindowsDomain bool
 
-// module networkSecurityGroup 'network-security-group.bicep' = {
-//   name: 'networkSecurityGroup'
-//   params: {
-//     location: location
-//     name: networkSecurityGroupName
-//     securityRules: networkSecurityGroupRules
-//     tags: tags
-//   }
-// }
-resource privateDnsZone_keyvaultDns 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
-  name: privatelink_keyvaultDns_name
-}
 
 module routeTable 'route-table.bicep' = {
   name: 'routeTable'
@@ -111,27 +97,31 @@ resource defaultSubnet 'Microsoft.Network/virtualNetworks/subnets@2023-04-01' = 
       id: routeTable.outputs.id
     }
   }
+  dependsOn: [
+    routeTable
+    appGatewaySubnet
+  ]
 }
 
-resource keyVaultLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  parent: privateDnsZone_keyvaultDns
-  name: '${virtualNetwork.name}-link'
-  location: 'global'
-  properties: {
-    virtualNetwork: {
-      id: virtualNetwork.id
-    }
-    registrationEnabled: false
-   }
-}
+// resource keyVaultLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+//   parent: privateDnsZone_keyvaultDns
+//   name: '${virtualNetwork.name}-link'
+//   location: 'global'
+//   properties: {
+//     virtualNetwork: {
+//       id: virtualNetwork.id
+//     }
+//     registrationEnabled: false
+//    }
+// }
 
-output subnetResourceId string = defaultSubnet.id
-output vNetid string = virtualNetwork.id
-output vNetName string = virtualNetwork.name
-output vNetAddressPrefix string = virtualNetwork.properties.addressSpace.addressPrefixes[0]
-output subnetName string = defaultSubnet.name
-output subnetAddressPrefix string = defaultSubnet.properties.addressPrefix
+output appGatewaySubnetAddressPrefix string = appGatewaySubnet.properties.addressPrefix
 output appGatewaySubnetId string = appGatewaySubnet.id
 output appGatewaySubnetName string = appGatewaySubnet.name
-output appGatewaySubnetAddressPrefix string = appGatewaySubnet.properties.addressPrefix
+output subnetAddressPrefix string = defaultSubnet.properties.addressPrefix
+output subnetName string = defaultSubnet.name
+output subnetResourceId string = defaultSubnet.id
+output vNetAddressPrefix string = virtualNetwork.properties.addressSpace.addressPrefixes[0]
+output vNetid string = virtualNetwork.id
+output vNetName string = virtualNetwork.name
 
