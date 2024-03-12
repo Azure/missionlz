@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "17981620544276127215"
+      "templateHash": "8022445886483285415"
     }
   },
   "parameters": {
@@ -737,20 +737,20 @@
     },
     "deployDefender": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "When set to \"true\", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to \"false\"."
       }
     },
     "defenderSkuTier": {
       "type": "string",
-      "defaultValue": "Standard",
+      "defaultValue": "Free",
       "allowedValues": [
         "Standard",
         "Free"
       ],
       "metadata": {
-        "description": "[Standard/Free] The SKU for Defender. It defaults to \"Standard\"."
+        "description": "[Standard/Free] The SKU for Defender. It defaults to \"Free\"."
       }
     },
     "emailSecurityContact": {
@@ -758,6 +758,29 @@
       "defaultValue": "",
       "metadata": {
         "description": "Email address of the contact, in the form of john@doe.com"
+      }
+    },
+    "deployDefenderPlans": {
+      "type": "array",
+      "defaultValue": [
+        "VirtualMachines"
+      ],
+      "allowedValues": [
+        "Api",
+        "AppServices",
+        "Arm",
+        "CloudPosture",
+        "Containers",
+        "CosmosDbs",
+        "KeyVaults",
+        "OpenSourceRelationalDatabases",
+        "SqlServers",
+        "SqlServerVirtualMachines",
+        "StorageAccounts",
+        "VirtualMachines"
+      ],
+      "metadata": {
+        "description": "Paid Workload Protection plans for Defender for Cloud"
       }
     }
   },
@@ -8173,6 +8196,9 @@
           },
           "networks": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networks.value]"
+          },
+          "defenderPlans": {
+            "value": "[parameters('deployDefenderPlans')]"
           }
         },
         "template": {
@@ -8182,7 +8208,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "5518402211723114798"
+              "templateHash": "1713491053601057220"
             }
           },
           "parameters": {
@@ -8200,6 +8226,12 @@
             },
             "networks": {
               "type": "array"
+            },
+            "defenderPlans": {
+              "type": "array",
+              "defaultValue": [
+                "VirtualMachines"
+              ]
             }
           },
           "resources": [
@@ -8228,6 +8260,9 @@
                   },
                   "defenderSkuTier": {
                     "value": "[parameters('defenderSkuTier')]"
+                  },
+                  "defenderPlans": {
+                    "value": "[parameters('defenderPlans')]"
                   }
                 },
                 "template": {
@@ -8237,13 +8272,18 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "3655671661053884718"
+                      "templateHash": "7666181759292759353"
                     }
                   },
                   "parameters": {
-                    "bundle": {
+                    "defenderPlans": {
                       "type": "array",
-                      "defaultValue": "[if(equals(environment().name, 'AzureCloud'), createArray('Api', 'AppServices', 'Arm', 'CloudPosture', 'Containers', 'CosmosDbs', 'KeyVaults', 'OpenSourceRelationalDatabases', 'SqlServers', 'SqlServerVirtualMachines', 'StorageAccounts', 'VirtualMachines'), if(equals(environment().name, 'AzureUSGovernment'), createArray('Arm', 'Containers', 'OpenSourceRelationalDatabases', 'SqlServers', 'SqlServerVirtualMachines', 'StorageAccounts', 'VirtualMachines'), createArray()))]"
+                      "defaultValue": [
+                        "VirtualMachines"
+                      ],
+                      "metadata": {
+                        "description": "Defender Paid protection Plans. Even if a customer selects the free sku, at least 1 paid protection plan must be specified."
+                      }
                     },
                     "enableAutoProvisioning": {
                       "type": "bool",
@@ -8273,9 +8313,9 @@
                     },
                     "defenderSkuTier": {
                       "type": "string",
-                      "defaultValue": "Standard",
+                      "defaultValue": "Free",
                       "metadata": {
-                        "description": "[Standard/Free] The SKU for Defender. It defaults to \"Standard\"."
+                        "description": "[Standard/Free] The SKU for Defender. It defaults to \"Free\"."
                       }
                     }
                   },
@@ -8286,13 +8326,14 @@
                     {
                       "copy": {
                         "name": "defenderPricing",
-                        "count": "[length(parameters('bundle'))]",
+                        "count": "[length(parameters('defenderPlans'))]",
                         "mode": "serial",
                         "batchSize": 1
                       },
+                      "condition": "[not(empty(parameters('defenderPlans')))]",
                       "type": "Microsoft.Security/pricings",
                       "apiVersion": "2023-01-01",
-                      "name": "[parameters('bundle')[copyIndex()]]",
+                      "name": "[parameters('defenderPlans')[copyIndex()]]",
                       "properties": {
                         "pricingTier": "[parameters('defenderSkuTier')]"
                       }

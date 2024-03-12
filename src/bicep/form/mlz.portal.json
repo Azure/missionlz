@@ -671,43 +671,201 @@
         },
         {
           "name": "compliance",
-          "label": "Compliance",
+          "label": "Security and Compliance",
           "elements": [
             {
-              "name": "complianceDescriptionTextBlock",
+              "name": "Security and Compliance",
               "type": "Microsoft.Common.TextBlock",
               "options": {
-                "text": "Mission Landing Zone comes bundled with built-in policies that can be applied to the resources it deploys and the ability to enable Microsoft Defender for Cloud for the subscriptions it is deployed into.",
+                "text": "To support the on-going security and compliance of your landing zone, MLZ provides options for configuring: Defender for Cloud, Regulatory Compliance Policies, and Microsoft Sentinel.",
                 "link": {
-                  "label": "Learn more",
-                  "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
+                  "label": "Click here to learn more about recommended security best practices",
+                  "uri": "https://learn.microsoft.com/en-us/azure/security/fundamentals/operational-best-practices"
                 }
               }
             },
             {
+              "name": "defenderFreeSection",
+              "label": "Defender for Cloud - Cloud Security Posture Management",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "CSPMTextBox",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "To support the on-going security and compliance of your landing zone, by default - MLZ deploys the free cloud security posture management features of Defender for Cloud, such as: secure score, which is powered by the Microsoft Cloud Security Benchmark. The Microsoft Cloud Security Benchmark is a security framework derived from Microsoft best practices, and NIST/CIS security Controls.",
+                    "link": {
+                      "label": "Click here to learn more about Defender for Cloud",
+                      "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "name": "defenderSection",
+              "label": "Defender for Cloud - Workload Protection Plans and other advanced management features",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "defenderSubscriptionDetailsText",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "For further enhanced protection, MLZ has the option of activiating the paid features of Defender for Cloud, such as: Defender Cloud Security Posture Management (DCSPM) and workload protection plans for additional threat protection for resources, such as: servers, storage, and more."
+                  }
+                },
+                {
+                  "name": "defenderSKUWarningText",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": true,
+                  "options": {
+                    "text": "Enabling the additional paid features of Microsoft Defender for Cloud is recommended.  If you have previously enabled any paid workload protection plans, you must select the checkbox and relevant plans on the dropdown list, to ensure protection is maintained through any deployment(s) of MLZ.",
+                    "uri": "https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction#protect-cloud-workloads"
+                    }
+                },
+                {
+                  "name": "deployDefender",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable additional features for Microsoft Defender for Cloud?",
+                  "toolTip": "Check here to enable additional paid features of Microsoft Defender for Cloud.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "Checkavailability",
+                  "type": "Microsoft.Common.InfoBox",
+                  "options": {
+                    "icon": "Info",
+                    "text": "Click the link to open a new browser tab, to confirm what workload protection features are available in the in Azure Commercial and Azure Government Clouds.",
+                    "uri": "https://learn.microsoft.com/en-us/azure/security/fundamentals/feature-availability#microsoft-defender-for-cloud"
+                  },
+                  "visible": "[steps('compliance').defenderSection.deployDefender]"
+                },
+                {
+                  "name": "deployDefenderPlans",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Defender for Cloud Additional Features",
+                  "placeholder": "",
+                  "defaultValue": "VirtualMachines",
+                  "toolTip": "Check feature availability of paid Defender for Cloud features",
+                  "multiselect": true,
+                  "selectAll": false,
+                  "filter": true,
+                  "filterPlaceholder": "Filter items ...",
+                  "multiLine": true,
+                  "defaultDescription": "Select paid Defender for Cloud features.",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "Defender CSPM",
+                        "description": "Provides enhanced posture management tools, such as: attack paths, cloud security explorer, and governance",
+                        "value": "CloudPosture"
+                      },
+                      {
+                        "label": "Defender for Servers",
+                        "description": "Provide server protections through Microsoft Defender for Endpoint or extended protection with just-in-time network access, file integrity monitoring, vulnerability assessment, and more.",
+                        "value": "VirtualMachines"
+                      },
+                      {
+                        "label": "Defender for API",
+                        "description": "Safeguards APIs throughout their lifecycle, offering detection, response coverage, and vulnerability prioritization",
+                        "value": "Api"
+                      },
+                      {
+                        "label": "Defender for App Services",
+                        "description": "Diagnose weaknesses in your application infrastructure that can leave your environment susceptible to attack.",
+                        "value": "AppServices"
+                      },
+                      {
+                        "label": "Defender for Resource Manager",
+                        "description": "Protects against suspicious Azure Resource Mnagement operations, use of exploitation toolkits, and lateral movement.",
+                        "value": "Arm"
+                      },
+                      {
+                        "label": "Defender for Azure Cosmos DB",
+                        "description": "detects potential SQL injections, known bad actors based on Microsoft Threat Intelligence, suspicious access patterns, and potential exploitation of your database through compromised identities, or malicious insiders.",
+                        "value": "CosmosDbs"
+                      },
+                      {
+                        "label": "Defender for Key Vault",
+                        "description": "Detects unusual and potentially harmful attempts to access or exploit Key Vault accounts. This layer of protection helps you address threats even if you're not a security expert, and without the need to manage third-party security monitoring systems.",
+                        "value": "KeyVaults"
+                      },
+                      {
+                        "label": "Defender for open-source relational databases",
+                        "description": "Provide alerts when it detects anomalous database access and query patterns as well as suspicious database activities",
+                        "value": "OpenSourceRelationalDatabases"
+                      },
+                      {
+                        "label": "Defender for SQL Server on machines",
+                        "description": "Identify and mitigate potential database vulnerabilities and detecting anomalous activities that could indicate threats to your databases.",
+                        "value": "SqlServerVirtualMachines"
+                      },
+                      {
+                        "label": "Defender for Azure SQL",
+                        "description": "Provides vulnerability assessment and threat protection for Azure SQL.",
+                        "value": "SqlServers"
+                      },
+                      {
+                        "label": "Defender for Storage",
+                        "description": "Detect unusual and potentially harmful attempts to access or exploit your storage accounts using: advanced threat detection capabilities and Microsoft Threat Intelligence data to provide contextual security alerts.",
+                        "value": "StorageAccounts"
+                      },
+                      {
+                        "label": "Defender for Containers",
+                        "description": "Provides security posture management, vulnerability assessment, run-time threat protection, and deployment-montioring for containers.",
+                        "value": "Containers"
+                      }
+                    ]
+                  },
+                  "visible": "[steps('compliance').defenderSection.deployDefender]"
+                },
+                {
+                  "name": "emailSecurityContact",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Security Contact E-Mail Address",
+                  "defaultValue": "",
+                  "toolTip": "Provide an e-mail address as a security contact for Microsoft Defender for Cloud",
+                  "placeholder": "johndoe@contoso.com",
+                  "multiLine": false,
+                  "constraints": {
+                    "required": "[steps('compliance').defenderSection.deployDefender]",
+                    "validations": [
+                      {
+                        "regex": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
+                        "message": "Provide a valid e-mail address"
+                      }
+                    ]
+                  },
+                  "visible": "[steps('compliance').defenderSection.deployDefender]"
+                }
+              ]
+            },
+            {
               "name": "policySection",
-              "label": "Enable Azure Policy",
+              "label": "Assign Regulatory Compliance Policies",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
                   "name": "policySubsetDetailsTextBlock",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Mission Landing Zone comes bundled with a relevant subset of available Azure policies."
+                    "text": "To assist with security compliance, MLZ can deploy additional regulatory compliance frameworks, powered by Azure Policy, to your landing zone."
                   }
                 },
                 {
                   "name": "policyOptionalTextBlock",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Enabling policies is optional, but recommended."
+                    "text": "Enabling policies is optional, but recommended if your organization must follow certain standards."
                   }
                 },
                 {
                   "name": "deployPolicy",
                   "type": "Microsoft.Common.CheckBox",
                   "label": "Create policy assignments?",
-                  "toolTip": "Check here to create policy assignments for the resources created by Mission Landing Zone.",
+                  "toolTip": "Check here to assign regulatory compliance policy assignments for the Mission Landing Zone.",
                   "constraints": {
                     "required": false
                   }
@@ -754,78 +912,33 @@
               ]
             },
             {
-              "name": "defenderSection",
-              "label": "Enable Microsoft Defender for Cloud",
-              "type": "Microsoft.Common.Section",
-              "elements": [
-                {
-                  "name": "defenderSubscriptionDetailsText",
-                  "type": "Microsoft.Common.TextBlock",
-                  "options": {
-                    "text": "Mission Landing Zone can activate Microsoft Defender for Cloud for each subscription it is deployed into."
-                  }
-                },
-                {
-                  "name": "defenderOptionalDetailsText",
-                  "type": "Microsoft.Common.TextBlock",
-                  "options": {
-                    "text": "Enabling Microsoft Defender for Cloud is optional, but recommended."
-                  }
-                },
-                {
-                  "name": "deployDefender",
-                  "type": "Microsoft.Common.CheckBox",
-                  "label": "Enable Microsoft Defender for Cloud?",
-                  "toolTip": "Check here to enable Microsoft Defender for Cloud for the subscriptions used to deploy Mission Landing Zone.",
-                  "constraints": {
-                    "required": false
-                  }
-                },
-                {
-                  "name": "emailSecurityContact",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Security Contact E-Mail Address",
-                  "defaultValue": "",
-                  "toolTip": "Provide an e-mail address as a security contact for Microsoft Defender for Cloud",
-                  "placeholder": "johndoe@contoso.com",
-                  "multiLine": false,
-                  "constraints": {
-                    "required": "[steps('compliance').defenderSection.deployDefender]",
-                    "validations": [
-                      {
-                        "regex": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
-                        "message": "Provide a valid e-mail address"
-                      }
-                    ]
-                  },
-                  "visible": "[steps('compliance').defenderSection.deployDefender]"
-                }
-              ]
-            },
-            {
               "name": "sentinelSection",
-              "label": "Enable Azure Sentinel",
+              "label": "Enable Microsoft Sentinel",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
                   "name": "sentinelSectionDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Mission Landing Zone can activate Azure Sentinel for the Log Analytics Workspace it deploys."
+                    "text": "MLZ can deploy Microsoft Sentinel to the Log Analytics Workspace, for its Security information and event management (SIEM) and Security orchestration, automation, and response (SOAR).",
+                    "link": {
+                      "label": "Learn more about Microsoft Sentinel",
+                      "uri": "https://learn.microsoft.com/en-us/azure/sentinel/overview"
+                    }
                   }
                 },
                 {
                   "name": "sentinelOptionalDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Enabling Azure Sentinel is optional, but recommended."
+                    "text": "Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities."
                   }
                 },
                 {
                   "name": "deploySentinel",
                   "type": "Microsoft.Common.CheckBox",
-                  "label": "Enable Azure Sentinel?",
-                  "toolTip": "Check here to enable Azure Sentinel Center for the Log Analytics Workspace Mission Landing Zone deploys.",
+                  "label": "Enable Microsoft Sentinel?",
+                  "toolTip": "Check here to enable Microsoft Sentinel for your landing zone.",
                   "constraints": {
                     "required": false
                   }
@@ -1053,7 +1166,8 @@
       "subscriptionId": "[steps('basics').hubSection.hubSubscriptionId]",
       "parameters": {
         "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
-        "deployDefender": "[steps('compliance').defenderSection.deployDefender]",
+        "defenderSkuTier": "[if(steps('compliance').defenderSection.deployDefender, 'Standard', 'Free')]",
+        "deployDefenderPlans": "[steps('compliance').defenderSection.deployDefenderPlans]",
         "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
         "deployNetworkWatcher": "[empty(filter(steps('networking').networkWatchersApi.value, (item) => equals(item.location, steps('basics').locationSection.location.name)))]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",

@@ -415,20 +415,42 @@ param deployPolicy bool = false
 @description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
 param policy string = 'NISTRev4'
 
-// MICROSOFT DEFENDER PARAMETERS
+// MICROSOFT DEFENDER FOR CLOUD PARAMETERS
 
 @description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
-param deployDefender bool = false
+param deployDefender bool = true
 
 @allowed([
   'Standard'
   'Free'
 ])
-@description('[Standard/Free] The SKU for Defender. It defaults to "Standard".')
-param defenderSkuTier string = 'Standard'
+@description('[Standard/Free] The SKU for Defender. It defaults to "Free".')
+param defenderSkuTier string = 'Free'
 
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string = ''
+
+//Allowed Values for paid workload protection Plans.  
+//Even if the customer wants the free tier, we must specify a plan from this list. This is why we specify VirtualMachines as a default value.
+@allowed([
+  'Api'
+  'AppServices'
+  'Arm'
+  'CloudPosture'
+  //'ContainerRegistry' (deprecated)
+  'Containers'
+  'CosmosDbs'
+  //'Dns' (deprecated)
+  'KeyVaults'
+  //'KubernetesService' (deprecated)
+  'OpenSourceRelationalDatabases'
+  'SqlServers'
+  'SqlServerVirtualMachines'
+  'StorageAccounts'
+  'VirtualMachines'
+])
+@description('Paid Workload Protection plans for Defender for Cloud')
+param deployDefenderPlans array = ['VirtualMachines']
 
 var calculatedTags = union(tags, defaultTags)
 var defaultTags = {
@@ -686,5 +708,6 @@ module defenderforClouds 'modules/defenderforClouds.bicep' = if (deployDefender)
     emailSecurityContact: emailSecurityContact
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     networks: logic.outputs.networks
+    defenderPlans: deployDefenderPlans
   }
 }
