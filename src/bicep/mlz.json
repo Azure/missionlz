@@ -1865,7 +1865,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "9373053868854046482"
+              "templateHash": "15283875823429716244"
             }
           },
           "parameters": {
@@ -2051,7 +2051,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "15548392781677191666"
+                      "templateHash": "16027835314873428694"
                     }
                   },
                   "parameters": {
@@ -2275,6 +2275,9 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "disableBgpRoutePropagation": {
+                            "value": false
+                          },
                           "location": {
                             "value": "[parameters('location')]"
                           },
@@ -2304,10 +2307,13 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.25.53.49325",
-                              "templateHash": "7360036313931893136"
+                              "templateHash": "16396784950679856617"
                             }
                           },
                           "parameters": {
+                            "disableBgpRoutePropagation": {
+                              "type": "bool"
+                            },
                             "location": {
                               "type": "string"
                             },
@@ -2338,6 +2344,7 @@
                               "location": "[parameters('location')]",
                               "tags": "[parameters('tags')]",
                               "properties": {
+                                "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
                                 "routes": [
                                   {
                                     "name": "[parameters('routeName')]",
@@ -3157,7 +3164,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "705252534783500241"
+                      "templateHash": "14595420933363835973"
                     }
                   },
                   "parameters": {
@@ -3305,6 +3312,9 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "disableBgpRoutePropagation": {
+                            "value": true
+                          },
                           "location": {
                             "value": "[parameters('location')]"
                           },
@@ -3334,10 +3344,13 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.25.53.49325",
-                              "templateHash": "7360036313931893136"
+                              "templateHash": "16396784950679856617"
                             }
                           },
                           "parameters": {
+                            "disableBgpRoutePropagation": {
+                              "type": "bool"
+                            },
                             "location": {
                               "type": "string"
                             },
@@ -3368,6 +3381,7 @@
                               "location": "[parameters('location')]",
                               "tags": "[parameters('tags')]",
                               "properties": {
+                                "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
                                 "routes": [
                                   {
                                     "name": "[parameters('routeName')]",

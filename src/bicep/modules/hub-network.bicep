@@ -105,6 +105,7 @@ module networkSecurityGroup '../modules/network-security-group.bicep' = {
 module routeTable '../modules/route-table.bicep' = {
   name: 'routeTable'
   params: {
+    disableBgpRoutePropagation: false
     location: location
     name: routeTableName
     routeAddressPrefix: routeTableRouteAddressPrefix
@@ -132,7 +133,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     name: virtualNetworkName
     subnets: subnets
     tags: tags
-    vNetDnsServers:  vNetDnsServers
+    vNetDnsServers: vNetDnsServers
     firewallSkuTier: firewallSkuTier
   }
   dependsOn: [

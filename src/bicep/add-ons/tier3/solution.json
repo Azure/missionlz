@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "13654939355430297825"
+      "templateHash": "13136741410504274799"
     }
   },
   "parameters": {
@@ -1023,7 +1023,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "4530921344135824923"
+              "templateHash": "2879310497370314190"
             }
           },
           "parameters": {
@@ -1157,7 +1157,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "705252534783500241"
+                      "templateHash": "14595420933363835973"
                     }
                   },
                   "parameters": {
@@ -1305,6 +1305,9 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "disableBgpRoutePropagation": {
+                            "value": true
+                          },
                           "location": {
                             "value": "[parameters('location')]"
                           },
@@ -1334,10 +1337,13 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.25.53.49325",
-                              "templateHash": "7360036313931893136"
+                              "templateHash": "16396784950679856617"
                             }
                           },
                           "parameters": {
+                            "disableBgpRoutePropagation": {
+                              "type": "bool"
+                            },
                             "location": {
                               "type": "string"
                             },
@@ -1368,6 +1374,7 @@
                               "location": "[parameters('location')]",
                               "tags": "[parameters('tags')]",
                               "properties": {
+                                "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
                                 "routes": [
                                   {
                                     "name": "[parameters('routeName')]",
