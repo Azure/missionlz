@@ -35,6 +35,7 @@ module networkSecurityGroup '../modules/network-security-group.bicep' = {
 module routeTable '../modules/route-table.bicep' = {
   name: 'routeTable'
   params: {
+    disableBgpRoutePropagation: true
     location: location
     name: routeTableName
     routeAddressPrefix: routeTableRouteAddressPrefix

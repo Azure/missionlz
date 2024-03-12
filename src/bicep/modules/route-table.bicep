@@ -3,6 +3,7 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+param disableBgpRoutePropagation bool
 param location string
 param name string
 param routeAddressPrefix string
@@ -15,8 +16,8 @@ resource routeTable 'Microsoft.Network/routeTables@2021-02-01' = {
   name: name
   location: location
   tags: tags
-
   properties: {
+    disableBgpRoutePropagation: disableBgpRoutePropagation
     routes: [
       {
         name: routeName
