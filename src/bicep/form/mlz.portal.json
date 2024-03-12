@@ -715,15 +715,13 @@
                   }
                 },
                 {
-                  "name": "defenderOptionalDetailsText",
-                  "type": "Microsoft.Common.TextBlock",
+                  "name": "defenderSKUWarningText",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": true,
                   "options": {
-                    "text": "Enabling the additional paid features of Microsoft Defender for Cloud is recommended.",
-                    "link": {
-                      "label": "Click here to Learn more about Defender for Cloud workload protection features",
-                      "uri": "https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction#protect-cloud-workloads"
+                    "text": "Enabling the additional paid features of Microsoft Defender for Cloud is recommended.  If you have previously enabled any paid workload protection plans, you must select the checkbox and relevant plans on the dropdown list.",
+                    "uri": "https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction#protect-cloud-workloads"
                     }
-                  }
                 },
                 {
                   "name": "deployDefender",
