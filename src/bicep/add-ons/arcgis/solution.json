@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.25.53.49325",
-      "templateHash": "12069421290153065804"
+      "templateHash": "2247964402365505173"
     }
   },
   "parameters": {
@@ -2965,6 +2965,12 @@
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
+          "externalDnsHostName": {
+            "value": "[parameters('externalDnsHostname')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
+          },
           "joinWindowsDomain": {
             "value": "[parameters('joinWindowsDomain')]"
           },
@@ -2991,6 +2997,9 @@
           "virtualMachineName": {
             "value": "[variables('virtualMachineName')]"
           },
+          "virtualMachineSize": {
+            "value": "[parameters('virtualMachineSize')]"
+          },
           "windowsDomainAdministratorPassword": {
             "value": "[parameters('windowsDomainAdministratorPassword')]"
           },
@@ -2999,12 +3008,6 @@
           },
           "windowsDomainName": {
             "value": "[parameters('windowsDomainName')]"
-          },
-          "virtualMachineSize": {
-            "value": "[parameters('virtualMachineSize')]"
-          },
-          "joinEntraDomain": {
-            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -3014,7 +3017,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "8929004796964315930"
+              "templateHash": "10527312308935077467"
             }
           },
           "parameters": {
@@ -3036,6 +3039,9 @@
             },
             "enableMonitoring": {
               "type": "bool"
+            },
+            "externalDnsHostName": {
+              "type": "string"
             },
             "joinWindowsDomain": {
               "type": "bool"
@@ -3087,6 +3093,7 @@
           "variables": {
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
+            "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
             "availabilitySetId": {
               "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
             }
@@ -3347,6 +3354,32 @@
                 }
               },
               "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/runCommands",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'rc-esriDnsSuffix')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "treatFailureAsDeploymentFailure": true,
+                "asyncExecution": false,
+                "parameters": [
+                  {
+                    "name": "Domain",
+                    "value": "[variables('nicDnsSuffix')]"
+                  }
+                ],
+                "source": {
+                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'joindomain')]",
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
               ]
             }
@@ -3406,6 +3439,12 @@
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
+          "externalDnsHostName": {
+            "value": "[parameters('externalDnsHostname')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
+          },
           "joinWindowsDomain": {
             "value": "[parameters('joinWindowsDomain')]"
           },
@@ -3436,6 +3475,9 @@
           "virtualMachineName": {
             "value": "[variables('serverVirtualMachines')[copyIndex()]]"
           },
+          "virtualMachineSize": {
+            "value": "[parameters('virtualMachineSize')]"
+          },
           "windowsDomainAdministratorPassword": {
             "value": "[parameters('windowsDomainAdministratorPassword')]"
           },
@@ -3444,12 +3486,6 @@
           },
           "windowsDomainName": {
             "value": "[parameters('windowsDomainName')]"
-          },
-          "virtualMachineSize": {
-            "value": "[parameters('virtualMachineSize')]"
-          },
-          "joinEntraDomain": {
-            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -3459,7 +3495,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "8929004796964315930"
+              "templateHash": "10527312308935077467"
             }
           },
           "parameters": {
@@ -3481,6 +3517,9 @@
             },
             "enableMonitoring": {
               "type": "bool"
+            },
+            "externalDnsHostName": {
+              "type": "string"
             },
             "joinWindowsDomain": {
               "type": "bool"
@@ -3532,6 +3571,7 @@
           "variables": {
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
+            "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
             "availabilitySetId": {
               "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
             }
@@ -3792,6 +3832,32 @@
                 }
               },
               "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/runCommands",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'rc-esriDnsSuffix')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "treatFailureAsDeploymentFailure": true,
+                "asyncExecution": false,
+                "parameters": [
+                  {
+                    "name": "Domain",
+                    "value": "[variables('nicDnsSuffix')]"
+                  }
+                ],
+                "source": {
+                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'joindomain')]",
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
               ]
             }
@@ -3852,6 +3918,12 @@
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
+          "externalDnsHostName": {
+            "value": "[parameters('externalDnsHostname')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
+          },
           "joinWindowsDomain": {
             "value": "[parameters('joinWindowsDomain')]"
           },
@@ -3882,6 +3954,9 @@
           "virtualMachineName": {
             "value": "[variables('portalVirtualMachines')[copyIndex()]]"
           },
+          "virtualMachineSize": {
+            "value": "[parameters('virtualMachineSize')]"
+          },
           "windowsDomainAdministratorPassword": {
             "value": "[parameters('windowsDomainAdministratorPassword')]"
           },
@@ -3890,12 +3965,6 @@
           },
           "windowsDomainName": {
             "value": "[parameters('windowsDomainName')]"
-          },
-          "virtualMachineSize": {
-            "value": "[parameters('virtualMachineSize')]"
-          },
-          "joinEntraDomain": {
-            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -3905,7 +3974,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "8929004796964315930"
+              "templateHash": "10527312308935077467"
             }
           },
           "parameters": {
@@ -3927,6 +3996,9 @@
             },
             "enableMonitoring": {
               "type": "bool"
+            },
+            "externalDnsHostName": {
+              "type": "string"
             },
             "joinWindowsDomain": {
               "type": "bool"
@@ -3978,6 +4050,7 @@
           "variables": {
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
+            "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
             "availabilitySetId": {
               "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
             }
@@ -4238,6 +4311,32 @@
                 }
               },
               "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/runCommands",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'rc-esriDnsSuffix')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "treatFailureAsDeploymentFailure": true,
+                "asyncExecution": false,
+                "parameters": [
+                  {
+                    "name": "Domain",
+                    "value": "[variables('nicDnsSuffix')]"
+                  }
+                ],
+                "source": {
+                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'joindomain')]",
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
               ]
             }
@@ -4298,6 +4397,12 @@
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
+          "externalDnsHostName": {
+            "value": "[parameters('externalDnsHostname')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
+          },
           "joinWindowsDomain": {
             "value": "[parameters('joinWindowsDomain')]"
           },
@@ -4328,6 +4433,9 @@
           "virtualMachineName": {
             "value": "[variables('dataStoreVirtualMachines')[copyIndex()]]"
           },
+          "virtualMachineSize": {
+            "value": "[parameters('virtualMachineSize')]"
+          },
           "windowsDomainAdministratorPassword": {
             "value": "[parameters('windowsDomainAdministratorPassword')]"
           },
@@ -4336,12 +4444,6 @@
           },
           "windowsDomainName": {
             "value": "[parameters('windowsDomainName')]"
-          },
-          "virtualMachineSize": {
-            "value": "[parameters('virtualMachineSize')]"
-          },
-          "joinEntraDomain": {
-            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -4351,7 +4453,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "8929004796964315930"
+              "templateHash": "10527312308935077467"
             }
           },
           "parameters": {
@@ -4373,6 +4475,9 @@
             },
             "enableMonitoring": {
               "type": "bool"
+            },
+            "externalDnsHostName": {
+              "type": "string"
             },
             "joinWindowsDomain": {
               "type": "bool"
@@ -4424,6 +4529,7 @@
           "variables": {
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
+            "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
             "availabilitySetId": {
               "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
             }
@@ -4684,6 +4790,32 @@
                 }
               },
               "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/runCommands",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'rc-esriDnsSuffix')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "treatFailureAsDeploymentFailure": true,
+                "asyncExecution": false,
+                "parameters": [
+                  {
+                    "name": "Domain",
+                    "value": "[variables('nicDnsSuffix')]"
+                  }
+                ],
+                "source": {
+                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'joindomain')]",
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
               ]
             }
@@ -4746,6 +4878,12 @@
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
+          "externalDnsHostName": {
+            "value": "[parameters('externalDnsHostname')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
+          },
           "joinWindowsDomain": {
             "value": "[parameters('joinWindowsDomain')]"
           },
@@ -4776,6 +4914,9 @@
           "virtualMachineName": {
             "value": "[variables('fileShareVirtualMachines')[copyIndex()]]"
           },
+          "virtualMachineSize": {
+            "value": "[parameters('virtualMachineSize')]"
+          },
           "windowsDomainAdministratorPassword": {
             "value": "[parameters('windowsDomainAdministratorPassword')]"
           },
@@ -4784,12 +4925,6 @@
           },
           "windowsDomainName": {
             "value": "[parameters('windowsDomainName')]"
-          },
-          "virtualMachineSize": {
-            "value": "[parameters('virtualMachineSize')]"
-          },
-          "joinEntraDomain": {
-            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -4799,7 +4934,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "8929004796964315930"
+              "templateHash": "10527312308935077467"
             }
           },
           "parameters": {
@@ -4821,6 +4956,9 @@
             },
             "enableMonitoring": {
               "type": "bool"
+            },
+            "externalDnsHostName": {
+              "type": "string"
             },
             "joinWindowsDomain": {
               "type": "bool"
@@ -4872,6 +5010,7 @@
           "variables": {
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
+            "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
             "availabilitySetId": {
               "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
             }
@@ -5132,6 +5271,32 @@
                 }
               },
               "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/runCommands",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'rc-esriDnsSuffix')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "treatFailureAsDeploymentFailure": true,
+                "asyncExecution": false,
+                "parameters": [
+                  {
+                    "name": "Domain",
+                    "value": "[variables('nicDnsSuffix')]"
+                  }
+                ],
+                "source": {
+                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'joindomain')]",
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
               ]
             }
@@ -5191,6 +5356,12 @@
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
+          "externalDnsHostName": {
+            "value": "[parameters('externalDnsHostname')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
+          },
           "joinWindowsDomain": {
             "value": "[parameters('joinWindowsDomain')]"
           },
@@ -5221,6 +5392,9 @@
           "virtualMachineName": {
             "value": "[variables('spatiotemporalBigDataStoreVirtualMachines')[copyIndex()]]"
           },
+          "virtualMachineSize": {
+            "value": "[parameters('virtualMachineSize')]"
+          },
           "windowsDomainAdministratorPassword": {
             "value": "[parameters('windowsDomainAdministratorPassword')]"
           },
@@ -5229,12 +5403,6 @@
           },
           "windowsDomainName": {
             "value": "[parameters('windowsDomainName')]"
-          },
-          "virtualMachineSize": {
-            "value": "[parameters('virtualMachineSize')]"
-          },
-          "joinEntraDomain": {
-            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -5244,7 +5412,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "8929004796964315930"
+              "templateHash": "10527312308935077467"
             }
           },
           "parameters": {
@@ -5266,6 +5434,9 @@
             },
             "enableMonitoring": {
               "type": "bool"
+            },
+            "externalDnsHostName": {
+              "type": "string"
             },
             "joinWindowsDomain": {
               "type": "bool"
@@ -5317,6 +5488,7 @@
           "variables": {
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
+            "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
             "availabilitySetId": {
               "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
             }
@@ -5577,6 +5749,32 @@
                 }
               },
               "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/runCommands",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'rc-esriDnsSuffix')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "treatFailureAsDeploymentFailure": true,
+                "asyncExecution": false,
+                "parameters": [
+                  {
+                    "name": "Domain",
+                    "value": "[variables('nicDnsSuffix')]"
+                  }
+                ],
+                "source": {
+                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'joindomain')]",
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
               ]
             }
@@ -5637,6 +5835,12 @@
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
+          "externalDnsHostName": {
+            "value": "[parameters('externalDnsHostname')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
+          },
           "joinWindowsDomain": {
             "value": "[parameters('joinWindowsDomain')]"
           },
@@ -5667,6 +5871,9 @@
           "virtualMachineName": {
             "value": "[variables('tileCacheDataStoreVirtualMachines')[copyIndex()]]"
           },
+          "virtualMachineSize": {
+            "value": "[parameters('virtualMachineSize')]"
+          },
           "windowsDomainAdministratorPassword": {
             "value": "[parameters('windowsDomainAdministratorPassword')]"
           },
@@ -5675,12 +5882,6 @@
           },
           "windowsDomainName": {
             "value": "[parameters('windowsDomainName')]"
-          },
-          "virtualMachineSize": {
-            "value": "[parameters('virtualMachineSize')]"
-          },
-          "joinEntraDomain": {
-            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -5690,7 +5891,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "8929004796964315930"
+              "templateHash": "10527312308935077467"
             }
           },
           "parameters": {
@@ -5712,6 +5913,9 @@
             },
             "enableMonitoring": {
               "type": "bool"
+            },
+            "externalDnsHostName": {
+              "type": "string"
             },
             "joinWindowsDomain": {
               "type": "bool"
@@ -5763,6 +5967,7 @@
           "variables": {
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
+            "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
             "availabilitySetId": {
               "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
             }
@@ -6023,6 +6228,32 @@
                 }
               },
               "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/runCommands",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'rc-esriDnsSuffix')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "treatFailureAsDeploymentFailure": true,
+                "asyncExecution": false,
+                "parameters": [
+                  {
+                    "name": "Domain",
+                    "value": "[variables('nicDnsSuffix')]"
+                  }
+                ],
+                "source": {
+                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'joindomain')]",
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
               ]
             }
@@ -6083,6 +6314,12 @@
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
+          "externalDnsHostName": {
+            "value": "[parameters('externalDnsHostname')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
+          },
           "joinWindowsDomain": {
             "value": "[parameters('joinWindowsDomain')]"
           },
@@ -6113,6 +6350,9 @@
           "virtualMachineName": {
             "value": "[variables('graphDataStoreVirtualMachines')[copyIndex()]]"
           },
+          "virtualMachineSize": {
+            "value": "[parameters('virtualMachineSize')]"
+          },
           "windowsDomainAdministratorPassword": {
             "value": "[parameters('windowsDomainAdministratorPassword')]"
           },
@@ -6121,12 +6361,6 @@
           },
           "windowsDomainName": {
             "value": "[parameters('windowsDomainName')]"
-          },
-          "virtualMachineSize": {
-            "value": "[parameters('virtualMachineSize')]"
-          },
-          "joinEntraDomain": {
-            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -6136,7 +6370,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "8929004796964315930"
+              "templateHash": "10527312308935077467"
             }
           },
           "parameters": {
@@ -6158,6 +6392,9 @@
             },
             "enableMonitoring": {
               "type": "bool"
+            },
+            "externalDnsHostName": {
+              "type": "string"
             },
             "joinWindowsDomain": {
               "type": "bool"
@@ -6209,6 +6446,7 @@
           "variables": {
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
+            "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
             "availabilitySetId": {
               "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
             }
@@ -6469,6 +6707,32 @@
                 }
               },
               "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/runCommands",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'rc-esriDnsSuffix')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "treatFailureAsDeploymentFailure": true,
+                "asyncExecution": false,
+                "parameters": [
+                  {
+                    "name": "Domain",
+                    "value": "[variables('nicDnsSuffix')]"
+                  }
+                ],
+                "source": {
+                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'joindomain')]",
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
               ]
             }
@@ -6529,6 +6793,12 @@
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
+          "externalDnsHostName": {
+            "value": "[parameters('externalDnsHostname')]"
+          },
+          "joinEntraDomain": {
+            "value": "[parameters('joinEntraDomain')]"
+          },
           "joinWindowsDomain": {
             "value": "[parameters('joinWindowsDomain')]"
           },
@@ -6559,6 +6829,9 @@
           "virtualMachineName": {
             "value": "[variables('objectDataStoreVirtualMachines')[copyIndex()]]"
           },
+          "virtualMachineSize": {
+            "value": "[parameters('virtualMachineSize')]"
+          },
           "windowsDomainAdministratorPassword": {
             "value": "[parameters('windowsDomainAdministratorPassword')]"
           },
@@ -6567,12 +6840,6 @@
           },
           "windowsDomainName": {
             "value": "[parameters('windowsDomainName')]"
-          },
-          "virtualMachineSize": {
-            "value": "[parameters('virtualMachineSize')]"
-          },
-          "joinEntraDomain": {
-            "value": "[parameters('joinEntraDomain')]"
           }
         },
         "template": {
@@ -6582,7 +6849,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "8929004796964315930"
+              "templateHash": "10527312308935077467"
             }
           },
           "parameters": {
@@ -6604,6 +6871,9 @@
             },
             "enableMonitoring": {
               "type": "bool"
+            },
+            "externalDnsHostName": {
+              "type": "string"
             },
             "joinWindowsDomain": {
               "type": "bool"
@@ -6655,6 +6925,7 @@
           "variables": {
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
+            "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
             "availabilitySetId": {
               "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
             }
@@ -6917,6 +7188,32 @@
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
               ]
+            },
+            {
+              "condition": "[and(parameters('joinEntraDomain'), not(parameters('joinWindowsDomain')))]",
+              "type": "Microsoft.Compute/virtualMachines/runCommands",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'rc-esriDnsSuffix')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "treatFailureAsDeploymentFailure": true,
+                "asyncExecution": false,
+                "parameters": [
+                  {
+                    "name": "Domain",
+                    "value": "[variables('nicDnsSuffix')]"
+                  }
+                ],
+                "source": {
+                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'AADLoginForWindows')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'joindomain')]",
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
             }
           ],
           "outputs": {
@@ -6960,8 +7257,14 @@
           "keyVaultCertificatesOfficerRoleDefinitionResourceId": {
             "value": "[variables('keyVaultCertificatesOfficer')]"
           },
+          "keyVaultCryptoOfficerRoleDefinitionResourceId": {
+            "value": "[variables('keyVaultCryptoOfficer')]"
+          },
           "keyVaultName": {
             "value": "[take(format('{0}-{1}', variables('keyVaultName'), uniqueString(subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName')), variables('keyVaultName'))), 24)]"
+          },
+          "keyVaultPrivateDnsZoneResourceId": {
+            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Network/privateDnsZones', variables('privatelink_keyvaultDns_name'))]"
           },
           "keyVaultSecretsOfficerRoleDefinitionResourceId": {
             "value": "[variables('keyVaultSecretsOfficer')]"
@@ -6981,20 +7284,14 @@
           "primarySiteAdministratorAccountUserName": {
             "value": "[parameters('primarySiteAdministratorAccountUserName')]"
           },
+          "subnetResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+          },
           "tags": {
             "value": "[parameters('tags')]"
           },
           "userAssignedIdentityPrincipalId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
-          },
-          "keyVaultPrivateDnsZoneResourceId": {
-            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubSubscriptionId'), parameters('hubResourceGroupName')), 'Microsoft.Network/privateDnsZones', variables('privatelink_keyvaultDns_name'))]"
-          },
-          "subnetResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
-          },
-          "keyVaultCryptoOfficerRoleDefinitionResourceId": {
-            "value": "[variables('keyVaultCryptoOfficer')]"
           }
         },
         "template": {
@@ -7523,20 +7820,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "location": {
-            "value": "[parameters('location')]"
+          "artifactsContainerName": {
+            "value": "[parameters('artifactsContainerName')]"
           },
-          "subnetResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
-          },
-          "tags": {
-            "value": "[parameters('tags')]"
-          },
-          "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
-          },
-          "virtualMachineName": {
-            "value": "[take(format('vm-esri-mgmt-{0})', variables('resourceSuffix')), 15)]"
+          "artifactsStorageAccountName": {
+            "value": "[parameters('artifactsStorageAccountName')]"
           },
           "certificateFileName": {
             "value": "[parameters('certificateFileName')]"
@@ -7544,11 +7832,11 @@
           "certificatePassword": {
             "value": "[parameters('certificatePassword')]"
           },
-          "artifactsContainerName": {
-            "value": "[parameters('artifactsContainerName')]"
-          },
           "diskEncryptionSetResourceId": {
             "value": "[parameters('diskEncryptionSetResourceId')]"
+          },
+          "esriStorageAccountName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
           "externalDnsHostname": {
             "value": "[parameters('externalDnsHostname')]"
@@ -7565,6 +7853,9 @@
           "localAdministratorUsername": {
             "value": "[parameters('adminUsername')]"
           },
+          "location": {
+            "value": "[parameters('location')]"
+          },
           "portalLicenseFile": {
             "value": "[parameters('portalLicenseFile')]"
           },
@@ -7577,17 +7868,23 @@
           "serverLicenseFileName": {
             "value": "[variables('serverLicenseFileName')]"
           },
-          "userAssignedIdentityPrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
+          "subnetResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
           },
           "userAssignedIdentityClientId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.clientId.value]"
           },
-          "artifactsStorageAccountName": {
-            "value": "[parameters('artifactsStorageAccountName')]"
+          "userAssignedIdentityPrincipalId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
           },
-          "esriStorageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+          "userAssignedIdentityResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+          },
+          "virtualMachineName": {
+            "value": "[take(format('vm-esri-mgmt-{0})', variables('resourceSuffix')), 15)]"
           }
         },
         "template": {
@@ -7993,6 +8290,9 @@
             "value": ""
           },
           "portalVirtualMachineNames": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', variables('virtualMachineName')), createObject('value', variables('portalVirtualMachineNames')))]",
+          "selfSignedSSLCertificatePassword": {
+            "value": "[parameters('selfSignedCertificatePassword')]"
+          },
           "serverInternalCertificateFileName": {
             "value": ""
           },
@@ -8000,10 +8300,7 @@
           "tags": {
             "value": "[parameters('tags')]"
           },
-          "virtualMachineName": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', variables('virtualMachineName')), createObject('value', variables('fileShareVirtualMachineName')))]",
-          "selfSignedSSLCertificatePassword": {
-            "value": "[parameters('selfSignedCertificatePassword')]"
-          }
+          "virtualMachineName": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', variables('virtualMachineName')), createObject('value', variables('fileShareVirtualMachineName')))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -8235,7 +8532,6 @@
           "graphDataStoreVirtualMachines": {
             "value": "[variables('graphDataStoreVirtualMachines')]"
           },
-          "iDns": "[if(equals(parameters('architecture'), 'multitier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-esri-fileserver-{0}-{1}', 0, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceInternalDomainNameSuffix.value), createObject('value', ''))]",
           "isMultiMachineTileCacheDataStore": {
             "value": "[variables('isMultiMachineTileCacheDataStore')]"
           },
@@ -8374,7 +8670,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "12079281531903552296"
+              "templateHash": "12519541708987286225"
             }
           },
           "parameters": {
@@ -8457,9 +8753,6 @@
               "type": "string"
             },
             "fileShareVirtualMachineName": {
-              "type": "string"
-            },
-            "iDns": {
               "type": "string"
             },
             "isUpdatingCertificates": {
@@ -8867,9 +9160,6 @@
                   "externalDnsHostName": {
                     "value": "[parameters('externalDnsHostname')]"
                   },
-                  "iDns": {
-                    "value": "[parameters('iDns')]"
-                  },
                   "joinWindowsDomain": {
                     "value": "[parameters('joinWindowsDomain')]"
                   },
@@ -8917,7 +9207,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "16637963091666454214"
+                      "templateHash": "18134353144723296264"
                     }
                   },
                   "parameters": {
@@ -8928,9 +9218,6 @@
                       "type": "string"
                     },
                     "externalDnsHostName": {
-                      "type": "string"
-                    },
-                    "iDns": {
                       "type": "string"
                     },
                     "joinWindowsDomain": {
@@ -8975,7 +9262,8 @@
                   },
                   "variables": {
                     "serverBackEndVirtualMachines": "[split(parameters('serverVirtualMachineNames'), ',')]",
-                    "portalBackEndVirtualMachines": "[split(parameters('portalVirtualMachineNames'), ',')]"
+                    "portalBackEndVirtualMachines": "[split(parameters('portalVirtualMachineNames'), ',')]",
+                    "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]"
                   },
                   "resources": [
                     {
@@ -9079,7 +9367,7 @@
                                   "name": "backendAddresses",
                                   "count": "[length(variables('serverBackEndVirtualMachines'))]",
                                   "input": {
-                                    "fqdn": "[if(parameters('joinWindowsDomain'), format('{0}.{1}', variables('serverBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('windowsDomainName')), format('{0}.{1}', variables('serverBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('iDns')))]"
+                                    "fqdn": "[if(parameters('joinWindowsDomain'), format('{0}.{1}', variables('serverBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('windowsDomainName')), format('{0}.{1}', variables('serverBackEndVirtualMachines')[copyIndex('backendAddresses')], variables('nicDnsSuffix')))]"
                                   }
                                 }
                               ]
@@ -9093,7 +9381,7 @@
                                   "name": "backendAddresses",
                                   "count": "[length(variables('portalBackEndVirtualMachines'))]",
                                   "input": {
-                                    "fqdn": "[if(parameters('joinWindowsDomain'), format('{0}.{1}', variables('portalBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('windowsDomainName')), format('{0}.{1}', variables('portalBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('iDns')))]"
+                                    "fqdn": "[if(parameters('joinWindowsDomain'), format('{0}.{1}', variables('portalBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('windowsDomainName')), format('{0}.{1}', variables('portalBackEndVirtualMachines')[copyIndex('backendAddresses')], variables('nicDnsSuffix')))]"
                                   }
                                 }
                               ]
@@ -11292,7 +11580,6 @@
           "hostname": {
             "value": "[parameters('externalDnsHostname')]"
           },
-          "iDns": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-virtual-machine-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceInternalDomainNameSuffix.value), createObject('value', 'none'))]",
           "isTileCacheDataStoreClustered": {
             "value": "[variables('isTileCacheDataStoreClustered')]"
           },
@@ -11388,7 +11675,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.25.53.49325",
-              "templateHash": "16176097653617617086"
+              "templateHash": "7194229137490237328"
             }
           },
           "parameters": {
@@ -11501,9 +11788,6 @@
             "externalDnsHostname": {
               "type": "string"
             },
-            "iDns": {
-              "type": "string"
-            },
             "joinWindowsDomain": {
               "type": "bool"
             },
@@ -11561,9 +11845,6 @@
                   "externalDnsHostName": {
                     "value": "[parameters('externalDnsHostname')]"
                   },
-                  "iDns": {
-                    "value": "[parameters('iDns')]"
-                  },
                   "joinWindowsDomain": {
                     "value": "[parameters('joinWindowsDomain')]"
                   },
@@ -11611,7 +11892,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.25.53.49325",
-                      "templateHash": "16637963091666454214"
+                      "templateHash": "18134353144723296264"
                     }
                   },
                   "parameters": {
@@ -11622,9 +11903,6 @@
                       "type": "string"
                     },
                     "externalDnsHostName": {
-                      "type": "string"
-                    },
-                    "iDns": {
                       "type": "string"
                     },
                     "joinWindowsDomain": {
@@ -11669,7 +11947,8 @@
                   },
                   "variables": {
                     "serverBackEndVirtualMachines": "[split(parameters('serverVirtualMachineNames'), ',')]",
-                    "portalBackEndVirtualMachines": "[split(parameters('portalVirtualMachineNames'), ',')]"
+                    "portalBackEndVirtualMachines": "[split(parameters('portalVirtualMachineNames'), ',')]",
+                    "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]"
                   },
                   "resources": [
                     {
@@ -11773,7 +12052,7 @@
                                   "name": "backendAddresses",
                                   "count": "[length(variables('serverBackEndVirtualMachines'))]",
                                   "input": {
-                                    "fqdn": "[if(parameters('joinWindowsDomain'), format('{0}.{1}', variables('serverBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('windowsDomainName')), format('{0}.{1}', variables('serverBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('iDns')))]"
+                                    "fqdn": "[if(parameters('joinWindowsDomain'), format('{0}.{1}', variables('serverBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('windowsDomainName')), format('{0}.{1}', variables('serverBackEndVirtualMachines')[copyIndex('backendAddresses')], variables('nicDnsSuffix')))]"
                                   }
                                 }
                               ]
@@ -11787,7 +12066,7 @@
                                   "name": "backendAddresses",
                                   "count": "[length(variables('portalBackEndVirtualMachines'))]",
                                   "input": {
-                                    "fqdn": "[if(parameters('joinWindowsDomain'), format('{0}.{1}', variables('portalBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('windowsDomainName')), format('{0}.{1}', variables('portalBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('iDns')))]"
+                                    "fqdn": "[if(parameters('joinWindowsDomain'), format('{0}.{1}', variables('portalBackEndVirtualMachines')[copyIndex('backendAddresses')], parameters('windowsDomainName')), format('{0}.{1}', variables('portalBackEndVirtualMachines')[copyIndex('backendAddresses')], variables('nicDnsSuffix')))]"
                                   }
                                 }
                               ]

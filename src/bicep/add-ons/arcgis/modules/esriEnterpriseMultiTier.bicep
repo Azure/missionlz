@@ -28,7 +28,7 @@ param externalDnsHostname string
 // param externalDnsHostnamePrefix string
 param fileShareDscScriptFunction string
 param fileShareVirtualMachineName string
-param iDns string
+// param iDns string
 param isUpdatingCertificates bool
 param joinWindowsDomain bool
 param keyVaultUri string
@@ -126,7 +126,7 @@ module applicationGateway 'applicationGateway.bicep' = if (architecture == 'mult
     applicationGatewayName: applicationGatewayName
     applicationGatewayPrivateIpAddress: applicationGatewayPrivateIPAddress
     externalDnsHostName: externalDnsHostname
-    iDns: iDns
+    // iDns: iDns
     joinWindowsDomain: joinWindowsDomain
     keyVaultUri: keyVaultUri
     location: location

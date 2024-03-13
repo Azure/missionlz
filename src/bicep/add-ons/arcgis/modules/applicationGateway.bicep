@@ -1,7 +1,6 @@
 param applicationGatewayName string
 param applicationGatewayPrivateIpAddress string
 param externalDnsHostName string
-param iDns string
 param joinWindowsDomain bool
 param keyVaultUri string
 param location string
@@ -15,10 +14,11 @@ param serverVirtualMachineNames string
 param userAssignedIdenityResourceId string
 param virtualNetworkName string
 param windowsDomainName string
-// param privateDnsDomainName string
+
 
 var serverBackEndVirtualMachines = split(serverVirtualMachineNames, ',')
 var portalBackEndVirtualMachines = split(portalVirtualMachineNames, ',')
+var nicDnsSuffix ='${split(externalDnsHostName, '.')[1]}.${split(externalDnsHostName, '.')[2]}'
 
 resource applicationGateway 'Microsoft.Network/applicationGateways@2023-06-01' = {
   name: applicationGatewayName
@@ -116,7 +116,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2023-06-01' =
         name: 'ServerBackendPool${resourceSuffix}'
         properties: {
             backendAddresses: [for vm in serverBackEndVirtualMachines : {
-              fqdn: joinWindowsDomain ? '${vm}.${windowsDomainName}' : '${vm}.${iDns}'
+              fqdn: joinWindowsDomain ? '${vm}.${windowsDomainName}' : '${vm}.${nicDnsSuffix}'
             }]
         }
       }
@@ -124,7 +124,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2023-06-01' =
         name: '${resourceSuffix}PortalBackendPool'
         properties: {
           backendAddresses: [for vm in portalBackEndVirtualMachines : {
-              fqdn: joinWindowsDomain ? '${vm}.${windowsDomainName}' : '${vm}.${iDns}'
+              fqdn: joinWindowsDomain ? '${vm}.${windowsDomainName}' : '${vm}.${nicDnsSuffix}'
             }]
         }
       }

@@ -5,6 +5,7 @@ param architecture string
 param availabilitySetName string
 param domainJoinOptions int = 3
 param enableMonitoring bool
+param externalDnsHostName string
 param joinWindowsDomain bool
 param joinEntraDomain bool
 param location string = resourceGroup().location
@@ -24,6 +25,7 @@ param windowsDomainName string
 
 var roleDefinitionId = '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1' // Storage Blob Data Reader | https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-reader
 var windowsDomainNameNetBios = split(windowsDomainName, '.')[0]
+var nicDnsSuffix ='${split(externalDnsHostName, '.')[1]}.${split(externalDnsHostName, '.')[2]}'
 
 var availabilitySetId = {
   id: availabilitySet.id
@@ -262,6 +264,43 @@ resource azureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@
       }
     }
   }
+}
+
+resource dnsSuffix 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = if (joinEntraDomain && (!joinWindowsDomain)) {
+  name: 'rc-esriDnsSuffix'
+  location: location
+  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  parent: virtualMachine
+  properties: {
+    treatFailureAsDeploymentFailure: true
+    asyncExecution: false
+    parameters: [
+      {
+        name: 'Domain'
+        value: nicDnsSuffix
+      }
+    ]
+    source: {
+      script: '''
+      param(
+        [string]$Domain
+      )
+      # ONLY RETURN ETHERNET CONNECTIONS
+      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet
+      # ADD SUFFIX TO EACH ETHERNET CONNECTION
+      Foreach ($nic in $nics) {
+      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false
+      $Alias = $nic.InterfaceAlias
+      $Index = $nic.InterfaceIndex
+      }
+      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false
+      '''
+    }
+  }
+  dependsOn: [
+    jsonADDomainExtension
+    aadLoginForWindows
+  ]
 }
 
 output virtualMachineName string = virtualMachine.name

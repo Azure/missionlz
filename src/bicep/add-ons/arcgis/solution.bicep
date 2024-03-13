@@ -315,30 +315,6 @@ var isObjectDataStoreClustered = numberOfObjectDataStoreVirtualMachines >= 3 ? t
 var isTileCacheDataStoreClustered = numberOfTileCacheDataStoreVirtualMachineNames >= 1 ? true : false
 var isMultiMachineTileCacheDataStore = numberOfTileCacheDataStoreVirtualMachineNames >= 1 ? true : false
 
-// Naming conventions
-// var locations = (loadJsonContent('../../data/locations.json'))[environment().name]
-// var locationAbbreviation = locations[location].abbreviation
-// var resourceToken = 'resource_token'
-// var serviceToken = 'service_token'
-// var networkToken = 'network_token'
-// var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${serviceToken}-${networkToken}-${environmentAbbreviation}-${locationAbbreviation}'
-
-// var keyVaultNamingConvention = '${replace(replace(namingConvention, resourceToken, 'kv'), '-', '')}unique_token'
-// var logAnalyticsWorkspaceNamingConvention = replace(namingConvention, resourceToken, 'log')
-// var networkInterfaceNamingConvention = replace(namingConvention, resourceToken, 'nic')
-// var networkSecurityGroupNamingConvention = replace(namingConvention, resourceToken, 'nsg')
-// var networkWatcherNamingConvention = replace(namingConvention, resourceToken, 'nw')
-// var privateEndpointNamingConvention = replace(namingConvention, resourceToken, 'pe')
-// var privateLinkScopeName = replace(namingConvention, resourceToken, 'pls')
-// var publicIpAddressNamingConvention = replace(namingConvention, resourceToken, 'pip')
-// var resourceGroupNamingConvention = replace(namingConvention, resourceToken, 'rg')
-// var routeTableNamingConvention = replace(namingConvention, resourceToken, 'rt')
-// var storageAccountNamingConvention = toLower('${replace(replace(namingConvention, resourceToken, 'st'), '-', '')}unique_token')
-// var subnetNamingConvention = replace(namingConvention, resourceToken, 'snet')
-// var userAssignedIdentityNamingConvention = replace(namingConvention, resourceToken, 'id')
-// var virtualMachineNamingConvention = replace(namingConvention, resourceToken, 'vm')
-// var virtualNetworkNamingConvention = replace(namingConvention, resourceToken, 'vnet')
-
 resource privateDnsZone_blob 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   name: privatelink_blob_name
@@ -391,8 +367,6 @@ module tier3 'modules/tier3.bicep' = {
   name: 'deploy-tier3-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, rg.name)
   params: {
-    // deployPolicy: deployPolicy
-    // policy: policy
     applicationGatewayName: applicationGatewayName
     applicationGatewayPrivateIpAddress: applicationGatewayPrivateIpAddress
     applicationGatewaySubnetAddressPrefix: applicationGatewaySubnetAddressPrefix
@@ -569,6 +543,8 @@ module singleTierVirtualMachine 'modules/virtualMachine.bicep' = if (architectur
     architecture: architecture
     availabilitySetName: availabilitySetName
     enableMonitoring: enableMonitoring
+    externalDnsHostName: externalDnsHostname
+    joinEntraDomain: joinEntraDomain
     joinWindowsDomain: joinWindowsDomain
     location: location
     networkInterfaceName: networkInterfaceName
@@ -579,11 +555,10 @@ module singleTierVirtualMachine 'modules/virtualMachine.bicep' = if (architectur
     tags: tags
     userAssignedIdentityResourceId: architecture == 'singletier' ? userAssignedIdentity.outputs.resourceId : 'none'
     virtualMachineName: virtualMachineName
+    virtualMachineSize: virtualMachineSize
     windowsDomainAdministratorPassword: windowsDomainAdministratorPassword
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
-    virtualMachineSize: virtualMachineSize
-    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -600,6 +575,8 @@ module multiTierServerVirtualMachines 'modules/virtualMachine.bicep' = [for (ser
     architecture: architecture
     availabilitySetName: architecture == 'multitier' ? serverAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
+    externalDnsHostName: externalDnsHostname
+    joinEntraDomain: joinEntraDomain
     joinWindowsDomain: joinWindowsDomain
     location: location
     networkInterfaceName: '${networkInterfaceName}-${server}'
@@ -610,11 +587,10 @@ module multiTierServerVirtualMachines 'modules/virtualMachine.bicep' = [for (ser
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineName: server
+    virtualMachineSize: virtualMachineSize
     windowsDomainAdministratorPassword: windowsDomainAdministratorPassword
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
-    virtualMachineSize: virtualMachineSize
-    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -631,6 +607,8 @@ module multiTierPortalVirtualMachines 'modules/virtualMachine.bicep' = [for (ser
     architecture: architecture
     availabilitySetName: architecture == 'multitier' ? portalAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
+    externalDnsHostName: externalDnsHostname
+    joinEntraDomain: joinEntraDomain
     joinWindowsDomain: joinWindowsDomain
     location: location
     networkInterfaceName: '${networkInterfaceName}-${server}'
@@ -641,11 +619,10 @@ module multiTierPortalVirtualMachines 'modules/virtualMachine.bicep' = [for (ser
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineName: server
+    virtualMachineSize: virtualMachineSize
     windowsDomainAdministratorPassword: windowsDomainAdministratorPassword
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
-    virtualMachineSize: virtualMachineSize
-    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -662,6 +639,8 @@ module multiTierDatastoreServerVirtualMachines 'modules/virtualMachine.bicep' = 
     architecture: architecture
     availabilitySetName: architecture == 'multitier' ? dataStoreAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
+    externalDnsHostName: externalDnsHostname
+    joinEntraDomain: joinEntraDomain
     joinWindowsDomain: joinWindowsDomain
     location: location
     networkInterfaceName: '${networkInterfaceName}-${server}'
@@ -672,11 +651,10 @@ module multiTierDatastoreServerVirtualMachines 'modules/virtualMachine.bicep' = 
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineName: server
+    virtualMachineSize: virtualMachineSize
     windowsDomainAdministratorPassword: windowsDomainAdministratorPassword
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
-    virtualMachineSize: virtualMachineSize
-    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -693,6 +671,8 @@ module multiTierFileServerVirtualMachines 'modules/virtualMachine.bicep' = [for 
     architecture: architecture
     availabilitySetName: ''
     enableMonitoring: enableMonitoring
+    externalDnsHostName: externalDnsHostname
+    joinEntraDomain: joinEntraDomain
     joinWindowsDomain: joinWindowsDomain
     location: location
     networkInterfaceName: '${networkInterfaceName}-${server}'
@@ -703,11 +683,10 @@ module multiTierFileServerVirtualMachines 'modules/virtualMachine.bicep' = [for 
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineName: server
+    virtualMachineSize: virtualMachineSize
     windowsDomainAdministratorPassword: windowsDomainAdministratorPassword
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
-    virtualMachineSize: virtualMachineSize
-    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -724,6 +703,8 @@ module multiTierSpatiotemporalBigDataStoreVirtualMachines 'modules/virtualMachin
     architecture: architecture
     availabilitySetName: architecture == 'multitier' && enableSpatiotemporalBigDataStore ? spatiotemporalAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
+    externalDnsHostName: externalDnsHostname
+    joinEntraDomain: joinEntraDomain
     joinWindowsDomain: joinWindowsDomain
     location: location
     networkInterfaceName: '${networkInterfaceName}-${server}'
@@ -734,11 +715,10 @@ module multiTierSpatiotemporalBigDataStoreVirtualMachines 'modules/virtualMachin
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineName: server
+    virtualMachineSize: virtualMachineSize
     windowsDomainAdministratorPassword: windowsDomainAdministratorPassword
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
-    virtualMachineSize: virtualMachineSize
-    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -755,6 +735,8 @@ module multiTierTileCacheVirtualMachines 'modules/virtualMachine.bicep' = [for (
     architecture: architecture
     availabilitySetName: architecture == 'multitier' && enableTileCacheDataStore ? tileCacheAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
+    externalDnsHostName: externalDnsHostname
+    joinEntraDomain: joinEntraDomain
     joinWindowsDomain: joinWindowsDomain
     location: location
     networkInterfaceName: '${networkInterfaceName}-${server}'
@@ -765,11 +747,10 @@ module multiTierTileCacheVirtualMachines 'modules/virtualMachine.bicep' = [for (
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineName: server
+    virtualMachineSize: virtualMachineSize
     windowsDomainAdministratorPassword: windowsDomainAdministratorPassword
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
-    virtualMachineSize: virtualMachineSize
-    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -786,6 +767,8 @@ module multiTierGraphVirtualMachines 'modules/virtualMachine.bicep' = [for (serv
     architecture: architecture
     availabilitySetName: architecture == 'multitier' && enableGraphDataStore ? graphAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
+    externalDnsHostName: externalDnsHostname
+    joinEntraDomain: joinEntraDomain
     joinWindowsDomain: joinWindowsDomain
     location: location
     networkInterfaceName: '${networkInterfaceName}-${server}'
@@ -796,11 +779,10 @@ module multiTierGraphVirtualMachines 'modules/virtualMachine.bicep' = [for (serv
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineName: server
+    virtualMachineSize: virtualMachineSize
     windowsDomainAdministratorPassword: windowsDomainAdministratorPassword
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
-    virtualMachineSize: virtualMachineSize
-    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -817,6 +799,8 @@ module multiTierObjectDataStoreVirtualMachines 'modules/virtualMachine.bicep' = 
     architecture: architecture
     availabilitySetName: architecture == 'multitier' && enableObjectDataStore ? odataAvailabilitySet.outputs.name : 'none'
     enableMonitoring: enableMonitoring
+    externalDnsHostName: externalDnsHostname
+    joinEntraDomain: joinEntraDomain
     joinWindowsDomain: joinWindowsDomain
     location: location
     networkInterfaceName: '${networkInterfaceName}-${server}'
@@ -827,11 +811,10 @@ module multiTierObjectDataStoreVirtualMachines 'modules/virtualMachine.bicep' = 
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineName: server
+    virtualMachineSize: virtualMachineSize
     windowsDomainAdministratorPassword: windowsDomainAdministratorPassword
     windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
     windowsDomainName: windowsDomainName
-    virtualMachineSize: virtualMachineSize
-    joinEntraDomain: joinEntraDomain
   }
   dependsOn: [
     rg
@@ -845,18 +828,18 @@ module keyVault './modules/keyVault.bicep' = {
     domainJoinPassword: joinWindowsDomain ? windowsDomainAdministratorPassword : 'None'
     domainJoinUserPrincipalName: joinWindowsDomain ? windowsDomainAdministratorUserName : 'None'
     keyVaultCertificatesOfficerRoleDefinitionResourceId: keyVaultCertificatesOfficer
+    keyVaultCryptoOfficerRoleDefinitionResourceId: keyVaultCryptoOfficer
     keyVaultName: take('${keyVaultName}-${uniqueString(rg.id, keyVaultName)}', 24)
+    keyVaultPrivateDnsZoneResourceId: privateDnsZone_keyvaultDns.id
     keyVaultSecretsOfficerRoleDefinitionResourceId: keyVaultSecretsOfficer
     localAdministratorPassword: adminPassword
     localAdministratorUsername: adminUsername
     location: location
     primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
     primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
+    subnetResourceId: tier3.outputs.subnetResourceId
     tags: tags
     userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
-    keyVaultPrivateDnsZoneResourceId: privateDnsZone_keyvaultDns.id
-    subnetResourceId: tier3.outputs.subnetResourceId
-    keyVaultCryptoOfficerRoleDefinitionResourceId: keyVaultCryptoOfficer
   }
   dependsOn: [
     tier3
@@ -905,28 +888,28 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
   name: 'deploy-management-vm-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    location: location
-    subnetResourceId: tier3.outputs.subnetResourceId
-    tags: tags
-    userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
-    virtualMachineName: take('vm-esri-mgmt-${resourceSuffix})', 15)
+    artifactsContainerName: artifactsContainerName
+    artifactsStorageAccountName: artifactsStorageAccount.name
     certificateFileName: certificateFileName
     certificatePassword: certificatePassword
-    artifactsContainerName: artifactsContainerName
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
+    esriStorageAccountName: storage.outputs.storageAccountName
     externalDnsHostname: externalDnsHostname
     hybridUseBenefit: false
     keyVaultName: keyVault.outputs.name
     localAdministratorPassword: adminPassword
     localAdministratorUsername: adminUsername
+    location: location
     portalLicenseFile: portalLicenseFile
     portalLicenseFileName: portalLicenseFileName
     serverLicenseFile: serverLicenseFile
     serverLicenseFileName: serverLicenseFileName
-    userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
+    subnetResourceId: tier3.outputs.subnetResourceId
+    tags: tags
     userAssignedIdentityClientId: userAssignedIdentity.outputs.clientId
-    artifactsStorageAccountName: artifactsStorageAccount.name
-    esriStorageAccountName: storage.outputs.storageAccountName
+    userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
+    userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
+    virtualMachineName: take('vm-esri-mgmt-${resourceSuffix})', 15)
   }
   dependsOn: [
     multiTierFileServerVirtualMachines
@@ -949,11 +932,11 @@ module certificates './modules/certificates.bicep' = {
     location: location
     portalInternalCertificateFileName: ''
     portalVirtualMachineNames: architecture == 'singletier' ? virtualMachineName : portalVirtualMachineNames
+    selfSignedSSLCertificatePassword: selfSignedCertificatePassword
     serverInternalCertificateFileName: ''
     serverVirtualMachineNames: architecture == 'singletier' ? virtualMachineName : serverVirtualMachineNames
     tags: tags
     virtualMachineName: architecture == 'singletier' ? virtualMachineName : fileShareVirtualMachineName
-    selfSignedSSLCertificatePassword: selfSignedCertificatePassword
   }
   dependsOn: [
     keyVault
@@ -1007,8 +990,6 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' = if (ar
     graphDataStoreVirtualMachineNames: graphDataStoreVirtualMachineNames
     graphDataStoreVirtualMachineOSDiskSize: graphDataStoreVirtualMachineOSDiskSize
     graphDataStoreVirtualMachines: graphDataStoreVirtualMachines
-    // hubVirtualNetworkId: hubVirtualNetwork.id
-    iDns: architecture == 'multitier' ? multiTierFileServerVirtualMachines[0].outputs.networkInterfaceInternalDomainNameSuffix : ''
     isMultiMachineTileCacheDataStore: isMultiMachineTileCacheDataStore
     isObjectDataStoreClustered: isObjectDataStoreClustered
     isTileCacheDataStoreClustered: isTileCacheDataStoreClustered
@@ -1051,7 +1032,6 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' = if (ar
     useCloudStorage: useCloudStorage
     userAssignedIdenityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineOSDiskSize: virtualMachineOSDiskSize
-    // virtualNetworkId: tier3.outputs.virtualNetworkResourceId
     virtualNetworkName: tier3.outputs.virtualNetworkName
     windowsDomainName: joinWindowsDomain ? windowsDomainName : 'none'
   }
@@ -1083,7 +1063,6 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
     arcgisServiceAccountUserName: arcgisServiceAccountUserName
-    // architecture: architecture
     cloudStorageAccountCredentialsUserName: storage.outputs.cloudStorageAccountCredentialsUserName
     dataStoreTypesForBaseDeploymentServers: (architecture == 'singletier') ? singleTierDataStoreTypes.outputs.dataStoreTypesForBaseDeploymentServers : 'none'
     debugMode: debugMode
@@ -1094,8 +1073,6 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     enableVirtualMachineDataDisk: enableVirtualMachineDataDisk
     externalDnsHostname: externalDnsHostname
     hostname: externalDnsHostname
-    // hubVirtualNetworkId: hubVirtualNetwork.id
-    iDns: architecture == 'singletier' ? singleTierVirtualMachine.outputs.networkInterfaceInternalDomainNameSuffix : 'none'
     isTileCacheDataStoreClustered: isTileCacheDataStoreClustered
     isUpdatingCertificates: isUpdatingCertificates
     joinWindowsDomain: joinWindowsDomain
@@ -1123,7 +1100,6 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' = if (architectu
     userAssignedIdenityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineName: virtualMachineName
     virtualMachineOSDiskSize: virtualMachineOSDiskSize
-    // virtualNetworkId: tier3.outputs.virtualNetworkResourceId
     virtualNetworkName: tier3.outputs.virtualNetworkName
     windowsDomainName: windowsDomainName
   }

@@ -39,7 +39,7 @@ param selfSignedSSLCertificatePassword string
 param applicationGatewayName string
 param externalDnsHostname string
 // param externalDnsHostnamePrefix string
-param iDns string
+// param iDns string
 param joinWindowsDomain bool
 param keyVaultUri string
 param portalBackendSslCert string
@@ -80,7 +80,7 @@ module applicationGateway 'applicationGateway.bicep' = {
     applicationGatewayName: applicationGatewayName
     applicationGatewayPrivateIpAddress: applicationGatewayPrivateIpAddress
     externalDnsHostName: externalDnsHostname
-    iDns: iDns
+    // iDns: iDns
     joinWindowsDomain: joinWindowsDomain
     keyVaultUri: keyVaultUri
     location: location
