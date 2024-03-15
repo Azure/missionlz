@@ -19,6 +19,7 @@ param userAssignedIdentityPrincipalId string
 param subnetResourceId string
 param keyVaultPrivateDnsZoneResourceId string
 param diskEncryptionKeyExpirationInDays int = 30
+param resourcePrefix string
 
 var Secrets = [
   {
@@ -187,14 +188,14 @@ resource keyVaultCryptoOfficerRoleAssignment 'Microsoft.Authorization/roleAssign
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: 'pe-${keyVaultName}'
+  name: '${resourcePrefix}-pe-${keyVaultName}'
   location: location
   tags: tags
   properties: {
-    customNetworkInterfaceName: 'nic-${keyVaultName}'
+    customNetworkInterfaceName: '${resourcePrefix}-nic-${keyVaultName}'
     privateLinkServiceConnections: [
       {
-        name: 'pe-${keyVaultName}'
+        name: '${resourcePrefix}-pe-${keyVaultName}'
         properties: {
           privateLinkServiceId: keyVault.id
           groupIds: [

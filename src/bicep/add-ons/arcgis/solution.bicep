@@ -10,6 +10,14 @@ param applicationGatewayPrivateIpAddress string
 param applicationGatewaySubnetAddressPrefix string
 @description('ArcGIS Service Account Is Domain Account')
 param arcgisServiceAccountIsDomainAccount bool
+@description('The storage account where deployment artifacts are stored.')
+param artifactsStorageAccountName string
+@description('The name of the container where deployment artifacts are stored.')
+param artifactsContainerName string
+@description('The resource group where the artifacts storage account is located.')
+param artifactsStorageAccountResourceGroupName string
+@description('The subscription id of the artifacts storage account.')
+param artifactsStorageAccountSubscriptionId string
 @secure()
 @description('ArcGIS Service Account Password')
 param arcgisServiceAccountPassword string
@@ -23,8 +31,11 @@ param arcgisServiceAccountUserName string
 param architecture string
 @description('Azure Firewall Name')
 param azureFirewallName string
-// @description('Data Store Types for Base Deployment Servers')
-// param dataStoreTypesForBaseDeployment array = []
+@description('The certificate password.')
+@secure()
+param certificatePassword string
+@description('The certificate file name.')
+param certificateFileName string
 @description('Data Store Virtual Machine OS Disk Size')
 @allowed([
   64
@@ -100,6 +111,8 @@ param hubSubscriptionId string
 param hubVirtualNetworkName string
 @description('Updating Certificates')
 param isUpdatingCertificates bool = false
+@description('Join Entra Domain')
+param joinEntraDomain bool
 @description('Join Windows Domain')
 param joinWindowsDomain bool = false
 @description('Location')
@@ -139,8 +152,6 @@ param numberOfTileCacheDataStoreVirtualMachineNames int = 1
 param objectDataStoreVirtualMachineOSDiskSize int = 128
 @description('OU Path if using domain join for the virtual machines.')
 param ouPath string = ''
-// @description('Policy')
-// // param policy string = ''
 @description('Portal License File')
 param portalLicenseFile string
 @description('Portal License User Type Id')
@@ -243,43 +254,30 @@ param windowsDomainAdministratorUserName string = ''
 param windowsDomainName string = ''
 @description('The GUID of the workload subscription.')
 param workloadSubscriptionId string = ''
-@description('The certificate password.')
-@secure()
-param certificatePassword string
-@description('The certificate file name.')
-param certificateFileName string
-@description('The storage account where deployment artifacts are stored.')
-param artifactsStorageAccountName string
-@description('The name of the container where deployment artifacts are stored.')
-param artifactsContainerName string
-@description('The resource group where the artifacts storage account is located.')
-param artifactsStorageAccountResourceGroupName string
-@description('The subscription id of the artifacts storage account.')
-param artifactsStorageAccountSubscriptionId string
-param joinEntraDomain bool
+
 
 // Resource Naming
 var resourceSuffix = resourcePrefix
-var applicationGatewayName = 'ag-esri-${resourceSuffix}'
-var availabilitySetName = 'avset-esri-${resourceSuffix}'
+var applicationGatewayName = '${resourcePrefix}-appgw-esri'
+var availabilitySetName = '${resourcePrefix}-avset-esri'
 var container = 'artifacts'
 var keyVaultCertificatesOfficer = resourceId('Microsoft.Authorization/roleDefinitions', 'a4417e6f-fecd-4de8-b567-7b0420556985')
 var keyVaultCryptoOfficer = resourceId('Microsoft.Authorization/roleDefinitions', '14b46e9e-c2b7-41b4-b07b-48a6ebf60603')
-var keyVaultName = 'kv-esri-${resourceSuffix}'
+var keyVaultName = '${resourcePrefix}-kv-esri'
 var keyVaultSecretsOfficer = resourceId('Microsoft.Authorization/roleDefinitions', 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7')
-var networkInterfaceName = 'nic-esri-${resourceSuffix}'
+var networkInterfaceName = '${resourcePrefix}-nic-esri'
 var portalContext = 'portal'
 var portalLicenseFileName = 'portalLicense.json'
 var privatelink_blob_name = 'privatelink.blob.${environment().suffixes.storage}'
 var privatelink_file_name = 'privatelink.file.${environment().suffixes.storage}'
 var privatelink_keyvaultDns_name = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
-var publicIpAddressName = 'pip-esri-${resourceSuffix}'
-var resourceGroupName = 'rg-esri-enterprise-${resourceSuffix}'
+var publicIpAddressName = '${resourcePrefix}-pip-esri'
+var resourceGroupName = '${resourcePrefix}-rg-esri-enterprise'
 var serverContext = 'server'
 var serverLicenseFileName = 'serverLicense.prvc'
 var subscriptionId = subscription().subscriptionId
-var userAssignedManagedIdentityName = 'uami-esri-${resourceSuffix}'
-var virtualMachineName = 'vm-esri-${resourceSuffix}'
+var userAssignedManagedIdentityName = '${resourcePrefix}-uami-esri-${resourceSuffix}'
+var virtualMachineName = '${resourcePrefix}-vm-esri'
 
 // Virtual Machine Names
 var dataStoreVirtualMachineNames = join(dataStoreVirtualMachines, ',')
@@ -310,7 +308,7 @@ var dscsSatiotemporalBigDataStoreFunction = 'SpatiotemporalBigDataStoreConfigura
 var dscTileCacheDataStoreDscFunction = 'TileCacheDataStoreConfiguration'
 var fileShareDscScriptFunction = 'FileShareConfiguration'
 
-// dynamic cluster options
+// Dynamic cluster options
 var isObjectDataStoreClustered = numberOfObjectDataStoreVirtualMachines >= 3 ? true : false
 var isTileCacheDataStoreClustered = numberOfTileCacheDataStoreVirtualMachineNames >= 1 ? true : false
 var isMultiMachineTileCacheDataStore = numberOfTileCacheDataStoreVirtualMachineNames >= 1 ? true : false
@@ -370,7 +368,6 @@ module tier3 'modules/tier3.bicep' = {
     applicationGatewayName: applicationGatewayName
     applicationGatewayPrivateIpAddress: applicationGatewayPrivateIpAddress
     applicationGatewaySubnetAddressPrefix: applicationGatewaySubnetAddressPrefix
-    architecture: architecture
     defaultSubnetAddressPrefix: defaultSubnetAddressPrefix
     deployDefender: deployDefender
     emailSecurityContact: emailSecurityContact
@@ -421,6 +418,7 @@ module storage './modules/storageAccount.bicep' = {
     keyVaultUri: keyVault.outputs.keyVaultUri
     storageEncryptionKeyName: keyVault.outputs.storageKeyName
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
+    resourcePrefix: resourcePrefix
   }
   dependsOn: [
     tier3
@@ -447,7 +445,7 @@ module serverAvailabilitySet 'modules/availabilitySet.bicep' = if (architecture 
   name: 'deploy-avset-server-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    availabilitySetName: 'av-set-server'
+    availabilitySetName: '${resourcePrefix}-av-set-server'
     location: location
   }
   dependsOn: [
@@ -460,7 +458,7 @@ module portalAvailabilitySet 'modules/availabilitySet.bicep' = if (architecture 
   name: 'deploy-avset-portal-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    availabilitySetName: 'av-set-portal'
+    availabilitySetName: '${resourcePrefix}-av-set-portal'
     location: location
   }
   dependsOn: [
@@ -473,7 +471,7 @@ module dataStoreAvailabilitySet 'modules/availabilitySet.bicep' = if (architectu
   name: 'deploy-avset-datastore-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    availabilitySetName: 'av-set-datastore'
+    availabilitySetName: '${resourcePrefix}-av-set-datastore'
     location: location
   }
   dependsOn: [
@@ -486,7 +484,7 @@ module spatiotemporalAvailabilitySet 'modules/availabilitySet.bicep' = if (archi
   name: 'deploy-avset-spatiotemporal-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    availabilitySetName: 'av-set-spatiotemporal'
+    availabilitySetName: '${resourcePrefix}-av-set-spatiotemporal'
     location: location
   }
   dependsOn: [
@@ -499,7 +497,7 @@ module tileCacheAvailabilitySet 'modules/availabilitySet.bicep' = if (architectu
   name: 'deploy-avset-tilecache-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    availabilitySetName: 'av-set-tilecache'
+    availabilitySetName: '${resourcePrefix}-av-set-tilecache'
     location: location
   }
   dependsOn: [
@@ -512,7 +510,7 @@ module graphAvailabilitySet 'modules/availabilitySet.bicep' = if (architecture =
   name: 'deploy-avset-graph-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    availabilitySetName: 'av-set-graph'
+    availabilitySetName: '${resourcePrefix}-av-set-graph'
     location: location
   }
   dependsOn: [
@@ -525,7 +523,7 @@ module odataAvailabilitySet 'modules/availabilitySet.bicep' = if (architecture =
   name: 'deploy-avset-odata-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    availabilitySetName: 'av-set-odata'
+    availabilitySetName: '${resourcePrefix}-av-set-odata'
     location: location
   }
   dependsOn: [
@@ -837,6 +835,7 @@ module keyVault './modules/keyVault.bicep' = {
     location: location
     primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
     primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
+    resourcePrefix: resourcePrefix
     subnetResourceId: tier3.outputs.subnetResourceId
     tags: tags
     userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
@@ -902,6 +901,7 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
     location: location
     portalLicenseFile: portalLicenseFile
     portalLicenseFileName: portalLicenseFileName
+    resourcePrefix: resourcePrefix
     serverLicenseFile: serverLicenseFile
     serverLicenseFileName: serverLicenseFileName
     subnetResourceId: tier3.outputs.subnetResourceId
@@ -909,7 +909,7 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
     userAssignedIdentityClientId: userAssignedIdentity.outputs.clientId
     userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
-    virtualMachineName: take('vm-esri-mgmt-${resourceSuffix})', 15)
+    virtualMachineName: take('${resourcePrefix}-vmesrimgmt', 15)
   }
   dependsOn: [
     multiTierFileServerVirtualMachines

@@ -23,6 +23,7 @@ param certificatePassword string
 param certificateFileName string
 param externalDnsHostname string
 param esriStorageAccountName string
+param resourcePrefix string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
   name: artifactsStorageAccountName
@@ -33,7 +34,7 @@ resource esriStorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' exist
 }
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
-  name: 'nic-${virtualMachineName}'
+  name: '${resourcePrefix}-nic-${virtualMachineName}'
   location: location
   tags: contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}
   properties: {
@@ -99,7 +100,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
           }
           storageAccountType: 'Premium_LRS'
         }
-        name: 'disk-${virtualMachineName}'
+        name: '${resourcePrefix}-disk-${virtualMachineName}'
         osType: 'Windows'
       }
     }

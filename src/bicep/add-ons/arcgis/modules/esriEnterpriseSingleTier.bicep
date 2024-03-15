@@ -38,8 +38,6 @@ param virtualMachineOSDiskSize int
 param selfSignedSSLCertificatePassword string
 param applicationGatewayName string
 param externalDnsHostname string
-// param externalDnsHostnamePrefix string
-// param iDns string
 param joinWindowsDomain bool
 param keyVaultUri string
 param portalBackendSslCert string
@@ -51,27 +49,11 @@ param subscriptionId string = subscription().subscriptionId
 param userAssignedIdenityResourceId string
 param virtualNetworkName string
 param windowsDomainName string
-// param architecture string
-// param virtualNetworkId string
-// param hubVirtualNetworkId string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   scope: resourceGroup(subscription().subscriptionId, resourceGroup().name)
   name: storageAccountName
 }
-
-// module privateDnsZone 'privateDnsZone.bicep' = if (architecture == 'singletier' && joinWindowsDomain == false) {
-//   name: 'deploy-privatednszone-${deploymentNameSuffix}'
-//   scope: resourceGroup(subscriptionId, resourceGroupName)
-//   params: {
-//     externalDnsHostname: externalDnsHostname
-//     applicationGatewayPrivateIPAddress: applicationGatewayPrivateIpAddress
-//     virtualNetworkId: virtualNetworkId
-//     hubVirtualNetworkId: hubVirtualNetworkId
-//   }
-//   dependsOn: [
-//   ]
-// }
 
 module applicationGateway 'applicationGateway.bicep' = {
   name: 'deploy-applicationgateway-${deploymentNameSuffix}'
@@ -80,7 +62,6 @@ module applicationGateway 'applicationGateway.bicep' = {
     applicationGatewayName: applicationGatewayName
     applicationGatewayPrivateIpAddress: applicationGatewayPrivateIpAddress
     externalDnsHostName: externalDnsHostname
-    // iDns: iDns
     joinWindowsDomain: joinWindowsDomain
     keyVaultUri: keyVaultUri
     location: location

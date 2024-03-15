@@ -1,7 +1,8 @@
-param externalDnsHostname string
-param virtualNetworkId string
 param applicationGatewayPrivateIPAddress string
+param externalDnsHostname string
 param hubVirtualNetworkId string
+param resourcePrefix string
+param virtualNetworkId string
 
 
 var privateDNSZoneName ='${split(externalDnsHostname, '.')[1]}.${split(externalDnsHostname, '.')[2]}'
@@ -15,7 +16,7 @@ resource privatezone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
 
 resource esriLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
   parent: privatezone
-  name: 'esri-link'
+  name: '${resourcePrefix}-esri-link'
   location: 'global'
   properties: {
     virtualNetwork: {
@@ -27,7 +28,7 @@ resource esriLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06
 
 resource hubLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
   parent: privatezone
-  name: 'hub-link'
+  name: '${resourcePrefix}-hub-link'
   location: 'global'
   properties: {
     virtualNetwork: {

@@ -53,7 +53,6 @@ param defaultSubnetAddressPrefix string
 param privatelink_keyvaultDns_name string
 param hubVirtualNetworkId string
 param externalDnsHostname string
-param architecture string
 param applicationGatewayPrivateIpAddress string
 param joinWindowsDomain bool
 
@@ -181,7 +180,7 @@ module spokeDefender '../../../modules/defender.bicep' = if (deployDefender) {
   }
 }
 
-module privateDnsZone 'privateDnsZone.bicep' = if (architecture == 'singletier' && joinWindowsDomain == false) {
+module privateDnsZone 'privateDnsZone.bicep' = if (joinWindowsDomain == false) {
   name: 'deploy-privatednszone-${deploymentNameSuffix}'
   scope: resourceGroup(workloadSubscriptionId, resourceGroupName)
   params: {
@@ -189,6 +188,7 @@ module privateDnsZone 'privateDnsZone.bicep' = if (architecture == 'singletier' 
     applicationGatewayPrivateIPAddress: applicationGatewayPrivateIpAddress
     virtualNetworkId: spokeNetwork.outputs.vNetid
     hubVirtualNetworkId: hubVirtualNetworkId
+    resourcePrefix: resourcePrefix
   }
   dependsOn: [
     spokeNetwork

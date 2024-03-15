@@ -20,6 +20,7 @@ param useCloudStorage bool
 param userAssignedIdentityResourceId string
 param keyVaultUri string
 param storageEncryptionKeyName string
+param resourcePrefix string
 
 var uniqueStorageName = take('${uniqueString(resourceGroup().id)}', 10)
 var zones = [
@@ -28,7 +29,7 @@ var zones = [
 ]
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: 'saesri${uniqueStorageName}'
+  name: '${resourcePrefix}saesri${uniqueStorageName}'
   location: location
   tags: contains(tags, 'Microsoft.Storage/storageAccounts') ? tags['Microsoft.Storage/storageAccounts'] : {}
   sku: {
@@ -151,14 +152,14 @@ resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@20
 }
 
 resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for (zone, i) in zones: {
-  name: 'esri-pe-${storageAccount.name}-${i}'
+  name: '${resourcePrefix}-esri-pe-${storageAccount.name}-${i}'
   location: location
   tags: tags
   properties: {
-    customNetworkInterfaceName: 'esri-nic-${storageAccount.name}-${i}'
+    customNetworkInterfaceName: '${resourcePrefix}-esri-nic-${storageAccount.name}-${i}'
     privateLinkServiceConnections: [
       {
-        name: 'esri-pl-${i}'
+        name: '${resourcePrefix}-esri-pl-${i}'
         properties: {
           privateLinkServiceId: storageAccount.id
           groupIds: [
