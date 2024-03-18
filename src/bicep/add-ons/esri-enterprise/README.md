@@ -70,17 +70,19 @@ This option will deploy ArcGIS Enterprise on one Virutal Server, which is suitea
 
 This option will deploy ArcGIS Enterprise across multiple virtual machines, which is more suitable for production implementations which require high availability. 
 
-If deploying ArcGIS Enterprise
+#### Pre-Reqs
 
-### Upload the following scripts and files to your storage account container
+If deploying ArcGIS Enterprise please follow the below guidance and pre-req steps:
 
-* [Az.Accounts 2.13.1 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Accounts/2.12.1)
+##### Upload the following scripts and files to your storage account container
+
+* [Az.Accounts 2.13.1 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Accounts/2.13.1)
 * [Az.Automation 1.9.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Automation/1.9.0)
 * [Az.Compute 5.7.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Compute/5.7.0)
 * [Az.Resources 6.6.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Resources/6.6.0)
 * [Az.KeyVault 4.12.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Resources/6.6.0)
-* [Az.Storage 5.1.0 PowerShell Module](https://www.powershellgallery.com/packages/Az.Storage/5.1.0)
-* [Az.MarketplaceOrdering 2.0.0 PowerShell Module](https://www.powershellgallery.com/packages/Az.MarketplaceOrdering/2.0.0creating )
+* [Az.Storage 5.1.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Storage/5.1.0)
+* [Az.MarketplaceOrdering 2.0.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.MarketplaceOrdering/2.0.0)
 * [PFX Certificate for ESRI Enterprise that is password protected](https://enterprise.arcgis.com/en/server/latest/administer/windows/best-practices-for-server-certificates.htm)
 
 <img src="https://github.com/Borg-GitHub/ArcGIS-on-Azure-with-AVD/blob/main/images/ArcGIS-on-Azure-multi-tier.png">
