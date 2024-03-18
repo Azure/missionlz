@@ -117,8 +117,8 @@ param joinEntraDomain bool
 param joinWindowsDomain bool = false
 @description('Location')
 param location string = deployment().location
-@description('Log Analytics Workspace Name')
-param logAnalyticsWorkspaceName string = ''
+// @description('Log Analytics Workspace Name')
+// param logAnalyticsWorkspaceName string = ''
 @description('Number of data store virtual machines')
 param numberOfDataStoreVirtualMachines int = 2
 @description('Number of Esri servers')
@@ -379,7 +379,7 @@ module tier3 'modules/tier3.bicep' = {
     hubVirtualNetworkName: hubVirtualNetwork.name
     hubVirtualNetworkResourceId: hubVirtualNetwork.id
     location: location
-    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    // logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
     privatelink_keyvaultDns_name: split(privateDnsZone_keyvaultDns.id, '/')[8]
     resourceGroupName: rg.name
