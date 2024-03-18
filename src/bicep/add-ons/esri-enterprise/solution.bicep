@@ -883,6 +883,18 @@ module roleAssignmentVirtualMachineContributor './modules/roleAssignmentVirtualM
   ]
 }
 
+module roleAssignmentContributor './modules/roleAssignmentVirtualMachineContributor.bicep' = {
+  name: 'assign-role-sub-01-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId)
+  params: {
+    principalId: userAssignedIdentity.outputs.principalId
+    resourceGroupName: resourceGroupName
+  }
+  dependsOn: [
+    tier3
+  ]
+}
+
 module managementVm 'modules/managementVirtualMachine.bicep' = {
   name: 'deploy-management-vm-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
@@ -919,6 +931,7 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
     roleAssignmentArtifactsStorageAccount
     roleAssignmentStorageAccount
     roleAssignmentVirtualMachineContributor
+    roleAssignmentContributor
     tier3
     userAssignedIdentity
   ]
