@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "6015485847769135360"
+      "templateHash": "10883078430846464487"
     }
   },
   "parameters": {
@@ -304,13 +304,6 @@
       "defaultValue": "[deployment().location]",
       "metadata": {
         "description": "Location"
-      }
-    },
-    "logAnalyticsWorkspaceName": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Log Analytics Workspace Name"
       }
     },
     "numberOfDataStoreVirtualMachines": {
@@ -798,9 +791,6 @@
           "location": {
             "value": "[parameters('location')]"
           },
-          "logAnalyticsWorkspaceName": {
-            "value": "[parameters('logAnalyticsWorkspaceName')]"
-          },
           "logAnalyticsWorkspaceResourceId": {
             "value": "[parameters('spokelogAnalyticsWorkspaceResourceId')]"
           },
@@ -830,7 +820,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "14643842179195753961"
+              "templateHash": "8925009427874413550"
             }
           },
           "parameters": {
@@ -878,9 +868,6 @@
               "type": "string"
             },
             "location": {
-              "type": "string"
-            },
-            "logAnalyticsWorkspaceName": {
               "type": "string"
             },
             "logAnalyticsWorkspaceResourceId": {
@@ -1553,102 +1540,6 @@
               ]
             },
             {
-              "condition": "[not(equals(parameters('workloadSubscriptionId'), parameters('hubSubscriptionId')))]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[format('activity-logs-{0}-{1}', format('deploy-spokeNetwork--{0}', parameters('deploymentNameSuffix')), parameters('resourceSuffix'))]",
-              "subscriptionId": "[parameters('workloadSubscriptionId')]",
-              "location": "[resourceGroup().location]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "diagnosticSettingName": {
-                    "value": "[format('log-{0}-sub-activity-to-{1}', format('deploy-spokeNetwork--{0}', parameters('deploymentNameSuffix')), parameters('logAnalyticsWorkspaceName'))]"
-                  },
-                  "logAnalyticsWorkspaceId": {
-                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.26.54.24096",
-                      "templateHash": "75102224116253527"
-                    }
-                  },
-                  "parameters": {
-                    "diagnosticSettingName": {
-                      "type": "string"
-                    },
-                    "logAnalyticsWorkspaceId": {
-                      "type": "string"
-                    },
-                    "supportedClouds": {
-                      "type": "array",
-                      "defaultValue": [
-                        "AzureCloud",
-                        "AzureUSGovernment"
-                      ]
-                    }
-                  },
-                  "resources": [
-                    {
-                      "condition": "[contains(parameters('supportedClouds'), environment().name)]",
-                      "type": "Microsoft.Insights/diagnosticSettings",
-                      "apiVersion": "2017-05-01-preview",
-                      "name": "[parameters('diagnosticSettingName')]",
-                      "properties": {
-                        "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
-                        "logs": [
-                          {
-                            "category": "Administrative",
-                            "enabled": true
-                          },
-                          {
-                            "category": "Security",
-                            "enabled": true
-                          },
-                          {
-                            "category": "ServiceHealth",
-                            "enabled": true
-                          },
-                          {
-                            "category": "Alert",
-                            "enabled": true
-                          },
-                          {
-                            "category": "Recommendation",
-                            "enabled": true
-                          },
-                          {
-                            "category": "Policy",
-                            "enabled": true
-                          },
-                          {
-                            "category": "Autoscale",
-                            "enabled": true
-                          },
-                          {
-                            "category": "ResourceHealth",
-                            "enabled": true
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              },
-              "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('workloadSubscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-spokeNetwork--{0}', parameters('deploymentNameSuffix')))]"
-              ]
-            },
-            {
               "condition": "[parameters('deployDefender')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
@@ -1675,13 +1566,18 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "11044872561468194937"
+                      "templateHash": "15033542879751971590"
                     }
                   },
                   "parameters": {
-                    "bundle": {
+                    "defenderPlans": {
                       "type": "array",
-                      "defaultValue": "[if(equals(environment().name, 'AzureCloud'), createArray('Api', 'AppServices', 'Arm', 'CloudPosture', 'Containers', 'CosmosDbs', 'KeyVaults', 'OpenSourceRelationalDatabases', 'SqlServers', 'SqlServerVirtualMachines', 'StorageAccounts', 'VirtualMachines'), if(equals(environment().name, 'AzureUSGovernment'), createArray('Arm', 'Containers', 'OpenSourceRelationalDatabases', 'SqlServers', 'SqlServerVirtualMachines', 'StorageAccounts', 'VirtualMachines'), createArray()))]"
+                      "defaultValue": [
+                        "VirtualMachines"
+                      ],
+                      "metadata": {
+                        "description": "Defender Paid protection Plans. Even if a customer selects the free sku, at least 1 paid protection plan must be specified."
+                      }
                     },
                     "enableAutoProvisioning": {
                       "type": "bool",
@@ -1711,9 +1607,9 @@
                     },
                     "defenderSkuTier": {
                       "type": "string",
-                      "defaultValue": "Standard",
+                      "defaultValue": "Free",
                       "metadata": {
-                        "description": "[Standard/Free] The SKU for Defender. It defaults to \"Standard\"."
+                        "description": "[Standard/Free] The SKU for Defender. It defaults to \"Free\"."
                       }
                     }
                   },
@@ -1724,13 +1620,14 @@
                     {
                       "copy": {
                         "name": "defenderPricing",
-                        "count": "[length(parameters('bundle'))]",
+                        "count": "[length(parameters('defenderPlans'))]",
                         "mode": "serial",
                         "batchSize": 1
                       },
+                      "condition": "[not(empty(parameters('defenderPlans')))]",
                       "type": "Microsoft.Security/pricings",
                       "apiVersion": "2023-01-01",
-                      "name": "[parameters('bundle')[copyIndex()]]",
+                      "name": "[parameters('defenderPlans')[copyIndex()]]",
                       "properties": {
                         "pricingTier": "[parameters('defenderSkuTier')]"
                       }
@@ -7912,7 +7809,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "15592014085670496120"
+              "templateHash": "4633496276152005855"
             }
           },
           "parameters": {
@@ -8118,7 +8015,7 @@
                   }
                 ],
                 "source": {
-                  "script": "        param(\r\n          [string]$ContainerName,\r\n          [string]$StorageAccountName,\r\n          [string]$StorageEndpoint,\r\n          [string]$UserAssignedIdentityObjectId\r\n        )\r\n        $ErrorActionPreference = \"Stop\"\r\n        $StorageAccountUrl = \"https://\" + $StorageAccountName + \".blob.\" + $StorageEndpoint + \"/\"\r\n        $TokenUri = \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId\"\r\n        $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token\r\n        $BlobNames = @('az.accounts.2.13.1.nupkg','az.automation.1.9.0.nupkg','az.compute.5.7.0.nupkg','az.resources.6.6.0.nupkg','az.keyvault.4.12.0.nupkg', 'az.storage.5.1.0.nupkg')\r\n        foreach($BlobName in $BlobNames)\r\n        {\r\n          do\r\n          {\r\n              try\r\n              {\r\n                  Write-Output \"Download Attempt $i\"\r\n                  Invoke-WebRequest -Headers @{\"x-ms-version\"=\"2017-11-09\"; Authorization =\"Bearer $AccessToken\"} -Uri \"$StorageAccountUrl$ContainerName/$BlobName\" -OutFile \"$env:windir\\temp\\$BlobName\"\r\n              }\r\n              catch [System.Net.WebException]\r\n              {\r\n                  Start-Sleep -Seconds 60\r\n                  $i++\r\n                  if($i -gt 10){throw}\r\n                  continue\r\n              }\r\n              catch\r\n              {\r\n                  $Output = $_ | select *\r\n                  Write-Output $Output\r\n                  throw\r\n              }\r\n          }\r\n          until(Test-Path -Path $env:windir\\temp\\$BlobName)\r\n          Start-Sleep -Seconds 5\r\n          Unblock-File -Path $env:windir\\temp\\$BlobName\r\n          $BlobZipName = $Blobname.Replace('nupkg','zip')\r\n          Rename-Item -Path $env:windir\\temp\\$BlobName -NewName $BlobZipName\r\n          $BlobNameArray = $BlobName.Split('.')\r\n          $ModuleFolderName = $BlobNameArray[0] + '.' + $BlobNameArray[1]\r\n          $VersionFolderName = $BlobNameArray[2] + '.' + $BlobNameArray[3]+ '.' + $BlobNameArray[4]\r\n          $ModulesDirectory = \"C:\\Program Files\\WindowsPowerShell\\Modules\"\r\n          New-Item -Path $ModulesDirectory -Name $ModuleFolderName -ItemType \"Directory\" -Force\r\n          Expand-Archive -Path $env:windir\\temp\\$BlobZipName -DestinationPath \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\" -Force\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\_rels\" -Force -Recurse\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\package\" -Force -Recurse\r\n          Remove-Item -LiteralPath \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\[Content_Types].xml\" -Force\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\$ModuleFolderName.nuspec\" -Force\r\n        }\r\n        Remove-Item -Path \"$env:windir\\temp\\az*\" -Force\r\n      "
+                  "script": "        param(\r\n          [string]$ContainerName,\r\n          [string]$StorageAccountName,\r\n          [string]$StorageEndpoint,\r\n          [string]$UserAssignedIdentityObjectId\r\n        )\r\n        $ErrorActionPreference = \"Stop\"\r\n        $StorageAccountUrl = \"https://\" + $StorageAccountName + \".blob.\" + $StorageEndpoint + \"/\"\r\n        $TokenUri = \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId\"\r\n        $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token\r\n        $BlobNames = @('az.accounts.2.13.1.nupkg','az.automation.1.9.0.nupkg','az.compute.5.7.0.nupkg','az.resources.6.6.0.nupkg','az.keyvault.4.12.0.nupkg', 'az.storage.5.1.0.nupkg', 'az.marketplaceordering.1.0.2.nupkg')\r\n        foreach($BlobName in $BlobNames)\r\n        {\r\n          do\r\n          {\r\n              try\r\n              {\r\n                  Write-Output \"Download Attempt $i\"\r\n                  Invoke-WebRequest -Headers @{\"x-ms-version\"=\"2017-11-09\"; Authorization =\"Bearer $AccessToken\"} -Uri \"$StorageAccountUrl$ContainerName/$BlobName\" -OutFile \"$env:windir\\temp\\$BlobName\"\r\n              }\r\n              catch [System.Net.WebException]\r\n              {\r\n                  Start-Sleep -Seconds 60\r\n                  $i++\r\n                  if($i -gt 10){throw}\r\n                  continue\r\n              }\r\n              catch\r\n              {\r\n                  $Output = $_ | select *\r\n                  Write-Output $Output\r\n                  throw\r\n              }\r\n          }\r\n          until(Test-Path -Path $env:windir\\temp\\$BlobName)\r\n          Start-Sleep -Seconds 5\r\n          Unblock-File -Path $env:windir\\temp\\$BlobName\r\n          $BlobZipName = $Blobname.Replace('nupkg','zip')\r\n          Rename-Item -Path $env:windir\\temp\\$BlobName -NewName $BlobZipName\r\n          $BlobNameArray = $BlobName.Split('.')\r\n          $ModuleFolderName = $BlobNameArray[0] + '.' + $BlobNameArray[1]\r\n          $VersionFolderName = $BlobNameArray[2] + '.' + $BlobNameArray[3]+ '.' + $BlobNameArray[4]\r\n          $ModulesDirectory = \"C:\\Program Files\\WindowsPowerShell\\Modules\"\r\n          New-Item -Path $ModulesDirectory -Name $ModuleFolderName -ItemType \"Directory\" -Force\r\n          Expand-Archive -Path $env:windir\\temp\\$BlobZipName -DestinationPath \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\" -Force\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\_rels\" -Force -Recurse\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\package\" -Force -Recurse\r\n          Remove-Item -LiteralPath \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\[Content_Types].xml\" -Force\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\$ModuleFolderName.nuspec\" -Force\r\n        }\r\n        Remove-Item -Path \"$env:windir\\temp\\az*\" -Force\r\n      "
                 }
               },
               "dependsOn": [
