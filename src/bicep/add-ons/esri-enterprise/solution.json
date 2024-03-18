@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "13906920417618633593"
+      "templateHash": "13027653759208416348"
     }
   },
   "parameters": {
@@ -7664,7 +7664,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('assign-role-vm-02-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('assign-role-vm-01-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
@@ -7724,56 +7724,104 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('assign-role-sub-01-{0}', parameters('deploymentNameSuffix'))]",
-      "resourceGroup": "[variables('subscriptionId')]",
+      "subscriptionId": "[variables('subscriptionId')]",
+      "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
         },
         "mode": "Incremental",
         "parameters": {
-          "principalId": {
+          "userAssignedIdentityId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
           },
-          "resourceGroupName": {
-            "value": "[variables('resourceGroupName')]"
+          "subscriptionId": {
+            "value": "[variables('subscriptionId')]"
           }
         },
         "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "8843829551900952560"
+              "templateHash": "3020662803375983209"
             }
           },
           "parameters": {
-            "principalId": {
+            "userAssignedIdentityId": {
               "type": "string"
             },
-            "resourceGroupName": {
+            "subscriptionId": {
               "type": "string"
+            },
+            "deploymentNameSuffix": {
+              "type": "string",
+              "defaultValue": "[utcNow('yyyyMMddHHmmss')]"
             }
-          },
-          "variables": {
-            "roleDefinitionId": "9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
           },
           "resources": [
             {
-              "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2022-04-01",
-              "name": "[guid(parameters('principalId'), variables('roleDefinitionId'), parameters('resourceGroupName'))]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('assign-role-vm-02-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('subscriptionId')]",
+              "location": "[deployment().location]",
               "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]",
-                "principalId": "[parameters('principalId')]",
-                "principalType": "ServicePrincipal"
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "principalId": {
+                    "value": "[parameters('userAssignedIdentityId')]"
+                  },
+                  "subscriptionid": {
+                    "value": "[parameters('subscriptionId')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.26.54.24096",
+                      "templateHash": "8968981336685248524"
+                    }
+                  },
+                  "parameters": {
+                    "principalId": {
+                      "type": "string"
+                    },
+                    "subscriptionid": {
+                      "type": "string"
+                    }
+                  },
+                  "variables": {
+                    "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "name": "[guid(parameters('principalId'), variables('roleDefinitionId'), parameters('subscriptionid'))]",
+                      "properties": {
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]",
+                        "principalId": "[parameters('principalId')]",
+                        "principalType": "ServicePrincipal"
+                      }
+                    }
+                  ]
+                }
               }
             }
           ]
         }
       },
       "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
@@ -7867,7 +7915,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "3838360713687697740"
+              "templateHash": "4677294163377019848"
             }
           },
           "parameters": {
@@ -8265,7 +8313,7 @@
                   }
                 ],
                 "source": {
-                  "script": "      param(\r\n        [string]$Environment,\r\n        [string]$UserAssignedIdentityObjectId,\r\n        [string]$UserAssignedIdentityClientId,\r\n        [string]$subscription\r\n      )\r\n      $ErrorActionPreference = 'Stop'\r\n      Connect-AzAccount -Environment $Environment -Subscription $subscription -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n\r\n      $name = 'byol-111'\r\n      $product = 'arcgis-enterprise'\r\n      $publisher = 'esri'\r\n      Get-AzMarketplaceTerms -Publisher $publisher -Name $name -Product $product -OfferType 'virtualmachine' | Set-AzMarketplaceTerms -Accept\r\n      "
+                  "script": "      param(\r\n        [string]$Environment,\r\n        [string]$UserAssignedIdentityObjectId,\r\n        [string]$UserAssignedIdentityClientId,\r\n        [string]$subscription\r\n      )\r\n      $ErrorActionPreference = 'Stop'\r\n      Connect-AzAccount -Environment $Environment -Subscription $subscription -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n      $name = 'byol-111'\r\n      $product = 'arcgis-enterprise'\r\n      $publisher = 'esri'\r\n      Get-AzMarketplaceTerms -Publisher $publisher -Name $name -Product $product -OfferType 'virtualmachine' | Set-AzMarketplaceTerms -Accept\r\n      "
                 }
               },
               "dependsOn": [
@@ -8289,9 +8337,9 @@
         "multiTierServerVirtualMachines",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('artifactsStorageAccountSubscriptionId'), parameters('artifactsStorageAccountResourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-sa-02-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('subscriptionId')), 'Microsoft.Resources/deployments', format('assign-role-sub-01-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId(variables('subscriptionId'), 'Microsoft.Resources/deployments', format('assign-role-sub-01-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-sa-01-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-vm-02-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-vm-01-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"

@@ -872,7 +872,7 @@ module roleAssignmentArtifactsStorageAccount './modules/roleAssignmentStorageAcc
 }
 
 module roleAssignmentVirtualMachineContributor './modules/roleAssignmentVirtualMachineContributor.bicep' = {
-  name: 'assign-role-vm-02-${deploymentNameSuffix}'
+  name: 'assign-role-vm-01-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     principalId: userAssignedIdentity.outputs.principalId
@@ -883,17 +883,19 @@ module roleAssignmentVirtualMachineContributor './modules/roleAssignmentVirtualM
   ]
 }
 
-module roleAssignmentContributor './modules/roleAssignmentVirtualMachineContributor.bicep' = {
+module roleAssignmentContributor './modules/contributor.bicep' = {
   name: 'assign-role-sub-01-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId)
+  scope: subscription(subscriptionId)
   params: {
-    principalId: userAssignedIdentity.outputs.principalId
-    resourceGroupName: resourceGroupName
+    userAssignedIdentityId: userAssignedIdentity.outputs.principalId
+    subscriptionId: subscriptionId
   }
   dependsOn: [
+    keyVault
     tier3
   ]
 }
+
 
 module managementVm 'modules/managementVirtualMachine.bicep' = {
   name: 'deploy-management-vm-${deploymentNameSuffix}'
