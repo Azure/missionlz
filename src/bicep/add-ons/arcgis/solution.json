@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "8538301403117255710"
+      "templateHash": "6015485847769135360"
     }
   },
   "parameters": {
@@ -7912,7 +7912,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "14597130940744580358"
+              "templateHash": "15592014085670496120"
             }
           },
           "parameters": {
@@ -8262,6 +8262,58 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines/runCommands', parameters('virtualMachineName'), 'rc-esriScriptArtifacts')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/runCommands', parameters('virtualMachineName'), 'rc-azModules')]",
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines/runCommands",
+              "apiVersion": "2023-03-01",
+              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'rc-esriMarketplaceImageTerms')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "properties": {
+                "treatFailureAsDeploymentFailure": true,
+                "asyncExecution": false,
+                "parameters": [
+                  {
+                    "name": "ContainerName",
+                    "value": "[parameters('artifactsContainerName')]"
+                  },
+                  {
+                    "name": "Environment",
+                    "value": "[environment().name]"
+                  },
+                  {
+                    "name": "StorageAccountName",
+                    "value": "[parameters('esriStorageAccountName')]"
+                  },
+                  {
+                    "name": "StorageEndpoint",
+                    "value": "[environment().suffixes.storage]"
+                  },
+                  {
+                    "name": "UserAssignedIdentityClientId",
+                    "value": "[parameters('userAssignedIdentityClientId')]"
+                  },
+                  {
+                    "name": "UserAssignedIdentityObjectId",
+                    "value": "[parameters('userAssignedIdentityPrincipalId')]"
+                  },
+                  {
+                    "name": "location",
+                    "value": "[parameters('location')]"
+                  },
+                  {
+                    "name": "subscription",
+                    "value": "[subscription().subscriptionId]"
+                  }
+                ],
+                "source": {
+                  "script": "      param(\r\n        [string]$Environment,\r\n        [string]$UserAssignedIdentityObjectId,\r\n        [string]$UserAssignedIdentityClientId,\r\n        [string]$subscription\r\n      )\r\n      $ErrorActionPreference = 'Stop'\r\n      Connect-AzAccount -Environment $Environment -Subscription $subscription -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n      $name = 'byol-111'\r\n      $product = 'arcgis-enterprise'\r\n      $publisher = 'esri'\r\n      Get-AzMarketplaceTerms -Publisher $publisher -Name $name -Product $product -OfferType 'virtualmachine' | Set-AzMarketplaceTerms -Accept\r\n      "
+                }
+              },
+              "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines/runCommands', parameters('virtualMachineName'), 'rc-azModules')]",
                 "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
               ]

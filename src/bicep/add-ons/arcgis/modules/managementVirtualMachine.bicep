@@ -439,4 +439,69 @@ resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
   ]
 }
 
+resource esriMarketplaceImageTerms 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
+  name: 'rc-esriMarketplaceImageTerms'
+  location: location
+  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  parent: virtualMachine
+  properties: {
+    treatFailureAsDeploymentFailure: true
+    asyncExecution: false
+    parameters: [
+      {
+        name: 'ContainerName'
+        value: artifactsContainerName
+      }
+      {
+        name: 'Environment'
+        value: environment().name
+      }
+      {
+        name: 'StorageAccountName'
+        value: esriStorageAccount.name
+      }
+      {
+        name: 'StorageEndpoint'
+        value: environment().suffixes.storage
+      }
+      {
+        name: 'UserAssignedIdentityClientId'
+        value: userAssignedIdentityClientId
+      }
+      {
+        name: 'UserAssignedIdentityObjectId'
+        value: userAssignedIdentityPrincipalId
+      }
+      {
+        name: 'location'
+        value: location
+      }
+      {
+        name: 'subscription'
+        value: subscription().subscriptionId
+      }
+    ]
+    source: {
+      script: '''
+      param(
+        [string]$Environment,
+        [string]$UserAssignedIdentityObjectId,
+        [string]$UserAssignedIdentityClientId,
+        [string]$subscription
+      )
+      $ErrorActionPreference = 'Stop'
+      Connect-AzAccount -Environment $Environment -Subscription $subscription -Identity -AccountId $UserAssignedIdentityClientId | Out-Null
+      $name = 'byol-111'
+      $product = 'arcgis-enterprise'
+      $publisher = 'esri'
+      Get-AzMarketplaceTerms -Publisher $publisher -Name $name -Product $product -OfferType 'virtualmachine' | Set-AzMarketplaceTerms -Accept
+      '''
+    }
+  }
+  dependsOn: [
+    modules
+    storageAccount
+  ]
+}
+
 output name string = virtualMachine.name
