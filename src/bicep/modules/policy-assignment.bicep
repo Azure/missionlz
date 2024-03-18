@@ -11,20 +11,13 @@ Licensed under the MIT License.
 ])
 @description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, default is NISTRev4. IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
 param builtInAssignment string = 'NISTRev4'
-param logAnalyticsWorkspaceName string
-param logAnalyticsWorkspaceResourceGroupName string
-param operationsSubscriptionId string
+param logAnalyticsWorkspaceResourceId string
 
 @description('Starts a policy remediation for the VM Agent policies in hub RG. Set to false by default since this is time consuming in deployment.')
 param deployRemediation bool = false
 
 @description('The location of this resource')
 param location string = resourceGroup().location
-
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
-  name: logAnalyticsWorkspaceName
-  scope: resourceGroup(operationsSubscriptionId, logAnalyticsWorkspaceResourceGroupName)
-}
 
 var policyDefinitionID = {
   NISTRev4: {
@@ -52,7 +45,11 @@ var agentVmAssignmentName = 'Deploy VM Agents ${resourceGroup().name}'
 var contributorRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
 var lawsReaderRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', '92aaf0da-9dab-42b6-94a3-d43ce8d16293')
 
-// assign policy to resource group
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: split(logAnalyticsWorkspaceResourceId, '/')[8]
+  scope: resourceGroup(split(logAnalyticsWorkspaceResourceId, '/')[2], split(logAnalyticsWorkspaceResourceId, '/')[4])
+}
+
 resource assignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
   name: assignmentName
   location: location
@@ -130,7 +127,7 @@ resource vmPolicyRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04
 
 module roleAssignment '../modules/role-assignment.bicep' = {
   name: 'Assign-Laws-Role-Policy-${resourceGroup().name}'
-  scope: resourceGroup(operationsSubscriptionId, logAnalyticsWorkspaceResourceGroupName)
+  scope: resourceGroup(split(logAnalyticsWorkspaceResourceId, '/')[2], split(logAnalyticsWorkspaceResourceId, '/')[4])
   params: {
     targetResourceId: logAnalyticsWorkspace.id
     roleDefinitionId: lawsReaderRoleDefinitionId

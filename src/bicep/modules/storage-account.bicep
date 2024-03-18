@@ -6,9 +6,11 @@ Licensed under the MIT License.
 param blobsPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
-param resourcePrefix string
+param serviceToken string
 param skuName string
 param storageAccountName string
+param storageAccountNetworkInterfaceNamePrefix string
+param storageAccountPrivateEndpointNamePrefix string
 param storageEncryptionKeyName string
 param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
@@ -84,14 +86,14 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 }
 
 resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for (zone, i) in zones: {
-  name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-pe-')}-${split(split(zone, '/')[8], '.')[1]}'
+  name: replace(storageAccountPrivateEndpointNamePrefix, serviceToken, split(split(zone, '/')[8], '.')[1])
   location: location
   tags: tags
   properties: {
-    customNetworkInterfaceName: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-nic-')}-${split(split(zone, '/')[8], '.')[1]}'
+    customNetworkInterfaceName: replace(storageAccountNetworkInterfaceNamePrefix, serviceToken, split(split(zone, '/')[8], '.')[1])
     privateLinkServiceConnections: [
       {
-        name: '${replace(storageAccountName, resourcePrefix, '${resourcePrefix}-nic-')}-${split(split(zone, '/')[8], '.')[1]}'
+        name: replace(storageAccountPrivateEndpointNamePrefix, serviceToken, split(split(zone, '/')[8], '.')[1])
         properties: {
           privateLinkServiceId: storageAccount.id
           groupIds: [
