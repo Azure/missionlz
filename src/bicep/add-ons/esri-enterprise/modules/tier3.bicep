@@ -36,7 +36,7 @@ param hubSubscriptionId string
 param hubVirtualNetworkName string
 param hubVirtualNetworkResourceId string
 param location string
-param logAnalyticsWorkspaceName string
+// param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceResourceId string
 // param networkSecurityGroupRules array = []
 // param policy string
@@ -147,17 +147,17 @@ module hubToWorkloadVirtualNetworkPeering './hub-network-peering.bicep' = {
   ]
 }
 
-module workloadSubscriptionActivityLogging '../../../modules/central-logging.bicep' = if (workloadSubscriptionId != hubSubscriptionId) {
-  name: 'activity-logs-${spokeNetwork.name}-${resourceSuffix}'
-  scope: subscription(workloadSubscriptionId)
-  params: {
-    diagnosticSettingName: 'log-${spokeNetwork.name}-sub-activity-to-${logAnalyticsWorkspaceName}'
-    logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
-  }
-  dependsOn: [
-    spokeNetwork
-  ]
-}
+// module workloadSubscriptionActivityLogging '../../tier3/modules/diagnostics.bicep' = if (workloadSubscriptionId != hubSubscriptionId) {
+//   name: 'activity-logs-${spokeNetwork.name}-${resourceSuffix}'
+//   scope: subscription(workloadSubscriptionId)
+//   params: {
+//     diagnosticSettingName: 'log-${spokeNetwork.name}-sub-activity-to-${logAnalyticsWorkspaceName}'
+//     logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
+//   }
+//   dependsOn: [
+//     spokeNetwork
+//   ]
+// }
 
 // module workloadPolicyAssignment '../../../modules/policy-assignment.bicep' = if (deployPolicy) {
 //   name: 'assign-policy-${workloadName}-${deploymentNameSuffix}'
@@ -171,7 +171,7 @@ module workloadSubscriptionActivityLogging '../../../modules/central-logging.bic
 //    }
 //   }
 
-module spokeDefender '../../../modules/defender.bicep' = if (deployDefender) {
+module spokeDefender '../../../modules/defenderForCloud.bicep' = if (deployDefender) {
   name: 'set-${workloadName}-sub-defender'
   scope: subscription(workloadSubscriptionId)
   params: {
