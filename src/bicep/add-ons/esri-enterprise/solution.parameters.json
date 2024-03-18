@@ -1,0 +1,116 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminPassword": {
+      "value": ""
+    },
+    "adminUsername": {
+      "value": ""
+    },
+    "applicationGatewayPrivateIpAddress": {
+      "value": ""
+    },
+    "applicationGatewaySubnetAddressPrefix": {
+      "value": ""
+    },
+    "arcgisServiceAccountIsDomainAccount": {
+      "value": false
+    },
+    "arcgisServiceAccountPassword": {
+      "value": ""
+    },
+    "arcgisServiceAccountUserName": {
+      "value": ""
+    },
+    "architecture": {},
+    "azureFirewallName": {
+      "value": ""
+    },
+    "debugMode": {
+      "value": false
+    },
+    "defaultSubnetAddressPrefix": {
+      "value": ""
+    },
+    "deployDefender": {
+      "value": false
+    },
+    "deployPolicy": {
+      "value": false
+    },
+    "diskEncryptionSetResourceId": {
+      "value": ""
+    },
+    "enableGraphDataStore": {
+      "value": false
+    },
+    "enableMonitoring": {
+      "value": false
+    },
+    "enableObjectDataStore": {
+      "value": false
+    },
+    "enableSpatiotemporalBigDataStore": {
+      "value": false
+    },
+    "enableTileCacheDataStore": {
+      "value": false
+    },
+    "externalDnsHostname": {
+      "value": ""
+    },
+    "hubResourceGroupName": {
+      "value": ""
+    },
+    "hubSubscriptionId": {
+      "value": ""
+    },
+    "hubVirtualNetworkName": {
+      "value": ""
+    },
+    "portalLicenseFile": {
+      "value": ""
+    },
+    "portalLicenseUserTypeId": {},
+    "primarySiteAdministratorAccountPassword": {
+      "value": ""
+    },
+    "primarySiteAdministratorAccountUserName": {
+      "value": ""
+    },
+    "resourcePrefix": {
+      "value": ""
+    },
+    "selfSignedCertificatePassword": {
+      "value": ""
+    },
+    "serverLicenseFile": {
+      "value": ""
+    },
+    "spokelogAnalyticsWorkspaceResourceId": {
+      "value": ""
+    },
+    "useAzureFiles": {
+      "value": false
+    },
+    "useCloudStorage": {
+      "value": false
+    },
+    "virtualNetworkAddressPrefix": {
+      "value": ""
+    },
+    "certificatePassword": {
+      "value": ""
+    },
+    "certificateFileName": {
+      "value": ""
+    },
+    "hubStorageAccountName": {
+      "value": ""
+    },
+    "hubContainerName": {
+      "value": ""
+    }
+  }
+}
