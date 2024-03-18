@@ -17,5 +17,5 @@ New-AzTemplateSpec `
     -Location $Location `
     -DisplayName "Zero Trust Image Template" `
     -TemplateFile '.\solution.json' `
-    -UIFormDefinitionFile 'C:\git\button\missionlz\src\bicep\add-ons\Imaging\uiDefinition.json' `
+    -UIFormDefinitionFile '.\uiDefinition.json' `
     -Force
