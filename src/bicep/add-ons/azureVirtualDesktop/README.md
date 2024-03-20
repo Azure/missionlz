@@ -34,65 +34,64 @@ Some of the example Parameters from Solution.json file. [solution.json](solution
 
 Description: The service providing domain services for Azure Virtual Desktop.  This is needed to properly configure the session hosts and if applicable, the Azure Storage Account. 
 
-Please provide string value for 'activeDirectorySolution' 
+> Please provide string value for 'activeDirectorySolution' 
 
-- [1] ActiveDirectoryDomainServices 
-- [2] MicrosoftEntraDomainServices 
-- [3] MicrosoftEntraId 
-- [4] MicrosoftEntraIdIntuneEnrollment 
+>- [1] ActiveDirectoryDomainServices 
+>- [2] MicrosoftEntraDomainServices 
+>- [3] MicrosoftEntraId 
+>- [4] MicrosoftEntraIdIntuneEnrollment 
 
 Note: Default choice (1) 
 
 *Azure Blobs container*  
 
 Description: The name of the Azure Blobs container hosting the required artifacts 
-Please provide string value for 'artifactsContainerName': 
+>Please provide string value for 'artifactsContainerName':
 
 *Note:* First, create an Azure Storage Account. Next, set up a container. Retrieve all the artifacts from the repository  from the path missionlz/src/bicep/add-ons/azureVirtualDesktop/artifacts at main · Azure/missionlz (github.com), and finally, upload them into your container 
 
 *Storage account Resource* 
 
 Description: The resource ID for the storage account hosting the artifacts in Blob storage. 
-
-    Please provide string value for 'artifactsStorageAccountResourceId': 
+>Please provide string value for 'artifactsStorageAccountResourceId':``` 
 
 *Availability zones*  
 
 Description: The desired availability option when deploying a pooled host pool. The best practice is to deploy to availability zones for the highest resilency and service level agreement. 
 
-    Hidden with default value: 'Availability': 
+>Hidden with default value: 'Availability': 
 
-    - AvailabilitySets, 
-    - AvailabilityZones, 
-    - None 
+>- AvailabilitySets, 
+>- AvailabilityZones, 
+>- None 
 
-    DefaultValue: "AvailabilityZones" 
+DefaultValue: "AvailabilityZones" 
   
 *AVD Agent installer* 
 
 Description: The blob name of the MSI file for the AVD Agent installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts 
 
-    Please provide string value for 'avdAgentMsiname': 
+>Please provide string value for 'avdAgentMsiname': 
 
 *AVD Agent Boot Loader installer* 
 
 Description: The blob name of the MSI file for the AVD Agent Boot Loader installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts. 
 
-    Please provide string value for 'avdAgentBootLoaderMsiName': 
+>Please provide string value for 'avdAgentBootLoaderMsiName': 
 
 *Entra ID object ID*  
 
 Description: The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID. 
 
-    Please provide string value for 'avdObjectId': 
+>Please provide string value for 'avdObjectId': 
 
 *Azure NetApp subnet address* 
 
 Description: The subnet address prefix for the Azure NetApp Files delegated subnet. 
 
-    Hidden with default value: 'azureNetAppFilesSubnetAddressPrefix' 
+>Hidden with default value: 'azureNetAppFilesSubnetAddressPrefix' 
 
-    DefaultValue: "" 
+DefaultValue: "" 
 
           
 
@@ -100,24 +99,23 @@ Description: The subnet address prefix for the Azure NetApp Files delegated subn
 
 Descriptions: The blob name of the MSI file for the  Azure PowerShell Module installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts. 
 
-    Please provide string vaule for 'azurePowerShellModuleMsiName': 
+>Please provide string vaule for 'azurePowerShellModuleMsiName': 
 
 *RDP properties*  
 
 Description: The RDP properties to add or remove RDP functionality on the AVD host pool. The string must end with a semi-colon. 
 
-    Hidden with default value: 'customRdpProperty' 
+>Hidden with default value: 'customRdpProperty' 
 
-    DefaultValue: "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;" 
+DefaultValue: "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;" 
 
-          
 Settings reference: https://learn.microsoft.com/windows-server/remote/remote-desktop-services/clients/rdp-files 
 
 *Host pool IP* 
 
 Description: The type of public network access for the host pool. 
 
-    Please provide string value for 'hostPoolPublicNetworkAccess' 
+>Please provide string value for 'hostPoolPublicNetworkAccess' 
 
 #### 2. Execute az deployment
 
@@ -144,23 +142,26 @@ Or, add a date value.
     az deployment sub create –name <deployment-name>  –location <location> --template-file <path-to-bicep-file> --parameters @<path-to-parameter-file>
     ```
 
-    Where  
+Where  
 
-        <deployment-name> = is the name of your deployment so you can view the deployment recorded results in Azure 
-        <location> = one of the Azure gov locations 
-        <path-to-bicep-file> = where the solution.json file is located 
-        <path-to-parameter-file> = where the parameter file is located 
+    <deployment-name> = is the name of your deployment so you can view the deployment recorded results in Azure 
+    <location> = one of the Azure gov locations 
+    <path-to-bicep-file> = where the solution.json file is located 
+    <path-to-parameter-file> = where the parameter file is located 
 
 The deployment can take a few minutes to complete. When it finishes, you see a message that includes the result: 
     
-    "provisioningState": "Succeeded", 
+    "provisioningState": "Succeeded"
 
 #### 3. Verify deployment
 
 - Run the az deployment command to see the status 
-```az deployment sub show --name <deployment-name> --query properties.provisioningState ```
+
+        az deployment sub show --name <deployment-name> --query properties.provisioningState
+
 - Get the output of the deployment and the state of the resources 
-```az deployment sub show --name <deployment-name> --query properties.outputs ```
+
+        az deployment sub show --name <deployment-name> --query properties.outputs
 
 #### 4. Perform Testing
 
