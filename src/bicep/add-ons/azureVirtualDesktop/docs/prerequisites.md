@@ -2,13 +2,31 @@
 
 [**Home**](../README.md) | [**Features**](./features.md) | [**Design**](./design.md) | [**Prerequisites**](./prerequisites.md) | [**Troubleshooting**](./troubleshooting.md)
 
+The <customer> AVD solution will be deployed inside a type-accredited landing zone - Enterprise Mission Owner Landing Zone (EMOLZ). The LZ solution provided in this repository will not be used because it will not meet the <customer>'s security requirements.
+
 ## Prerequisites
 
 To successfully deploy this solution, you will need to ensure the following prerequisites have been completed:
 
+### Before the AVD Deployment
+
+The following must be completed prior to the execution of the AVD deployment via Bicep: 
+
+see [AVD Prerequisites](https://learn.microsoft.com/en-us/azure/virtual-desktop/prerequisites?tabs=portal)
+
+- The user has an admin account with write-access to the target environment (EMOLZ) 
+- The user has an authorized end-point to perform the deployment
+- The Enterprise Mission Owner Landing Zone (EMOLZ) is deployed and provisioned, and ready for AVD to move in 
+- RBAC is setup according to organizational needs 
+- Connectivity to the Identity Provider is established 
+- Needed IPs for the VNets and Subnets are obtained and documented
+- An image is available for AVD use, or the process to create the custom image will be used
+- There is an IATB
+
 ### Required
 
-- **Licenses:** ensure you have the [required licensing for AVD](https://learn.microsoft.com/en-us/azure/virtual-desktop/overview#requirements).
+- **Tools:** Azure cli - runs inside a Windows command line or a PowerShell console if deploy from an end point. Runs inside the Azure Cloud Shell if deploy from the Azure Portal. See [Install the Azure Cli for Windows](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli)
+- **Licenses:** ensure you have the [required OS licensing for AVD](https://learn.microsoft.com/en-us/azure/virtual-desktop/prerequisites?tabs=portal#operating-systems-and-licenses).
 - **Artifacts:** the deployment of this solution depends on many artifacts that must be hosted in Azure Blobs, ideally in the MLZ operations storage account.
   - [AVD Agent](https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv)
   - [AVD Agent Boot Loader](https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH)
