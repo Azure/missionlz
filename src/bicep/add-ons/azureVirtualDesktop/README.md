@@ -21,7 +21,7 @@ This solution will deploy a fully operational Azure Virtual Desktop (AVD) [stamp
 1. Verify resources are created and provisioned according to the specified template and parameters
 1. Test access to an AVD session from a Remote Desktop Client
 
-#### Update the parameter file
+#### 1. Update the parameter file
 
 {{ list of parameters, and what they are, and their options }}
 {{ what values and settings are we using for this specific customer }}
@@ -119,7 +119,7 @@ Description: The type of public network access for the host pool.
 
     Please provide string value for 'hostPoolPublicNetworkAccess' 
 
-#### Execute az deployment
+#### 2. Execute az deployment
 
 **Deployment name** 
 
@@ -155,20 +155,20 @@ The deployment can take a few minutes to complete. When it finishes, you see a m
     
     "provisioningState": "Succeeded", 
 
-#### Verify deployment
+#### 3. Verify deployment
 
 - Run the az deployment command to see the status 
 ```az deployment sub show --name <deployment-name> --query properties.provisioningState ```
 - Get the output of the deployment and the state of the resources 
 ```az deployment sub show --name <deployment-name> --query properties.outputs ```
 
-#### Perform Testing
+#### 4. Perform Testing
 
 - Open a Remote Desktop Client to verify a user can successfully access an AVD session
 
 ## Other Options
 
-> [!ATTENTION]
+> [!WARNING]
 > Not using any of the following options for this customer!
 
 ### Blue Buttons (<<--We are NOT doing this option)
