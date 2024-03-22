@@ -227,6 +227,16 @@ param identityNetworkSecurityGroupDiagnosticsLogs array = [
 @description('An array of Network Security Group Metrics to apply to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
 param identityNetworkSecurityGroupDiagnosticsMetrics array = []
 
+// KEY VAULT PARAMETERS
+@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
+param KeyVaultDiagnosticsLogs array = [
+  {
+    category: 'Audit Logs'
+    enabled: true
+  }
+]
+
+
 // OPERATIONS PARAMETERS
 
 @description('An array of Network Diagnostic Logs to enable for the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.')
@@ -669,6 +679,8 @@ module diagnostics 'modules/diagnostics.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
+    KeyVaultName: customerManagedKeys.outputs.KeyVaultName
+    keyVaultDiagnosticLogs: KeyVaultDiagnosticsLogs
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     networks: logic.outputs.networks
     networkSecurityGroupDiagnosticsLogs: hubNetworkSecurityGroupDiagnosticsLogs

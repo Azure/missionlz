@@ -49,6 +49,8 @@ module userAssignedIdentity 'user-assigned-identity.bicep' = {
 }
 
 output diskEncryptionSetResourceId string = diskEncryptionSet.outputs.resourceId
+output KeyVaultName string = keyVault.outputs.keyVaultName
 output keyVaultUri string = keyVault.outputs.keyVaultUri
+output keyVaultResourceId string = keyVault.outputs.keyVaultResourceId
 output storageKeyName string = keyVault.outputs.storageKeyName
 output userAssignedIdentityResourceId string = userAssignedIdentity.outputs.resourceId
