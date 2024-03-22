@@ -231,7 +231,11 @@ param identityNetworkSecurityGroupDiagnosticsMetrics array = []
 @description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
 param KeyVaultDiagnosticsLogs array = [
   {
-    category: 'Audit Logs'
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
     enabled: true
   }
 ]
