@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "5662097490209881816"
+      "templateHash": "7369481961159930705"
     }
   },
   "parameters": {
@@ -399,7 +399,11 @@
       "type": "array",
       "defaultValue": [
         {
-          "category": "Audit Logs",
+          "category": "AuditEvent",
+          "enabled": true
+        },
+        {
+          "category": "AzurePolicyEvaluationDetails",
           "enabled": true
         }
       ],
