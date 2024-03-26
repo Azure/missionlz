@@ -98,6 +98,7 @@ module keyvaultDiagnostics '../modules/key-vault-diagnostics.bicep' = {
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: keyVaultDiagnosticLogs
+    keyVaultstorageAccountId: storageAccountResourceIds[0]
     name: KeyVaultName
   }
 }
