@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "7369481961159930705"
+      "templateHash": "3587590393870415331"
     }
   },
   "parameters": {
@@ -7348,7 +7348,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "11969165437563064298"
+              "templateHash": "49100111797787087"
             }
           },
           "parameters": {
@@ -7894,6 +7894,9 @@
                   "logs": {
                     "value": "[parameters('keyVaultDiagnosticLogs')]"
                   },
+                  "keyVaultstorageAccountId": {
+                    "value": "[parameters('storageAccountResourceIds')[0]]"
+                  },
                   "name": {
                     "value": "[parameters('KeyVaultName')]"
                   }
@@ -7905,7 +7908,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "2101205517307216041"
+                      "templateHash": "9848944155815832346"
                     }
                   },
                   "parameters": {
@@ -7917,6 +7920,9 @@
                     },
                     "name": {
                       "type": "string"
+                    },
+                    "keyVaultstorageAccountId": {
+                      "type": "string"
                     }
                   },
                   "resources": [
@@ -7926,6 +7932,7 @@
                       "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('name'))]",
                       "name": "[format('{0}-diagnostics', parameters('name'))]",
                       "properties": {
+                        "storageAccountId": "[parameters('keyVaultstorageAccountId')]",
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
                         "logs": "[parameters('logs')]"
                       }
