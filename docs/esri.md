@@ -130,25 +130,40 @@ In this ArcGIS on Azure accelerator, you have access to step by step guides cove
 
 This option will deploy ArcGIS Enterprise on one virtual server, which is suitable  for Prof-of-Concept implementations or demo environments.
 
-![ArcGIS on Azure Single Tier diagram](./images/ArcGIS-on-Azure-Single-Tier.png)
+### ArcGIS Enterprise base deployment single tier
 
-<!-- markdownlint-disable MD013 -->
+This option will deploy ArcGIS Enterprise on one Virutal Server, which is suiteable for Prof-of-Concept implementations.
+
+ <img src="https://github.com/Borg-GitHub/ArcGIS-on-Azure-with-AVD/blob/main/images/ArcGIS-on-Azure-Single-Tier.png">
+
 | Deployment Type | Link |
 |:--|:--|
-| Azure portal UI | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FBorg-GitHub%2FArcGIS-on-Azure-with-AVD%2Fmain%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FBorg-GitHub%2FArcGIS-on-Azure-with-AVD%2Fmain%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FBorg-GitHub%2FArcGIS-on-Azure-with-AVD%2Fmain%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FBorg-GitHub%2FArcGIS-on-Azure-with-AVD%2Fmain%2FuiDefinition.json) |
-<!-- markdownlint-enable MD013 -->
+| Azure portal UI | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) |
 
-### ArcGIS Enterprise base deployment multi machine
+### ArcGIS Enterprise base deployment multi tier
 
-This option will deploy ArcGIS Enterprise across multiple virtual machines, which is more suitable for production implementations which require high availability.
+This option will deploy ArcGIS Enterprise across multiple virtual machines, which is more suitable for production implementations which require high availability. 
 
-![ArcGIS on Azure Multi Tier diagram](./images/ArcGIS-on-Azure-multi-tier.png)
+#### Pre-Reqs
 
-<!-- markdownlint-disable MD013 -->
+If deploying ArcGIS Enterprise please follow the below guidance and pre-req steps:
+
+##### Upload the following scripts and files to your storage account container
+
+* [Az.Accounts 2.13.1 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Accounts/2.13.1)
+* [Az.Automation 1.9.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Automation/1.9.0)
+* [Az.Compute 5.7.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Compute/5.7.0)
+* [Az.Resources 6.6.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Resources/6.6.0)
+* [Az.KeyVault 4.12.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Resources/6.6.0)
+* [Az.Storage 5.1.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Storage/5.1.0)
+* [Az.MarketplaceOrdering 2.0.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.MarketplaceOrdering/2.0.0)
+* [PFX Certificate for ESRI Enterprise that is password protected](https://enterprise.arcgis.com/en/server/latest/administer/windows/best-practices-for-server-certificates.htm)
+
+<img src="https://github.com/Borg-GitHub/ArcGIS-on-Azure-with-AVD/blob/main/images/ArcGIS-on-Azure-multi-tier.png">
+
 | Deployment Type | Link |
 |:--|:--|
-| Azure portal UI | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Favdaccelerator%2Fmain%2Fworkload%2Farm%2Fdeploy-custom-image.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Favdaccelerator%2Fmain%2Fworkload%2Fportal-ui%2Fportal-ui-custom-image.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Favdaccelerator%2Fmain%2Fworkload%2Farm%2Fdeploy-custom-image.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Favdaccelerator%2Fmain%2Fworkload%2Fportal-ui%2Fportal-ui-custom-image.json) |
-<!-- markdownlint-enable MD013 -->
+| Azure portal UI | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) |
 
 If you would like step by step guidance on how to deploy ESRI’s ArcGIS Enterprise on Azure and access it with ArcGIS Pro GPU enabled Azure virtual desktops, check out the Azure Architecture Center documentation: [Deploy Esri ArcGIS Pro in Azure Virtual Desktop](https://learn.microsoft.com/en-us/azure/architecture/example-scenario/data/esri-arcgis-azure-virtual-desktop).
 
