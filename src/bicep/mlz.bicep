@@ -301,8 +301,8 @@ param deploySentinel bool = false
 @description('The daily quota for Log Analytics Workspace logs in Gigabytes. It defaults to "-1" for no quota.')
 param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
 
-@description('The number of days to retain Log Analytics Workspace logs. It defaults to "30".')
-param logAnalyticsWorkspaceRetentionInDays int = 30
+@description('The number of days to retain Log Analytics Workspace logs without Sentinel. It defaults to "30".')
+param logAnalyticsWorkspaceNoSentinelRetentionInDays int = 30
 
 @description('The number of days to retain logs in Sentinel-linked Workspace. It defaults to "90".')
 param logAnalyticsSentinelWorkspaceRetentionInDays int = 90
@@ -478,6 +478,8 @@ var defaultTags = {
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
 
+var logAnalyticsWorkspaceRetentionInDays = deploySentinel ? logAnalyticsSentinelWorkspaceRetentionInDays : logAnalyticsWorkspaceNoSentinelRetentionInDays
+
 // NAMING CONVENTION
 
 module namingConvention 'modules/naming-convention.bicep' = {
@@ -599,7 +601,7 @@ module monitoring 'modules/monitoring.bicep' = {
     deploySentinel: deploySentinel
     location: location
     logAnalyticsWorkspaceCappingDailyQuotaGb: logAnalyticsWorkspaceCappingDailyQuotaGb
-    logAnalyticsWorkspaceRetentionInDays: deploySentinel ? logAnalyticsSentinelWorkspaceRetentionInDays : logAnalyticsWorkspaceRetentionInDays
+    logAnalyticsWorkspaceRetentionInDays: logAnalyticsWorkspaceRetentionInDays
     logAnalyticsWorkspaceSkuName: logAnalyticsWorkspaceSkuName
     operationsProperties: first(filter(logic.outputs.networks, network => network.name == 'operations'))
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
