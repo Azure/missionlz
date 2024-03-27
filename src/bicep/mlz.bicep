@@ -304,6 +304,9 @@ param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
 @description('The number of days to retain Log Analytics Workspace logs. It defaults to "30".')
 param logAnalyticsWorkspaceRetentionInDays int = 30
 
+@description('The number of days to retain logs in Sentinel-linked Workspace. It defaults to "90".')
+param logAnalyticsSentinelWorkspaceRetentionInDays int = 90
+
 @allowed([
   'Free'
   'Standard'
@@ -596,7 +599,7 @@ module monitoring 'modules/monitoring.bicep' = {
     deploySentinel: deploySentinel
     location: location
     logAnalyticsWorkspaceCappingDailyQuotaGb: logAnalyticsWorkspaceCappingDailyQuotaGb
-    logAnalyticsWorkspaceRetentionInDays: logAnalyticsWorkspaceRetentionInDays
+    logAnalyticsWorkspaceRetentionInDays: deploySentinel ? logAnalyticsSentinelWorkspaceRetentionInDays : logAnalyticsWorkspaceRetentionInDays
     logAnalyticsWorkspaceSkuName: logAnalyticsWorkspaceSkuName
     operationsProperties: first(filter(logic.outputs.networks, network => network.name == 'operations'))
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
