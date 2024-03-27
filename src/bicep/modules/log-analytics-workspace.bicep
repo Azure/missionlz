@@ -66,11 +66,6 @@ var solutions = [
   }
 ]
 
-@description('Enable lock to prevent accidental deletion')
-param enableDeleteLock bool = false
-
-var lockName = '${logAnalyticsWorkspace.name}-lock'
-
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
   name: name
   location: location
@@ -102,14 +97,5 @@ resource logAnalyticsSolutions 'Microsoft.OperationsManagement/solutions@2015-11
     promotionCode: solution.promotionCode
   }
 }]
-
-resource lock 'Microsoft.Authorization/locks@2016-09-01' = if (enableDeleteLock) {
-  scope: logAnalyticsWorkspace
-
-  name: lockName
-  properties: {
-    level: 'CanNotDelete'
-  }
-}
 
 output resourceId string = logAnalyticsWorkspace.id
