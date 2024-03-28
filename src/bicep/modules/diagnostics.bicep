@@ -3,6 +3,8 @@ targetScope = 'subscription'
 param deploymentNameSuffix string
 param firewallDiagnosticsLogs array
 param firewallDiagnosticsMetrics array
+param KeyVaultName string
+param keyVaultDiagnosticLogs array
 param logAnalyticsWorkspaceResourceId string
 param networks array
 param networkSecurityGroupDiagnosticsLogs array
@@ -87,5 +89,16 @@ module firewallDiagnostics '../modules/firewall-diagnostics.bicep' = {
     logStorageAccountResourceId: storageAccountResourceIds[0]
     metrics: firewallDiagnosticsMetrics
     name: hub.firewallName
+  }
+}
+
+module keyvaultDiagnostics '../modules/key-vault-diagnostics.bicep' = {
+  name: 'deploy-kv-diags-${deploymentNameSuffix}'
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  params: {
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logs: keyVaultDiagnosticLogs
+    keyVaultstorageAccountId: storageAccountResourceIds[0]
+    name: KeyVaultName
   }
 }

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "459691962602818850"
+      "templateHash": "11246240944076095145"
     }
   },
   "parameters": {
@@ -395,6 +395,22 @@
         "description": "An array of Network Security Group Metrics to apply to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings."
       }
     },
+    "KeyVaultDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "AuditEvent",
+          "enabled": true
+        },
+        {
+          "category": "AzurePolicyEvaluationDetails",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Key Vault Diagnostic Logs categories to collect. See \"https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault\" for valid values."
+      }
+    },
     "operationsVirtualNetworkDiagnosticsLogs": {
       "type": "array",
       "defaultValue": [],
@@ -497,11 +513,18 @@
         "description": "The daily quota for Log Analytics Workspace logs in Gigabytes. It defaults to \"-1\" for no quota."
       }
     },
-    "logAnalyticsWorkspaceRetentionInDays": {
+    "logAnalyticsWorkspaceNoSentinelRetentionInDays": {
       "type": "int",
       "defaultValue": 30,
       "metadata": {
-        "description": "The number of days to retain Log Analytics Workspace logs. It defaults to \"30\"."
+        "description": "The number of days to retain Log Analytics Workspace logs without Sentinel. It defaults to \"30\"."
+      }
+    },
+    "logAnalyticsSentinelWorkspaceRetentionInDays": {
+      "type": "int",
+      "defaultValue": 90,
+      "metadata": {
+        "description": "The number of days to retain logs in Sentinel-linked Workspace. It defaults to \"90\"."
       }
     },
     "logAnalyticsWorkspaceSkuName": {
@@ -798,7 +821,8 @@
       "environmentAbbreviation": "[parameters('environmentAbbreviation')]",
       "DeploymentType": "MissionLandingZoneARM"
     },
-    "firewallClientPrivateIpAddress": "[variables('firewallClientUsableIpAddresses')[3]]"
+    "firewallClientPrivateIpAddress": "[variables('firewallClientUsableIpAddresses')[3]]",
+    "logAnalyticsWorkspaceRetentionInDays": "[if(parameters('deploySentinel'), parameters('logAnalyticsSentinelWorkspaceRetentionInDays'), parameters('logAnalyticsWorkspaceNoSentinelRetentionInDays'))]"
   },
   "resources": [
     {
@@ -4584,7 +4608,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "528320706664403182"
+              "templateHash": "3912836360709277206"
             }
           },
           "parameters": {
@@ -4649,7 +4673,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "12445413457654566620"
+                      "templateHash": "17697959832977472677"
                     }
                   },
                   "parameters": {
@@ -4838,6 +4862,10 @@
                     "keyVaultResourceId": {
                       "type": "string",
                       "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                    },
+                    "keyVaultName": {
+                      "type": "string",
+                      "value": "[parameters('keyVaultName')]"
                     },
                     "keyVaultUri": {
                       "type": "string",
@@ -5165,9 +5193,17 @@
               "type": "string",
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
             },
+            "KeyVaultName": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+            },
             "keyVaultUri": {
               "type": "string",
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+            },
+            "keyVaultResourceId": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
             },
             "storageKeyName": {
               "type": "string",
@@ -5209,7 +5245,7 @@
             "value": "[parameters('logAnalyticsWorkspaceCappingDailyQuotaGb')]"
           },
           "logAnalyticsWorkspaceRetentionInDays": {
-            "value": "[parameters('logAnalyticsWorkspaceRetentionInDays')]"
+            "value": "[variables('logAnalyticsWorkspaceRetentionInDays')]"
           },
           "logAnalyticsWorkspaceSkuName": {
             "value": "[parameters('logAnalyticsWorkspaceSkuName')]"
@@ -5234,7 +5270,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "21837642899684151"
+              "templateHash": "12328361973188250046"
             }
           },
           "parameters": {
@@ -5311,7 +5347,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "6676783541910058533"
+                      "templateHash": "653212175555805634"
                     }
                   },
                   "parameters": {
@@ -5341,13 +5377,6 @@
                       "defaultValue": false,
                       "metadata": {
                         "description": "Whether or not to deploy Sentinel solution to workspace."
-                      }
-                    },
-                    "enableDeleteLock": {
-                      "type": "bool",
-                      "defaultValue": false,
-                      "metadata": {
-                        "description": "Enable lock to prevent accidental deletion"
                       }
                     }
                   },
@@ -5402,8 +5431,7 @@
                         "product": "OMSGallery/KeyVaultAnalytics",
                         "promotionCode": ""
                       }
-                    ],
-                    "lockName": "[format('{0}-lock', parameters('name'))]"
+                    ]
                   },
                   "resources": [
                     {
@@ -5443,19 +5471,6 @@
                         "product": "[variables('solutions')[copyIndex()].product]",
                         "publisher": "[variables('solutions')[copyIndex()].publisher]",
                         "promotionCode": "[variables('solutions')[copyIndex()].promotionCode]"
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
-                      ]
-                    },
-                    {
-                      "condition": "[parameters('enableDeleteLock')]",
-                      "type": "Microsoft.Authorization/locks",
-                      "apiVersion": "2016-09-01",
-                      "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('name'))]",
-                      "name": "[variables('lockName')]",
-                      "properties": {
-                        "level": "CanNotDelete"
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
@@ -7276,6 +7291,12 @@
           "firewallDiagnosticsMetrics": {
             "value": "[parameters('firewallDiagnosticsMetrics')]"
           },
+          "KeyVaultName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.KeyVaultName.value]"
+          },
+          "keyVaultDiagnosticLogs": {
+            "value": "[parameters('KeyVaultDiagnosticsLogs')]"
+          },
           "logAnalyticsWorkspaceResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
           },
@@ -7314,7 +7335,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "11489480336272395502"
+              "templateHash": "49100111797787087"
             }
           },
           "parameters": {
@@ -7325,6 +7346,12 @@
               "type": "array"
             },
             "firewallDiagnosticsMetrics": {
+              "type": "array"
+            },
+            "KeyVaultName": {
+              "type": "string"
+            },
+            "keyVaultDiagnosticLogs": {
               "type": "array"
             },
             "logAnalyticsWorkspaceResourceId": {
@@ -7835,11 +7862,77 @@
                   }
                 }
               }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-kv-diags-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[variables('hubSubscriptionId')]",
+              "resourceGroup": "[variables('hubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "logs": {
+                    "value": "[parameters('keyVaultDiagnosticLogs')]"
+                  },
+                  "keyVaultstorageAccountId": {
+                    "value": "[parameters('storageAccountResourceIds')[0]]"
+                  },
+                  "name": {
+                    "value": "[parameters('KeyVaultName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.26.54.24096",
+                      "templateHash": "9848944155815832346"
+                    }
+                  },
+                  "parameters": {
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "logs": {
+                      "type": "array"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "keyVaultstorageAccountId": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2017-05-01-preview",
+                      "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('name'))]",
+                      "name": "[format('{0}-diagnostics', parameters('name'))]",
+                      "properties": {
+                        "storageAccountId": "[parameters('keyVaultstorageAccountId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
+                        "logs": "[parameters('logs')]"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           ]
         }
       },
       "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]",

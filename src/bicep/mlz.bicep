@@ -227,6 +227,20 @@ param identityNetworkSecurityGroupDiagnosticsLogs array = [
 @description('An array of Network Security Group Metrics to apply to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings.')
 param identityNetworkSecurityGroupDiagnosticsMetrics array = []
 
+// KEY VAULT PARAMETERS
+@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
+param KeyVaultDiagnosticsLogs array = [
+  {
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
+
 // OPERATIONS PARAMETERS
 
 @description('An array of Network Diagnostic Logs to enable for the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings.')
@@ -287,8 +301,11 @@ param deploySentinel bool = false
 @description('The daily quota for Log Analytics Workspace logs in Gigabytes. It defaults to "-1" for no quota.')
 param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
 
-@description('The number of days to retain Log Analytics Workspace logs. It defaults to "30".')
-param logAnalyticsWorkspaceRetentionInDays int = 30
+@description('The number of days to retain Log Analytics Workspace logs without Sentinel. It defaults to "30".')
+param logAnalyticsWorkspaceNoSentinelRetentionInDays int = 30
+
+@description('The number of days to retain logs in Sentinel-linked Workspace. It defaults to "90".')
+param logAnalyticsSentinelWorkspaceRetentionInDays int = 90
 
 @allowed([
   'Free'
@@ -460,6 +477,8 @@ var defaultTags = {
 }
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
+
+var logAnalyticsWorkspaceRetentionInDays = deploySentinel ? logAnalyticsSentinelWorkspaceRetentionInDays : logAnalyticsWorkspaceNoSentinelRetentionInDays
 
 // NAMING CONVENTION
 
@@ -669,6 +688,8 @@ module diagnostics 'modules/diagnostics.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
+    KeyVaultName: customerManagedKeys.outputs.KeyVaultName
+    keyVaultDiagnosticLogs: KeyVaultDiagnosticsLogs
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     networks: logic.outputs.networks
     networkSecurityGroupDiagnosticsLogs: hubNetworkSecurityGroupDiagnosticsLogs

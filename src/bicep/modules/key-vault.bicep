@@ -144,5 +144,6 @@ resource key_storageAccounts 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
 
 output keyUriWithVersion string = key_disks.properties.keyUriWithVersion
 output keyVaultResourceId string = vault.id
+output keyVaultName string = vault.name
 output keyVaultUri string = vault.properties.vaultUri
 output storageKeyName string = key_storageAccounts.name
