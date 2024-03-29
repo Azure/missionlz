@@ -1,4 +1,4 @@
-# New Workload Example
+# New Tier-3 Workload Example
 
 This example adds a spoke network and peers it to the Hub Virtual Network and routes traffic to the Hub Firewall.
 
@@ -19,7 +19,7 @@ The docs on Azure virtual networking:  <https://docs.microsoft.com/en-us/azure/v
 
 ### Deploy from the Azure Portal
 <!-- markdownlint-disable MD013 -->
-1. Deploy Zero Trust Imaging into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
+1. Deploy a new Tier-3 Workload Environment into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
 
     | Azure Commercial | Azure Government |
     | ---------------- | ---------------- |
