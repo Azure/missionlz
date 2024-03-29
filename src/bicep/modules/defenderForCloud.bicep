@@ -45,24 +45,30 @@ resource defenderFreeAllClouds 'Microsoft.Security/pricings@2023-01-01' = [for n
   }
 }]
 
+
 // defender for cloud Standard SKU - No subplan, no extensions
+
 @batchSize(1)
-resource defenderStandardNoSubplanNoExtensions 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && !contains(defenderPaidPlansSpecialHandlingAzurePublicList, name)) {
+resource defenderStandardNoSubplanNoExtensions 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && defenderSkuTier == 'Standard' && !contains(defenderPaidPlansSpecialHandlingAzurePublicList, name)) {
   name: name
   properties: {
     pricingTier: defenderSkuTier
   }
 }]
 
-// defender for cloud Standard SKU - Subplan, no extensions, AzureCloud only
+
+// defender for cloud Standard SKU - AzureCloud only - Handing instances with subplans must be defined
 @batchSize(1)
-resource defenderStandardSubplanExtensionsAzureCloud 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && contains(defenderPaidPlansSpecialHandlingAzurePublicList, name) && environment().name == 'AzureCloud'){
+resource defenderStandardSubplanExtensionsAzureCloud 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && defenderSkuTier == 'Standard' && contains(defenderPaidPlansSpecialHandlingAzurePublicList, name) && environment().name == 'AzureCloud'){
   name: name
-  properties: {
+  properties: !contains(defenderPaidPlanConfig[environment().name][name], 'subPlan') ? {
+    pricingTier: defenderSkuTier
+  }:{
     pricingTier: defenderSkuTier
     subPlan: defenderPaidPlanConfig[environment().name][name].subPlan
   }
-}]
+}
+]
 
 // auto provisioing
 
