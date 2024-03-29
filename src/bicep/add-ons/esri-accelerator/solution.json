@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "123677376130858718"
+      "templateHash": "5992959671991834548"
     }
   },
   "parameters": {
@@ -50,6 +50,19 @@
       "defaultValue": "[utcNow()]",
       "metadata": {
         "description": "A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the \"utcNow()\" function."
+      }
+    },
+    "domainJoinPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for the domain join account."
+      }
+    },
+    "domainJoinUsername": {
+      "type": "string",
+      "defaultValue": "domainjoin",
+      "metadata": {
+        "description": "The username for the domain join account."
       }
     },
     "domainName": {
@@ -20204,10 +20217,10 @@
             "value": "[parameters('azurePowerShellModuleMsiName')]"
           },
           "domainJoinPassword": {
-            "value": ""
+            "value": "[parameters('domainJoinPassword')]"
           },
           "domainJoinUserPrincipalName": {
-            "value": ""
+            "value": "[format('{0}@{1}', parameters('domainJoinUsername'), parameters('domainName'))]"
           },
           "domainName": {
             "value": "[parameters('domainName')]"

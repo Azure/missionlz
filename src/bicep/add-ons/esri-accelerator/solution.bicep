@@ -21,6 +21,13 @@ param containerName string
 @description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
 param deploymentNameSuffix string = utcNow()
 
+@secure()
+@description('The password for the domain join account.')
+param domainJoinPassword string
+
+@description('The username for the domain join account.')
+param domainJoinUsername string = 'domainjoin'
+
 @description('The name of the domain to use for Entra Domain Services.')
 param domainName string
 
@@ -139,8 +146,8 @@ module azureVirtualDesktop '../azureVirtualDesktop/solution.bicep' = {
     avdObjectId: avdObjectId
     azureNetAppFilesSubnetAddressPrefix: '10.0.140.128/25'
     azurePowerShellModuleMsiName: azurePowerShellModuleMsiName
-    domainJoinPassword: ''
-    domainJoinUserPrincipalName: ''
+    domainJoinPassword: domainJoinPassword
+    domainJoinUserPrincipalName: '${domainJoinUsername}@${domainName}'
     domainName: domainName
     environmentAbbreviation: 'dev'
     fslogixStorageService: 'AzureNetAppFiles Premium'
