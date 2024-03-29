@@ -908,6 +908,14 @@
                     ]
                   },
                   "visible": "[steps('compliance').policySection.deployPolicy]"
+                },
+                {
+                  "name": "policyWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "options": {
+                    "style": "Warning",
+                    "text": "Please validate the desired policy initiative exists in the target cloud before deployment, as there can be differences between clouds."
+                  }
                 }
               ]
             },
