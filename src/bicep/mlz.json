@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "8544707785042027382"
+      "templateHash": "9628455953298590978"
     }
   },
   "parameters": {
@@ -8321,7 +8321,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "825251000097419332"
+              "templateHash": "12295251709791687425"
             }
           },
           "parameters": {
@@ -8385,7 +8385,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "15033542879751971590"
+                      "templateHash": "2376507858724004427"
                     }
                   },
                   "parameters": {
@@ -8433,23 +8433,61 @@
                     }
                   },
                   "variables": {
-                    "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]"
+                    "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]",
+                    "defenderPaidPlansSpecialHandlingAzurePublicList": [
+                      "Api"
+                    ],
+                    "defenderPaidPlanConfig": {
+                      "AzureCloud": {
+                        "Api": {
+                          "subPlan": "P1"
+                        }
+                      }
+                    }
                   },
                   "resources": [
                     {
                       "copy": {
-                        "name": "defenderPricing",
+                        "name": "defenderFreeAllClouds",
                         "count": "[length(parameters('defenderPlans'))]",
                         "mode": "serial",
                         "batchSize": 1
                       },
-                      "condition": "[not(empty(parameters('defenderPlans')))]",
+                      "condition": "[and(not(empty(parameters('defenderPlans'))), equals(parameters('defenderSkuTier'), 'Free'))]",
                       "type": "Microsoft.Security/pricings",
                       "apiVersion": "2023-01-01",
                       "name": "[parameters('defenderPlans')[copyIndex()]]",
                       "properties": {
                         "pricingTier": "[parameters('defenderSkuTier')]"
                       }
+                    },
+                    {
+                      "copy": {
+                        "name": "defenderStandardNoSubplanNoExtensions",
+                        "count": "[length(parameters('defenderPlans'))]",
+                        "mode": "serial",
+                        "batchSize": 1
+                      },
+                      "condition": "[and(and(not(empty(parameters('defenderPlans'))), equals(parameters('defenderSkuTier'), 'Standard')), not(contains(variables('defenderPaidPlansSpecialHandlingAzurePublicList'), parameters('defenderPlans')[copyIndex()])))]",
+                      "type": "Microsoft.Security/pricings",
+                      "apiVersion": "2023-01-01",
+                      "name": "[parameters('defenderPlans')[copyIndex()]]",
+                      "properties": {
+                        "pricingTier": "[parameters('defenderSkuTier')]"
+                      }
+                    },
+                    {
+                      "copy": {
+                        "name": "defenderStandardSubplanExtensionsAzureCloud",
+                        "count": "[length(parameters('defenderPlans'))]",
+                        "mode": "serial",
+                        "batchSize": 1
+                      },
+                      "condition": "[and(and(and(not(empty(parameters('defenderPlans'))), equals(parameters('defenderSkuTier'), 'Standard')), contains(variables('defenderPaidPlansSpecialHandlingAzurePublicList'), parameters('defenderPlans')[copyIndex()])), equals(environment().name, 'AzureCloud'))]",
+                      "type": "Microsoft.Security/pricings",
+                      "apiVersion": "2023-01-01",
+                      "name": "[parameters('defenderPlans')[copyIndex()]]",
+                      "properties": "[if(not(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan')), createObject('pricingTier', parameters('defenderSkuTier')), createObject('pricingTier', parameters('defenderSkuTier'), 'subPlan', variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].subPlan))]"
                     },
                     {
                       "type": "Microsoft.Security/autoProvisioningSettings",
