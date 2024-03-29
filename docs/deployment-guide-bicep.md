@@ -55,20 +55,20 @@ Parameter name | Default Value | Description
 
 ### Networking
 
-The following parameters affect networking.
+The following parameters affect networking. Each virtual network and subnet has been given a default address prefix to ensure they fall within the default super network. Refer to the [Networking page](docs/networking.md) for all the default address prefixes.
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
-`hubVirtualNetworkAddressPrefix` | '10.0.100.0/24' | The CIDR Virtual Network Address Prefix for the Hub Virtual Network.
-`hubSubnetAddressPrefix` | '10.0.100.128/27' | The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.
-`firewallClientSubnetAddressPrefix` | '10.0.100.0/26' | The CIDR Subnet Address Prefix for the Azure Firewall Subnet. It must be in the Hub Virtual Network space. It must be /26.
-`firewallManagementSubnetAddressPrefix` | '10.0.100.64/26' | The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.
-`identityVirtualNetworkAddressPrefix` | '10.0.110.0/26' | The CIDR Virtual Network Address Prefix for the Identity Virtual Network.
-`identitySubnetAddressPrefix` | '10.0.110.0/27' | The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.
-`operationsVirtualNetworkAddressPrefix` | '10.0.115.0/26' | The CIDR Virtual Network Address Prefix for the Operations Virtual Network.
-`operationsSubnetAddressPrefix` | '10.0.115.0/27' | The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.
-`sharedServicesVirtualNetworkAddressPrefix` | '10.0.120.0/26' | The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.
-`sharedServicesSubnetAddressPrefix` | '10.0.120.0/27' | The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.
+`hubVirtualNetworkAddressPrefix` | '10.0.128.0/23' | The CIDR Virtual Network Address Prefix for the Hub Virtual Network.
+`hubSubnetAddressPrefix` | '10.0.128.128/26' | The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.
+`firewallClientSubnetAddressPrefix` | '10.0.128.0/26' | The CIDR Subnet Address Prefix for the Azure Firewall Subnet. It must be in the Hub Virtual Network space. It must be /26.
+`firewallManagementSubnetAddressPrefix` | '10.0.128.64/26' | The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.
+`identityVirtualNetworkAddressPrefix` | '10.0.130.0/24' | The CIDR Virtual Network Address Prefix for the Identity Virtual Network.
+`identitySubnetAddressPrefix` | '10.0.130.0/24' | The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.
+`operationsVirtualNetworkAddressPrefix` | '10.0.131.0/24' | The CIDR Virtual Network Address Prefix for the Operations Virtual Network.
+`operationsSubnetAddressPrefix` | '10.0.131.0/24' | The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.
+`sharedServicesVirtualNetworkAddressPrefix` | '10.0.132.0/24' | The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.
+`sharedServicesSubnetAddressPrefix` | '10.0.132.0/24' | The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.
 
 ### Optional Features
 
