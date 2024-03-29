@@ -96,3 +96,5 @@ resource imageVersion 'Microsoft.Compute/galleries/images/versions@2022-03-03' =
     }
   }
 }
+
+output imageDefinitionResourceId string = imageDefinition.id

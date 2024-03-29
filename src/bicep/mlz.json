@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "11246240944076095145"
+      "templateHash": "8544707785042027382"
     }
   },
   "parameters": {
@@ -1889,7 +1889,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "1578251447800700355"
+              "templateHash": "12805260671779525318"
             }
           },
           "parameters": {
@@ -2075,7 +2075,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "7601687106083411565"
+                      "templateHash": "1867861694959053688"
                     }
                   },
                   "parameters": {
@@ -2793,7 +2793,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.26.54.24096",
-                              "templateHash": "4762141408757587278"
+                              "templateHash": "17878198270712885843"
                             }
                           },
                           "parameters": {
@@ -3058,6 +3058,10 @@
                             "privateIPAddress": {
                               "type": "string",
                               "value": "[reference(resourceId('Microsoft.Network/azureFirewalls', parameters('name')), '2021-02-01').ipConfigurations[0].properties.privateIPAddress]"
+                            },
+                            "resourceId": {
+                              "type": "string",
+                              "value": "[resourceId('Microsoft.Network/azureFirewalls', parameters('name'))]"
                             }
                           }
                         }
@@ -3081,6 +3085,10 @@
                     "firewallPrivateIPAddress": {
                       "type": "string",
                       "value": "[reference(resourceId('Microsoft.Resources/deployments', 'firewall'), '2022-09-01').outputs.privateIPAddress.value]"
+                    },
+                    "firewallResourceId": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'firewall'), '2022-09-01').outputs.resourceId.value]"
                     },
                     "networkSecurityGroupName": {
                       "type": "string",
@@ -4529,6 +4537,10 @@
             }
           ],
           "outputs": {
+            "azureFirewallResourceId": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('hub').subscriptionId, variables('hub').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallResourceId.value]"
+            },
             "bastionHostSubnetResourceId": {
               "type": "string",
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('hub').subscriptionId, variables('hub').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.bastionHostSubnetResourceId.value]"
@@ -4540,6 +4552,14 @@
             "hubNetworkSecurityGroupResourceId": {
               "type": "string",
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('hub').subscriptionId, variables('hub').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
+            },
+            "hubVirtualNetworkResourceId": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('hub').subscriptionId, variables('hub').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkResourceId.value]"
+            },
+            "identitySubnetResourceId": {
+              "type": "string",
+              "value": "[if(parameters('deployIdentity'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('spokes')[2].subscriptionId, variables('spokes')[2].resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[2].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value, '')]"
             },
             "operationsSubnetResourceId": {
               "type": "string",
@@ -8493,5 +8513,31 @@
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }
-  ]
+  ],
+  "outputs": {
+    "azureFirewallResourceId": {
+      "type": "string",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.azureFirewallResourceId.value]"
+    },
+    "hubSubnetResourceId": {
+      "type": "string",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hubSubnetResourceId.value]"
+    },
+    "hubVirtualNetworkResourceId": {
+      "type": "string",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hubVirtualNetworkResourceId.value]"
+    },
+    "identitySubnetResourceId": {
+      "type": "string",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.identitySubnetResourceId.value]"
+    },
+    "logAnalyticsWorkspaceResourceId": {
+      "type": "string",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+    },
+    "networks": {
+      "type": "array",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networks.value]"
+    }
+  }
 }

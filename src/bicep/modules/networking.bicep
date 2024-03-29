@@ -136,9 +136,12 @@ module privateDnsZones 'private-dns.bicep' = {
   ]
 }
 
+output azureFirewallResourceId string = hubNetwork.outputs.firewallResourceId
 output bastionHostSubnetResourceId string = hubNetwork.outputs.bastionHostSubnetResourceId
 output hubSubnetResourceId string = hubNetwork.outputs.subnetResourceId
 output hubNetworkSecurityGroupResourceId string = hubNetwork.outputs.networkSecurityGroupResourceId
+output hubVirtualNetworkResourceId string = hubNetwork.outputs.virtualNetworkResourceId
+output identitySubnetResourceId string = deployIdentity ? spokeNetworks[2].outputs.subnetResourceId : ''
 output operationsSubnetResourceId string = spokeNetworks[0].outputs.subnetResourceId
 output privateDnsZoneResourceIds object = {
   agentsvc: privateDnsZones.outputs.agentsvcPrivateDnsZoneId

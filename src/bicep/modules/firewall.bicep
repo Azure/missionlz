@@ -216,3 +216,4 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' = {
 
 output name string = firewall.name
 output privateIPAddress string = firewall.properties.ipConfigurations[0].properties.privateIPAddress
+output resourceId string = firewall.id

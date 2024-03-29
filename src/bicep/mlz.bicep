@@ -732,3 +732,10 @@ module defenderforClouds 'modules/defenderforClouds.bicep' = if (deployDefender)
     defenderPlans: deployDefenderPlans
   }
 }
+
+output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
+output hubSubnetResourceId string = networking.outputs.hubSubnetResourceId
+output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
+output identitySubnetResourceId string = networking.outputs.identitySubnetResourceId
+output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId
+output networks array = logic.outputs.networks
