@@ -22,10 +22,10 @@ param containerName string
 param deploymentNameSuffix string = utcNow()
 
 @secure()
-@description('The password for the domain join account.')
+@description('The password for the domain join account that will be created in Entra Domain Services.')
 param domainJoinPassword string
 
-@description('The username for the domain join account.')
+@description('The username for the domain join account that will be created in Entra Domain Services.')
 param domainJoinUsername string = 'domainjoin'
 
 @description('The name of the domain to use for Entra Domain Services.')
