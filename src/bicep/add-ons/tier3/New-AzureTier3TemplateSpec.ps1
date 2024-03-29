@@ -1,7 +1,7 @@
 [CmdletBinding(SupportsShouldProcess)]
 param (
-	[string]$TemplateSpecName ="TIER3",
-
+	[string]$TemplateSpecName,
+    
     [Parameter(Mandatory)]
 	[string]$Location,
 
@@ -16,5 +16,5 @@ New-AzTemplateSpec `
     -Location $Location `
     -DisplayName "Mission Landing Zone - Tier 3 Workload Environment" `
     -TemplateFile '.\solution.json' `
-    -UIFormDefinitionFile 'C:\git\button\missionlz\src\bicep\add-ons\tier3\uiDefinition.json' `
+    -UIFormDefinitionFile '.\uiDefinition.json' `
     -Force
