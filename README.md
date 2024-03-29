@@ -118,6 +118,8 @@ Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity
 <img src="docs/images/networking.png" alt="A diagram that depicts a hub with four spokes, each spoke pointing at the hub" width="600" />
 <!-- markdownlint-enable MD033 -->
 
+Each virtual network has been given a default address prefix to ensure they fall within the default super network. Refer to the [Networking page](docs/networking.md) for all the default address prefixes.
+
 ## Subscriptions
 
 Most customers will deploy each tier to a separate Azure subscription, but multiple subscriptions are not required. A single subscription deployment is good for a testing and evaluation, or possibly a small IT Admin team.
@@ -126,18 +128,19 @@ Most customers will deploy each tier to a separate Azure subscription, but multi
 
 All network traffic is directed through the firewall residing in the Network Hub resource group. The firewall is configured as the default route for all the T0 (Identity and Authorization) through T3 (workload/team environments) resource groups as follows:
 
-|Name         |Address prefix| Next hop type| Next hop IP address|
-|-------------|--------------|-----------------|-----------------|
-|default_route| 0.0.0.0/0    |Virtual Appliance|10.0.100.4       |
+| Name          | Address prefix | Next hop type     | Next hop IP address|
+|---------------|----------------|-------------------|--------------------|
+| default_route | 0.0.0.0/0      | Virtual Appliance | 10.0.128.68        |
 
 The default firewall configured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). The Azure Firewall Premium SKU includes the IDPS feature necessary to satisfy the SCCA VDSS requirement. However, if you do not require IDPS, you can optionally deploy Azure Firewall Standard by settings the `firewallSkuTier` parameter to `Standard`.
 
 Presently, there are two firewall rules configured to ensure access to the Azure Portal and to facilitate interactive logon via PowerShell and Azure CLI, all other traffic is restricted by default. Below are the collection of rules configured for Azure Commercial and Azure Government clouds:
 
-|Rule Collection Priority | Rule Collection Name | Rule name | Source | Port     | Protocol                               |
-|-------------------------|----------------------|-----------|--------|----------|----------------------------------------|
-|100                      | AllowAzureCloud      | AzureCloud|*       |   *      |Any                                     |
-|110                      | AzureAuth            | msftauth  |  *     | Https:443| aadcdn.msftauth.net, aadcdn.msauth.net |
+| Rule Collection Priority | Rule Collection Name      | Rule Name       | Source        | Port      | Protocol                               |
+|--------------------------|---------------------------|-----------------|---------------|-----------|----------------------------------------|
+| 100                      | AllowAzureCloud           | AzureCloud      | *             | *         | Any                                    |
+| 110                      | AzureAuth                 | msftauth        | *             | Https:443 | aadcdn.msftauth.net, aadcdn.msauth.net |
+| 200                      | AllowTrafficBetweenSpokes | AllSpokeTraffic | 10.0.128.0/18 | *         | Any                                    |
 
 To deploy Mission LZ using Azure Stack Hub and an F5 BIG-IP Virtual Edition instead of Azure Firewall Premium, there is an alternate repository with instructions [found here](https://github.com/Azure/missionlz-edge).
 
