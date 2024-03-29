@@ -1,4 +1,4 @@
-# New Workload Example
+# New Tier-3 Workload Example
 
 This example adds a spoke network and peers it to the Hub Virtual Network and routes traffic to the Hub Firewall.
 
@@ -16,52 +16,14 @@ The docs on Azure virtual networking:  <https://docs.microsoft.com/en-us/azure/v
 ## Pre-requisites
 
 1. A Mission LZ deployment (a deployment of mlz.bicep)
-1. Generate a `deploymentVariables.json` file from that deployment (see [Generate MLZ Variable File](#generate-mlz-variable-file))
-1. Define values for Required Parameters described below
-1. Decide if the default virtual network address prefix for your new workload is appropriate for your MLZ deployment. If it needs to change, override the `virtualNetworkAddressPrefix` parameter.
 
-Required Parameters | Default | Description
-------------------- | ------- | -----------
-resourcePrefix | mlz | A prefix, 3 to 10 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".
+### Deploy from the Azure Portal
+<!-- markdownlint-disable MD013 -->
+1. Deploy a new Tier-3 Workload Environment into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
 
-Optional Parameters | Default | Description
-------------------- | ------- | -----------
-virtualNetworkAddressPrefix | 10.0.125.0/26 | The address prefix for the network spoke vnet.
-workloadName | workload | The name of the tier 3 workload
-workloadLogStorageAccountNameParameter | Defaults to a calculated field | The name of the Storage Account
+    | Azure Commercial | Azure Government |
+    | ---------------- | ---------------- |
+    |[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Ftier3%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Ftier3%2FuiDefinition.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Ftier3%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Ftier3%2FuiDefinition.json) |
+<!-- markdownlint-enable MD013 -->
 
-### Generate MLZ Variable File
 
-For instructions on generating 'deploymentVariables.json' using both Azure PowerShell and Azure CLI, please see the [README at the root of the examples folder](..\examples\README.md).
-
-Place the resulting 'deploymentVariables.json' file within the ./src/bicep/add-ons folder.
-
-## Deploy the example
-
-Once you have the Mission LZ output values, you can pass those in as parameters to this deployment.
-
-And deploy with `az deployment sub create` from the Azure CLI or `New-AzSubscriptionDeployment` from Azure PowerShell.
-
-### Deploying the new workload
-
-Connect to the appropriate Azure Environment and set appropriate context, see [getting started with Azure PowerShell or Azure CLI](..\examples\README.md) for help if needed.  The commands below assume you are deploying in Azure Commercial and show the entire process from deploying MLZ and then adding an Azure App Service Plan post-deployment.
-
-```PowerShell
-cd .\src\bicep
-Connect-AzAccount
-New-AzSubscriptionDeployment -Name contoso -TemplateFile .\mlz.bicep -resourcePrefix 'contoso' -Location 'eastus'
-cd .\add-ons
-(Get-AzSubscriptionDeployment -Name contoso).outputs | ConvertTo-Json | Out-File -FilePath .\deploymentVariables.json
-cd .\tier3
-New-AzSubscriptionDeployment -DeploymentName deployTier3 -TemplateFile .\tier3.bicep -resourcePrefix myTier3 -Location 'eastus'
-```
-
-```Azure CLI
-az login
-cd src/bicep
-az deployment sub create -n contoso -f mlz.bicep -l eastus --parameters resourcePrefix=contoso
-cd add-ons
-az deployment sub show -n contoso --query properties.outputs > ./deploymentVariables.json
-cd tier3
-az deployment sub create -n deployTier3 -f tier3.bicep -l eastus --parameters resourcePrefix='myTier3'
-```
