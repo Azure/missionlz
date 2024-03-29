@@ -190,6 +190,7 @@ module firewall '../modules/firewall.bicep' = {
 output bastionHostSubnetResourceId string = deployRemoteAccess ? virtualNetwork.outputs.subnets[3].id : ''
 output firewallName string = firewall.outputs.name
 output firewallPrivateIPAddress string = firewall.outputs.privateIPAddress
+output firewallResourceId string = firewall.outputs.resourceId
 output networkSecurityGroupName string = networkSecurityGroup.outputs.name
 output networkSecurityGroupResourceId string = networkSecurityGroup.outputs.id
 output subnetAddressPrefix string = virtualNetwork.outputs.subnets[2].properties.addressPrefix
@@ -197,3 +198,4 @@ output subnetName string = virtualNetwork.outputs.subnets[2].name
 output subnetResourceId string = virtualNetwork.outputs.subnets[2].id
 output virtualNetworkName string = virtualNetwork.outputs.name
 output virtualNetworkResourceId string = virtualNetwork.outputs.id
+

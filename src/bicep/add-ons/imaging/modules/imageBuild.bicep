@@ -261,3 +261,5 @@ module removeVirtualMachine 'removeVirtualMachine.bicep' = {
     imageVersion
   ]
 }
+
+output imageDefinitionResourceId string = imageVersion.outputs.imageDefinitionResourceId

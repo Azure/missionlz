@@ -139,14 +139,15 @@ module azureVirtualDesktop '../azureVirtualDesktop/solution.bicep' = {
     avdObjectId: avdObjectId
     azureNetAppFilesSubnetAddressPrefix: '10.0.140.128/25'
     azurePowerShellModuleMsiName: azurePowerShellModuleMsiName
-    domainJoinPassword:
-    domainJoinUserPrincipalName:
+    domainJoinPassword: ''
+    domainJoinUserPrincipalName: ''
     domainName: domainName
     environmentAbbreviation: 'dev'
     fslogixStorageService: 'AzureNetAppFiles Premium'
     hostPoolPublicNetworkAccess: 'Enabled'
     hubAzureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
     hubSubnetResourceId: missionLandingZone.outputs.hubSubnetResourceId
+    hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
     identifier: identifier
     imageDefinitionResourceId: image.outputs.imageDefinitionResourceId
     locationControlPlane: location

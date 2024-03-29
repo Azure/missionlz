@@ -198,7 +198,7 @@ param spokelogAnalyticsWorkspaceResourceId string
 param storageAccountResourceId string
 
 @description('The subnet address prefix.')
-param subnetAddressPrefix string
+param subnetAddressPrefix string = '10.0.134.0/24'
 
 @description('The array of supported clouds for specific deployments.')
 param supportedClouds array = [
@@ -233,7 +233,7 @@ param vDOTInstaller string = ''
 param virtualMachineSize string
 
 @description('The virtual network address prefix.')
-param virtualNetworkAddressPrefix string
+param virtualNetworkAddressPrefix string = '10.0.134.0/24'
 
 @description('The logs for the diagnostic setting on the virtual network.')
 param virtualNetworkDiagnosticsLogs array = []
@@ -456,3 +456,5 @@ module imageBuild 'modules/imageBuild.bicep' = {
     buildAutomation
   ]
 }
+
+output imageDefinitionResourceId string = imageBuild.outputs.imageDefinitionResourceId
