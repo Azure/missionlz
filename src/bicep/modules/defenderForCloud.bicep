@@ -47,7 +47,7 @@ resource defenderFreeAllClouds 'Microsoft.Security/pricings@2023-01-01' = [for n
 
 // defender for cloud Standard SKU - No subplan, no extensions
 @batchSize(1)
-resource defenderStandardNoSubplanNoExtensions 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans)) {
+resource defenderStandardNoSubplanNoExtensions 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && !contains(defenderPaidPlansSpecialHandlingAzurePublicList, name)) {
   name: name
   properties: {
     pricingTier: defenderSkuTier

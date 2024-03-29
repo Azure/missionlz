@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "1928977686595899227"
+      "templateHash": "16909299864933819261"
     }
   },
   "parameters": {
@@ -8321,7 +8321,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "10238281643606727697"
+              "templateHash": "11652321584035879250"
             }
           },
           "parameters": {
@@ -8385,7 +8385,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "4451222834967692035"
+                      "templateHash": "16795439892261657091"
                     }
                   },
                   "parameters": {
@@ -8468,7 +8468,7 @@
                         "mode": "serial",
                         "batchSize": 1
                       },
-                      "condition": "[not(empty(parameters('defenderPlans')))]",
+                      "condition": "[and(not(empty(parameters('defenderPlans'))), not(contains(variables('defenderPaidPlansSpecialHandlingAzurePublicList'), parameters('defenderPlans')[copyIndex()])))]",
                       "type": "Microsoft.Security/pricings",
                       "apiVersion": "2023-01-01",
                       "name": "[parameters('defenderPlans')[copyIndex()]]",
