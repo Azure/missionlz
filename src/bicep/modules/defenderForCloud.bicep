@@ -24,12 +24,43 @@ param policySetDescription string = 'The Microsoft Cloud Security Benchmark init
 @description('[Standard/Free] The SKU for Defender. It defaults to "Free".')
 param defenderSkuTier string = 'Free'
 
-// defender for cloud turn on for both free and standard sku
+// Variables for Defender for Cloud Paid Plan Handling for AzureCloud only
+
+var defenderPaidPlansSpecialHandlingAzurePublicList = ['Api']
+
+var defenderPaidPlanConfig = {
+  AzureCloud: {
+    Api: {
+      subPlan: 'P1'
+    }
+  }
+}
+
+// Defender for Cloud - Free SKU turn on for all clouds
 @batchSize(1)
-resource defenderPricing 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans)) {
+resource defenderFreeAllClouds 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && defenderSkuTier == 'Free') {
   name: name
   properties: {
     pricingTier: defenderSkuTier
+  }
+}]
+
+// defender for cloud Standard SKU - No subplan, no extensions
+@batchSize(1)
+resource defenderStandardNoSubplanNoExtensions 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans)) {
+  name: name
+  properties: {
+    pricingTier: defenderSkuTier
+  }
+}]
+
+// defender for cloud Standard SKU - Subplan, no extensions, AzureCloud only
+@batchSize(1)
+resource defenderStandardSubplanExtensionsAzureCloud 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && contains(defenderPaidPlansSpecialHandlingAzurePublicList, name) && environment().name == 'AzureCloud'){
+  name: name
+  properties: {
+    pricingTier: defenderSkuTier
+    subPlan: defenderPaidPlanConfig[environment().name][name].subPlan
   }
 }]
 
