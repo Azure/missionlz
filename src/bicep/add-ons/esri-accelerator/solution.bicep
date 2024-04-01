@@ -3,6 +3,12 @@ targetScope = 'subscription'
 @description('The file name of the ArcGIS Pro installer in Azure Blobs.')
 param arcGisProInstaller string
 
+@description('ArcGIS Service Account Password')
+param arcgisServiceAccountPassword string
+
+@description('ArcGIS Service Account User Name')
+param arcgisServiceAccountUserName string
+
 @description('The blob name of the MSI file for the AVD Agent Boot Loader installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
 param avdAgentBootLoaderMsiName string
 
@@ -14,6 +20,13 @@ param avdObjectId string
 
 @description('The blob name of the MSI file for the  Azure PowerShell Module installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
 param azurePowerShellModuleMsiName string
+
+@description('The certificate file name.')
+param certificateFileName string
+
+@secure()
+@description('The certificate password.')
+param certificatePassword string
 
 @description('The name of the container in the Azure Storage Account containing the deployment artifacts.')
 param containerName string
@@ -52,6 +65,30 @@ param localAdministratorUsername string
 @description('The region to deploy resources into. It defaults to the deployment location.')
 param location string = deployment().location
 
+@description('Portal License File')
+param portalLicenseFile string
+
+@description('Portal License User Type Id')
+@allowed([
+  'creatorUT'
+  'editorUT'
+  'fieldWorkerUT'
+  'GISProfessionalAdvUT'
+  'GISProfessionalBasicUT'
+  'GISProfessionalStdUT'
+  'IndoorsUserUT'
+  'insightsAnalystUT'
+  'viewerUT'
+])
+param portalLicenseUserTypeId string
+
+@secure()
+@description('Primary Site Administrator Account Password')
+param primarySiteAdministratorAccountPassword string
+
+@description('Primary Site Administrator Account User Name')
+param primarySiteAdministratorAccountUserName string
+
 @minLength(3)
 @maxLength(6)
 @description('A prefix, 3-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
@@ -59,6 +96,9 @@ param resourcePrefix string
 
 @description('The array of Security Principals with their object IDs and display names to assign to the AVD Application Group and FSLogix Storage.')
 param securityPrincipals array
+
+@description('')
+param serverLicenseFile string
 
 @description('The resource ID of the Azure Storage Account to use for storing artifacts to customize the image.')
 param storageAccountResourceId string
@@ -172,4 +212,50 @@ module azureVirtualDesktop '../azureVirtualDesktop/solution.bicep' = {
   dependsOn: [
     domainServices
   ]
+}
+
+module esriEnterprise '../esri-enterprise/solution.bicep' = {
+  name: 'deploy-esri-enterprise-${deploymentNameSuffix}'
+  params: {
+    adminPassword: localAdministratorPassword
+    adminUsername: localAdministratorUsername
+    arcgisServiceAccountIsDomainAccount: true
+    arcgisServiceAccountPassword: arcgisServiceAccountPassword
+    arcgisServiceAccountUserName: arcgisServiceAccountUserName
+    architecture: 'singletier'
+    artifactsContainerName: containerName
+    artifactsStorageAccountName: split(storageAccountResourceId, '/')[8]
+    artifactsStorageAccountResourceGroupName: split(storageAccountResourceId, '/')[4]
+    artifactsStorageAccountSubscriptionId: split(storageAccountResourceId, '/')[2]
+    azureFirewallName: split(missionLandingZone.outputs.azureFirewallResourceId, '/')[8]
+    certificateFileName: certificateFileName
+    certificatePassword: certificatePassword
+    deployDefender: false
+    diskEncryptionSetResourceId: missionLandingZone.outputs.diskEncryptionSetResourceId
+    enableGraphDataStore: false
+    enableMonitoring: true
+    enableObjectDataStore: false
+    enableSpatiotemporalBigDataStore: true
+    enableTileCacheDataStore: true
+    externalDnsHostname: 'esri.${domainName}'
+    hubResourceGroupName: split(missionLandingZone.outputs.hubVirtualNetworkResourceId, '/')[4]
+    hubSubscriptionId: subscription().subscriptionId
+    hubVirtualNetworkName: split(missionLandingZone.outputs.hubVirtualNetworkResourceId, '/')[8]
+    joinEntraDomain: false
+    joinWindowsDomain: true
+    location: location
+    portalLicenseFile: portalLicenseFile
+    portalLicenseUserTypeId: portalLicenseUserTypeId
+    primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
+    primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
+    resourcePrefix: resourcePrefix
+    selfSignedCertificatePassword: certificatePassword
+    serverLicenseFile: serverLicenseFile
+    spokelogAnalyticsWorkspaceResourceId: missionLandingZone.outputs.logAnalyticsWorkspaceResourceId
+    useAzureFiles: false
+    useCloudStorage: false
+    windowsDomainAdministratorPassword: domainJoinPassword
+    windowsDomainAdministratorUserName: domainJoinUsername
+    windowsDomainName: domainName
+  }
 }
