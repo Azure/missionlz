@@ -3,6 +3,7 @@ targetScope = 'subscription'
 @description('The file name of the ArcGIS Pro installer in Azure Blobs.')
 param arcGisProInstaller string
 
+@secure()
 @description('ArcGIS Service Account Password')
 param arcgisServiceAccountPassword string
 
