@@ -116,6 +116,7 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
       {
         name: 'ipconfig1'
         properties: {
+          #disable-next-line use-resource-id-functions
           privateDnsZoneId: zone
         }
       }
