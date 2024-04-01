@@ -13,6 +13,7 @@ resource vault 'Microsoft.RecoveryServices/vaults@2022-03-01' existing =  {
 }
 
 resource protectionContainers 'Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers@2022-03-01' = [for i in range(0, storageCount): {
+  #disable-next-line use-parent-property
   name: '${vault.name}/Azure/storagecontainer;Storage;${resourceGroupStorage};${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}'
   properties: {
     backupManagementType: 'AzureStorage'
