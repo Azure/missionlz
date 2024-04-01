@@ -69,11 +69,11 @@ REQ ID | VDMS Security Requirements | Azure Technologies | Mission LZ
 2.1.3.2 | The VDMS shall provide Host Based Security System (HBSS), or approved equivalent, to manage endpoint security for all enclaves within the CSE | Microsoft Defender for Cloud | ✔️
 2.1.3.3 | The VDMS shall provide identity services to include an Online Certificate Status Protocol (OCloud Workload Security) responder for remote system DoD Common Access Card (CAC) two-factor authentication of DoD privileged users to systems instantiated within the CSE | Multi-Factor Authentication |
 2.1.3.4 | The VDMS shall provide a configuration and update management system to serve systems and applications for all enclaves within the CSE | N/A
-2.1.3.5 | The VDMS shall provide logical domain services to include directory access, directory federation, Dynamic Host Configuration Protocol (DHCP), and Domain Name System (DNS) for all enclaves within the CSE | Azure Active Directory (AAD) <br/> Azure DNS | ✔️
+2.1.3.5 | The VDMS shall provide logical domain services to include directory access, directory federation, Dynamic Host Configuration Protocol (DHCP), and Domain Name System (DNS) for all enclaves within the CSE | Microsoft Entra ID (AAD) <br/> Azure DNS | ✔️
 2.1.3.6 | The VDMS shall provide a network for managing systems and applications within the CSE that is logically separate from the user and data networks. | Virtual Network <br/> Azure Subnets | ✔️
 2.1.3.7 | The VDMS shall provide a system, security, application, and user activity event logging and archiving system for common collection, storage, and access to event logs by privileged users performing BCP and MCP activities. | Azure Log Analytics <br/> Microsoft Defender for Cloud | ✔️
-2.1.3.8 | The VDMS shall provide for the exchange of DoD privileged user authentication and authorization attributes with the CSP's Identity and access management system to enable cloud system provisioning, deployment, and configuration | Azure Active Directory Connect |
-2.1.3.9 | The VDMS shall implement the technical capabilities necessary to execute the mission and objectives of the TCCM role. | Azure Active Directory | ✔️
+2.1.3.8 | The VDMS shall provide for the exchange of DoD privileged user authentication and authorization attributes with the CSP's Identity and access management system to enable cloud system provisioning, deployment, and configuration | Microsoft Entra ID Connect |
+2.1.3.9 | The VDMS shall implement the technical capabilities necessary to execute the mission and objectives of the TCCM role. | Microsoft Entra ID | ✔️
 
 ## TCCM Controls
 
@@ -83,7 +83,7 @@ REQ ID | TCCM Security Requirements | Azure Technologies | Mission LZ
 2.1.4.2 | The TCCM shall collect, audit, and archive all Customer Portal activity logs and alerts  | Azure Log Analytics | ✔️
 2.1.4.3 | The TCCM shall ensure activity log alerts are shared with, forwarded to, or retrievable by DoD privileged users engaged in MCP and BCP activities | Azure Log Analytics | ✔️
 2.1.4.4 | The TCCM shall, as necessary for information sharing, create log repository access accounts for access to activity log data by privileged users performing both MCP and BCP activities | Azure Log Analytics | ✔️
-2.1.4.5 | The TCCM shall recover and securely control customer portal account credentials prior to mission application connectivity to the DISN | Azure Active Directory | ✔️
-2.1.4.6 | The TCCM shall create,issue, and revoke, as necessary,role based access least privileged customer portal credentials to mission owner application and system administrators (i.e., DoD privileged users). | Azure Active Directory/Role-Based Authorization | ✔️
+2.1.4.5 | The TCCM shall recover and securely control customer portal account credentials prior to mission application connectivity to the DISN | Microsoft Entra ID | ✔️
+2.1.4.6 | The TCCM shall create,issue, and revoke, as necessary,role based access least privileged customer portal credentials to mission owner application and system administrators (i.e., DoD privileged users). | Microsoft Entra ID/Role-Based Authorization | ✔️
 
 <!-- markdownlint-enable MD033 -->
