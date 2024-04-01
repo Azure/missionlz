@@ -5,26 +5,26 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "1557577051128763715"
+      "templateHash": "17533849453387847776"
     }
   },
   "parameters": {
     "arcGisProInstaller": {
       "type": "string",
       "metadata": {
-        "description": "The file name of the ArcGIS Pro installer in Azure Blobs."
+        "description": "The file name of the ArcGIS Pro installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts."
       }
     },
     "arcgisServiceAccountPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "ArcGIS Service Account Password"
+        "description": "The password for the ArcGIS service account."
       }
     },
     "arcgisServiceAccountUserName": {
       "type": "string",
       "metadata": {
-        "description": "ArcGIS Service Account User Name"
+        "description": "The username for the ArcGIS service account."
       }
     },
     "avdAgentBootLoaderMsiName": {
@@ -54,26 +54,26 @@
     "certificateFileName": {
       "type": "string",
       "metadata": {
-        "description": "The certificate file name."
+        "description": "The file name for the certificate that will secure the ESRI portal. The file must be hosted in an Azure Blobs container with the other deployment artifacts."
       }
     },
     "certificatePassword": {
       "type": "securestring",
       "metadata": {
-        "description": "The certificate password."
+        "description": "The password for the certificate that will secure the ESRI portal."
       }
     },
     "containerName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the container in the Azure Storage Account containing the deployment artifacts."
+        "description": "The name of the container in Azure Blobs for the deployment artifacts."
       }
     },
     "deploymentNameSuffix": {
       "type": "string",
       "defaultValue": "[utcNow()]",
       "metadata": {
-        "description": "A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the \"utcNow()\" function."
+        "description": "The suffix used for naming deployments uniquely. It defaults to a timestamp with the utcNow function."
       }
     },
     "domainJoinPassword": {
@@ -99,13 +99,13 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "Email address of the contact, in the form of john@doe.com"
+        "description": "The email address or distribution list to receive security alerts."
       }
     },
     "hybridUseBenefit": {
       "type": "bool",
       "metadata": {
-        "description": "Determines whether to use the hybrid use benefit."
+        "description": "Determines whether to use the hybrid use benefit for the Windows virtual machines."
       }
     },
     "identifier": {
@@ -138,7 +138,7 @@
     "portalLicenseFile": {
       "type": "string",
       "metadata": {
-        "description": "Portal License File"
+        "description": "The base 64 encoded string containing the license file for the ESRI portal."
       }
     },
     "portalLicenseUserTypeId": {
@@ -155,19 +155,19 @@
         "viewerUT"
       ],
       "metadata": {
-        "description": "Portal License User Type Id"
+        "description": "The license user type ID for the ESRI portal."
       }
     },
     "primarySiteAdministratorAccountPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "Primary Site Administrator Account Password"
+        "description": "The password for the ESRI Primary Site Administrator Account."
       }
     },
     "primarySiteAdministratorAccountUserName": {
       "type": "string",
       "metadata": {
-        "description": "Primary Site Administrator Account User Name"
+        "description": "The username for the ESRI Primary Site Administrator Account."
       }
     },
     "resourcePrefix": {
@@ -187,13 +187,13 @@
     "serverLicenseFile": {
       "type": "string",
       "metadata": {
-        "description": ""
+        "description": "The base 64 encoded string containing the license file for ESRI Enterprise server."
       }
     },
     "storageAccountResourceId": {
       "type": "string",
       "metadata": {
-        "description": "The resource ID of the Azure Storage Account to use for storing artifacts to customize the image."
+        "description": "The resource ID of the Azure Storage Account used for storing the deployment artifacts."
       }
     },
     "virtualMachineSize": {
@@ -32238,7 +32238,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "18050918260251961231"
+              "templateHash": "1813883205934201037"
             }
           },
           "parameters": {
@@ -32267,6 +32267,18 @@
                 "description": "Determine whether the ArcGIS Service Account is a domain account."
               }
             },
+            "arcgisServiceAccountPassword": {
+              "type": "securestring",
+              "metadata": {
+                "description": "The password for the ArcGIS service account."
+              }
+            },
+            "arcgisServiceAccountUserName": {
+              "type": "string",
+              "metadata": {
+                "description": "The username for the ArcGIS service account."
+              }
+            },
             "artifactsStorageAccountName": {
               "type": "string",
               "metadata": {
@@ -32289,18 +32301,6 @@
               "type": "string",
               "metadata": {
                 "description": "The subscription ID for the artifacts storage account."
-              }
-            },
-            "arcgisServiceAccountPassword": {
-              "type": "securestring",
-              "metadata": {
-                "description": "The password for the ArcGIS service account."
-              }
-            },
-            "arcgisServiceAccountUserName": {
-              "type": "string",
-              "metadata": {
-                "description": "The username for the ArcGIS service account."
               }
             },
             "architecture": {

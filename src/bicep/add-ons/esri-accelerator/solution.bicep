@@ -1,13 +1,13 @@
 targetScope = 'subscription'
 
-@description('The file name of the ArcGIS Pro installer in Azure Blobs.')
+@description('The file name of the ArcGIS Pro installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
 param arcGisProInstaller string
 
 @secure()
-@description('ArcGIS Service Account Password')
+@description('The password for the ArcGIS service account.')
 param arcgisServiceAccountPassword string
 
-@description('ArcGIS Service Account User Name')
+@description('The username for the ArcGIS service account.')
 param arcgisServiceAccountUserName string
 
 @description('The blob name of the MSI file for the AVD Agent Boot Loader installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
@@ -22,17 +22,17 @@ param avdObjectId string
 @description('The blob name of the MSI file for the  Azure PowerShell Module installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
 param azurePowerShellModuleMsiName string
 
-@description('The certificate file name.')
+@description('The file name for the certificate that will secure the ESRI portal. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
 param certificateFileName string
 
 @secure()
-@description('The certificate password.')
+@description('The password for the certificate that will secure the ESRI portal.')
 param certificatePassword string
 
-@description('The name of the container in the Azure Storage Account containing the deployment artifacts.')
+@description('The name of the container in Azure Blobs for the deployment artifacts.')
 param containerName string
 
-@description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
+@description('The suffix used for naming deployments uniquely. It defaults to a timestamp with the utcNow function.')
 param deploymentNameSuffix string = utcNow()
 
 @secure()
@@ -45,10 +45,10 @@ param domainJoinUsername string = 'domainjoin'
 @description('The name of the domain to use for Entra Domain Services.')
 param domainName string
 
-@description('Email address of the contact, in the form of john@doe.com')
+@description('The email address or distribution list to receive security alerts.')
 param emailSecurityContact string = ''
 
-@description('Determines whether to use the hybrid use benefit.')
+@description('Determines whether to use the hybrid use benefit for the Windows virtual machines.')
 param hybridUseBenefit bool
 
 @minLength(1)
@@ -66,10 +66,9 @@ param localAdministratorUsername string
 @description('The region to deploy resources into. It defaults to the deployment location.')
 param location string = deployment().location
 
-@description('Portal License File')
+@description('The base 64 encoded string containing the license file for the ESRI portal.')
 param portalLicenseFile string
 
-@description('Portal License User Type Id')
 @allowed([
   'creatorUT'
   'editorUT'
@@ -81,13 +80,14 @@ param portalLicenseFile string
   'insightsAnalystUT'
   'viewerUT'
 ])
+@description('The license user type ID for the ESRI portal.')
 param portalLicenseUserTypeId string
 
 @secure()
-@description('Primary Site Administrator Account Password')
+@description('The password for the ESRI Primary Site Administrator Account.')
 param primarySiteAdministratorAccountPassword string
 
-@description('Primary Site Administrator Account User Name')
+@description('The username for the ESRI Primary Site Administrator Account.')
 param primarySiteAdministratorAccountUserName string
 
 @minLength(3)
@@ -98,10 +98,10 @@ param resourcePrefix string
 @description('The array of Security Principals with their object IDs and display names to assign to the AVD Application Group and FSLogix Storage.')
 param securityPrincipals array
 
-@description('')
+@description('The base 64 encoded string containing the license file for ESRI Enterprise server.')
 param serverLicenseFile string
 
-@description('The resource ID of the Azure Storage Account to use for storing artifacts to customize the image.')
+@description('The resource ID of the Azure Storage Account used for storing the deployment artifacts.')
 param storageAccountResourceId string
 
 @allowed([
