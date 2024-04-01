@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "1813883205934201037"
+      "templateHash": "14831212110087961630"
     }
   },
   "parameters": {
@@ -2037,7 +2037,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "5576770691490877000"
+              "templateHash": "3421184670812544832"
             }
           },
           "parameters": {
@@ -2300,17 +2300,17 @@
             }
           ],
           "outputs": {
-            "storageEndpoint": {
+            "cloudStorageAccountCredentialsUserName": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))), '2023-01-01').primaryEndpoints.blob]"
+              "value": "[format('{0}{1}', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName')), replace(split(reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))), '2023-01-01').primaryEndpoints.blob, format('https://{0}', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))))[1], '/', ''))]"
             },
             "storageAccountName": {
               "type": "string",
               "value": "[format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))]"
             },
-            "cloudStorageAccountCredentialsUserName": {
+            "storageEndpoint": {
               "type": "string",
-              "value": "[format('{0}{1}', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName')), replace(split(reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))), '2023-01-01').primaryEndpoints.blob, format('https://{0}', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))))[1], '/', ''))]"
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))), '2023-01-01').primaryEndpoints.blob]"
             }
           }
         }

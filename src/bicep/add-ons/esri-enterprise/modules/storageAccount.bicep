@@ -182,6 +182,7 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
       {
         name: 'ipconfig1'
         properties: {
+          #disable-next-line use-resource-id-functions
           privateDnsZoneId: zone
         }
       }
@@ -189,6 +190,6 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
   }
 }]
 
-output storageEndpoint string = storageAccount.properties.primaryEndpoints.blob
-output storageAccountName string = storageAccount.name
 output cloudStorageAccountCredentialsUserName string = '${storageAccount.name}${(replace((split(storageAccount.properties.primaryEndpoints.blob, 'https://${storageAccount.name}')[1]), '/', ''))}'
+output storageAccountName string = storageAccount.name
+output storageEndpoint string = storageAccount.properties.primaryEndpoints.blob
