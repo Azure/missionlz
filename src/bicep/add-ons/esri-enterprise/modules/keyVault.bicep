@@ -4,6 +4,7 @@ param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param keyVaultCertificatesOfficerRoleDefinitionResourceId string
 param keyVaultName string
+#disable-next-line secure-secrets-in-params 
 param keyVaultSecretsOfficerRoleDefinitionResourceId string
 param keyVaultCryptoOfficerRoleDefinitionResourceId string
 @secure()

@@ -1,6 +1,7 @@
 param logAnalyticsWorkspaceResourceId string
 param name string
 
+#disable-next-line BCP081
 resource privateLinkScope 'microsoft.insights/privateLinkScopes@2021-09-01' = {
   name: name
   location: 'global'
@@ -12,6 +13,7 @@ resource privateLinkScope 'microsoft.insights/privateLinkScopes@2021-09-01' = {
   }
 }
 
+#disable-next-line BCP081
 resource scopedResource 'Microsoft.Insights/privateLinkScopes/scopedResources@2021-09-01' = {
   parent: privateLinkScope
   name: split(logAnalyticsWorkspaceResourceId, '/')[8]

@@ -5,74 +5,69 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "13027653759208416348"
+      "templateHash": "14831212110087961630"
     }
   },
   "parameters": {
     "adminPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "Virtual Machine admin password"
+        "description": "The password for the local administrator account on the virtual machines."
       }
     },
     "adminUsername": {
       "type": "string",
       "metadata": {
-        "description": "Virtual Machine admin username"
-      }
-    },
-    "applicationGatewayPrivateIpAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "Application Gateway Private IP Address"
+        "description": "The username for the local adminsitrator account on the virtual machines."
       }
     },
     "applicationGatewaySubnetAddressPrefix": {
       "type": "string",
+      "defaultValue": "10.0.135.0/24",
       "metadata": {
-        "description": "Application Gateway Subnet Address Prefix"
+        "description": "The address prefix for the subnet of the application gateway."
       }
     },
     "arcgisServiceAccountIsDomainAccount": {
       "type": "bool",
       "metadata": {
-        "description": "ArcGIS Service Account Is Domain Account"
-      }
-    },
-    "artifactsStorageAccountName": {
-      "type": "string",
-      "metadata": {
-        "description": "The storage account where deployment artifacts are stored."
-      }
-    },
-    "artifactsContainerName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the container where deployment artifacts are stored."
-      }
-    },
-    "artifactsStorageAccountResourceGroupName": {
-      "type": "string",
-      "metadata": {
-        "description": "The resource group where the artifacts storage account is located."
-      }
-    },
-    "artifactsStorageAccountSubscriptionId": {
-      "type": "string",
-      "metadata": {
-        "description": "The subscription id of the artifacts storage account."
+        "description": "Determine whether the ArcGIS Service Account is a domain account."
       }
     },
     "arcgisServiceAccountPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "ArcGIS Service Account Password"
+        "description": "The password for the ArcGIS service account."
       }
     },
     "arcgisServiceAccountUserName": {
       "type": "string",
       "metadata": {
-        "description": "ArcGIS Service Account User Name"
+        "description": "The username for the ArcGIS service account."
+      }
+    },
+    "artifactsStorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the storage account for the deployment artifacts."
+      }
+    },
+    "artifactsContainerName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Azure Blobs container for the deployment artifacts."
+      }
+    },
+    "artifactsStorageAccountResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "The resource group for the artifacts storage account."
+      }
+    },
+    "artifactsStorageAccountSubscriptionId": {
+      "type": "string",
+      "metadata": {
+        "description": "The subscription ID for the artifacts storage account."
       }
     },
     "architecture": {
@@ -82,25 +77,25 @@
         "multitier"
       ],
       "metadata": {
-        "description": "Architecture for ESRI. Single Tier or Multi Tier."
+        "description": "The architecture for ESRI, either Single Tier or Multi Tier."
       }
     },
     "azureFirewallName": {
       "type": "string",
       "metadata": {
-        "description": "Azure Firewall Name"
+        "description": "The name of the Azure Firewall in the Hub."
       }
     },
     "certificatePassword": {
       "type": "securestring",
       "metadata": {
-        "description": "The certificate password."
+        "description": "The password for the certificate."
       }
     },
     "certificateFileName": {
       "type": "string",
       "metadata": {
-        "description": "The certificate file name."
+        "description": "The file name for the certificate."
       }
     },
     "dataStoreVirtualMachineOSDiskSize": {
@@ -119,32 +114,34 @@
         32767
       ],
       "metadata": {
-        "description": "Data Store Virtual Machine OS Disk Size"
+        "description": "The OS disk size for virtual machines hosting the data store."
       }
     },
     "debugMode": {
       "type": "bool",
+      "defaultValue": false,
       "metadata": {
-        "description": "Debug Mode for ESRI"
+        "description": "Determine whether debug mode is enabled for ESRI Enterprise."
       }
     },
     "defaultSubnetAddressPrefix": {
       "type": "string",
+      "defaultValue": "10.0.136.0/24",
       "metadata": {
-        "description": "Default Subnet Address Prefix"
+        "description": "The address prefix for the subnet containing the ESRI Enterpise servers."
       }
     },
     "deployDefender": {
       "type": "bool",
       "metadata": {
-        "description": "Deploy Defender"
+        "description": "Determine whether to deploy Defender for Cloud. This is only necessary if the target description does not have Defender for Cloud already enabled."
       }
     },
     "deploymentNameSuffix": {
       "type": "string",
-      "defaultValue": "[utcNow('yyMMddHHs')]",
+      "defaultValue": "[utcNow()]",
       "metadata": {
-        "description": "Deployment Name Suffix"
+        "description": "A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the \"utcNow()\" function."
       }
     },
     "diskEncryptionSetResourceId": {
@@ -154,86 +151,86 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "Email Security Contact"
+        "description": "The email address or distribution list to receive security alerts."
       }
     },
     "enableDataStoreVirtualMachineDataDisk": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "Enable Data Store Virtual Machine Data Disk"
+        "description": "Determine whether to enable the Data Store on the virtual machine data disk"
       }
     },
     "enableGraphDataStore": {
       "type": "bool",
       "metadata": {
-        "description": "Enable Graph Data Store"
+        "description": "Determine whether to enable the Graph Data Store."
       }
     },
     "enableGraphDataStoreVirtualMachineDataDisk": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "Enable Graph Data Store Virtual Machine Data Disk"
+        "description": "Determine whether to enable the Graph Data Store on the virtual machine data disk."
       }
     },
     "enableMonitoring": {
       "type": "bool",
       "metadata": {
-        "description": "Enable Monitoring"
+        "description": "Determine whether to enable monitoring for the virtual machines."
       }
     },
     "enableObjectDataStore": {
       "type": "bool",
       "metadata": {
-        "description": "Enable Object Data Store"
+        "description": "Determine whether to enable Object Data Store."
       }
     },
     "enableObjectDataStoreVirtualMachineDataDisk": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "Enable Object Data Store Virtual Machine Data Disk"
+        "description": "Determine whether to enable the Object Data Store on the virtual machine data disk."
       }
     },
     "enableServerLogHarvesterPlugin": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "Enable Server Log Harvester Plugin"
+        "description": "Determine whether to enable the Server Log Harvester Plugin."
       }
     },
     "enableSpatiotemporalBigDataStore": {
       "type": "bool",
       "metadata": {
-        "description": "Enable Spatiotemporal Big Data Store"
+        "description": "Determine whether to enable the Spatiotemporal Big Data Store."
       }
     },
     "enableSpatiotemporalBigDataStoreVirtualMachineDataDisk": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "Enable Spatiotemporal Big Data Store Virtual Machine Data Disk"
+        "description": "Determine whether to enable the Spatiotemporal Big Data Store on the virtual machine data disk."
       }
     },
     "enableTileCacheDataStore": {
       "type": "bool",
       "metadata": {
-        "description": "Enable Tile Cache Data Store"
+        "description": "Determine whether to enable the Tile Cache Data Store."
       }
     },
     "enableTileCacheDataStoreVirtualMachineDataDisk": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "Enable Tile Cache Data Store Virtual Machine Data Disk"
+        "description": "Determine whether to enable the Tile Cache Data Store on the virtual machine data disk."
       }
     },
     "enableVirtualMachineDataDisk": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "Enable Virtual Machine Data Disk"
+        "description": "Determine whether to enable the virtual machine data disk."
       }
     },
     "externalDnsHostname": {
@@ -264,19 +261,19 @@
     "hubResourceGroupName": {
       "type": "string",
       "metadata": {
-        "description": "Hub Resource Group Name"
+        "description": "The name of the resource group for the Hub."
       }
     },
     "hubSubscriptionId": {
       "type": "string",
       "metadata": {
-        "description": "Hub Subscription Id"
+        "description": "The subscription ID for the Hub."
       }
     },
     "hubVirtualNetworkName": {
       "type": "string",
       "metadata": {
-        "description": "Hub Virtual Network Name"
+        "description": "The name of the virtual network in the Hub."
       }
     },
     "isUpdatingCertificates": {
@@ -303,42 +300,42 @@
       "type": "string",
       "defaultValue": "[deployment().location]",
       "metadata": {
-        "description": "Location"
+        "description": "The target location for the Azure resources."
       }
     },
     "numberOfDataStoreVirtualMachines": {
       "type": "int",
       "defaultValue": 2,
       "metadata": {
-        "description": "Number of data store virtual machines"
+        "description": "The number of data store virtual machines."
       }
     },
     "numberOfEsriServers": {
       "type": "int",
       "defaultValue": 2,
       "metadata": {
-        "description": "Number of Esri servers"
+        "description": "The number of ESRI servers."
       }
     },
     "numberOfEsrispatiotemporalBigDataStoreVirtualMachines": {
       "type": "int",
       "defaultValue": 3,
       "metadata": {
-        "description": "Number of file share virtual machines"
+        "description": "The number of ESRI Spatiotemporal Big Data Store virtual machines."
       }
     },
     "numberOfFileShareVirtualMachineNames": {
       "type": "int",
       "defaultValue": 1,
       "metadata": {
-        "description": "Number of file share virtual machines"
+        "description": "The number of file share virtual machines."
       }
     },
     "numberOfGraphDataStoreVirtualMachineNames": {
       "type": "int",
       "defaultValue": 1,
       "metadata": {
-        "description": "Number of graph data store virtual machines"
+        "description": "The number of graph data store virtual machines."
       }
     },
     "numberOfObjectDataStoreVirtualMachines": {
@@ -346,21 +343,21 @@
       "defaultValue": 1,
       "minValue": 1,
       "metadata": {
-        "description": "Number of object data store virtual machines"
+        "description": "The number of object data store virtual machines."
       }
     },
     "numberOfPortalVirtualMachines": {
       "type": "int",
       "defaultValue": 2,
       "metadata": {
-        "description": "Number of portal virtual machines"
+        "description": "The number of portal virtual machines."
       }
     },
     "numberOfTileCacheDataStoreVirtualMachineNames": {
       "type": "int",
       "defaultValue": 1,
       "metadata": {
-        "description": "Number of tile cache data store virtual machines"
+        "description": "The number of tile cache data store virtual machines."
       }
     },
     "objectDataStoreVirtualMachineOSDiskSize": {
@@ -379,20 +376,20 @@
         32767
       ],
       "metadata": {
-        "description": "Object Data Store Virtual Machine OS Disk Size"
+        "description": "The OS disk size for the Object Data Store Virtual Machine."
       }
     },
     "ouPath": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "OU Path if using domain join for the virtual machines."
+        "description": "The distinguished name for the OU path when domain joining the virtual machines."
       }
     },
     "portalLicenseFile": {
       "type": "string",
       "metadata": {
-        "description": "Portal License File"
+        "description": "The base 64 encoded string containing the license file for the ESRI portal."
       }
     },
     "portalLicenseUserTypeId": {
@@ -409,7 +406,7 @@
         "viewerUT"
       ],
       "metadata": {
-        "description": "Portal License User Type Id"
+        "description": "The license user type ID for the ESRI portal."
       }
     },
     "portalVirtualMachineOSDiskSize": {
@@ -428,42 +425,45 @@
         32767
       ],
       "metadata": {
-        "description": "Portal Virtual Machine OS Disk Size"
+        "description": "The OS disk size for the virtual machines hosting the ESRI portal."
       }
     },
     "primarySiteAdministratorAccountPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "Primary Site Administrator Account Password"
+        "description": "The password for the ESRI Primary Site Administrator Account."
       }
     },
     "primarySiteAdministratorAccountUserName": {
       "type": "string",
       "metadata": {
-        "description": "Primary Site Administrator Account User Name"
+        "description": "The username for the ESRI Primary Site Administrator Account."
       }
     },
     "resourcePrefix": {
       "type": "string",
       "metadata": {
-        "description": "Resource Prefix"
+        "description": "The prefix for naming the Azure resources."
       }
     },
     "secondaryDnsHostName": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "Secondary Host Name"
+        "description": "The secondary host name"
       }
     },
     "selfSignedCertificatePassword": {
       "type": "securestring",
       "metadata": {
-        "description": "Certificate Password"
+        "description": "The password for the self-signed certificate."
       }
     },
     "serverLicenseFile": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The base 64 encoded string containing the license file for ESRI Enterprise server."
+      }
     },
     "spatiotemporalBigDataStoreVirtualMachineOSDiskSize": {
       "type": "int",
@@ -482,11 +482,17 @@
       ]
     },
     "spokelogAnalyticsWorkspaceResourceId": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The resource ID for the log analytics workspace in the Operations spoke."
+      }
     },
     "tags": {
       "type": "object",
-      "defaultValue": {}
+      "defaultValue": {},
+      "metadata": {
+        "description": "The metadata of key / vaule pairs for the Azure resources."
+      }
     },
     "tileCacheDataStoreVirtualMachineOSDiskSize": {
       "type": "int",
@@ -504,19 +510,19 @@
         32767
       ],
       "metadata": {
-        "description": "tileCacheDataStoreVirtualMachineOSDiskSize value"
+        "description": "The OS disk size on the virutal machine for the tile cache data store."
       }
     },
     "useAzureFiles": {
       "type": "bool",
       "metadata": {
-        "description": "Use cloud storage value"
+        "description": "Determine whether to use Azure Files for storage."
       }
     },
     "useCloudStorage": {
       "type": "bool",
       "metadata": {
-        "description": "useCloudStorage value"
+        "description": "Determine whether to use cloud storage."
       }
     },
     "virtualMachineOSDiskSize": {
@@ -547,6 +553,7 @@
     },
     "virtualNetworkAddressPrefix": {
       "type": "string",
+      "defaultValue": "10.0.135.0/23",
       "metadata": {
         "description": "The virtual network address prefix"
       }
@@ -582,6 +589,11 @@
   },
   "variables": {
     "copy": [
+      {
+        "name": "applicationGatewayUsableIpAddresses",
+        "count": "[length(range(0, 4))]",
+        "input": "[cidrHost(parameters('applicationGatewaySubnetAddressPrefix'), range(0, 4)[copyIndex('applicationGatewayUsableIpAddresses')])]"
+      },
       {
         "name": "dataStoreVirtualMachines",
         "count": "[length(range(0, parameters('numberOfDataStoreVirtualMachines')))]",
@@ -625,6 +637,7 @@
     ],
     "resourceSuffix": "[parameters('resourcePrefix')]",
     "applicationGatewayName": "[format('{0}-appgw-esri', parameters('resourcePrefix'))]",
+    "applicationGatewayPrivateIpAddress": "[variables('applicationGatewayUsableIpAddresses')[3]]",
     "availabilitySetName": "[format('{0}-avset-esri', parameters('resourcePrefix'))]",
     "container": "artifacts",
     "keyVaultCertificatesOfficer": "[resourceId('Microsoft.Authorization/roleDefinitions', 'a4417e6f-fecd-4de8-b567-7b0420556985')]",
@@ -753,7 +766,7 @@
             "value": "[variables('applicationGatewayName')]"
           },
           "applicationGatewayPrivateIpAddress": {
-            "value": "[parameters('applicationGatewayPrivateIpAddress')]"
+            "value": "[variables('applicationGatewayPrivateIpAddress')]"
           },
           "applicationGatewaySubnetAddressPrefix": {
             "value": "[parameters('applicationGatewaySubnetAddressPrefix')]"
@@ -820,7 +833,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "8925009427874413550"
+              "templateHash": "2623986189587500516"
             }
           },
           "parameters": {
@@ -1566,7 +1579,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "15033542879751971590"
+                      "templateHash": "2376507858724004427"
                     }
                   },
                   "parameters": {
@@ -1614,23 +1627,61 @@
                     }
                   },
                   "variables": {
-                    "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]"
+                    "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]",
+                    "defenderPaidPlansSpecialHandlingAzurePublicList": [
+                      "Api"
+                    ],
+                    "defenderPaidPlanConfig": {
+                      "AzureCloud": {
+                        "Api": {
+                          "subPlan": "P1"
+                        }
+                      }
+                    }
                   },
                   "resources": [
                     {
                       "copy": {
-                        "name": "defenderPricing",
+                        "name": "defenderFreeAllClouds",
                         "count": "[length(parameters('defenderPlans'))]",
                         "mode": "serial",
                         "batchSize": 1
                       },
-                      "condition": "[not(empty(parameters('defenderPlans')))]",
+                      "condition": "[and(not(empty(parameters('defenderPlans'))), equals(parameters('defenderSkuTier'), 'Free'))]",
                       "type": "Microsoft.Security/pricings",
                       "apiVersion": "2023-01-01",
                       "name": "[parameters('defenderPlans')[copyIndex()]]",
                       "properties": {
                         "pricingTier": "[parameters('defenderSkuTier')]"
                       }
+                    },
+                    {
+                      "copy": {
+                        "name": "defenderStandardNoSubplanNoExtensions",
+                        "count": "[length(parameters('defenderPlans'))]",
+                        "mode": "serial",
+                        "batchSize": 1
+                      },
+                      "condition": "[and(and(not(empty(parameters('defenderPlans'))), equals(parameters('defenderSkuTier'), 'Standard')), not(contains(variables('defenderPaidPlansSpecialHandlingAzurePublicList'), parameters('defenderPlans')[copyIndex()])))]",
+                      "type": "Microsoft.Security/pricings",
+                      "apiVersion": "2023-01-01",
+                      "name": "[parameters('defenderPlans')[copyIndex()]]",
+                      "properties": {
+                        "pricingTier": "[parameters('defenderSkuTier')]"
+                      }
+                    },
+                    {
+                      "copy": {
+                        "name": "defenderStandardSubplanExtensionsAzureCloud",
+                        "count": "[length(parameters('defenderPlans'))]",
+                        "mode": "serial",
+                        "batchSize": 1
+                      },
+                      "condition": "[and(and(and(not(empty(parameters('defenderPlans'))), equals(parameters('defenderSkuTier'), 'Standard')), contains(variables('defenderPaidPlansSpecialHandlingAzurePublicList'), parameters('defenderPlans')[copyIndex()])), equals(environment().name, 'AzureCloud'))]",
+                      "type": "Microsoft.Security/pricings",
+                      "apiVersion": "2023-01-01",
+                      "name": "[parameters('defenderPlans')[copyIndex()]]",
+                      "properties": "[if(not(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan')), createObject('pricingTier', parameters('defenderSkuTier')), createObject('pricingTier', parameters('defenderSkuTier'), 'subPlan', variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].subPlan))]"
                     },
                     {
                       "type": "Microsoft.Security/autoProvisioningSettings",
@@ -1986,7 +2037,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "5576770691490877000"
+              "templateHash": "3421184670812544832"
             }
           },
           "parameters": {
@@ -2249,17 +2300,17 @@
             }
           ],
           "outputs": {
-            "storageEndpoint": {
+            "cloudStorageAccountCredentialsUserName": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))), '2023-01-01').primaryEndpoints.blob]"
+              "value": "[format('{0}{1}', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName')), replace(split(reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))), '2023-01-01').primaryEndpoints.blob, format('https://{0}', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))))[1], '/', ''))]"
             },
             "storageAccountName": {
               "type": "string",
               "value": "[format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))]"
             },
-            "cloudStorageAccountCredentialsUserName": {
+            "storageEndpoint": {
               "type": "string",
-              "value": "[format('{0}{1}', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName')), replace(split(reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))), '2023-01-01').primaryEndpoints.blob, format('https://{0}', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))))[1], '/', ''))]"
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}saesri{1}', parameters('resourcePrefix'), variables('uniqueStorageName'))), '2023-01-01').primaryEndpoints.blob]"
             }
           }
         }
@@ -8505,7 +8556,7 @@
             "value": "[variables('applicationGatewayName')]"
           },
           "applicationGatewayPrivateIPAddress": {
-            "value": "[parameters('applicationGatewayPrivateIpAddress')]"
+            "value": "[variables('applicationGatewayPrivateIpAddress')]"
           },
           "arcgisServiceAccountIsDomainAccount": {
             "value": "[parameters('arcgisServiceAccountIsDomainAccount')]"
@@ -11618,7 +11669,7 @@
             "value": "[variables('applicationGatewayName')]"
           },
           "applicationGatewayPrivateIpAddress": {
-            "value": "[parameters('applicationGatewayPrivateIpAddress')]"
+            "value": "[variables('applicationGatewayPrivateIpAddress')]"
           },
           "arcgisServiceAccountIsDomainAccount": {
             "value": "[parameters('arcgisServiceAccountIsDomainAccount')]"

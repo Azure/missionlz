@@ -71,7 +71,7 @@ resource defenderStandardSubplanExtensionsAzureCloud 'Microsoft.Security/pricing
 ]
 
 // auto provisioing
-
+#disable-next-line BCP081
 resource autoProvision 'Microsoft.Security/autoProvisioningSettings@2019-01-01' = {
   name: 'default'
   properties: {
@@ -79,6 +79,7 @@ resource autoProvision 'Microsoft.Security/autoProvisioningSettings@2019-01-01' 
   }
 }
 
+#disable-next-line BCP081
 resource securityWorkspaceSettings 'Microsoft.Security/workspaceSettings@2019-01-01' = {
   name: 'default'
   properties: {

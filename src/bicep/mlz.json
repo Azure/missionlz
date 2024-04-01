@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "9628455953298590978"
+      "templateHash": "11949976318508029089"
     }
   },
   "parameters": {
@@ -8556,6 +8556,10 @@
     "azureFirewallResourceId": {
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.azureFirewallResourceId.value]"
+    },
+    "diskEncryptionSetResourceId": {
+      "type": "string",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
     },
     "hubSubnetResourceId": {
       "type": "string",
