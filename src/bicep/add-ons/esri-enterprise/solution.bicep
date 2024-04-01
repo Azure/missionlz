@@ -13,6 +13,13 @@ param applicationGatewaySubnetAddressPrefix string = '10.0.135.0/24'
 @description('Determine whether the ArcGIS Service Account is a domain account.')
 param arcgisServiceAccountIsDomainAccount bool
 
+@secure()
+@description('The password for the ArcGIS service account.')
+param arcgisServiceAccountPassword string
+
+@description('The username for the ArcGIS service account.')
+param arcgisServiceAccountUserName string
+
 @description('The name of the storage account for the deployment artifacts.')
 param artifactsStorageAccountName string
 
@@ -24,13 +31,6 @@ param artifactsStorageAccountResourceGroupName string
 
 @description('The subscription ID for the artifacts storage account.')
 param artifactsStorageAccountSubscriptionId string
-
-@secure()
-@description('The password for the ArcGIS service account.')
-param arcgisServiceAccountPassword string
-
-@description('The username for the ArcGIS service account.')
-param arcgisServiceAccountUserName string
 
 @allowed([
   'singletier'

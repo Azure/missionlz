@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "18050918260251961231"
+      "templateHash": "1813883205934201037"
     }
   },
   "parameters": {
@@ -34,6 +34,18 @@
         "description": "Determine whether the ArcGIS Service Account is a domain account."
       }
     },
+    "arcgisServiceAccountPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for the ArcGIS service account."
+      }
+    },
+    "arcgisServiceAccountUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "The username for the ArcGIS service account."
+      }
+    },
     "artifactsStorageAccountName": {
       "type": "string",
       "metadata": {
@@ -56,18 +68,6 @@
       "type": "string",
       "metadata": {
         "description": "The subscription ID for the artifacts storage account."
-      }
-    },
-    "arcgisServiceAccountPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "The password for the ArcGIS service account."
-      }
-    },
-    "arcgisServiceAccountUserName": {
-      "type": "string",
-      "metadata": {
-        "description": "The username for the ArcGIS service account."
       }
     },
     "architecture": {
