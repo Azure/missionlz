@@ -35,7 +35,7 @@ Our intent is to enable IT Admins to use this software to:
 
 - [ESRI ArcGIS Pro & Enterprise with AVD](./docs/esri.md)
 - [AVD (Azure Virtual Desktop)](./src/bicep/add-ons/azureVirtualDesktop/README.md)
-- [Zero Trust Imaging](./src/bicep/add-ons/Imaging/README.md)
+- [Zero Trust Imaging](./src/bicep/add-ons/imaging/README.md)
 
 ## What is a Landing Zone?
 
