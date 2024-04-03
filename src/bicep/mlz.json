@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "1097805169558260969"
+      "templateHash": "16940185414024651017"
     }
   },
   "parameters": {
@@ -8314,7 +8314,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "11969964641798800668"
+              "templateHash": "6365912469131763544"
             }
           },
           "parameters": {
@@ -8378,7 +8378,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "11805363472003084196"
+                      "templateHash": "17636234975202931790"
                     }
                   },
                   "parameters": {
@@ -8494,7 +8494,10 @@
                         },
                         "VirtualMachines": {
                           "subPlan": "P1"
-                        }
+                        },
+                        "SqlServerVirtualMachines": {},
+                        "SqlServers": {},
+                        "OpenSourceRelationalDatabases": {}
                       }
                     }
                   },

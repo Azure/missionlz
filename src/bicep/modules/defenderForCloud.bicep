@@ -97,6 +97,15 @@ var defenderPaidPlanConfig = {
     }
     VirtualMachines: {
       subPlan: 'P1'
+    }
+    SqlServerVirtualMachines: {
+      // Only requires sku defined, add future subplans and extensions here
+    }
+    SqlServers: {
+      // Only requires sku defined, add future subplans and extensions here
+    }
+    OpenSourceRelationalDatabases: {
+      // Only requires sku defined, add future subplans and extensions here
     }  
   }
 }
