@@ -76,6 +76,9 @@ var defenderPaidPlanConfig = {
         }
       ]
     }
+    CosmosDbs: {
+      // Only requires sku defined, add future subplans and extensions here
+    }
     StorageAccounts: {
       subPlan: 'DefenderForStorageV2'
       extensions: [
