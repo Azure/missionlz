@@ -96,22 +96,6 @@ var defenderPaidPlanConfig = {
       subPlan: 'P1'
     }  
   }
-  AzureUSGovernment: {
-    // Add future subplans and extensions here
-    VirtualMachines: {
-      subPlan: 'P1'
-    }
-    StorageAccounts: {
-
-    }
-    KeyVaults: {
-      subPlan: 'PerTransaction'
-    }
-    Arm: {
-      subPlan: 'PerApiCall'
-    }
-  }
-
 }
 
 // Defender for Cloud - Free SKU turn on for all clouds
