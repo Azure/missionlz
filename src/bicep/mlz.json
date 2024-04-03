@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "16940185414024651017"
+      "templateHash": "7377720502574641421"
     }
   },
   "parameters": {
@@ -8314,7 +8314,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "6365912469131763544"
+              "templateHash": "5540180824585554560"
             }
           },
           "parameters": {
@@ -8378,7 +8378,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "17636234975202931790"
+                      "templateHash": "8341967451228681010"
                     }
                   },
                   "parameters": {
@@ -8509,7 +8509,7 @@
                         "mode": "serial",
                         "batchSize": 1
                       },
-                      "condition": "[and(not(empty(parameters('defenderPlans'))), equals(parameters('defenderSkuTier'), 'Free'))]",
+                      "condition": "[equals(parameters('defenderSkuTier'), 'Free')]",
                       "type": "Microsoft.Security/pricings",
                       "apiVersion": "2023-01-01",
                       "name": "[parameters('defenderPlans')[copyIndex()]]",
@@ -8524,7 +8524,7 @@
                         "mode": "serial",
                         "batchSize": 1
                       },
-                      "condition": "[and(and(not(empty(parameters('defenderPlans'))), equals(parameters('defenderSkuTier'), 'Standard')), not(equals(environment().name, 'AzureCloud')))]",
+                      "condition": "[and(equals(parameters('defenderSkuTier'), 'Standard'), not(equals(environment().name, 'AzureCloud')))]",
                       "type": "Microsoft.Security/pricings",
                       "apiVersion": "2023-01-01",
                       "name": "[parameters('defenderPlans')[copyIndex()]]",
@@ -8539,7 +8539,7 @@
                         "mode": "serial",
                         "batchSize": 1
                       },
-                      "condition": "[and(and(not(empty(parameters('defenderPlans'))), equals(parameters('defenderSkuTier'), 'Standard')), equals(environment().name, 'AzureCloud'))]",
+                      "condition": "[and(equals(parameters('defenderSkuTier'), 'Standard'), equals(environment().name, 'AzureCloud'))]",
                       "type": "Microsoft.Security/pricings",
                       "apiVersion": "2023-01-01",
                       "name": "[parameters('defenderPlans')[copyIndex()]]",

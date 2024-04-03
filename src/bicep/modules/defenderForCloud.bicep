@@ -112,7 +112,7 @@ var defenderPaidPlanConfig = {
 
 // Defender for Cloud - Free SKU turn on for all clouds
 @batchSize(1)
-resource defenderFreeAllClouds 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && defenderSkuTier == 'Free') {
+resource defenderFreeAllClouds 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (defenderSkuTier == 'Free') {
   name: name
   properties: {
     pricingTier: defenderSkuTier
@@ -123,32 +123,16 @@ resource defenderFreeAllClouds 'Microsoft.Security/pricings@2023-01-01' = [for n
 // defender for cloud Standard SKU - No subplan, no extensions
 
 @batchSize(1)
-resource defenderStandardNoSubplanNoExtensions 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && defenderSkuTier == 'Standard' && !(environment().name == 'AzureCloud')) {
+resource defenderStandardNoSubplanNoExtensions 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (defenderSkuTier == 'Standard' && !(environment().name == 'AzureCloud')) {
   name: name
   properties: {
     pricingTier: defenderSkuTier
   }
 }]
 
-
-// defender for cloud Standard SKU - AzureCloud only - Handing instances with subplans must be defined - This is the previous example, will comment out for reference
-/*
-@batchSize(1)
-resource defenderStandardSubplanExtensionsAzureCloud 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && defenderSkuTier == 'Standard' && contains(defenderPaidPlansSpecialHandlingAzurePublicList, name) && environment().name == 'AzureCloud'){
-  name: name
-  properties: !contains(defenderPaidPlanConfig[environment().name][name], 'subPlan') ? {
-    pricingTier: defenderSkuTier
-  }:{
-    pricingTier: defenderSkuTier
-    subPlan: defenderPaidPlanConfig[environment().name][name].subPlan
-  }
-}
-]
-*/
-
 // defender for cloud Standard SKU - AzureCloud only - Handing all combinations  This is the new example
 @batchSize(1)
-resource defenderStandardSubplanExtensionsAzureCloud 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && defenderSkuTier == 'Standard' && environment().name == 'AzureCloud'){
+resource defenderStandardSubplanExtensionsAzureCloud 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (defenderSkuTier == 'Standard' && environment().name == 'AzureCloud'){
   name: name
   properties: {
     pricingTier: defenderSkuTier
