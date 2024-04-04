@@ -376,31 +376,31 @@ resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
     source: {
       script: '''
       param(
-        [string]$ContainerName,
         [string]$CertificateFileName,
         [string]$CertificatePassword,
-        [string]$StorageAccountName,
-        [string]$StorageEndpoint,
-        [string]$UserAssignedIdentityObjectId,
-        [string]$UserAssignedIdentityClientId,
-        [string]$PortalLicenseFileName,
+        [string]$ContainerName,
+        [string]$Environment,
+        [string]$EsriStorageAccount,
+        [string]$EsriStorageAccountContainer,
+        [string]$Fqdn,
+        [string]$KeyVaultName,
+        [string]$Location,
         [string]$PortalLicenseFile,
+        [string]$PortalLicenseFileName,
         [string]$ServerLicensefile,
         [string]$ServerLicenseFileName,
-        [string]$TenantId,
-        [string]$Location,
-        [string]$Fqdn,
+        [string]$StorageAccountName,
+        [string]$StorageEndpoint,
         [string]$Subscription,
-        [string]$KeyVaultName,
-        [string]$EsriStorageAccount,
-        [string]$Environment
+        [string]$TenantId,
+        [string]$UserAssignedIdentityClientId,
+        [string]$UserAssignedIdentityObjectId
       )
       New-Item -ItemType File "$env:windir\temp\$portalLicenseFileName"
       New-Item -ItemType File "$env:windir\temp\$serverLicenseFileName"
 
       $plf = "$env:windir\temp\$portalLicenseFileName"
       $slf = "$env:windir\temp\$serverLicenseFileName"
-
 
       $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
 
