@@ -381,7 +381,7 @@ resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
         [string]$ContainerName,
         [string]$Environment,
         [string]$EsriStorageAccount,
-        [string]$esriStorageAccountContainer
+        [string]$EsriStorageAccountContainer,
         [string]$Fqdn,
         [string]$KeyVaultName,
         [string]$Location,
@@ -394,14 +394,13 @@ resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
         [string]$Subscription,
         [string]$TenantId,
         [string]$UserAssignedIdentityClientId,
-        [string]$UserAssignedIdentityObjectId,
+        [string]$UserAssignedIdentityObjectId
       )
       New-Item -ItemType File "$env:windir\temp\$portalLicenseFileName"
       New-Item -ItemType File "$env:windir\temp\$serverLicenseFileName"
 
       $plf = "$env:windir\temp\$portalLicenseFileName"
       $slf = "$env:windir\temp\$serverLicenseFileName"
-
 
       $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
 
