@@ -521,7 +521,7 @@ module publicIpAddress './modules/publicIpAddress.bicep' = {
   name: 'deploy-pip-address-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    hostname: 'esri-${resourcePrefix}${uniqueString(resourceGroupName)}'
+    hostname: 'esri-${resourcePrefix}${uniqueString(subscriptionId)}'
     location: location
     publicIpAddressName: publicIpAddressName
     publicIpAllocationMethod: 'Static'
@@ -1047,6 +1047,7 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
     userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
     virtualMachineName: take('${resourcePrefix}-vmesrimgmt', 15)
+    esriStorageAccountContainer: container
   }
   dependsOn: [
     multiTierFileServerVirtualMachines
