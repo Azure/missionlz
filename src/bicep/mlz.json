@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "11949976318508029089"
+      "templateHash": "7783918794036563591"
     }
   },
   "parameters": {
@@ -7355,7 +7355,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "49100111797787087"
+              "templateHash": "13989055129357073540"
             }
           },
           "parameters": {
@@ -7435,9 +7435,6 @@
                 "parameters": {
                   "logAnalyticsWorkspaceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
-                  },
-                  "supportedClouds": {
-                    "value": "[parameters('supportedClouds')]"
                   }
                 },
                 "template": {
@@ -7447,20 +7444,16 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "14852926421482749735"
+                      "templateHash": "2758250668679366524"
                     }
                   },
                   "parameters": {
                     "logAnalyticsWorkspaceId": {
                       "type": "string"
-                    },
-                    "supportedClouds": {
-                      "type": "array"
                     }
                   },
                   "resources": [
                     {
-                      "condition": "[contains(parameters('supportedClouds'), environment().name)]",
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2017-05-01-preview",
                       "name": "[format('diag-activity-log-{0}', subscription().subscriptionId)]",
