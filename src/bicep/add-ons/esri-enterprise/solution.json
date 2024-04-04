@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "14831212110087961630"
+      "templateHash": "17309430228877481225"
     }
   },
   "parameters": {
@@ -23,7 +23,7 @@
     },
     "applicationGatewaySubnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.135.0/24",
+      "defaultValue": "10.0.136.0/24",
       "metadata": {
         "description": "The address prefix for the subnet of the application gateway."
       }
@@ -126,7 +126,7 @@
     },
     "defaultSubnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.136.0/24",
+      "defaultValue": "10.0.137.0/24",
       "metadata": {
         "description": "The address prefix for the subnet containing the ESRI Enterpise servers."
       }
@@ -553,7 +553,7 @@
     },
     "virtualNetworkAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.135.0/23",
+      "defaultValue": "10.0.136.0/23",
       "metadata": {
         "description": "The virtual network address prefix"
       }
