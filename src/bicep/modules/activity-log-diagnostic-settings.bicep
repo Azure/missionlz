@@ -5,10 +5,9 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param logAnalyticsWorkspaceId string
-param supportedClouds array
 
 // Export Activity Log to LAW
-resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = if ( contains(supportedClouds, environment().name) ) {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' =  {
   name: 'diag-activity-log-${subscription().subscriptionId}'
   properties: {
     workspaceId: logAnalyticsWorkspaceId
