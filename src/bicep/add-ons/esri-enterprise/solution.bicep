@@ -8,7 +8,7 @@ param adminPassword string
 param adminUsername string
 
 @description('The address prefix for the subnet of the application gateway.')
-param applicationGatewaySubnetAddressPrefix string = '10.0.135.0/24'
+param applicationGatewaySubnetAddressPrefix string = '10.0.136.0/24'
 
 @description('Determine whether the ArcGIS Service Account is a domain account.')
 param arcgisServiceAccountIsDomainAccount bool
@@ -68,7 +68,7 @@ param dataStoreVirtualMachineOSDiskSize int = 128
 param debugMode bool = false
 
 @description('The address prefix for the subnet containing the ESRI Enterpise servers.')
-param defaultSubnetAddressPrefix string = '10.0.136.0/24'
+param defaultSubnetAddressPrefix string = '10.0.137.0/24'
 
 @description('Determine whether to deploy Defender for Cloud. This is only necessary if the target description does not have Defender for Cloud already enabled.')
 param deployDefender bool
@@ -317,7 +317,7 @@ param virtualMachineOSDiskSize int = 128
 param virtualMachineSize string = 'Standard_DS4_v2'
 
 @description('The virtual network address prefix')
-param virtualNetworkAddressPrefix string = '10.0.135.0/23'
+param virtualNetworkAddressPrefix string = '10.0.136.0/23'
 
 @secure()
 @description('The password for the Windows domain administrator account.')
