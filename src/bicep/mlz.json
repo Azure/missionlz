@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "7783918794036563591"
+      "templateHash": "1355067641298547562"
     }
   },
   "parameters": {
@@ -8314,7 +8314,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "12295251709791687425"
+              "templateHash": "5540180824585554560"
             }
           },
           "parameters": {
@@ -8378,7 +8378,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "2376507858724004427"
+                      "templateHash": "8341967451228681010"
                     }
                   },
                   "parameters": {
@@ -8427,14 +8427,77 @@
                   },
                   "variables": {
                     "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]",
-                    "defenderPaidPlansSpecialHandlingAzurePublicList": [
-                      "Api"
-                    ],
                     "defenderPaidPlanConfig": {
                       "AzureCloud": {
                         "Api": {
                           "subPlan": "P1"
-                        }
+                        },
+                        "appServices": {},
+                        "KeyVaults": {
+                          "subPlan": "PerKeyVault"
+                        },
+                        "Arm": {
+                          "subPlan": "PerSubscription"
+                        },
+                        "CloudPosture": {
+                          "extensions": [
+                            {
+                              "name": "SensitiveDataDiscovery",
+                              "isEnabled": "True"
+                            },
+                            {
+                              "name": "ContainerRegistriesVulnerabilityAssessments",
+                              "isEnabled": "True"
+                            },
+                            {
+                              "name": "AgentlessDiscoveryForKubernetes",
+                              "isEnabled": "True"
+                            },
+                            {
+                              "name": "AgentlessVmScanning",
+                              "isEnabled": "True"
+                            },
+                            {
+                              "name": "EntraPermissionsManagement",
+                              "isEnabled": "True"
+                            }
+                          ]
+                        },
+                        "Containers": {
+                          "extensions": [
+                            {
+                              "name": "ContainerRegistriesVulnerabilityAssessments",
+                              "isEnabled": "True"
+                            },
+                            {
+                              "name": "AgentlessDiscoveryForKubernetes",
+                              "isEnabled": "True"
+                            }
+                          ]
+                        },
+                        "CosmosDbs": {},
+                        "StorageAccounts": {
+                          "subPlan": "DefenderForStorageV2",
+                          "extensions": [
+                            {
+                              "name": "OnUploadMalwareScanning",
+                              "isEnabled": "True",
+                              "additionalExtensionProperties": {
+                                "CapGBPerMonthPerStorageAccount": "5000"
+                              }
+                            },
+                            {
+                              "name": "SensitiveDataDiscovery",
+                              "isEnabled": "True"
+                            }
+                          ]
+                        },
+                        "VirtualMachines": {
+                          "subPlan": "P1"
+                        },
+                        "SqlServerVirtualMachines": {},
+                        "SqlServers": {},
+                        "OpenSourceRelationalDatabases": {}
                       }
                     }
                   },
@@ -8446,7 +8509,7 @@
                         "mode": "serial",
                         "batchSize": 1
                       },
-                      "condition": "[and(not(empty(parameters('defenderPlans'))), equals(parameters('defenderSkuTier'), 'Free'))]",
+                      "condition": "[equals(parameters('defenderSkuTier'), 'Free')]",
                       "type": "Microsoft.Security/pricings",
                       "apiVersion": "2023-01-01",
                       "name": "[parameters('defenderPlans')[copyIndex()]]",
@@ -8461,7 +8524,7 @@
                         "mode": "serial",
                         "batchSize": 1
                       },
-                      "condition": "[and(and(not(empty(parameters('defenderPlans'))), equals(parameters('defenderSkuTier'), 'Standard')), not(contains(variables('defenderPaidPlansSpecialHandlingAzurePublicList'), parameters('defenderPlans')[copyIndex()])))]",
+                      "condition": "[and(equals(parameters('defenderSkuTier'), 'Standard'), not(equals(environment().name, 'AzureCloud')))]",
                       "type": "Microsoft.Security/pricings",
                       "apiVersion": "2023-01-01",
                       "name": "[parameters('defenderPlans')[copyIndex()]]",
@@ -8476,11 +8539,15 @@
                         "mode": "serial",
                         "batchSize": 1
                       },
-                      "condition": "[and(and(and(not(empty(parameters('defenderPlans'))), equals(parameters('defenderSkuTier'), 'Standard')), contains(variables('defenderPaidPlansSpecialHandlingAzurePublicList'), parameters('defenderPlans')[copyIndex()])), equals(environment().name, 'AzureCloud'))]",
+                      "condition": "[and(equals(parameters('defenderSkuTier'), 'Standard'), equals(environment().name, 'AzureCloud'))]",
                       "type": "Microsoft.Security/pricings",
                       "apiVersion": "2023-01-01",
                       "name": "[parameters('defenderPlans')[copyIndex()]]",
-                      "properties": "[if(not(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan')), createObject('pricingTier', parameters('defenderSkuTier')), createObject('pricingTier', parameters('defenderSkuTier'), 'subPlan', variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].subPlan))]"
+                      "properties": {
+                        "pricingTier": "[parameters('defenderSkuTier')]",
+                        "subPlan": "[if(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan'), variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].subPlan, json('null'))]",
+                        "extensions": "[if(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'extensions'), variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].extensions, json('null'))]"
+                      }
                     },
                     {
                       "type": "Microsoft.Security/autoProvisioningSettings",
