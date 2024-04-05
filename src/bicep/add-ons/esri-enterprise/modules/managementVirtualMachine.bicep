@@ -23,6 +23,7 @@ param certificatePassword string
 param certificateFileName string
 param externalDnsHostname string
 param esriStorageAccountName string
+param esriStorageAccountContainer string
 param resourcePrefix string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
@@ -230,7 +231,7 @@ resource esriArtifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01
     parameters: [
       {
         name: 'ContainerName'
-        value: artifactsContainerName
+        value: esriStorageAccountContainer
       }
       {
         name: 'Environment'
@@ -367,35 +368,39 @@ resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
         name: 'EsriStorageAccount'
         value: esriStorageAccount.name
       }
+      {
+        name: 'esriStorageAccountContainer'
+        value: esriStorageAccountContainer
+      }
     ]
     source: {
       script: '''
       param(
-        [string]$ContainerName,
         [string]$CertificateFileName,
         [string]$CertificatePassword,
-        [string]$StorageAccountName,
-        [string]$StorageEndpoint,
-        [string]$UserAssignedIdentityObjectId,
-        [string]$UserAssignedIdentityClientId,
-        [string]$PortalLicenseFileName,
+        [string]$ContainerName,
+        [string]$Environment,
+        [string]$EsriStorageAccount,
+        [string]$EsriStorageAccountContainer,
+        [string]$Fqdn,
+        [string]$KeyVaultName,
+        [string]$Location,
         [string]$PortalLicenseFile,
+        [string]$PortalLicenseFileName,
         [string]$ServerLicensefile,
         [string]$ServerLicenseFileName,
-        [string]$TenantId,
-        [string]$Location,
-        [string]$Fqdn,
+        [string]$StorageAccountName,
+        [string]$StorageEndpoint,
         [string]$Subscription,
-        [string]$KeyVaultName,
-        [string]$EsriStorageAccount,
-        [string]$Environment
+        [string]$TenantId,
+        [string]$UserAssignedIdentityClientId,
+        [string]$UserAssignedIdentityObjectId
       )
       New-Item -ItemType File "$env:windir\temp\$portalLicenseFileName"
       New-Item -ItemType File "$env:windir\temp\$serverLicenseFileName"
 
       $plf = "$env:windir\temp\$portalLicenseFileName"
       $slf = "$env:windir\temp\$serverLicenseFileName"
-
 
       $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
 
@@ -414,7 +419,7 @@ resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
       $BlobNames = @($certificateFileName)
       Invoke-WebRequest -Headers @{"x-ms-version"="2017-11-09"; Authorization ="Bearer $AccessToken"} -Uri "$StorageAccountUrl/$ContainerName/$BlobNames" -OutFile $env:windir\temp\$certificateFileName -Verbose
       $pfx = "$env:windir\temp\$CertificateFileName"
-      Set-AzStorageBlobContent -File $pfx -Container $containerName -Blob $CertificateFileName -Context $ctx -Force
+      Set-AzStorageBlobContent -File $pfx -Container $esriStorageAccountContainer -Blob $CertificateFileName -Context $ctx -Force
       $base64 = [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($pfx))
       $Password = ConvertTo-SecureString -String $CertificatePassword -AsPlainText -Force
       $cert = Import-AzKeyVaultCertificate -VaultName $keyVaultName -Name "pfx$location" -FilePath $pfx -Password $Password
@@ -425,10 +430,10 @@ resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
       Write-Output $cerCertFile
       [System.IO.File]::WriteAllBytes($cerCertFile, $azKeyVaultCertBytes)
       #$ctx = New-AzStorageContext -StorageAccountName $esriStorageAccount -UseConnectedAccount
-      Set-AzStorageBlobContent -File $cerCertFile -Container $containerName -Blob $publicCertificateName -Context $ctx -Force
-      #Set-AzStorageBlobContent -File $pfx -Container $containerName -Blob $CertificateFileName -Context $ctx -Force
-      Set-AzStorageBlobContent -File $plf -Container $containerName -Properties @{"ContentEncoding" = "UTF-8"} -Blob $portalLicenseFileName -Context $ctx -Force
-      Set-AzStorageBlobContent -File $slf -Container $containerName -Properties @{"ContentEncoding" = "UTF-8"} -Blob $serverLicenseFileName -Context $ctx -Force
+      Set-AzStorageBlobContent -File $cerCertFile -Container $esriStorageAccountContainer -Blob $publicCertificateName -Context $ctx -Force
+      #Set-AzStorageBlobContent -File $pfx -Container $esriStorageAccountContainer -Blob $CertificateFileName -Context $ctx -Force
+      Set-AzStorageBlobContent -File $plf -Container $esriStorageAccountContainer -Properties @{"ContentEncoding" = "UTF-8"} -Blob $portalLicenseFileName -Context $ctx -Force
+      Set-AzStorageBlobContent -File $slf -Container $esriStorageAccountContainer -Properties @{"ContentEncoding" = "UTF-8"} -Blob $serverLicenseFileName -Context $ctx -Force
       '''
     }
   }

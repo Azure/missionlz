@@ -152,7 +152,7 @@
                                     "name": "spokeVirtualNetworkAddressCidrRange",
                                     "label": "Spoke Virtual Network CIDR",
                                     "type": "Microsoft.Common.TextBox",
-                                    "defaultValue": "10.0.135.0/23",
+                                    "defaultValue": "10.0.136.0/23",
                                     "toolTip": "Specify an address CIDR range within the range [10,26].",
                                     "constraints": {
                                         "required": true,
@@ -168,7 +168,7 @@
                                     "name": "appGwSubnetAddressCidrRange",
                                     "label": "Application Gateway Subnet",
                                     "type": "Microsoft.Common.TextBox",
-                                    "defaultValue": "10.0.135.0/24",
+                                    "defaultValue": "10.0.136.0/24",
                                     "toolTip": "Specify a CIDR range for the Application Gateway subnet within the Spoke Virtual Network range [10,24].",
                                     "constraints": {
                                         "required": true,
@@ -200,7 +200,7 @@
                                     "name": "esriSubnetAddressCidrRange",
                                     "label": "ESRI Enterprise Virtual Machine Subnet",
                                     "type": "Microsoft.Common.TextBox",
-                                    "defaultValue": "10.0.136.0/24",
+                                    "defaultValue": "10.0.137.0/24",
                                     "toolTip": "Specify a CIDR range for the Management Virtual Machine subnet within the Spoke Virtual Network range [10,24].",
                                     "constraints": {
                                         "required": true,
