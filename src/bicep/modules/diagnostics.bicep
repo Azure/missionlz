@@ -30,7 +30,6 @@ module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = 
   scope: subscription(network.subscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
-    supportedClouds: supportedClouds
   }
 }]
 

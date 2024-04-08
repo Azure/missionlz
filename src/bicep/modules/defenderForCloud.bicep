@@ -26,19 +26,93 @@ param defenderSkuTier string = 'Free'
 
 // Variables for Defender for Cloud Paid Plan Handling for AzureCloud only
 
-var defenderPaidPlansSpecialHandlingAzurePublicList = ['Api']
-
 var defenderPaidPlanConfig = {
   AzureCloud: {
     Api: {
       subPlan: 'P1'
     }
+    appServices: {
+      // Only requires sku defined, add future subplans and extensions here
+    }
+    KeyVaults: {
+      subPlan: 'PerKeyVault'
+    }
+    Arm: {
+      subPlan: 'PerSubscription'
+    }
+    CloudPosture: {
+      extensions: [
+        {
+          name: 'SensitiveDataDiscovery'
+          isEnabled: 'True'
+        }
+        {
+          name: 'ContainerRegistriesVulnerabilityAssessments'
+          isEnabled: 'True'
+        }
+        {
+          name: 'AgentlessDiscoveryForKubernetes'
+          isEnabled: 'True'
+        }
+        {
+          name: 'AgentlessVmScanning'
+          isEnabled: 'True'
+        }
+        {
+          name: 'EntraPermissionsManagement'
+          isEnabled: 'True'
+        }   
+      ]
+    }
+    Containers: {
+      extensions: [
+        {
+          name: 'ContainerRegistriesVulnerabilityAssessments'
+          isEnabled: 'True'
+        }
+        {
+          name: 'AgentlessDiscoveryForKubernetes'
+          isEnabled: 'True'
+        }
+      ]
+    }
+    CosmosDbs: {
+      // Only requires sku defined, add future subplans and extensions here
+    }
+    StorageAccounts: {
+      subPlan: 'DefenderForStorageV2'
+      extensions: [
+        {
+          name: 'OnUploadMalwareScanning'
+          isEnabled: 'True'
+          additionalExtensionProperties: {
+              CapGBPerMonthPerStorageAccount: '5000'
+          }
+        }
+        {
+          name: 'SensitiveDataDiscovery'
+          isEnabled: 'True'
+        }
+      ]
+    }
+    VirtualMachines: {
+      subPlan: 'P1'
+    }
+    SqlServerVirtualMachines: {
+      // Only requires sku defined, add future subplans and extensions here
+    }
+    SqlServers: {
+      // Only requires sku defined, add future subplans and extensions here
+    }
+    OpenSourceRelationalDatabases: {
+      // Only requires sku defined, add future subplans and extensions here
+    }  
   }
 }
 
 // Defender for Cloud - Free SKU turn on for all clouds
 @batchSize(1)
-resource defenderFreeAllClouds 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && defenderSkuTier == 'Free') {
+resource defenderFreeAllClouds 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (defenderSkuTier == 'Free') {
   name: name
   properties: {
     pricingTier: defenderSkuTier
@@ -49,29 +123,29 @@ resource defenderFreeAllClouds 'Microsoft.Security/pricings@2023-01-01' = [for n
 // defender for cloud Standard SKU - No subplan, no extensions
 
 @batchSize(1)
-resource defenderStandardNoSubplanNoExtensions 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && defenderSkuTier == 'Standard' && !contains(defenderPaidPlansSpecialHandlingAzurePublicList, name)) {
+resource defenderStandardNoSubplanNoExtensions 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (defenderSkuTier == 'Standard' && !(environment().name == 'AzureCloud')) {
   name: name
   properties: {
     pricingTier: defenderSkuTier
   }
 }]
 
-
-// defender for cloud Standard SKU - AzureCloud only - Handing instances with subplans must be defined
+// defender for cloud Standard SKU - AzureCloud only - Handing all combinations  This is the new example
 @batchSize(1)
-resource defenderStandardSubplanExtensionsAzureCloud 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (!empty(defenderPlans) && defenderSkuTier == 'Standard' && contains(defenderPaidPlansSpecialHandlingAzurePublicList, name) && environment().name == 'AzureCloud'){
+resource defenderStandardSubplanExtensionsAzureCloud 'Microsoft.Security/pricings@2023-01-01' = [for name in defenderPlans: if (defenderSkuTier == 'Standard' && environment().name == 'AzureCloud'){
   name: name
-  properties: !contains(defenderPaidPlanConfig[environment().name][name], 'subPlan') ? {
+  properties: {
     pricingTier: defenderSkuTier
-  }:{
-    pricingTier: defenderSkuTier
-    subPlan: defenderPaidPlanConfig[environment().name][name].subPlan
+    subPlan: contains(defenderPaidPlanConfig[environment().name][name],'subPlan') ? defenderPaidPlanConfig[environment().name][name].subPlan : json('null')
+    extensions: contains(defenderPaidPlanConfig[environment().name][name],'extensions') ? defenderPaidPlanConfig[environment().name][name].extensions : json('null')
   }
 }
 ]
 
+
+
 // auto provisioing
-#disable-next-line BCP081
+
 resource autoProvision 'Microsoft.Security/autoProvisioningSettings@2019-01-01' = {
   name: 'default'
   properties: {
@@ -79,7 +153,6 @@ resource autoProvision 'Microsoft.Security/autoProvisioningSettings@2019-01-01' 
   }
 }
 
-#disable-next-line BCP081
 resource securityWorkspaceSettings 'Microsoft.Security/workspaceSettings@2019-01-01' = {
   name: 'default'
   properties: {
