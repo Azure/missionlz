@@ -86,7 +86,7 @@ You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/ro
     --parameters resourcePrefix="myMlz"
     ```
 
-1. After a successful deployment, see our [examples](./src/bicep/examples/README.md) directory for how to extend the capabilities of Mission Landing Zone.
+1. After a successful deployment, see our [add-ons](./src/bicep/add-ons/) directory for how to extend the capabilities of Mission Landing Zone.
 
 > Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your browser: <https://docs.microsoft.com/en-us/azure/cloud-shell/overview>
 
