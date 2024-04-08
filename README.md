@@ -156,7 +156,7 @@ Here's a summary of what Mission Landing Zone deploys of as of December 2021:
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/20220204_missionlz_as_of_Feb2022_light.svg" alt="A diagram that depicts a hub and spoke network topology built with Azure resources" width="1200" />
+![20211220_updated_missionlz_as_of_Apr2024_light](https://github.com/Azure/missionlz/assets/34066455/0a9507f7-4c67-4884-b279-376b51d91291)
 <!-- markdownlint-enable MD033 -->
 
 ## Contributing
