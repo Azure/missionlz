@@ -152,7 +152,7 @@ See the [Deployment Guide for Bicep](docs/deployment-guide-bicep.md) and the [De
 
 See the [Projects](https://github.com/Azure/missionlz/projects) page for the release timeline and feature areas.
 
-Here's a summary of what Mission Landing Zone deploys of as of December 2021:
+Here's a summary of what Mission Landing Zone deploys of as of April 2024:
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
