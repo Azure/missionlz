@@ -6,6 +6,7 @@ targetScope = 'subscription'
 
 param blobsPrivateDnsZoneResourceId string
 param deployIdentity bool
+param deploymentNameSuffix string
 param keyVaultUri string
 param logStorageSkuName string
 param location string
@@ -17,7 +18,7 @@ param tags object
 param userAssignedIdentityResourceId string
 
 module storageAccount 'storage-account.bicep' = [for (network, i) in networks: {
-  name: 'storage'
+  name: 'deploy-storage-account-${network.name}-${deploymentNameSuffix}'
   scope: resourceGroup(network.subscriptionId, network.resourceGroupName)
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
