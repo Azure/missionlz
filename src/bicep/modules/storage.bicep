@@ -12,7 +12,6 @@ param location string
 param networks array
 param serviceToken string
 param storageEncryptionKeyName string
-param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
 param tags object
 param userAssignedIdentityResourceId string
@@ -30,7 +29,7 @@ module storageAccount 'storage-account.bicep' = [for (network, i) in networks: {
     storageAccountNetworkInterfaceNamePrefix: network.logStorageAccountNetworkInterfaceNamePrefix
     storageAccountPrivateEndpointNamePrefix: network.logStorageAccountPrivateEndpointNamePrefix
     storageEncryptionKeyName: storageEncryptionKeyName
-    subnetResourceId: subnetResourceId
+    subnetResourceId: resourceId(network.subscriptionId, network.resourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', network.virtualNetworkName, network.subnetName)
     tablesPrivateDnsZoneResourceId: tablesPrivateDnsZoneResourceId
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentityResourceId

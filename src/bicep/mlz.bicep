@@ -670,7 +670,6 @@ module storage 'modules/storage.bicep' = {
     networks: logic.outputs.networks
     serviceToken: namingConvention.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
-    subnetResourceId: networking.outputs.hubSubnetResourceId
     tablesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.table
     tags: calculatedTags
     userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
