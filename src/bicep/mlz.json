@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "5484320529493453403"
+      "templateHash": "11005929212158829639"
     }
   },
   "parameters": {
@@ -6953,6 +6953,9 @@
           "deployIdentity": {
             "value": "[parameters('deployIdentity')]"
           },
+          "deploymentNameSuffix": {
+            "value": "[parameters('deploymentNameSuffix')]"
+          },
           "keyVaultUri": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
           },
@@ -6988,7 +6991,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "18284775757186155120"
+              "templateHash": "7112897434917924784"
             }
           },
           "parameters": {
@@ -6997,6 +7000,9 @@
             },
             "deployIdentity": {
               "type": "bool"
+            },
+            "deploymentNameSuffix": {
+              "type": "string"
             },
             "keyVaultUri": {
               "type": "string"
@@ -7034,7 +7040,7 @@
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "storage",
+              "name": "[format('deploy-storage-account-{0}-{1}', parameters('networks')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[parameters('networks')[copyIndex()].subscriptionId]",
               "resourceGroup": "[parameters('networks')[copyIndex()].resourceGroupName]",
               "properties": {
