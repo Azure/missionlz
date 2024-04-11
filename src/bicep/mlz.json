@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "1355067641298547562"
+      "templateHash": "8517140824352958187"
     }
   },
   "parameters": {
@@ -6953,6 +6953,9 @@
           "deployIdentity": {
             "value": "[parameters('deployIdentity')]"
           },
+          "deploymentNameSuffix": {
+            "value": "[parameters('deploymentNameSuffix')]"
+          },
           "keyVaultUri": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
           },
@@ -6971,9 +6974,6 @@
           "storageEncryptionKeyName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
           },
-          "subnetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hubSubnetResourceId.value]"
-          },
           "tablesPrivateDnsZoneResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZoneResourceIds.value.table]"
           },
@@ -6991,7 +6991,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "15215887488033870389"
+              "templateHash": "7112897434917924784"
             }
           },
           "parameters": {
@@ -7000,6 +7000,9 @@
             },
             "deployIdentity": {
               "type": "bool"
+            },
+            "deploymentNameSuffix": {
+              "type": "string"
             },
             "keyVaultUri": {
               "type": "string"
@@ -7017,9 +7020,6 @@
               "type": "string"
             },
             "storageEncryptionKeyName": {
-              "type": "string"
-            },
-            "subnetResourceId": {
               "type": "string"
             },
             "tablesPrivateDnsZoneResourceId": {
@@ -7040,7 +7040,7 @@
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "storage",
+              "name": "[format('deploy-storage-account-{0}-{1}', parameters('networks')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[parameters('networks')[copyIndex()].subscriptionId]",
               "resourceGroup": "[parameters('networks')[copyIndex()].resourceGroupName]",
               "properties": {
@@ -7077,7 +7077,7 @@
                     "value": "[parameters('storageEncryptionKeyName')]"
                   },
                   "subnetResourceId": {
-                    "value": "[parameters('subnetResourceId')]"
+                    "value": "[resourceId(parameters('networks')[copyIndex()].subscriptionId, parameters('networks')[copyIndex()].resourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', parameters('networks')[copyIndex()].virtualNetworkName, parameters('networks')[copyIndex()].subnetName)]"
                   },
                   "tablesPrivateDnsZoneResourceId": {
                     "value": "[parameters('tablesPrivateDnsZoneResourceId')]"
