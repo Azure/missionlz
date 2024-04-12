@@ -200,12 +200,6 @@ param storageAccountResourceId string
 @description('The subnet address prefix.')
 param subnetAddressPrefix string = '10.0.134.0/24'
 
-@description('The array of supported clouds for specific deployments.')
-param supportedClouds array = [
-  'AzureCloud'
-  'AzureUSGovernment'
-]
-
 @description('The key value pairs of meta data to apply to the resources.')
 param tags object = {}
 
@@ -293,7 +287,6 @@ module tier3 '../tier3/solution.bicep' = {
     resourcePrefix: identifier
     tags: calculatedTags
     subnetAddressPrefix: subnetAddressPrefix
-    supportedClouds: supportedClouds
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
@@ -342,7 +335,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     imageDefinitionName: imageDefinitionName
     imageMajorVersion: imageMajorVersion
     imagePatchVersion: imagePatchVersion
-    imageVirtualMachineName: replace(tier3.outputs.network.virtualMachineName, tier3.outputs.tokens.service, 'bd')
+    imageVirtualMachineName: replace(tier3.outputs.network.virtualMachineName, tier3.outputs.tokens.service, 'b')
     installAccess: installAccess
     installArcGisPro: installArcGisPro
     installExcel: installExcel
@@ -364,7 +357,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     localAdministratorUsername: localAdministratorUsername
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    managementVirtualMachineName: replace(tier3.outputs.network.virtualMachineName, tier3.outputs.tokens.service, 'mg')
+    managementVirtualMachineName: replace(tier3.outputs.network.virtualMachineName, tier3.outputs.tokens.service, 'm')
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
@@ -410,7 +403,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     imageDefinitionName: imageDefinitionName
     imageMajorVersion: imageMajorVersion
     imagePatchVersion: imagePatchVersion
-    imageVirtualMachineName: replace(tier3.outputs.network.windowsVmName, tier3.outputs.tokens.service, 'bd')
+    imageVirtualMachineName: replace(tier3.outputs.network.windowsVmName, tier3.outputs.tokens.service, 'b')
     installAccess: installAccess
     installArcGisPro: installArcGisPro
     installExcel: installExcel
@@ -430,7 +423,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     localAdministratorPassword: localAdministratorPassword
     localAdministratorUsername: localAdministratorUsername
     location: location
-    managementVirtualMachineName: replace(tier3.outputs.network.windowsVmName, tier3.outputs.tokens.service, 'mg')
+    managementVirtualMachineName: replace(tier3.outputs.network.windowsVmName, tier3.outputs.tokens.service, 'm')
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
