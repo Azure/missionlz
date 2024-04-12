@@ -7,7 +7,6 @@ param network object
 param networkSecurityGroupDiagnosticsLogs array
 param networkSecurityGroupDiagnosticsMetrics array
 param storageAccountResourceId string
-param supportedClouds array
 param virtualNetworkDiagnosticsLogs array
 param virtualNetworkDiagnosticsMetrics array
 
@@ -16,7 +15,6 @@ module activityLogDiagnosticSettings '../../../modules/activity-log-diagnostic-s
   scope: subscription(network.subscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
-    supportedClouds: supportedClouds
   }
 }
 
