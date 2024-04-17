@@ -96,9 +96,11 @@ param workloadName string = 'tier3'
 @description('The short name for the workload.')
 param workloadShortName string = 't3'
 
-var calculatedTags = union(tags, defaultTags)
-var defaultTags = {
-  DeploymentType: 'MissionLandingZoneARM'
+var mlzTags = {
+  deploymentType: 'MissionLandingZoneARM'
+  environmentAbbreviation: environmentAbbreviation
+  resourcePrefix: resourcePrefix
+  version: '2024.04.01'
 }
 var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
 var hubSubscriptionId = split(hubVirtualNetworkResourceId, '/')[2]
@@ -135,8 +137,9 @@ module rg '../../modules/resource-group.bicep' = {
   name: 'deploy-rg-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     location: location
+    mlzTags: mlzTags
     name: logic.outputs.network.resourceGroupName
-    tags: calculatedTags
+    tags: tags
   }
 }
 
@@ -148,6 +151,7 @@ module networking 'modules/networking.bicep' = {
     firewallSkuTier: azureFirewall.properties.sku.tier
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     location: location
+    mlzTags: mlzTags
     networkSecurityGroupName: logic.outputs.network.networkSecurityGroupName
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherName: logic.outputs.network.networkWatcherName
@@ -177,9 +181,10 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     keyVaultPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore'))
     location: location
+    mlzTags: mlzTags
     networkProperties: logic.outputs.network
     subnetResourceId: networking.outputs.subnetResourceId
-    tags: calculatedTags
+    tags: tags
   }
 }
 
@@ -190,12 +195,13 @@ module storage 'modules/storage.bicep' = {
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageSkuName: logStorageSkuName
+    mlzTags: mlzTags
     network: logic.outputs.network
     serviceToken: namingConvention.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     subnetResourceId: networking.outputs.subnetResourceId
     tablesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.table.${environment().suffixes.storage}')
-    tags: calculatedTags
+    tags: tags
     userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
   }
 }
@@ -234,8 +240,8 @@ module policyAssignments '../../modules/policy-assignments.bicep' = if (deployPo
 module defenderForCloud '../../modules/defenderForCloud.bicep' = if (deployDefender) {
   name: 'set-${workloadName}-sub-defender'
   params: {
-    logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
     emailSecurityContact: emailSecurityContact
+    logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
   }
 }
 
