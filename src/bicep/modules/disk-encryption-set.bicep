@@ -8,12 +8,13 @@ param diskEncryptionSetName string
 param keyUrl string
 param keyVaultResourceId string
 param location string
+param mlzTags object
 param tags object
 
 resource diskEncryptionSet 'Microsoft.Compute/diskEncryptionSets@2023-04-02' = {
   name: diskEncryptionSetName
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Compute/diskEncryptionSets') ? tags['Microsoft.Compute/diskEncryptionSets'] : {}, mlzTags)
   identity: {
     type: 'SystemAssigned'
   }

@@ -12,6 +12,7 @@ param hubNetworkSecurityGroupRules array
 param hubSubnetAddressPrefix string
 param hubVirtualNetworkAddressPrefix string
 param location string
+param mlzTags object
 param networks array
 param tags object
 
@@ -50,6 +51,7 @@ module hubNetwork 'hub-network.bicep' = {
     firewallSupernetIPAddress: firewallSettings.supernetIPAddress
     firewallThreatIntelMode: firewallSettings.threatIntelMode
     location: location
+    mlzTags: mlzTags
     networkSecurityGroupName: hub.networkSecurityGroupName
     networkSecurityGroupRules: hubNetworkSecurityGroupRules
     networkWatcherName: hub.networkWatcherName
@@ -72,6 +74,7 @@ module spokeNetworks 'spoke-network.bicep' = [for spoke in spokes: {
     deployNetworkWatcher: spoke.deployUniqueResources
     firewallSkuTier: firewallSettings.skuTier
     location: location
+    mlzTags: mlzTags
     networkSecurityGroupName: spoke.networkSecurityGroupName
     networkSecurityGroupRules: spoke.networkSecurityGroupRules
     networkWatcherName: spoke.networkWatcherName
@@ -129,6 +132,7 @@ module privateDnsZones 'private-dns.bicep' = {
     identityVirtualNetworkName: deployIdentity ? identity.virtualNetworkName : ''
     identityVirtualNetworkResourceGroupName: deployIdentity ? identity.resourceGroupName : ''
     identityVirtualNetworkSubscriptionId: deployIdentity ? identity.subscriptionId : ''
+    mlzTags: mlzTags
     tags: tags
   }
   dependsOn: [

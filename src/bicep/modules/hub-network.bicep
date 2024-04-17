@@ -40,6 +40,7 @@ param firewallSupernetIPAddress string
 ])
 param firewallThreatIntelMode string
 param location string
+param mlzTags object
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
 param networkWatcherName string
@@ -96,6 +97,7 @@ module networkSecurityGroup '../modules/network-security-group.bicep' = {
   name: 'networkSecurityGroup'
   params: {
     location: location
+    mlzTags: mlzTags
     name: networkSecurityGroupName
     securityRules: networkSecurityGroupRules
     tags: tags
@@ -107,6 +109,7 @@ module routeTable '../modules/route-table.bicep' = {
   params: {
     disableBgpRoutePropagation: false
     location: location
+    mlzTags: mlzTags
     name: routeTableName
     routeAddressPrefix: routeTableRouteAddressPrefix
     routeName: routeTableRouteName
@@ -120,6 +123,7 @@ module networkWatcher '../modules/network-watcher.bicep' = if (deployNetworkWatc
   name: 'networkWatcher'
   params: {
     location: location
+    mlzTags: mlzTags
     name: networkWatcherName
     tags: tags
   }
@@ -130,6 +134,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
   params: {
     addressPrefix: virtualNetworkAddressPrefix
     location: location
+    mlzTags: mlzTags
     name: virtualNetworkName
     subnets: subnets
     tags: tags
@@ -146,6 +151,7 @@ module firewallClientPublicIPAddress '../modules/public-ip-address.bicep' = {
   params: {
     availabilityZones: firewallClientPublicIPAddressAvailabilityZones
     location: location
+    mlzTags: mlzTags
     name: firewallClientPublicIPAddressName
     publicIpAllocationMethod: firewallClientPublicIpAllocationMethod
     skuName: firewallClientPublicIPAddressSkuName
@@ -158,6 +164,7 @@ module firewallManagementPublicIPAddress '../modules/public-ip-address.bicep' = 
   params: {
     availabilityZones: firewallManagementPublicIPAddressAvailabilityZones
     location: location
+    mlzTags: mlzTags
     name: firewallManagementPublicIPAddressName
     publicIpAllocationMethod: firewallManagementPublicIpAllocationMethod
     skuName: firewallManagementPublicIPAddressSkuName
@@ -180,6 +187,7 @@ module firewall '../modules/firewall.bicep' = {
     managementIpConfigurationName: firewallManagementIpConfigurationName
     managementIpConfigurationPublicIPAddressResourceId: firewallManagementPublicIPAddress.outputs.id
     managementIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/${firewallManagementSubnetName}'
+    mlzTags: mlzTags
     name: firewallName
     skuTier: firewallSkuTier
     tags: tags

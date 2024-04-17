@@ -469,11 +469,11 @@ param emailSecurityContact string = ''
 @description('Paid Workload Protection plans for Defender for Cloud')
 param deployDefenderPlans array = ['VirtualMachines']
 
-var calculatedTags = union(tags, defaultTags)
-var defaultTags = {
-  resourcePrefix: resourcePrefix
+var mlzTags = {
+  deploymentType: 'MissionLandingZoneARM'
   environmentAbbreviation: environmentAbbreviation
-  DeploymentType: 'MissionLandingZoneARM'
+  resourcePrefix: resourcePrefix
+  version: '2024.04.01'
 }
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
@@ -536,8 +536,9 @@ module resourceGroups 'modules/resource-groups.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     location: location
+    mlzTags: mlzTags
     networks: logic.outputs.networks
-    tags: calculatedTags
+    tags: tags
   }
 }
 
@@ -570,8 +571,9 @@ module networking 'modules/networking.bicep' = {
     hubSubnetAddressPrefix: hubSubnetAddressPrefix
     hubVirtualNetworkAddressPrefix: hubVirtualNetworkAddressPrefix
     location: location
+    mlzTags: mlzTags
     networks: logic.outputs.networks
-    tags: calculatedTags
+    tags: tags
   }
   dependsOn: [
     resourceGroups
@@ -586,9 +588,10 @@ module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     location: location
+    mlzTags: mlzTags
     networkProperties: first(filter(logic.outputs.networks, network => network.name == 'hub')) 
     subnetResourceId: networking.outputs.hubSubnetResourceId
-    tags: calculatedTags
+    tags: tags
   }
 }
 
@@ -603,10 +606,11 @@ module monitoring 'modules/monitoring.bicep' = {
     logAnalyticsWorkspaceCappingDailyQuotaGb: logAnalyticsWorkspaceCappingDailyQuotaGb
     logAnalyticsWorkspaceRetentionInDays: logAnalyticsWorkspaceRetentionInDays
     logAnalyticsWorkspaceSkuName: logAnalyticsWorkspaceSkuName
+    mlzTags: mlzTags
     operationsProperties: first(filter(logic.outputs.networks, network => network.name == 'operations'))
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
     subnetResourceId: networking.outputs.operationsSubnetResourceId
-    tags: calculatedTags
+    tags: tags
   }
   dependsOn: [
     networking
@@ -668,11 +672,12 @@ module storage 'modules/storage.bicep' = {
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageSkuName: logStorageSkuName
+    mlzTags: mlzTags
     networks: logic.outputs.networks
     serviceToken: namingConvention.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     tablesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.table
-    tags: calculatedTags
+    tags: tags
     userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
   }
   dependsOn: [

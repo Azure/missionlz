@@ -4,13 +4,14 @@ param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
 param keyVaultPrivateEndpointName string
 param location string
+param mlzTags object
 param subnetResourceId string
 param tags object
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: keyVaultName
   location: location
-  tags: contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}
+  tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
   properties: {
     enabledForDeployment: false
     enabledForDiskEncryption: true

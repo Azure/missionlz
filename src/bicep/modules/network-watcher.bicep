@@ -1,10 +1,11 @@
 param location string
+param mlzTags object
 param name string
 param tags object
 
 resource networkWatcher 'Microsoft.Network/networkWatchers@2021-02-01' = {
   name: name
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Network/networkWatchers') ? tags['Microsoft.Network/networkWatchers'] : {}, mlzTags)
   properties: {}
 }
