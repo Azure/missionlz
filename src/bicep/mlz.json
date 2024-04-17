@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "18219470831729262687"
+      "templateHash": "696492626055548250"
     }
   },
   "parameters": {
@@ -1904,7 +1904,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "17917102573854679157"
+              "templateHash": "16640968408673534666"
             }
           },
           "parameters": {
@@ -3205,7 +3205,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "deployNetworkWatcher": {
-                    "value": "[variables('spokes')[copyIndex()].deployUniqueResources]"
+                    "value": "[and(parameters('deployNetworkWatcher'), variables('spokes')[copyIndex()].deployUniqueResources)]"
                   },
                   "firewallSkuTier": {
                     "value": "[parameters('firewallSettings').skuTier]"

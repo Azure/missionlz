@@ -71,7 +71,7 @@ module spokeNetworks 'spoke-network.bicep' = [for spoke in spokes: {
   name: 'deploy-vnet-${spoke.name}-${deploymentNameSuffix}'
   scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
-    deployNetworkWatcher: spoke.deployUniqueResources
+    deployNetworkWatcher: deployNetworkWatcher && spoke.deployUniqueResources
     firewallSkuTier: firewallSettings.skuTier
     location: location
     mlzTags: mlzTags
