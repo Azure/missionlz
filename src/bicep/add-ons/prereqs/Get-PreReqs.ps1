@@ -39,15 +39,15 @@ param (
     [Parameter(Mandatory)]
     $StorageAccountName,
     [Parameter(Mandatory)]
-    $location,
+    $Location,
     [Parameter(Mandatory)]
     $ResourceGroupName,
     [Parameter(Mandatory)]
-    $subscriptionId
+    $SubscriptionId
 )
 
 try {
-    Connect-AzAccount -Environment $Environment -Subscription $subscriptionId | Out-Null
+    Connect-AzAccount -Environment $Environment -Subscription $SubscriptionId | Out-Null
 
 }
 catch {
@@ -72,9 +72,9 @@ try {
     $resourceGroup = New-AzResourceGroup -Name $ResourceGroupName -Location $location
 
     # New Storage Account
-    $storageAccount = New-AzStorageAccount -ResourceGroupName $resourceGroupName `
+    $StorageAccount = New-AzStorageAccount -ResourceGroupName $ResourceGroupName `
     -Name $StorageAccountName `
-    -Location $location `
+    -Location $Location `
     -SkuName Standard_LRS `
     -Kind StorageV2 `
     -AllowBlobPublicAccess $true
