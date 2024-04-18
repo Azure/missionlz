@@ -31,6 +31,7 @@ The subscription ID to use when connecting to Azure.
 .\Get-PreReqs.ps1 -Environment "AzureCloud" -StorageAccountName "mystorageaccount" -location "westus" -ResourceGroupName "myresourcegroup" -subscriptionId "my-subscription-id"
 #>
 
+
 [CmdletBinding()]
 param (
     [Parameter(Mandatory)]
