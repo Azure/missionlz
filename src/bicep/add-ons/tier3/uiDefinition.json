@@ -393,21 +393,21 @@
     },
     "outputs": {
       "parameters": {
-        "firewallResourceId": "[steps('basics').hub.azureFirewall]",
         "deployActivityLogDiagnosticSetting": "[empty(steps('compliance').diagnosticSettingsApi.value)]",
         "deployDefender": "[and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value))]",
         "deployNetworkWatcher": "[empty(filter(steps('networking').networking.networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)))]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
         "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '')]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
+        "firewallResourceId": "[steps('basics').hub.azureFirewall]",
         "hubVirtualNetworkResourceId": "[steps('basics').hub.virtualNetwork]",
-        "resourcePrefix": "[steps('basics').naming.identifier]",
+        "identifier": "[steps('basics').naming.identifier]",
         "location": "[steps('basics').scope.location.name]",
-        "policy": "[if(steps('compliance').policySection.deployPolicy, steps('compliance').policySection.policy, '')]",
         "logAnalyticsWorkspaceResourceId": "[steps('compliance').logAnalyticsWorkspace]",
+        "policy": "[if(steps('compliance').policySection.deployPolicy, steps('compliance').policySection.policy, '')]",
         "subnetAddressPrefix": "[steps('networking').networking.subnetAddressCidrRange]",
-        "virtualNetworkAddressPrefix": "[steps('networking').networking.virtualNetworkAddressCidrRange]",
-        "tags": "[steps('tags').tags]"
+        "tags": "[steps('tags').tags]",
+        "virtualNetworkAddressPrefix": "[steps('networking').networking.virtualNetworkAddressCidrRange]"
       },
       "kind": "Subscription",
       "location": "[steps('basics').scope.location.name]",
