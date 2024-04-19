@@ -477,7 +477,7 @@ var environmentName = {
 var mlzTags = {
   environment: environmentName[environmentAbbreviation]
   landingZoneName: 'MissionLandingZone'
-  landingZoneVersion: '1.0.0'
+  landingZoneVersion: loadTextContent('data/version.txt')
   resourcePrefix: resourcePrefix
 }
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "4467673940953907660"
+      "templateHash": "6212604260312673524"
     }
   },
   "parameters": {
@@ -815,6 +815,7 @@
         "input": "[cidrHost(parameters('firewallClientSubnetAddressPrefix'), range(0, 4)[copyIndex('firewallClientUsableIpAddresses')])]"
       }
     ],
+    "$fxv#0": "1.0.0",
     "environmentName": {
       "dev": "Development",
       "prod": "Production",
@@ -823,7 +824,7 @@
     "mlzTags": {
       "environment": "[variables('environmentName')[parameters('environmentAbbreviation')]]",
       "landingZoneName": "MissionLandingZone",
-      "landingZoneVersion": "1.0.0",
+      "landingZoneVersion": "[variables('$fxv#0')]",
       "resourcePrefix": "[parameters('resourcePrefix')]"
     },
     "firewallClientPrivateIpAddress": "[variables('firewallClientUsableIpAddresses')[3]]",

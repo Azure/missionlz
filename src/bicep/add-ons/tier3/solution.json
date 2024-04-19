@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "16441823184324157793"
+      "templateHash": "15277826004755007051"
     }
   },
   "parameters": {
@@ -183,16 +183,10 @@
       "metadata": {
         "description": "The short name for the workload."
       }
-    },
-    "workloadVersion": {
-      "type": "string",
-      "defaultValue": "1.0.0",
-      "metadata": {
-        "description": "The version for the workload."
-      }
     }
   },
   "variables": {
+    "$fxv#0": "1.0.0",
     "environmentName": {
       "dev": "Development",
       "prod": "Production",
@@ -201,8 +195,8 @@
     "mlzTags": {
       "environment": "[variables('environmentName')[parameters('environmentAbbreviation')]]",
       "identifier": "[parameters('identifier')]",
-      "workloadType": "[format('MissionLandingZone-{0}', parameters('workloadName'))]",
-      "workloadVersion": "[parameters('workloadVersion')]"
+      "workloadName": "[format('MissionLandingZone-{0}', parameters('workloadName'))]",
+      "workloadVersion": "[variables('$fxv#0')]"
     },
     "hubResourceGroupName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
     "hubSubscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",

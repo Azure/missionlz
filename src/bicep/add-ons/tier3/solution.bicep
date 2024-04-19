@@ -96,9 +96,6 @@ param workloadName string = 'Tier3'
 @description('The short name for the workload.')
 param workloadShortName string = 't3'
 
-@description('The version for the workload.')
-param workloadVersion string = '1.0.0'
-
 var environmentName = {
   dev: 'Development'
   prod: 'Production'
@@ -107,8 +104,8 @@ var environmentName = {
 var mlzTags = {
   environment: environmentName[environmentAbbreviation]
   identifier: identifier
-  workloadType: 'MissionLandingZone-${workloadName}'
-  workloadVersion: workloadVersion
+  workloadName: 'MissionLandingZone-${workloadName}'
+  workloadVersion: loadTextContent('../../data/version.txt')
 }
 var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
 var hubSubscriptionId = split(hubVirtualNetworkResourceId, '/')[2]
