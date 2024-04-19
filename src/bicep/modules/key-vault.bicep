@@ -43,7 +43,7 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: keyVaultPrivateEndpointName
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
   properties: {
     customNetworkInterfaceName: keyVaultNetworkInterfaceName
     privateLinkServiceConnections: [
