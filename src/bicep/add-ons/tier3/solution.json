@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "3200238062279754919"
+      "templateHash": "16441823184324157793"
     }
   },
   "parameters": {
@@ -1937,7 +1937,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "12083583781829592724"
+              "templateHash": "8607068382992509094"
             }
           },
           "parameters": {
@@ -2008,7 +2008,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "2040309037595645150"
+                      "templateHash": "2708305007283639705"
                     }
                   },
                   "parameters": {
@@ -2075,7 +2075,7 @@
                       "apiVersion": "2023-04-01",
                       "name": "[parameters('keyVaultPrivateEndpointName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[parameters('tags')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
                         "privateLinkServiceConnections": [
@@ -2220,7 +2220,7 @@
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-disk-encryption-set-{0}', parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[parameters('networkProperties').subscriptionId]",
               "resourceGroup": "[parameters('networkProperties').resourceGroupName]",
               "properties": {
@@ -2541,7 +2541,7 @@
           "outputs": {
             "diskEncryptionSetResourceId": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-disk-encryption-set-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
             },
             "KeyVaultName": {
               "type": "string",
