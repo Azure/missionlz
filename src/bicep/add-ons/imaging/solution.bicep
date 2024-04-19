@@ -236,19 +236,6 @@ param virtualNetworkDiagnosticsLogs array = []
 @description('The metrics for the diagnostic setting on the virtual network.')
 param virtualNetworkDiagnosticsMetrics array = []
 
-@minLength(1)
-@maxLength(10)
-@description('The name of the workload.')
-param workloadName string = 'Imaging'
-
-@minLength(1)
-@maxLength(3)
-@description('The short name of the workload.')
-param workloadShortName string = 'img'
-
-@description('The version of the workload.')
-param workloadVersion string = '1.0.0'
-
 @description('The WSUS Server Url if WSUS is specified. (i.e., https://wsus.corp.contoso.com:8531)')
 param wsusServer string = ''
 
@@ -264,6 +251,8 @@ var privateDnsZoneSuffixes_AzureAutomation = {
 }
 var subscriptionId = subscription().subscriptionId
 var locations = (loadJsonContent('../../data/locations.json'))[environment().name]
+var workloadName = 'Imaging'
+var workloadShortName = 'img'
 
 module tier3 '../tier3/solution.bicep' = {
   name: 'tier3-${deploymentNameSuffix}'
@@ -292,7 +281,6 @@ module tier3 '../tier3/solution.bicep' = {
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
     workloadName: workloadName
     workloadShortName: workloadShortName
-    workloadVersion: workloadVersion
   }
 }
 

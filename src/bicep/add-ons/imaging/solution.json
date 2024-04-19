@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "14715169563555338201"
+      "templateHash": "1915931814356547986"
     }
   },
   "parameters": {
@@ -488,31 +488,6 @@
         "description": "The metrics for the diagnostic setting on the virtual network."
       }
     },
-    "workloadName": {
-      "type": "string",
-      "defaultValue": "Imaging",
-      "minLength": 1,
-      "maxLength": 10,
-      "metadata": {
-        "description": "The name of the workload."
-      }
-    },
-    "workloadShortName": {
-      "type": "string",
-      "defaultValue": "img",
-      "minLength": 1,
-      "maxLength": 3,
-      "metadata": {
-        "description": "The short name of the workload."
-      }
-    },
-    "workloadVersion": {
-      "type": "string",
-      "defaultValue": "1.0.0",
-      "metadata": {
-        "description": "The version of the workload."
-      }
-    },
     "wsusServer": {
       "type": "string",
       "defaultValue": "",
@@ -917,7 +892,9 @@
       "USSec": null
     },
     "subscriptionId": "[subscription().subscriptionId]",
-    "locations": "[variables('$fxv#0')[environment().name]]"
+    "locations": "[variables('$fxv#0')[environment().name]]",
+    "workloadName": "Imaging",
+    "workloadShortName": "img"
   },
   "resources": [
     {
@@ -998,13 +975,10 @@
             "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
           },
           "workloadName": {
-            "value": "[parameters('workloadName')]"
+            "value": "[variables('workloadName')]"
           },
           "workloadShortName": {
-            "value": "[parameters('workloadShortName')]"
-          },
-          "workloadVersion": {
-            "value": "[parameters('workloadVersion')]"
+            "value": "[variables('workloadShortName')]"
           }
         },
         "template": {
@@ -1014,7 +988,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "3935209082096296502"
+              "templateHash": "15277826004755007051"
             }
           },
           "parameters": {
@@ -1192,21 +1166,20 @@
               "metadata": {
                 "description": "The short name for the workload."
               }
-            },
-            "workloadVersion": {
-              "type": "string",
-              "defaultValue": "1.0.0",
-              "metadata": {
-                "description": "The version for the workload."
-              }
             }
           },
           "variables": {
+            "$fxv#0": "1.0.0",
+            "environmentName": {
+              "dev": "Development",
+              "prod": "Production",
+              "test": "Test"
+            },
             "mlzTags": {
-              "environmentAbbreviation": "[parameters('environmentAbbreviation')]",
+              "environment": "[variables('environmentName')[parameters('environmentAbbreviation')]]",
               "identifier": "[parameters('identifier')]",
-              "workloadType": "[format('MissionLandingZone-{0}', parameters('workloadName'))]",
-              "workloadVersion": "[parameters('workloadVersion')]"
+              "workloadName": "[format('MissionLandingZone-{0}', parameters('workloadName'))]",
+              "workloadVersion": "[variables('$fxv#0')]"
             },
             "hubResourceGroupName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
             "hubSubscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
@@ -2941,7 +2914,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "12083583781829592724"
+                      "templateHash": "8607068382992509094"
                     }
                   },
                   "parameters": {
@@ -3012,7 +2985,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.26.170.59819",
-                              "templateHash": "2040309037595645150"
+                              "templateHash": "2708305007283639705"
                             }
                           },
                           "parameters": {
@@ -3079,7 +3052,7 @@
                               "apiVersion": "2023-04-01",
                               "name": "[parameters('keyVaultPrivateEndpointName')]",
                               "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
                                 "privateLinkServiceConnections": [
@@ -3224,7 +3197,7 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-disk-encryption-set-{0}', parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[parameters('networkProperties').subscriptionId]",
                       "resourceGroup": "[parameters('networkProperties').resourceGroupName]",
                       "properties": {
@@ -3545,7 +3518,7 @@
                   "outputs": {
                     "diskEncryptionSetResourceId": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-disk-encryption-set-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                     },
                     "KeyVaultName": {
                       "type": "string",
