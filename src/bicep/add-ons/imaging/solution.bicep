@@ -255,7 +255,7 @@ var workloadName = 'Imaging'
 var workloadShortName = 'img'
 
 module tier3 '../tier3/solution.bicep' = {
-  name: 'tier3-${deploymentNameSuffix}'
+  name: 'deploy-tier3-${deploymentNameSuffix}'
   params: {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
@@ -285,7 +285,7 @@ module tier3 '../tier3/solution.bicep' = {
 }
 
 module baseline 'modules/baseline.bicep' = {
-  name: 'baseline-${deploymentNameSuffix}'
+  name: 'deploy-imaging-baseline-${deploymentNameSuffix}'
   params: {
     computeGalleryName: tier3.outputs.network.computeGalleryName
     deploymentNameSuffix: deploymentNameSuffix
@@ -303,7 +303,7 @@ module baseline 'modules/baseline.bicep' = {
 }
 
 module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomation) {
-  name: 'build-automation-${deploymentNameSuffix}'
+  name: 'deploy-build-automation-${deploymentNameSuffix}'
   params: {
     actionGroupName: tier3.outputs.network.actionGroupName
     arcGisProInstaller: arcGisProInstaller
@@ -379,7 +379,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
 }
 
 module imageBuild 'modules/imageBuild.bicep' = {
-  name: 'image-build-${deploymentNameSuffix}'
+  name: 'build-image-${deploymentNameSuffix}'
   params: {
     arcGisProInstaller: arcGisProInstaller
     computeGalleryImageResourceId: computeGalleryImageResourceId

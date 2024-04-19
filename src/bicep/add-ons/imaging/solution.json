@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "1915931814356547986"
+      "templateHash": "4098442217130518679"
     }
   },
   "parameters": {
@@ -900,7 +900,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('tier3-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -4820,7 +4820,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('baseline-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -4829,13 +4829,13 @@
         "mode": "Incremental",
         "parameters": {
           "computeGalleryName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.computeGalleryName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.computeGalleryName]"
           },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
           "diskEncryptionSetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
           },
           "enableBuildAutomation": {
             "value": "[parameters('enableBuildAutomation')]"
@@ -4847,10 +4847,10 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "resourceGroupName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
           },
           "storageAccountResourceId": {
             "value": "[parameters('storageAccountResourceId')]"
@@ -4862,7 +4862,7 @@
             "value": "[parameters('tags')]"
           },
           "userAssignedIdentityName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.userAssignedIdentityName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.userAssignedIdentityName]"
           }
         },
         "template": {
@@ -5347,14 +5347,14 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "condition": "[parameters('enableBuildAutomation')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('build-automation-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('deploy-build-automation-{0}', parameters('deploymentNameSuffix'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -5363,13 +5363,13 @@
         "mode": "Incremental",
         "parameters": {
           "actionGroupName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.actionGroupName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.actionGroupName]"
           },
           "arcGisProInstaller": {
             "value": "[parameters('arcGisProInstaller')]"
           },
           "automationAccountName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.automationAccountName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.automationAccountName]"
           },
           "automationAccountPrivateDnsZoneResourceId": {
             "value": "[variables('automationAccountPrivateDnsZoneResourceId')]"
@@ -5378,7 +5378,7 @@
             "value": "[parameters('computeGalleryImageResourceId')]"
           },
           "computeGalleryResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.computeGalleryResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.computeGalleryResourceId.value]"
           },
           "containerName": {
             "value": "[parameters('containerName')]"
@@ -5390,7 +5390,7 @@
             "value": "[parameters('deploymentNameSuffix')]"
           },
           "diskEncryptionSetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
           },
           "distributionGroup": {
             "value": "[parameters('distributionGroup')]"
@@ -5423,7 +5423,7 @@
             "value": "[parameters('imagePatchVersion')]"
           },
           "imageVirtualMachineName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.virtualMachineName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'b')]"
+            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.virtualMachineName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'b')]"
           },
           "installAccess": {
             "value": "[parameters('installAccess')]"
@@ -5471,7 +5471,7 @@
             "value": "[parameters('installWord')]"
           },
           "keyVaultName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.keyVaultName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.keyVaultName]"
           },
           "keyVaultPrivateDnsZoneResourceId": {
             "value": "[variables('keyVaultPrivateDnsZoneResourceId')]"
@@ -5489,7 +5489,7 @@
             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
           },
           "managementVirtualMachineName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.virtualMachineName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'm')]"
+            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.virtualMachineName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'm')]"
           },
           "marketplaceImageOffer": {
             "value": "[parameters('marketplaceImageOffer')]"
@@ -5501,7 +5501,7 @@
             "value": "[parameters('marketplaceImageSKU')]"
           },
           "mlzTags": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "msrdcwebrtcsvcInstaller": {
             "value": "[parameters('msrdcwebrtcsvcInstaller')]"
@@ -5516,7 +5516,7 @@
             "value": "[parameters('replicaCount')]"
           },
           "resourceGroupName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
           },
           "sourceImageType": {
             "value": "[parameters('sourceImageType')]"
@@ -5525,7 +5525,7 @@
             "value": "[parameters('storageAccountResourceId')]"
           },
           "subnetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
           },
           "subscriptionId": {
             "value": "[variables('subscriptionId')]"
@@ -5543,13 +5543,13 @@
             "value": "[parameters('updateService')]"
           },
           "userAssignedIdentityClientId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityClientId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityClientId.value]"
           },
           "userAssignedIdentityPrincipalId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityPrincipalId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityPrincipalId.value]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
           },
           "vcRedistInstaller": {
             "value": "[parameters('vcRedistInstaller')]"
@@ -9343,14 +9343,14 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('image-build-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('build-image-{0}', parameters('deploymentNameSuffix'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -9365,7 +9365,7 @@
             "value": "[parameters('computeGalleryImageResourceId')]"
           },
           "computeGalleryName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.computeGalleryName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.computeGalleryName]"
           },
           "containerName": {
             "value": "[parameters('containerName')]"
@@ -9377,7 +9377,7 @@
             "value": "[parameters('deploymentNameSuffix')]"
           },
           "diskEncryptionSetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
           },
           "enableBuildAutomation": {
             "value": "[parameters('enableBuildAutomation')]"
@@ -9398,7 +9398,7 @@
             "value": "[parameters('imagePatchVersion')]"
           },
           "imageVirtualMachineName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.windowsVmName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'b')]"
+            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.windowsVmName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'b')]"
           },
           "installAccess": {
             "value": "[parameters('installAccess')]"
@@ -9446,7 +9446,7 @@
             "value": "[parameters('installWord')]"
           },
           "keyVaultName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.keyVaultName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.keyVaultName]"
           },
           "localAdministratorPassword": {
             "value": "[parameters('localAdministratorPassword')]"
@@ -9458,7 +9458,7 @@
             "value": "[parameters('location')]"
           },
           "managementVirtualMachineName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.windowsVmName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'm')]"
+            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.windowsVmName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'm')]"
           },
           "marketplaceImageOffer": {
             "value": "[parameters('marketplaceImageOffer')]"
@@ -9470,7 +9470,7 @@
             "value": "[parameters('marketplaceImageSKU')]"
           },
           "mlzTags": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "msrdcwebrtcsvcInstaller": {
             "value": "[parameters('msrdcwebrtcsvcInstaller')]"
@@ -9482,7 +9482,7 @@
             "value": "[parameters('replicaCount')]"
           },
           "resourceGroupName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
           },
           "sourceImageType": {
             "value": "[parameters('sourceImageType')]"
@@ -9491,7 +9491,7 @@
             "value": "[parameters('storageAccountResourceId')]"
           },
           "subnetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -9503,13 +9503,13 @@
             "value": "[parameters('updateService')]"
           },
           "userAssignedIdentityClientId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityClientId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityClientId.value]"
           },
           "userAssignedIdentityPrincipalId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityPrincipalId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityPrincipalId.value]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
           },
           "vcRedistInstaller": {
             "value": "[parameters('vcRedistInstaller')]"
@@ -11507,16 +11507,16 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('build-automation-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-build-automation-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }
   ],
   "outputs": {
     "imageDefinitionResourceId": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('image-build-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.imageDefinitionResourceId.value]"
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('build-image-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.imageDefinitionResourceId.value]"
     }
   }
 }
