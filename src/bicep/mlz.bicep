@@ -652,6 +652,7 @@ module remoteAccess 'modules/remote-access.bicep' =
       linuxVmSize: linuxVmSize
       location: location
       logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+      mlzTags: mlzTags
       tags: tags
       windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
       windowsVmAdminPassword: windowsVmAdminPassword

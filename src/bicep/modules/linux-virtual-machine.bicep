@@ -15,6 +15,8 @@ param authenticationType string
 param diskEncryptionSetResourceId string
 param diskName string
 param location string
+param logAnalyticsWorkspaceId string
+param mlzTags object
 param name string
 param networkInterfaceName string
 param osDiskCreateOption string
@@ -37,7 +39,6 @@ var linuxConfiguration = {
     ]
   }
 }
-param logAnalyticsWorkspaceId string
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' existing = {
   name: networkInterfaceName
@@ -46,7 +47,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' exist
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   name: name
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   properties: {
     diagnosticsProfile: {
       bootDiagnostics: {
