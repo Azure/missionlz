@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "696492626055548250"
+      "templateHash": "16567538782263713970"
     }
   },
   "parameters": {
@@ -816,10 +816,10 @@
       }
     ],
     "mlzTags": {
-      "deploymentType": "MissionLandingZoneARM",
       "environmentAbbreviation": "[parameters('environmentAbbreviation')]",
-      "resourcePrefix": "[parameters('resourcePrefix')]",
-      "version": "2024.04.01"
+      "landingZoneType": "MissionLandingZoneARM",
+      "landingZoneVersion": "1.0.0",
+      "resourcePrefix": "[parameters('resourcePrefix')]"
     },
     "firewallClientPrivateIpAddress": "[variables('firewallClientUsableIpAddresses')[3]]",
     "logAnalyticsWorkspaceRetentionInDays": "[if(parameters('deploySentinel'), parameters('logAnalyticsSentinelWorkspaceRetentionInDays'), parameters('logAnalyticsWorkspaceNoSentinelRetentionInDays'))]"

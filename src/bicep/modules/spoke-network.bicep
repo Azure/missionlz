@@ -2,6 +2,7 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+
 param deployNetworkWatcher bool
 param firewallSkuTier string
 param location string

@@ -2,6 +2,7 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+
 targetScope = 'subscription'
 
 param blobsPrivateDnsZoneResourceId string
@@ -39,4 +40,3 @@ module storageAccount '../../../modules/storage-account.bicep' = {
 }
 
 output storageAccountResourceId string = storageAccount.outputs.id
-

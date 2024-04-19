@@ -1,6 +1,12 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param enableBuildAutomation bool
 param imageVirtualMachineName string
 param location string = resourceGroup().location
+param mlzTags object
 param tags object
 param userAssignedIdentityClientId string
 param virtualMachineName string
@@ -17,7 +23,10 @@ resource removeVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@202
   parent: virtualMachine
   name: 'removeVirtualMachine'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: union(
+    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+    mlzTags
+  )
   properties: {
     treatFailureAsDeploymentFailure: true
     asyncExecution: enableBuildAutomation ? false : true

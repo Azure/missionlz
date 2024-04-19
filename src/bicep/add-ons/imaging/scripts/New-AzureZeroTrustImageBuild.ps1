@@ -116,6 +116,7 @@ try
 			virtualMachineSize = $Values.virtualMachineSize
         }
 		if($Values.customizations -ne '[]'){$TemplateParameters.Add('customizations', $Values.customizations)}
+		if($Values.mlzTags -ne '{}'){$TemplateParameters.Add('mlzTags', $Values.mlzTags)}
         if($Values.tags -ne '{}'){$TemplateParameters.Add('tags', $Values.tags)}
 		New-AzDeployment -Location $Values.location -TemplateSpecId $Values.templateSpecResourceId -TemplateParameterObject $TemplateParameters -DefaultProfile $AzureContext
 		Write-Output "$DestinationImageDefinitionName | $DestinationGalleryResourceGroupName | Image build succeeded. New image version available in the destination Compute Gallery."

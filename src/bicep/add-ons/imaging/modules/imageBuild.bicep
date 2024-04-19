@@ -1,9 +1,14 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 targetScope = 'subscription'
 
 param arcGisProInstaller string = ''
 param computeGalleryImageResourceId string = ''
 param computeGalleryName string
-param containerName string 
+param containerName string
 param customizations array = []
 param deploymentNameSuffix string = utcNow('yyMMddHHs')
 param diskEncryptionSetResourceId string
@@ -39,6 +44,7 @@ param managementVirtualMachineName string
 param marketplaceImageOffer string
 param marketplaceImagePublisher string
 param marketplaceImageSKU string
+param mlzTags object = {}
 param msrdcwebrtcsvcInstaller string = ''
 param officeInstaller string = ''
 param replicaCount int = 1
@@ -64,41 +70,49 @@ var storageAccountName = split(storageAccountResourceId, '/')[8]
 var storageEndpoint = environment().suffixes.storage
 var subscriptionId = subscription().subscriptionId
 
-resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = if (runbookExecution) {
-  name: keyVaultName
-  scope: resourceGroup(subscriptionId, resourceGroupName)
-}
-
-module managementVM 'managementVM.bicep' = if (!enableBuildAutomation) {
-  name: 'management-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
-  params: {
-    containerName: containerName
-    diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    hybridUseBenefit: hybridUseBenefit
-    localAdministratorPassword: localAdministratorPassword
-    localAdministratorUsername: localAdministratorUsername
-    location: location
-    storageAccountName: split(storageAccountResourceId, '/')[8]
-    subnetResourceId: subnetResourceId
-    tags: tags
-    userAssignedIdentityPrincipalId: userAssignedIdentityPrincipalId
-    userAssignedIdentityResourceId: userAssignedIdentityResourceId
-    virtualMachineName: managementVirtualMachineName
+resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing =
+  if (runbookExecution) {
+    name: keyVaultName
+    scope: resourceGroup(subscriptionId, resourceGroupName)
   }
-}
+
+module managementVM 'managementVM.bicep' =
+  if (!enableBuildAutomation) {
+    name: 'management-vm-${deploymentNameSuffix}'
+    scope: resourceGroup(subscriptionId, resourceGroupName)
+    params: {
+      containerName: containerName
+      diskEncryptionSetResourceId: diskEncryptionSetResourceId
+      hybridUseBenefit: hybridUseBenefit
+      localAdministratorPassword: localAdministratorPassword
+      localAdministratorUsername: localAdministratorUsername
+      location: location
+      mlzTags: mlzTags
+      storageAccountName: split(storageAccountResourceId, '/')[8]
+      subnetResourceId: subnetResourceId
+      tags: tags
+      userAssignedIdentityPrincipalId: userAssignedIdentityPrincipalId
+      userAssignedIdentityResourceId: userAssignedIdentityResourceId
+      virtualMachineName: managementVirtualMachineName
+    }
+  }
 
 module virtualMachine 'virtualMachine.bicep' = {
   name: 'image-vm-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     // diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    localAdministratorPassword: runbookExecution ? keyVault.getSecret('LocalAdministratorPassword') : localAdministratorPassword
-    localAdministratorUsername: runbookExecution ? keyVault.getSecret('LocalAdministratorUsername') : localAdministratorUsername
+    localAdministratorPassword: runbookExecution
+      ? keyVault.getSecret('LocalAdministratorPassword')
+      : localAdministratorPassword
+    localAdministratorUsername: runbookExecution
+      ? keyVault.getSecret('LocalAdministratorUsername')
+      : localAdministratorUsername
     location: location
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
+    mlzTags: mlzTags
     computeGalleryImageResourceId: computeGalleryImageResourceId
     sourceImageType: sourceImageType
     subnetResourceId: subnetResourceId
@@ -107,8 +121,7 @@ module virtualMachine 'virtualMachine.bicep' = {
     virtualMachineName: imageVirtualMachineName
     virtualMachineSize: virtualMachineSize
   }
-  dependsOn: [
-  ]
+  dependsOn: []
 }
 
 module addCustomizations 'customizations.bicep' = {
@@ -133,6 +146,7 @@ module addCustomizations 'customizations.bicep' = {
     installVisio: installVisio
     installWord: installWord
     location: location
+    mlzTags: mlzTags
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     storageAccountName: storageAccountName
@@ -144,8 +158,6 @@ module addCustomizations 'customizations.bicep' = {
     vDotInstaller: vDOTInstaller
     virtualMachineName: virtualMachine.outputs.name
   }
-  dependsOn: [
-  ]
 }
 
 module restartVirtualMachine1 'restartVirtualMachine.bicep' = {
@@ -155,6 +167,7 @@ module restartVirtualMachine1 'restartVirtualMachine.bicep' = {
     imageVirtualMachineName: virtualMachine.outputs.name
     resourceGroupName: resourceGroupName
     location: location
+    mlzTags: mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
     virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
@@ -164,20 +177,22 @@ module restartVirtualMachine1 'restartVirtualMachine.bicep' = {
   ]
 }
 
-module microsoftUdpates 'microsoftUpdates.bicep' = if(installUpdates) {
-  name: 'microsoft-updates-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
-  params: {
-    imageVirtualMachineName: virtualMachine.outputs.name
-    location: location
-    tags: tags
-    updateService: updateService
-    wsusServer: wsusServer
+module microsoftUdpates 'microsoftUpdates.bicep' =
+  if (installUpdates) {
+    name: 'microsoft-updates-${deploymentNameSuffix}'
+    scope: resourceGroup(subscriptionId, resourceGroupName)
+    params: {
+      imageVirtualMachineName: virtualMachine.outputs.name
+      location: location
+      mlzTags: mlzTags
+      tags: tags
+      updateService: updateService
+      wsusServer: wsusServer
+    }
+    dependsOn: [
+      restartVirtualMachine1
+    ]
   }
-  dependsOn: [
-    restartVirtualMachine1
-  ]
-}
 
 module restartVirtualMachine2 'restartVirtualMachine.bicep' = {
   name: 'restart-vm-2-${deploymentNameSuffix}'
@@ -186,6 +201,7 @@ module restartVirtualMachine2 'restartVirtualMachine.bicep' = {
     imageVirtualMachineName: virtualMachine.outputs.name
     resourceGroupName: resourceGroupName
     location: location
+    mlzTags: mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
     virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
@@ -199,6 +215,7 @@ module sysprepVirtualMachine 'sysprepVirtualMachine.bicep' = {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     location: location
+    mlzTags: mlzTags
     tags: tags
     virtualMachineName: virtualMachine.outputs.name
   }
@@ -215,6 +232,7 @@ module generalizeVirtualMachine 'generalizeVirtualMachine.bicep' = {
     imageVirtualMachineName: virtualMachine.outputs.name
     resourceGroupName: resourceGroupName
     location: location
+    mlzTags: mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
     virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
@@ -238,6 +256,7 @@ module imageVersion 'imageVersion.bicep' = {
     location: location
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
+    mlzTags: mlzTags
     replicaCount: replicaCount
     tags: tags
   }
@@ -253,6 +272,7 @@ module removeVirtualMachine 'removeVirtualMachine.bicep' = {
     enableBuildAutomation: enableBuildAutomation
     imageVirtualMachineName: virtualMachine.outputs.name
     location: location
+    mlzTags: mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
     virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name

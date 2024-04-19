@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 targetScope = 'resourceGroup'
 
 param arcGisProInstaller string
@@ -18,6 +23,7 @@ param installVirtualDesktopOptimizationTool bool
 param installVisio bool
 param installWord bool
 param location string
+param mlzTags object
 param msrdcwebrtcsvcInstaller string
 param officeInstaller string
 param storageAccountName string
@@ -47,46 +53,50 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-11-01' existing 
 }
 
 @batchSize(1)
-resource applications 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = [for installer in installers: {
-  parent: virtualMachine
-  name: 'app-${installer.name}'
-  location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
-  properties: {
-    treatFailureAsDeploymentFailure: true
-    asyncExecution: false
-    parameters: [
-      {
-        name: 'UserAssignedIdentityObjectId'
-        value: userAssignedIdentityObjectId
-      }
-      {
-        name: 'StorageAccountName'
-        value: storageAccountName
-      }
-      {
-        name: 'ContainerName'
-        value: containerName
-      }
-      {
-        name: 'StorageEndpoint'
-        value: storageEndpoint
-      }
-      {
-        name: 'Blobname'
-        value: installer.blobName
-      }
-      {
-        name: 'Installer'
-        value: installer.name
-      }
-      {
-        name: 'Arguments'
-        value: installer.arguments
-      }
-    ]
-    source: {
-      script: '''
+resource applications 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = [
+  for installer in installers: {
+    parent: virtualMachine
+    name: 'app-${installer.name}'
+    location: location
+    tags: union(
+      contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+      mlzTags
+    )
+    properties: {
+      treatFailureAsDeploymentFailure: true
+      asyncExecution: false
+      parameters: [
+        {
+          name: 'UserAssignedIdentityObjectId'
+          value: userAssignedIdentityObjectId
+        }
+        {
+          name: 'StorageAccountName'
+          value: storageAccountName
+        }
+        {
+          name: 'ContainerName'
+          value: containerName
+        }
+        {
+          name: 'StorageEndpoint'
+          value: storageEndpoint
+        }
+        {
+          name: 'Blobname'
+          value: installer.blobName
+        }
+        {
+          name: 'Installer'
+          value: installer.name
+        }
+        {
+          name: 'Arguments'
+          value: installer.arguments
+        }
+      ]
+      source: {
+        script: '''
         param(
           [string]$UserAssignedIdentityObjectId,
           [string]$StorageAccountName,
@@ -154,86 +164,91 @@ resource applications 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01'
         Write-Host "Removing $Installer Files"
         Remove-item $env:windir\temp\$Installer -Force -Recurse -Confirm:$false
        '''
+      }
     }
   }
-}]
+]
 
-resource office 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = if (installAccess || installExcel || installOneDrive || installOneNote || installOutlook || installPowerPoint || installPublisher || installSkypeForBusiness || installWord || installVisio || installProject) {
-  parent: virtualMachine
-  name: 'office'
-  location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
-  properties: {
-    treatFailureAsDeploymentFailure: true
-    asyncExecution: false
-    parameters: [
-      {
-        name: 'InstallAccess'
-        value: installAccessVar
-      }
-      {
-        name: 'InstallWord'
-        value: installWordVar
-      }
-      {
-        name: 'InstallExcel'
-        value: installExcelVar
-      }
-      {
-        name: 'InstallOneDrive'
-        value: installOneDriveVar
-      }
-      {
-        name: 'InstallOneNote'
-        value: installOneNoteVar
-      }
-      {
-        name: 'InstallOutlook'
-        value: installOutlookVar
-      }
-      {
-        name: 'InstallPowerPoint'
-        value: installPowerPointVar
-      }
-      {
-        name: 'InstallProject'
-        value: installProjectVar
-      }
-      {
-        name: 'InstallPublisher'
-        value: installPublisherVar
-      }
-      {
-        name: 'InstallSkypeForBusiness'
-        value: installSkypeForBusinessVar
-      }
-      {
-        name: 'InstallVisio'
-        value: installVisioVar
-      }
-      {
-        name: 'UserAssignedIdentityObjectId'
-        value: userAssignedIdentityObjectId
-      }
-      {
-        name: 'StorageAccountName'
-        value: storageAccountName
-      }
-      {
-        name: 'ContainerName'
-        value: containerName
-      }
-      {
-        name: 'StorageEndpoint'
-        value: storageEndpoint
-      }
-      {
-        name: 'BlobName'
-        value: officeInstaller
-      }
-    ]
-    source: {
-      script: '''
+resource office 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' =
+  if (installAccess || installExcel || installOneDrive || installOneNote || installOutlook || installPowerPoint || installPublisher || installSkypeForBusiness || installWord || installVisio || installProject) {
+    parent: virtualMachine
+    name: 'office'
+    location: location
+    tags: union(
+      contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+      mlzTags
+    )
+    properties: {
+      treatFailureAsDeploymentFailure: true
+      asyncExecution: false
+      parameters: [
+        {
+          name: 'InstallAccess'
+          value: installAccessVar
+        }
+        {
+          name: 'InstallWord'
+          value: installWordVar
+        }
+        {
+          name: 'InstallExcel'
+          value: installExcelVar
+        }
+        {
+          name: 'InstallOneDrive'
+          value: installOneDriveVar
+        }
+        {
+          name: 'InstallOneNote'
+          value: installOneNoteVar
+        }
+        {
+          name: 'InstallOutlook'
+          value: installOutlookVar
+        }
+        {
+          name: 'InstallPowerPoint'
+          value: installPowerPointVar
+        }
+        {
+          name: 'InstallProject'
+          value: installProjectVar
+        }
+        {
+          name: 'InstallPublisher'
+          value: installPublisherVar
+        }
+        {
+          name: 'InstallSkypeForBusiness'
+          value: installSkypeForBusinessVar
+        }
+        {
+          name: 'InstallVisio'
+          value: installVisioVar
+        }
+        {
+          name: 'UserAssignedIdentityObjectId'
+          value: userAssignedIdentityObjectId
+        }
+        {
+          name: 'StorageAccountName'
+          value: storageAccountName
+        }
+        {
+          name: 'ContainerName'
+          value: containerName
+        }
+        {
+          name: 'StorageEndpoint'
+          value: storageEndpoint
+        }
+        {
+          name: 'BlobName'
+          value: officeInstaller
+        }
+      ]
+      source: {
+        script: '''
       param(
         [string]$InstallAccess,
         [string]$InstallExcel,
@@ -312,45 +327,49 @@ resource office 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = if 
       Write-Host "Removing Office FIles"
       Remove-item -Path  "$env:windir\temp\office" -Force -Confirm:$false -Recurse
       '''
+      }
     }
-  }
-  dependsOn: [
-    applications
-  ]
-}
-
-resource vdot 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = if (installVirtualDesktopOptimizationTool) {
-  parent: virtualMachine
-  name: 'vdot'
-  location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
-  properties: {
-    treatFailureAsDeploymentFailure: true
-    asyncExecution: false
-    parameters: [
-      {
-        name: 'UserAssignedIdentityObjectId'
-        value: userAssignedIdentityObjectId
-      }
-      {
-        name: 'StorageAccountName'
-        value: storageAccountName
-      }
-      {
-        name: 'ContainerName'
-        value: containerName
-      }
-      {
-        name: 'StorageEndpoint'
-        value: storageEndpoint
-      }
-      {
-        name: 'BlobName'
-        value: vDotInstaller
-      }
+    dependsOn: [
+      applications
     ]
-    source: {
-      script: '''
+  }
+
+resource vdot 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' =
+  if (installVirtualDesktopOptimizationTool) {
+    parent: virtualMachine
+    name: 'vdot'
+    location: location
+    tags: union(
+      contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+      mlzTags
+    )
+    properties: {
+      treatFailureAsDeploymentFailure: true
+      asyncExecution: false
+      parameters: [
+        {
+          name: 'UserAssignedIdentityObjectId'
+          value: userAssignedIdentityObjectId
+        }
+        {
+          name: 'StorageAccountName'
+          value: storageAccountName
+        }
+        {
+          name: 'ContainerName'
+          value: containerName
+        }
+        {
+          name: 'StorageEndpoint'
+          value: storageEndpoint
+        }
+        {
+          name: 'BlobName'
+          value: vDotInstaller
+        }
+      ]
+      source: {
+        script: '''
         param(
           [string]$UserAssignedIdentityObjectId,
           [string]$StorageAccountName,
@@ -378,21 +397,21 @@ resource vdot 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = if (i
         # Expecting this format for vDot ZIP, update if using a different ZIP format for folder structure
         Remove-Item -Path $env:windir\temp\Virtual-Desktop-Optimization-Tool-main -Force -Recurse -Confirm:$false
         '''
+      }
+      timeoutInSeconds: 640
     }
-    timeoutInSeconds: 640
+    dependsOn: [
+      teams
+      applications
+      office
+    ]
   }
-  dependsOn: [
-    teams
-    applications
-    office
-  ]
-}
 
 // resource fslogix 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = if (installFsLogix) {
 //   parent: virtualMachine
 //   name: 'fslogix'
 //   location: location
-//   tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+//   tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
 //   properties: {
 //     treatFailureAsDeploymentFailure: true
 //     asyncExecution: false
@@ -418,46 +437,50 @@ resource vdot 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = if (i
 //   ]
 // }
 
-resource teams 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = if (installTeams) {
-  parent: virtualMachine
-  name: 'teams'
-  location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
-  properties: {
-    treatFailureAsDeploymentFailure: true
-    asyncExecution: false
-    parameters: [
-      {
-        name: 'UserAssignedIdentityObjectId'
-        value: userAssignedIdentityObjectId
-      }
-      {
-        name: 'StorageAccountName'
-        value: storageAccountName
-      }
-      {
-        name: 'ContainerName'
-        value: containerName
-      }
-      {
-        name: 'StorageEndpoint'
-        value: storageEndpoint
-      }
-      {
-        name: 'BlobName'
-        value: teamsInstaller
-      }
-      {
-        name: 'BlobName2'
-        value: vcRedistInstaller
-      }
-      {
-        name: 'BlobName3'
-        value: msrdcwebrtcsvcInstaller
-      }
-    ]
-    source: {
-      script: '''
+resource teams 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' =
+  if (installTeams) {
+    parent: virtualMachine
+    name: 'teams'
+    location: location
+    tags: union(
+      contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+      mlzTags
+    )
+    properties: {
+      treatFailureAsDeploymentFailure: true
+      asyncExecution: false
+      parameters: [
+        {
+          name: 'UserAssignedIdentityObjectId'
+          value: userAssignedIdentityObjectId
+        }
+        {
+          name: 'StorageAccountName'
+          value: storageAccountName
+        }
+        {
+          name: 'ContainerName'
+          value: containerName
+        }
+        {
+          name: 'StorageEndpoint'
+          value: storageEndpoint
+        }
+        {
+          name: 'BlobName'
+          value: teamsInstaller
+        }
+        {
+          name: 'BlobName2'
+          value: vcRedistInstaller
+        }
+        {
+          name: 'BlobName3'
+          value: msrdcwebrtcsvcInstaller
+        }
+      ]
+      source: {
+        script: '''
       param(
         [string]$UserAssignedIdentityObjectId,
         [string]$StorageAccountName,
@@ -505,46 +528,50 @@ resource teams 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = if (
       Remove-Item "$vcRedistFile" -Force -Confirm:$false
       Remove-Item "$webSocketFile" -Force -Confirm:$false
       '''
+      }
     }
-  }
-  dependsOn: [
-    applications
-    office
-  ]
-}
-
-resource argGisPro 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = if (installArcGisPro) {
-  parent: virtualMachine
-  name: 'arcGisPro'
-  location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
-  properties: {
-    treatFailureAsDeploymentFailure: true
-    asyncExecution: false
-    parameters: [
-      {
-        name: 'UserAssignedIdentityObjectId'
-        value: userAssignedIdentityObjectId
-      }
-      {
-        name: 'StorageAccountName'
-        value: storageAccountName
-      }
-      {
-        name: 'ContainerName'
-        value: containerName
-      }
-      {
-        name: 'StorageEndpoint'
-        value: storageEndpoint
-      }
-      {
-        name: 'BlobName'
-        value: arcGisProInstaller
-      }
+    dependsOn: [
+      applications
+      office
     ]
-    source: {
-      script: '''
+  }
+
+resource argGisPro 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' =
+  if (installArcGisPro) {
+    parent: virtualMachine
+    name: 'arcGisPro'
+    location: location
+    tags: union(
+      contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+      mlzTags
+    )
+    properties: {
+      treatFailureAsDeploymentFailure: true
+      asyncExecution: false
+      parameters: [
+        {
+          name: 'UserAssignedIdentityObjectId'
+          value: userAssignedIdentityObjectId
+        }
+        {
+          name: 'StorageAccountName'
+          value: storageAccountName
+        }
+        {
+          name: 'ContainerName'
+          value: containerName
+        }
+        {
+          name: 'StorageEndpoint'
+          value: storageEndpoint
+        }
+        {
+          name: 'BlobName'
+          value: arcGisProInstaller
+        }
+      ]
+      source: {
+        script: '''
       param(
         [string]$UserAssignedIdentityObjectId,
         [string]$StorageAccountName,
@@ -603,13 +630,12 @@ resource argGisPro 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
     Remove-Item $ZIP -Force -Confirm:$false -Recurse
     Remove-item -Path  "$env:windir\temp\arcgis" -Force -Confirm:$false -Recurse
     '''
+      }
     }
+    dependsOn: [
+      applications
+      office
+      teams
+      vdot
+    ]
   }
-  dependsOn: [
-    applications
-    office
-    teams
-    vdot
-  ]
-}
-

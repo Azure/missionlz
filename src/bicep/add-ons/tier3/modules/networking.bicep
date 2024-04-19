@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 targetScope = 'subscription'
 
 param deploymentNameSuffix string
@@ -28,7 +33,7 @@ module spokeNetwork '../../../modules/spoke-network.bicep' = {
   params: {
     deployNetworkWatcher: deployNetworkWatcher
     firewallSkuTier: firewallSkuTier
-    location:location
+    location: location
     mlzTags: mlzTags
     networkSecurityGroupName: networkSecurityGroupName
     networkSecurityGroupRules: networkSecurityGroupRules
@@ -49,7 +54,7 @@ module spokeNetwork '../../../modules/spoke-network.bicep' = {
 module workloadVirtualNetworkPeerings '../../../modules/spoke-network-peering.bicep' = {
   name: 'deploy-vnet-peering-${workloadShortName}-${deploymentNameSuffix}'
   params: {
-    hubVirtualNetworkName: split(hubVirtualNetworkResourceId , '/')[8]
+    hubVirtualNetworkName: split(hubVirtualNetworkResourceId, '/')[8]
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     spokeName: workloadName
     spokeResourceGroupName: resourceGroupName
@@ -59,9 +64,9 @@ module workloadVirtualNetworkPeerings '../../../modules/spoke-network-peering.bi
 
 module hubToWorkloadVirtualNetworkPeering '../../../modules/hub-network-peerings.bicep' = {
   name: 'deploy-vnet-peering-hub-${deploymentNameSuffix}'
-  scope: resourceGroup(split(hubVirtualNetworkResourceId , '/')[2], split(hubVirtualNetworkResourceId , '/')[4])
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
-    hubVirtualNetworkName: split(hubVirtualNetworkResourceId , '/')[8]
+    hubVirtualNetworkName: split(hubVirtualNetworkResourceId, '/')[8]
     spokes: [
       {
         type: workloadName

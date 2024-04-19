@@ -1,3 +1,9 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
+param computeGalleryImageResourceId string
 // param diskEncryptionSetResourceId string
 @secure()
 param localAdministratorPassword string
@@ -7,7 +13,7 @@ param location string
 param marketplaceImageOffer string
 param marketplaceImagePublisher string
 param marketplaceImageSKU string
-param computeGalleryImageResourceId string
+param mlzTags object
 param sourceImageType string
 param subnetResourceId string
 param tags object
@@ -15,19 +21,24 @@ param userAssignedIdentityResourceId string
 param virtualMachineName string
 param virtualMachineSize string
 
-var imageReference = sourceImageType == 'AzureComputeGallery' ? {
-  id: computeGalleryImageResourceId
-} : {
-  publisher: marketplaceImagePublisher
-  offer: marketplaceImageOffer
-  sku: marketplaceImageSKU
-  version: 'latest'
-}
+var imageReference = sourceImageType == 'AzureComputeGallery'
+  ? {
+      id: computeGalleryImageResourceId
+    }
+  : {
+      publisher: marketplaceImagePublisher
+      offer: marketplaceImageOffer
+      sku: marketplaceImageSKU
+      version: 'latest'
+    }
 
 resource nic 'Microsoft.Network/networkInterfaces@2022-05-01' = {
   name: 'nic-${virtualMachineName}'
   location: location
-  tags: contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}
+  tags: union(
+    contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {},
+    mlzTags
+  )
   properties: {
     ipConfigurations: [
       {
@@ -46,7 +57,10 @@ resource nic 'Microsoft.Network/networkInterfaces@2022-05-01' = {
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: virtualMachineName
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: union(
+    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+    mlzTags
+  )
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {

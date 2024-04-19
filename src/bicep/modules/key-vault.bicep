@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param diskEncryptionKeyExpirationInDays int = 30
 param keyVaultName string
 param keyVaultNetworkInterfaceName string

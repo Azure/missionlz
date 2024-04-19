@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 targetScope = 'subscription'
 
 param deployActivityLogDiagnosticSetting bool
@@ -10,13 +15,14 @@ param storageAccountResourceId string
 param virtualNetworkDiagnosticsLogs array
 param virtualNetworkDiagnosticsMetrics array
 
-module activityLogDiagnosticSettings '../../../modules/activity-log-diagnostic-settings.bicep' = if (deployActivityLogDiagnosticSetting) {
-  name: 'deploy-activity-diags-${network.name}-${deploymentNameSuffix}'
-  scope: subscription(network.subscriptionId)
-  params: {
-    logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
+module activityLogDiagnosticSettings '../../../modules/activity-log-diagnostic-settings.bicep' =
+  if (deployActivityLogDiagnosticSetting) {
+    name: 'deploy-activity-diags-${network.name}-${deploymentNameSuffix}'
+    scope: subscription(network.subscriptionId)
+    params: {
+      logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
+    }
   }
-}
 
 module networkSecurityGroupDiagnostics '../../../modules/network-security-group-diagnostics.bicep' = {
   name: 'deploy-nsg-diags-${network.name}-${deploymentNameSuffix}'

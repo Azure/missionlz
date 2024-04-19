@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 targetScope = 'subscription'
 
 param actionGroupName string
@@ -47,6 +52,7 @@ param managementVirtualMachineName string
 param marketplaceImageOffer string
 param marketplaceImagePublisher string
 param marketplaceImageSKU string
+param mlzTags object
 param msrdcwebrtcsvcInstaller string
 param officeInstaller string
 param oUPath string
@@ -107,6 +113,7 @@ module keyVault 'keyVault.bicep' = {
     localAdministratorPassword: localAdministratorPassword
     localAdministratorUsername: localAdministratorUsername
     location: location
+    mlzTags: mlzTags
     roleDefinitionResourceId: roleDefinition.id
     subnetResourceId: subnetResourceId
     tags: tags
@@ -120,6 +127,7 @@ module templateSpec 'templateSpec.bicep' = {
   params: {
     imageDefinitionName: imageDefinitionName
     location: location
+    mlzTags: mlzTags
     tags: tags
   }
 }
@@ -129,15 +137,16 @@ module managementVM 'managementVM.bicep' = {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     containerName: containerName
-    diskEncryptionSetResourceId: diskEncryptionSetResourceId 
+    diskEncryptionSetResourceId: diskEncryptionSetResourceId
     hybridUseBenefit: hybridUseBenefit
     localAdministratorPassword: localAdministratorPassword
     localAdministratorUsername: localAdministratorUsername
     location: location
+    mlzTags: mlzTags
     storageAccountName: split(storageAccountResourceId, '/')[8]
     subnetResourceId: subnetResourceId
     tags: tags
-    userAssignedIdentityPrincipalId: userAssignedIdentityPrincipalId 
+    userAssignedIdentityPrincipalId: userAssignedIdentityPrincipalId
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
     virtualMachineName: managementVirtualMachineName
   }
@@ -190,6 +199,7 @@ module automationAccount 'automationAccount.bicep' = {
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
+    mlzTags: mlzTags
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     oUPath: oUPath

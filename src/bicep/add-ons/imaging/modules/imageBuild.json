@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.26.54.24096",
-      "templateHash": "9174134663226790442"
+      "version": "0.26.170.59819",
+      "templateHash": "3135582023314630375"
     }
   },
   "parameters": {
@@ -145,6 +145,10 @@
     "marketplaceImageSKU": {
       "type": "string"
     },
+    "mlzTags": {
+      "type": "object",
+      "defaultValue": {}
+    },
     "msrdcwebrtcsvcInstaller": {
       "type": "string",
       "defaultValue": ""
@@ -250,6 +254,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[parameters('mlzTags')]"
+          },
           "storageAccountName": {
             "value": "[split(parameters('storageAccountResourceId'), '/')[8]]"
           },
@@ -275,8 +282,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.54.24096",
-              "templateHash": "12968919444807468891"
+              "version": "0.26.170.59819",
+              "templateHash": "8898522588803558538"
             }
           },
           "parameters": {
@@ -297,6 +304,9 @@
             },
             "location": {
               "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "storageAccountName": {
               "type": "string"
@@ -323,7 +333,7 @@
               "apiVersion": "2023-04-01",
               "name": "[format('nic-{0}', parameters('virtualMachineName'))]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "ipConfigurations": [
                   {
@@ -347,7 +357,7 @@
               "apiVersion": "2022-03-01",
               "name": "[parameters('virtualMachineName')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
@@ -426,7 +436,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'appAzModules')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": true,
                 "asyncExecution": false,
@@ -492,6 +502,9 @@
           "marketplaceImageSKU": {
             "value": "[parameters('marketplaceImageSKU')]"
           },
+          "mlzTags": {
+            "value": "[parameters('mlzTags')]"
+          },
           "computeGalleryImageResourceId": {
             "value": "[parameters('computeGalleryImageResourceId')]"
           },
@@ -520,11 +533,14 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.54.24096",
-              "templateHash": "3416440754020274895"
+              "version": "0.26.170.59819",
+              "templateHash": "8557004379539182499"
             }
           },
           "parameters": {
+            "computeGalleryImageResourceId": {
+              "type": "string"
+            },
             "localAdministratorPassword": {
               "type": "securestring"
             },
@@ -543,8 +559,8 @@
             "marketplaceImageSKU": {
               "type": "string"
             },
-            "computeGalleryImageResourceId": {
-              "type": "string"
+            "mlzTags": {
+              "type": "object"
             },
             "sourceImageType": {
               "type": "string"
@@ -574,7 +590,7 @@
               "apiVersion": "2022-05-01",
               "name": "[format('nic-{0}', parameters('virtualMachineName'))]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "ipConfigurations": [
                   {
@@ -594,7 +610,7 @@
               "apiVersion": "2022-03-01",
               "name": "[parameters('virtualMachineName')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
@@ -728,6 +744,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[parameters('mlzTags')]"
+          },
           "msrdcwebrtcsvcInstaller": {
             "value": "[parameters('msrdcwebrtcsvcInstaller')]"
           },
@@ -765,8 +784,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.54.24096",
-              "templateHash": "10008712211219806019"
+              "version": "0.26.170.59819",
+              "templateHash": "3676051126599760309"
             }
           },
           "parameters": {
@@ -823,6 +842,9 @@
             },
             "location": {
               "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "msrdcwebrtcsvcInstaller": {
               "type": "string"
@@ -881,7 +903,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), format('app-{0}', variables('installers')[copyIndex()].name))]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": true,
                 "asyncExecution": false,
@@ -926,7 +948,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'office')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": true,
                 "asyncExecution": false,
@@ -1010,7 +1032,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'vdot')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": true,
                 "asyncExecution": false,
@@ -1053,7 +1075,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'teams')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": true,
                 "asyncExecution": false,
@@ -1102,7 +1124,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'arcGisPro')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": true,
                 "asyncExecution": false,
@@ -1167,6 +1189,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[parameters('mlzTags')]"
+          },
           "tags": {
             "value": "[parameters('tags')]"
           },
@@ -1181,8 +1206,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.54.24096",
-              "templateHash": "10420021406848674052"
+              "version": "0.26.170.59819",
+              "templateHash": "14414542062672835812"
             }
           },
           "parameters": {
@@ -1194,6 +1219,9 @@
             },
             "location": {
               "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "tags": {
               "type": "object"
@@ -1211,7 +1239,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'restartVirtualMachine')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": true,
                 "asyncExecution": false,
@@ -1274,6 +1302,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[parameters('mlzTags')]"
+          },
           "tags": {
             "value": "[parameters('tags')]"
           },
@@ -1290,16 +1321,19 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.54.24096",
-              "templateHash": "12095172867813258567"
+              "version": "0.26.170.59819",
+              "templateHash": "461917832205884645"
             }
           },
           "parameters": {
+            "imageVirtualMachineName": {
+              "type": "string"
+            },
             "location": {
               "type": "string"
             },
-            "imageVirtualMachineName": {
-              "type": "string"
+            "mlzTags": {
+              "type": "object"
             },
             "tags": {
               "type": "object"
@@ -1317,6 +1351,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('imageVirtualMachineName'), 'install-microsoft-updates')]",
               "location": "[parameters('location')]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "asyncExecution": false,
                 "parameters": "[if(equals(parameters('updateService'), 'WSUS'), createArray(createObject('name', 'Service', 'value', parameters('updateService')), createObject('name', 'WSUSServer', 'value', parameters('wsusServer'))), createArray(createObject('name', 'Service', 'value', parameters('updateService'))))]",
@@ -1324,8 +1359,7 @@
                   "script": "        param (\r\n          # The App Name to pass to the WUA API as the calling application.\r\n          [Parameter()]\r\n          [String]$AppName = \"Windows Update API Script\",\r\n          # The search criteria to be used.\r\n          [Parameter()]\r\n          [String]$Criteria = \"IsInstalled=0 and Type='Software' and IsHidden=0\",\r\n          [Parameter()]\r\n          [bool]$ExcludePreviewUpdates = $true,\r\n          # Default service (WSUS if machine is configured to use it, or MU if opted in, or WU otherwise.)\r\n          [Parameter()]\r\n          [ValidateSet(\"WU\",\"MU\",\"WSUS\",\"DCAT\",\"STORE\",\"OTHER\")]\r\n          [string]$Service = 'MU',\r\n          # The http/https fqdn for the Windows Server Update Server\r\n          [Parameter()]\r\n          [string]$WSUSServer\r\n        )\r\n        \r\n        Function ConvertFrom-InstallationResult {\r\n        [CmdletBinding()]\r\n            param (\r\n                [Parameter()]\r\n                [int]$Result\r\n            )        \r\n            switch ($Result) {\r\n                2 { $Text = 'Succeeded' }\r\n                3 { $Text = 'Succeeded with errors' }\r\n                4 { $Text = 'Failed' }\r\n                5 { $Text = 'Cancelled' }\r\n                Default { $Text = \"Unexpected ($Result)\"}\r\n            }        \r\n            Return $Text\r\n        }\r\n        Start-Transcript -Path \"$env:SystemRoot\\Logs\\ImageBuild\\Install-Updates.log\"\r\n        Switch ($Service.ToUpper()) {\r\n            'WU' { $ServerSelection = 2 }\r\n            'MU' { $ServerSelection = 3; $ServiceId = \"7971f918-a847-4430-9279-4a52d1efe18d\" }\r\n            'WSUS' { $ServerSelection = 1 }\r\n            'DCAT' { $ServerSelection = 3; $ServiceId = \"855E8A7C-ECB4-4CA3-B045-1DFA50104289\" }\r\n            'STORE' { $serverSelection = 3; $ServiceId = \"117cab2d-82b1-4b5a-a08c-4d62dbee7782\" }\r\n            'OTHER' { $ServerSelection = 3; $ServiceId = $Service }\r\n        }        \r\n        If ($Service -eq 'MU') {\r\n            $UpdateServiceManager = New-Object -ComObject Microsoft.Update.ServiceManager\r\n            $UpdateServiceManager.ClientApplicationID = $AppName\r\n            $UpdateServiceManager.AddService2(\"7971f918-a847-4430-9279-4a52d1efe18d\", 7, \"\")\r\n            $null = cmd /c reg.exe ADD \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /t REG_DWORD /d 1 /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure Microsoft Update. Exit Code: [$LastExitCode]\"\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure WSUS Server. Exit Code: [$LastExitCode]\"\r\n        }        \r\n        $UpdateSession = New-Object -ComObject Microsoft.Update.Session\r\n        $updateSession.ClientApplicationID = $AppName   \r\n        $UpdateSearcher = $UpdateSession.CreateUpdateSearcher()\r\n        $UpdateSearcher.ServerSelection = $ServerSelection\r\n        If ($ServerSelection -eq 3) {\r\n            $UpdateSearcher.ServiceId = $ServiceId\r\n        }\r\n        Write-Output \"Searching for Updates...\"\r\n        $SearchResult = $UpdateSearcher.Search($Criteria)\r\n        If ($SearchResult.Updates.Count -eq 0) {\r\n            Write-Output \"There are no applicable updates.\"\r\n            Write-Output \"Now Exiting\"\r\n            Exit $ExitCode\r\n        }\r\n        Write-Output \"List of applicable items found for this computer:\"\r\n        For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n            $Update = $SearchResult.Updates[$i]\r\n            Write-Output \"$($i + 1) > $($update.Title)\"\r\n        }\r\n        $AtLeastOneAdded = $false\r\n        $ExclusiveAdded = $false   \r\n        $UpdatesToDownload = New-Object -ComObject Microsoft.Update.UpdateColl\r\n        Write-Output \"Checking search results:\"\r\n        For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n            $Update = $SearchResult.Updates[$i]\r\n            $AddThisUpdate = $false        \r\n            If ($ExclusiveAdded) {\r\n                Write-Output \"$($i + 1) > skipping: '$($update.Title)' because an exclusive update has already been selected.\"\r\n            } Else {\r\n                $AddThisUpdate = $true\r\n            }        \r\n            if ($ExcludePreviewUpdates -and $update.Title -like '*Preview*') {\r\n                Write-Output \"$($i + 1) > Skipping: '$($update.Title)' because it is a preview update.\"\r\n                $AddThisUpdate = $false\r\n            }        \r\n            If ($AddThisUpdate) {\r\n                $PropertyTest = 0\r\n                $ErrorActionPreference = 'SilentlyContinue'\r\n                $PropertyTest = $Update.InstallationBehavior.Impact\r\n                $ErrorActionPreference = 'Stop'\r\n                If ($PropertyTest -eq 2) {\r\n                    If ($AtLeastOneAdded) {\r\n                        Write-Output \"$($i + 1) > skipping: '$($update.Title)' because it is exclusive and other updates are being installed first.\"\r\n                        $AddThisUpdate = $false\r\n                    }\r\n                }\r\n            }\r\n            If ($AddThisUpdate) {\r\n                Write-Output \"$($i + 1) > adding: '$($update.Title)'\"\r\n                $UpdatesToDownload.Add($Update) | out-null\r\n                $AtLeastOneAdded = $true\r\n                $ErrorActionPreference = 'SilentlyContinue'\r\n                $PropertyTest = $Update.InstallationBehavior.Impact\r\n                $ErrorActionPreference = 'Stop'\r\n                If ($PropertyTest -eq 2) {\r\n                    Write-Output \"This update is exclusive; skipping remaining updates\"\r\n                    $ExclusiveAdded = $true\r\n                }\r\n            }\r\n        }        \r\n        $UpdatesToInstall = New-Object -ComObject Microsoft.Update.UpdateColl\r\n        Write-Output \"Downloading updates...\"\r\n        $Downloader = $UpdateSession.CreateUpdateDownloader()\r\n        $Downloader.Updates = $UpdatesToDownload\r\n        $Downloader.Download()\r\n        Write-Output \"Successfully downloaded updates:\"        \r\n        For ($i = 0; $i -lt $UpdatesToDownload.Count; $i++) {\r\n            $Update = $UpdatesToDownload[$i]\r\n            If ($Update.IsDownloaded -eq $true) {\r\n                Write-Output \"$($i + 1) > $($update.title)\"\r\n                $UpdatesToInstall.Add($Update) | out-null\r\n            }\r\n        }        \r\n        If ($UpdatesToInstall.Count -gt 0) {\r\n            Write-Output \"Now installing updates...\"\r\n            $Installer = $UpdateSession.CreateUpdateInstaller()\r\n            $Installer.Updates = $UpdatesToInstall\r\n            $InstallationResult = $Installer.Install()\r\n            $Text = ConvertFrom-InstallationResult -Result $InstallationResult.ResultCode\r\n            Write-Output \"Installation Result: $($Text)\"        \r\n            If ($InstallationResult.RebootRequired) {\r\n                Write-Output \"Atleast one update requires a reboot to complete the installation.\"\r\n            }\r\n        }\r\n        If ($service -eq 'MU') {\r\n            Reg.exe DELETE \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /f\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /f\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /f\r\n        }\r\n        Stop-Transcript\r\n      "
                 },
                 "treatFailureAsDeploymentFailure": true
-              },
-              "tags": "[parameters('tags')]"
+              }
             }
           ]
         }
@@ -1356,6 +1390,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[parameters('mlzTags')]"
+          },
           "tags": {
             "value": "[parameters('tags')]"
           },
@@ -1370,8 +1407,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.54.24096",
-              "templateHash": "10420021406848674052"
+              "version": "0.26.170.59819",
+              "templateHash": "14414542062672835812"
             }
           },
           "parameters": {
@@ -1383,6 +1420,9 @@
             },
             "location": {
               "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "tags": {
               "type": "object"
@@ -1400,7 +1440,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'restartVirtualMachine')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": true,
                 "asyncExecution": false,
@@ -1459,6 +1499,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[parameters('mlzTags')]"
+          },
           "tags": {
             "value": "[parameters('tags')]"
           },
@@ -1472,13 +1515,16 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.54.24096",
-              "templateHash": "13855748863144258342"
+              "version": "0.26.170.59819",
+              "templateHash": "7415404915420906908"
             }
           },
           "parameters": {
             "location": {
               "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "tags": {
               "type": "object"
@@ -1493,7 +1539,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'sysprepVirtualMachine')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": false,
                 "asyncExecution": true,
@@ -1533,6 +1579,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[parameters('mlzTags')]"
+          },
           "tags": {
             "value": "[parameters('tags')]"
           },
@@ -1547,8 +1596,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.54.24096",
-              "templateHash": "1408076597272275810"
+              "version": "0.26.170.59819",
+              "templateHash": "15694908783439778041"
             }
           },
           "parameters": {
@@ -1561,6 +1610,9 @@
             "location": {
               "type": "string",
               "defaultValue": "[resourceGroup().location]"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "tags": {
               "type": "object"
@@ -1578,7 +1630,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'generalizeVirtualMachine')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": true,
                 "asyncExecution": false,
@@ -1661,6 +1713,9 @@
           "marketplaceImagePublisher": {
             "value": "[parameters('marketplaceImagePublisher')]"
           },
+          "mlzTags": {
+            "value": "[parameters('mlzTags')]"
+          },
           "replicaCount": {
             "value": "[parameters('replicaCount')]"
           },
@@ -1674,8 +1729,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.54.24096",
-              "templateHash": "5850341894374079914"
+              "version": "0.26.170.59819",
+              "templateHash": "673135601830674247"
             }
           },
           "parameters": {
@@ -1710,6 +1765,9 @@
             "marketplaceImagePublisher": {
               "type": "string"
             },
+            "mlzTags": {
+              "type": "object"
+            },
             "replicaCount": {
               "type": "int"
             },
@@ -1723,7 +1781,7 @@
               "apiVersion": "2022-03-03",
               "name": "[format('{0}/{1}', parameters('computeGalleryName'), parameters('imageDefinitionName'))]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "architecture": "x64",
                 "features": [
@@ -1747,7 +1805,7 @@
               "apiVersion": "2022-03-03",
               "name": "[format('{0}/{1}/{2}', parameters('computeGalleryName'), parameters('imageDefinitionName'), parameters('imageVersionNumber'))]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "publishingProfile": {
                   "excludeFromLatest": "[parameters('excludeFromLatest')]",
@@ -1810,6 +1868,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[parameters('mlzTags')]"
+          },
           "tags": {
             "value": "[parameters('tags')]"
           },
@@ -1824,8 +1885,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.54.24096",
-              "templateHash": "2352439563696964014"
+              "version": "0.26.170.59819",
+              "templateHash": "874338715058883059"
             }
           },
           "parameters": {
@@ -1838,6 +1899,9 @@
             "location": {
               "type": "string",
               "defaultValue": "[resourceGroup().location]"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "tags": {
               "type": "object"
@@ -1855,7 +1919,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'removeVirtualMachine')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": true,
                 "asyncExecution": "[if(parameters('enableBuildAutomation'), false(), true())]",

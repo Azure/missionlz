@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "874514961976167309"
+      "templateHash": "3935209082096296502"
     }
   },
   "parameters": {
@@ -70,6 +70,13 @@
         "description": "The resource ID of the HUB Virtual Network."
       }
     },
+    "identifier": {
+      "type": "string",
+      "maxLength": 3,
+      "metadata": {
+        "description": "The identifier for the resource names. This value should represent the workload, project, or business unit."
+      }
+    },
     "location": {
       "type": "string",
       "defaultValue": "[deployment().location]",
@@ -126,14 +133,6 @@
         "description": "The policy to assign to the workload."
       }
     },
-    "resourcePrefix": {
-      "type": "string",
-      "minLength": 3,
-      "maxLength": 10,
-      "metadata": {
-        "description": "A prefix, 3 to 10 characters in length, to append to resource names (e.g. \"dev\", \"test\", \"prod\", \"mlz\"). It defaults to \"mlz\"."
-      }
-    },
     "subnetAddressPrefix": {
       "type": "string",
       "metadata": {
@@ -169,7 +168,7 @@
     },
     "workloadName": {
       "type": "string",
-      "defaultValue": "tier3",
+      "defaultValue": "Tier3",
       "minLength": 1,
       "maxLength": 10,
       "metadata": {
@@ -184,14 +183,21 @@
       "metadata": {
         "description": "The short name for the workload."
       }
+    },
+    "workloadVersion": {
+      "type": "string",
+      "defaultValue": "1.0.0",
+      "metadata": {
+        "description": "The version for the workload."
+      }
     }
   },
   "variables": {
     "mlzTags": {
-      "deploymentType": "MissionLandingZoneARM",
       "environmentAbbreviation": "[parameters('environmentAbbreviation')]",
-      "resourcePrefix": "[parameters('resourcePrefix')]",
-      "version": "2024.04.01"
+      "identifier": "[parameters('identifier')]",
+      "workloadType": "[format('MissionLandingZone-{0}', parameters('workloadName'))]",
+      "workloadVersion": "[parameters('workloadVersion')]"
     },
     "hubResourceGroupName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
     "hubSubscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
@@ -216,7 +222,7 @@
             "value": "[parameters('location')]"
           },
           "resourcePrefix": {
-            "value": "[parameters('resourcePrefix')]"
+            "value": "[parameters('identifier')]"
           }
         },
         "template": {
@@ -753,7 +759,7 @@
             "value": "[parameters('environmentAbbreviation')]"
           },
           "resourcePrefix": {
-            "value": "[parameters('resourcePrefix')]"
+            "value": "[parameters('identifier')]"
           },
           "resources": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resources.value]"
@@ -765,7 +771,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value]"
           },
           "workloadName": {
-            "value": "[parameters('workloadName')]"
+            "value": "[toLower(parameters('workloadName'))]"
           },
           "workloadShortName": {
             "value": "[parameters('workloadShortName')]"
@@ -1011,7 +1017,7 @@
             ]
           },
           "workloadName": {
-            "value": "[parameters('workloadName')]"
+            "value": "[toLower(parameters('workloadName'))]"
           },
           "workloadShortName": {
             "value": "[parameters('workloadShortName')]"
@@ -3230,7 +3236,7 @@
       "condition": "[parameters('deployPolicy')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('assign-policy-{0}-{1}', parameters('workloadName'), parameters('deploymentNameSuffix'))]",
+      "name": "[format('assign-policy-{0}-{1}', toLower(parameters('workloadName')), parameters('deploymentNameSuffix'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -3556,7 +3562,7 @@
       "condition": "[parameters('deployDefender')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('set-{0}-sub-defender', parameters('workloadName'))]",
+      "name": "[format('set-{0}-sub-defender', toLower(parameters('workloadName')))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -3808,6 +3814,10 @@
     "diskEncryptionSetResourceId": {
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
+    },
+    "mlzTags": {
+      "type": "object",
+      "value": "[variables('mlzTags')]"
     },
     "network": {
       "type": "object",
