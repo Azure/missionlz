@@ -471,7 +471,7 @@ param deployDefenderPlans array = ['VirtualMachines']
 
 var mlzTags = {
   environmentAbbreviation: environmentAbbreviation
-  landingZoneType: 'MissionLandingZoneARM'
+  landingZoneName: 'MissionLandingZone'
   landingZoneVersion: '1.0.0'
   resourcePrefix: resourcePrefix
 }

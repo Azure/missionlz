@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "16567538782263713970"
+      "templateHash": "6321445544585685376"
     }
   },
   "parameters": {
@@ -817,7 +817,7 @@
     ],
     "mlzTags": {
       "environmentAbbreviation": "[parameters('environmentAbbreviation')]",
-      "landingZoneType": "MissionLandingZoneARM",
+      "landingZoneName": "MissionLandingZone",
       "landingZoneVersion": "1.0.0",
       "resourcePrefix": "[parameters('resourcePrefix')]"
     },
