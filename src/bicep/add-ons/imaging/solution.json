@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "3666779322621911601"
+      "templateHash": "4098442217130518679"
     }
   },
   "parameters": {
@@ -157,6 +157,7 @@
     },
     "identifier": {
       "type": "string",
+      "maxLength": 3,
       "metadata": {
         "description": "The identifier for the resource names. This value should represent the workload, project, or business unit."
       }
@@ -485,24 +486,6 @@
       "defaultValue": [],
       "metadata": {
         "description": "The metrics for the diagnostic setting on the virtual network."
-      }
-    },
-    "workloadName": {
-      "type": "string",
-      "defaultValue": "imaging",
-      "minLength": 1,
-      "maxLength": 10,
-      "metadata": {
-        "description": "The name of the workload."
-      }
-    },
-    "workloadShortName": {
-      "type": "string",
-      "defaultValue": "img",
-      "minLength": 1,
-      "maxLength": 3,
-      "metadata": {
-        "description": "The short name of the workload."
       }
     },
     "wsusServer": {
@@ -899,11 +882,7 @@
       }
     },
     "automationAccountPrivateDnsZoneResourceId": "[resourceId(split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4], 'Microsoft.Network/privateDnsZones', format('privatelink.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudSuffix'))))]",
-    "calculatedTags": "[union(parameters('tags'), variables('defaultTags'))]",
     "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.azure.', ''), '/', '')]",
-    "defaultTags": {
-      "DeploymentType": "MissionLandingZoneARM"
-    },
     "keyVaultPrivateDnsZoneResourceId": "[resourceId(split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4], 'Microsoft.Network/privateDnsZones', replace(format('privatelink{0}', environment().suffixes.keyvaultDns), 'vault', 'vaultcore'))]",
     "imageDefinitionName": "[if(empty(parameters('computeGalleryImageResourceId')), format('{0}-{1}', parameters('imageDefinitionNamePrefix'), parameters('marketplaceImageSKU')), format('{0}-{1}', parameters('imageDefinitionNamePrefix'), split(parameters('computeGalleryImageResourceId'), '/')[10]))]",
     "privateDnsZoneSuffixes_AzureAutomation": {
@@ -913,13 +892,15 @@
       "USSec": null
     },
     "subscriptionId": "[subscription().subscriptionId]",
-    "locations": "[variables('$fxv#0')[environment().name]]"
+    "locations": "[variables('$fxv#0')[environment().name]]",
+    "workloadName": "Imaging",
+    "workloadShortName": "img"
   },
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('tier3-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -954,6 +935,9 @@
           "hubVirtualNetworkResourceId": {
             "value": "[parameters('hubVirtualNetworkResourceId')]"
           },
+          "identifier": {
+            "value": "[parameters('identifier')]"
+          },
           "location": {
             "value": "[parameters('location')]"
           },
@@ -975,14 +959,11 @@
           "policy": {
             "value": "[parameters('policy')]"
           },
-          "resourcePrefix": {
-            "value": "[parameters('identifier')]"
-          },
-          "tags": {
-            "value": "[variables('calculatedTags')]"
-          },
           "subnetAddressPrefix": {
             "value": "[parameters('subnetAddressPrefix')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
           },
           "virtualNetworkAddressPrefix": {
             "value": "[parameters('virtualNetworkAddressPrefix')]"
@@ -994,10 +975,10 @@
             "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
           },
           "workloadName": {
-            "value": "[parameters('workloadName')]"
+            "value": "[variables('workloadName')]"
           },
           "workloadShortName": {
-            "value": "[parameters('workloadShortName')]"
+            "value": "[variables('workloadShortName')]"
           }
         },
         "template": {
@@ -1007,7 +988,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "12226779106297150831"
+              "templateHash": "15277826004755007051"
             }
           },
           "parameters": {
@@ -1072,6 +1053,13 @@
                 "description": "The resource ID of the HUB Virtual Network."
               }
             },
+            "identifier": {
+              "type": "string",
+              "maxLength": 3,
+              "metadata": {
+                "description": "The identifier for the resource names. This value should represent the workload, project, or business unit."
+              }
+            },
             "location": {
               "type": "string",
               "defaultValue": "[deployment().location]",
@@ -1128,14 +1116,6 @@
                 "description": "The policy to assign to the workload."
               }
             },
-            "resourcePrefix": {
-              "type": "string",
-              "minLength": 3,
-              "maxLength": 10,
-              "metadata": {
-                "description": "A prefix, 3 to 10 characters in length, to append to resource names (e.g. \"dev\", \"test\", \"prod\", \"mlz\"). It defaults to \"mlz\"."
-              }
-            },
             "subnetAddressPrefix": {
               "type": "string",
               "metadata": {
@@ -1171,7 +1151,7 @@
             },
             "workloadName": {
               "type": "string",
-              "defaultValue": "tier3",
+              "defaultValue": "Tier3",
               "minLength": 1,
               "maxLength": 10,
               "metadata": {
@@ -1189,9 +1169,17 @@
             }
           },
           "variables": {
-            "calculatedTags": "[union(parameters('tags'), variables('defaultTags'))]",
-            "defaultTags": {
-              "DeploymentType": "MissionLandingZoneARM"
+            "$fxv#0": "1.0.0",
+            "environmentName": {
+              "dev": "Development",
+              "prod": "Production",
+              "test": "Test"
+            },
+            "mlzTags": {
+              "environment": "[variables('environmentName')[parameters('environmentAbbreviation')]]",
+              "identifier": "[parameters('identifier')]",
+              "workloadName": "[format('MissionLandingZone-{0}', parameters('workloadName'))]",
+              "workloadVersion": "[variables('$fxv#0')]"
             },
             "hubResourceGroupName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
             "hubSubscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
@@ -1216,7 +1204,7 @@
                     "value": "[parameters('location')]"
                   },
                   "resourcePrefix": {
-                    "value": "[parameters('resourcePrefix')]"
+                    "value": "[parameters('identifier')]"
                   }
                 },
                 "template": {
@@ -1753,7 +1741,7 @@
                     "value": "[parameters('environmentAbbreviation')]"
                   },
                   "resourcePrefix": {
-                    "value": "[parameters('resourcePrefix')]"
+                    "value": "[parameters('identifier')]"
                   },
                   "resources": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resources.value]"
@@ -1765,7 +1753,7 @@
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value]"
                   },
                   "workloadName": {
-                    "value": "[parameters('workloadName')]"
+                    "value": "[toLower(parameters('workloadName'))]"
                   },
                   "workloadShortName": {
                     "value": "[parameters('workloadShortName')]"
@@ -1872,11 +1860,14 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[variables('mlzTags')]"
+                  },
                   "name": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
                   },
                   "tags": {
-                    "value": "[variables('calculatedTags')]"
+                    "value": "[parameters('tags')]"
                   }
                 },
                 "template": {
@@ -1886,10 +1877,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "5209460256836828877"
+                      "templateHash": "15837787188813527331"
                     }
                   },
                   "parameters": {
+                    "mlzTags": {
+                      "type": "object"
+                    },
                     "name": {
                       "type": "string"
                     },
@@ -1907,7 +1901,7 @@
                       "apiVersion": "2019-05-01",
                       "name": "[parameters('name')]",
                       "location": "[parameters('location')]",
-                      "tags": "[parameters('tags')]"
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Resources/resourceGroups'), parameters('tags')['Microsoft.Resources/resourceGroups'], createObject()), parameters('mlzTags'))]"
                     }
                   ],
                   "outputs": {
@@ -1960,6 +1954,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[variables('mlzTags')]"
+                  },
                   "networkSecurityGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.networkSecurityGroupName]"
                   },
@@ -2002,7 +1999,7 @@
                     ]
                   },
                   "workloadName": {
-                    "value": "[parameters('workloadName')]"
+                    "value": "[toLower(parameters('workloadName'))]"
                   },
                   "workloadShortName": {
                     "value": "[parameters('workloadShortName')]"
@@ -2015,7 +2012,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "606441203562598834"
+                      "templateHash": "5206820343027478458"
                     }
                   },
                   "parameters": {
@@ -2033,6 +2030,9 @@
                     },
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "networkSecurityGroupName": {
                       "type": "string"
@@ -2093,44 +2093,23 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
-                          "tags": {
-                            "value": "[parameters('tags')]"
+                          "deployNetworkWatcher": {
+                            "value": "[parameters('deployNetworkWatcher')]"
+                          },
+                          "firewallSkuTier": {
+                            "value": "[parameters('firewallSkuTier')]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
                           },
-                          "virtualNetworkName": {
-                            "value": "[parameters('virtualNetworkName')]"
-                          },
-                          "virtualNetworkAddressPrefix": {
-                            "value": "[parameters('virtualNetworkAddressPrefix')]"
-                          },
-                          "vNetDnsServers": {
-                            "value": "[parameters('vNetDnsServers')]"
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
                           },
                           "networkSecurityGroupName": {
                             "value": "[parameters('networkSecurityGroupName')]"
                           },
                           "networkSecurityGroupRules": {
                             "value": "[parameters('networkSecurityGroupRules')]"
-                          },
-                          "subnetName": {
-                            "value": "[parameters('subnetName')]"
-                          },
-                          "subnetAddressPrefix": {
-                            "value": "[parameters('subnetAddressPrefix')]"
-                          },
-                          "subnetPrivateEndpointNetworkPolicies": {
-                            "value": "Disabled"
-                          },
-                          "subnetPrivateLinkServiceNetworkPolicies": {
-                            "value": "Disabled"
-                          },
-                          "deployNetworkWatcher": {
-                            "value": "[parameters('deployNetworkWatcher')]"
-                          },
-                          "firewallSkuTier": {
-                            "value": "[parameters('firewallSkuTier')]"
                           },
                           "networkWatcherName": {
                             "value": "[parameters('networkWatcherName')]"
@@ -2140,6 +2119,30 @@
                           },
                           "routeTableRouteNextHopIpAddress": {
                             "value": "[parameters('routeTableRouteNextHopIpAddress')]"
+                          },
+                          "subnetAddressPrefix": {
+                            "value": "[parameters('subnetAddressPrefix')]"
+                          },
+                          "subnetName": {
+                            "value": "[parameters('subnetName')]"
+                          },
+                          "subnetPrivateEndpointNetworkPolicies": {
+                            "value": "Disabled"
+                          },
+                          "subnetPrivateLinkServiceNetworkPolicies": {
+                            "value": "Disabled"
+                          },
+                          "tags": {
+                            "value": "[parameters('tags')]"
+                          },
+                          "virtualNetworkAddressPrefix": {
+                            "value": "[parameters('virtualNetworkAddressPrefix')]"
+                          },
+                          "virtualNetworkName": {
+                            "value": "[parameters('virtualNetworkName')]"
+                          },
+                          "vNetDnsServers": {
+                            "value": "[parameters('vNetDnsServers')]"
                           }
                         },
                         "template": {
@@ -2149,7 +2152,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.26.170.59819",
-                              "templateHash": "12396384297029654856"
+                              "templateHash": "9443806356306142434"
                             }
                           },
                           "parameters": {
@@ -2161,6 +2164,9 @@
                             },
                             "location": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "networkSecurityGroupName": {
                               "type": "string"
@@ -2228,6 +2234,9 @@
                                   "location": {
                                     "value": "[parameters('location')]"
                                   },
+                                  "mlzTags": {
+                                    "value": "[parameters('mlzTags')]"
+                                  },
                                   "name": {
                                     "value": "[parameters('networkSecurityGroupName')]"
                                   },
@@ -2245,12 +2254,15 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.26.170.59819",
-                                      "templateHash": "1748821223200370075"
+                                      "templateHash": "13414814252968710669"
                                     }
                                   },
                                   "parameters": {
                                     "location": {
                                       "type": "string"
+                                    },
+                                    "mlzTags": {
+                                      "type": "object"
                                     },
                                     "name": {
                                       "type": "string"
@@ -2268,7 +2280,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[parameters('tags')]",
+                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkSecurityGroups'), parameters('tags')['Microsoft.Network/networkSecurityGroups'], createObject()), parameters('mlzTags'))]",
                                       "properties": {
                                         "securityRules": "[parameters('securityRules')]"
                                       }
@@ -2303,6 +2315,9 @@
                                   "location": {
                                     "value": "[parameters('location')]"
                                   },
+                                  "mlzTags": {
+                                    "value": "[parameters('mlzTags')]"
+                                  },
                                   "name": {
                                     "value": "[parameters('routeTableName')]"
                                   },
@@ -2329,7 +2344,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.26.170.59819",
-                                      "templateHash": "7424908347166566695"
+                                      "templateHash": "8969815603564770173"
                                     }
                                   },
                                   "parameters": {
@@ -2338,6 +2353,9 @@
                                     },
                                     "location": {
                                       "type": "string"
+                                    },
+                                    "mlzTags": {
+                                      "type": "object"
                                     },
                                     "name": {
                                       "type": "string"
@@ -2364,7 +2382,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[parameters('tags')]",
+                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/routeTables'), parameters('tags')['Microsoft.Network/routeTables'], createObject()), parameters('mlzTags'))]",
                                       "properties": {
                                         "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
                                         "routes": [
@@ -2407,6 +2425,9 @@
                                   "location": {
                                     "value": "[parameters('location')]"
                                   },
+                                  "mlzTags": {
+                                    "value": "[parameters('mlzTags')]"
+                                  },
                                   "name": {
                                     "value": "[parameters('networkWatcherName')]"
                                   },
@@ -2421,12 +2442,15 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.26.170.59819",
-                                      "templateHash": "13397792685646737995"
+                                      "templateHash": "6425343849060009850"
                                     }
                                   },
                                   "parameters": {
                                     "location": {
                                       "type": "string"
+                                    },
+                                    "mlzTags": {
+                                      "type": "object"
                                     },
                                     "name": {
                                       "type": "string"
@@ -2441,7 +2465,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[parameters('tags')]",
+                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkWatchers'), parameters('tags')['Microsoft.Network/networkWatchers'], createObject()), parameters('mlzTags'))]",
                                       "properties": {}
                                     }
                                   ]
@@ -2463,6 +2487,9 @@
                                   },
                                   "location": {
                                     "value": "[parameters('location')]"
+                                  },
+                                  "mlzTags": {
+                                    "value": "[parameters('mlzTags')]"
                                   },
                                   "name": {
                                     "value": "[parameters('virtualNetworkName')]"
@@ -2502,7 +2529,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.26.170.59819",
-                                      "templateHash": "4946450272018234428"
+                                      "templateHash": "6916781723220735567"
                                     }
                                   },
                                   "parameters": {
@@ -2511,6 +2538,9 @@
                                     },
                                     "location": {
                                       "type": "string"
+                                    },
+                                    "mlzTags": {
+                                      "type": "object"
                                     },
                                     "name": {
                                       "type": "string"
@@ -2534,7 +2564,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[parameters('tags')]",
+                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/virtualNetworks'), parameters('tags')['Microsoft.Network/virtualNetworks'], createObject()), parameters('mlzTags'))]",
                                       "properties": {
                                         "addressSpace": {
                                           "addressPrefixes": [
@@ -2621,6 +2651,12 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "hubVirtualNetworkName": {
+                            "value": "[split(parameters('hubVirtualNetworkResourceId'), '/')[8]]"
+                          },
+                          "hubVirtualNetworkResourceId": {
+                            "value": "[parameters('hubVirtualNetworkResourceId')]"
+                          },
                           "spokeName": {
                             "value": "[parameters('workloadName')]"
                           },
@@ -2629,12 +2665,6 @@
                           },
                           "spokeVirtualNetworkName": {
                             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkName.value]"
-                          },
-                          "hubVirtualNetworkName": {
-                            "value": "[split(parameters('hubVirtualNetworkResourceId'), '/')[8]]"
-                          },
-                          "hubVirtualNetworkResourceId": {
-                            "value": "[parameters('hubVirtualNetworkResourceId')]"
                           }
                         },
                         "template": {
@@ -2864,6 +2894,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[variables('mlzTags')]"
+                  },
                   "networkProperties": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value]"
                   },
@@ -2871,7 +2904,7 @@
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
                   },
                   "tags": {
-                    "value": "[variables('calculatedTags')]"
+                    "value": "[parameters('tags')]"
                   }
                 },
                 "template": {
@@ -2881,7 +2914,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "2099501369329835050"
+                      "templateHash": "8607068382992509094"
                     }
                   },
                   "parameters": {
@@ -2893,6 +2926,9 @@
                     },
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "networkProperties": {
                       "type": "object"
@@ -2932,6 +2968,9 @@
                           "location": {
                             "value": "[parameters('location')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "subnetResourceId": {
                             "value": "[parameters('subnetResourceId')]"
                           },
@@ -2946,7 +2985,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.26.170.59819",
-                              "templateHash": "15271362632612072350"
+                              "templateHash": "2708305007283639705"
                             }
                           },
                           "parameters": {
@@ -2969,6 +3008,9 @@
                             "location": {
                               "type": "string"
                             },
+                            "mlzTags": {
+                              "type": "object"
+                            },
                             "subnetResourceId": {
                               "type": "string"
                             },
@@ -2982,7 +3024,7 @@
                               "apiVersion": "2022-07-01",
                               "name": "[parameters('keyVaultName')]",
                               "location": "[parameters('location')]",
-                              "tags": "[if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject())]",
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "enabledForDeployment": false,
                                 "enabledForDiskEncryption": true,
@@ -3010,7 +3052,7 @@
                               "apiVersion": "2023-04-01",
                               "name": "[parameters('keyVaultPrivateEndpointName')]",
                               "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
                                 "privateLinkServiceConnections": [
@@ -3155,7 +3197,7 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-disk-encryption-set-{0}', parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[parameters('networkProperties').subscriptionId]",
                       "resourceGroup": "[parameters('networkProperties').resourceGroupName]",
                       "properties": {
@@ -3179,6 +3221,9 @@
                           "location": {
                             "value": "[parameters('location')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), createObject('value', parameters('tags')['Microsoft.Compute/diskEncryptionSets']), createObject('value', createObject()))]"
                         },
                         "template": {
@@ -3188,7 +3233,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.26.170.59819",
-                              "templateHash": "6363188069641627327"
+                              "templateHash": "2253498434473273498"
                             }
                           },
                           "parameters": {
@@ -3207,6 +3252,9 @@
                             "location": {
                               "type": "string"
                             },
+                            "mlzTags": {
+                              "type": "object"
+                            },
                             "tags": {
                               "type": "object"
                             }
@@ -3217,7 +3265,7 @@
                               "apiVersion": "2023-04-02",
                               "name": "[parameters('diskEncryptionSetName')]",
                               "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), parameters('tags')['Microsoft.Compute/diskEncryptionSets'], createObject()), parameters('mlzTags'))]",
                               "identity": {
                                 "type": "SystemAssigned"
                               },
@@ -3337,6 +3385,9 @@
                           "location": {
                             "value": "[parameters('location')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "name": {
                             "value": "[parameters('networkProperties').userAssignedIdentityName]"
                           },
@@ -3351,12 +3402,15 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.26.170.59819",
-                              "templateHash": "16132885150802890863"
+                              "templateHash": "17180318248198488154"
                             }
                           },
                           "parameters": {
                             "location": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "name": {
                               "type": "string"
@@ -3371,7 +3425,7 @@
                               "apiVersion": "2018-11-30",
                               "name": "[parameters('name')]",
                               "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]"
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tags')['Microsoft.ManagedIdentity/userAssignedIdentities'], createObject()), parameters('mlzTags'))]"
                             },
                             {
                               "type": "Microsoft.Resources/deployments",
@@ -3464,7 +3518,7 @@
                   "outputs": {
                     "diskEncryptionSetResourceId": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-disk-encryption-set-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                     },
                     "KeyVaultName": {
                       "type": "string",
@@ -3517,6 +3571,9 @@
                   "logStorageSkuName": {
                     "value": "[parameters('logStorageSkuName')]"
                   },
+                  "mlzTags": {
+                    "value": "[variables('mlzTags')]"
+                  },
                   "network": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value]"
                   },
@@ -3533,7 +3590,7 @@
                     "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', format('privatelink.table.{0}', environment().suffixes.storage))]"
                   },
                   "tags": {
-                    "value": "[variables('calculatedTags')]"
+                    "value": "[parameters('tags')]"
                   },
                   "userAssignedIdentityResourceId": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
@@ -3546,7 +3603,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "3251319739965287544"
+                      "templateHash": "4236106586138373505"
                     }
                   },
                   "parameters": {
@@ -3561,6 +3618,9 @@
                     },
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "network": {
                       "type": "object"
@@ -3606,6 +3666,9 @@
                           "location": {
                             "value": "[parameters('location')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "serviceToken": {
                             "value": "[parameters('serviceToken')]"
                           },
@@ -3644,7 +3707,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.26.170.59819",
-                              "templateHash": "17791141146954639757"
+                              "templateHash": "2945887437755946902"
                             }
                           },
                           "parameters": {
@@ -3656,6 +3719,9 @@
                             },
                             "location": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "serviceToken": {
                               "type": "string"
@@ -3700,6 +3766,7 @@
                               "apiVersion": "2023-01-01",
                               "name": "[parameters('storageAccountName')]",
                               "location": "[parameters('location')]",
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Storage/storageAccounts'), parameters('tags')['Microsoft.Storage/storageAccounts'], createObject()), parameters('mlzTags'))]",
                               "identity": {
                                 "type": "UserAssigned",
                                 "userAssignedIdentities": {
@@ -3710,7 +3777,6 @@
                               "sku": {
                                 "name": "[parameters('skuName')]"
                               },
-                              "tags": "[parameters('tags')]",
                               "properties": {
                                 "accessTier": "Hot",
                                 "allowBlobPublicAccess": false,
@@ -3768,7 +3834,7 @@
                               "apiVersion": "2023-04-01",
                               "name": "[replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                               "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "customNetworkInterfaceName": "[replace(parameters('storageAccountNetworkInterfaceNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                                 "privateLinkServiceConnections": [
@@ -4152,7 +4218,7 @@
               "condition": "[parameters('deployPolicy')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('assign-policy-{0}-{1}', parameters('workloadName'), parameters('deploymentNameSuffix'))]",
+              "name": "[format('assign-policy-{0}-{1}', toLower(parameters('workloadName')), parameters('deploymentNameSuffix'))]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -4478,7 +4544,7 @@
               "condition": "[parameters('deployDefender')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('set-{0}-sub-defender', parameters('workloadName'))]",
+              "name": "[format('set-{0}-sub-defender', toLower(parameters('workloadName')))]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -4486,11 +4552,11 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "logAnalyticsWorkspaceId": {
-                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
-                  },
                   "emailSecurityContact": {
                     "value": "[parameters('emailSecurityContact')]"
+                  },
+                  "logAnalyticsWorkspaceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   }
                 },
                 "template": {
@@ -4731,6 +4797,10 @@
               "type": "string",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
             },
+            "mlzTags": {
+              "type": "object",
+              "value": "[variables('mlzTags')]"
+            },
             "network": {
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value]"
@@ -4750,7 +4820,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('baseline-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -4759,13 +4829,13 @@
         "mode": "Incremental",
         "parameters": {
           "computeGalleryName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.computeGalleryName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.computeGalleryName]"
           },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
           "diskEncryptionSetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
           },
           "enableBuildAutomation": {
             "value": "[parameters('enableBuildAutomation')]"
@@ -4776,8 +4846,11 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+          },
           "resourceGroupName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
           },
           "storageAccountResourceId": {
             "value": "[parameters('storageAccountResourceId')]"
@@ -4786,10 +4859,10 @@
             "value": "[variables('subscriptionId')]"
           },
           "tags": {
-            "value": "[variables('calculatedTags')]"
+            "value": "[parameters('tags')]"
           },
           "userAssignedIdentityName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.userAssignedIdentityName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.userAssignedIdentityName]"
           }
         },
         "template": {
@@ -4799,7 +4872,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "14441026106643217552"
+              "templateHash": "7690073340382206658"
             }
           },
           "parameters": {
@@ -4820,6 +4893,9 @@
             },
             "location": {
               "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "resourceGroupName": {
               "type": "string"
@@ -4853,6 +4929,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "name": {
                     "value": "[parameters('userAssignedIdentityName')]"
                   },
@@ -4867,12 +4946,15 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "6852400647613957887"
+                      "templateHash": "6296883959770176834"
                     }
                   },
                   "parameters": {
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "name": {
                       "type": "string"
@@ -4887,7 +4969,7 @@
                       "apiVersion": "2018-11-30",
                       "name": "[parameters('name')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tags')['Microsoft.ManagedIdentity/userAssignedIdentities'], createObject())]"
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tags')['Microsoft.ManagedIdentity/userAssignedIdentities'], createObject()), parameters('mlzTags'))]"
                     }
                   ],
                   "outputs": {
@@ -5098,14 +5180,17 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "computeGalleryName": {
+                    "value": "[parameters('computeGalleryName')]"
+                  },
                   "enableBuildAutomation": {
                     "value": "[parameters('enableBuildAutomation')]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "computeGalleryName": {
-                    "value": "[parameters('computeGalleryName')]"
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -5121,7 +5206,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "11177226662478232805"
+                      "templateHash": "17328117917467575507"
                     }
                   },
                   "parameters": {
@@ -5133,6 +5218,9 @@
                     },
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "tags": {
                       "type": "object"
@@ -5150,7 +5238,7 @@
                       "apiVersion": "2022-01-03",
                       "name": "[parameters('computeGalleryName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject())]"
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]"
                     },
                     {
                       "condition": "[parameters('enableBuildAutomation')]",
@@ -5259,14 +5347,14 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "condition": "[parameters('enableBuildAutomation')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('build-automation-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('deploy-build-automation-{0}', parameters('deploymentNameSuffix'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -5275,13 +5363,13 @@
         "mode": "Incremental",
         "parameters": {
           "actionGroupName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.actionGroupName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.actionGroupName]"
           },
           "arcGisProInstaller": {
             "value": "[parameters('arcGisProInstaller')]"
           },
           "automationAccountName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.automationAccountName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.automationAccountName]"
           },
           "automationAccountPrivateDnsZoneResourceId": {
             "value": "[variables('automationAccountPrivateDnsZoneResourceId')]"
@@ -5290,7 +5378,7 @@
             "value": "[parameters('computeGalleryImageResourceId')]"
           },
           "computeGalleryResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.computeGalleryResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.computeGalleryResourceId.value]"
           },
           "containerName": {
             "value": "[parameters('containerName')]"
@@ -5302,7 +5390,7 @@
             "value": "[parameters('deploymentNameSuffix')]"
           },
           "diskEncryptionSetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
           },
           "distributionGroup": {
             "value": "[parameters('distributionGroup')]"
@@ -5335,7 +5423,7 @@
             "value": "[parameters('imagePatchVersion')]"
           },
           "imageVirtualMachineName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.virtualMachineName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'b')]"
+            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.virtualMachineName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'b')]"
           },
           "installAccess": {
             "value": "[parameters('installAccess')]"
@@ -5383,7 +5471,7 @@
             "value": "[parameters('installWord')]"
           },
           "keyVaultName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.keyVaultName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.keyVaultName]"
           },
           "keyVaultPrivateDnsZoneResourceId": {
             "value": "[variables('keyVaultPrivateDnsZoneResourceId')]"
@@ -5401,7 +5489,7 @@
             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
           },
           "managementVirtualMachineName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.virtualMachineName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'm')]"
+            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.virtualMachineName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'm')]"
           },
           "marketplaceImageOffer": {
             "value": "[parameters('marketplaceImageOffer')]"
@@ -5411,6 +5499,9 @@
           },
           "marketplaceImageSKU": {
             "value": "[parameters('marketplaceImageSKU')]"
+          },
+          "mlzTags": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "msrdcwebrtcsvcInstaller": {
             "value": "[parameters('msrdcwebrtcsvcInstaller')]"
@@ -5425,7 +5516,7 @@
             "value": "[parameters('replicaCount')]"
           },
           "resourceGroupName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
           },
           "sourceImageType": {
             "value": "[parameters('sourceImageType')]"
@@ -5434,13 +5525,13 @@
             "value": "[parameters('storageAccountResourceId')]"
           },
           "subnetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
           },
           "subscriptionId": {
             "value": "[variables('subscriptionId')]"
           },
           "tags": {
-            "value": "[variables('calculatedTags')]"
+            "value": "[parameters('tags')]"
           },
           "teamsInstaller": {
             "value": "[parameters('teamsInstaller')]"
@@ -5452,13 +5543,13 @@
             "value": "[parameters('updateService')]"
           },
           "userAssignedIdentityClientId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityClientId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityClientId.value]"
           },
           "userAssignedIdentityPrincipalId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityPrincipalId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityPrincipalId.value]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
           },
           "vcRedistInstaller": {
             "value": "[parameters('vcRedistInstaller')]"
@@ -5480,7 +5571,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "11195414107423330193"
+              "templateHash": "4119811371263647101"
             }
           },
           "parameters": {
@@ -5618,6 +5709,9 @@
             },
             "marketplaceImageSKU": {
               "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "msrdcwebrtcsvcInstaller": {
               "type": "string"
@@ -5792,6 +5886,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "roleDefinitionResourceId": {
                     "value": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(subscription().id, 'KeyVaultDeployAction'))]"
                   },
@@ -5812,7 +5909,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "10017897309220548060"
+                      "templateHash": "17814077642366917627"
                     }
                   },
                   "parameters": {
@@ -5836,6 +5933,9 @@
                     },
                     "localAdministratorUsername": {
                       "type": "securestring"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "roleDefinitionResourceId": {
                       "type": "string"
@@ -5877,7 +5977,7 @@
                       "apiVersion": "2021-10-01",
                       "name": "[parameters('keyVaultName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "tenantId": "[subscription().tenantId]",
                         "sku": {
@@ -5903,7 +6003,7 @@
                       "apiVersion": "2023-05-01",
                       "name": "[variables('privateEndpointName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "privateLinkServiceConnections": [
                           {
@@ -5952,7 +6052,7 @@
                       "type": "Microsoft.KeyVault/vaults/secrets",
                       "apiVersion": "2021-10-01",
                       "name": "[format('{0}/{1}', parameters('keyVaultName'), variables('Secrets')[copyIndex()].name)]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "value": "[variables('Secrets')[copyIndex()].value]"
                       },
@@ -6005,6 +6105,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   }
@@ -6016,7 +6119,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "944126609031965655"
+                      "templateHash": "15655695416078279043"
                     }
                   },
                   "parameters": {
@@ -6025,6 +6128,9 @@
                     },
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "tags": {
                       "type": "object"
@@ -6037,8 +6143,8 @@
                       "metadata": {
                         "_generator": {
                           "name": "bicep",
-                          "version": "0.26.54.24096",
-                          "templateHash": "9174134663226790442"
+                          "version": "0.26.170.59819",
+                          "templateHash": "3135582023314630375"
                         }
                       },
                       "parameters": {
@@ -6178,6 +6284,10 @@
                         "marketplaceImageSKU": {
                           "type": "string"
                         },
+                        "mlzTags": {
+                          "type": "object",
+                          "defaultValue": {}
+                        },
                         "msrdcwebrtcsvcInstaller": {
                           "type": "string",
                           "defaultValue": ""
@@ -6283,6 +6393,9 @@
                               "location": {
                                 "value": "[[parameters('location')]"
                               },
+                              "mlzTags": {
+                                "value": "[[parameters('mlzTags')]"
+                              },
                               "storageAccountName": {
                                 "value": "[[split(parameters('storageAccountResourceId'), '/')[8]]"
                               },
@@ -6308,8 +6421,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.54.24096",
-                                  "templateHash": "12968919444807468891"
+                                  "version": "0.26.170.59819",
+                                  "templateHash": "8898522588803558538"
                                 }
                               },
                               "parameters": {
@@ -6330,6 +6443,9 @@
                                 },
                                 "location": {
                                   "type": "string"
+                                },
+                                "mlzTags": {
+                                  "type": "object"
                                 },
                                 "storageAccountName": {
                                   "type": "string"
@@ -6356,7 +6472,7 @@
                                   "apiVersion": "2023-04-01",
                                   "name": "[[format('nic-{0}', parameters('virtualMachineName'))]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "ipConfigurations": [
                                       {
@@ -6380,7 +6496,7 @@
                                   "apiVersion": "2022-03-01",
                                   "name": "[[parameters('virtualMachineName')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "identity": {
                                     "type": "UserAssigned",
                                     "userAssignedIdentities": {
@@ -6459,7 +6575,7 @@
                                   "apiVersion": "2023-03-01",
                                   "name": "[[format('{0}/{1}', parameters('virtualMachineName'), 'appAzModules')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "treatFailureAsDeploymentFailure": true,
                                     "asyncExecution": false,
@@ -6525,6 +6641,9 @@
                               "marketplaceImageSKU": {
                                 "value": "[[parameters('marketplaceImageSKU')]"
                               },
+                              "mlzTags": {
+                                "value": "[[parameters('mlzTags')]"
+                              },
                               "computeGalleryImageResourceId": {
                                 "value": "[[parameters('computeGalleryImageResourceId')]"
                               },
@@ -6553,11 +6672,14 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.54.24096",
-                                  "templateHash": "3416440754020274895"
+                                  "version": "0.26.170.59819",
+                                  "templateHash": "8557004379539182499"
                                 }
                               },
                               "parameters": {
+                                "computeGalleryImageResourceId": {
+                                  "type": "string"
+                                },
                                 "localAdministratorPassword": {
                                   "type": "securestring"
                                 },
@@ -6576,8 +6698,8 @@
                                 "marketplaceImageSKU": {
                                   "type": "string"
                                 },
-                                "computeGalleryImageResourceId": {
-                                  "type": "string"
+                                "mlzTags": {
+                                  "type": "object"
                                 },
                                 "sourceImageType": {
                                   "type": "string"
@@ -6607,7 +6729,7 @@
                                   "apiVersion": "2022-05-01",
                                   "name": "[[format('nic-{0}', parameters('virtualMachineName'))]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "ipConfigurations": [
                                       {
@@ -6627,7 +6749,7 @@
                                   "apiVersion": "2022-03-01",
                                   "name": "[[parameters('virtualMachineName')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "identity": {
                                     "type": "UserAssigned",
                                     "userAssignedIdentities": {
@@ -6761,6 +6883,9 @@
                               "location": {
                                 "value": "[[parameters('location')]"
                               },
+                              "mlzTags": {
+                                "value": "[[parameters('mlzTags')]"
+                              },
                               "msrdcwebrtcsvcInstaller": {
                                 "value": "[[parameters('msrdcwebrtcsvcInstaller')]"
                               },
@@ -6798,8 +6923,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.54.24096",
-                                  "templateHash": "10008712211219806019"
+                                  "version": "0.26.170.59819",
+                                  "templateHash": "3676051126599760309"
                                 }
                               },
                               "parameters": {
@@ -6856,6 +6981,9 @@
                                 },
                                 "location": {
                                   "type": "string"
+                                },
+                                "mlzTags": {
+                                  "type": "object"
                                 },
                                 "msrdcwebrtcsvcInstaller": {
                                   "type": "string"
@@ -6914,7 +7042,7 @@
                                   "apiVersion": "2023-03-01",
                                   "name": "[[format('{0}/{1}', parameters('virtualMachineName'), format('app-{0}', variables('installers')[copyIndex()].name))]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "treatFailureAsDeploymentFailure": true,
                                     "asyncExecution": false,
@@ -6959,7 +7087,7 @@
                                   "apiVersion": "2023-03-01",
                                   "name": "[[format('{0}/{1}', parameters('virtualMachineName'), 'office')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "treatFailureAsDeploymentFailure": true,
                                     "asyncExecution": false,
@@ -7043,7 +7171,7 @@
                                   "apiVersion": "2023-03-01",
                                   "name": "[[format('{0}/{1}', parameters('virtualMachineName'), 'vdot')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "treatFailureAsDeploymentFailure": true,
                                     "asyncExecution": false,
@@ -7086,7 +7214,7 @@
                                   "apiVersion": "2023-03-01",
                                   "name": "[[format('{0}/{1}', parameters('virtualMachineName'), 'teams')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "treatFailureAsDeploymentFailure": true,
                                     "asyncExecution": false,
@@ -7135,7 +7263,7 @@
                                   "apiVersion": "2023-03-01",
                                   "name": "[[format('{0}/{1}', parameters('virtualMachineName'), 'arcGisPro')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "treatFailureAsDeploymentFailure": true,
                                     "asyncExecution": false,
@@ -7200,6 +7328,9 @@
                               "location": {
                                 "value": "[[parameters('location')]"
                               },
+                              "mlzTags": {
+                                "value": "[[parameters('mlzTags')]"
+                              },
                               "tags": {
                                 "value": "[[parameters('tags')]"
                               },
@@ -7214,8 +7345,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.54.24096",
-                                  "templateHash": "10420021406848674052"
+                                  "version": "0.26.170.59819",
+                                  "templateHash": "14414542062672835812"
                                 }
                               },
                               "parameters": {
@@ -7227,6 +7358,9 @@
                                 },
                                 "location": {
                                   "type": "string"
+                                },
+                                "mlzTags": {
+                                  "type": "object"
                                 },
                                 "tags": {
                                   "type": "object"
@@ -7244,7 +7378,7 @@
                                   "apiVersion": "2023-03-01",
                                   "name": "[[format('{0}/{1}', parameters('virtualMachineName'), 'restartVirtualMachine')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "treatFailureAsDeploymentFailure": true,
                                     "asyncExecution": false,
@@ -7307,6 +7441,9 @@
                               "location": {
                                 "value": "[[parameters('location')]"
                               },
+                              "mlzTags": {
+                                "value": "[[parameters('mlzTags')]"
+                              },
                               "tags": {
                                 "value": "[[parameters('tags')]"
                               },
@@ -7323,16 +7460,19 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.54.24096",
-                                  "templateHash": "12095172867813258567"
+                                  "version": "0.26.170.59819",
+                                  "templateHash": "461917832205884645"
                                 }
                               },
                               "parameters": {
+                                "imageVirtualMachineName": {
+                                  "type": "string"
+                                },
                                 "location": {
                                   "type": "string"
                                 },
-                                "imageVirtualMachineName": {
-                                  "type": "string"
+                                "mlzTags": {
+                                  "type": "object"
                                 },
                                 "tags": {
                                   "type": "object"
@@ -7350,6 +7490,7 @@
                                   "apiVersion": "2023-03-01",
                                   "name": "[[format('{0}/{1}', parameters('imageVirtualMachineName'), 'install-microsoft-updates')]",
                                   "location": "[[parameters('location')]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "asyncExecution": false,
                                     "parameters": "[[if(equals(parameters('updateService'), 'WSUS'), createArray(createObject('name', 'Service', 'value', parameters('updateService')), createObject('name', 'WSUSServer', 'value', parameters('wsusServer'))), createArray(createObject('name', 'Service', 'value', parameters('updateService'))))]",
@@ -7357,8 +7498,7 @@
                                       "script": "        param (\r\n          # The App Name to pass to the WUA API as the calling application.\r\n          [Parameter()]\r\n          [String]$AppName = \"Windows Update API Script\",\r\n          # The search criteria to be used.\r\n          [Parameter()]\r\n          [String]$Criteria = \"IsInstalled=0 and Type='Software' and IsHidden=0\",\r\n          [Parameter()]\r\n          [bool]$ExcludePreviewUpdates = $true,\r\n          # Default service (WSUS if machine is configured to use it, or MU if opted in, or WU otherwise.)\r\n          [Parameter()]\r\n          [ValidateSet(\"WU\",\"MU\",\"WSUS\",\"DCAT\",\"STORE\",\"OTHER\")]\r\n          [string]$Service = 'MU',\r\n          # The http/https fqdn for the Windows Server Update Server\r\n          [Parameter()]\r\n          [string]$WSUSServer\r\n        )\r\n        \r\n        Function ConvertFrom-InstallationResult {\r\n        [CmdletBinding()]\r\n            param (\r\n                [Parameter()]\r\n                [int]$Result\r\n            )        \r\n            switch ($Result) {\r\n                2 { $Text = 'Succeeded' }\r\n                3 { $Text = 'Succeeded with errors' }\r\n                4 { $Text = 'Failed' }\r\n                5 { $Text = 'Cancelled' }\r\n                Default { $Text = \"Unexpected ($Result)\"}\r\n            }        \r\n            Return $Text\r\n        }\r\n        Start-Transcript -Path \"$env:SystemRoot\\Logs\\ImageBuild\\Install-Updates.log\"\r\n        Switch ($Service.ToUpper()) {\r\n            'WU' { $ServerSelection = 2 }\r\n            'MU' { $ServerSelection = 3; $ServiceId = \"7971f918-a847-4430-9279-4a52d1efe18d\" }\r\n            'WSUS' { $ServerSelection = 1 }\r\n            'DCAT' { $ServerSelection = 3; $ServiceId = \"855E8A7C-ECB4-4CA3-B045-1DFA50104289\" }\r\n            'STORE' { $serverSelection = 3; $ServiceId = \"117cab2d-82b1-4b5a-a08c-4d62dbee7782\" }\r\n            'OTHER' { $ServerSelection = 3; $ServiceId = $Service }\r\n        }        \r\n        If ($Service -eq 'MU') {\r\n            $UpdateServiceManager = New-Object -ComObject Microsoft.Update.ServiceManager\r\n            $UpdateServiceManager.ClientApplicationID = $AppName\r\n            $UpdateServiceManager.AddService2(\"7971f918-a847-4430-9279-4a52d1efe18d\", 7, \"\")\r\n            $null = cmd /c reg.exe ADD \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /t REG_DWORD /d 1 /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure Microsoft Update. Exit Code: [$LastExitCode]\"\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure WSUS Server. Exit Code: [$LastExitCode]\"\r\n        }        \r\n        $UpdateSession = New-Object -ComObject Microsoft.Update.Session\r\n        $updateSession.ClientApplicationID = $AppName   \r\n        $UpdateSearcher = $UpdateSession.CreateUpdateSearcher()\r\n        $UpdateSearcher.ServerSelection = $ServerSelection\r\n        If ($ServerSelection -eq 3) {\r\n            $UpdateSearcher.ServiceId = $ServiceId\r\n        }\r\n        Write-Output \"Searching for Updates...\"\r\n        $SearchResult = $UpdateSearcher.Search($Criteria)\r\n        If ($SearchResult.Updates.Count -eq 0) {\r\n            Write-Output \"There are no applicable updates.\"\r\n            Write-Output \"Now Exiting\"\r\n            Exit $ExitCode\r\n        }\r\n        Write-Output \"List of applicable items found for this computer:\"\r\n        For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n            $Update = $SearchResult.Updates[$i]\r\n            Write-Output \"$($i + 1) > $($update.Title)\"\r\n        }\r\n        $AtLeastOneAdded = $false\r\n        $ExclusiveAdded = $false   \r\n        $UpdatesToDownload = New-Object -ComObject Microsoft.Update.UpdateColl\r\n        Write-Output \"Checking search results:\"\r\n        For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n            $Update = $SearchResult.Updates[$i]\r\n            $AddThisUpdate = $false        \r\n            If ($ExclusiveAdded) {\r\n                Write-Output \"$($i + 1) > skipping: '$($update.Title)' because an exclusive update has already been selected.\"\r\n            } Else {\r\n                $AddThisUpdate = $true\r\n            }        \r\n            if ($ExcludePreviewUpdates -and $update.Title -like '*Preview*') {\r\n                Write-Output \"$($i + 1) > Skipping: '$($update.Title)' because it is a preview update.\"\r\n                $AddThisUpdate = $false\r\n            }        \r\n            If ($AddThisUpdate) {\r\n                $PropertyTest = 0\r\n                $ErrorActionPreference = 'SilentlyContinue'\r\n                $PropertyTest = $Update.InstallationBehavior.Impact\r\n                $ErrorActionPreference = 'Stop'\r\n                If ($PropertyTest -eq 2) {\r\n                    If ($AtLeastOneAdded) {\r\n                        Write-Output \"$($i + 1) > skipping: '$($update.Title)' because it is exclusive and other updates are being installed first.\"\r\n                        $AddThisUpdate = $false\r\n                    }\r\n                }\r\n            }\r\n            If ($AddThisUpdate) {\r\n                Write-Output \"$($i + 1) > adding: '$($update.Title)'\"\r\n                $UpdatesToDownload.Add($Update) | out-null\r\n                $AtLeastOneAdded = $true\r\n                $ErrorActionPreference = 'SilentlyContinue'\r\n                $PropertyTest = $Update.InstallationBehavior.Impact\r\n                $ErrorActionPreference = 'Stop'\r\n                If ($PropertyTest -eq 2) {\r\n                    Write-Output \"This update is exclusive; skipping remaining updates\"\r\n                    $ExclusiveAdded = $true\r\n                }\r\n            }\r\n        }        \r\n        $UpdatesToInstall = New-Object -ComObject Microsoft.Update.UpdateColl\r\n        Write-Output \"Downloading updates...\"\r\n        $Downloader = $UpdateSession.CreateUpdateDownloader()\r\n        $Downloader.Updates = $UpdatesToDownload\r\n        $Downloader.Download()\r\n        Write-Output \"Successfully downloaded updates:\"        \r\n        For ($i = 0; $i -lt $UpdatesToDownload.Count; $i++) {\r\n            $Update = $UpdatesToDownload[$i]\r\n            If ($Update.IsDownloaded -eq $true) {\r\n                Write-Output \"$($i + 1) > $($update.title)\"\r\n                $UpdatesToInstall.Add($Update) | out-null\r\n            }\r\n        }        \r\n        If ($UpdatesToInstall.Count -gt 0) {\r\n            Write-Output \"Now installing updates...\"\r\n            $Installer = $UpdateSession.CreateUpdateInstaller()\r\n            $Installer.Updates = $UpdatesToInstall\r\n            $InstallationResult = $Installer.Install()\r\n            $Text = ConvertFrom-InstallationResult -Result $InstallationResult.ResultCode\r\n            Write-Output \"Installation Result: $($Text)\"        \r\n            If ($InstallationResult.RebootRequired) {\r\n                Write-Output \"Atleast one update requires a reboot to complete the installation.\"\r\n            }\r\n        }\r\n        If ($service -eq 'MU') {\r\n            Reg.exe DELETE \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /f\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /f\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /f\r\n        }\r\n        Stop-Transcript\r\n      "
                                     },
                                     "treatFailureAsDeploymentFailure": true
-                                  },
-                                  "tags": "[[parameters('tags')]"
+                                  }
                                 }
                               ]
                             }
@@ -7389,6 +7529,9 @@
                               "location": {
                                 "value": "[[parameters('location')]"
                               },
+                              "mlzTags": {
+                                "value": "[[parameters('mlzTags')]"
+                              },
                               "tags": {
                                 "value": "[[parameters('tags')]"
                               },
@@ -7403,8 +7546,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.54.24096",
-                                  "templateHash": "10420021406848674052"
+                                  "version": "0.26.170.59819",
+                                  "templateHash": "14414542062672835812"
                                 }
                               },
                               "parameters": {
@@ -7416,6 +7559,9 @@
                                 },
                                 "location": {
                                   "type": "string"
+                                },
+                                "mlzTags": {
+                                  "type": "object"
                                 },
                                 "tags": {
                                   "type": "object"
@@ -7433,7 +7579,7 @@
                                   "apiVersion": "2023-03-01",
                                   "name": "[[format('{0}/{1}', parameters('virtualMachineName'), 'restartVirtualMachine')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "treatFailureAsDeploymentFailure": true,
                                     "asyncExecution": false,
@@ -7492,6 +7638,9 @@
                               "location": {
                                 "value": "[[parameters('location')]"
                               },
+                              "mlzTags": {
+                                "value": "[[parameters('mlzTags')]"
+                              },
                               "tags": {
                                 "value": "[[parameters('tags')]"
                               },
@@ -7505,13 +7654,16 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.54.24096",
-                                  "templateHash": "13855748863144258342"
+                                  "version": "0.26.170.59819",
+                                  "templateHash": "7415404915420906908"
                                 }
                               },
                               "parameters": {
                                 "location": {
                                   "type": "string"
+                                },
+                                "mlzTags": {
+                                  "type": "object"
                                 },
                                 "tags": {
                                   "type": "object"
@@ -7526,7 +7678,7 @@
                                   "apiVersion": "2023-03-01",
                                   "name": "[[format('{0}/{1}', parameters('virtualMachineName'), 'sysprepVirtualMachine')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "treatFailureAsDeploymentFailure": false,
                                     "asyncExecution": true,
@@ -7566,6 +7718,9 @@
                               "location": {
                                 "value": "[[parameters('location')]"
                               },
+                              "mlzTags": {
+                                "value": "[[parameters('mlzTags')]"
+                              },
                               "tags": {
                                 "value": "[[parameters('tags')]"
                               },
@@ -7580,8 +7735,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.54.24096",
-                                  "templateHash": "1408076597272275810"
+                                  "version": "0.26.170.59819",
+                                  "templateHash": "15694908783439778041"
                                 }
                               },
                               "parameters": {
@@ -7594,6 +7749,9 @@
                                 "location": {
                                   "type": "string",
                                   "defaultValue": "[[resourceGroup().location]"
+                                },
+                                "mlzTags": {
+                                  "type": "object"
                                 },
                                 "tags": {
                                   "type": "object"
@@ -7611,7 +7769,7 @@
                                   "apiVersion": "2023-03-01",
                                   "name": "[[format('{0}/{1}', parameters('virtualMachineName'), 'generalizeVirtualMachine')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "treatFailureAsDeploymentFailure": true,
                                     "asyncExecution": false,
@@ -7694,6 +7852,9 @@
                               "marketplaceImagePublisher": {
                                 "value": "[[parameters('marketplaceImagePublisher')]"
                               },
+                              "mlzTags": {
+                                "value": "[[parameters('mlzTags')]"
+                              },
                               "replicaCount": {
                                 "value": "[[parameters('replicaCount')]"
                               },
@@ -7707,8 +7868,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.54.24096",
-                                  "templateHash": "5850341894374079914"
+                                  "version": "0.26.170.59819",
+                                  "templateHash": "673135601830674247"
                                 }
                               },
                               "parameters": {
@@ -7743,6 +7904,9 @@
                                 "marketplaceImagePublisher": {
                                   "type": "string"
                                 },
+                                "mlzTags": {
+                                  "type": "object"
+                                },
                                 "replicaCount": {
                                   "type": "int"
                                 },
@@ -7756,7 +7920,7 @@
                                   "apiVersion": "2022-03-03",
                                   "name": "[[format('{0}/{1}', parameters('computeGalleryName'), parameters('imageDefinitionName'))]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "architecture": "x64",
                                     "features": [
@@ -7780,7 +7944,7 @@
                                   "apiVersion": "2022-03-03",
                                   "name": "[[format('{0}/{1}/{2}', parameters('computeGalleryName'), parameters('imageDefinitionName'), parameters('imageVersionNumber'))]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "publishingProfile": {
                                       "excludeFromLatest": "[[parameters('excludeFromLatest')]",
@@ -7843,6 +8007,9 @@
                               "location": {
                                 "value": "[[parameters('location')]"
                               },
+                              "mlzTags": {
+                                "value": "[[parameters('mlzTags')]"
+                              },
                               "tags": {
                                 "value": "[[parameters('tags')]"
                               },
@@ -7857,8 +8024,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.54.24096",
-                                  "templateHash": "2352439563696964014"
+                                  "version": "0.26.170.59819",
+                                  "templateHash": "874338715058883059"
                                 }
                               },
                               "parameters": {
@@ -7871,6 +8038,9 @@
                                 "location": {
                                   "type": "string",
                                   "defaultValue": "[[resourceGroup().location]"
+                                },
+                                "mlzTags": {
+                                  "type": "object"
                                 },
                                 "tags": {
                                   "type": "object"
@@ -7888,7 +8058,7 @@
                                   "apiVersion": "2023-03-01",
                                   "name": "[[format('{0}/{1}', parameters('virtualMachineName'), 'removeVirtualMachine')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "treatFailureAsDeploymentFailure": true,
                                     "asyncExecution": "[[if(parameters('enableBuildAutomation'), false(), true())]",
@@ -7955,7 +8125,7 @@
                       "apiVersion": "2022-02-01",
                       "name": "[format('ts-{0}', parameters('imageDefinitionName'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Resources/templateSpecs'), parameters('tags')['Microsoft.Resources/templateSpecs'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Resources/templateSpecs'), parameters('tags')['Microsoft.Resources/templateSpecs'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "description": "[format('An automation runbook deploys a new image version for the \"{0}\" image definition from this template spec.', parameters('imageDefinitionName'))]",
                         "displayName": "[format('Zero Trust Image Build Automation: {0}', parameters('imageDefinitionName'))]"
@@ -7966,7 +8136,7 @@
                       "apiVersion": "2022-02-01",
                       "name": "[format('{0}/{1}', format('ts-{0}', parameters('imageDefinitionName')), '1.0')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Resources/templateSpecs'), parameters('tags')['Microsoft.Resources/templateSpecs'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Resources/templateSpecs'), parameters('tags')['Microsoft.Resources/templateSpecs'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "mainTemplate": "[variables('$fxv#0')]"
                       },
@@ -8014,6 +8184,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "storageAccountName": {
                     "value": "[split(parameters('storageAccountResourceId'), '/')[8]]"
                   },
@@ -8040,7 +8213,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "18104253772045364892"
+                      "templateHash": "8898522588803558538"
                     }
                   },
                   "parameters": {
@@ -8061,6 +8234,9 @@
                     },
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "storageAccountName": {
                       "type": "string"
@@ -8087,7 +8263,7 @@
                       "apiVersion": "2023-04-01",
                       "name": "[format('nic-{0}', parameters('virtualMachineName'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "ipConfigurations": [
                           {
@@ -8111,7 +8287,7 @@
                       "apiVersion": "2022-03-01",
                       "name": "[parameters('virtualMachineName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "identity": {
                         "type": "UserAssigned",
                         "userAssignedIdentities": {
@@ -8190,7 +8366,7 @@
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'appAzModules')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "treatFailureAsDeploymentFailure": true,
                         "asyncExecution": false,
@@ -8371,6 +8547,9 @@
                   "marketplaceImageSKU": {
                     "value": "[parameters('marketplaceImageSKU')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "msrdcwebrtcsvcInstaller": {
                     "value": "[parameters('msrdcwebrtcsvcInstaller')]"
                   },
@@ -8439,7 +8618,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "4765535130495697096"
+                      "templateHash": "17109972071763386466"
                     }
                   },
                   "parameters": {
@@ -8576,6 +8755,9 @@
                     "marketplaceImageSKU": {
                       "type": "string"
                     },
+                    "mlzTags": {
+                      "type": "object"
+                    },
                     "msrdcwebrtcsvcInstaller": {
                       "type": "string"
                     },
@@ -8677,6 +8859,7 @@
                       "marketplaceImageOffer": "[parameters('marketplaceImageOffer')]",
                       "marketplaceImagePublisher": "[parameters('marketplaceImagePublisher')]",
                       "marketplaceImageSKU": "[parameters('marketplaceImageSKU')]",
+                      "mlzTags": "[string(parameters('mlzTags'))]",
                       "msrdcwebrtcsvcInstaller": "[parameters('msrdcwebrtcsvcInstaller')]",
                       "officeInstaller": "[parameters('officeInstaller')]",
                       "replicaCount": "[string(parameters('replicaCount'))]",
@@ -8711,7 +8894,7 @@
                       "apiVersion": "2022-08-08",
                       "name": "[parameters('automationAccountName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Automation/automationAccounts'), parameters('tags')['Microsoft.Automation/automationAccounts'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Automation/automationAccounts'), parameters('tags')['Microsoft.Automation/automationAccounts'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "disableLocalAuth": false,
                         "publicNetworkAccess": false,
@@ -8729,7 +8912,7 @@
                       "apiVersion": "2023-05-01",
                       "name": "[variables('privateEndpointName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "privateLinkServiceConnections": [
                           {
@@ -8775,7 +8958,7 @@
                       "apiVersion": "2023-07-01",
                       "name": "[format('{0}/{1}', parameters('managementVirtualMachineName'), 'runbook')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "treatFailureAsDeploymentFailure": true,
                         "asyncExecution": false,
@@ -8963,6 +9146,9 @@
                           "logAnalyticsWorkspaceResourceId": {
                             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "tags": {
                             "value": "[parameters('tags')]"
                           }
@@ -8974,7 +9160,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.26.170.59819",
-                              "templateHash": "9911755838550799955"
+                              "templateHash": "16943257959653266739"
                             }
                           },
                           "parameters": {
@@ -8992,6 +9178,9 @@
                             },
                             "logAnalyticsWorkspaceResourceId": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "tags": {
                               "type": "object"
@@ -9087,7 +9276,7 @@
                               "apiVersion": "2022-06-01",
                               "name": "[parameters('actionGroupName')]",
                               "location": "global",
-                              "tags": "[if(contains(parameters('tags'), 'Microsoft.Insights/actionGroups'), parameters('tags')['Microsoft.Insights/actionGroups'], createObject())]",
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Insights/actionGroups'), parameters('tags')['Microsoft.Insights/actionGroups'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "emailReceivers": [
                                   {
@@ -9110,7 +9299,7 @@
                               "apiVersion": "2022-06-15",
                               "name": "[variables('alerts')[range(0, length(variables('alerts')))[copyIndex()]].name]",
                               "location": "[parameters('location')]",
-                              "tags": "[if(contains(parameters('tags'), 'Microsoft.Insights/scheduledQueryRules'), parameters('tags')['Microsoft.Insights/scheduledQueryRules'], createObject())]",
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Insights/scheduledQueryRules'), parameters('tags')['Microsoft.Insights/scheduledQueryRules'], createObject()), parameters('mlzTags'))]",
                               "kind": "LogAlert",
                               "properties": {
                                 "actions": {
@@ -9154,14 +9343,14 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('image-build-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('build-image-{0}', parameters('deploymentNameSuffix'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -9176,7 +9365,7 @@
             "value": "[parameters('computeGalleryImageResourceId')]"
           },
           "computeGalleryName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.computeGalleryName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.computeGalleryName]"
           },
           "containerName": {
             "value": "[parameters('containerName')]"
@@ -9188,7 +9377,7 @@
             "value": "[parameters('deploymentNameSuffix')]"
           },
           "diskEncryptionSetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
           },
           "enableBuildAutomation": {
             "value": "[parameters('enableBuildAutomation')]"
@@ -9209,7 +9398,7 @@
             "value": "[parameters('imagePatchVersion')]"
           },
           "imageVirtualMachineName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.windowsVmName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'b')]"
+            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.windowsVmName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'b')]"
           },
           "installAccess": {
             "value": "[parameters('installAccess')]"
@@ -9257,7 +9446,7 @@
             "value": "[parameters('installWord')]"
           },
           "keyVaultName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.keyVaultName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.keyVaultName]"
           },
           "localAdministratorPassword": {
             "value": "[parameters('localAdministratorPassword')]"
@@ -9269,7 +9458,7 @@
             "value": "[parameters('location')]"
           },
           "managementVirtualMachineName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.windowsVmName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'm')]"
+            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.windowsVmName, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'm')]"
           },
           "marketplaceImageOffer": {
             "value": "[parameters('marketplaceImageOffer')]"
@@ -9279,6 +9468,9 @@
           },
           "marketplaceImageSKU": {
             "value": "[parameters('marketplaceImageSKU')]"
+          },
+          "mlzTags": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "msrdcwebrtcsvcInstaller": {
             "value": "[parameters('msrdcwebrtcsvcInstaller')]"
@@ -9290,7 +9482,7 @@
             "value": "[parameters('replicaCount')]"
           },
           "resourceGroupName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
           },
           "sourceImageType": {
             "value": "[parameters('sourceImageType')]"
@@ -9299,10 +9491,10 @@
             "value": "[parameters('storageAccountResourceId')]"
           },
           "subnetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
           },
           "tags": {
-            "value": "[variables('calculatedTags')]"
+            "value": "[parameters('tags')]"
           },
           "teamsInstaller": {
             "value": "[parameters('teamsInstaller')]"
@@ -9311,13 +9503,13 @@
             "value": "[parameters('updateService')]"
           },
           "userAssignedIdentityClientId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityClientId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityClientId.value]"
           },
           "userAssignedIdentityPrincipalId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityPrincipalId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityPrincipalId.value]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
           },
           "vcRedistInstaller": {
             "value": "[parameters('vcRedistInstaller')]"
@@ -9339,7 +9531,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "11063187035331650710"
+              "templateHash": "3135582023314630375"
             }
           },
           "parameters": {
@@ -9479,6 +9671,10 @@
             "marketplaceImageSKU": {
               "type": "string"
             },
+            "mlzTags": {
+              "type": "object",
+              "defaultValue": {}
+            },
             "msrdcwebrtcsvcInstaller": {
               "type": "string",
               "defaultValue": ""
@@ -9584,6 +9780,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "storageAccountName": {
                     "value": "[split(parameters('storageAccountResourceId'), '/')[8]]"
                   },
@@ -9610,7 +9809,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "18104253772045364892"
+                      "templateHash": "8898522588803558538"
                     }
                   },
                   "parameters": {
@@ -9631,6 +9830,9 @@
                     },
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "storageAccountName": {
                       "type": "string"
@@ -9657,7 +9859,7 @@
                       "apiVersion": "2023-04-01",
                       "name": "[format('nic-{0}', parameters('virtualMachineName'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "ipConfigurations": [
                           {
@@ -9681,7 +9883,7 @@
                       "apiVersion": "2022-03-01",
                       "name": "[parameters('virtualMachineName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "identity": {
                         "type": "UserAssigned",
                         "userAssignedIdentities": {
@@ -9760,7 +9962,7 @@
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'appAzModules')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "treatFailureAsDeploymentFailure": true,
                         "asyncExecution": false,
@@ -9826,6 +10028,9 @@
                   "marketplaceImageSKU": {
                     "value": "[parameters('marketplaceImageSKU')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "computeGalleryImageResourceId": {
                     "value": "[parameters('computeGalleryImageResourceId')]"
                   },
@@ -9855,10 +10060,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "16606087927122147353"
+                      "templateHash": "8557004379539182499"
                     }
                   },
                   "parameters": {
+                    "computeGalleryImageResourceId": {
+                      "type": "string"
+                    },
                     "localAdministratorPassword": {
                       "type": "securestring"
                     },
@@ -9877,8 +10085,8 @@
                     "marketplaceImageSKU": {
                       "type": "string"
                     },
-                    "computeGalleryImageResourceId": {
-                      "type": "string"
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "sourceImageType": {
                       "type": "string"
@@ -9908,7 +10116,7 @@
                       "apiVersion": "2022-05-01",
                       "name": "[format('nic-{0}', parameters('virtualMachineName'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "ipConfigurations": [
                           {
@@ -9928,7 +10136,7 @@
                       "apiVersion": "2022-03-01",
                       "name": "[parameters('virtualMachineName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "identity": {
                         "type": "UserAssigned",
                         "userAssignedIdentities": {
@@ -10062,6 +10270,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "msrdcwebrtcsvcInstaller": {
                     "value": "[parameters('msrdcwebrtcsvcInstaller')]"
                   },
@@ -10100,7 +10311,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "5063423178695910787"
+                      "templateHash": "3676051126599760309"
                     }
                   },
                   "parameters": {
@@ -10157,6 +10368,9 @@
                     },
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "msrdcwebrtcsvcInstaller": {
                       "type": "string"
@@ -10215,7 +10429,7 @@
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), format('app-{0}', variables('installers')[copyIndex()].name))]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "treatFailureAsDeploymentFailure": true,
                         "asyncExecution": false,
@@ -10260,7 +10474,7 @@
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'office')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "treatFailureAsDeploymentFailure": true,
                         "asyncExecution": false,
@@ -10344,7 +10558,7 @@
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'vdot')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "treatFailureAsDeploymentFailure": true,
                         "asyncExecution": false,
@@ -10387,7 +10601,7 @@
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'teams')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "treatFailureAsDeploymentFailure": true,
                         "asyncExecution": false,
@@ -10436,7 +10650,7 @@
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'arcGisPro')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "treatFailureAsDeploymentFailure": true,
                         "asyncExecution": false,
@@ -10501,6 +10715,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
@@ -10516,7 +10733,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "7998009414181952607"
+                      "templateHash": "14414542062672835812"
                     }
                   },
                   "parameters": {
@@ -10528,6 +10745,9 @@
                     },
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "tags": {
                       "type": "object"
@@ -10545,7 +10765,7 @@
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'restartVirtualMachine')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "treatFailureAsDeploymentFailure": true,
                         "asyncExecution": false,
@@ -10608,6 +10828,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
@@ -10625,15 +10848,18 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "12687553363641201153"
+                      "templateHash": "461917832205884645"
                     }
                   },
                   "parameters": {
+                    "imageVirtualMachineName": {
+                      "type": "string"
+                    },
                     "location": {
                       "type": "string"
                     },
-                    "imageVirtualMachineName": {
-                      "type": "string"
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "tags": {
                       "type": "object"
@@ -10651,6 +10877,7 @@
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', parameters('imageVirtualMachineName'), 'install-microsoft-updates')]",
                       "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "asyncExecution": false,
                         "parameters": "[if(equals(parameters('updateService'), 'WSUS'), createArray(createObject('name', 'Service', 'value', parameters('updateService')), createObject('name', 'WSUSServer', 'value', parameters('wsusServer'))), createArray(createObject('name', 'Service', 'value', parameters('updateService'))))]",
@@ -10658,8 +10885,7 @@
                           "script": "        param (\r\n          # The App Name to pass to the WUA API as the calling application.\r\n          [Parameter()]\r\n          [String]$AppName = \"Windows Update API Script\",\r\n          # The search criteria to be used.\r\n          [Parameter()]\r\n          [String]$Criteria = \"IsInstalled=0 and Type='Software' and IsHidden=0\",\r\n          [Parameter()]\r\n          [bool]$ExcludePreviewUpdates = $true,\r\n          # Default service (WSUS if machine is configured to use it, or MU if opted in, or WU otherwise.)\r\n          [Parameter()]\r\n          [ValidateSet(\"WU\",\"MU\",\"WSUS\",\"DCAT\",\"STORE\",\"OTHER\")]\r\n          [string]$Service = 'MU',\r\n          # The http/https fqdn for the Windows Server Update Server\r\n          [Parameter()]\r\n          [string]$WSUSServer\r\n        )\r\n        \r\n        Function ConvertFrom-InstallationResult {\r\n        [CmdletBinding()]\r\n            param (\r\n                [Parameter()]\r\n                [int]$Result\r\n            )        \r\n            switch ($Result) {\r\n                2 { $Text = 'Succeeded' }\r\n                3 { $Text = 'Succeeded with errors' }\r\n                4 { $Text = 'Failed' }\r\n                5 { $Text = 'Cancelled' }\r\n                Default { $Text = \"Unexpected ($Result)\"}\r\n            }        \r\n            Return $Text\r\n        }\r\n        Start-Transcript -Path \"$env:SystemRoot\\Logs\\ImageBuild\\Install-Updates.log\"\r\n        Switch ($Service.ToUpper()) {\r\n            'WU' { $ServerSelection = 2 }\r\n            'MU' { $ServerSelection = 3; $ServiceId = \"7971f918-a847-4430-9279-4a52d1efe18d\" }\r\n            'WSUS' { $ServerSelection = 1 }\r\n            'DCAT' { $ServerSelection = 3; $ServiceId = \"855E8A7C-ECB4-4CA3-B045-1DFA50104289\" }\r\n            'STORE' { $serverSelection = 3; $ServiceId = \"117cab2d-82b1-4b5a-a08c-4d62dbee7782\" }\r\n            'OTHER' { $ServerSelection = 3; $ServiceId = $Service }\r\n        }        \r\n        If ($Service -eq 'MU') {\r\n            $UpdateServiceManager = New-Object -ComObject Microsoft.Update.ServiceManager\r\n            $UpdateServiceManager.ClientApplicationID = $AppName\r\n            $UpdateServiceManager.AddService2(\"7971f918-a847-4430-9279-4a52d1efe18d\", 7, \"\")\r\n            $null = cmd /c reg.exe ADD \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /t REG_DWORD /d 1 /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure Microsoft Update. Exit Code: [$LastExitCode]\"\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure WSUS Server. Exit Code: [$LastExitCode]\"\r\n        }        \r\n        $UpdateSession = New-Object -ComObject Microsoft.Update.Session\r\n        $updateSession.ClientApplicationID = $AppName   \r\n        $UpdateSearcher = $UpdateSession.CreateUpdateSearcher()\r\n        $UpdateSearcher.ServerSelection = $ServerSelection\r\n        If ($ServerSelection -eq 3) {\r\n            $UpdateSearcher.ServiceId = $ServiceId\r\n        }\r\n        Write-Output \"Searching for Updates...\"\r\n        $SearchResult = $UpdateSearcher.Search($Criteria)\r\n        If ($SearchResult.Updates.Count -eq 0) {\r\n            Write-Output \"There are no applicable updates.\"\r\n            Write-Output \"Now Exiting\"\r\n            Exit $ExitCode\r\n        }\r\n        Write-Output \"List of applicable items found for this computer:\"\r\n        For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n            $Update = $SearchResult.Updates[$i]\r\n            Write-Output \"$($i + 1) > $($update.Title)\"\r\n        }\r\n        $AtLeastOneAdded = $false\r\n        $ExclusiveAdded = $false   \r\n        $UpdatesToDownload = New-Object -ComObject Microsoft.Update.UpdateColl\r\n        Write-Output \"Checking search results:\"\r\n        For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n            $Update = $SearchResult.Updates[$i]\r\n            $AddThisUpdate = $false        \r\n            If ($ExclusiveAdded) {\r\n                Write-Output \"$($i + 1) > skipping: '$($update.Title)' because an exclusive update has already been selected.\"\r\n            } Else {\r\n                $AddThisUpdate = $true\r\n            }        \r\n            if ($ExcludePreviewUpdates -and $update.Title -like '*Preview*') {\r\n                Write-Output \"$($i + 1) > Skipping: '$($update.Title)' because it is a preview update.\"\r\n                $AddThisUpdate = $false\r\n            }        \r\n            If ($AddThisUpdate) {\r\n                $PropertyTest = 0\r\n                $ErrorActionPreference = 'SilentlyContinue'\r\n                $PropertyTest = $Update.InstallationBehavior.Impact\r\n                $ErrorActionPreference = 'Stop'\r\n                If ($PropertyTest -eq 2) {\r\n                    If ($AtLeastOneAdded) {\r\n                        Write-Output \"$($i + 1) > skipping: '$($update.Title)' because it is exclusive and other updates are being installed first.\"\r\n                        $AddThisUpdate = $false\r\n                    }\r\n                }\r\n            }\r\n            If ($AddThisUpdate) {\r\n                Write-Output \"$($i + 1) > adding: '$($update.Title)'\"\r\n                $UpdatesToDownload.Add($Update) | out-null\r\n                $AtLeastOneAdded = $true\r\n                $ErrorActionPreference = 'SilentlyContinue'\r\n                $PropertyTest = $Update.InstallationBehavior.Impact\r\n                $ErrorActionPreference = 'Stop'\r\n                If ($PropertyTest -eq 2) {\r\n                    Write-Output \"This update is exclusive; skipping remaining updates\"\r\n                    $ExclusiveAdded = $true\r\n                }\r\n            }\r\n        }        \r\n        $UpdatesToInstall = New-Object -ComObject Microsoft.Update.UpdateColl\r\n        Write-Output \"Downloading updates...\"\r\n        $Downloader = $UpdateSession.CreateUpdateDownloader()\r\n        $Downloader.Updates = $UpdatesToDownload\r\n        $Downloader.Download()\r\n        Write-Output \"Successfully downloaded updates:\"        \r\n        For ($i = 0; $i -lt $UpdatesToDownload.Count; $i++) {\r\n            $Update = $UpdatesToDownload[$i]\r\n            If ($Update.IsDownloaded -eq $true) {\r\n                Write-Output \"$($i + 1) > $($update.title)\"\r\n                $UpdatesToInstall.Add($Update) | out-null\r\n            }\r\n        }        \r\n        If ($UpdatesToInstall.Count -gt 0) {\r\n            Write-Output \"Now installing updates...\"\r\n            $Installer = $UpdateSession.CreateUpdateInstaller()\r\n            $Installer.Updates = $UpdatesToInstall\r\n            $InstallationResult = $Installer.Install()\r\n            $Text = ConvertFrom-InstallationResult -Result $InstallationResult.ResultCode\r\n            Write-Output \"Installation Result: $($Text)\"        \r\n            If ($InstallationResult.RebootRequired) {\r\n                Write-Output \"Atleast one update requires a reboot to complete the installation.\"\r\n            }\r\n        }\r\n        If ($service -eq 'MU') {\r\n            Reg.exe DELETE \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /f\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /f\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /f\r\n        }\r\n        Stop-Transcript\r\n      "
                         },
                         "treatFailureAsDeploymentFailure": true
-                      },
-                      "tags": "[parameters('tags')]"
+                      }
                     }
                   ]
                 }
@@ -10690,6 +10916,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
@@ -10705,7 +10934,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "7998009414181952607"
+                      "templateHash": "14414542062672835812"
                     }
                   },
                   "parameters": {
@@ -10717,6 +10946,9 @@
                     },
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "tags": {
                       "type": "object"
@@ -10734,7 +10966,7 @@
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'restartVirtualMachine')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "treatFailureAsDeploymentFailure": true,
                         "asyncExecution": false,
@@ -10793,6 +11025,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
@@ -10807,12 +11042,15 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "7308587233600395221"
+                      "templateHash": "7415404915420906908"
                     }
                   },
                   "parameters": {
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "tags": {
                       "type": "object"
@@ -10827,7 +11065,7 @@
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'sysprepVirtualMachine')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "treatFailureAsDeploymentFailure": false,
                         "asyncExecution": true,
@@ -10867,6 +11105,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
@@ -10882,7 +11123,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "5050255541303993540"
+                      "templateHash": "15694908783439778041"
                     }
                   },
                   "parameters": {
@@ -10895,6 +11136,9 @@
                     "location": {
                       "type": "string",
                       "defaultValue": "[resourceGroup().location]"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "tags": {
                       "type": "object"
@@ -10912,7 +11156,7 @@
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'generalizeVirtualMachine')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "treatFailureAsDeploymentFailure": true,
                         "asyncExecution": false,
@@ -10995,6 +11239,9 @@
                   "marketplaceImagePublisher": {
                     "value": "[parameters('marketplaceImagePublisher')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "replicaCount": {
                     "value": "[parameters('replicaCount')]"
                   },
@@ -11009,7 +11256,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "10547477504747261836"
+                      "templateHash": "673135601830674247"
                     }
                   },
                   "parameters": {
@@ -11044,6 +11291,9 @@
                     "marketplaceImagePublisher": {
                       "type": "string"
                     },
+                    "mlzTags": {
+                      "type": "object"
+                    },
                     "replicaCount": {
                       "type": "int"
                     },
@@ -11057,7 +11307,7 @@
                       "apiVersion": "2022-03-03",
                       "name": "[format('{0}/{1}', parameters('computeGalleryName'), parameters('imageDefinitionName'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "architecture": "x64",
                         "features": [
@@ -11081,7 +11331,7 @@
                       "apiVersion": "2022-03-03",
                       "name": "[format('{0}/{1}/{2}', parameters('computeGalleryName'), parameters('imageDefinitionName'), parameters('imageVersionNumber'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publishingProfile": {
                           "excludeFromLatest": "[parameters('excludeFromLatest')]",
@@ -11144,6 +11394,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
@@ -11159,7 +11412,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "13833293872194761798"
+                      "templateHash": "874338715058883059"
                     }
                   },
                   "parameters": {
@@ -11172,6 +11425,9 @@
                     "location": {
                       "type": "string",
                       "defaultValue": "[resourceGroup().location]"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "tags": {
                       "type": "object"
@@ -11189,7 +11445,7 @@
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'removeVirtualMachine')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "treatFailureAsDeploymentFailure": true,
                         "asyncExecution": "[if(parameters('enableBuildAutomation'), false(), true())]",
@@ -11251,16 +11507,16 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('baseline-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('build-automation-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('tier3-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-imaging-baseline-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-build-automation-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }
   ],
   "outputs": {
     "imageDefinitionResourceId": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('image-build-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.imageDefinitionResourceId.value]"
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('build-image-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.imageDefinitionResourceId.value]"
     }
   }
 }

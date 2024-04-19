@@ -1,5 +1,11 @@
-param location string
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param imageVirtualMachineName string
+param location string
+param mlzTags object
 param tags object
 param updateService string
 param wsusServer string
@@ -9,26 +15,32 @@ resource imageVm 'Microsoft.Compute/virtualMachines@2023-09-01' existing = {
 }
 
 resource microsoftUpdates 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
+  parent: imageVm
   name: 'install-microsoft-updates'
   location: location
-  parent: imageVm
+  tags: union(
+    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+    mlzTags
+  )
   properties: {
     asyncExecution: false
-    parameters: updateService == 'WSUS' ? [
-      {
-        name: 'Service'
-        value: updateService
-      }
-      {
-        name: 'WSUSServer'
-        value: wsusServer
-      }
-    ] : [
-      {
-        name: 'Service'
-        value: updateService
-      }
-    ]   
+    parameters: updateService == 'WSUS'
+      ? [
+          {
+            name: 'Service'
+            value: updateService
+          }
+          {
+            name: 'WSUSServer'
+            value: wsusServer
+          }
+        ]
+      : [
+          {
+            name: 'Service'
+            value: updateService
+          }
+        ]
     source: {
       script: '''
         param (
@@ -179,5 +191,4 @@ resource microsoftUpdates 'Microsoft.Compute/virtualMachines/runCommands@2023-03
     }
     treatFailureAsDeploymentFailure: true
   }
-  tags: tags
 }

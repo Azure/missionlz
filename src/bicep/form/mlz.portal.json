@@ -1156,12 +1156,25 @@
           "bladeSubtitle": "Tags",
           "elements": [
             {
-              "name": "tagsByResource",
-              "label": "Tags by Resource",
+              "name": "tags",
               "type": "Microsoft.Common.TagsByResource",
-              "visible": true,
               "resources": [
-                "MissionLandingZone"
+                "Microsoft.Compute/diskEncryptionSets",
+                "Microsoft.KeyVault/vaults",
+                "Microsoft.ManagedIdentity/userAssignedIdentities",
+                "Microsoft.Network/azureFirewalls",
+                "Microsoft.Network/firewallPolicies",
+                "Microsoft.Network/networkSecurityGroups",
+                "Microsoft.Network/networkWatchers",
+                "Microsoft.Network/privateDnsZones",
+                "Microsoft.Network/privateEndpoints",
+                "Microsoft.Network/publicIPAddresses",
+                "Microsoft.Network/routeTables",
+                "Microsoft.Network/virtualNetworks",
+                "Microsoft.OperationalInsights/workspaces",
+                "Microsoft.OperationsManagement/solutions",
+                "Microsoft.Resources/resourceGroups",
+                "Microsoft.Storage/storageAccounts"
               ]
             }
           ]
@@ -1206,7 +1219,7 @@
         "sharedServicesSubnetAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange]",
         "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
         "sharedServicesVirtualNetworkAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange]",
-        "tags": "[if(not(contains(steps('tags').tagsByResource, 'MissionLandingZone')), parse('{}'), first(map(parse(concat('[', string(steps('tags').tagsByResource), ']')), (item) => item.MissionLandingZone)))]",
+        "tags": "[steps('tags').tags]",
         "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword.password]",
         "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]"
       }

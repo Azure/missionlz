@@ -5,6 +5,7 @@ Licensed under the MIT License.
 
 param addressPrefix string
 param location string
+param mlzTags object
 param name string
 param subnets array
 param tags object
@@ -14,8 +15,7 @@ param firewallSkuTier string
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' = {
   name: name
   location: location
-  tags: tags
-
+  tags: union(contains(tags, 'Microsoft.Network/virtualNetworks') ? tags['Microsoft.Network/virtualNetworks'] : {}, mlzTags)
   properties: {
     addressSpace: {
       addressPrefixes: [

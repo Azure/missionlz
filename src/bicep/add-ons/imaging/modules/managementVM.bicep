@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param containerName string
 param diskEncryptionSetResourceId string
 param hybridUseBenefit bool
@@ -6,6 +11,7 @@ param localAdministratorPassword string
 @secure()
 param localAdministratorUsername string
 param location string
+param mlzTags object
 param storageAccountName string
 param subnetResourceId string
 param tags object
@@ -16,7 +22,10 @@ param virtualMachineName string
 resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
   name: 'nic-${virtualMachineName}'
   location: location
-  tags: contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}
+  tags: union(
+    contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {},
+    mlzTags
+  )
   properties: {
     ipConfigurations: [
       {
@@ -39,7 +48,10 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: virtualMachineName
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: union(
+    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+    mlzTags
+  )
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -114,7 +126,10 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 resource modules 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
   name: 'appAzModules'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: union(
+    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+    mlzTags
+  )
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true

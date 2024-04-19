@@ -6,9 +6,11 @@ Licensed under the MIT License.
 param diskEncryptionSetName string
 param deploymentNameSuffix string
 param keyVaultName string
+param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
+param keyVaultPrivateEndpointName string
 param location string
-param resourcePrefix string
+param mlzTags object
 param subnetResourceId string
 param tags object
 param userAssignedIdentityName string
@@ -17,9 +19,11 @@ module keyVault '../modules/key-vault.bicep' = {
   name: 'deploy-key-vault-${deploymentNameSuffix}'
   params: {
     keyVaultName: keyVaultName
+    keyVaultNetworkInterfaceName: keyVaultNetworkInterfaceName
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
+    keyVaultPrivateEndpointName: keyVaultPrivateEndpointName
     location: location
-    resourcePrefix: resourcePrefix
+    mlzTags: mlzTags
     subnetResourceId: subnetResourceId
     tags: tags
   }
@@ -33,6 +37,7 @@ module diskEncryptionSet '../modules/disk-encryption-set.bicep' = {
     keyUrl: keyVault.outputs.keyUriWithVersion
     keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
+    mlzTags: mlzTags
     tags: contains(tags, 'Microsoft.Compute/diskEncryptionSets') ? tags['Microsoft.Compute/diskEncryptionSets'] : {}
   }
 }
@@ -41,6 +46,7 @@ module userAssignedIdentity '../modules/user-assigned-identity.bicep' = {
   name: 'deploy-user-assigned-identity-${deploymentNameSuffix}'
   params: {
     location: location
+    mlzTags: mlzTags
     name: userAssignedIdentityName
     tags: tags
   }

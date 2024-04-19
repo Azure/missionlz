@@ -11,6 +11,7 @@ param hubVirtualNetworkSubscriptionId string
 param identityVirtualNetworkName string
 param identityVirtualNetworkResourceGroupName string
 param identityVirtualNetworkSubscriptionId string
+param mlzTags object
 param tags object
 
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.azure.', ''), '/', '')
@@ -71,7 +72,7 @@ var virtualNetworks = union([
 resource privateDnsZones 'Microsoft.Network/privateDnsZones@2018-09-01' = [for name in privateDnsZoneNames: {
   name: name
   location: 'global'
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Network/privateDnsZones') ? tags['Microsoft.Network/privateDnsZones'] : {}, mlzTags)
 }]
 
 @batchSize(1)

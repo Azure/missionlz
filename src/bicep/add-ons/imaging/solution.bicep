@@ -69,6 +69,7 @@ param hubVirtualNetworkResourceId string
 @description('Determines whether to use the hybrid use benefit.')
 param hybridUseBenefit bool
 
+@maxLength(3)
 @description('The identifier for the resource names. This value should represent the workload, project, or business unit.')
 param identifier string
 
@@ -235,25 +236,11 @@ param virtualNetworkDiagnosticsLogs array = []
 @description('The metrics for the diagnostic setting on the virtual network.')
 param virtualNetworkDiagnosticsMetrics array = []
 
-@minLength(1)
-@maxLength(10)
-@description('The name of the workload.')
-param workloadName string = 'imaging'
-
-@minLength(1)
-@maxLength(3)
-@description('The short name of the workload.')
-param workloadShortName string = 'img'
-
 @description('The WSUS Server Url if WSUS is specified. (i.e., https://wsus.corp.contoso.com:8531)')
 param wsusServer string = ''
 
 var automationAccountPrivateDnsZoneResourceId = resourceId(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4], 'Microsoft.Network/privateDnsZones','privatelink.azure-automation.${privateDnsZoneSuffixes_AzureAutomation[environment().name] ?? cloudSuffix}')
-var calculatedTags = union(tags, defaultTags)
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.azure.', ''), '/', '')
-var defaultTags = {
-  DeploymentType: 'MissionLandingZoneARM'
-}
 var keyVaultPrivateDnsZoneResourceId = resourceId(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4], 'Microsoft.Network/privateDnsZones', replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore'))
 var imageDefinitionName = empty(computeGalleryImageResourceId) ? '${imageDefinitionNamePrefix}-${marketplaceImageSKU}' : '${imageDefinitionNamePrefix}-${split(computeGalleryImageResourceId, '/')[10]}'
 var privateDnsZoneSuffixes_AzureAutomation = {
@@ -264,9 +251,11 @@ var privateDnsZoneSuffixes_AzureAutomation = {
 }
 var subscriptionId = subscription().subscriptionId
 var locations = (loadJsonContent('../../data/locations.json'))[environment().name]
+var workloadName = 'Imaging'
+var workloadShortName = 'img'
 
 module tier3 '../tier3/solution.bicep' = {
-  name: 'tier3-${deploymentNameSuffix}'
+  name: 'deploy-tier3-${deploymentNameSuffix}'
   params: {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
@@ -277,6 +266,7 @@ module tier3 '../tier3/solution.bicep' = {
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: azureFirewallResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
+    identifier: identifier
     location: location
     logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
@@ -284,9 +274,8 @@ module tier3 '../tier3/solution.bicep' = {
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     networkSecurityGroupRules: networkSecurityGroupRules
     policy: policy
-    resourcePrefix: identifier
-    tags: calculatedTags
     subnetAddressPrefix: subnetAddressPrefix
+    tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
@@ -296,7 +285,7 @@ module tier3 '../tier3/solution.bicep' = {
 }
 
 module baseline 'modules/baseline.bicep' = {
-  name: 'baseline-${deploymentNameSuffix}'
+  name: 'deploy-imaging-baseline-${deploymentNameSuffix}'
   params: {
     computeGalleryName: tier3.outputs.network.computeGalleryName
     deploymentNameSuffix: deploymentNameSuffix
@@ -304,16 +293,17 @@ module baseline 'modules/baseline.bicep' = {
     enableBuildAutomation: enableBuildAutomation
     exemptPolicyAssignmentIds: exemptPolicyAssignmentIds
     location: location
+    mlzTags: tier3.outputs.mlzTags
     resourceGroupName: tier3.outputs.network.resourceGroupName
     storageAccountResourceId: storageAccountResourceId
     subscriptionId: subscriptionId
-    tags: calculatedTags
+    tags: tags
     userAssignedIdentityName: tier3.outputs.network.userAssignedIdentityName
   }
 }
 
 module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomation) {
-  name: 'build-automation-${deploymentNameSuffix}'
+  name: 'deploy-build-automation-${deploymentNameSuffix}'
   params: {
     actionGroupName: tier3.outputs.network.actionGroupName
     arcGisProInstaller: arcGisProInstaller
@@ -361,6 +351,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
+    mlzTags: tier3.outputs.mlzTags
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     oUPath: oUPath
@@ -370,7 +361,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnetResourceId
     subscriptionId: subscriptionId
-    tags: calculatedTags
+    tags: tags
     teamsInstaller: teamsInstaller
     timeZone: locations[location].timeZone
     updateService: updateService
@@ -388,7 +379,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
 }
 
 module imageBuild 'modules/imageBuild.bicep' = {
-  name: 'image-build-${deploymentNameSuffix}'
+  name: 'build-image-${deploymentNameSuffix}'
   params: {
     arcGisProInstaller: arcGisProInstaller
     computeGalleryImageResourceId: computeGalleryImageResourceId
@@ -427,6 +418,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
+    mlzTags: tier3.outputs.mlzTags
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     replicaCount: replicaCount
@@ -434,7 +426,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnetResourceId
-    tags: calculatedTags
+    tags: tags
     teamsInstaller: teamsInstaller
     updateService: updateService
     userAssignedIdentityClientId: baseline.outputs.userAssignedIdentityClientId

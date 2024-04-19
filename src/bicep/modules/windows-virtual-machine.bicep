@@ -14,6 +14,7 @@ param diskName string
 param hybridUseBenefit bool
 param location string
 param logAnalyticsWorkspaceId  string
+param mlzTags object = {}
 param name string
 param networkInterfaceName string
 param offer string
@@ -31,7 +32,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' exist
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   name: name
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   identity: {
     type: 'SystemAssigned'
   }

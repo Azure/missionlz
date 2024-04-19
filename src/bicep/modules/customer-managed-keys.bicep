@@ -2,11 +2,13 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+
 targetScope = 'subscription'
 
 param deploymentNameSuffix string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
+param mlzTags object
 param networkProperties object
 param subnetResourceId string
 param tags object
@@ -20,13 +22,14 @@ module keyVault 'key-vault.bicep' = {
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     keyVaultPrivateEndpointName: networkProperties.keyVaultPrivateEndpointName
     location: location
+    mlzTags: mlzTags
     subnetResourceId: subnetResourceId
     tags: tags
   }
 }
 
 module diskEncryptionSet 'disk-encryption-set.bicep' = {
-  name: 'deploy-disk-encryption-set_${deploymentNameSuffix}'
+  name: 'deploy-disk-encryption-set-${deploymentNameSuffix}'
   scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
@@ -34,6 +37,7 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = {
     keyUrl: keyVault.outputs.keyUriWithVersion
     keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
+    mlzTags: mlzTags
     tags: contains(tags, 'Microsoft.Compute/diskEncryptionSets') ? tags['Microsoft.Compute/diskEncryptionSets'] : {}
   }
 }
@@ -43,6 +47,7 @@ module userAssignedIdentity 'user-assigned-identity.bicep' = {
   scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
   params: {
     location: location
+    mlzTags: mlzTags
     name: networkProperties.userAssignedIdentityName
     tags: tags
   }

@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param allowDeletionOfReplicatedLocations bool = true
 param computeGalleryName string
 param computeGalleryImageResourceId string
@@ -9,6 +14,7 @@ param imageVirtualMachineResourceId string
 param location string
 param marketplaceImageOffer string
 param marketplaceImagePublisher string
+param mlzTags object
 param replicaCount int
 param tags object
 
@@ -16,21 +22,23 @@ resource computeGallery 'Microsoft.Compute/galleries@2022-01-03' existing = {
   name: computeGalleryName
 }
 
-resource sourceComputeGallery 'Microsoft.Compute/galleries@2022-01-03' existing = if (!empty(computeGalleryImageResourceId)) {
-  scope: resourceGroup(split(computeGalleryImageResourceId, '/')[2], split(computeGalleryImageResourceId, '/')[4])
-  name: split(computeGalleryImageResourceId, '/')[8]
-}
+resource sourceComputeGallery 'Microsoft.Compute/galleries@2022-01-03' existing =
+  if (!empty(computeGalleryImageResourceId)) {
+    scope: resourceGroup(split(computeGalleryImageResourceId, '/')[2], split(computeGalleryImageResourceId, '/')[4])
+    name: split(computeGalleryImageResourceId, '/')[8]
+  }
 
-resource sourceImageDefinition 'Microsoft.Compute/galleries/images@2022-03-03' existing = if (!empty(computeGalleryImageResourceId)) {
-  parent: sourceComputeGallery
-  name: split(computeGalleryImageResourceId, '/')[10]
-}
+resource sourceImageDefinition 'Microsoft.Compute/galleries/images@2022-03-03' existing =
+  if (!empty(computeGalleryImageResourceId)) {
+    parent: sourceComputeGallery
+    name: split(computeGalleryImageResourceId, '/')[10]
+  }
 
 resource imageDefinition 'Microsoft.Compute/galleries/images@2022-03-03' = {
   parent: computeGallery
   name: imageDefinitionName
   location: location
-  tags: contains(tags, 'Microsoft.Compute/galleries') ? tags['Microsoft.Compute/galleries'] : {}
+  tags: union(contains(tags, 'Microsoft.Compute/galleries') ? tags['Microsoft.Compute/galleries'] : {}, mlzTags)
   properties: {
     architecture: 'x64'
     features: [
@@ -51,8 +59,12 @@ resource imageDefinition 'Microsoft.Compute/galleries/images@2022-03-03' = {
     ]
     hyperVGeneration: 'V2'
     identifier: {
-      offer: empty(computeGalleryImageResourceId) ? marketplaceImageOffer : sourceImageDefinition.properties.identifier.offer
-      publisher: empty(computeGalleryImageResourceId) ? marketplaceImagePublisher : sourceImageDefinition.properties.identifier.publisher
+      offer: empty(computeGalleryImageResourceId)
+        ? marketplaceImageOffer
+        : sourceImageDefinition.properties.identifier.offer
+      publisher: empty(computeGalleryImageResourceId)
+        ? marketplaceImagePublisher
+        : sourceImageDefinition.properties.identifier.publisher
       sku: imageDefinitionName
     }
     osState: 'Generalized'
@@ -64,7 +76,7 @@ resource imageVersion 'Microsoft.Compute/galleries/images/versions@2022-03-03' =
   parent: imageDefinition
   name: imageVersionNumber
   location: location
-  tags: contains(tags, 'Microsoft.Compute/galleries') ? tags['Microsoft.Compute/galleries'] : {}
+  tags: union(contains(tags, 'Microsoft.Compute/galleries') ? tags['Microsoft.Compute/galleries'] : {}, mlzTags)
   properties: {
     publishingProfile: {
       excludeFromLatest: excludeFromLatest

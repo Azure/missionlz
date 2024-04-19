@@ -2,6 +2,7 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+
 targetScope = 'subscription'
 
 param bastionHostPublicIPAddressAllocationMethod string
@@ -32,6 +33,7 @@ param linuxVmOsDiskType string
 param linuxVmSize string
 param location string
 param logAnalyticsWorkspaceId string
+param mlzTags object
 param tags object
 param windowsNetworkInterfacePrivateIPAddressAllocationMethod string
 @secure()
@@ -53,6 +55,7 @@ module bastionHost '../modules/bastion-host.bicep' = {
     bastionHostSubnetResourceId: bastionHostSubnetResourceId
     ipConfigurationName: hubProperties.bastionHostIPConfigurationName
     location: location
+    mlzTags: mlzTags
     name: hubProperties.bastionHostName
     publicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
     publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
@@ -68,6 +71,7 @@ module linuxNetworkInterface '../modules/network-interface.bicep' = {
   params: {
     ipConfigurationName: hubProperties.linuxNetworkInterfaceIpConfigurationName
     location: location
+    mlzTags: mlzTags
     name: hubProperties.linuxNetworkInterfaceName
     networkSecurityGroupId: hubNetworkSecurityGroupResourceId
     privateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
@@ -87,6 +91,7 @@ module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' = {
     diskName: hubProperties.linuxDiskName
     location: location
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
+    mlzTags: mlzTags
     name: hubProperties.linuxVmName
     networkInterfaceName: linuxNetworkInterface.outputs.name
     osDiskCreateOption: linuxVmOsDiskCreateOption
@@ -106,6 +111,7 @@ module windowsNetworkInterface '../modules/network-interface.bicep' = {
   params: {
     ipConfigurationName: hubProperties.windowsNetworkInterfaceIpConfigurationName
     location: location
+    mlzTags: mlzTags
     name: hubProperties.windowsNetworkInterfaceName
     networkSecurityGroupId: hubNetworkSecurityGroupResourceId
     privateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
@@ -126,6 +132,7 @@ module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' = {
     hybridUseBenefit: hybridUseBenefit
     location: location
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
+    mlzTags: mlzTags
     name: hubProperties.windowsVmName
     networkInterfaceName: windowsNetworkInterface.outputs.name
     offer: windowsVmOffer

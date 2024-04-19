@@ -2,6 +2,7 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+
 targetScope = 'subscription'
 
 param blobsPrivateDnsZoneResourceId string
@@ -10,6 +11,7 @@ param deploymentNameSuffix string
 param keyVaultUri string
 param logStorageSkuName string
 param location string
+param mlzTags object
 param networks array
 param serviceToken string
 param storageEncryptionKeyName string
@@ -24,6 +26,7 @@ module storageAccount 'storage-account.bicep' = [for (network, i) in networks: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
     keyVaultUri: keyVaultUri
     location: location
+    mlzTags: mlzTags
     serviceToken: serviceToken
     skuName: logStorageSkuName
     storageAccountName: network.logStorageAccountName

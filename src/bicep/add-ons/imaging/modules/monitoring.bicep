@@ -1,8 +1,14 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param actionGroupName string
 param automationAccountName string
 param distributionGroup string
 param location string
 param logAnalyticsWorkspaceResourceId string
+param mlzTags object
 param tags object
 
 var alerts = [
@@ -90,45 +96,54 @@ resource diagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' 
   }
 }
 
-resource actionGroup 'Microsoft.Insights/actionGroups@2022-06-01' = if (!empty(actionGroupName) && !empty(distributionGroup)) {
-  name: actionGroupName
-  location: 'global'
-  tags: contains(tags, 'Microsoft.Insights/actionGroups') ? tags['Microsoft.Insights/actionGroups'] : {}
-  properties: {
-    emailReceivers: [
-      {
-        emailAddress: distributionGroup
-        name: distributionGroup
-        useCommonAlertSchema: true
-      }
-    ]
-    enabled: true
-    groupShortName: 'Image Builds'
+resource actionGroup 'Microsoft.Insights/actionGroups@2022-06-01' =
+  if (!empty(actionGroupName) && !empty(distributionGroup)) {
+    name: actionGroupName
+    location: 'global'
+    tags: union(
+      contains(tags, 'Microsoft.Insights/actionGroups') ? tags['Microsoft.Insights/actionGroups'] : {},
+      mlzTags
+    )
+    properties: {
+      emailReceivers: [
+        {
+          emailAddress: distributionGroup
+          name: distributionGroup
+          useCommonAlertSchema: true
+        }
+      ]
+      enabled: true
+      groupShortName: 'Image Builds'
+    }
   }
-}
 
-resource scheduledQueryRules 'Microsoft.Insights/scheduledQueryRules@2022-06-15' = [for i in range(0, length(alerts)): if (!empty(actionGroupName) && !empty(logAnalyticsWorkspaceResourceId)) {
-  name: alerts[i].name
-  location: location
-  tags: contains(tags, 'Microsoft.Insights/scheduledQueryRules') ? tags['Microsoft.Insights/scheduledQueryRules'] : {}
-  kind: 'LogAlert'
-  properties: {
-    actions: {
-      actionGroups: [
-        actionGroup.id
+resource scheduledQueryRules 'Microsoft.Insights/scheduledQueryRules@2022-06-15' = [
+  for i in range(0, length(alerts)): if (!empty(actionGroupName) && !empty(logAnalyticsWorkspaceResourceId)) {
+    name: alerts[i].name
+    location: location
+    tags: union(
+      contains(tags, 'Microsoft.Insights/scheduledQueryRules') ? tags['Microsoft.Insights/scheduledQueryRules'] : {},
+      mlzTags
+    )
+    kind: 'LogAlert'
+    properties: {
+      actions: {
+        actionGroups: [
+          actionGroup.id
+        ]
+      }
+      autoMitigate: false
+      skipQueryValidation: false
+      criteria: alerts[i].criteria
+      description: alerts[i].description
+      displayName: alerts[i].name
+      enabled: true
+      evaluationFrequency: alerts[i].evaluationFrequency
+      severity: alerts[i].severity
+      windowSize: alerts[i].windowSize
+      scopes: [
+        logAnalyticsWorkspaceResourceId
       ]
     }
-    autoMitigate: false
-    skipQueryValidation: false
-    criteria: alerts[i].criteria
-    description: alerts[i].description
-    displayName: alerts[i].name
-    enabled: true
-    evaluationFrequency: alerts[i].evaluationFrequency
-    severity: alerts[i].severity
-    windowSize: alerts[i].windowSize
-    scopes: [
-      logAnalyticsWorkspaceResourceId
-    ]
   }
-}]
+]

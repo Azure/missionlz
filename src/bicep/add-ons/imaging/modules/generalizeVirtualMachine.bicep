@@ -1,6 +1,12 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param imageVirtualMachineName string
 param resourceGroupName string
 param location string = resourceGroup().location
+param mlzTags object
 param tags object
 param userAssignedIdentityClientId string
 param virtualMachineName string
@@ -18,7 +24,10 @@ resource generalizeVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands
   parent: virtualMachine
   name: 'generalizeVirtualMachine'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: union(
+    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+    mlzTags
+  )
   properties: {
     treatFailureAsDeploymentFailure: true
     asyncExecution: false

@@ -1,6 +1,12 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 targetScope = 'resourceGroup'
 
 param location string
+param mlzTags object
 param tags object
 param virtualMachineName string
 
@@ -12,7 +18,10 @@ resource sysprepVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@20
   parent: virtualMachine
   name: 'sysprepVirtualMachine'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: union(
+    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+    mlzTags
+  )
   properties: {
     treatFailureAsDeploymentFailure: false
     asyncExecution: true

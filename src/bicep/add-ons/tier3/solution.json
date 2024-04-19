@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "12226779106297150831"
+      "templateHash": "15277826004755007051"
     }
   },
   "parameters": {
@@ -70,6 +70,13 @@
         "description": "The resource ID of the HUB Virtual Network."
       }
     },
+    "identifier": {
+      "type": "string",
+      "maxLength": 3,
+      "metadata": {
+        "description": "The identifier for the resource names. This value should represent the workload, project, or business unit."
+      }
+    },
     "location": {
       "type": "string",
       "defaultValue": "[deployment().location]",
@@ -126,14 +133,6 @@
         "description": "The policy to assign to the workload."
       }
     },
-    "resourcePrefix": {
-      "type": "string",
-      "minLength": 3,
-      "maxLength": 10,
-      "metadata": {
-        "description": "A prefix, 3 to 10 characters in length, to append to resource names (e.g. \"dev\", \"test\", \"prod\", \"mlz\"). It defaults to \"mlz\"."
-      }
-    },
     "subnetAddressPrefix": {
       "type": "string",
       "metadata": {
@@ -169,7 +168,7 @@
     },
     "workloadName": {
       "type": "string",
-      "defaultValue": "tier3",
+      "defaultValue": "Tier3",
       "minLength": 1,
       "maxLength": 10,
       "metadata": {
@@ -187,9 +186,17 @@
     }
   },
   "variables": {
-    "calculatedTags": "[union(parameters('tags'), variables('defaultTags'))]",
-    "defaultTags": {
-      "DeploymentType": "MissionLandingZoneARM"
+    "$fxv#0": "1.0.0",
+    "environmentName": {
+      "dev": "Development",
+      "prod": "Production",
+      "test": "Test"
+    },
+    "mlzTags": {
+      "environment": "[variables('environmentName')[parameters('environmentAbbreviation')]]",
+      "identifier": "[parameters('identifier')]",
+      "workloadName": "[format('MissionLandingZone-{0}', parameters('workloadName'))]",
+      "workloadVersion": "[variables('$fxv#0')]"
     },
     "hubResourceGroupName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
     "hubSubscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
@@ -214,7 +221,7 @@
             "value": "[parameters('location')]"
           },
           "resourcePrefix": {
-            "value": "[parameters('resourcePrefix')]"
+            "value": "[parameters('identifier')]"
           }
         },
         "template": {
@@ -751,7 +758,7 @@
             "value": "[parameters('environmentAbbreviation')]"
           },
           "resourcePrefix": {
-            "value": "[parameters('resourcePrefix')]"
+            "value": "[parameters('identifier')]"
           },
           "resources": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resources.value]"
@@ -763,7 +770,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value]"
           },
           "workloadName": {
-            "value": "[parameters('workloadName')]"
+            "value": "[toLower(parameters('workloadName'))]"
           },
           "workloadShortName": {
             "value": "[parameters('workloadShortName')]"
@@ -870,11 +877,14 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[variables('mlzTags')]"
+          },
           "name": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.resourceGroupName]"
           },
           "tags": {
-            "value": "[variables('calculatedTags')]"
+            "value": "[parameters('tags')]"
           }
         },
         "template": {
@@ -884,10 +894,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "5209460256836828877"
+              "templateHash": "15837787188813527331"
             }
           },
           "parameters": {
+            "mlzTags": {
+              "type": "object"
+            },
             "name": {
               "type": "string"
             },
@@ -905,7 +918,7 @@
               "apiVersion": "2019-05-01",
               "name": "[parameters('name')]",
               "location": "[parameters('location')]",
-              "tags": "[parameters('tags')]"
+              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Resources/resourceGroups'), parameters('tags')['Microsoft.Resources/resourceGroups'], createObject()), parameters('mlzTags'))]"
             }
           ],
           "outputs": {
@@ -958,6 +971,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[variables('mlzTags')]"
+          },
           "networkSecurityGroupName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value.networkSecurityGroupName]"
           },
@@ -1000,7 +1016,7 @@
             ]
           },
           "workloadName": {
-            "value": "[parameters('workloadName')]"
+            "value": "[toLower(parameters('workloadName'))]"
           },
           "workloadShortName": {
             "value": "[parameters('workloadShortName')]"
@@ -1013,7 +1029,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "606441203562598834"
+              "templateHash": "5206820343027478458"
             }
           },
           "parameters": {
@@ -1031,6 +1047,9 @@
             },
             "location": {
               "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "networkSecurityGroupName": {
               "type": "string"
@@ -1091,44 +1110,23 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "tags": {
-                    "value": "[parameters('tags')]"
+                  "deployNetworkWatcher": {
+                    "value": "[parameters('deployNetworkWatcher')]"
+                  },
+                  "firewallSkuTier": {
+                    "value": "[parameters('firewallSkuTier')]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "virtualNetworkName": {
-                    "value": "[parameters('virtualNetworkName')]"
-                  },
-                  "virtualNetworkAddressPrefix": {
-                    "value": "[parameters('virtualNetworkAddressPrefix')]"
-                  },
-                  "vNetDnsServers": {
-                    "value": "[parameters('vNetDnsServers')]"
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
                   },
                   "networkSecurityGroupName": {
                     "value": "[parameters('networkSecurityGroupName')]"
                   },
                   "networkSecurityGroupRules": {
                     "value": "[parameters('networkSecurityGroupRules')]"
-                  },
-                  "subnetName": {
-                    "value": "[parameters('subnetName')]"
-                  },
-                  "subnetAddressPrefix": {
-                    "value": "[parameters('subnetAddressPrefix')]"
-                  },
-                  "subnetPrivateEndpointNetworkPolicies": {
-                    "value": "Disabled"
-                  },
-                  "subnetPrivateLinkServiceNetworkPolicies": {
-                    "value": "Disabled"
-                  },
-                  "deployNetworkWatcher": {
-                    "value": "[parameters('deployNetworkWatcher')]"
-                  },
-                  "firewallSkuTier": {
-                    "value": "[parameters('firewallSkuTier')]"
                   },
                   "networkWatcherName": {
                     "value": "[parameters('networkWatcherName')]"
@@ -1138,6 +1136,30 @@
                   },
                   "routeTableRouteNextHopIpAddress": {
                     "value": "[parameters('routeTableRouteNextHopIpAddress')]"
+                  },
+                  "subnetAddressPrefix": {
+                    "value": "[parameters('subnetAddressPrefix')]"
+                  },
+                  "subnetName": {
+                    "value": "[parameters('subnetName')]"
+                  },
+                  "subnetPrivateEndpointNetworkPolicies": {
+                    "value": "Disabled"
+                  },
+                  "subnetPrivateLinkServiceNetworkPolicies": {
+                    "value": "Disabled"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "virtualNetworkAddressPrefix": {
+                    "value": "[parameters('virtualNetworkAddressPrefix')]"
+                  },
+                  "virtualNetworkName": {
+                    "value": "[parameters('virtualNetworkName')]"
+                  },
+                  "vNetDnsServers": {
+                    "value": "[parameters('vNetDnsServers')]"
                   }
                 },
                 "template": {
@@ -1147,7 +1169,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "12396384297029654856"
+                      "templateHash": "9443806356306142434"
                     }
                   },
                   "parameters": {
@@ -1159,6 +1181,9 @@
                     },
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "networkSecurityGroupName": {
                       "type": "string"
@@ -1226,6 +1251,9 @@
                           "location": {
                             "value": "[parameters('location')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "name": {
                             "value": "[parameters('networkSecurityGroupName')]"
                           },
@@ -1243,12 +1271,15 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.26.170.59819",
-                              "templateHash": "1748821223200370075"
+                              "templateHash": "13414814252968710669"
                             }
                           },
                           "parameters": {
                             "location": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "name": {
                               "type": "string"
@@ -1266,7 +1297,7 @@
                               "apiVersion": "2021-02-01",
                               "name": "[parameters('name')]",
                               "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkSecurityGroups'), parameters('tags')['Microsoft.Network/networkSecurityGroups'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "securityRules": "[parameters('securityRules')]"
                               }
@@ -1301,6 +1332,9 @@
                           "location": {
                             "value": "[parameters('location')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "name": {
                             "value": "[parameters('routeTableName')]"
                           },
@@ -1327,7 +1361,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.26.170.59819",
-                              "templateHash": "7424908347166566695"
+                              "templateHash": "8969815603564770173"
                             }
                           },
                           "parameters": {
@@ -1336,6 +1370,9 @@
                             },
                             "location": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "name": {
                               "type": "string"
@@ -1362,7 +1399,7 @@
                               "apiVersion": "2021-02-01",
                               "name": "[parameters('name')]",
                               "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/routeTables'), parameters('tags')['Microsoft.Network/routeTables'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
                                 "routes": [
@@ -1405,6 +1442,9 @@
                           "location": {
                             "value": "[parameters('location')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "name": {
                             "value": "[parameters('networkWatcherName')]"
                           },
@@ -1419,12 +1459,15 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.26.170.59819",
-                              "templateHash": "13397792685646737995"
+                              "templateHash": "6425343849060009850"
                             }
                           },
                           "parameters": {
                             "location": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "name": {
                               "type": "string"
@@ -1439,7 +1482,7 @@
                               "apiVersion": "2021-02-01",
                               "name": "[parameters('name')]",
                               "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkWatchers'), parameters('tags')['Microsoft.Network/networkWatchers'], createObject()), parameters('mlzTags'))]",
                               "properties": {}
                             }
                           ]
@@ -1461,6 +1504,9 @@
                           },
                           "location": {
                             "value": "[parameters('location')]"
+                          },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
                           },
                           "name": {
                             "value": "[parameters('virtualNetworkName')]"
@@ -1500,7 +1546,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.26.170.59819",
-                              "templateHash": "4946450272018234428"
+                              "templateHash": "6916781723220735567"
                             }
                           },
                           "parameters": {
@@ -1509,6 +1555,9 @@
                             },
                             "location": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "name": {
                               "type": "string"
@@ -1532,7 +1581,7 @@
                               "apiVersion": "2021-02-01",
                               "name": "[parameters('name')]",
                               "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/virtualNetworks'), parameters('tags')['Microsoft.Network/virtualNetworks'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "addressSpace": {
                                   "addressPrefixes": [
@@ -1619,6 +1668,12 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "hubVirtualNetworkName": {
+                    "value": "[split(parameters('hubVirtualNetworkResourceId'), '/')[8]]"
+                  },
+                  "hubVirtualNetworkResourceId": {
+                    "value": "[parameters('hubVirtualNetworkResourceId')]"
+                  },
                   "spokeName": {
                     "value": "[parameters('workloadName')]"
                   },
@@ -1627,12 +1682,6 @@
                   },
                   "spokeVirtualNetworkName": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkName.value]"
-                  },
-                  "hubVirtualNetworkName": {
-                    "value": "[split(parameters('hubVirtualNetworkResourceId'), '/')[8]]"
-                  },
-                  "hubVirtualNetworkResourceId": {
-                    "value": "[parameters('hubVirtualNetworkResourceId')]"
                   }
                 },
                 "template": {
@@ -1862,6 +1911,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[variables('mlzTags')]"
+          },
           "networkProperties": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value]"
           },
@@ -1869,7 +1921,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
           },
           "tags": {
-            "value": "[variables('calculatedTags')]"
+            "value": "[parameters('tags')]"
           }
         },
         "template": {
@@ -1879,7 +1931,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "2099501369329835050"
+              "templateHash": "8607068382992509094"
             }
           },
           "parameters": {
@@ -1891,6 +1943,9 @@
             },
             "location": {
               "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "networkProperties": {
               "type": "object"
@@ -1930,6 +1985,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "subnetResourceId": {
                     "value": "[parameters('subnetResourceId')]"
                   },
@@ -1944,7 +2002,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "15271362632612072350"
+                      "templateHash": "2708305007283639705"
                     }
                   },
                   "parameters": {
@@ -1967,6 +2025,9 @@
                     "location": {
                       "type": "string"
                     },
+                    "mlzTags": {
+                      "type": "object"
+                    },
                     "subnetResourceId": {
                       "type": "string"
                     },
@@ -1980,7 +2041,7 @@
                       "apiVersion": "2022-07-01",
                       "name": "[parameters('keyVaultName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject())]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "enabledForDeployment": false,
                         "enabledForDiskEncryption": true,
@@ -2008,7 +2069,7 @@
                       "apiVersion": "2023-04-01",
                       "name": "[parameters('keyVaultPrivateEndpointName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[parameters('tags')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
                         "privateLinkServiceConnections": [
@@ -2153,7 +2214,7 @@
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-disk-encryption-set-{0}', parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[parameters('networkProperties').subscriptionId]",
               "resourceGroup": "[parameters('networkProperties').resourceGroupName]",
               "properties": {
@@ -2177,6 +2238,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), createObject('value', parameters('tags')['Microsoft.Compute/diskEncryptionSets']), createObject('value', createObject()))]"
                 },
                 "template": {
@@ -2186,7 +2250,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "6363188069641627327"
+                      "templateHash": "2253498434473273498"
                     }
                   },
                   "parameters": {
@@ -2205,6 +2269,9 @@
                     "location": {
                       "type": "string"
                     },
+                    "mlzTags": {
+                      "type": "object"
+                    },
                     "tags": {
                       "type": "object"
                     }
@@ -2215,7 +2282,7 @@
                       "apiVersion": "2023-04-02",
                       "name": "[parameters('diskEncryptionSetName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[parameters('tags')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), parameters('tags')['Microsoft.Compute/diskEncryptionSets'], createObject()), parameters('mlzTags'))]",
                       "identity": {
                         "type": "SystemAssigned"
                       },
@@ -2335,6 +2402,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "name": {
                     "value": "[parameters('networkProperties').userAssignedIdentityName]"
                   },
@@ -2349,12 +2419,15 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "16132885150802890863"
+                      "templateHash": "17180318248198488154"
                     }
                   },
                   "parameters": {
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "name": {
                       "type": "string"
@@ -2369,7 +2442,7 @@
                       "apiVersion": "2018-11-30",
                       "name": "[parameters('name')]",
                       "location": "[parameters('location')]",
-                      "tags": "[parameters('tags')]"
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tags')['Microsoft.ManagedIdentity/userAssignedIdentities'], createObject()), parameters('mlzTags'))]"
                     },
                     {
                       "type": "Microsoft.Resources/deployments",
@@ -2462,7 +2535,7 @@
           "outputs": {
             "diskEncryptionSetResourceId": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-disk-encryption-set_{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('networkProperties').subscriptionId, parameters('networkProperties').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-disk-encryption-set-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
             },
             "KeyVaultName": {
               "type": "string",
@@ -2515,6 +2588,9 @@
           "logStorageSkuName": {
             "value": "[parameters('logStorageSkuName')]"
           },
+          "mlzTags": {
+            "value": "[variables('mlzTags')]"
+          },
           "network": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.network.value]"
           },
@@ -2531,7 +2607,7 @@
             "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', format('privatelink.table.{0}', environment().suffixes.storage))]"
           },
           "tags": {
-            "value": "[variables('calculatedTags')]"
+            "value": "[parameters('tags')]"
           },
           "userAssignedIdentityResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
@@ -2544,7 +2620,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "3251319739965287544"
+              "templateHash": "4236106586138373505"
             }
           },
           "parameters": {
@@ -2559,6 +2635,9 @@
             },
             "location": {
               "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "network": {
               "type": "object"
@@ -2604,6 +2683,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "serviceToken": {
                     "value": "[parameters('serviceToken')]"
                   },
@@ -2642,7 +2724,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "17791141146954639757"
+                      "templateHash": "2945887437755946902"
                     }
                   },
                   "parameters": {
@@ -2654,6 +2736,9 @@
                     },
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "serviceToken": {
                       "type": "string"
@@ -2698,6 +2783,7 @@
                       "apiVersion": "2023-01-01",
                       "name": "[parameters('storageAccountName')]",
                       "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Storage/storageAccounts'), parameters('tags')['Microsoft.Storage/storageAccounts'], createObject()), parameters('mlzTags'))]",
                       "identity": {
                         "type": "UserAssigned",
                         "userAssignedIdentities": {
@@ -2708,7 +2794,6 @@
                       "sku": {
                         "name": "[parameters('skuName')]"
                       },
-                      "tags": "[parameters('tags')]",
                       "properties": {
                         "accessTier": "Hot",
                         "allowBlobPublicAccess": false,
@@ -2766,7 +2851,7 @@
                       "apiVersion": "2023-04-01",
                       "name": "[replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                       "location": "[parameters('location')]",
-                      "tags": "[parameters('tags')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "customNetworkInterfaceName": "[replace(parameters('storageAccountNetworkInterfaceNamePrefix'), parameters('serviceToken'), split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])]",
                         "privateLinkServiceConnections": [
@@ -3150,7 +3235,7 @@
       "condition": "[parameters('deployPolicy')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('assign-policy-{0}-{1}', parameters('workloadName'), parameters('deploymentNameSuffix'))]",
+      "name": "[format('assign-policy-{0}-{1}', toLower(parameters('workloadName')), parameters('deploymentNameSuffix'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -3476,7 +3561,7 @@
       "condition": "[parameters('deployDefender')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('set-{0}-sub-defender', parameters('workloadName'))]",
+      "name": "[format('set-{0}-sub-defender', toLower(parameters('workloadName')))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -3484,11 +3569,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "logAnalyticsWorkspaceId": {
-            "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
-          },
           "emailSecurityContact": {
             "value": "[parameters('emailSecurityContact')]"
+          },
+          "logAnalyticsWorkspaceId": {
+            "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
           }
         },
         "template": {
@@ -3728,6 +3813,10 @@
     "diskEncryptionSetResourceId": {
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
+    },
+    "mlzTags": {
+      "type": "object",
+      "value": "[variables('mlzTags')]"
     },
     "network": {
       "type": "object",

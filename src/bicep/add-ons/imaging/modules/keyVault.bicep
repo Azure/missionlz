@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 @secure()
 param domainJoinPassword string
 @secure()
@@ -9,6 +14,7 @@ param location string
 param localAdministratorPassword string
 @secure()
 param localAdministratorUsername string
+param mlzTags object
 param roleDefinitionResourceId string
 param subnetResourceId string
 param tags object
@@ -39,7 +45,7 @@ var Secrets = [
 resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
   name: keyVaultName
   location: location
-  tags: contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}
+  tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
   properties: {
     tenantId: subscription().tenantId
     sku: {
@@ -56,7 +62,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
       defaultAction: 'Deny'
       ipRules: []
       virtualNetworkRules: []
-  }
+    }
     publicNetworkAccess: 'Disabled'
   }
 }
@@ -64,12 +70,19 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
   name: privateEndpointName
   location: location
-  tags: contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}
+  tags: union(
+    contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {},
+    mlzTags
+  )
   properties: {
     privateLinkServiceConnections: [
       {
         name: privateEndpointName
-        id: resourceId('Microsoft.Network/privateEndpoints/privateLinkServiceConnections', privateEndpointName, privateEndpointName)
+        id: resourceId(
+          'Microsoft.Network/privateEndpoints/privateLinkServiceConnections',
+          privateEndpointName,
+          privateEndpointName
+        )
         properties: {
           privateLinkServiceId: keyVault.id
           groupIds: [
@@ -100,14 +113,16 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   }
 }
 
-resource secrets 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = [for Secret in Secrets: {
-  parent: keyVault
-  name: Secret.name
-  tags: contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}
-  properties: {
-    value: Secret.value
+resource secrets 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = [
+  for Secret in Secrets: {
+    parent: keyVault
+    name: Secret.name
+    tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
+    properties: {
+      value: Secret.value
+    }
   }
-}]
+]
 
 // Gives the selected users rights to get key vault secrets in deployments
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {

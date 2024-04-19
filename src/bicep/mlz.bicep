@@ -2,6 +2,7 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+
 targetScope = 'subscription'
 
 // REQUIRED PARAMETERS
@@ -116,7 +117,7 @@ param firewallIntrusionDetectionMode string = 'Alert'
 param enableProxy bool = true
 
 @description('''['168.63.129.16'] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers". This should be a comma separated list of IP addresses to forward DNS traffic''')
-param dnsServers array = [ '168.63.129.16' ]
+param dnsServers array = ['168.63.129.16']
 
 @description('An array of Firewall Diagnostic Logs categories to collect. See "https://docs.microsoft.com/en-us/azure/firewall/firewall-diagnostics#enable-diagnostic-logging-through-the-azure-portal" for valid values.')
 param firewallDiagnosticsLogs array = [
@@ -239,7 +240,6 @@ param KeyVaultDiagnosticsLogs array = [
     enabled: true
   }
 ]
-
 
 // OPERATIONS PARAMETERS
 
@@ -469,16 +469,23 @@ param emailSecurityContact string = ''
 @description('Paid Workload Protection plans for Defender for Cloud')
 param deployDefenderPlans array = ['VirtualMachines']
 
-var calculatedTags = union(tags, defaultTags)
-var defaultTags = {
+var environmentName = {
+  dev: 'Development'
+  prod: 'Production'
+  test: 'Test'
+}
+var mlzTags = {
+  environment: environmentName[environmentAbbreviation]
+  landingZoneName: 'MissionLandingZone'
+  landingZoneVersion: loadTextContent('data/version.txt')
   resourcePrefix: resourcePrefix
-  environmentAbbreviation: environmentAbbreviation
-  DeploymentType: 'MissionLandingZoneARM'
 }
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
 
-var logAnalyticsWorkspaceRetentionInDays = deploySentinel ? logAnalyticsSentinelWorkspaceRetentionInDays : logAnalyticsWorkspaceNoSentinelRetentionInDays
+var logAnalyticsWorkspaceRetentionInDays = deploySentinel
+  ? logAnalyticsSentinelWorkspaceRetentionInDays
+  : logAnalyticsWorkspaceNoSentinelRetentionInDays
 
 // NAMING CONVENTION
 
@@ -536,8 +543,9 @@ module resourceGroups 'modules/resource-groups.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     location: location
+    mlzTags: mlzTags
     networks: logic.outputs.networks
-    tags: calculatedTags
+    tags: tags
   }
 }
 
@@ -570,8 +578,9 @@ module networking 'modules/networking.bicep' = {
     hubSubnetAddressPrefix: hubSubnetAddressPrefix
     hubVirtualNetworkAddressPrefix: hubVirtualNetworkAddressPrefix
     location: location
+    mlzTags: mlzTags
     networks: logic.outputs.networks
-    tags: calculatedTags
+    tags: tags
   }
   dependsOn: [
     resourceGroups
@@ -586,9 +595,10 @@ module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     location: location
-    networkProperties: first(filter(logic.outputs.networks, network => network.name == 'hub')) 
+    mlzTags: mlzTags
+    networkProperties: first(filter(logic.outputs.networks, network => network.name == 'hub'))
     subnetResourceId: networking.outputs.hubSubnetResourceId
-    tags: calculatedTags
+    tags: tags
   }
 }
 
@@ -603,10 +613,11 @@ module monitoring 'modules/monitoring.bicep' = {
     logAnalyticsWorkspaceCappingDailyQuotaGb: logAnalyticsWorkspaceCappingDailyQuotaGb
     logAnalyticsWorkspaceRetentionInDays: logAnalyticsWorkspaceRetentionInDays
     logAnalyticsWorkspaceSkuName: logAnalyticsWorkspaceSkuName
+    mlzTags: mlzTags
     operationsProperties: first(filter(logic.outputs.networks, network => network.name == 'operations'))
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
     subnetResourceId: networking.outputs.operationsSubnetResourceId
-    tags: calculatedTags
+    tags: tags
   }
   dependsOn: [
     networking
@@ -615,47 +626,49 @@ module monitoring 'modules/monitoring.bicep' = {
 
 // REMOTE ACCESS
 
-module remoteAccess 'modules/remote-access.bicep' = if (deployRemoteAccess) {
-  name: 'deploy-remote-access-${deploymentNameSuffix}'
-  params: {
-    bastionHostPublicIPAddressAllocationMethod: 'Static'
-    bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-    bastionHostPublicIPAddressSkuName: 'Standard'
-    bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
-    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
-    hubNetworkSecurityGroupResourceId: networking.outputs.hubNetworkSecurityGroupResourceId
-    hubProperties: first(filter(logic.outputs.networks, network => network.name == 'hub')) 
-    hubSubnetResourceId: networking.outputs.hubSubnetResourceId
-    hybridUseBenefit: hybridUseBenefit
-    linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
-    linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
-    linuxVmAdminUsername: linuxVmAdminUsername
-    linuxVmAuthenticationType: linuxVmAuthenticationType
-    linuxVmImageOffer: linuxVmImageOffer
-    linuxVmImagePublisher: linuxVmImagePublisher
-    linuxVmImageSku: linuxVmImageSku
-    linuxVmImageVersion: linuxVmImageVersion
-    linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
-    linuxVmOsDiskType: linuxVmOsDiskType
-    linuxVmSize: linuxVmSize
-    location: location
-    logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-    tags: tags
-    windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
-    windowsVmAdminPassword: windowsVmAdminPassword
-    windowsVmAdminUsername: windowsVmAdminUsername
-    windowsVmCreateOption: windowsVmCreateOption
-    windowsVmOffer: windowsVmOffer
-    windowsVmPublisher: windowsVmPublisher
-    windowsVmSize: windowsVmSize
-    windowsVmSku: windowsVmSku
-    windowsVmStorageAccountType: windowsVmStorageAccountType
-    windowsVmVersion: windowsVmVersion
+module remoteAccess 'modules/remote-access.bicep' =
+  if (deployRemoteAccess) {
+    name: 'deploy-remote-access-${deploymentNameSuffix}'
+    params: {
+      bastionHostPublicIPAddressAllocationMethod: 'Static'
+      bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
+      bastionHostPublicIPAddressSkuName: 'Standard'
+      bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
+      diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
+      hubNetworkSecurityGroupResourceId: networking.outputs.hubNetworkSecurityGroupResourceId
+      hubProperties: first(filter(logic.outputs.networks, network => network.name == 'hub'))
+      hubSubnetResourceId: networking.outputs.hubSubnetResourceId
+      hybridUseBenefit: hybridUseBenefit
+      linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
+      linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
+      linuxVmAdminUsername: linuxVmAdminUsername
+      linuxVmAuthenticationType: linuxVmAuthenticationType
+      linuxVmImageOffer: linuxVmImageOffer
+      linuxVmImagePublisher: linuxVmImagePublisher
+      linuxVmImageSku: linuxVmImageSku
+      linuxVmImageVersion: linuxVmImageVersion
+      linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
+      linuxVmOsDiskType: linuxVmOsDiskType
+      linuxVmSize: linuxVmSize
+      location: location
+      logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+      mlzTags: mlzTags
+      tags: tags
+      windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
+      windowsVmAdminPassword: windowsVmAdminPassword
+      windowsVmAdminUsername: windowsVmAdminUsername
+      windowsVmCreateOption: windowsVmCreateOption
+      windowsVmOffer: windowsVmOffer
+      windowsVmPublisher: windowsVmPublisher
+      windowsVmSize: windowsVmSize
+      windowsVmSku: windowsVmSku
+      windowsVmStorageAccountType: windowsVmStorageAccountType
+      windowsVmVersion: windowsVmVersion
+    }
+    dependsOn: [
+      monitoring
+    ]
   }
-  dependsOn: [
-    monitoring
-  ]
-}
 
 // STORAGE FOR LOGGING
 
@@ -668,11 +681,12 @@ module storage 'modules/storage.bicep' = {
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageSkuName: logStorageSkuName
+    mlzTags: mlzTags
     networks: logic.outputs.networks
     serviceToken: namingConvention.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     tablesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.table
-    tags: calculatedTags
+    tags: tags
     userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
   }
   dependsOn: [
@@ -708,30 +722,32 @@ module diagnostics 'modules/diagnostics.bicep' = {
 
 // POLICY ASSIGNMENTS
 
-module policyAssignments 'modules/policy-assignments.bicep' = if (deployPolicy) {
-  name: 'assign-policies-${deploymentNameSuffix}'
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    location: location
-    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-    networks: logic.outputs.networks
-    policy: policy
+module policyAssignments 'modules/policy-assignments.bicep' =
+  if (deployPolicy) {
+    name: 'assign-policies-${deploymentNameSuffix}'
+    params: {
+      deploymentNameSuffix: deploymentNameSuffix
+      location: location
+      logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+      networks: logic.outputs.networks
+      policy: policy
+    }
   }
-}
 
 // MICROSOFT DEFENDER FOR CLOUD
 
-module defenderforClouds 'modules/defenderforClouds.bicep' = if (deployDefender) {
-  name: 'deploy-defender-${deploymentNameSuffix}'
-  params: {
-    defenderSkuTier: defenderSkuTier
-    deploymentNameSuffix: deploymentNameSuffix
-    emailSecurityContact: emailSecurityContact
-    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-    networks: logic.outputs.networks
-    defenderPlans: deployDefenderPlans
+module defenderforClouds 'modules/defenderforClouds.bicep' =
+  if (deployDefender) {
+    name: 'deploy-defender-${deploymentNameSuffix}'
+    params: {
+      defenderSkuTier: defenderSkuTier
+      deploymentNameSuffix: deploymentNameSuffix
+      emailSecurityContact: emailSecurityContact
+      logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+      networks: logic.outputs.networks
+      defenderPlans: deployDefenderPlans
+    }
   }
-}
 
 output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId

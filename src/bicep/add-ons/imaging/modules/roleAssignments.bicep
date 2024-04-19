@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param principalId string
 
 var roleDefinitionIds = [
@@ -7,11 +12,13 @@ var roleDefinitionIds = [
   '9980e02c-c2be-4d73-94e8-173b1dc7cf3c' // Virtual Machine Contributor | https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#virtual-machine-contributor
 ]
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for roleDefinitionId in roleDefinitionIds: {
-  name: guid(principalId, roleDefinitionId, resourceGroup().name)
-  properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
-    principalId: principalId
-    principalType: 'ServicePrincipal'
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for roleDefinitionId in roleDefinitionIds: {
+    name: guid(principalId, roleDefinitionId, resourceGroup().name)
+    properties: {
+      roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
+      principalId: principalId
+      principalType: 'ServicePrincipal'
+    }
   }
-}]
+]

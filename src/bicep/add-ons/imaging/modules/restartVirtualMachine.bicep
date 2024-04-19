@@ -1,6 +1,12 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param imageVirtualMachineName string
 param resourceGroupName string
 param location string
+param mlzTags object
 param tags object
 param userAssignedIdentityClientId string
 param virtualMachineName string
@@ -17,7 +23,10 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' existing 
 resource restartVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
   name: 'restartVirtualMachine'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: union(
+    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+    mlzTags
+  )
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true

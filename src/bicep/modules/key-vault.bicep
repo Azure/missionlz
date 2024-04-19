@@ -1,16 +1,22 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param diskEncryptionKeyExpirationInDays int = 30
 param keyVaultName string
 param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
 param keyVaultPrivateEndpointName string
 param location string
+param mlzTags object
 param subnetResourceId string
 param tags object
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: keyVaultName
   location: location
-  tags: contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}
+  tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
   properties: {
     enabledForDeployment: false
     enabledForDiskEncryption: true
@@ -37,7 +43,7 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: keyVaultPrivateEndpointName
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
   properties: {
     customNetworkInterfaceName: keyVaultNetworkInterfaceName
     privateLinkServiceConnections: [

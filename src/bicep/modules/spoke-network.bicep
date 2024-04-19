@@ -2,9 +2,11 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+
 param deployNetworkWatcher bool
 param firewallSkuTier string
 param location string
+param mlzTags object
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
 param networkWatcherName string
@@ -26,6 +28,7 @@ module networkSecurityGroup '../modules/network-security-group.bicep' = {
   name: 'networkSecurityGroup'
   params: {
     location: location
+    mlzTags: mlzTags
     name: networkSecurityGroupName
     securityRules: networkSecurityGroupRules
     tags: tags
@@ -37,6 +40,7 @@ module routeTable '../modules/route-table.bicep' = {
   params: {
     disableBgpRoutePropagation: true
     location: location
+    mlzTags: mlzTags
     name: routeTableName
     routeAddressPrefix: routeTableRouteAddressPrefix
     routeName: routeTableRouteName
@@ -50,6 +54,7 @@ module networkWatcher '../modules/network-watcher.bicep' = if (deployNetworkWatc
   name: 'networkWatcher'
   params: {
     location: location
+    mlzTags: mlzTags
     name: networkWatcherName
     tags: tags
   }
@@ -60,6 +65,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
   params: {
     addressPrefix: virtualNetworkAddressPrefix
     location: location
+    mlzTags: mlzTags
     name: virtualNetworkName
     subnets: [
       {
