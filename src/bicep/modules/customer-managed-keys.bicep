@@ -29,7 +29,7 @@ module keyVault 'key-vault.bicep' = {
 }
 
 module diskEncryptionSet 'disk-encryption-set.bicep' = {
-  name: 'deploy-disk-encryption-set_${deploymentNameSuffix}'
+  name: 'deploy-disk-encryption-set-${deploymentNameSuffix}'
   scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
