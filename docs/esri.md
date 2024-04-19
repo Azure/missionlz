@@ -37,10 +37,10 @@ If you already have an Azure Landing Zone, you can skip this step. For more on w
 
 ## Step 2
 
- :arrow_forward: The second step is to create the Windows image which will be used to create the Azure Virtual Desktops. This image will have ArcGIS Pro pre-installed when you use this template ->  [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/Imaging/README.md). Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging#prequisites).
+ :arrow_forward: The second step is to create the Windows image which will be used to create the Azure Virtual Desktops. This image will have ArcGIS Pro pre-installed when you use this template ->  [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/imaging/README.md). Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/imaging#prequisites).
 
 > [!WARNING]
-> Failure to complete the [prerequisites](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/Imaging#prequisites) will result in an unsuccessful deployment.
+> Failure to complete the [prerequisites](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/imaging#prequisites) will result in an unsuccessful deployment.
 
 ## Step 3
 

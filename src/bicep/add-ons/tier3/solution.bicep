@@ -74,12 +74,6 @@ param resourcePrefix string
 @description('The address prefix for the workload subnet.')
 param subnetAddressPrefix string
 
-@description('The supported clouds for the deployment. It defaults to "AzureCloud" and "AzureUSGovernment".')
-param supportedClouds array = [
-  'AzureCloud'
-  'AzureUSGovernment'
-]
-
 @description('The tags to apply to the resources.')
 param tags object = {}
 
@@ -216,7 +210,6 @@ module diagnostics 'modules/diagnostics.bicep' = {
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     storageAccountResourceId: storage.outputs.storageAccountResourceId
-    supportedClouds: supportedClouds
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
   }

@@ -58,7 +58,7 @@ You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/ro
     | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
 <!-- markdownlint-enable MD013 -->
 
-2. After a successful deployment, see our [examples](./src/bicep/examples/README.md) directory for how to extend the capabilities of Mission Landing Zone.
+2. After a successful deployment, see our [add-ons](./src/bicep/add-ons/) directory for how to extend the capabilities of Mission Landing Zone.
 
 ### Deploy using the Azure CLI
 
@@ -86,7 +86,7 @@ You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/ro
     --parameters resourcePrefix="myMlz"
     ```
 
-1. After a successful deployment, see our [examples](./src/bicep/examples/README.md) directory for how to extend the capabilities of Mission Landing Zone.
+1. After a successful deployment, see our [add-ons](./src/bicep/add-ons/) directory for how to extend the capabilities of Mission Landing Zone.
 
 > Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your browser: <https://docs.microsoft.com/en-us/azure/cloud-shell/overview>
 
@@ -152,11 +152,11 @@ See the [Deployment Guide for Bicep](docs/deployment-guide-bicep.md) and the [De
 
 See the [Projects](https://github.com/Azure/missionlz/projects) page for the release timeline and feature areas.
 
-Here's a summary of what Mission Landing Zone deploys of as of December 2021:
+Here's a summary of what Mission Landing Zone deploys of as of April 2024:
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/20220204_missionlz_as_of_Feb2022_light.svg" alt="A diagram that depicts a hub and spoke network topology built with Azure resources" width="1200" />
+<img src="docs/images/20211220_updated_missionlz_as_of_Apr2024_light.png" alt="A diagram that depicts a hub and spoke network topology built with Azure resources" width="1200" />
 <!-- markdownlint-enable MD033 -->
 
 ## Contributing

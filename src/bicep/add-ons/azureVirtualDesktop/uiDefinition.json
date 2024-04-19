@@ -736,10 +736,20 @@
                   ],
                   "constraints": {
                     "allowedSizes": [
+                      "Standard_NC4as_T4_v3",
+                      "Standard_NC8as_T4_v3",
+                      "Standard_NC16as_T4_v3",
+                      "Standard_NC64as_T4_v3",
                       "Standard_NV4as_v4",
+                      "Standard_NV6ads_A10_v5",
                       "Standard_NV8as_v4",
+                      "Standard_NV12ads_A10_v5",
                       "Standard_NV16as_v4",
-                      "Standard_NV32as_v4"
+                      "Standard_NV18ads_A10_v5",
+                      "Standard_NV32as_v4",
+                      "Standard_NV36adms_A10_v5",
+                      "Standard_NV36ads_A10_v5",
+                      "Standard_NV72ads_A10_v5"
                     ],
                     "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachine.availability, 'AvailabilityZones'), 3, 1)]"
                   },
@@ -1494,7 +1504,7 @@
                   "name": "avdAgentMsiName",
                   "type": "Microsoft.Common.TextBox",
                   "label": "Azure Virtual Desktop Agent (.msi)",
-                  "defaultValue": "Microsoft.RDInfra.RDAgent.Installer-x64-1.0.7909.2600.msi",
+                  "defaultValue": "Microsoft.RDInfra.RDAgent.Installer-x64-1.0.8297.800.msi",
                   "toolTip": "Input the file / blob name for the AVD Agent installer.",
                   "placeholder": "",
                   "multiLine": false,

@@ -6,19 +6,19 @@ targetScope = 'subscription'
 
 param blobsPrivateDnsZoneResourceId string
 param deployIdentity bool
+param deploymentNameSuffix string
 param keyVaultUri string
 param logStorageSkuName string
 param location string
 param networks array
 param serviceToken string
 param storageEncryptionKeyName string
-param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
 param tags object
 param userAssignedIdentityResourceId string
 
 module storageAccount 'storage-account.bicep' = [for (network, i) in networks: {
-  name: 'storage'
+  name: 'deploy-storage-account-${network.name}-${deploymentNameSuffix}'
   scope: resourceGroup(network.subscriptionId, network.resourceGroupName)
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
@@ -30,7 +30,7 @@ module storageAccount 'storage-account.bicep' = [for (network, i) in networks: {
     storageAccountNetworkInterfaceNamePrefix: network.logStorageAccountNetworkInterfaceNamePrefix
     storageAccountPrivateEndpointNamePrefix: network.logStorageAccountPrivateEndpointNamePrefix
     storageEncryptionKeyName: storageEncryptionKeyName
-    subnetResourceId: subnetResourceId
+    subnetResourceId: resourceId(network.subscriptionId, network.resourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', network.virtualNetworkName, network.subnetName)
     tablesPrivateDnsZoneResourceId: tablesPrivateDnsZoneResourceId
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentityResourceId

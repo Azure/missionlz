@@ -664,13 +664,13 @@ module storage 'modules/storage.bicep' = {
   params: {
     blobsPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.blob
     deployIdentity: deployIdentity
+    deploymentNameSuffix: deploymentNameSuffix
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageSkuName: logStorageSkuName
     networks: logic.outputs.networks
     serviceToken: namingConvention.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
-    subnetResourceId: networking.outputs.hubSubnetResourceId
     tablesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.table
     tags: calculatedTags
     userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
