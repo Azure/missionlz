@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "3935209082096296502"
+      "templateHash": "3200238062279754919"
     }
   },
   "parameters": {
@@ -193,8 +193,13 @@
     }
   },
   "variables": {
+    "environmentName": {
+      "dev": "Development",
+      "prod": "Production",
+      "test": "Test"
+    },
     "mlzTags": {
-      "environmentAbbreviation": "[parameters('environmentAbbreviation')]",
+      "environment": "[variables('environmentName')[parameters('environmentAbbreviation')]]",
       "identifier": "[parameters('identifier')]",
       "workloadType": "[format('MissionLandingZone-{0}', parameters('workloadName'))]",
       "workloadVersion": "[parameters('workloadVersion')]"

@@ -469,8 +469,13 @@ param emailSecurityContact string = ''
 @description('Paid Workload Protection plans for Defender for Cloud')
 param deployDefenderPlans array = ['VirtualMachines']
 
+var environmentName = {
+  dev: 'Development'
+  prod: 'Production'
+  test: 'Test'
+}
 var mlzTags = {
-  environmentAbbreviation: environmentAbbreviation
+  environment: environmentName[environmentAbbreviation]
   landingZoneName: 'MissionLandingZone'
   landingZoneVersion: '1.0.0'
   resourcePrefix: resourcePrefix

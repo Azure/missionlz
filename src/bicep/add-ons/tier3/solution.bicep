@@ -99,8 +99,13 @@ param workloadShortName string = 't3'
 @description('The version for the workload.')
 param workloadVersion string = '1.0.0'
 
+var environmentName = {
+  dev: 'Development'
+  prod: 'Production'
+  test: 'Test'
+}
 var mlzTags = {
-  environmentAbbreviation: environmentAbbreviation
+  environment: environmentName[environmentAbbreviation]
   identifier: identifier
   workloadType: 'MissionLandingZone-${workloadName}'
   workloadVersion: workloadVersion
