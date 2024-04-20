@@ -317,6 +317,7 @@ module logic 'modules/logic.bicep' = {
     imageSku: imageSku
     locations: names.outputs.locations
     locationVirtualMachines: locationVirtualMachines
+    networkName: names.outputs.networkName
     resourceGroupControlPlane: names.outputs.resources.resourceGroupControlPlane
     resourceGroupFeedWorkspace: names.outputs.resources.resourceGroupFeedWorkspace
     resourceGroupHosts: names.outputs.resources.resourceGroupHosts
@@ -324,6 +325,7 @@ module logic 'modules/logic.bicep' = {
     resourceGroupsNetwork: names.outputs.resources.resourceGroupsNetwork
     resourceGroupStorage: names.outputs.resources.resourceGroupStorage
     securityPrincipals: securityPrincipals
+    serviceName: names.outputs.serviceName
     sessionHostCount: sessionHostCount
     sessionHostIndex: sessionHostIndex
     virtualMachineNamePrefix: names.outputs.resources.virtualMachineNamePrefix
