@@ -13,6 +13,7 @@ param imagePublisher string
 param imageSku string
 param locations object
 param locationVirtualMachines string
+param networkName string
 param resourceGroupControlPlane string
 param resourceGroupFeedWorkspace string
 param resourceGroupHosts string
@@ -20,6 +21,7 @@ param resourceGroupManagement string
 param resourceGroupsNetwork array
 param resourceGroupStorage string
 param securityPrincipals array
+param serviceName string
 param sessionHostCount int
 param sessionHostIndex int
 param virtualMachineNamePrefix string
@@ -64,13 +66,14 @@ var roleDefinitions = {
   VirtualMachineUserLogin: 'fb879df8-f326-4884-b1cf-06f3ad86be52'
 }
 var securityPrincipalsCount = length(securityPrincipals)
+var sessionHostNamePrefix = replace(virtualMachineNamePrefix, '${serviceName}${networkName}', '')
 var smbServerLocation = locations[locationVirtualMachines].abbreviation
 var storageSku = fslogixStorageService == 'None' ? 'None' : split(fslogixStorageService, ' ')[1]
 var storageService = split(fslogixStorageService, ' ')[0]
 var storageSuffix = environment().suffixes.storage
 var timeDifference = locations[locationVirtualMachines].timeDifference
 var timeZone = locations[locationVirtualMachines].timeZone
-var vmTemplate = '{"domain":"${domainName}","galleryImageOffer":"${imageOffer}","galleryImagePublisher":"${imagePublisher}","galleryImageSKU":"${imageSku}","imageType":"Gallery","imageUri":null,"customImageId":null,"namePrefix":"${virtualMachineNamePrefix}","osDiskType":"${diskSku}","useManagedDisks":true,"VirtualMachineSize":{"id":"${virtualMachineSize}","cores":null,"ram":null},"galleryItemId":"${imagePublisher}.${imageOffer}${imageSku}"}'
+var vmTemplate = '{"domain":"${domainName}","galleryImageOffer":"${imageOffer}","galleryImagePublisher":"${imagePublisher}","galleryImageSKU":"${imageSku}","imageType":"Gallery","imageUri":null,"customImageId":null,"namePrefix":"${sessionHostNamePrefix}","osDiskType":"${diskSku}","useManagedDisks":true,"VirtualMachineSize":{"id":"${virtualMachineSize}","cores":null,"ram":null},"galleryItemId":"${imagePublisher}.${imageOffer}${imageSku}"}'
 
 output availabilitySetsCount int = availabilitySetsCount
 output beginAvSetRange int = beginAvSetRange
