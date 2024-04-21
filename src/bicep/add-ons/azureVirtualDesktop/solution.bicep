@@ -312,6 +312,7 @@ module logic 'modules/logic.bicep' = {
     fslogixContainerType: fslogixContainerType
     fslogixStorageService: fslogixStorageService
     hostPoolType: hostPoolType
+    imageDefinitionResourceId: imageDefinitionResourceId
     imageOffer: imageOffer
     imagePublisher: imagePublisher
     imageSku: imageSku

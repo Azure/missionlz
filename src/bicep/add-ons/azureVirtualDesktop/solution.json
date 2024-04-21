@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "10223556766255160070"
+      "templateHash": "16815009855616422225"
     }
   },
   "parameters": {
@@ -1185,6 +1185,9 @@
           "hostPoolType": {
             "value": "[parameters('hostPoolType')]"
           },
+          "imageDefinitionResourceId": {
+            "value": "[parameters('imageDefinitionResourceId')]"
+          },
           "imageOffer": {
             "value": "[parameters('imageOffer')]"
           },
@@ -1247,7 +1250,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "880225709429074248"
+              "templateHash": "2339722898992705179"
             }
           },
           "parameters": {
@@ -1273,6 +1276,9 @@
               "type": "string"
             },
             "hostPoolType": {
+              "type": "string"
+            },
+            "imageDefinitionResourceId": {
               "type": "string"
             },
             "imageOffer": {
@@ -1339,8 +1345,13 @@
             "beginAvSetRange": "[div(parameters('sessionHostIndex'), variables('maxAvSetMembers'))]",
             "endAvSetRange": "[div(add(parameters('sessionHostCount'), parameters('sessionHostIndex')), variables('maxAvSetMembers'))]",
             "availabilitySetsCount": "[length(range(variables('beginAvSetRange'), add(sub(variables('endAvSetRange'), variables('beginAvSetRange')), 1)))]",
+            "customImageId": "[if(empty(parameters('imageDefinitionResourceId')), null(), format('\"{0}\"', parameters('imageDefinitionResourceId')))]",
             "fileShares": "[parameters('fileShareNames')[parameters('fslogixContainerType')]]",
             "fslogix": "[if(or(equals(parameters('fslogixStorageService'), 'None'), not(contains(parameters('activeDirectorySolution'), 'DomainServices'))), false(), true())]",
+            "galleryImageOffer": "[if(empty(parameters('imageDefinitionResourceId')), format('\"{0}\"', parameters('imageOffer')), null())]",
+            "galleryImagePublisher": "[if(empty(parameters('imageDefinitionResourceId')), format('\"{0}\"', parameters('imagePublisher')), null())]",
+            "galleryImageSku": "[if(empty(parameters('imageDefinitionResourceId')), format('\"{0}\"', parameters('imageSku')), null())]",
+            "imageType": "[if(empty(parameters('imageDefinitionResourceId')), '\"Gallery\"', '\"CustomImage\"')]",
             "netbios": "[split(parameters('domainName'), '.')[0]]",
             "pooledHostPool": "[if(equals(split(parameters('hostPoolType'), ' ')[0], 'Pooled'), true(), false())]",
             "resourceGroups": "[union(variables('resourceGroupsCommon'), variables('resourceGroupsNetworking'), variables('resourceGroupsStorage'))]",
@@ -1366,7 +1377,7 @@
             "storageSuffix": "[environment().suffixes.storage]",
             "timeDifference": "[parameters('locations')[parameters('locationVirtualMachines')].timeDifference]",
             "timeZone": "[parameters('locations')[parameters('locationVirtualMachines')].timeZone]",
-            "vmTemplate": "[format('{{\"domain\":\"{0}\",\"galleryImageOffer\":\"{1}\",\"galleryImagePublisher\":\"{2}\",\"galleryImageSKU\":\"{3}\",\"imageType\":\"Gallery\",\"imageUri\":null,\"customImageId\":null,\"namePrefix\":\"{4}\",\"osDiskType\":\"{5}\",\"useManagedDisks\":true,\"VirtualMachineSize\":{{\"id\":\"{6}\",\"cores\":null,\"ram\":null}},\"galleryItemId\":\"{7}.{8}{9}\"}}', parameters('domainName'), parameters('imageOffer'), parameters('imagePublisher'), parameters('imageSku'), variables('sessionHostNamePrefix'), parameters('diskSku'), parameters('virtualMachineSize'), parameters('imagePublisher'), parameters('imageOffer'), parameters('imageSku'))]"
+            "vmTemplate": "[format('{{\"domain\":\"{0}\",\"galleryImageOffer\":{1},\"galleryImagePublisher\":{2},\"galleryImageSKU\":{3},\"imageType\":{4},\"customImageId\":{5},\"namePrefix\":\"{6}\",\"osDiskType\":\"{7}\",\"vmSize\":{{\"id\":\"{8}\",\"cores\":null,\"ram\":null,\"rdmaEnabled\": false,\"supportsMemoryPreservingMaintenance\": true}},\"galleryItemId\":\"{9}.{10}{11}\",\"hibernate\":false,\"diskSizeGB\":0,\"securityType\":\"TrustedLaunch\",\"secureBoot\":true,\"vTPM\":true,\"vmInfrastructureType\":\"Cloud\",\"virtualProcessorCount\":null,\"memoryGB\":null,\"maximumMemoryGB\":null,\"minimumMemoryGB\":null,\"dynamicMemoryConfig\":false}}', parameters('domainName'), variables('galleryImageOffer'), variables('galleryImagePublisher'), variables('galleryImageSku'), variables('imageType'), variables('customImageId'), variables('sessionHostNamePrefix'), parameters('diskSku'), parameters('virtualMachineSize'), parameters('imagePublisher'), parameters('imageOffer'), parameters('imageSku'))]"
           },
           "resources": [],
           "outputs": {
