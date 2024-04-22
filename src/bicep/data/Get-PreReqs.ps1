@@ -1,59 +1,71 @@
+
+
 <#
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
 .SYNOPSIS
-This script sets up the necessary Azure resources and downloads necessary pre-req files for MLZ, and MLZ add-on environment.
+    This script retrieves prerequisites for a specific environment.
 
 .DESCRIPTION
-The script first connects to the Azure account associated with the provided environment and subscription ID.
-It then creates a new resource group and storage account in the specified location.
-A new container named "artifacts" is created in the storage account.
+    The script connects to an Azure account using the provided Azure environment and subscription ID.
+    It then registers the "EncryptionAtHost" feature for the "Microsoft.Compute" provider.
+    Next, it defines a function to generate a unique string.
+    The script reads location information from a JSON file and retrieves the abbreviation for the specified Azure environment and location.
+    It constructs resource group and storage account names using the provided parameters and the retrieved abbreviation.
+    The script creates a new resource group and storage account in the specified location.
+    It also creates a new storage container named "artifacts" in the storage account.
+    Finally, the script downloads and uploads a list of URLs to the storage container.
 
-The script then waits until the storage account is created.
+.PARAMETER AzureEnvironment
+    Specifies the Azure environment to connect to.
 
-Next, the script downloads a list of URLs. If the URL is from the PowerShell Gallery, it downloads the package and uploads it to the "artifacts" container.
-If the URL is from GitHub, it downloads the file and uploads it to the "artifacts" container.
+.PARAMETER Location
+    Specifies the location for the resource group and storage account.
 
-.PARAMETER Environment
-The Azure environment to connect to.
+.PARAMETER SubscriptionId
+    Specifies the Azure subscription ID to use.
 
-.PARAMETER StorageAccountName
-The name of the Azure storage account to create.
+.PARAMETER ResourceNamingPrefix
+    Specifies the prefix to use for resource naming.
 
-.PARAMETER location
-The location to create the Azure resources in.
-
-.PARAMETER ResourceGroupName
-The name of the Azure resource group to create.
-
-.PARAMETER subscriptionId
-The subscription ID to use when connecting to Azure.
+.PARAMETER MLZEnvironmentName
+    Specifies the MLZ environment name.
 
 .EXAMPLE
-.\Get-PreReqs.ps1 -Environment "AzureCloud" -StorageAccountName "mystorageaccount" -location "westus" -ResourceGroupName "myresourcegroup" -subscriptionId "my-subscription-id"
+    Get-PreReqs.ps1 -AzureEnvironment "AzureCloud" -Location "eastus" -SubscriptionId "12345678-1234-1234-1234-1234567890ab" -ResourceNamingPrefix "myapp" -MLZEnvironmentName "dev"
+    Retrieves prerequisites for the "dev" MLZ environment in the "eastus" location using the specified Azure environment and subscription ID.
+
 #>
-
-
 [CmdletBinding()]
 param (
     [Parameter(Mandatory)]
-    $Environment,
-    [Parameter(Mandatory)]
-    $StorageAccountName,
+    $AzureEnvironment,
     [Parameter(Mandatory)]
     $Location,
     [Parameter(Mandatory)]
-    $ResourceGroupName,
+    $SubscriptionId,
     [Parameter(Mandatory)]
-    $SubscriptionId
+    [ValidateLength(3,6)]
+    [ValidatePattern("^[a-z0-9]+$")]
+    [string]
+    $ResourceNamingPrefix,
+    [Parameter(Mandatory)]
+    [ValidateSet('dev', 'test', 'prod')]
+    $MLZEnvironmentName
 )
 
-try {
-    Connect-AzAccount -Environment $Environment -Subscription $SubscriptionId | Out-Null
 
+
+try {
+    Connect-AzAccount -Environment $AzureEnvironment -Subscription $SubscriptionId | Out-Null
 }
 catch {
     Write-Output -Message $_ -Type 'ERROR'
     throw
 }
+
 try {
 
     Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Microsoft.Compute"
@@ -67,9 +79,29 @@ catch {
     Write-Output -Message $_ -Type 'ERROR'
     throw
 }
+
+function Get-UniqueString ([string]$id, $length=6)
+{
+    $hashArray = (new-object System.Security.Cryptography.SHA512Managed).ComputeHash($id.ToCharArray())
+    -join ($hashArray[1..$length] | ForEach-Object { [char]($_ % 26 + [byte][char]'a') })
+}
+
 try {
+    # Use JSON to get location information from json
+    $locationInfo = Get-Content -Path '.\locations.json'  -Raw | ConvertFrom-Json
+
+    # Find abbreviation
+    $abbreviation = $locationInfo.$($AzureEnvironment).$($location).abbreviation
+
+    # Resource Group naming
+    $ResourceGroupName = $ResourceNamingPrefix + "-rg" + "-fl-" + $MLZEnvironmentName + "-$abbreviation"
+
     # New Resource Group
     $resourceGroup = New-AzResourceGroup -Name $ResourceGroupName -Location $location
+
+    # Storage account naming
+    $uid = Get-UniqueString -id $(Get-AzResourceGroup $ResourceGroupName).ResourceID
+    $StorageAccountName = $ResourceNamingPrefix + "stfl" + $MLZEnvironmentName + "$abbreviation" + "$uid"
 
     # New Storage Account
     $StorageAccount = New-AzStorageAccount -ResourceGroupName $ResourceGroupName `
