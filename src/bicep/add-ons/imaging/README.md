@@ -22,6 +22,11 @@ Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "M
 
 Ensure the principal deploying the solution has "Owner" and "Key Vault Administrator" roles assigned on the target Azure subscription. This solution deploys role assignments at various scopes and a key vault with a key and secrets to enhance security. A custom role may be used to reduce the scope of permisions required if your organization wants to use something other than the built in roles.
 
+If granular permissions are required the following built-in roles may be assigned to the account running the imaging solution:
+
+Example:
+![image](https://github.com/Azure/missionlz/assets/34066455/a1f54dad-e7c3-4f14-a6d5-4211773fc0a6)
+
 [Creating a custom role](https://learn.microsoft.com/en-us/azure/role-based-access-control/custom-roles)
 
 ### Software
