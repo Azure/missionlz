@@ -56,9 +56,13 @@ param (
     $MLZEnvironmentName
 )
 
+function Get-UniqueString ([string]$id, $length=6)
+{
+    $hashArray = (new-object System.Security.Cryptography.SHA512Managed).ComputeHash($id.ToCharArray())
+    -join ($hashArray[1..$length] | ForEach-Object { [char]($_ % 26 + [byte][char]'a') })
+}
 
-
-try {
+try{
     Connect-AzAccount -Environment $AzureEnvironment -Subscription $SubscriptionId | Out-Null
 }
 catch {
@@ -67,7 +71,6 @@ catch {
 }
 
 try {
-
     Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Microsoft.Compute"
     do {
         Write-Host "Waiting for EncryptionAtHost feature to be registered"
@@ -78,12 +81,6 @@ try {
 catch {
     Write-Output -Message $_ -Type 'ERROR'
     throw
-}
-
-function Get-UniqueString ([string]$id, $length=6)
-{
-    $hashArray = (new-object System.Security.Cryptography.SHA512Managed).ComputeHash($id.ToCharArray())
-    -join ($hashArray[1..$length] | ForEach-Object { [char]($_ % 26 + [byte][char]'a') })
 }
 
 try {
