@@ -98,11 +98,11 @@ try {
 
     # Storage account naming
     $uid = Get-UniqueString -id $(Get-AzResourceGroup $ResourceGroupName).ResourceID
-    $StorageAccountName = $ResourceNamingPrefix + "stfl" + $MLZEnvironmentName + "$abbreviation" + "$uid"
+    $storageAccountName = $ResourceNamingPrefix + "stfl" + $MLZEnvironmentName + "$abbreviation" + "$uid"
 
     # New Storage Account
     $StorageAccount = New-AzStorageAccount -ResourceGroupName $ResourceGroupName `
-    -Name $StorageAccountName `
+    -Name $storageAccountName `
     -Location $Location `
     -SkuName Standard_LRS `
     -Kind StorageV2 `
