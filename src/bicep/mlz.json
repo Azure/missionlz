@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "17051996233101189803"
+      "templateHash": "9748092053908785415"
     }
   },
   "parameters": {
@@ -5425,7 +5425,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "5217861062090722812"
+              "templateHash": "1481554165360864041"
             }
           },
           "parameters": {
@@ -5777,6 +5777,12 @@
                         "name": "agentsvc",
                         "properties": {
                           "privateDnsZoneId": "[parameters('privateDnsZoneResourceIds').agentsvc]"
+                        }
+                      },
+                      {
+                        "name": "blob",
+                        "properties": {
+                          "privateDnsZoneId": "[parameters('privateDnsZoneResourceIds').blob]"
                         }
                       }
                     ]
