@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "6631679643891884508"
+      "templateHash": "12774621540461400229"
     }
   },
   "parameters": {
@@ -633,14 +633,14 @@
     },
     "linuxVmImageOffer": {
       "type": "string",
-      "defaultValue": "UbuntuServer",
+      "defaultValue": "0001-com-ubuntu-server-focal",
       "metadata": {
         "description": "The image offer of the Linux Virtual Machine to Azure Bastion remote into. It defaults to \"UbuntuServer\"."
       }
     },
     "linuxVmImageSku": {
       "type": "string",
-      "defaultValue": "18_04-lts-gen2",
+      "defaultValue": "20_04-lts-gen2",
       "metadata": {
         "description": "The image SKU of the Linux Virtual Machine to Azure Bastion remote into. It defaults to \"18.04-LTS\"."
       }
@@ -5425,7 +5425,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "5217861062090722812"
+              "templateHash": "1481554165360864041"
             }
           },
           "parameters": {
@@ -5778,6 +5778,12 @@
                         "properties": {
                           "privateDnsZoneId": "[parameters('privateDnsZoneResourceIds').agentsvc]"
                         }
+                      },
+                      {
+                        "name": "blob",
+                        "properties": {
+                          "privateDnsZoneId": "[parameters('privateDnsZoneResourceIds').blob]"
+                        }
                       }
                     ]
                   },
@@ -6007,7 +6013,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "10670334819253079940"
+              "templateHash": "15550590879691353525"
             }
           },
           "parameters": {
@@ -6437,7 +6443,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "10353855631270716974"
+                      "templateHash": "16715575277488861170"
                     }
                   },
                   "parameters": {
@@ -6646,7 +6652,7 @@
                       "properties": {
                         "publisher": "Microsoft.EnterpriseCloud.Monitoring",
                         "type": "OmsAgentForLinux",
-                        "typeHandlerVersion": "1.17",
+                        "typeHandlerVersion": "1.19",
                         "settings": {
                           "workspaceId": "[reference(parameters('logAnalyticsWorkspaceId'), '2015-11-01-preview').customerId]",
                           "stopOnMultipleConnections": true
