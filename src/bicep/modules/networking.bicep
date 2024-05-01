@@ -9,7 +9,7 @@ param bastionHostSubnetAddressPrefix string
 param deployIdentity bool
 param deploymentNameSuffix string
 param deployNetworkWatcher bool
-param deployRemoteAccess bool
+param deployBastion bool
 param dnsServers array
 param enableProxy bool
 param firewallSettings object
@@ -31,7 +31,7 @@ module hubNetwork 'hub-network.bicep' = {
   params: {
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
     deployNetworkWatcher: deployNetworkWatcher
-    deployRemoteAccess: deployRemoteAccess
+    deployBastion: deployBastion
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallClientIpConfigurationName: hub.firewallClientIpConfigurationName

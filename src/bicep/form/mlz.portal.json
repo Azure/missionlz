@@ -981,27 +981,27 @@
                   "options": {
                     "text": "Enabling remote access is optional, but recommended."
                   }
-                },
-                {
-                  "name": "deployRemoteAccess",
-                  "type": "Microsoft.Common.CheckBox",
-                  "label": "Remotely access the network?",
-                  "toolTip": "Check here to create an Azure Bastion Host and virtual machines to remotely access the network.",
-                  "constraints": {
-                    "required": false
-                  }
                 }
               ]
             },
             {
-              "name": "azureBastionSubnetSection",
-              "label": "Azure Bastion Subnet",
+              "name": "azureBastionSection",
+              "label": "Azure Bastion",
               "type": "Microsoft.Common.Section",
-              "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
               "elements": [
+                {
+                  "name": "deployBastion",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Deploy Bastion?",
+                  "toolTip": "Check here to deploy Bastion.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
                 {
                   "name": "remoteAccessSubnetTextBlock",
                   "type": "Microsoft.Common.TextBlock",
+                  "visible": "[steps('remoteAccess').azureBastionSection.deployBastion]",
                   "options": {
                     "text": "Specify a CIDR range for the Azure Bastion Host subnet within the Hub Virtual Network range. It must be of size /26 or larger."
                   }
@@ -1010,7 +1010,7 @@
                   "name": "bastionSubnetAddressCidrRange",
                   "label": "Azure Bastion Subnet CIDR Range",
                   "type": "Microsoft.Common.TextBox",
-                  "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
+                  "visible": "[steps('remoteAccess').azureBastionSection.deployBastion]",
                   "defaultValue": "10.0.128.192/26",
                   "toolTip": "[concat('Specify a CIDR range for the Azure Bastion Host subnet within the Hub Virtual Network range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '. It must be of size /26 or larger.')]",
                   "constraints": {
@@ -1021,19 +1021,19 @@
                         "message": "Invalid CIDR range. The address prefix must be in the range [24,26]."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('remoteAccess').azureBastionSection.bastionSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
                         "message": "[concat('First octet not within the Hub virtual network CIDR range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('remoteAccess').azureBastionSection.bastionSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
                         "message": "[concat('Second octet not within the Hub virtual network CIDR range: ',  steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('remoteAccess').azureBastionSection.bastionSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
                         "message": "[concat('Third octet not within the Hub virtual network CIDR range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
                       },
                       {
-                        "isValid": "[lessOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange, '/')))]",
+                        "isValid": "[lessOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('remoteAccess').azureBastionSection.bastionSubnetAddressCidrRange, '/')))]",
                         "message": "[concat('Subnet mask not within the Hub virtual network CIDR range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
                       }
                     ]
@@ -1045,11 +1045,20 @@
               "name": "windowsVmSection",
               "label": "Windows Virtual Machine",
               "type": "Microsoft.Common.Section",
-              "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
               "elements": [
+                {
+                  "name": "deployWindowsVirtualMachine",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Deploy Windows Virtual Machine?",
+                  "toolTip": "Check here to deploy Windows Virtual Machine.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
                 {
                   "name": "windowsVmDescriptionTextblock",
                   "type": "Microsoft.Common.TextBlock",
+                  "visible": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]",
                   "options": {
                     "text": "Provide an administrator username and password for the Windows virtual machine."
                   }
@@ -1066,7 +1075,7 @@
                     "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
                   },
                   "osPlatform": "Windows",
-                  "visible": true
+                  "visible": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]"
                 },
                 {
                   "name": "windowsVmAdminPassword",
@@ -1084,7 +1093,8 @@
                   },
                   "options": {
                     "hideConfirmation": false
-                  }
+                  },
+                  "visible": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]"
                 },
                 {
                   "name": "hybridUseBenefit",
@@ -1093,7 +1103,8 @@
                   "toolTip": "Check here to enable the Hybrid Use Benefit on your virtual machines.",
                   "constraints": {
                     "required": false
-                  }
+                  },
+                  "visible": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]"
                 }
               ]
             },
@@ -1101,14 +1112,23 @@
               "name": "linuxVmSection",
               "label": "Linux Virtual Machine",
               "type": "Microsoft.Common.Section",
-              "visible": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
               "elements": [
+                {
+                  "name": "deployLinuxVirtualMachine",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Deploy Linux Virtual Machine?",
+                  "toolTip": "Check here to deploy Linux Virtual Machine.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
                 {
                   "name": "linuxVmDescriptionTextblock",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
                     "text": "Provide an administrator username and password for the Linux virtual machine."
-                  }
+                  },
+                  "visible": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]"
                 },
                 {
                   "name": "linuxVmAdminUsername",
@@ -1122,7 +1142,7 @@
                     "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
                   },
                   "osPlatform": "Linux",
-                  "visible": true
+                  "visible": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]"
                 },
                 {
                   "name": "linuxVmAdminPasswordOrKey",
@@ -1139,7 +1159,8 @@
                   },
                   "options": {
                     "hideConfirmation": false
-                  }
+                  },
+                  "visible": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]"
                 }
               ]
             }
@@ -1186,13 +1207,15 @@
       "location": "[steps('basics').locationSection.location.name]",
       "subscriptionId": "[steps('basics').hubSection.hubSubscriptionId]",
       "parameters": {
-        "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSubnetSection.bastionSubnetAddressCidrRange]",
+        "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSection.bastionSubnetAddressCidrRange]",
         "defenderSkuTier": "[if(steps('compliance').defenderSection.deployDefender, 'Standard', 'Free')]",
         "deployDefenderPlans": "[steps('compliance').defenderSection.deployDefenderPlans]",
         "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
+        "deployLinuxVirtualMachine": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]",
+        "deployWindowsVirtualMachine": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]",
         "deployNetworkWatcher": "[empty(filter(steps('networking').networkWatchersApi.value, (item) => equals(item.location, steps('basics').locationSection.location.name)))]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
-        "deployRemoteAccess": "[steps('remoteAccess').remoteAccessSection.deployRemoteAccess]",
+        "deployBastion": "[steps('remoteAccess').azureBastionSection.deployBastion]",
         "deploySentinel": "[steps('compliance').sentinelSection.deploySentinel]",
         "emailSecurityContact": "[steps('compliance').defenderSection.emailSecurityContact]",
         "firewallClientSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange]",
