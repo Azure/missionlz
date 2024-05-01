@@ -365,10 +365,10 @@ param linuxVmOsDiskType string = 'Standard_LRS'
 param linuxVmImagePublisher string = 'Canonical'
 
 @description('The image offer of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "UbuntuServer".')
-param linuxVmImageOffer string = 'UbuntuServer'
+param linuxVmImageOffer string = '0001-com-ubuntu-server-focal'
 
 @description('The image SKU of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "18.04-LTS".')
-param linuxVmImageSku string = '18_04-lts-gen2'
+param linuxVmImageSku string = '20_04-lts-gen2'
 
 @description('The image version of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "latest".')
 param linuxVmImageVersion string = 'latest'
