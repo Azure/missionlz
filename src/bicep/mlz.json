@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "5050621051003707120"
+      "templateHash": "14875333844824368717"
     }
   },
   "parameters": {
@@ -6029,7 +6029,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "6717036507676921387"
+              "templateHash": "18008743305432772114"
             }
           },
           "parameters": {
@@ -6436,9 +6436,7 @@
                   "name": {
                     "value": "[parameters('hubProperties').linuxVmName]"
                   },
-                  "networkInterfaceName": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', 'remoteAccess-linuxNetworkInterface'), '2022-09-01').outputs.name.value]"
-                  },
+                  "networkInterfaceName": "[if(parameters('deployLinuxVirtualMachine'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', 'remoteAccess-linuxNetworkInterface'), '2022-09-01').outputs.name.value), createObject('value', ''))]",
                   "osDiskCreateOption": {
                     "value": "[parameters('linuxVmOsDiskCreateOption')]"
                   },
@@ -6884,9 +6882,7 @@
                   "name": {
                     "value": "[parameters('hubProperties').windowsVmName]"
                   },
-                  "networkInterfaceName": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', 'remoteAccess-windowsNetworkInterface'), '2022-09-01').outputs.name.value]"
-                  },
+                  "networkInterfaceName": "[if(parameters('deployWindowsVirtualMachine'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', 'remoteAccess-windowsNetworkInterface'), '2022-09-01').outputs.name.value), createObject('value', ''))]",
                   "offer": {
                     "value": "[parameters('windowsVmOffer')]"
                   },
