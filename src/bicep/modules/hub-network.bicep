@@ -5,7 +5,7 @@ Licensed under the MIT License.
 
 param bastionHostSubnetAddressPrefix string
 param deployNetworkWatcher bool
-param deployRemoteAccess bool
+param deployBastion bool
 param dnsServers array
 param enableProxy bool
 param firewallClientIpConfigurationName string
@@ -56,7 +56,7 @@ param virtualNetworkName string
 param vNetDnsServers array
 
 var subnets = union(subnetsCommon, subnetsBastion)
-var subnetsBastion = deployRemoteAccess ? [
+var subnetsBastion = deployBastion ? [
   {
     name: 'AzureBastionSubnet'
     properties: {
@@ -195,7 +195,7 @@ module firewall '../modules/firewall.bicep' = {
   }
 }
 
-output bastionHostSubnetResourceId string = deployRemoteAccess ? virtualNetwork.outputs.subnets[3].id : ''
+output bastionHostSubnetResourceId string = deployBastion ? virtualNetwork.outputs.subnets[3].id : ''
 output firewallName string = firewall.outputs.name
 output firewallPrivateIPAddress string = firewall.outputs.privateIPAddress
 output firewallResourceId string = firewall.outputs.resourceId

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.170.59819",
-      "templateHash": "12774621540461400229"
+      "templateHash": "9535675698560301816"
     }
   },
   "parameters": {
@@ -549,11 +549,25 @@
         "description": "The Storage Account SKU to use for log storage. It defaults to \"Standard_GRS\". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings."
       }
     },
-    "deployRemoteAccess": {
+    "deployBastion": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "When set to \"true\", provisions Azure Bastion Host and virtual machine jumpboxes. It defaults to \"false\"."
+        "description": "When set to \"true\", provisions Azure Bastion Host only. It defaults to \"false\"."
+      }
+    },
+    "deployWindowsVirtualMachine": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When set to \"true\", provisions Windows Virtual Machine Host only. It defaults to \"false\"."
+      }
+    },
+    "deployLinuxVirtualMachine": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When set to \"true\", provisions Linux Virtual Machine Host only. It defaults to \"false\"."
       }
     },
     "bastionHostSubnetAddressPrefix": {
@@ -597,7 +611,7 @@
     },
     "linuxVmAdminPasswordOrKey": {
       "type": "securestring",
-      "defaultValue": "[if(parameters('deployRemoteAccess'), '', newGuid())]",
+      "defaultValue": "[if(parameters('deployLinuxVirtualMachine'), '', newGuid())]",
       "minLength": 12,
       "metadata": {
         "description": "The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements."
@@ -672,7 +686,7 @@
     },
     "windowsVmAdminPassword": {
       "type": "securestring",
-      "defaultValue": "[if(parameters('deployRemoteAccess'), '', newGuid())]",
+      "defaultValue": "[if(parameters('deployWindowsVirtualMachine'), '', newGuid())]",
       "minLength": 12,
       "metadata": {
         "description": "The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements."
@@ -1857,8 +1871,8 @@
           "deployNetworkWatcher": {
             "value": "[parameters('deployNetworkWatcher')]"
           },
-          "deployRemoteAccess": {
-            "value": "[parameters('deployRemoteAccess')]"
+          "deployBastion": {
+            "value": "[parameters('deployBastion')]"
           },
           "dnsServers": {
             "value": "[parameters('dnsServers')]"
@@ -1910,7 +1924,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "16640968408673534666"
+              "templateHash": "4805463129448243330"
             }
           },
           "parameters": {
@@ -1926,7 +1940,7 @@
             "deployNetworkWatcher": {
               "type": "bool"
             },
-            "deployRemoteAccess": {
+            "deployBastion": {
               "type": "bool"
             },
             "dnsServers": {
@@ -1984,8 +1998,8 @@
                   "deployNetworkWatcher": {
                     "value": "[parameters('deployNetworkWatcher')]"
                   },
-                  "deployRemoteAccess": {
-                    "value": "[parameters('deployRemoteAccess')]"
+                  "deployBastion": {
+                    "value": "[parameters('deployBastion')]"
                   },
                   "dnsServers": {
                     "value": "[parameters('dnsServers')]"
@@ -2102,7 +2116,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.170.59819",
-                      "templateHash": "13997271458574959496"
+                      "templateHash": "4715776456009889995"
                     }
                   },
                   "parameters": {
@@ -2112,7 +2126,7 @@
                     "deployNetworkWatcher": {
                       "type": "bool"
                     },
-                    "deployRemoteAccess": {
+                    "deployBastion": {
                       "type": "bool"
                     },
                     "dnsServers": {
@@ -2244,7 +2258,7 @@
                     }
                   },
                   "variables": {
-                    "subnetsBastion": "[if(parameters('deployRemoteAccess'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionHostSubnetAddressPrefix')))), createArray())]"
+                    "subnetsBastion": "[if(parameters('deployBastion'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionHostSubnetAddressPrefix')))), createArray())]"
                   },
                   "resources": [
                     {
@@ -3148,7 +3162,7 @@
                   "outputs": {
                     "bastionHostSubnetResourceId": {
                       "type": "string",
-                      "value": "[if(parameters('deployRemoteAccess'), reference(resourceId('Microsoft.Resources/deployments', 'virtualNetwork'), '2022-09-01').outputs.subnets.value[3].id, '')]"
+                      "value": "[if(parameters('deployBastion'), reference(resourceId('Microsoft.Resources/deployments', 'virtualNetwork'), '2022-09-01').outputs.subnets.value[3].id, '')]"
                     },
                     "firewallName": {
                       "type": "string",
@@ -5892,7 +5906,6 @@
       ]
     },
     {
-      "condition": "[parameters('deployRemoteAccess')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))]",
@@ -5914,6 +5927,15 @@
           },
           "bastionHostSubnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.bastionHostSubnetResourceId.value]"
+          },
+          "deployBastion": {
+            "value": "[parameters('deployBastion')]"
+          },
+          "deployLinuxVirtualMachine": {
+            "value": "[parameters('deployLinuxVirtualMachine')]"
+          },
+          "deployWindowsVirtualMachine": {
+            "value": "[parameters('deployWindowsVirtualMachine')]"
           },
           "diskEncryptionSetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
@@ -6013,7 +6035,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.170.59819",
-              "templateHash": "15550590879691353525"
+              "templateHash": "6459826304920905779"
             }
           },
           "parameters": {
@@ -6028,6 +6050,15 @@
             },
             "bastionHostSubnetResourceId": {
               "type": "string"
+            },
+            "deployBastion": {
+              "type": "bool"
+            },
+            "deployLinuxVirtualMachine": {
+              "type": "bool"
+            },
+            "deployWindowsVirtualMachine": {
+              "type": "bool"
             },
             "diskEncryptionSetResourceId": {
               "type": "string"
@@ -6128,6 +6159,7 @@
           },
           "resources": [
             {
+              "condition": "[parameters('deployBastion')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "remoteAccess-bastionHost",
@@ -6257,6 +6289,7 @@
               }
             },
             {
+              "condition": "[parameters('deployLinuxVirtualMachine')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "remoteAccess-linuxNetworkInterface",
@@ -6370,6 +6403,7 @@
               }
             },
             {
+              "condition": "[parameters('deployLinuxVirtualMachine')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "remoteAccess-linuxVirtualMachine",
@@ -6408,9 +6442,7 @@
                   "name": {
                     "value": "[parameters('hubProperties').linuxVmName]"
                   },
-                  "networkInterfaceName": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', 'remoteAccess-linuxNetworkInterface'), '2022-09-01').outputs.name.value]"
-                  },
+                  "networkInterfaceName": "[if(parameters('deployLinuxVirtualMachine'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', 'remoteAccess-linuxNetworkInterface'), '2022-09-01').outputs.name.value), createObject('value', ''))]",
                   "osDiskCreateOption": {
                     "value": "[parameters('linuxVmOsDiskCreateOption')]"
                   },
@@ -6700,6 +6732,7 @@
               ]
             },
             {
+              "condition": "[parameters('deployWindowsVirtualMachine')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "remoteAccess-windowsNetworkInterface",
@@ -6813,6 +6846,7 @@
               }
             },
             {
+              "condition": "[parameters('deployWindowsVirtualMachine')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "remoteAccess-windowsVirtualMachine",
@@ -6854,9 +6888,7 @@
                   "name": {
                     "value": "[parameters('hubProperties').windowsVmName]"
                   },
-                  "networkInterfaceName": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', 'remoteAccess-windowsNetworkInterface'), '2022-09-01').outputs.name.value]"
-                  },
+                  "networkInterfaceName": "[if(parameters('deployWindowsVirtualMachine'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('hubProperties').subscriptionId, parameters('hubProperties').resourceGroupName), 'Microsoft.Resources/deployments', 'remoteAccess-windowsNetworkInterface'), '2022-09-01').outputs.name.value), createObject('value', ''))]",
                   "offer": {
                     "value": "[parameters('windowsVmOffer')]"
                   },

@@ -323,8 +323,14 @@ param logStorageSkuName string = 'Standard_GRS'
 
 // REMOTE ACCESS PARAMETERS
 
-@description('When set to "true", provisions Azure Bastion Host and virtual machine jumpboxes. It defaults to "false".')
-param deployRemoteAccess bool = false
+@description('When set to "true", provisions Azure Bastion Host only. It defaults to "false".')
+param deployBastion bool = false
+
+@description('When set to "true", provisions Windows Virtual Machine Host only. It defaults to "false".')
+param deployWindowsVirtualMachine bool = false
+
+@description('When set to "true", provisions Linux Virtual Machine Host only. It defaults to "false".')
+param deployLinuxVirtualMachine bool = false
 
 @description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
 param bastionHostSubnetAddressPrefix string = '10.0.128.192/26'
@@ -350,7 +356,7 @@ param linuxVmAuthenticationType string = 'password'
 @description('The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
 @secure()
 @minLength(12)
-param linuxVmAdminPasswordOrKey string = deployRemoteAccess ? '' : newGuid()
+param linuxVmAdminPasswordOrKey string = deployLinuxVirtualMachine ? '' : newGuid()
 
 @description('The size of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Standard_B2s".')
 param linuxVmSize string = 'Standard_B2s'
@@ -388,7 +394,7 @@ param windowsVmAdminUsername string = 'azureuser'
 @description('The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
 @secure()
 @minLength(12)
-param windowsVmAdminPassword string = deployRemoteAccess ? '' : newGuid()
+param windowsVmAdminPassword string = deployWindowsVirtualMachine ? '' : newGuid()
 
 @description('The size of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "Standard_DS1_v2".')
 param windowsVmSize string = 'Standard_DS1_v2'
@@ -558,7 +564,7 @@ module networking 'modules/networking.bicep' = {
     deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcher: deployNetworkWatcher
-    deployRemoteAccess: deployRemoteAccess
+    deployBastion: deployBastion
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallSettings: {
@@ -626,14 +632,16 @@ module monitoring 'modules/monitoring.bicep' = {
 
 // REMOTE ACCESS
 
-module remoteAccess 'modules/remote-access.bicep' =
-  if (deployRemoteAccess) {
+module remoteAccess 'modules/remote-access.bicep' = {
     name: 'deploy-remote-access-${deploymentNameSuffix}'
     params: {
       bastionHostPublicIPAddressAllocationMethod: 'Static'
       bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
       bastionHostPublicIPAddressSkuName: 'Standard'
       bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
+      deployBastion: deployBastion
+      deployLinuxVirtualMachine: deployLinuxVirtualMachine
+      deployWindowsVirtualMachine: deployWindowsVirtualMachine
       diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
       hubNetworkSecurityGroupResourceId: networking.outputs.hubNetworkSecurityGroupResourceId
       hubProperties: first(filter(logic.outputs.networks, network => network.name == 'hub'))
