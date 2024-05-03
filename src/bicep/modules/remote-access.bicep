@@ -99,7 +99,7 @@ module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' =
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
       mlzTags: mlzTags
       name: hubProperties.linuxVmName
-      networkInterfaceName: deployLinuxVirtualMachine ? linuxNetworkInterface.outputs.name:''
+      networkInterfaceName: deployLinuxVirtualMachine ? linuxNetworkInterface.outputs.name : ''
       osDiskCreateOption: linuxVmOsDiskCreateOption
       osDiskType: linuxVmOsDiskType
       tags: tags
@@ -142,7 +142,7 @@ module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' =
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
       mlzTags: mlzTags
       name: hubProperties.windowsVmName
-      networkInterfaceName: deployWindowsVirtualMachine ? windowsNetworkInterface.outputs.name:''
+      networkInterfaceName: deployWindowsVirtualMachine ? windowsNetworkInterface.outputs.name : ''
       offer: windowsVmOffer
       publisher: windowsVmPublisher
       size: windowsVmSize
