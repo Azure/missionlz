@@ -78,6 +78,12 @@ module privateEndpoint 'private-endpoint.bicep' = {
           privateDnsZoneId: privateDnsZoneResourceIds.agentsvc
         }
       }
+      {
+        name: 'blob'
+        properties: {
+          privateDnsZoneId: privateDnsZoneResourceIds.blob
+        }
+      }
     ]
     privateLinkServiceId: privateLinkScope.outputs.resourceId
     subnetResourceId: subnetResourceId
