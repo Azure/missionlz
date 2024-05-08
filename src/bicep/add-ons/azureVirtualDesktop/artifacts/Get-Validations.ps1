@@ -22,7 +22,7 @@ Param(
 
     [parameter(Mandatory)]
     [string]
-    $ImageDefinitionResourceId,
+    $ImageVersionResourceId,
 
     [parameter(Mandatory)]
     [string]
@@ -195,8 +195,9 @@ try
 
     # Validates the custom image if applicable
     # https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch-faq?tabs=PowerShell#how-can-i-validate-if-os-image-supports-trusted-launch
-    if($ImageDefinitionResourceId -ne 'NotApplicable')
+    if($ImageVersionResourceId -ne 'NotApplicable')
     {
+        $ImageDefinitionResourceId = $ImageVersionResourceId -replace "/versions/.*", ""
         $ImageDefinition = Get-AzGalleryImageDefinition -ResourceId $ImageDefinitionResourceId
         $SecurityType = ($ImageDefinition.Features | Where-Object {$_.Name -eq 'SecurityType'}).Value
         $HyperVGeneration = $ImageDefinition.HyperVGeneration

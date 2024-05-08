@@ -8,10 +8,10 @@ param fileShareNames object
 param fslogixContainerType string
 param fslogixStorageService string
 param hostPoolType string
-param imageDefinitionResourceId string
 param imageOffer string
 param imagePublisher string
 param imageSku string
+param imageVersionResourceId string
 param locations object
 param locationVirtualMachines string
 param networkName string
@@ -43,14 +43,14 @@ var endAvSetRange = (sessionHostCount + sessionHostIndex) / maxAvSetMembers // T
 var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - beginAvSetRange) + 1))
 
 // OTHER LOGIC & COMPUTED VALUES
-var customImageId = empty(imageDefinitionResourceId) ? null : '"${imageDefinitionResourceId}"'
+var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
 var fileShares = fileShareNames[fslogixContainerType]
 var fslogix = fslogixStorageService == 'None' || !contains(activeDirectorySolution, 'DomainServices') ? false : true
-var galleryImageOffer = empty(imageDefinitionResourceId) ? '"${imageOffer}"' : null
-var galleryImagePublisher = empty(imageDefinitionResourceId) ? '"${imagePublisher}"' : null
-var galleryImageSku = empty(imageDefinitionResourceId) ? '"${imageSku}"' : null
-var galleryItemId = empty(imageDefinitionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : null
-var imageType = empty(imageDefinitionResourceId) ? '"Gallery"' : '"CustomImage"'
+var galleryImageOffer = empty(imageVersionResourceId) ? '"${imageOffer}"' : 'null'
+var galleryImagePublisher = empty(imageVersionResourceId) ? '"${imagePublisher}"' : 'null'
+var galleryImageSku = empty(imageVersionResourceId) ? '"${imageSku}"' : 'null'
+var galleryItemId = empty(imageVersionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : 'null'
+var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
 var netbios = split(domainName, '.')[0]
 var pooledHostPool = split(hostPoolType, ' ')[0] == 'Pooled' ? true : false
 var resourceGroups = union(resourceGroupsCommon, resourceGroupsNetworking, resourceGroupsStorage)
