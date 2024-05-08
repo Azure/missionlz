@@ -28,7 +28,7 @@ param fslogix bool
 param fslogixStorageService string
 param hostPoolName string
 param hostPoolType string
-param imageDefinitionResourceId string
+param imageVersionResourceId string
 param keyVaultName string
 param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
@@ -260,7 +260,7 @@ module validations '../common/customScriptExtensions.bicep' = {
       '${artifactsUri}Get-Validations.ps1'
     ]
     location: locationVirtualMachines
-    parameters: '-ActiveDirectorySolution ${activeDirectorySolution} -CpuCountMax ${CpuCountMax} -CpuCountMin ${CpuCountMin} -DomainName ${empty(domainName) ? 'NotApplicable' : domainName} -Environment ${environment().name} -ImageDefinitionResourceId ${empty(imageDefinitionResourceId) ? 'NotApplicable' : imageDefinitionResourceId} -Location ${locationVirtualMachines} -SessionHostCount ${sessionHostCount} -StorageService ${storageService} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentity.outputs.clientId} -VirtualMachineSize ${virtualMachineSize} -VirtualNetworkName ${VirtualNetworkName} -VirtualNetworkResourceGroupName ${VirtualNetworkResourceGroupName} -WorkspaceFeedName ${workspaceFeedName} -WorkspaceResourceGroupName ${resourceGroupFeedWorkspace}'
+    parameters: '-ActiveDirectorySolution ${activeDirectorySolution} -CpuCountMax ${CpuCountMax} -CpuCountMin ${CpuCountMin} -DomainName ${empty(domainName) ? 'NotApplicable' : domainName} -Environment ${environment().name} -imageVersionResourceId ${empty(imageVersionResourceId) ? 'NotApplicable' : imageVersionResourceId} -Location ${locationVirtualMachines} -SessionHostCount ${sessionHostCount} -StorageService ${storageService} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentity.outputs.clientId} -VirtualMachineSize ${virtualMachineSize} -VirtualNetworkName ${VirtualNetworkName} -VirtualNetworkResourceGroupName ${VirtualNetworkResourceGroupName} -WorkspaceFeedName ${workspaceFeedName} -WorkspaceResourceGroupName ${resourceGroupFeedWorkspace}'
     scriptFileName: 'Get-Validations.ps1'
     tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
     userAssignedIdentityClientId: deploymentUserAssignedIdentity.outputs.clientId

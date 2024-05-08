@@ -11,6 +11,7 @@ param hostPoolType string
 param imageOffer string
 param imagePublisher string
 param imageSku string
+param imageVersionResourceId string
 param locations object
 param locationVirtualMachines string
 param networkName string
@@ -42,8 +43,14 @@ var endAvSetRange = (sessionHostCount + sessionHostIndex) / maxAvSetMembers // T
 var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - beginAvSetRange) + 1))
 
 // OTHER LOGIC & COMPUTED VALUES
+var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
 var fileShares = fileShareNames[fslogixContainerType]
 var fslogix = fslogixStorageService == 'None' || !contains(activeDirectorySolution, 'DomainServices') ? false : true
+var galleryImageOffer = empty(imageVersionResourceId) ? '"${imageOffer}"' : 'null'
+var galleryImagePublisher = empty(imageVersionResourceId) ? '"${imagePublisher}"' : 'null'
+var galleryImageSku = empty(imageVersionResourceId) ? '"${imageSku}"' : 'null'
+var galleryItemId = empty(imageVersionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : 'null'
+var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
 var netbios = split(domainName, '.')[0]
 var pooledHostPool = split(hostPoolType, ' ')[0] == 'Pooled' ? true : false
 var resourceGroups = union(resourceGroupsCommon, resourceGroupsNetworking, resourceGroupsStorage)
@@ -73,7 +80,7 @@ var storageService = split(fslogixStorageService, ' ')[0]
 var storageSuffix = environment().suffixes.storage
 var timeDifference = locations[locationVirtualMachines].timeDifference
 var timeZone = locations[locationVirtualMachines].timeZone
-var vmTemplate = '{"domain":"${domainName}","galleryImageOffer":"${imageOffer}","galleryImagePublisher":"${imagePublisher}","galleryImageSKU":"${imageSku}","imageType":"Gallery","imageUri":null,"customImageId":null,"namePrefix":"${sessionHostNamePrefix}","osDiskType":"${diskSku}","useManagedDisks":true,"VirtualMachineSize":{"id":"${virtualMachineSize}","cores":null,"ram":null},"galleryItemId":"${imagePublisher}.${imageOffer}${imageSku}"}'
+var vmTemplate = '{"domain":"${domainName}","galleryImageOffer":${galleryImageOffer},"galleryImagePublisher":${galleryImagePublisher},"galleryImageSKU":${galleryImageSku},"imageType":${imageType},"customImageId":${customImageId},"namePrefix":"${sessionHostNamePrefix}","osDiskType":"${diskSku}","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":${galleryItemId},"hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
 
 output availabilitySetsCount int = availabilitySetsCount
 output beginAvSetRange int = beginAvSetRange

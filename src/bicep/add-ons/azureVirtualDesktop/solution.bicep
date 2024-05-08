@@ -130,7 +130,7 @@ param hubVirtualNetworkResourceId string
 param identifier string = 'avd'
 
 @description('The resource ID for the Compute Gallery Image Version. Do not set this value if using a marketplace image.')
-param imageDefinitionResourceId string = ''
+param imageVersionResourceId string = ''
 
 @description('Offer for the virtual machine image')
 param imageOffer string = 'office-365'
@@ -315,6 +315,7 @@ module logic 'modules/logic.bicep' = {
     imageOffer: imageOffer
     imagePublisher: imagePublisher
     imageSku: imageSku
+    imageVersionResourceId: imageVersionResourceId
     locations: names.outputs.locations
     locationVirtualMachines: locationVirtualMachines
     networkName: names.outputs.networkName
@@ -418,7 +419,7 @@ module management 'modules/management/management.bicep' = {
     fslogixStorageService: fslogixStorageService
     hostPoolName: names.outputs.resources.hostPoolName
     hostPoolType: hostPoolType
-    imageDefinitionResourceId: imageDefinitionResourceId
+    imageVersionResourceId: imageVersionResourceId
     keyVaultName: names.outputs.resources.keyVaultName
     keyVaultNetworkInterfaceName: names.outputs.resources.keyVaultNetworkInterfaceName
     keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${names.outputs.resources.keyVaultPrivateDnsZoneName}'
@@ -623,7 +624,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     imageOffer: imageOffer
     imagePublisher: imagePublisher
     imageSku: imageSku
-    imageDefinitionResourceId: imageDefinitionResourceId
+    imageVersionResourceId: imageVersionResourceId
     location: locationVirtualMachines
     logAnalyticsWorkspaceName: names.outputs.resources.logAnalyticsWorkspaceName
     managementVirtualMachineName: management.outputs.virtualMachineName

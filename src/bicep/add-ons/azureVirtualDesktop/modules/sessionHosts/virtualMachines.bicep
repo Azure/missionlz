@@ -24,10 +24,10 @@ param fslogix bool
 param fslogixContainerType string
 param hostPoolName string
 param hostPoolType string
-param imageDefinitionResourceId string
 param imageOffer string
 param imagePublisher string
 param imageSku string
+param imageVersionResourceId string
 param location string
 param logAnalyticsWorkspaceName string
 param managementVirtualMachineName string
@@ -73,13 +73,13 @@ var fslogixExclusionsOfficeContainers = contains(fslogixContainerType, 'Office')
 var fslogixExclusionsProfileContainers = ';"${fslogixProfileShare}";"${fslogixProfileShare}.lock";"${fslogixProfileShare}.meta";"${fslogixProfileShare}.metadata"'
 var fslogixOfficeShare = '\\\\${storageAccountPrefix}??.file.${storageSuffix}\\office-containers\\*\\*.VHDX'
 var fslogixProfileShare = '\\\\${storageAccountPrefix}??.file.${storageSuffix}\\profile-containers\\*\\*.VHDX'
-var imageReference = empty(imageDefinitionResourceId) ? {
+var imageReference = empty(imageVersionResourceId) ? {
   publisher: imagePublisher
   offer: imageOffer
   sku: imageSku
   version: 'latest'
 } : {
-  id: imageDefinitionResourceId
+  id: imageVersionResourceId
 }
 var intune = contains(activeDirectorySolution, 'intuneEnrollment')
 var nvidiaVmSize = contains(nvidiaVmSizes, virtualMachineSize)

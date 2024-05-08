@@ -30,10 +30,10 @@ param fslogixContainerType string
 param hostPoolName string
 param hostPoolType string
 param hybridRunbookWorkerGroupName string
-param imageDefinitionResourceId string
 param imageOffer string
 param imagePublisher string
 param imageSku string
+param imageVersionResourceId string
 param location string
 param logAnalyticsWorkspaceName string
 param managementVirtualMachineName string
@@ -140,7 +140,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     fslogixContainerType: fslogixContainerType
     hostPoolName: hostPoolName
     hostPoolType: hostPoolType
-    imageDefinitionResourceId: imageDefinitionResourceId
+    imageVersionResourceId: imageVersionResourceId
     imageOffer: imageOffer
     imagePublisher: imagePublisher
     imageSku: imageSku

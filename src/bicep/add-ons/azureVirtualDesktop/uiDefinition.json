@@ -633,6 +633,27 @@
                   "constraints": {
                     "required": true
                   }
+                },
+                {
+                  "name": "versionsApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('hosts').image.galleryImage.id, '/versions?api-version=2023-07-03')]"
+                  }
+                },
+                {
+                  "name": "version",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Version",
+                  "defaultValue": "[first(map(steps('hosts').image.versionsApi.value, (item) => item.name))]",
+                  "filter": true,
+                  "toolTip": "Select the desired gallery image version.",
+                  "constraints": {
+                    "allowedValues": "[map(steps('hosts').image.versionsApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]",
+                    "required": true
+                  },
+                  "visible": "[equals(steps('hosts').image.source, 'gallery')]"
                 }
               ]
             },
@@ -1637,10 +1658,10 @@
         "hubSubnetResourceId": "[steps('controlPlane').workspace.subnet]",
         "hubVirtualNetworkResourceId": "[steps('basics').hub.virtualNetwork]",
         "identifier": "[steps('basics').naming.identifier]",
-        "imageDefinitionResourceId": "[if(equals(steps('hosts').image.source, 'gallery'), steps('hosts').image.galleryImage.id, '')]",
         "imageOffer": "[steps('hosts').image.offer]",
         "imagePublisher": "MicrosoftWindowsDesktop",
         "imageSku": "[steps('hosts').image.sku]",
+        "imageVersionResourceId": "[if(equals(steps('hosts').image.source, 'gallery'), steps('hosts').image.version, '')]",
         "locationControlPlane": "[steps('controlPlane').controlPlane.location]",
         "locationVirtualMachines": "[steps('basics').scope.location.name]",
         "logAnalyticsWorkspaceRetention": 30,
