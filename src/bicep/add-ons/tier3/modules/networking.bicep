@@ -42,8 +42,6 @@ module spokeNetwork '../../../modules/spoke-network.bicep' = {
     routeTableRouteNextHopIpAddress: routeTableRouteNextHopIpAddress
     subnetAddressPrefix: subnetAddressPrefix
     subnetName: subnetName
-    subnetPrivateEndpointNetworkPolicies: 'Disabled'
-    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkName: virtualNetworkName
