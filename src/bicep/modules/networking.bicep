@@ -38,16 +38,12 @@ module hubNetwork 'hub-network.bicep' = {
     firewallClientPrivateIpAddress: firewallSettings.clientPrivateIpAddress
     firewallClientPublicIPAddressAvailabilityZones: firewallSettings.clientPublicIPAddressAvailabilityZones
     firewallClientPublicIPAddressName: hub.firewallClientPublicIPAddressName
-    firewallClientPublicIPAddressSkuName: 'Standard'
-    firewallClientPublicIpAllocationMethod: 'Static'
     firewallClientSubnetAddressPrefix: firewallSettings.clientSubnetAddressPrefix
     firewallClientSubnetName: 'AzureFirewallSubnet' // this value is required
     firewallIntrusionDetectionMode: firewallSettings.intrusionDetectionMode
     firewallManagementIpConfigurationName: hub.firewallManagementIpConfigurationName
     firewallManagementPublicIPAddressAvailabilityZones: firewallSettings.managementPublicIPAddressAvailabilityZones
     firewallManagementPublicIPAddressName: hub.firewallManagementPublicIPAddressName
-    firewallManagementPublicIPAddressSkuName: firewallSettings.publicIpAddressSkuName
-    firewallManagementPublicIpAllocationMethod: firewallSettings.publicIpAddressAllocationMethod
     firewallManagementSubnetAddressPrefix: firewallSettings.managementSubnetAddressPrefix
     firewallManagementSubnetName: 'AzureFirewallManagementSubnet' // this value is required
     firewallName: hub.firewallName
@@ -87,8 +83,6 @@ module spokeNetworks 'spoke-network.bicep' = [for spoke in spokes: {
     routeTableRouteNextHopIpAddress: firewallSettings.clientPrivateIpAddress
     subnetAddressPrefix: spoke.subnetAddressPrefix
     subnetName: spoke.subnetName
-    subnetPrivateEndpointNetworkPolicies: spoke.subnetPrivateEndpointNetworkPolicies
-    subnetPrivateLinkServiceNetworkPolicies: spoke.subnetPrivateLinkServiceNetworkPolicies
     tags: tags
     virtualNetworkAddressPrefix: spoke.virtualNetworkAddressPrefix
     virtualNetworkName: spoke.virtualNetworkName
