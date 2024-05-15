@@ -104,6 +104,7 @@ module virtualNetworkPeeringToHub 'virtualNetworkPeering.bicep' = {
     existingLocalVirtualNetworkName: spokeVirtualNetwork.outputs.virtualNetworkName
     existingRemoteVirtualNetworkName: hubVirtualNetwork.name
     existingRemoteVirtualNetworkResourceGroupName: hubVirtualNetworkResourceGroupName
+    existingRemoteVirtualNetworkSubscriptionId: hubSubscriptionId
   }
 }
 
@@ -114,6 +115,7 @@ module virtualNetworkPeeringToSpoke 'virtualNetworkPeering.bicep' = {
     existingLocalVirtualNetworkName: hubVirtualNetwork.name
     existingRemoteVirtualNetworkName: spokeVirtualNetwork.outputs.virtualNetworkName
     existingRemoteVirtualNetworkResourceGroupName: spokeResourceGroup
+    existingRemoteVirtualNetworkSubscriptionId: spokeSubscriptionId
   }
   dependsOn: [
     virtualNetworkPeeringToHub

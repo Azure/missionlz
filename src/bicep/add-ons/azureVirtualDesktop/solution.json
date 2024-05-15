@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "6626078179178896702"
+      "templateHash": "4666217236747957979"
     }
   },
   "parameters": {
@@ -1580,7 +1580,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "10150267183626429624"
+              "templateHash": "4060801276974414995"
             }
           },
           "parameters": {
@@ -1943,6 +1943,9 @@
                   },
                   "existingRemoteVirtualNetworkResourceGroupName": {
                     "value": "[variables('hubVirtualNetworkResourceGroupName')]"
+                  },
+                  "existingRemoteVirtualNetworkSubscriptionId": {
+                    "value": "[variables('hubSubscriptionId')]"
                   }
                 },
                 "template": {
@@ -1952,7 +1955,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "14589647370482199926"
+                      "templateHash": "17142674102798401634"
                     }
                   },
                   "parameters": {
@@ -1963,6 +1966,9 @@
                       "type": "string"
                     },
                     "existingRemoteVirtualNetworkResourceGroupName": {
+                      "type": "string"
+                    },
+                    "existingRemoteVirtualNetworkSubscriptionId": {
                       "type": "string"
                     }
                   },
@@ -1977,7 +1983,7 @@
                         "allowGatewayTransit": false,
                         "useRemoteGateways": false,
                         "remoteVirtualNetwork": {
-                          "id": "[resourceId(parameters('existingRemoteVirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('existingRemoteVirtualNetworkName'))]"
+                          "id": "[resourceId(parameters('existingRemoteVirtualNetworkSubscriptionId'), parameters('existingRemoteVirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('existingRemoteVirtualNetworkName'))]"
                         }
                       }
                     }
@@ -2008,6 +2014,9 @@
                   },
                   "existingRemoteVirtualNetworkResourceGroupName": {
                     "value": "[variables('spokeResourceGroup')]"
+                  },
+                  "existingRemoteVirtualNetworkSubscriptionId": {
+                    "value": "[variables('spokeSubscriptionId')]"
                   }
                 },
                 "template": {
@@ -2017,7 +2026,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "14589647370482199926"
+                      "templateHash": "17142674102798401634"
                     }
                   },
                   "parameters": {
@@ -2028,6 +2037,9 @@
                       "type": "string"
                     },
                     "existingRemoteVirtualNetworkResourceGroupName": {
+                      "type": "string"
+                    },
+                    "existingRemoteVirtualNetworkSubscriptionId": {
                       "type": "string"
                     }
                   },
@@ -2042,7 +2054,7 @@
                         "allowGatewayTransit": false,
                         "useRemoteGateways": false,
                         "remoteVirtualNetwork": {
-                          "id": "[resourceId(parameters('existingRemoteVirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('existingRemoteVirtualNetworkName'))]"
+                          "id": "[resourceId(parameters('existingRemoteVirtualNetworkSubscriptionId'), parameters('existingRemoteVirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('existingRemoteVirtualNetworkName'))]"
                         }
                       }
                     }
@@ -2123,7 +2135,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "10150267183626429624"
+              "templateHash": "4060801276974414995"
             }
           },
           "parameters": {
@@ -2486,6 +2498,9 @@
                   },
                   "existingRemoteVirtualNetworkResourceGroupName": {
                     "value": "[variables('hubVirtualNetworkResourceGroupName')]"
+                  },
+                  "existingRemoteVirtualNetworkSubscriptionId": {
+                    "value": "[variables('hubSubscriptionId')]"
                   }
                 },
                 "template": {
@@ -2495,7 +2510,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "14589647370482199926"
+                      "templateHash": "17142674102798401634"
                     }
                   },
                   "parameters": {
@@ -2506,6 +2521,9 @@
                       "type": "string"
                     },
                     "existingRemoteVirtualNetworkResourceGroupName": {
+                      "type": "string"
+                    },
+                    "existingRemoteVirtualNetworkSubscriptionId": {
                       "type": "string"
                     }
                   },
@@ -2520,7 +2538,7 @@
                         "allowGatewayTransit": false,
                         "useRemoteGateways": false,
                         "remoteVirtualNetwork": {
-                          "id": "[resourceId(parameters('existingRemoteVirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('existingRemoteVirtualNetworkName'))]"
+                          "id": "[resourceId(parameters('existingRemoteVirtualNetworkSubscriptionId'), parameters('existingRemoteVirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('existingRemoteVirtualNetworkName'))]"
                         }
                       }
                     }
@@ -2551,6 +2569,9 @@
                   },
                   "existingRemoteVirtualNetworkResourceGroupName": {
                     "value": "[variables('spokeResourceGroup')]"
+                  },
+                  "existingRemoteVirtualNetworkSubscriptionId": {
+                    "value": "[variables('spokeSubscriptionId')]"
                   }
                 },
                 "template": {
@@ -2560,7 +2581,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "14589647370482199926"
+                      "templateHash": "17142674102798401634"
                     }
                   },
                   "parameters": {
@@ -2571,6 +2592,9 @@
                       "type": "string"
                     },
                     "existingRemoteVirtualNetworkResourceGroupName": {
+                      "type": "string"
+                    },
+                    "existingRemoteVirtualNetworkSubscriptionId": {
                       "type": "string"
                     }
                   },
@@ -2585,7 +2609,7 @@
                         "allowGatewayTransit": false,
                         "useRemoteGateways": false,
                         "remoteVirtualNetwork": {
-                          "id": "[resourceId(parameters('existingRemoteVirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('existingRemoteVirtualNetworkName'))]"
+                          "id": "[resourceId(parameters('existingRemoteVirtualNetworkSubscriptionId'), parameters('existingRemoteVirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('existingRemoteVirtualNetworkName'))]"
                         }
                       }
                     }
