@@ -108,8 +108,6 @@ var spokesCommon = [
     routeTableName: replace(replace(resources.routeTable, '-${tokens.service}', ''), tokens.network, operationsName)
     subnetAddressPrefix: operationsSubnetAddressPrefix
     subnetName: replace(replace(resources.subnet, '-${tokens.service}', ''), tokens.network, operationsName)
-    subnetPrivateEndpointNetworkPolicies: 'Disabled'
-    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
     virtualNetworkAddressPrefix: operationsVirtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: operationsVirtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: operationsVirtualNetworkDiagnosticsMetrics
@@ -131,8 +129,6 @@ var spokesCommon = [
     routeTableName: replace(replace(resources.routeTable, '-${tokens.service}', ''), tokens.network, sharedServicesName)
     subnetAddressPrefix: sharedServicesSubnetAddressPrefix
     subnetName: replace(replace(resources.subnet, '-${tokens.service}', ''), tokens.network, sharedServicesName)
-    subnetPrivateEndpointNetworkPolicies: 'Disabled'
-    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
     virtualNetworkAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: sharedServicesVirtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: sharedServicesVirtualNetworkDiagnosticsMetrics
@@ -156,8 +152,6 @@ var spokesIdentity = deployIdentity ? [
     routeTableName: replace(replace(resources.routeTable, '-${tokens.service}', ''), tokens.network, identityName)
     subnetAddressPrefix: identitySubnetAddressPrefix
     subnetName: replace(replace(resources.subnet, '-${tokens.service}', ''), tokens.network, identityName)
-    subnetPrivateEndpointNetworkPolicies: 'Disabled'
-    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
     virtualNetworkAddressPrefix: identityVirtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: identityVirtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: identityVirtualNetworkDiagnosticsMetrics
