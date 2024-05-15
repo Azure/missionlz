@@ -12,8 +12,6 @@ param firewallClientIpConfigurationName string
 param firewallClientPrivateIpAddress string
 param firewallClientPublicIPAddressAvailabilityZones array
 param firewallClientPublicIPAddressName string
-param firewallClientPublicIPAddressSkuName string
-param firewallClientPublicIpAllocationMethod string
 param firewallClientSubnetAddressPrefix string
 param firewallClientSubnetName string
 @allowed([
@@ -25,8 +23,6 @@ param firewallIntrusionDetectionMode string
 param firewallManagementIpConfigurationName string
 param firewallManagementPublicIPAddressAvailabilityZones array
 param firewallManagementPublicIPAddressName string
-param firewallManagementPublicIPAddressSkuName string
-param firewallManagementPublicIpAllocationMethod string
 param firewallManagementSubnetAddressPrefix string
 param firewallManagementSubnetName string
 param firewallName string
@@ -45,9 +41,6 @@ param networkSecurityGroupName string
 param networkSecurityGroupRules array
 param networkWatcherName string
 param routeTableName string
-param routeTableRouteAddressPrefix string = '0.0.0.0/0'
-param routeTableRouteName string = 'default_route'
-param routeTableRouteNextHopType string = 'VirtualAppliance'
 param subnetAddressPrefix string
 param subnetName string
 param tags object
@@ -111,10 +104,7 @@ module routeTable '../modules/route-table.bicep' = {
     location: location
     mlzTags: mlzTags
     name: routeTableName
-    routeAddressPrefix: routeTableRouteAddressPrefix
-    routeName: routeTableRouteName
     routeNextHopIpAddress: firewallClientPrivateIpAddress
-    routeNextHopType: routeTableRouteNextHopType
     tags: tags
   }
 }
@@ -153,8 +143,8 @@ module firewallClientPublicIPAddress '../modules/public-ip-address.bicep' = {
     location: location
     mlzTags: mlzTags
     name: firewallClientPublicIPAddressName
-    publicIpAllocationMethod: firewallClientPublicIpAllocationMethod
-    skuName: firewallClientPublicIPAddressSkuName
+    publicIpAllocationMethod: 'Static'
+    skuName: 'Standard'
     tags: tags
   }
 }
@@ -166,8 +156,8 @@ module firewallManagementPublicIPAddress '../modules/public-ip-address.bicep' = 
     location: location
     mlzTags: mlzTags
     name: firewallManagementPublicIPAddressName
-    publicIpAllocationMethod: firewallManagementPublicIpAllocationMethod
-    skuName: firewallManagementPublicIPAddressSkuName
+    publicIpAllocationMethod: 'Static'
+    skuName: 'Standard'
     tags: tags
   }
 }
