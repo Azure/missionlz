@@ -11,14 +11,9 @@ param networkSecurityGroupName string
 param networkSecurityGroupRules array
 param networkWatcherName string
 param routeTableName string
-param routeTableRouteName string = 'default_route'
-param routeTableRouteAddressPrefix string = '0.0.0.0/0'
 param routeTableRouteNextHopIpAddress string
-param routeTableRouteNextHopType string = 'VirtualAppliance'
 param subnetAddressPrefix string
 param subnetName string
-param subnetPrivateEndpointNetworkPolicies string
-param subnetPrivateLinkServiceNetworkPolicies string
 param tags object
 param virtualNetworkAddressPrefix string
 param virtualNetworkName string
@@ -42,10 +37,7 @@ module routeTable '../modules/route-table.bicep' = {
     location: location
     mlzTags: mlzTags
     name: routeTableName
-    routeAddressPrefix: routeTableRouteAddressPrefix
-    routeName: routeTableRouteName
     routeNextHopIpAddress: routeTableRouteNextHopIpAddress
-    routeNextHopType: routeTableRouteNextHopType
     tags: tags
   }
 }
@@ -78,8 +70,8 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
           routeTable: {
             id: routeTable.outputs.id
           }
-          privateEndpointNetworkPolicies: subnetPrivateEndpointNetworkPolicies
-          privateLinkServiceNetworkPolicies: subnetPrivateLinkServiceNetworkPolicies
+          privateEndpointNetworkPolicies: 'Disabled'
+          privateLinkServiceNetworkPolicies: 'Disabled'
         }
       }
     ]
