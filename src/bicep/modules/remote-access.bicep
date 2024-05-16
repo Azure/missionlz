@@ -57,7 +57,6 @@ module bastionHost '../modules/bastion-host.bicep' =
     scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
     params: {
       bastionHostSubnetResourceId: bastionHostSubnetResourceId
-      ipConfigurationName: hubProperties.bastionHostIPConfigurationName
       location: location
       mlzTags: mlzTags
       name: hubProperties.bastionHostName
@@ -65,22 +64,6 @@ module bastionHost '../modules/bastion-host.bicep' =
       publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
       publicIPAddressName: hubProperties.bastionHostPublicIPAddressName
       publicIPAddressSkuName: bastionHostPublicIPAddressSkuName
-      tags: tags
-    }
-  }
-
-module linuxNetworkInterface '../modules/network-interface.bicep' =
-  if (deployLinuxVirtualMachine) {
-    name: 'remoteAccess-linuxNetworkInterface'
-    scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
-    params: {
-      ipConfigurationName: hubProperties.linuxNetworkInterfaceIpConfigurationName
-      location: location
-      mlzTags: mlzTags
-      name: hubProperties.linuxNetworkInterfaceName
-      networkSecurityGroupId: hubNetworkSecurityGroupResourceId
-      privateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
-      subnetId: hubSubnetResourceId
       tags: tags
     }
   }
@@ -99,31 +82,18 @@ module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' =
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
       mlzTags: mlzTags
       name: hubProperties.linuxVmName
-      networkInterfaceName: deployLinuxVirtualMachine ? linuxNetworkInterface.outputs.name : ''
+      networkInterfaceName: deployLinuxVirtualMachine ? hubProperties.linuxNetworkInterfaceName : ''
+      networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
       osDiskCreateOption: linuxVmOsDiskCreateOption
       osDiskType: linuxVmOsDiskType
+      privateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
+      subnetResourceId: hubSubnetResourceId
       tags: tags
       vmImageOffer: linuxVmImageOffer
       vmImagePublisher: linuxVmImagePublisher
       vmImageSku: linuxVmImageSku
       vmImageVersion: linuxVmImageVersion
       vmSize: linuxVmSize
-    }
-  }
-
-module windowsNetworkInterface '../modules/network-interface.bicep' =
-  if (deployWindowsVirtualMachine) {
-    name: 'remoteAccess-windowsNetworkInterface'
-    scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
-    params: {
-      ipConfigurationName: hubProperties.windowsNetworkInterfaceIpConfigurationName
-      location: location
-      mlzTags: mlzTags
-      name: hubProperties.windowsNetworkInterfaceName
-      networkSecurityGroupId: hubNetworkSecurityGroupResourceId
-      privateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
-      subnetId: hubSubnetResourceId
-      tags: tags
     }
   }
 
@@ -142,12 +112,15 @@ module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' =
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
       mlzTags: mlzTags
       name: hubProperties.windowsVmName
-      networkInterfaceName: deployWindowsVirtualMachine ? windowsNetworkInterface.outputs.name : ''
+      networkInterfaceName: deployWindowsVirtualMachine ? hubProperties.windowsNetworkInterfaceName : ''
+      networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
       offer: windowsVmOffer
+      privateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
       publisher: windowsVmPublisher
       size: windowsVmSize
       sku: windowsVmSku
       storageAccountType: windowsVmStorageAccountType
+      subnetResourceId: hubSubnetResourceId
       tags: tags
       version: windowsVmVersion
     }
