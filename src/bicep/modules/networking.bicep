@@ -34,18 +34,14 @@ module hubNetwork 'hub-network.bicep' = {
     deployBastion: deployBastion
     dnsServers: dnsServers
     enableProxy: enableProxy
-    firewallClientIpConfigurationName: hub.firewallClientIpConfigurationName
     firewallClientPrivateIpAddress: firewallSettings.clientPrivateIpAddress
     firewallClientPublicIPAddressAvailabilityZones: firewallSettings.clientPublicIPAddressAvailabilityZones
     firewallClientPublicIPAddressName: hub.firewallClientPublicIPAddressName
     firewallClientSubnetAddressPrefix: firewallSettings.clientSubnetAddressPrefix
-    firewallClientSubnetName: 'AzureFirewallSubnet' // this value is required
     firewallIntrusionDetectionMode: firewallSettings.intrusionDetectionMode
-    firewallManagementIpConfigurationName: hub.firewallManagementIpConfigurationName
     firewallManagementPublicIPAddressAvailabilityZones: firewallSettings.managementPublicIPAddressAvailabilityZones
     firewallManagementPublicIPAddressName: hub.firewallManagementPublicIPAddressName
     firewallManagementSubnetAddressPrefix: firewallSettings.managementSubnetAddressPrefix
-    firewallManagementSubnetName: 'AzureFirewallManagementSubnet' // this value is required
     firewallName: hub.firewallName
     firewallPolicyName: hub.firewallPolicyName
     firewallSkuTier: firewallSettings.skuTier
