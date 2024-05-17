@@ -239,18 +239,9 @@ param virtualNetworkDiagnosticsMetrics array = []
 @description('The WSUS Server Url if WSUS is specified. (i.e., https://wsus.corp.contoso.com:8531)')
 param wsusServer string = ''
 
-var automationAccountPrivateDnsZoneResourceId = resourceId(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4], 'Microsoft.Network/privateDnsZones','privatelink.azure-automation.${privateDnsZoneSuffixes_AzureAutomation[environment().name] ?? cloudSuffix}')
-var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.azure.', ''), '/', '')
 var keyVaultPrivateDnsZoneResourceId = resourceId(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4], 'Microsoft.Network/privateDnsZones', replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore'))
 var imageDefinitionName = empty(computeGalleryImageResourceId) ? '${imageDefinitionNamePrefix}-${marketplaceImageSKU}' : '${imageDefinitionNamePrefix}-${split(computeGalleryImageResourceId, '/')[10]}'
-var privateDnsZoneSuffixes_AzureAutomation = {
-  AzureCloud: 'net'
-  AzureUSGovernment: 'us'
-  USNat: null
-  USSec: null
-}
 var subscriptionId = subscription().subscriptionId
-var locations = (loadJsonContent('../../data/locations.json'))[environment().name]
 var workloadName = 'Imaging'
 var workloadShortName = 'img'
 
@@ -308,7 +299,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     actionGroupName: tier3.outputs.network.actionGroupName
     arcGisProInstaller: arcGisProInstaller
     automationAccountName: tier3.outputs.network.automationAccountName
-    automationAccountPrivateDnsZoneResourceId: automationAccountPrivateDnsZoneResourceId
+    automationAccountPrivateDnsZoneResourceId: resourceId(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4], 'Microsoft.Network/privateDnsZones', filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.azure-automation'))[0])
     computeGalleryImageResourceId: computeGalleryImageResourceId
     computeGalleryResourceId: baseline.outputs.computeGalleryResourceId
     containerName: containerName
@@ -325,7 +316,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     imageDefinitionName: imageDefinitionName
     imageMajorVersion: imageMajorVersion
     imagePatchVersion: imagePatchVersion
-    imageVirtualMachineName: replace(tier3.outputs.network.virtualMachineName, tier3.outputs.tokens.service, 'b')
+    imageVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'b')
     installAccess: installAccess
     installArcGisPro: installArcGisPro
     installExcel: installExcel
@@ -363,7 +354,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     subscriptionId: subscriptionId
     tags: tags
     teamsInstaller: teamsInstaller
-    timeZone: locations[location].timeZone
+    timeZone: tier3.outputs.locatonProperties.timeZone
     updateService: updateService
     userAssignedIdentityClientId: baseline.outputs.userAssignedIdentityClientId
     userAssignedIdentityPrincipalId: baseline.outputs.userAssignedIdentityPrincipalId
@@ -373,9 +364,6 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     virtualMachineSize: virtualMachineSize
     wsusServer: wsusServer
   }
-  dependsOn: [
-    tier3
-  ]
 }
 
 module imageBuild 'modules/imageBuild.bicep' = {
