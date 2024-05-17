@@ -13,8 +13,9 @@ param deployBastion bool
 param deployLinuxVirtualMachine bool
 param deployWindowsVirtualMachine bool
 param diskEncryptionSetResourceId string
+param hub object
 param hubNetworkSecurityGroupResourceId string
-param hubProperties object
+param hubResourceGroupName string
 param hubSubnetResourceId string
 param hybridUseBenefit bool
 param linuxNetworkInterfacePrivateIPAddressAllocationMethod string
@@ -37,6 +38,7 @@ param linuxVmSize string
 param location string
 param logAnalyticsWorkspaceId string
 param mlzTags object
+param serviceToken string
 param tags object
 param windowsNetworkInterfacePrivateIPAddressAllocationMethod string
 @secure()
@@ -54,15 +56,15 @@ param windowsVmVersion string
 module bastionHost '../modules/bastion-host.bicep' =
   if (deployBastion) {
     name: 'remoteAccess-bastionHost'
-    scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
+    scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
     params: {
       bastionHostSubnetResourceId: bastionHostSubnetResourceId
       location: location
       mlzTags: mlzTags
-      name: hubProperties.bastionHostName
+      name: hub.namingConvention.bastionHost
       publicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
       publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-      publicIPAddressName: hubProperties.bastionHostPublicIPAddressName
+      publicIPAddressName: hub.namingConvention.bastionHostPublicIPAddress
       publicIPAddressSkuName: bastionHostPublicIPAddressSkuName
       tags: tags
     }
@@ -71,18 +73,18 @@ module bastionHost '../modules/bastion-host.bicep' =
 module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' =
   if (deployLinuxVirtualMachine) {
     name: 'remoteAccess-linuxVirtualMachine'
-    scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
+    scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
     params: {
       adminPasswordOrKey: linuxVmAdminPasswordOrKey
       adminUsername: linuxVmAdminUsername
       authenticationType: linuxVmAuthenticationType
       diskEncryptionSetResourceId: diskEncryptionSetResourceId
-      diskName: hubProperties.linuxDiskName
+      diskName: replace(hub.namingConvention.disk, serviceToken, 'remoteAccess-linux')
       location: location
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
       mlzTags: mlzTags
-      name: hubProperties.linuxVmName
-      networkInterfaceName: deployLinuxVirtualMachine ? hubProperties.linuxNetworkInterfaceName : ''
+      name: replace(hub.namingConvention.virtualMachine, serviceToken, 'ral')
+      networkInterfaceName: replace(hub.namingConvention.networkInterface, serviceToken, 'remoteAccess-linux')
       networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
       osDiskCreateOption: linuxVmOsDiskCreateOption
       osDiskType: linuxVmOsDiskType
@@ -100,19 +102,19 @@ module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' =
 module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' =
   if (deployWindowsVirtualMachine) {
     name: 'remoteAccess-windowsVirtualMachine'
-    scope: resourceGroup(hubProperties.subscriptionId, hubProperties.resourceGroupName)
+    scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
     params: {
       adminPassword: windowsVmAdminPassword
       adminUsername: windowsVmAdminUsername
       createOption: windowsVmCreateOption
       diskEncryptionSetResourceId: diskEncryptionSetResourceId
-      diskName: hubProperties.windowsDiskName
+      diskName: replace(hub.namingConvention.disk, serviceToken, 'remoteAccess-windows')
       hybridUseBenefit: hybridUseBenefit
       location: location
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
       mlzTags: mlzTags
-      name: hubProperties.windowsVmName
-      networkInterfaceName: deployWindowsVirtualMachine ? hubProperties.windowsNetworkInterfaceName : ''
+      name: replace(hub.namingConvention.virtualMachine, serviceToken, 'raw')
+      networkInterfaceName: replace(hub.namingConvention.networkInterface, serviceToken, 'remoteAccess-windows')
       networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
       offer: windowsVmOffer
       privateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
