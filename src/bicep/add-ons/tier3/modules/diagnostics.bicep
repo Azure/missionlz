@@ -7,6 +7,8 @@ targetScope = 'subscription'
 
 param deployActivityLogDiagnosticSetting bool
 param deploymentNameSuffix string
+param keyVaultName string
+param keyVaultDiagnosticLogs array
 param logAnalyticsWorkspaceResourceId string
 param network object
 param networkSecurityGroupDiagnosticsLogs array
@@ -23,6 +25,17 @@ module activityLogDiagnosticSettings '../../../modules/activity-log-diagnostic-s
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
     }
   }
+
+module keyvaultDiagnostics '../../../modules/key-vault-diagnostics.bicep' = {
+  name: 'deploy-kv-diags-${deploymentNameSuffix}'
+  scope: resourceGroup(network.subscriptionId, network.resourceGroupName)
+  params: {
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logs: keyVaultDiagnosticLogs
+    keyVaultstorageAccountId: storageAccountResourceId
+    name: keyVaultName
+  }
+}  
 
 module networkSecurityGroupDiagnostics '../../../modules/network-security-group-diagnostics.bicep' = {
   name: 'deploy-nsg-diags-${network.name}-${deploymentNameSuffix}'
