@@ -29,7 +29,6 @@ param workloadShortName string
 
 module spokeNetwork '../../../modules/spoke-network.bicep' = {
   name: 'spokeNetwork'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     deployNetworkWatcher: deployNetworkWatcher
     firewallSkuTier: firewallSkuTier
@@ -38,10 +37,12 @@ module spokeNetwork '../../../modules/spoke-network.bicep' = {
     networkSecurityGroupName: networkSecurityGroupName
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherName: networkWatcherName
+    resourceGroupName: resourceGroupName
     routeTableName: routeTableName
     routeTableRouteNextHopIpAddress: routeTableRouteNextHopIpAddress
     subnetAddressPrefix: subnetAddressPrefix
     subnetName: subnetName
+    subscriptionId: subscriptionId
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkName: virtualNetworkName
@@ -52,26 +53,22 @@ module spokeNetwork '../../../modules/spoke-network.bicep' = {
 module workloadVirtualNetworkPeerings '../../../modules/spoke-network-peering.bicep' = {
   name: 'deploy-vnet-peering-${workloadShortName}-${deploymentNameSuffix}'
   params: {
-    hubVirtualNetworkName: split(hubVirtualNetworkResourceId, '/')[8]
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
+    resourceGroupName: resourceGroupName
     spokeName: workloadName
-    spokeResourceGroupName: resourceGroupName
     spokeVirtualNetworkName: spokeNetwork.outputs.virtualNetworkName
+    subscriptionId: subscriptionId
   }
 }
 
 module hubToWorkloadVirtualNetworkPeering '../../../modules/hub-network-peerings.bicep' = {
   name: 'deploy-vnet-peering-hub-${deploymentNameSuffix}'
-  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
     hubVirtualNetworkName: split(hubVirtualNetworkResourceId, '/')[8]
-    spokes: [
-      {
-        type: workloadName
-        virtualNetworkName: virtualNetworkName
-        virtualNetworkResourceId: spokeNetwork.outputs.virtualNetworkResourceId
-      }
-    ]
+    resourceGroupName: split(hubVirtualNetworkResourceId, '/')[4]
+    spokeName: workloadName
+    spokeVirtualNetworkResourceId: spokeNetwork.outputs.virtualNetworkResourceId
+    subscriptionId: split(hubVirtualNetworkResourceId, '/')[2]
   }
 }
 
