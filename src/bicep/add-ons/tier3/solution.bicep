@@ -41,6 +41,18 @@ param hubVirtualNetworkResourceId string
 @description('The identifier for the resource names. This value should represent the workload, project, or business unit.')
 param identifier string
 
+@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
+param keyVaultDiagnosticsLogs array = [
+  {
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
 @description('The location for the deployment. It defaults to the location of the deployment.')
 param location string = deployment().location
 
@@ -96,17 +108,6 @@ param workloadName string = 'Tier3'
 @description('The short name for the workload.')
 param workloadShortName string = 't3'
 
-var environmentName = {
-  dev: 'Development'
-  prod: 'Production'
-  test: 'Test'
-}
-var mlzTags = {
-  environment: environmentName[environmentAbbreviation]
-  identifier: identifier
-  workloadName: 'MissionLandingZone-${workloadName}'
-  workloadVersion: loadTextContent('../../data/version.txt')
-}
 var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
 var hubSubscriptionId = split(hubVirtualNetworkResourceId, '/')[2]
 var subscriptionId = subscription().subscriptionId
@@ -116,25 +117,28 @@ resource azureFirewall 'Microsoft.Network/azureFirewalls@2020-11-01' existing = 
   scope: resourceGroup(split(firewallResourceId, '/')[2], split(firewallResourceId, '/')[4])
 }
 
-module namingConvention '../../modules/naming-convention.bicep' = {
-  name: 'get-naming-${workloadShortName}-${deploymentNameSuffix}'
-  params: {
-    environmentAbbreviation: environmentAbbreviation
-    location: location
-    resourcePrefix: identifier
-  }
-}
-
-module logic 'modules/logic.bicep' = {
+module logic '../../modules/logic.bicep' = {
   name: 'get-logic-${workloadShortName}-${deploymentNameSuffix}'
   params: {
+    deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
+    location: location
+    networks: [
+      {
+        name: workloadName
+        shortName: workloadShortName
+        deployUniqueResources: false
+        subscriptionId: subscriptionId
+        nsgDiagLogs: networkSecurityGroupDiagnosticsLogs
+        nsgDiagMetrics: networkSecurityGroupDiagnosticsMetrics
+        nsgRules: networkSecurityGroupRules
+        vnetAddressPrefix: virtualNetworkAddressPrefix
+        vnetDiagLogs: virtualNetworkDiagnosticsLogs
+        vnetDiagMetrics: virtualNetworkDiagnosticsMetrics
+        subnetAddressPrefix: subnetAddressPrefix
+      }
+    ]
     resourcePrefix: identifier
-    resources: namingConvention.outputs.resources
-    subscriptionId: subscriptionId
-    tokens: namingConvention.outputs.tokens
-    workloadName: toLower(workloadName)
-    workloadShortName: workloadShortName
   }
 }
 
@@ -142,8 +146,8 @@ module rg '../../modules/resource-group.bicep' = {
   name: 'deploy-rg-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     location: location
-    mlzTags: mlzTags
-    name: logic.outputs.network.resourceGroupName
+    mlzTags: logic.outputs.mlzTags
+    name: replace(logic.outputs.tiers[0].namingConvention.resourceGroup, logic.outputs.tokens.service, 'network')
     tags: tags
   }
 }
@@ -156,19 +160,19 @@ module networking 'modules/networking.bicep' = {
     firewallSkuTier: azureFirewall.properties.sku.tier
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     location: location
-    mlzTags: mlzTags
-    networkSecurityGroupName: logic.outputs.network.networkSecurityGroupName
+    mlzTags: logic.outputs.mlzTags
+    networkSecurityGroupName: logic.outputs.tiers[0].namingConvention.networkSecurityGroup
     networkSecurityGroupRules: networkSecurityGroupRules
-    networkWatcherName: logic.outputs.network.networkWatcherName
-    resourceGroupName: logic.outputs.network.resourceGroupName
-    routeTableName: logic.outputs.network.routeTableName
+    networkWatcherName: logic.outputs.tiers[0].namingConvention.networkWatcher
+    resourceGroupName: logic.outputs.tiers[0].namingConvention.resourceGroup
+    routeTableName: logic.outputs.tiers[0].namingConvention.routeTable
     routeTableRouteNextHopIpAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
     subnetAddressPrefix: subnetAddressPrefix
-    subnetName: logic.outputs.network.subnetName
+    subnetName: logic.outputs.tiers[0].namingConvention.subnet
     subscriptionId: subscriptionId
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
-    virtualNetworkName: logic.outputs.network.virtualNetworkName
+    virtualNetworkName: logic.outputs.tiers[0].namingConvention.virtualNetwork
     vNetDnsServers: [
       azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
     ]
@@ -191,10 +195,12 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = {
       replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
     )
     location: location
-    mlzTags: mlzTags
-    networkProperties: logic.outputs.network
+    mlzTags: logic.outputs.mlzTags
+    tier: logic.outputs.tiers[0]
+    resourceGroupName: rg.outputs.name
     subnetResourceId: networking.outputs.subnetResourceId
     tags: tags
+    tokens: logic.outputs.tokens
   }
 }
 
@@ -210,9 +216,9 @@ module storage 'modules/storage.bicep' = {
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageSkuName: logStorageSkuName
-    mlzTags: mlzTags
-    network: logic.outputs.network
-    serviceToken: namingConvention.outputs.tokens.service
+    mlzTags: logic.outputs.mlzTags
+    network: logic.outputs.tiers[0]
+    serviceToken: logic.outputs.tiers[0].tokens.storage
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     subnetResourceId: networking.outputs.subnetResourceId
     tablesPrivateDnsZoneResourceId: resourceId(
@@ -231,8 +237,10 @@ module diagnostics 'modules/diagnostics.bicep' = {
   params: {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deploymentNameSuffix: deploymentNameSuffix
+    keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
+    keyVaultName: customerManagedKeys.outputs.keyVaultName
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    network: logic.outputs.network
+    network: logic.outputs.tiers[0]
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     storageAccountResourceId: storage.outputs.storageAccountResourceId
@@ -248,17 +256,18 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
       deploymentNameSuffix: deploymentNameSuffix
       location: location
       logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-      networks: [
-        logic.outputs.network
-      ]
+      tiers: logic.outputs.tiers
       policy: policy
+      resourceGroupNames: [
+        rg.outputs.name
+      ]
     }
     dependsOn: [
       rg
     ]
   }
 
-module defenderForCloud '../../modules/defenderForCloud.bicep' =
+module defenderForCloud '../../modules/defender-for-cloud.bicep' =
   if (deployDefender) {
     name: 'set-${toLower(workloadName)}-sub-defender'
     params: {
@@ -268,7 +277,10 @@ module defenderForCloud '../../modules/defenderForCloud.bicep' =
   }
 
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
-output mlzTags object = mlzTags
-output network object = logic.outputs.network
+output locatonProperties object = logic.outputs.tiers[0].locationProperties
+output mlzTags object = logic.outputs.mlzTags
+output namingConvention object = logic.outputs.tiers[0].namingConvention
+output network object = logic.outputs.tiers[0]
+output privateDnsZones array = logic.outputs.privateDnsZones
 output subnetResourceId string = networking.outputs.subnetResourceId
-output tokens object = namingConvention.outputs.tokens
+output tokens object = logic.outputs.tokens
