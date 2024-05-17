@@ -87,7 +87,7 @@ var names = {
   userAssignedIdentity: replace(namingConvention_Service, tokens.resource, resourceAbbreviations.userAssignedIdentities)
   virtualMachine: replace(replace(replace(replace(namingConvention, tokens.resource, resourceAbbreviations.virtualMachines), environmentAbbreviation, first(environmentAbbreviation)), tokens.network, networkShortName), '-', '')
   virtualMachineDisk: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.disks), tokens.service, resourceAbbreviations.virtualMachines)
-  virtualMachineNetworkInterface: replace(replace(namingConvention, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.network, networkName)
+  virtualMachineNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.network, networkName)
   virtualNetwork: replace(namingConvention, tokens.resource, resourceAbbreviations.virtualNetworks)
   workspace: replace(namingConvention_Service, tokens.resource, resourceAbbreviations.workspaces)
   workspaceDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${tokens.service}-${resourceAbbreviations.workspaces}')
