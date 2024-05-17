@@ -24,7 +24,7 @@ param tokens object
   First, we take `resourcePrefix` and `environmentAbbreviation` by params.
   Then, using string interpolation "${}", we insert those values into a naming convention.
 
-  The stampIndex is only used for AVD deployments
+  The stampIndex is only used for AVD deployments. Refer to the AVD Add-On readme file for more information.
 
 */
 
