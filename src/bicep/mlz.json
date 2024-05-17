@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "15862018064945562813"
+      "templateHash": "940403728413431750"
     }
   },
   "parameters": {
@@ -868,7 +868,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "8055161755695484770"
+              "templateHash": "17760768733261797234"
             }
           },
           "parameters": {
@@ -1418,7 +1418,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "10227743499159472660"
+                      "templateHash": "16320784716344977688"
                     }
                   },
                   "parameters": {
@@ -1497,7 +1497,7 @@
                       "storageAccountPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, parameters('resourceAbbreviations').storageAccounts))]",
                       "subnet": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').subnets)]",
                       "userAssignedIdentity": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').userAssignedIdentities)]",
-                      "virtualMachine": "[replace(replace(replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').virtualMachines), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('tokens').network, parameters('networkShortName')), '-', '')]",
+                      "virtualMachine": "[replace(replace(replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').virtualMachines), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('tokens').network, ''), '-', '')]",
                       "virtualMachineDisk": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').disks), parameters('tokens').service, parameters('resourceAbbreviations').virtualMachines)]",
                       "virtualMachineNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').network, parameters('networkName'))]",
                       "virtualNetwork": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').virtualNetworks)]",
