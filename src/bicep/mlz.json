@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "17876445524770516793"
+      "templateHash": "6349187052361285280"
     }
   },
   "parameters": {
@@ -5318,7 +5318,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "394686148710077241"
+              "templateHash": "6988657277317429041"
             }
           },
           "parameters": {
@@ -5597,7 +5597,7 @@
                     "value": "[parameters('diskEncryptionSetResourceId')]"
                   },
                   "diskName": {
-                    "value": "[replace(parameters('hub').namingConvention.disk, parameters('serviceToken'), 'remoteAccess-linux')]"
+                    "value": "[replace(parameters('hub').namingConvention.virtualMachineDisk, parameters('serviceToken'), 'remoteAccess-linux')]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -5612,7 +5612,7 @@
                     "value": "[replace(parameters('hub').namingConvention.virtualMachine, parameters('serviceToken'), 'ral')]"
                   },
                   "networkInterfaceName": {
-                    "value": "[replace(parameters('hub').namingConvention.networkInterface, parameters('serviceToken'), 'remoteAccess-linux')]"
+                    "value": "[replace(parameters('hub').namingConvention.virtualMachineNetworkInterface, parameters('serviceToken'), 'remoteAccess-linux')]"
                   },
                   "networkSecurityGroupResourceId": {
                     "value": "[parameters('hubNetworkSecurityGroupResourceId')]"
@@ -6051,7 +6051,7 @@
                     "value": "[parameters('diskEncryptionSetResourceId')]"
                   },
                   "diskName": {
-                    "value": "[replace(parameters('hub').namingConvention.disk, parameters('serviceToken'), 'remoteAccess-windows')]"
+                    "value": "[replace(parameters('hub').namingConvention.virtualMachineDisk, parameters('serviceToken'), 'remoteAccess-windows')]"
                   },
                   "hybridUseBenefit": {
                     "value": "[parameters('hybridUseBenefit')]"
@@ -6069,7 +6069,7 @@
                     "value": "[replace(parameters('hub').namingConvention.virtualMachine, parameters('serviceToken'), 'raw')]"
                   },
                   "networkInterfaceName": {
-                    "value": "[replace(parameters('hub').namingConvention.networkInterface, parameters('serviceToken'), 'remoteAccess-windows')]"
+                    "value": "[replace(parameters('hub').namingConvention.virtualMachineNetworkInterface, parameters('serviceToken'), 'remoteAccess-windows')]"
                   },
                   "networkSecurityGroupResourceId": {
                     "value": "[parameters('hubNetworkSecurityGroupResourceId')]"

@@ -79,12 +79,12 @@ module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' =
       adminUsername: linuxVmAdminUsername
       authenticationType: linuxVmAuthenticationType
       diskEncryptionSetResourceId: diskEncryptionSetResourceId
-      diskName: replace(hub.namingConvention.disk, serviceToken, 'remoteAccess-linux')
+      diskName: replace(hub.namingConvention.virtualMachineDisk, serviceToken, 'remoteAccess-linux')
       location: location
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
       mlzTags: mlzTags
       name: replace(hub.namingConvention.virtualMachine, serviceToken, 'ral')
-      networkInterfaceName: replace(hub.namingConvention.networkInterface, serviceToken, 'remoteAccess-linux')
+      networkInterfaceName: replace(hub.namingConvention.virtualMachineNetworkInterface, serviceToken, 'remoteAccess-linux')
       networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
       osDiskCreateOption: linuxVmOsDiskCreateOption
       osDiskType: linuxVmOsDiskType
@@ -108,13 +108,13 @@ module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' =
       adminUsername: windowsVmAdminUsername
       createOption: windowsVmCreateOption
       diskEncryptionSetResourceId: diskEncryptionSetResourceId
-      diskName: replace(hub.namingConvention.disk, serviceToken, 'remoteAccess-windows')
+      diskName: replace(hub.namingConvention.virtualMachineDisk, serviceToken, 'remoteAccess-windows')
       hybridUseBenefit: hybridUseBenefit
       location: location
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
       mlzTags: mlzTags
       name: replace(hub.namingConvention.virtualMachine, serviceToken, 'raw')
-      networkInterfaceName: replace(hub.namingConvention.networkInterface, serviceToken, 'remoteAccess-windows')
+      networkInterfaceName: replace(hub.namingConvention.virtualMachineNetworkInterface, serviceToken, 'remoteAccess-windows')
       networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
       offer: windowsVmOffer
       privateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
