@@ -5,16 +5,16 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+param defenderPlans array = ['VirtualMachines']
 param defenderSkuTier string
 param deploymentNameSuffix string
 param emailSecurityContact string
 param logAnalyticsWorkspaceResourceId string
-param networks array
-param defenderPlans array = ['VirtualMachines']
+param tiers array
 
-module defenderForCloud 'defenderForCloud.bicep' = [for network in networks: if (network.deployUniqueResources) {
-  name: 'set-defender-${network.name}-${deploymentNameSuffix}'
-  scope: subscription(network.subscriptionId)
+module defenderForCloud 'defender-for-cloud.bicep' = [for tier in tiers: if (tier.deployUniqueResources) {
+  name: 'set-defender-${tier.name}-${deploymentNameSuffix}'
+  scope: subscription(tier.subscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
     emailSecurityContact: emailSecurityContact
