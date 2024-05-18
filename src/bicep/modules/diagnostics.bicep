@@ -27,7 +27,7 @@ var publicIPAddressNames = union([
   hub.namingConvention.azureFirewallClientPublicIPAddress
   hub.namingConvention.azureFirewallManagementPublicIPAddress
 ], deployBastion ? [
-  hub.namingConvention.bastionPublicIPAddress
+  hub.namingConvention.bastionHostPublicIPAddress
 ] : [])
 
 module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = [for (tier, i) in tiers: if (tier.deployUniqueResources) {
