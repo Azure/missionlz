@@ -5,6 +5,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+param deployBastion bool
 param deploymentNameSuffix string
 param firewallDiagnosticsLogs array
 param firewallDiagnosticsMetrics array
@@ -22,10 +23,12 @@ var hub = (filter(tiers, tier => tier.name == 'hub'))[0]
 var hubResourceGroupName = filter(resourceGroupNames, name => contains(name, 'hub'))[0]
 var operations = first(filter(tiers, tier => tier.name == 'operations'))
 var operationsResourceGroupName = filter(resourceGroupNames, name => contains(name, 'operations'))[0]
-var publicIPAddressNames = [
-  hub.firewallClientPublicIPAddressName
-  hub.firewallManagementPublicIPAddressName
-]
+var publicIPAddressNames = union([
+  hub.namingConvention.azureFirewallClientPublicIPAddress
+  hub.namingConvention.azureFirewallManagementPublicIPAddress
+], deployBastion ? [
+  hub.namingConvention.bastionPublicIPAddress
+] : [])
 
 module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = [for (tier, i) in tiers: if (tier.deployUniqueResources) {
   name: 'deploy-activity-diags-${tier.name}-${deploymentNameSuffix}'

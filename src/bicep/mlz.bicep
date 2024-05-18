@@ -715,6 +715,7 @@ module storage 'modules/storage.bicep' = {
 module diagnostics 'modules/diagnostics.bicep' = {
   name: 'deploy-resource-diag-${deploymentNameSuffix}'
   params: {
+    deployBastion: deployBastion
     deploymentNameSuffix: deploymentNameSuffix
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
