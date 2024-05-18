@@ -92,7 +92,7 @@ module firewallDiagnostics '../modules/firewall-diagnostics.bicep' = {
     logs: firewallDiagnosticsLogs
     logStorageAccountResourceId: storageAccountResourceIds[0]
     metrics: firewallDiagnosticsMetrics
-    name: hub.namingConvention.firewall
+    name: hub.namingConvention.azureFirewall
   }
 }
 
