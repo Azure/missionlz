@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "12523174282480316921"
+      "templateHash": "13876236789067328388"
     }
   },
   "parameters": {
@@ -255,7 +255,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "9829755976438837462"
+              "templateHash": "245975674795926868"
             }
           },
           "parameters": {
@@ -805,7 +805,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "13860857663096724932"
+                      "templateHash": "7734092047495717374"
                     }
                   },
                   "parameters": {
@@ -859,12 +859,12 @@
                       "diskEncryptionSet": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').diskEncryptionSets)]",
                       "hostPool": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').hostPools)]",
                       "hostPoolDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, parameters('resourceAbbreviations').hostPools)]",
-                      "hostPoolNetworkInterface": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').hostPools)]",
-                      "hostPoolPrivateEndpoint": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').hostPools)]",
+                      "hostPoolNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').hostPools)]",
+                      "hostPoolPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').hostPools)]",
                       "keyVault": "[take(format('{0}{1}', replace(replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').keyVaults), '-', ''), parameters('networkName'), parameters('networkShortName')), uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('subscriptionId'))), 24)]",
                       "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, parameters('resourceAbbreviations').keyVaults)]",
-                      "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').keyVaults)]",
-                      "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').keyVaults)]",
+                      "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').keyVaults)]",
+                      "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').keyVaults)]",
                       "logAnalyticsWorkspace": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').logAnalyticsWorkspaces)]",
                       "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, parameters('resourceAbbreviations').logAnalyticsWorkspaces)]",
                       "netAppAccountCapacityPool": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').netAppCapacityPools)]",
@@ -872,11 +872,11 @@
                       "networkSecurityGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups)]",
                       "networkWatcher": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').networkWatchers)]",
                       "privateLinkScope": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').privateLinkScopes)]",
-                      "privateLinkScopeNetworkInterface": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
-                      "privateLinkScopePrivateEndpoint": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
+                      "privateLinkScopeNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
+                      "privateLinkScopePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
                       "recoveryServicesVault": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').recoveryServicesVaults)]",
-                      "recoveryServicesNetworkInterface": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
-                      "recoveryServicesPrivateEndpoint": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
+                      "recoveryServicesNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
+                      "recoveryServicesPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
                       "resourceGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').resourceGroups)]",
                       "routeTable": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').routeTables)]",
                       "storageAccount": "[toLower(take(format('{0}{1}', replace(replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName')), '-', ''), uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('subscriptionId'))), 24))]",
@@ -884,9 +884,9 @@
                       "storageAccountPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, parameters('resourceAbbreviations').storageAccounts))]",
                       "subnet": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').subnets)]",
                       "userAssignedIdentity": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').userAssignedIdentities)]",
-                      "virtualMachine": "[replace(replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').virtualMachines), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('tokens').network, ''), '-', '')]",
-                      "virtualMachineDisk": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').disks), parameters('tokens').service, parameters('resourceAbbreviations').virtualMachines)]",
-                      "virtualMachineNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').network, parameters('networkName'))]",
+                      "virtualMachine": "[replace(replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').virtualMachines), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), '-', '')]",
+                      "virtualMachineDisk": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').disks)]",
+                      "virtualMachineNetworkInterface": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces)]",
                       "virtualNetwork": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').virtualNetworks)]",
                       "workspace": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').workspaces)]",
                       "workspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, parameters('resourceAbbreviations').workspaces))]",
