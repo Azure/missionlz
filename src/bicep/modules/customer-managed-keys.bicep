@@ -19,10 +19,10 @@ module keyVault 'key-vault.bicep' = {
   name: 'deploy-key-vault-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
-    keyVaultName: tier.namingConvention.keyVault
-    keyVaultNetworkInterfaceName: tier.namingConvention.keyVaultNetworkInterface
+    keyVaultName: take(replace(tier.namingConvention.keyVault, tokens.service, ''), 24)
+    keyVaultNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.service, '')
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    keyVaultPrivateEndpointName: tier.namingConvention.keyVaultPrivateEndpoint
+    keyVaultPrivateEndpointName: replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.service, '')
     location: location
     mlzTags: mlzTags
     subnetResourceId: subnetResourceId

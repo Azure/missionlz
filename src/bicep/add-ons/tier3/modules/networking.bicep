@@ -5,6 +5,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+param additionalSubnets array
 param deploymentNameSuffix string
 param deployNetworkWatcher bool
 param firewallSkuTier string
@@ -30,6 +31,7 @@ param workloadShortName string
 module spokeNetwork '../../../modules/spoke-network.bicep' = {
   name: 'spokeNetwork'
   params: {
+    additionalSubnets: additionalSubnets
     deployNetworkWatcher: deployNetworkWatcher
     firewallSkuTier: firewallSkuTier
     location: location
@@ -72,4 +74,6 @@ module hubToWorkloadVirtualNetworkPeering '../../../modules/hub-network-peerings
   }
 }
 
+output networkSecurityGroupName string = spokeNetwork.outputs.networkSecurityGroupName
 output subnetResourceId string = spokeNetwork.outputs.subnetResourceId
+output virtualNetworkName string = spokeNetwork.outputs.virtualNetworkName

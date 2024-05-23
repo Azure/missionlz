@@ -5,6 +5,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+param additionalSubnets array = []
 param deployNetworkWatcher bool
 param firewallSkuTier string
 param location string
@@ -22,6 +23,27 @@ param tags object
 param virtualNetworkAddressPrefix string
 param virtualNetworkName string
 param vNetDnsServers array
+
+var delegations = {
+  AzureNetAppFiles: [
+    {
+      name: 'Microsoft.Netapp.volumes'
+      id: resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', virtualNetworkName, 'AzureNetAppFiles', 'Microsoft.Netapp.volumes')
+      properties: {
+        serviceName: 'Microsoft.Netapp/volumes'
+      }
+      type: 'Microsoft.Network/virtualNetworks/subnets/delegations'
+    }
+  ]
+}
+var subnets = union([
+  {
+    name: subnetName
+    properties: {
+      addressPrefix: subnetAddressPrefix
+    }
+  }
+], additionalSubnets)
 
 module networkSecurityGroup '../modules/network-security-group.bicep' = {
   name: 'networkSecurityGroup'
@@ -67,22 +89,21 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     location: location
     mlzTags: mlzTags
     name: virtualNetworkName
-    subnets: [
-      {
-        name: subnetName
-        properties: {
-          addressPrefix: subnetAddressPrefix
-          networkSecurityGroup: {
-            id: networkSecurityGroup.outputs.id
-          }
-          routeTable: {
-            id: routeTable.outputs.id
-          }
-          privateEndpointNetworkPolicies: 'Disabled'
-          privateLinkServiceNetworkPolicies: 'Disabled'
+    subnets: [for subnet in subnets: {
+      name: subnet.name
+      properties: {
+        addressPrefix: subnet.properties.addressPrefix
+        delegations: delegations[?subnet.name] ?? []
+        networkSecurityGroup: {
+          id: networkSecurityGroup.outputs.id
         }
+        routeTable: {
+          id: routeTable.outputs.id
+        }
+        privateEndpointNetworkPolicies: 'Disabled'
+        privateLinkServiceNetworkPolicies: 'Disabled'
       }
-    ]
+    }]
     tags: tags
     vNetDnsServers: vNetDnsServers
     firewallSkuTier: firewallSkuTier

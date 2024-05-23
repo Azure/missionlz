@@ -5,6 +5,9 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+@description('An array of additional subnets to support the tier3 workload.')
+param additionalSubnets array = []
+
 @description('Choose whether to deploy a diagnostic setting for the Activity Log.')
 param deployActivityLogDiagnosticSetting bool
 
@@ -81,7 +84,10 @@ param networkSecurityGroupDiagnosticsMetrics array = []
 param networkSecurityGroupRules array = []
 
 @description('The policy to assign to the workload.')
-param policy string
+param policy string = 'NISTRev4'
+
+@description('The stamp index allows for multiple AVD stamps with the same business unit or project to support different use cases.')
+param stampIndex string = ''
 
 @description('The address prefix for the workload subnet.')
 param subnetAddressPrefix string
@@ -101,7 +107,7 @@ param virtualNetworkDiagnosticsMetrics array = []
 @minLength(1)
 @maxLength(10)
 @description('The name for the workload.')
-param workloadName string = 'Tier3'
+param workloadName string = 'tier3'
 
 @minLength(1)
 @maxLength(3)
@@ -139,6 +145,7 @@ module logic '../../modules/logic.bicep' = {
       }
     ]
     resourcePrefix: identifier
+    stampIndex: stampIndex
   }
 }
 
@@ -155,6 +162,7 @@ module rg '../../modules/resource-group.bicep' = {
 module networking 'modules/networking.bicep' = {
   name: 'deploy-networking-${workloadShortName}-${deploymentNameSuffix}'
   params: {
+    additionalSubnets: additionalSubnets
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcher: deployNetworkWatcher
     firewallSkuTier: azureFirewall.properties.sku.tier
@@ -164,7 +172,7 @@ module networking 'modules/networking.bicep' = {
     networkSecurityGroupName: logic.outputs.tiers[0].namingConvention.networkSecurityGroup
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherName: logic.outputs.tiers[0].namingConvention.networkWatcher
-    resourceGroupName: logic.outputs.tiers[0].namingConvention.resourceGroup
+    resourceGroupName: rg.outputs.name
     routeTableName: logic.outputs.tiers[0].namingConvention.routeTable
     routeTableRouteNextHopIpAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
     subnetAddressPrefix: subnetAddressPrefix
@@ -196,10 +204,10 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = {
     )
     location: location
     mlzTags: logic.outputs.mlzTags
-    tier: logic.outputs.tiers[0]
     resourceGroupName: rg.outputs.name
     subnetResourceId: networking.outputs.subnetResourceId
     tags: tags
+    tier: logic.outputs.tiers[0]
     tokens: logic.outputs.tokens
   }
 }
@@ -218,7 +226,8 @@ module storage 'modules/storage.bicep' = {
     logStorageSkuName: logStorageSkuName
     mlzTags: logic.outputs.mlzTags
     network: logic.outputs.tiers[0]
-    serviceToken: logic.outputs.tiers[0].tokens.storage
+    resourceGroupName: rg.outputs.name
+    serviceToken: logic.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     subnetResourceId: networking.outputs.subnetResourceId
     tablesPrivateDnsZoneResourceId: resourceId(
@@ -240,12 +249,15 @@ module diagnostics 'modules/diagnostics.bicep' = {
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
     keyVaultName: customerManagedKeys.outputs.keyVaultName
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    network: logic.outputs.tiers[0]
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
+    networkSecurityGroupName: networking.outputs.networkSecurityGroupName
+    resourceGroupName: rg.outputs.name
     storageAccountResourceId: storage.outputs.storageAccountResourceId
+    tier: logic.outputs.tiers[0]
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
+    virtualNetworkName: networking.outputs.virtualNetworkName
   }
 }
 
@@ -277,10 +289,14 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
   }
 
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
-output locatonProperties object = logic.outputs.tiers[0].locationProperties
+output keyVaultUri string = customerManagedKeys.outputs.keyVaultUri
+output locatonProperties object = logic.outputs.locationProperties
 output mlzTags object = logic.outputs.mlzTags
 output namingConvention object = logic.outputs.tiers[0].namingConvention
-output network object = logic.outputs.tiers[0]
 output privateDnsZones array = logic.outputs.privateDnsZones
+output resourcePrefix string = azureFirewall.tags.resourcePrefix
+output storageEncryptionKeyName string = customerManagedKeys.outputs.storageKeyName
 output subnetResourceId string = networking.outputs.subnetResourceId
+output tier object = logic.outputs.tiers[0]
 output tokens object = logic.outputs.tokens
+output userAssignedIdentityResourceId string = customerManagedKeys.outputs.userAssignedIdentityResourceId

@@ -10,6 +10,7 @@ param environmentAbbreviation string
 param location string
 param networks array
 param resourcePrefix string
+param stampIndex string = ''
 
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var environmentName = {
@@ -28,7 +29,6 @@ var resourceAbbreviations = loadJsonContent('../data/resourceAbbreviations.json'
 var tokens = {
   resource: 'resource_token'
   service: 'service_token'
-  network: 'network_token'
 }
 
 /*
@@ -46,6 +46,7 @@ module namingConventions 'naming-convention.bicep' = [for network in networks: {
     networkShortName: network.shortName
     resourceAbbreviations: resourceAbbreviations
     resourcePrefix: resourcePrefix
+    stampIndex: stampIndex
     subscriptionId: network.subscriptionId
     tokens: tokens
   }
