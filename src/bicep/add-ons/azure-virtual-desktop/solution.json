@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "5827558797154666033"
+      "templateHash": "2560255072359885236"
     }
   },
   "parameters": {
@@ -672,7 +672,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "6877974702104389401"
+              "templateHash": "5760152189882232532"
             }
           },
           "parameters": {
@@ -940,7 +940,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "11171233226932915639"
+                      "templateHash": "16881625523433024595"
                     }
                   },
                   "parameters": {
@@ -1496,7 +1496,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.27.1.19265",
-                              "templateHash": "13218155481958331255"
+                              "templateHash": "2390405762046931912"
                             }
                           },
                           "parameters": {
@@ -1578,7 +1578,7 @@
                               "recoveryServicesPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
                               "resourceGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').resourceGroups)]",
                               "routeTable": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').routeTables)]",
-                              "storageAccount": "[toLower(take(format('{0}{1}', replace(replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName')), '-', ''), uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('subscriptionId'))), 24))]",
+                              "storageAccount": "[toLower(replace(replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName')), '-', ''))]",
                               "storageAccountNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, parameters('resourceAbbreviations').storageAccounts))]",
                               "storageAccountPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, parameters('resourceAbbreviations').storageAccounts))]",
                               "subnet": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').subnets)]",
@@ -4846,7 +4846,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "6877974702104389401"
+              "templateHash": "5760152189882232532"
             }
           },
           "parameters": {
@@ -5114,7 +5114,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "11171233226932915639"
+                      "templateHash": "16881625523433024595"
                     }
                   },
                   "parameters": {
@@ -5670,7 +5670,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.27.1.19265",
-                              "templateHash": "13218155481958331255"
+                              "templateHash": "2390405762046931912"
                             }
                           },
                           "parameters": {
@@ -5752,7 +5752,7 @@
                               "recoveryServicesPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
                               "resourceGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').resourceGroups)]",
                               "routeTable": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').routeTables)]",
-                              "storageAccount": "[toLower(take(format('{0}{1}', replace(replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName')), '-', ''), uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('subscriptionId'))), 24))]",
+                              "storageAccount": "[toLower(replace(replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName')), '-', ''))]",
                               "storageAccountNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, parameters('resourceAbbreviations').storageAccounts))]",
                               "storageAccountPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, parameters('resourceAbbreviations').storageAccounts))]",
                               "subnet": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').subnets)]",
@@ -13238,6 +13238,9 @@
             "value": "[parameters('domainName')]"
           },
           "encryptionUserAssignedIdentityResourceId": "[if(equals(length(variables('deploymentLocations')), 2), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-session-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value))]",
+          "environmentAbbreviation": {
+            "value": "[parameters('environmentAbbreviation')]"
+          },
           "fileShares": {
             "value": "[variables('fileShares')]"
           },
@@ -13252,6 +13255,9 @@
           },
           "hostPoolType": {
             "value": "[parameters('hostPoolType')]"
+          },
+          "identifier": {
+            "value": "[parameters('identifier')]"
           },
           "keyVaultUri": "[if(equals(length(variables('deploymentLocations')), 2), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-session-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value))]",
           "location": {
@@ -13316,7 +13322,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "6672729017023590455"
+              "templateHash": "17896200557274991728"
             }
           },
           "parameters": {
@@ -13359,6 +13365,9 @@
             "encryptionUserAssignedIdentityResourceId": {
               "type": "string"
             },
+            "environmentAbbreviation": {
+              "type": "string"
+            },
             "fileShares": {
               "type": "array"
             },
@@ -13372,6 +13381,9 @@
               "type": "string"
             },
             "hostPoolType": {
+              "type": "string"
+            },
+            "identifier": {
               "type": "string"
             },
             "keyVaultUri": {
@@ -13848,6 +13860,9 @@
                   "encryptionUserAssignedIdentityResourceId": {
                     "value": "[parameters('encryptionUserAssignedIdentityResourceId')]"
                   },
+                  "environmentAbbreviation": {
+                    "value": "[parameters('environmentAbbreviation')]"
+                  },
                   "fileShares": {
                     "value": "[parameters('fileShares')]"
                   },
@@ -13862,6 +13877,9 @@
                   },
                   "hostPoolType": {
                     "value": "[parameters('hostPoolType')]"
+                  },
+                  "identifier": {
+                    "value": "[parameters('identifier')]"
                   },
                   "keyVaultUri": {
                     "value": "[parameters('keyVaultUri')]"
@@ -13949,10 +13967,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "3191909333917557852"
+                      "templateHash": "17444791728090574025"
                     }
                   },
                   "parameters": {
+                    "activeDirectorySolution": {
+                      "type": "string"
+                    },
                     "artifactsUri": {
                       "type": "string"
                     },
@@ -13983,7 +14004,7 @@
                     "encryptionUserAssignedIdentityResourceId": {
                       "type": "string"
                     },
-                    "activeDirectorySolution": {
+                    "environmentAbbreviation": {
                       "type": "string"
                     },
                     "fileShares": {
@@ -13999,6 +14020,9 @@
                       "type": "string"
                     },
                     "hostPoolType": {
+                      "type": "string"
+                    },
+                    "identifier": {
                       "type": "string"
                     },
                     "keyVaultUri": {
@@ -14094,7 +14118,8 @@
                       "kerberosTicketEncryption": "AES-256;",
                       "channelEncryption": "AES-128-GCM;AES-256-GCM;"
                     },
-                    "storageRedundancy": "[if(equals(parameters('availability'), 'availabilityZones'), '_ZRS', '_LRS')]"
+                    "storageRedundancy": "[if(equals(parameters('availability'), 'availabilityZones'), '_ZRS', '_LRS')]",
+                    "uniqueToken": "[uniqueString(parameters('identifier'), parameters('environmentAbbreviation'), subscription().subscriptionId)]"
                   },
                   "resources": [
                     {
@@ -14104,7 +14129,7 @@
                       },
                       "type": "Microsoft.Storage/storageAccounts",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('{0}{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
+                      "name": "[take(format('{0}{1}{2}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'), variables('uniqueToken')), 24)]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsStorageAccounts')]",
                       "sku": {
@@ -14159,15 +14184,15 @@
                       },
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2022-04-01",
-                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]",
-                      "name": "[guid(parameters('securityPrincipalObjectIds')[range(0, parameters('storageCount'))[copyIndex()]], variables('roleDefinitionId'), resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0'))))]",
+                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', take(format('{0}{1}{2}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0'), variables('uniqueToken')), 24))]",
+                      "name": "[guid(parameters('securityPrincipalObjectIds')[range(0, parameters('storageCount'))[copyIndex()]], variables('roleDefinitionId'), resourceId('Microsoft.Storage/storageAccounts', take(format('{0}{1}{2}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0'), variables('uniqueToken')), 24)))]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]",
                         "principalId": "[parameters('securityPrincipalObjectIds')[range(0, parameters('storageCount'))[copyIndex()]]]"
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]",
-                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', take(format('{0}{1}{2}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0'), variables('uniqueToken')), 24))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', take(format('{0}{1}{2}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0'), variables('uniqueToken')), 24))]"
                       ]
                     },
                     {
@@ -14177,7 +14202,7 @@
                       },
                       "type": "Microsoft.Storage/storageAccounts/fileServices",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), 'default')]",
+                      "name": "[format('{0}/{1}', take(format('{0}{1}{2}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0'), variables('uniqueToken')), 24), 'default')]",
                       "properties": {
                         "protocolSettings": {
                           "smb": "[if(equals(parameters('storageSku'), 'Standard'), variables('smbSettings'), union(variables('smbSettings'), variables('smbMultiChannel')))]"
@@ -14187,7 +14212,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', take(format('{0}{1}{2}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0'), variables('uniqueToken')), 24))]"
                       ]
                     },
                     {
@@ -14206,7 +14231,7 @@
                           {
                             "name": "[format('{0}-{1}', replace(parameters('storageAccountPrivateEndpointNamePrefix'), parameters('serviceName'), 'file'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', take(format('{0}{1}{2}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0'), variables('uniqueToken')), 24))]",
                               "groupIds": [
                                 "file"
                               ]
@@ -14218,7 +14243,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', take(format('{0}{1}{2}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0'), variables('uniqueToken')), 24))]"
                       ]
                     },
                     {
@@ -14265,7 +14290,7 @@
                             "value": "[parameters('fslogixShareSizeInGB')]"
                           },
                           "storageAccountName": {
-                            "value": "[format('{0}{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0'))]"
+                            "value": "[take(format('{0}{1}{2}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0'), variables('uniqueToken')), 24)]"
                           },
                           "storageSku": {
                             "value": "[parameters('storageSku')]"
@@ -14315,7 +14340,7 @@
                       },
                       "dependsOn": [
                         "roleAssignment",
-                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', take(format('{0}{1}{2}', parameters('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0'), variables('uniqueToken')), 24))]"
                       ]
                     },
                     {
@@ -14339,7 +14364,7 @@
                             "value": "[parameters('location')]"
                           },
                           "parameters": {
-                            "value": "[format('-domainJoinPassword \"{0}\" -domainJoinUserPrincipalName {1} -activeDirectorySolution {2} -Environment {3} -fslogixContainerType {4} -netbios {5} -organizationalUnitPath \"{6}\" -securityPrincipalNames \"{7}\" -StorageAccountPrefix {8} -StorageAccountResourceGroupName {9} -storageCount {10} -storageIndex {11} -storageService {12} -StorageSuffix {13} -SubscriptionId {14} -TenantId {15} -UserAssignedIdentityClientId {16}', parameters('domainJoinPassword'), parameters('domainJoinUserPrincipalName'), parameters('activeDirectorySolution'), environment().name, parameters('fslogixContainerType'), parameters('netbios'), parameters('organizationalUnitPath'), parameters('securityPrincipalNames'), parameters('storageAccountNamePrefix'), parameters('resourceGroupStorage'), parameters('storageCount'), parameters('storageIndex'), parameters('storageService'), environment().suffixes.storage, subscription().subscriptionId, subscription().tenantId, parameters('deploymentUserAssignedIdentityClientId'))]"
+                            "value": "[format('-domainJoinPassword \"{0}\" -domainJoinUserPrincipalName {1} -activeDirectorySolution {2} -Environment {3} -fslogixContainerType {4} -netbios {5} -organizationalUnitPath \"{6}\" -securityPrincipalNames \"{7}\" -StorageAccountPrefix {8} -StorageAccountResourceGroupName {9} -storageCount {10} -storageIndex {11} -storageService {12} -StorageSuffix {13} -SubscriptionId {14} -TenantId {15} -uniqueToken {16} -UserAssignedIdentityClientId {17}', parameters('domainJoinPassword'), parameters('domainJoinUserPrincipalName'), parameters('activeDirectorySolution'), environment().name, parameters('fslogixContainerType'), parameters('netbios'), parameters('organizationalUnitPath'), parameters('securityPrincipalNames'), parameters('storageAccountNamePrefix'), parameters('resourceGroupStorage'), parameters('storageCount'), parameters('storageIndex'), parameters('storageService'), environment().suffixes.storage, subscription().subscriptionId, subscription().tenantId, variables('uniqueToken'), parameters('deploymentUserAssignedIdentityClientId'))]"
                           },
                           "scriptFileName": {
                             "value": "Set-NtfsPermissions.ps1"
@@ -15233,6 +15258,9 @@
           "enableScalingTool": {
             "value": "[parameters('scalingTool')]"
           },
+          "environmentAbbreviation": {
+            "value": "[parameters('environmentAbbreviation')]"
+          },
           "fslogixContainerType": {
             "value": "[parameters('fslogixContainerType')]"
           },
@@ -15244,6 +15272,9 @@
           },
           "hybridRunbookWorkerGroupName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hybridRunbookWorkerGroupName.value]"
+          },
+          "identifier": {
+            "value": "[parameters('identifier')]"
           },
           "imageOffer": {
             "value": "[parameters('imageOffer')]"
@@ -15363,7 +15394,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "146715649896670344"
+              "templateHash": "17180714621964508955"
             }
           },
           "parameters": {
@@ -15436,6 +15467,9 @@
             "drainMode": {
               "type": "bool"
             },
+            "environmentAbbreviation": {
+              "type": "string"
+            },
             "fslogixContainerType": {
               "type": "string"
             },
@@ -15446,6 +15480,9 @@
               "type": "string"
             },
             "hybridRunbookWorkerGroupName": {
+              "type": "string"
+            },
+            "identifier": {
               "type": "string"
             },
             "imageOffer": {
@@ -15581,7 +15618,9 @@
             "tagsAvailabilitySets": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupManagement'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Compute/availabilitySets'), parameters('tags')['Microsoft.Compute/availabilitySets'], createObject()), parameters('mlzTags'))]",
             "tagsNetworkInterfaces": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupManagement'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
             "tagsRecoveryServicesVault": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupManagement'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.recoveryServices/vaults'), parameters('tags')['Microsoft.recoveryServices/vaults'], createObject()), parameters('mlzTags'))]",
-            "tagsVirtualMachines": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupManagement'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]"
+            "tagsVirtualMachines": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupManagement'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+            "uniqueToken": "[uniqueString(parameters('identifier'), parameters('environmentAbbreviation'), subscription().subscriptionId)]",
+            "virtualMachineNamePrefix": "[replace(parameters('namingConvention').virtualMachine, parameters('serviceToken'), '')]"
           },
           "resources": [
             {
@@ -15887,11 +15926,14 @@
                   "tagsVirtualMachines": {
                     "value": "[variables('tagsVirtualMachines')]"
                   },
+                  "uniqueToken": {
+                    "value": "[variables('uniqueToken')]"
+                  },
                   "virtualMachineMonitoringAgent": {
                     "value": "[parameters('virtualMachineMonitoringAgent')]"
                   },
                   "virtualMachineNamePrefix": {
-                    "value": "[parameters('namingConvention').virtualMachine]"
+                    "value": "[variables('virtualMachineNamePrefix')]"
                   },
                   "virtualMachinePassword": {
                     "value": "[parameters('virtualMachinePassword')]"
@@ -15910,7 +15952,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "14284858800802598137"
+                      "templateHash": "2295619283331331115"
                     }
                   },
                   "parameters": {
@@ -16068,6 +16110,9 @@
                       "type": "string",
                       "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
                     },
+                    "uniqueToken": {
+                      "type": "string"
+                    },
                     "virtualMachineMonitoringAgent": {
                       "type": "string"
                     },
@@ -16096,8 +16141,8 @@
                     "fslogixExclusionsCloudCache": "[if(contains(parameters('fslogixContainerType'), 'CloudCache'), ';\"%ProgramData%\\fslogix\\Cache\\*\";\"%ProgramData%\\fslogix\\Proxy\\*\"', '')]",
                     "fslogixExclusionsOfficeContainers": "[if(contains(parameters('fslogixContainerType'), 'Office'), format(';\"{0}\";\"{1}.lock\";\"{2}.meta\";\"{3}.metadata\"', variables('fslogixOfficeShare'), variables('fslogixOfficeShare'), variables('fslogixOfficeShare'), variables('fslogixOfficeShare')), '')]",
                     "fslogixExclusionsProfileContainers": "[format(';\"{0}\";\"{1}.lock\";\"{2}.meta\";\"{3}.metadata\"', variables('fslogixProfileShare'), variables('fslogixProfileShare'), variables('fslogixProfileShare'), variables('fslogixProfileShare'))]",
-                    "fslogixOfficeShare": "[format('\\\\{0}??.file.{1}\\office-containers\\*\\*.VHDX', parameters('storageAccountPrefix'), parameters('storageSuffix'))]",
-                    "fslogixProfileShare": "[format('\\\\{0}??.file.{1}\\profile-containers\\*\\*.VHDX', parameters('storageAccountPrefix'), parameters('storageSuffix'))]",
+                    "fslogixOfficeShare": "[format('\\\\{0}.file.{1}\\office-containers\\*\\*.VHDX', variables('storageAccountToken'), parameters('storageSuffix'))]",
+                    "fslogixProfileShare": "[format('\\\\{0}.file.{1}\\profile-containers\\*\\*.VHDX', variables('storageAccountToken'), parameters('storageSuffix'))]",
                     "imageReference": "[if(empty(parameters('imageVersionResourceId')), createObject('publisher', parameters('imagePublisher'), 'offer', parameters('imageOffer'), 'sku', parameters('imageSku'), 'version', 'latest'), createObject('id', parameters('imageVersionResourceId')))]",
                     "intune": "[contains(parameters('activeDirectorySolution'), 'intuneEnrollment')]",
                     "nvidiaVmSize": "[contains(variables('nvidiaVmSizes'), parameters('virtualMachineSize'))]",
@@ -16120,7 +16165,8 @@
                       "Standard_NV72ads_A10_v5"
                     ],
                     "pooledHostPool": "[equals(split(parameters('hostPoolType'), ' ')[0], 'Pooled')]",
-                    "sessionHostNamePrefix": "[replace(parameters('virtualMachineNamePrefix'), parameters('serviceToken'), '')]"
+                    "sessionHostNamePrefix": "[replace(parameters('virtualMachineNamePrefix'), parameters('serviceToken'), '')]",
+                    "storageAccountToken": "[take(format('{0}??{1}', parameters('storageAccountPrefix'), parameters('uniqueToken')), 24)]"
                   },
                   "resources": [
                     {
@@ -16388,7 +16434,7 @@
                           "timestamp": "[parameters('timestamp')]"
                         },
                         "protectedSettings": {
-                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -activeDirectorySolution {0} -amdVmSize {1} -avdAgentBootLoaderMsiName \"{2}\" -avdAgentMsiName \"{3}\" -Environment {4} -fslogix {5} -fslogixContainerType {6} -hostPoolName {7} -HostPoolRegistrationToken \"{8}\" -imageOffer {9} -imagePublisher {10} -netAppFileShares {11} -nvidiaVmSize {12} -pooledHostPool {13} -storageAccountPrefix {14} -storageCount {15} -storageIndex {16} -storageService {17} -storageSuffix {18}', parameters('activeDirectorySolution'), variables('amdVmSize'), parameters('avdAgentBootLoaderMsiName'), parameters('avdAgentMsiName'), environment().name, parameters('deployFslogix'), parameters('fslogixContainerType'), parameters('hostPoolName'), reference(resourceId(parameters('resourceGroupControlPlane'), 'Microsoft.DesktopVirtualization/hostpools', parameters('hostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('imageOffer'), parameters('imagePublisher'), parameters('netAppFileShares'), variables('nvidiaVmSize'), variables('pooledHostPool'), parameters('storageAccountPrefix'), parameters('storageCount'), parameters('storageIndex'), parameters('storageService'), parameters('storageSuffix'))]",
+                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -activeDirectorySolution {0} -amdVmSize {1} -avdAgentBootLoaderMsiName \"{2}\" -avdAgentMsiName \"{3}\" -Environment {4} -fslogix {5} -fslogixContainerType {6} -hostPoolName {7} -HostPoolRegistrationToken \"{8}\" -imageOffer {9} -imagePublisher {10} -netAppFileShares {11} -nvidiaVmSize {12} -pooledHostPool {13} -storageAccountPrefix {14} -storageCount {15} -storageIndex {16} -storageService {17} -storageSuffix {18} -uniqueToken {19}', parameters('activeDirectorySolution'), variables('amdVmSize'), parameters('avdAgentBootLoaderMsiName'), parameters('avdAgentMsiName'), environment().name, parameters('deployFslogix'), parameters('fslogixContainerType'), parameters('hostPoolName'), reference(resourceId(parameters('resourceGroupControlPlane'), 'Microsoft.DesktopVirtualization/hostpools', parameters('hostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('imageOffer'), parameters('imagePublisher'), parameters('netAppFileShares'), variables('nvidiaVmSize'), variables('pooledHostPool'), parameters('storageAccountPrefix'), parameters('storageCount'), parameters('storageIndex'), parameters('storageService'), parameters('storageSuffix'), parameters('uniqueToken'))]",
                           "managedidentity": {
                             "clientId": "[parameters('artifactsUserAssignedIdentityClientId')]"
                           }
@@ -16667,7 +16713,7 @@
                     "value": "[variables('tagsRecoveryServicesVault')]"
                   },
                   "virtualMachineNamePrefix": {
-                    "value": "[parameters('namingConvention').virtualMachine]"
+                    "value": "[variables('virtualMachineNamePrefix')]"
                   }
                 },
                 "template": {
