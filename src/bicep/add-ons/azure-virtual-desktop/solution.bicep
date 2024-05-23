@@ -568,11 +568,13 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
     encryptionUserAssignedIdentityResourceId: length(deploymentLocations) == 2 ? tier3_hosts.outputs.userAssignedIdentityResourceId : tier3_controlPlane.outputs.userAssignedIdentityResourceId
+    environmentAbbreviation: environmentAbbreviation
     fileShares: fileShares
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
     hostPoolType: hostPoolType
+    identifier: identifier
     keyVaultUri: length(deploymentLocations) == 2 ? tier3_hosts.outputs.keyVaultUri : tier3_controlPlane.outputs.keyVaultUri
     location: locationVirtualMachines
     managementVirtualMachineName: management.outputs.virtualMachineName
@@ -631,10 +633,12 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     drainMode: drainMode
     enableRecoveryServices: recoveryServices
     enableScalingTool: scalingTool
+    environmentAbbreviation: environmentAbbreviation
     fslogixContainerType: fslogixContainerType
     hostPoolName: controlPlane.outputs.hostPoolName
     hostPoolType: hostPoolType
     hybridRunbookWorkerGroupName: management.outputs.hybridRunbookWorkerGroupName
+    identifier: identifier
     imageOffer: imageOffer
     imagePublisher: imagePublisher
     imageSku: imageSku
