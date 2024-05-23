@@ -19,8 +19,11 @@ param logAnalyticsWorkspaceId string
 param mlzTags object
 param name string
 param networkInterfaceName string
+param networkSecurityGroupResourceId string
 param osDiskCreateOption string
 param osDiskType string
+param privateIPAddressAllocationMethod string
+param subnetResourceId string
 param tags object
 param vmImageOffer string
 param vmImagePublisher string
@@ -40,9 +43,18 @@ var linuxConfiguration = {
   }
 }
 
-resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' existing = {
-  name: networkInterfaceName
-}
+module networkInterface '../modules/network-interface.bicep' = {
+    name: 'remoteAccess-linuxNetworkInterface'
+    params: {
+      location: location
+      mlzTags: mlzTags
+      name: networkInterfaceName
+      networkSecurityGroupResourceId: networkSecurityGroupResourceId
+      privateIPAddressAllocationMethod: privateIPAddressAllocationMethod
+      subnetResourceId: subnetResourceId
+      tags: tags
+    }
+  }
 
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   name: name
@@ -60,7 +72,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
     networkProfile: {
       networkInterfaces: [
         {
-          id: networkInterface.id
+          id: networkInterface.outputs.id
           properties: {
             deleteOption: 'Delete'
           }

@@ -8,27 +8,19 @@ param deployNetworkWatcher bool
 param deployBastion bool
 param dnsServers array
 param enableProxy bool
-param firewallClientIpConfigurationName string
 param firewallClientPrivateIpAddress string
 param firewallClientPublicIPAddressAvailabilityZones array
 param firewallClientPublicIPAddressName string
-param firewallClientPublicIPAddressSkuName string
-param firewallClientPublicIpAllocationMethod string
 param firewallClientSubnetAddressPrefix string
-param firewallClientSubnetName string
 @allowed([
   'Alert'
   'Deny'
   'Off'
 ])
 param firewallIntrusionDetectionMode string
-param firewallManagementIpConfigurationName string
 param firewallManagementPublicIPAddressAvailabilityZones array
 param firewallManagementPublicIPAddressName string
-param firewallManagementPublicIPAddressSkuName string
-param firewallManagementPublicIpAllocationMethod string
 param firewallManagementSubnetAddressPrefix string
-param firewallManagementSubnetName string
 param firewallName string
 param firewallPolicyName string
 param firewallSkuTier string
@@ -45,9 +37,6 @@ param networkSecurityGroupName string
 param networkSecurityGroupRules array
 param networkWatcherName string
 param routeTableName string
-param routeTableRouteAddressPrefix string = '0.0.0.0/0'
-param routeTableRouteName string = 'default_route'
-param routeTableRouteNextHopType string = 'VirtualAppliance'
 param subnetAddressPrefix string
 param subnetName string
 param tags object
@@ -55,16 +44,7 @@ param virtualNetworkAddressPrefix string
 param virtualNetworkName string
 param vNetDnsServers array
 
-var subnets = union(subnetsCommon, subnetsBastion)
-var subnetsBastion = deployBastion ? [
-  {
-    name: 'AzureBastionSubnet'
-    properties: {
-      addressPrefix: bastionHostSubnetAddressPrefix
-    }
-  }
-] : []
-var subnetsCommon = [
+var subnets = union([
   {
     name: 'AzureFirewallSubnet'
     properties: {
@@ -91,7 +71,14 @@ var subnetsCommon = [
       }
     }
   }
-]
+], deployBastion ? [
+  {
+    name: 'AzureBastionSubnet'
+    properties: {
+      addressPrefix: bastionHostSubnetAddressPrefix
+    }
+  }
+] : [])
 
 module networkSecurityGroup '../modules/network-security-group.bicep' = {
   name: 'networkSecurityGroup'
@@ -111,10 +98,7 @@ module routeTable '../modules/route-table.bicep' = {
     location: location
     mlzTags: mlzTags
     name: routeTableName
-    routeAddressPrefix: routeTableRouteAddressPrefix
-    routeName: routeTableRouteName
     routeNextHopIpAddress: firewallClientPrivateIpAddress
-    routeNextHopType: routeTableRouteNextHopType
     tags: tags
   }
 }
@@ -153,8 +137,8 @@ module firewallClientPublicIPAddress '../modules/public-ip-address.bicep' = {
     location: location
     mlzTags: mlzTags
     name: firewallClientPublicIPAddressName
-    publicIpAllocationMethod: firewallClientPublicIpAllocationMethod
-    skuName: firewallClientPublicIPAddressSkuName
+    publicIpAllocationMethod: 'Static'
+    skuName: 'Standard'
     tags: tags
   }
 }
@@ -166,8 +150,8 @@ module firewallManagementPublicIPAddress '../modules/public-ip-address.bicep' = 
     location: location
     mlzTags: mlzTags
     name: firewallManagementPublicIPAddressName
-    publicIpAllocationMethod: firewallManagementPublicIpAllocationMethod
-    skuName: firewallManagementPublicIPAddressSkuName
+    publicIpAllocationMethod: 'Static'
+    skuName: 'Standard'
     tags: tags
   }
 }
@@ -175,18 +159,16 @@ module firewallManagementPublicIPAddress '../modules/public-ip-address.bicep' = 
 module firewall '../modules/firewall.bicep' = {
   name: 'firewall'
   params: {
-    clientIpConfigurationName: firewallClientIpConfigurationName
     clientIpConfigurationPublicIPAddressResourceId: firewallClientPublicIPAddress.outputs.id
-    clientIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/${firewallClientSubnetName}'
+    clientIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/AzureFirewallSubnet'
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallPolicyName: firewallPolicyName
     firewallSupernetIPAddress: firewallSupernetIPAddress
     intrusionDetectionMode: firewallIntrusionDetectionMode
     location: location
-    managementIpConfigurationName: firewallManagementIpConfigurationName
     managementIpConfigurationPublicIPAddressResourceId: firewallManagementPublicIPAddress.outputs.id
-    managementIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/${firewallManagementSubnetName}'
+    managementIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/AzureFirewallManagementSubnet'
     mlzTags: mlzTags
     name: firewallName
     skuTier: firewallSkuTier

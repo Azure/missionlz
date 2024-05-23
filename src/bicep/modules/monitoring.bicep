@@ -12,19 +12,20 @@ param logAnalyticsWorkspaceCappingDailyQuotaGb int
 param logAnalyticsWorkspaceRetentionInDays int
 param logAnalyticsWorkspaceSkuName string
 param mlzTags object
-param operationsProperties object
+param ops object
+param opsResourceGroupName string
 param privateDnsZoneResourceIds object
 param subnetResourceId string
 param tags object
 
 module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
   name: 'deploy-law-${deploymentNameSuffix}'
-  scope: resourceGroup(operationsProperties.subscriptionId, operationsProperties.resourceGroupName)
+  scope: resourceGroup(ops.subscriptionId, opsResourceGroupName)
   params: {
     deploySentinel: deploySentinel
     location: location
     mlzTags: mlzTags
-    name: operationsProperties.logAnalyticsWorkspaceName
+    name: ops.namingConvention.logAnalyticsWorkspace
     retentionInDays: logAnalyticsWorkspaceRetentionInDays
     skuName: logAnalyticsWorkspaceSkuName
     tags: tags
@@ -35,24 +36,24 @@ module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
 
 module privateLinkScope 'private-link-scope.bicep' = {
   name: 'deploy-private-link-scope-${deploymentNameSuffix}'
-  scope: resourceGroup(operationsProperties.subscriptionId, operationsProperties.resourceGroupName)
+  scope: resourceGroup(ops.subscriptionId, opsResourceGroupName)
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-    name: operationsProperties.privateLinkScopeName
+    name: ops.namingConvention.privateLinkScope
   }
 }
 
 module privateEndpoint 'private-endpoint.bicep' = {
   name: 'deploy-private-endpoint-${deploymentNameSuffix}'
-  scope: resourceGroup(operationsProperties.subscriptionId, operationsProperties.resourceGroupName)
+  scope: resourceGroup(ops.subscriptionId, opsResourceGroupName)
   params: {
     groupIds: [
       'azuremonitor'
     ]
     location: location
     mlzTags: mlzTags
-    name: operationsProperties.privateLinkScopePrivateEndpointName
-    networkInterfaceName: operationsProperties.privateLinkScopeNetworkInterfaceName
+    name: ops.namingConvention.privateLinkScopePrivateEndpoint
+    networkInterfaceName: ops.namingConvention.privateLinkScopeNetworkInterface
     privateDnsZoneConfigs: [
       {
         name: 'monitor'

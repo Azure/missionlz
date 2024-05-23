@@ -1,8 +1,5 @@
 targetScope = 'subscription'
 
-@description('The file name of the ArcGIS Pro installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
-param arcGisProInstaller string
-
 @secure()
 @description('The password for the ArcGIS service account.')
 param arcgisServiceAccountPassword string
@@ -32,8 +29,20 @@ param certificatePassword string
 @description('The name of the container in Azure Blobs for the deployment artifacts.')
 param containerName string
 
+@description('Choose whether to deploy a diagnostic setting for the Activity Log.')
+param deployActivityLogDiagnosticSetting bool
+
+@description('Choose whether to deploy Defender for Cloud.')
+param deployDefender bool
+
 @description('The suffix used for naming deployments uniquely. It defaults to a timestamp with the utcNow function.')
 param deploymentNameSuffix string = utcNow()
+
+@description('Choose whether to deploy Network Watcher for the deployment location.')
+param deployNetworkWatcher bool
+
+@description('Choose whether to deploy a policy assignment.')
+param deployPolicy bool
 
 @secure()
 @description('The password for the domain join account that will be created in Entra Domain Services.')
@@ -65,6 +74,9 @@ param localAdministratorUsername string
 
 @description('The region to deploy resources into. It defaults to the deployment location.')
 param location string = deployment().location
+
+@description('The resource ID of the Log Analytics Workspace to use for log storage.')
+param operationsLogAnalyticsWorkspaceResourceId string
 
 @description('The base 64 encoded string containing the license file for the ESRI portal.')
 param portalLicenseFile string
@@ -119,63 +131,13 @@ module missionLandingZone '../../mlz.bicep' = {
     environmentAbbreviation: 'dev'
     deployIdentity: true
     firewallSkuTier: 'Standard'
+    hybridUseBenefit: hybridUseBenefit
     location: location
     resourcePrefix: resourcePrefix
   }
 }
 
-module domainServices 'modules/domainServices.bicep' = {
-  name: 'deploy-entra-domain-services-${deploymentNameSuffix}'
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    domainName: domainName
-    location: location
-    resourceGroupName: first(filter(missionLandingZone.outputs.networks, network => network.name == 'identity')).resourceGroupName
-    subnetResourceId: missionLandingZone.outputs.identitySubnetResourceId
-  }
-}
-
-module image '../imaging/solution.bicep' = {
-  name: 'deploy-image-${deploymentNameSuffix}'
-  params: {
-    arcGisProInstaller: arcGisProInstaller
-    azureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
-    containerName: containerName
-    emailSecurityContact: emailSecurityContact
-    enableBuildAutomation: false
-    environmentAbbreviation: 'dev'
-    hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
-    hybridUseBenefit: hybridUseBenefit
-    identifier: identifier
-    imageDefinitionNamePrefix: 'arcgis-pro'
-    imageMajorVersion: 1
-    imagePatchVersion: 0
-    installAccess: false
-    installArcGisPro: true
-    installExcel: false
-    installOneDrive: false
-    installOneNote: false
-    installOutlook: false
-    installPowerPoint: false
-    installProject: false
-    installPublisher: false
-    installSkypeForBusiness: false
-    installTeams: false
-    installVirtualDesktopOptimizationTool: false
-    installVisio: false
-    installWord: false
-    localAdministratorPassword: localAdministratorPassword
-    localAdministratorUsername: localAdministratorUsername
-    location: location
-    replicaCount: 1
-    sourceImageType: 'AzureMarketplace'
-    spokelogAnalyticsWorkspaceResourceId: missionLandingZone.outputs.logAnalyticsWorkspaceResourceId
-    storageAccountResourceId: storageAccountResourceId
-    virtualMachineSize: virtualMachineSize
-  }
-}
-
-module azureVirtualDesktop '../azureVirtualDesktop/solution.bicep' = {
+module azureVirtualDesktop '../azure-virtual-desktop/solution.bicep' = {
   name: 'deploy-azure-virtual-desktop-${deploymentNameSuffix}'
   params: {
     activeDirectorySolution: 'MicrosoftEntraDomainServices'
@@ -187,21 +149,26 @@ module azureVirtualDesktop '../azureVirtualDesktop/solution.bicep' = {
     avdObjectId: avdObjectId
     azureNetAppFilesSubnetAddressPrefix: '10.0.140.128/25'
     azurePowerShellModuleMsiName: azurePowerShellModuleMsiName
+    deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
+    deployDefender: deployDefender
+    deployNetworkWatcher: deployNetworkWatcher
+    deployPolicy: deployPolicy
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: '${domainJoinUsername}@${domainName}'
     domainName: domainName
+    emailSecurityContact: emailSecurityContact
     environmentAbbreviation: 'dev'
     fslogixStorageService: 'AzureNetAppFiles Premium'
     hostPoolPublicNetworkAccess: 'Enabled'
     hubAzureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
-    hubSubnetResourceId: missionLandingZone.outputs.hubSubnetResourceId
     hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
     identifier: identifier
-    imageDefinitionResourceId: image.outputs.imageDefinitionResourceId
     locationControlPlane: location
     locationVirtualMachines: location
+    operationsLogAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     organizationalUnitPath: 'OU=AADDC Computers,DC=${replace(domainName, '.', ',DC=')}'
     securityPrincipals: securityPrincipals
+    sharedServicesSubnetResourceId: missionLandingZone.outputs.sharedServicesSubnetResourceId
     subnetAddressPrefixes: ['10.0.140.0/25']
     virtualMachinePassword: localAdministratorPassword
     virtualMachineSize: virtualMachineSize
@@ -210,9 +177,6 @@ module azureVirtualDesktop '../azureVirtualDesktop/solution.bicep' = {
     virtualNetworkAddressPrefixes: ['10.0.140.0/24']
     workspacePublicNetworkAccess: 'Enabled'
   }
-  dependsOn: [
-    domainServices
-  ]
 }
 
 module esriEnterprise '../esri-enterprise/solution.bicep' = {

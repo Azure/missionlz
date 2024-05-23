@@ -13,113 +13,101 @@ param deployBastion bool
 param dnsServers array
 param enableProxy bool
 param firewallSettings object
-param hubNetworkSecurityGroupRules array
-param hubSubnetAddressPrefix string
-param hubVirtualNetworkAddressPrefix string
 param location string
 param mlzTags object
-param networks array
+param privateDnsZoneNames array
+param resourceGroupNames array
+param tiers array
 param tags object
 
-var hub = first(filter(networks, network => network.name == 'hub'))
-var identity = deployIdentity ? first(filter(networks, network => network.name == 'identity')) : {}
-var spokes  = filter(networks, network => network.name != 'hub')
+var hub = filter(tiers, tier => tier.name == 'hub')[0]
+var hubResourceGroupName = filter(resourceGroupNames, name => contains(name, 'hub'))[0]
+var spokes = filter(tiers, tier => tier.name != 'hub')
+var spokeResourceGroupNames = filter(resourceGroupNames, name => !contains(name, 'hub'))
 
 module hubNetwork 'hub-network.bicep' = {
   name: 'deploy-vnet-hub-${deploymentNameSuffix}'
-  scope: resourceGroup(hub.subscriptionId, hub.resourceGroupName)
+  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
     deployNetworkWatcher: deployNetworkWatcher
     deployBastion: deployBastion
     dnsServers: dnsServers
     enableProxy: enableProxy
-    firewallClientIpConfigurationName: hub.firewallClientIpConfigurationName
     firewallClientPrivateIpAddress: firewallSettings.clientPrivateIpAddress
     firewallClientPublicIPAddressAvailabilityZones: firewallSettings.clientPublicIPAddressAvailabilityZones
-    firewallClientPublicIPAddressName: hub.firewallClientPublicIPAddressName
-    firewallClientPublicIPAddressSkuName: 'Standard'
-    firewallClientPublicIpAllocationMethod: 'Static'
+    firewallClientPublicIPAddressName: hub.namingConvention.azureFirewallClientPublicIPAddress
     firewallClientSubnetAddressPrefix: firewallSettings.clientSubnetAddressPrefix
-    firewallClientSubnetName: 'AzureFirewallSubnet' // this value is required
     firewallIntrusionDetectionMode: firewallSettings.intrusionDetectionMode
-    firewallManagementIpConfigurationName: hub.firewallManagementIpConfigurationName
     firewallManagementPublicIPAddressAvailabilityZones: firewallSettings.managementPublicIPAddressAvailabilityZones
-    firewallManagementPublicIPAddressName: hub.firewallManagementPublicIPAddressName
-    firewallManagementPublicIPAddressSkuName: firewallSettings.publicIpAddressSkuName
-    firewallManagementPublicIpAllocationMethod: firewallSettings.publicIpAddressAllocationMethod
+    firewallManagementPublicIPAddressName: hub.namingConvention.azureFirewallManagementPublicIPAddress
     firewallManagementSubnetAddressPrefix: firewallSettings.managementSubnetAddressPrefix
-    firewallManagementSubnetName: 'AzureFirewallManagementSubnet' // this value is required
-    firewallName: hub.firewallName
-    firewallPolicyName: hub.firewallPolicyName
+    firewallName: hub.namingConvention.azureFirewall
+    firewallPolicyName: hub.namingConvention.azureFirewallPolicy
     firewallSkuTier: firewallSettings.skuTier
     firewallSupernetIPAddress: firewallSettings.supernetIPAddress
     firewallThreatIntelMode: firewallSettings.threatIntelMode
     location: location
     mlzTags: mlzTags
-    networkSecurityGroupName: hub.networkSecurityGroupName
-    networkSecurityGroupRules: hubNetworkSecurityGroupRules
-    networkWatcherName: hub.networkWatcherName
-    routeTableName: hub.routeTableName
-    subnetAddressPrefix: hubSubnetAddressPrefix
-    subnetName: hub.subnetName
+    networkSecurityGroupName: hub.namingConvention.networkSecurityGroup
+    networkSecurityGroupRules: hub.nsgRules
+    networkWatcherName: hub.namingConvention.networkWatcher
+    routeTableName: hub.namingConvention.routeTable
+    subnetAddressPrefix: hub.subnetAddressPrefix
+    subnetName: hub.namingConvention.subnet
     tags: tags
-    virtualNetworkAddressPrefix: hubVirtualNetworkAddressPrefix
-    virtualNetworkName: hub.virtualNetworkName
+    virtualNetworkAddressPrefix: hub.vnetAddressPrefix
+    virtualNetworkName: hub.namingConvention.virtualNetwork
     vNetDnsServers: [
       firewallSettings.clientPrivateIpAddress
     ]
   }
 }
 
-module spokeNetworks 'spoke-network.bicep' = [for spoke in spokes: {
+module spokeNetworks 'spoke-network.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-vnet-${spoke.name}-${deploymentNameSuffix}'
-  scope: resourceGroup(spoke.subscriptionId, spoke.resourceGroupName)
   params: {
     deployNetworkWatcher: deployNetworkWatcher && spoke.deployUniqueResources
     firewallSkuTier: firewallSettings.skuTier
     location: location
     mlzTags: mlzTags
-    networkSecurityGroupName: spoke.networkSecurityGroupName
-    networkSecurityGroupRules: spoke.networkSecurityGroupRules
-    networkWatcherName: spoke.networkWatcherName
-    routeTableName: spoke.routeTableName
+    networkSecurityGroupName: spoke.namingConvention.networkSecurityGroup
+    networkSecurityGroupRules: spoke.nsgRules
+    networkWatcherName: spoke.namingConvention.networkWatcher
+    resourceGroupName: spokeResourceGroupNames[i]
+    routeTableName: spoke.namingConvention.routeTable
     routeTableRouteNextHopIpAddress: firewallSettings.clientPrivateIpAddress
     subnetAddressPrefix: spoke.subnetAddressPrefix
-    subnetName: spoke.subnetName
-    subnetPrivateEndpointNetworkPolicies: spoke.subnetPrivateEndpointNetworkPolicies
-    subnetPrivateLinkServiceNetworkPolicies: spoke.subnetPrivateLinkServiceNetworkPolicies
+    subnetName: spoke.namingConvention.subnet
+    subscriptionId: spoke.subscriptionId
     tags: tags
-    virtualNetworkAddressPrefix: spoke.virtualNetworkAddressPrefix
-    virtualNetworkName: spoke.virtualNetworkName
+    virtualNetworkAddressPrefix: spoke.vnetAddressPrefix
+    virtualNetworkName: spoke.namingConvention.virtualNetwork
     vNetDnsServers: [ hubNetwork.outputs.firewallPrivateIPAddress ]
   }
 }]
 
 // VIRTUAL NETWORK PEERINGS
 
-module hubVirtualNetworkPeerings 'hub-network-peerings.bicep' = {
-  name: 'deploy-vnet-peerings-hub-${deploymentNameSuffix}'
-  scope: resourceGroup(hub.subscriptionId, hub.resourceGroupName)
+module hubVirtualNetworkPeerings 'hub-network-peerings.bicep' = [for (spoke, i) in spokes: {
+  name: 'deploy-vnet-peerings-hub-${i}-${deploymentNameSuffix}'
   params: {
     hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
-    spokes: [for (spoke, i) in spokes: {
-      type: spoke.name
-      virtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
-      virtualNetworkResourceId: spokeNetworks[i].outputs.virtualNetworkResourceId
-    }]
+    resourceGroupName: hubResourceGroupName
+    spokeName: spoke.name
+    spokeVirtualNetworkResourceId: spokeNetworks[i].outputs.virtualNetworkResourceId
+    subscriptionId: hub.subscriptionId
   }
-}
+}]
 
 module spokeVirtualNetworkPeerings 'spoke-network-peering.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-vnet-peerings-${spoke.name}-${deploymentNameSuffix}'
-  scope: subscription(spoke.subscriptionId)
   params: {
-    spokeName: spoke.name
-    spokeResourceGroupName: spoke.resourceGroupName
-    spokeVirtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
-    hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
     hubVirtualNetworkResourceId: hubNetwork.outputs.virtualNetworkResourceId
+    resourceGroupName: spokeResourceGroupNames[i]
+    spokeName: spoke.name
+    spokeVirtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
+    subscriptionId: spoke.subscriptionId
   }
 }]
 
@@ -127,17 +115,14 @@ module spokeVirtualNetworkPeerings 'spoke-network-peering.bicep' = [for (spoke, 
 
 module privateDnsZones 'private-dns.bicep' = {
   name: 'deploy-private-dns-zones-${deploymentNameSuffix}'
-  scope: resourceGroup(hub.subscriptionId, hub.resourceGroupName)
+  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
     deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
-    hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
-    hubVirtualNetworkResourceGroupName: hub.resourceGroupName
-    hubVirtualNetworkSubscriptionId: hub.subscriptionId
-    identityVirtualNetworkName: deployIdentity ? identity.virtualNetworkName : ''
-    identityVirtualNetworkResourceGroupName: deployIdentity ? identity.resourceGroupName : ''
-    identityVirtualNetworkSubscriptionId: deployIdentity ? identity.subscriptionId : ''
+    hubVirtualNetworkResourceId: hubNetwork.outputs.virtualNetworkResourceId
+    identityVirtualNetworkResourceId: deployIdentity ? spokeNetworks[2].outputs.virtualNetworkResourceId : ''
     mlzTags: mlzTags
+    privateDnsZoneNames: privateDnsZoneNames
     tags: tags
   }
   dependsOn: [
@@ -147,23 +132,10 @@ module privateDnsZones 'private-dns.bicep' = {
 
 output azureFirewallResourceId string = hubNetwork.outputs.firewallResourceId
 output bastionHostSubnetResourceId string = hubNetwork.outputs.bastionHostSubnetResourceId
-output hubSubnetResourceId string = hubNetwork.outputs.subnetResourceId
+output sharedServicesSubnetResourceId string = spokeNetworks[1].outputs.subnetResourceId
 output hubNetworkSecurityGroupResourceId string = hubNetwork.outputs.networkSecurityGroupResourceId
+output hubSubnetResourceId string = hubNetwork.outputs.subnetResourceId
 output hubVirtualNetworkResourceId string = hubNetwork.outputs.virtualNetworkResourceId
 output identitySubnetResourceId string = deployIdentity ? spokeNetworks[2].outputs.subnetResourceId : ''
 output operationsSubnetResourceId string = spokeNetworks[0].outputs.subnetResourceId
-output privateDnsZoneResourceIds object = {
-  agentsvc: privateDnsZones.outputs.agentsvcPrivateDnsZoneId
-  automation: privateDnsZones.outputs.automationPrivateDnsZoneId
-  avdGlobal: privateDnsZones.outputs.avdGlobalPrivateDnsZoneId
-  avd: privateDnsZones.outputs.avdPrivateDnsZoneId
-  backups: privateDnsZones.outputs.backupPrivateDnsZoneIds
-  blob: privateDnsZones.outputs.blobPrivateDnsZoneId
-  file: privateDnsZones.outputs.filePrivateDnsZoneId
-  keyvault: privateDnsZones.outputs.keyvaultDnsPrivateDnsZoneId
-  monitor: privateDnsZones.outputs.monitorPrivateDnsZoneId
-  ods: privateDnsZones.outputs.odsPrivateDnsZoneId
-  oms: privateDnsZones.outputs.omsPrivateDnsZoneId
-  queue: privateDnsZones.outputs.queuePrivateDnsZoneId
-  table: privateDnsZones.outputs.tablePrivateDnsZoneId
-}
+output privateDnsZoneResourceIds object = privateDnsZones.outputs.privateDnsZoneResourceIds

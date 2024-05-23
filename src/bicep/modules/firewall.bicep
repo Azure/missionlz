@@ -3,7 +3,6 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param clientIpConfigurationName string
 param clientIpConfigurationSubnetResourceId string
 param clientIpConfigurationPublicIPAddressResourceId string
 param dnsServers array
@@ -17,7 +16,6 @@ param firewallSupernetIPAddress string
 ])
 param intrusionDetectionMode string
 param location string
-param managementIpConfigurationName string
 param managementIpConfigurationSubnetResourceId string
 param managementIpConfigurationPublicIPAddressResourceId string
 param mlzTags object
@@ -184,7 +182,7 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' = {
   properties: {
     ipConfigurations: [
       {
-        name: clientIpConfigurationName
+        name: 'ipconfig-client'
         properties: {
           subnet: {
             id: clientIpConfigurationSubnetResourceId
@@ -196,7 +194,7 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' = {
       }
     ]
     managementIpConfiguration: {
-      name: managementIpConfigurationName
+      name: 'ipconfig-management'
       properties: {
         subnet: {
           id: managementIpConfigurationSubnetResourceId
