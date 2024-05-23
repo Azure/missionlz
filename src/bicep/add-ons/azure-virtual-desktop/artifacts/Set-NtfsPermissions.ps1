@@ -57,6 +57,10 @@ param
     [Parameter(Mandatory=$false)]
     [String]$TenantId,
 
+    [parameter(Mandatory)]
+    [string]
+    $UniqueToken,
+
     [Parameter(Mandatory=$false)]
     [String]$UserAssignedIdentityClientId
 )
@@ -159,7 +163,7 @@ try
                 $FileServer = '\\' + $SmbServerName + '.' + $Domain.DNSRoot
             }
             'AzureFiles' {
-                $StorageAccountName = $StorageAccountPrefix + ($i + $StorageIndex).ToString().PadLeft(2,'0')
+                $StorageAccountName = $($StorageAccountPrefix + ($i + $StorageIndex).ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,24)
                 $FileServer = '\\' + $StorageAccountName + $FilesSuffix
 
                 # Connects to Azure using a User Assigned Managed Identity

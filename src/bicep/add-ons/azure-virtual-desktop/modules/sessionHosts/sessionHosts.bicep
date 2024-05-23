@@ -24,10 +24,12 @@ param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
 param drainMode bool
+param environmentAbbreviation string
 param fslogixContainerType string
 param hostPoolName string
 param hostPoolType string
 param hybridRunbookWorkerGroupName string
+param identifier string
 param imageOffer string
 param imagePublisher string
 param imageSku string
@@ -78,6 +80,8 @@ var tagsAvailabilitySets = union({'cm-resource-parent': '${subscription().id}}/r
 var tagsNetworkInterfaces = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}, mlzTags)
 var tagsRecoveryServicesVault = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.recoveryServices/vaults') ? tags['Microsoft.recoveryServices/vaults'] : {}, mlzTags)
 var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
+var virtualMachineNamePrefix = replace(namingConvention.virtualMachine, serviceToken, '')
 
 module availabilitySets 'availabilitySets.bicep' = if (pooledHostPool && availability == 'availabilitySets') {
   name: 'deploy-avail-${deploymentNameSuffix}'
@@ -158,8 +162,9 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     subnetResourceId: subnetResourceId
     tagsNetworkInterfaces: tagsNetworkInterfaces
     tagsVirtualMachines: tagsVirtualMachines
+    uniqueToken: uniqueToken
     virtualMachineMonitoringAgent: virtualMachineMonitoringAgent
-    virtualMachineNamePrefix: namingConvention.virtualMachine
+    virtualMachineNamePrefix: virtualMachineNamePrefix
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
@@ -184,7 +189,7 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
     tagsRecoveryServicesVault: tagsRecoveryServicesVault
-    virtualMachineNamePrefix: namingConvention.virtualMachine
+    virtualMachineNamePrefix: virtualMachineNamePrefix
   }
   dependsOn: [
     virtualMachines

@@ -50,6 +50,7 @@ param subnetResourceId string
 param tagsNetworkInterfaces object
 param tagsVirtualMachines object
 param timestamp string = utcNow('yyyyMMddhhmmss')
+param uniqueToken string
 param virtualMachineMonitoringAgent string
 param virtualMachineNamePrefix string
 @secure()
@@ -68,8 +69,8 @@ var fslogixExclusions = '"%TEMP%\\*\\*.VHDX";"%Windir%\\TEMP\\*\\*.VHDX"${fslogi
 var fslogixExclusionsCloudCache = contains(fslogixContainerType, 'CloudCache') ? ';"%ProgramData%\\fslogix\\Cache\\*";"%ProgramData%\\fslogix\\Proxy\\*"' : ''
 var fslogixExclusionsOfficeContainers = contains(fslogixContainerType, 'Office') ? ';"${fslogixOfficeShare}";"${fslogixOfficeShare}.lock";"${fslogixOfficeShare}.meta";"${fslogixOfficeShare}.metadata"' : ''
 var fslogixExclusionsProfileContainers = ';"${fslogixProfileShare}";"${fslogixProfileShare}.lock";"${fslogixProfileShare}.meta";"${fslogixProfileShare}.metadata"'
-var fslogixOfficeShare = '\\\\${storageAccountPrefix}??.file.${storageSuffix}\\office-containers\\*\\*.VHDX'
-var fslogixProfileShare = '\\\\${storageAccountPrefix}??.file.${storageSuffix}\\profile-containers\\*\\*.VHDX'
+var fslogixOfficeShare = '\\\\${storageAccountToken}.file.${storageSuffix}\\office-containers\\*\\*.VHDX'
+var fslogixProfileShare = '\\\\${storageAccountToken}.file.${storageSuffix}\\profile-containers\\*\\*.VHDX'
 var imageReference = empty(imageVersionResourceId) ? {
   publisher: imagePublisher
   offer: imageOffer
@@ -100,6 +101,7 @@ var nvidiaVmSizes = [
 ]
 var pooledHostPool = (split(hostPoolType, ' ')[0] == 'Pooled')
 var sessionHostNamePrefix = replace(virtualMachineNamePrefix, serviceToken, '')
+var storageAccountToken = take('${storageAccountPrefix}??${uniqueToken}', 24)
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, sessionHostCount): {
   name: '${replace(networkInterfaceNamePrefix, '-${serviceToken}', '')}-${padLeft((i + sessionHostIndex), 4, '0')}'
@@ -322,7 +324,7 @@ resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/exte
       timestamp: timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -activeDirectorySolution ${activeDirectorySolution} -amdVmSize ${amdVmSize} -avdAgentBootLoaderMsiName "${avdAgentBootLoaderMsiName}" -avdAgentMsiName "${avdAgentMsiName}" -Environment ${environment().name} -fslogix ${deployFslogix} -fslogixContainerType ${fslogixContainerType} -hostPoolName ${hostPoolName} -HostPoolRegistrationToken "${reference(resourceId(resourceGroupControlPlane, 'Microsoft.DesktopVirtualization/hostpools', hostPoolName), '2019-12-10-preview').registrationInfo.token}" -imageOffer ${imageOffer} -imagePublisher ${imagePublisher} -netAppFileShares ${netAppFileShares} -nvidiaVmSize ${nvidiaVmSize} -pooledHostPool ${pooledHostPool} -storageAccountPrefix ${storageAccountPrefix} -storageCount ${storageCount} -storageIndex ${storageIndex} -storageService ${storageService} -storageSuffix ${storageSuffix}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -activeDirectorySolution ${activeDirectorySolution} -amdVmSize ${amdVmSize} -avdAgentBootLoaderMsiName "${avdAgentBootLoaderMsiName}" -avdAgentMsiName "${avdAgentMsiName}" -Environment ${environment().name} -fslogix ${deployFslogix} -fslogixContainerType ${fslogixContainerType} -hostPoolName ${hostPoolName} -HostPoolRegistrationToken "${reference(resourceId(resourceGroupControlPlane, 'Microsoft.DesktopVirtualization/hostpools', hostPoolName), '2019-12-10-preview').registrationInfo.token}" -imageOffer ${imageOffer} -imagePublisher ${imagePublisher} -netAppFileShares ${netAppFileShares} -nvidiaVmSize ${nvidiaVmSize} -pooledHostPool ${pooledHostPool} -storageAccountPrefix ${storageAccountPrefix} -storageCount ${storageCount} -storageIndex ${storageIndex} -storageService ${storageService} -storageSuffix ${storageSuffix} -uniqueToken ${uniqueToken}'
       managedidentity: {
         clientId: artifactsUserAssignedIdentityClientId
       }

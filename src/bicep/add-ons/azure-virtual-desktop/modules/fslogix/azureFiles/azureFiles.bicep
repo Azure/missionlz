@@ -58,9 +58,10 @@ var smbSettings = {
   channelEncryption: 'AES-128-GCM;AES-256-GCM;'
 }
 var storageRedundancy = availability == 'availabilityZones' ? '_ZRS' : '_LRS'
+var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 
 resource storageAccounts 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, storageCount): {
-  name: take('${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}${uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)}', 24)
+  name: take('${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}${uniqueToken}', 24)
   location: location
   tags: tagsStorageAccounts
   sku: {
@@ -216,7 +217,7 @@ module ntfsPermissions '../../common/customScriptExtensions.bicep' = if (contain
       '${artifactsUri}Set-NtfsPermissions.ps1'
     ]
     location: location
-    parameters: '-domainJoinPassword "${domainJoinPassword}" -domainJoinUserPrincipalName ${domainJoinUserPrincipalName} -activeDirectorySolution ${activeDirectorySolution} -Environment ${environment().name} -fslogixContainerType ${fslogixContainerType} -netbios ${netbios} -organizationalUnitPath "${organizationalUnitPath}" -securityPrincipalNames "${securityPrincipalNames}" -StorageAccountPrefix ${storageAccountNamePrefix} -StorageAccountResourceGroupName ${resourceGroupStorage} -storageCount ${storageCount} -storageIndex ${storageIndex} -storageService ${storageService} -StorageSuffix ${environment().suffixes.storage} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentityClientId}'
+    parameters: '-domainJoinPassword "${domainJoinPassword}" -domainJoinUserPrincipalName ${domainJoinUserPrincipalName} -activeDirectorySolution ${activeDirectorySolution} -Environment ${environment().name} -fslogixContainerType ${fslogixContainerType} -netbios ${netbios} -organizationalUnitPath "${organizationalUnitPath}" -securityPrincipalNames "${securityPrincipalNames}" -StorageAccountPrefix ${storageAccountNamePrefix} -StorageAccountResourceGroupName ${resourceGroupStorage} -storageCount ${storageCount} -storageIndex ${storageIndex} -storageService ${storageService} -StorageSuffix ${environment().suffixes.storage} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId} -UniqueToken ${uniqueToken} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentityClientId}'
     scriptFileName: 'Set-NtfsPermissions.ps1'
     tags: tagsVirtualMachines
     userAssignedIdentityClientId: deploymentUserAssignedIdentityClientId

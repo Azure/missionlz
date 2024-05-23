@@ -74,7 +74,11 @@ Param(
 
     [parameter(Mandatory)]
     [string]
-    $StorageSuffix
+    $StorageSuffix,
+
+    [parameter(Mandatory)]
+    [string]
+    $UniqueToken
 )
 
 
@@ -204,10 +208,10 @@ try
             'AzureFiles' {
                 for($i = $StorageIndex; $i -lt $($StorageIndex + $StorageCount); $i++)
                 {
-                    $CloudCacheOfficeContainers += 'type=smb,connectionString=\\' + $StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $FilesSuffix + '\office-containers;'
-                    $CloudCacheProfileContainers += 'type=smb,connectionString=\\' + $StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $FilesSuffix + '\profile-containers;'
-                    $OfficeContainers += '\\' + $StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $FilesSuffix + '\office-containers'
-                    $ProfileContainers += '\\' + $StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $FilesSuffix + '\profile-containers'
+                    $CloudCacheOfficeContainers += 'type=smb,connectionString=\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,24) + $FilesSuffix + '\office-containers;'
+                    $CloudCacheProfileContainers += 'type=smb,connectionString=\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,24) + $FilesSuffix + '\profile-containers;'
+                    $OfficeContainers += '\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,24) + $FilesSuffix + '\office-containers'
+                    $ProfileContainers += '\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,24) + $FilesSuffix + '\profile-containers'
                 }
             }
             'AzureNetAppFiles' {
