@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "15504481094082387063"
+      "templateHash": "6877974702104389401"
     }
   },
   "parameters": {
@@ -273,7 +273,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "10185253674372040407"
+              "templateHash": "11171233226932915639"
             }
           },
           "parameters": {
@@ -692,6 +692,7 @@
             "$fxv#1": "1.0.0",
             "$fxv#2": {
               "actionGroups": "ag",
+              "applicationGroups": "vdag",
               "automationAccounts": "aa",
               "availabilitySets": "avail",
               "azureFirewalls": "afw",
@@ -699,7 +700,6 @@
               "computeGallieries": "cg",
               "dataCollectionRuleAssociations": "dcra",
               "dataCollectionRules": "dcr",
-              "desktopApplicationGroups": "vdag",
               "diagnosticSettings": "diag",
               "diskAccesses": "da",
               "diskEncryptionSets": "des",
@@ -829,7 +829,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "17741760252478428260"
+                      "templateHash": "13218155481958331255"
                     }
                   },
                   "parameters": {
@@ -867,7 +867,7 @@
                     "namingConvention_Service": "[format('{0}-{1}{2}-{3}-{4}-{5}-{6}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('tokens').service, parameters('networkName'), parameters('environmentAbbreviation'), parameters('locationAbbreviation'))]",
                     "names": {
                       "actionGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').actionGroups)]",
-                      "applicationGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').desktopApplicationGroups)]",
+                      "applicationGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').applicationGroups)]",
                       "automationAccount": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').automationAccounts)]",
                       "automationAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, parameters('resourceAbbreviations').automationAccounts)]",
                       "automationAccountNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').automationAccounts)]",

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "16067005848466384139"
+      "templateHash": "9765811962160500422"
     }
   },
   "parameters": {
@@ -868,7 +868,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "10185253674372040407"
+              "templateHash": "11171233226932915639"
             }
           },
           "parameters": {
@@ -1287,6 +1287,7 @@
             "$fxv#1": "1.0.0",
             "$fxv#2": {
               "actionGroups": "ag",
+              "applicationGroups": "vdag",
               "automationAccounts": "aa",
               "availabilitySets": "avail",
               "azureFirewalls": "afw",
@@ -1294,7 +1295,6 @@
               "computeGallieries": "cg",
               "dataCollectionRuleAssociations": "dcra",
               "dataCollectionRules": "dcr",
-              "desktopApplicationGroups": "vdag",
               "diagnosticSettings": "diag",
               "diskAccesses": "da",
               "diskEncryptionSets": "des",
@@ -1424,7 +1424,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "17741760252478428260"
+                      "templateHash": "13218155481958331255"
                     }
                   },
                   "parameters": {
@@ -1462,7 +1462,7 @@
                     "namingConvention_Service": "[format('{0}-{1}{2}-{3}-{4}-{5}-{6}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('tokens').service, parameters('networkName'), parameters('environmentAbbreviation'), parameters('locationAbbreviation'))]",
                     "names": {
                       "actionGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').actionGroups)]",
-                      "applicationGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').desktopApplicationGroups)]",
+                      "applicationGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').applicationGroups)]",
                       "automationAccount": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').automationAccounts)]",
                       "automationAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, parameters('resourceAbbreviations').automationAccounts)]",
                       "automationAccountNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').automationAccounts)]",
@@ -1810,7 +1810,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "5331809030553599228"
+              "templateHash": "893825226169234564"
             }
           },
           "parameters": {
@@ -4021,13 +4021,17 @@
               "type": "string",
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('hub').subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.bastionHostSubnetResourceId.value]"
             },
-            "hubSubnetResourceId": {
+            "sharedServicesSubnetResourceId": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('hub').subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[1].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
             },
             "hubNetworkSecurityGroupResourceId": {
               "type": "string",
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('hub').subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
+            },
+            "hubSubnetResourceId": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('hub').subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
             },
             "hubVirtualNetworkResourceId": {
               "type": "string",
@@ -8236,10 +8240,6 @@
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
     },
-    "hubSubnetResourceId": {
-      "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hubSubnetResourceId.value]"
-    },
     "hubVirtualNetworkResourceId": {
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hubVirtualNetworkResourceId.value]"
@@ -8255,6 +8255,10 @@
     "logAnalyticsWorkspaceResourceId": {
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+    },
+    "sharedServicesSubnetResourceId": {
+      "type": "string",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.sharedServicesSubnetResourceId.value]"
     },
     "tiers": {
       "type": "array",

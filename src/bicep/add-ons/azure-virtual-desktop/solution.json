@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "9129577939878768654"
+      "templateHash": "5827558797154666033"
     }
   },
   "parameters": {
@@ -15199,6 +15199,9 @@
           "dataCollectionRuleResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataCollectionRuleResourceId.value]"
           },
+          "deployFslogix": {
+            "value": "[variables('deployFslogix')]"
+          },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
@@ -15229,9 +15232,6 @@
           },
           "enableScalingTool": {
             "value": "[parameters('scalingTool')]"
-          },
-          "deployFslogix": {
-            "value": "[variables('deployFslogix')]"
           },
           "fslogixContainerType": {
             "value": "[parameters('fslogixContainerType')]"
@@ -15325,7 +15325,6 @@
           "sessionHostIndex": {
             "value": "[parameters('sessionHostIndex')]"
           },
-          "storageAccountPrefix": "[if(equals(length(variables('deploymentLocations')), 2), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-session-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value))]",
           "storageCount": {
             "value": "[parameters('storageCount')]"
           },
@@ -15347,7 +15346,6 @@
           "virtualMachineMonitoringAgent": {
             "value": "[parameters('virtualMachineMonitoringAgent')]"
           },
-          "virtualMachineNamePrefix": "[if(equals(length(variables('deploymentLocations')), 2), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-session-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.virtualMachine), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.virtualMachine))]",
           "virtualMachinePassword": {
             "value": "[parameters('virtualMachinePassword')]"
           },
@@ -15365,7 +15363,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "3120789403055569139"
+              "templateHash": "146715649896670344"
             }
           },
           "parameters": {
@@ -15540,9 +15538,6 @@
             "sessionHostIndex": {
               "type": "int"
             },
-            "storageAccountPrefix": {
-              "type": "string"
-            },
             "storageCount": {
               "type": "int"
             },
@@ -15568,9 +15563,6 @@
               "type": "string"
             },
             "virtualMachineMonitoringAgent": {
-              "type": "string"
-            },
-            "virtualMachineNamePrefix": {
               "type": "string"
             },
             "virtualMachinePassword": {
@@ -15801,7 +15793,7 @@
                     "value": "[parameters('diskEncryptionSetResourceId')]"
                   },
                   "diskNamePrefix": {
-                    "value": "[parameters('namingConvention').disk]"
+                    "value": "[parameters('namingConvention').virtualMachineDisk]"
                   },
                   "diskSku": {
                     "value": "[parameters('diskSku')]"
@@ -15855,7 +15847,7 @@
                     "value": "[parameters('netAppFileShares')]"
                   },
                   "networkInterfaceNamePrefix": {
-                    "value": "[parameters('namingConvention').networkInterface]"
+                    "value": "[parameters('namingConvention').virtualMachineNetworkInterface]"
                   },
                   "organizationalUnitPath": {
                     "value": "[parameters('organizationalUnitPath')]"
@@ -15872,7 +15864,7 @@
                   "sessionHostCount": "[if(and(equals(range(1, parameters('sessionHostBatchCount'))[copyIndex()], parameters('sessionHostBatchCount')), greater(parameters('divisionRemainderValue'), 0)), createObject('value', parameters('divisionRemainderValue')), createObject('value', parameters('maxResourcesPerTemplateDeployment')))]",
                   "sessionHostIndex": "[if(equals(range(1, parameters('sessionHostBatchCount'))[copyIndex()], 1), createObject('value', parameters('sessionHostIndex')), createObject('value', add(mul(sub(range(1, parameters('sessionHostBatchCount'))[copyIndex()], 1), parameters('maxResourcesPerTemplateDeployment')), parameters('sessionHostIndex'))))]",
                   "storageAccountPrefix": {
-                    "value": "[parameters('storageAccountPrefix')]"
+                    "value": "[parameters('namingConvention').storageAccount]"
                   },
                   "storageCount": {
                     "value": "[parameters('storageCount')]"
@@ -15899,7 +15891,7 @@
                     "value": "[parameters('virtualMachineMonitoringAgent')]"
                   },
                   "virtualMachineNamePrefix": {
-                    "value": "[parameters('virtualMachineNamePrefix')]"
+                    "value": "[parameters('namingConvention').virtualMachine]"
                   },
                   "virtualMachinePassword": {
                     "value": "[parameters('virtualMachinePassword')]"
@@ -16675,7 +16667,7 @@
                     "value": "[variables('tagsRecoveryServicesVault')]"
                   },
                   "virtualMachineNamePrefix": {
-                    "value": "[parameters('virtualMachineNamePrefix')]"
+                    "value": "[parameters('namingConvention').virtualMachine]"
                   }
                 },
                 "template": {
