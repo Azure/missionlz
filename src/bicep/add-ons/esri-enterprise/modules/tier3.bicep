@@ -171,7 +171,7 @@ module hubToWorkloadVirtualNetworkPeering './hub-network-peering.bicep' = {
 //    }
 //   }
 
-module spokeDefender '../../../modules/defenderForCloud.bicep' = if (deployDefender) {
+module spokeDefender '../../../modules/defender-for-cloud.bicep' = if (deployDefender) {
   name: 'set-${workloadName}-sub-defender'
   scope: subscription(workloadSubscriptionId)
   params: {
