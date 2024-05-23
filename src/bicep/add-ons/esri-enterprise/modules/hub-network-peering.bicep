@@ -14,7 +14,8 @@ module hubToSpokeVirtualNetworkPeering '../../../modules/virtual-network-peering
   scope: resourceGroup(hubResourceGroupName)
   name: 'hubToSpokeVirtualNetworkPeering'
   params: {
-    name: '${hubVirtualNetworkName}/to-${spokeVirtualNetworkName}'
     remoteVirtualNetworkResourceId: spokeVirtualNetworkResourceId
+    virtualNetworkName: hubVirtualNetworkName
+    virtualNetworkPeerName: 'to-${spokeVirtualNetworkName}'
   }
 }
