@@ -58,7 +58,6 @@ param securityPrincipalObjectIds array
 param serviceToken string
 param sessionHostBatchCount int
 param sessionHostIndex int
-param storageAccountPrefix string
 param storageCount int
 param storageIndex int
 param storageService string
@@ -68,7 +67,6 @@ param tags object
 param timeDifference string
 param timeZone string
 param virtualMachineMonitoringAgent string
-param virtualMachineNamePrefix string
 @secure()
 param virtualMachinePassword string
 param virtualMachineSize string
@@ -127,7 +125,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedidentityClientId: deploymentUserAssignedIdentityClientId
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskNamePrefix: namingConvention.disk
+    diskNamePrefix: namingConvention.virtualMachineDisk
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -145,14 +143,14 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     managementVirtualMachineName: managementVirtualMachineName
     monitoring: monitoring
     netAppFileShares: netAppFileShares
-    networkInterfaceNamePrefix: namingConvention.networkInterface
+    networkInterfaceNamePrefix: namingConvention.virtualMachineNetworkInterface
     organizationalUnitPath: organizationalUnitPath
     resourceGroupControlPlane: resourceGroupControlPlane
     resourceGroupManagement: resourceGroupManagement
     serviceToken: serviceToken
     sessionHostCount: i == sessionHostBatchCount && divisionRemainderValue > 0 ? divisionRemainderValue : maxResourcesPerTemplateDeployment
     sessionHostIndex: i == 1 ? sessionHostIndex : ((i - 1) * maxResourcesPerTemplateDeployment) + sessionHostIndex
-    storageAccountPrefix: storageAccountPrefix
+    storageAccountPrefix: namingConvention.storageAccount
     storageCount: storageCount
     storageIndex: storageIndex
     storageService: storageService
@@ -161,7 +159,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     tagsNetworkInterfaces: tagsNetworkInterfaces
     tagsVirtualMachines: tagsVirtualMachines
     virtualMachineMonitoringAgent: virtualMachineMonitoringAgent
-    virtualMachineNamePrefix: virtualMachineNamePrefix
+    virtualMachineNamePrefix: namingConvention.virtualMachine
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
@@ -186,7 +184,7 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
     tagsRecoveryServicesVault: tagsRecoveryServicesVault
-    virtualMachineNamePrefix: virtualMachineNamePrefix
+    virtualMachineNamePrefix: namingConvention.virtualMachine
   }
   dependsOn: [
     virtualMachines
