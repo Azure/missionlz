@@ -619,6 +619,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     avdAgentBootLoaderMsiName: avdAgentBootLoaderMsiName
     avdAgentMsiName: avdAgentMsiName
     dataCollectionRuleResourceId: management.outputs.dataCollectionRuleResourceId
+    deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     diskEncryptionSetResourceId: length(deploymentLocations) == 2 ? tier3_hosts.outputs.diskEncryptionSetResourceId : tier3_controlPlane.outputs.diskEncryptionSetResourceId
@@ -630,7 +631,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     drainMode: drainMode
     enableRecoveryServices: recoveryServices
     enableScalingTool: scalingTool
-    deployFslogix: deployFslogix
     fslogixContainerType: fslogixContainerType
     hostPoolName: controlPlane.outputs.hostPoolName
     hostPoolType: hostPoolType
@@ -665,7 +665,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     serviceToken: tier3_controlPlane.outputs.tokens.service
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
-    storageAccountPrefix: length(deploymentLocations) == 2 ? tier3_hosts.outputs.subnetResourceId : tier3_controlPlane.outputs.subnetResourceId
     storageCount: storageCount
     storageIndex: storageIndex
     storageService: storageService
@@ -675,7 +674,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     timeDifference: length(deploymentLocations) == 2 ? tier3_hosts.outputs.locatonProperties.timeDifference : tier3_controlPlane.outputs.locatonProperties.timeDifference
     timeZone: length(deploymentLocations) == 2 ? tier3_hosts.outputs.locatonProperties.timeZone : tier3_controlPlane.outputs.locatonProperties.timeZone
     virtualMachineMonitoringAgent: virtualMachineMonitoringAgent
-    virtualMachineNamePrefix: length(deploymentLocations) == 2 ? tier3_hosts.outputs.namingConvention.virtualMachine : tier3_controlPlane.outputs.namingConvention.virtualMachine
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
