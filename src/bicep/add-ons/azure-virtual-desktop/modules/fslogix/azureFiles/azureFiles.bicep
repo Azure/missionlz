@@ -1,3 +1,4 @@
+param activeDirectorySolution string
 param artifactsUri string
 param automationAccountName string
 param availability string
@@ -9,12 +10,13 @@ param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param enableRecoveryServices bool
 param encryptionUserAssignedIdentityResourceId string
-param activeDirectorySolution string
+param environmentAbbreviation string
 param fileShares array
 param fslogixShareSizeInGB int
 param fslogixContainerType string
 param fslogixStorageService string
 param hostPoolType string
+param identifier string
 param keyVaultUri string
 param location string
 param managementVirtualMachineName string
@@ -58,7 +60,7 @@ var smbSettings = {
 var storageRedundancy = availability == 'availabilityZones' ? '_ZRS' : '_LRS'
 
 resource storageAccounts 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, storageCount): {
-  name: '${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}'
+  name: take('${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}${uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)}', 24)
   location: location
   tags: tagsStorageAccounts
   sku: {
