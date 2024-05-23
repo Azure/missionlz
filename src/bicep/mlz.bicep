@@ -725,6 +725,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
     resourceGroupNames: resourceGroups.outputs.names
+    serviceToken: logic.outputs.tokens.service
     storageAccountResourceIds: storage.outputs.storageAccountResourceIds
     supportedClouds: supportedClouds
     tiers: logic.outputs.tiers
