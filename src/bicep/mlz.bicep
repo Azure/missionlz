@@ -767,9 +767,9 @@ module defenderforClouds 'modules/defender-for-clouds.bicep' =
 
 output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
-output hubSubnetResourceId string = networking.outputs.hubSubnetResourceId
 output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
 output identitySubnetResourceId string = networking.outputs.identitySubnetResourceId
 output locationProperties object = logic.outputs.locationProperties
 output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId
+output sharedServicesSubnetResourceId string = networking.outputs.sharedServicesSubnetResourceId
 output tiers array = logic.outputs.tiers
