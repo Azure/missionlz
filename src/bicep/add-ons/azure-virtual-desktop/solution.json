@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "2560255072359885236"
+      "templateHash": "2804582298610478446"
     }
   },
   "parameters": {
@@ -11679,16 +11679,16 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "resourceGroupName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'globalWorkspace')]"
+            "value": "[replace(replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'globalWorkspace'), format('-{0}', parameters('stampIndex')), ''), format('{0}-', parameters('identifier')), '')]"
           },
           "workspaceGlobalName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.workspaceGlobal, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'global')]"
+            "value": "[replace(replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.workspaceGlobal, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'global'), format('-{0}', parameters('stampIndex')), ''), format('{0}-', parameters('identifier')), '')]"
           },
           "workspaceGlobalNetworkInterfaceName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.workspaceGlobalNetworkInterface, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'global')]"
+            "value": "[replace(replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.workspaceGlobalNetworkInterface, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'global'), format('-{0}', parameters('stampIndex')), ''), format('{0}-', parameters('identifier')), '')]"
           },
           "workspaceGlobalPrivateEndpointName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.workspaceGlobalPrivateEndpoint, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'global')]"
+            "value": "[replace(replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.workspaceGlobalPrivateEndpoint, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'global'), format('-{0}', parameters('stampIndex')), ''), format('{0}-', parameters('identifier')), '')]"
           }
         },
         "template": {
@@ -12084,6 +12084,9 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service]"
           },
           "sessionHostNamePrefix": "[if(equals(length(variables('deploymentLocations')), 2), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-session-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.virtualMachine, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-session-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.virtualMachine, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, '')))]",
+          "stampIndex": {
+            "value": "[string(parameters('stampIndex'))]"
+          },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
           },
@@ -12110,7 +12113,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "487655146128994347"
+              "templateHash": "17033189602618847791"
             }
           },
           "parameters": {
@@ -12202,6 +12205,9 @@
               "type": "string"
             },
             "sessionHostNamePrefix": {
+              "type": "string"
+            },
+            "stampIndex": {
               "type": "string"
             },
             "subnetResourceId": {
@@ -12874,18 +12880,18 @@
                     "value": "[parameters('managementVirtualMachineName')]"
                   },
                   "workspaceFeedDiagnoticSettingName": {
-                    "value": "[replace(parameters('namingConvention').workspaceFeedDiagnosticSetting, parameters('serviceToken'), 'feed')]"
+                    "value": "[replace(replace(parameters('namingConvention').workspaceFeedDiagnosticSetting, parameters('serviceToken'), 'feed'), format('-{0}', parameters('stampIndex')), '')]"
                   },
                   "workspaceFeedName": {
-                    "value": "[replace(parameters('namingConvention').workspaceFeed, parameters('serviceToken'), 'feed')]"
+                    "value": "[replace(replace(parameters('namingConvention').workspaceFeed, parameters('serviceToken'), 'feed'), format('-{0}', parameters('stampIndex')), '')]"
                   },
                   "workspaceFeedNetworkInterfaceName": {
-                    "value": "[replace(parameters('namingConvention').workspaceFeedNetworkInterface, parameters('serviceToken'), 'feed')]"
+                    "value": "[replace(replace(parameters('namingConvention').workspaceFeedNetworkInterface, parameters('serviceToken'), 'feed'), format('-{0}', parameters('stampIndex')), '')]"
                   },
                   "workspaceFeedPrivateEndpointName": {
-                    "value": "[replace(parameters('namingConvention').workspaceFeedPrivateEndpoint, parameters('serviceToken'), 'feed')]"
+                    "value": "[replace(replace(parameters('namingConvention').workspaceFeedPrivateEndpoint, parameters('serviceToken'), 'feed'), format('-{0}', parameters('stampIndex')), '')]"
                   },
-                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(parameters('namingConvention').workspaceFeed, parameters('serviceToken'), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('locationControlPlane'))))]",
+                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(replace(parameters('namingConvention').workspaceFeed, parameters('serviceToken'), ''), format('-{0}', parameters('stampIndex')), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('locationControlPlane'))))]",
                   "workspacePublicNetworkAccess": {
                     "value": "[parameters('workspacePublicNetworkAccess')]"
                   }
@@ -14364,7 +14370,7 @@
                             "value": "[parameters('location')]"
                           },
                           "parameters": {
-                            "value": "[format('-domainJoinPassword \"{0}\" -domainJoinUserPrincipalName {1} -activeDirectorySolution {2} -Environment {3} -fslogixContainerType {4} -netbios {5} -organizationalUnitPath \"{6}\" -securityPrincipalNames \"{7}\" -StorageAccountPrefix {8} -StorageAccountResourceGroupName {9} -storageCount {10} -storageIndex {11} -storageService {12} -StorageSuffix {13} -SubscriptionId {14} -TenantId {15} -uniqueToken {16} -UserAssignedIdentityClientId {17}', parameters('domainJoinPassword'), parameters('domainJoinUserPrincipalName'), parameters('activeDirectorySolution'), environment().name, parameters('fslogixContainerType'), parameters('netbios'), parameters('organizationalUnitPath'), parameters('securityPrincipalNames'), parameters('storageAccountNamePrefix'), parameters('resourceGroupStorage'), parameters('storageCount'), parameters('storageIndex'), parameters('storageService'), environment().suffixes.storage, subscription().subscriptionId, subscription().tenantId, variables('uniqueToken'), parameters('deploymentUserAssignedIdentityClientId'))]"
+                            "value": "[format('-domainJoinPassword \"{0}\" -domainJoinUserPrincipalName {1} -activeDirectorySolution {2} -Environment {3} -fslogixContainerType {4} -netbios {5} -organizationalUnitPath \"{6}\" -securityPrincipalNames \"{7}\" -StorageAccountPrefix {8} -StorageAccountResourceGroupName {9} -storageCount {10} -storageIndex {11} -storageService {12} -StorageSuffix {13} -SubscriptionId {14} -TenantId {15} -UniqueToken {16} -UserAssignedIdentityClientId {17}', parameters('domainJoinPassword'), parameters('domainJoinUserPrincipalName'), parameters('activeDirectorySolution'), environment().name, parameters('fslogixContainerType'), parameters('netbios'), parameters('organizationalUnitPath'), parameters('securityPrincipalNames'), parameters('storageAccountNamePrefix'), parameters('resourceGroupStorage'), parameters('storageCount'), parameters('storageIndex'), parameters('storageService'), environment().suffixes.storage, subscription().subscriptionId, subscription().tenantId, variables('uniqueToken'), parameters('deploymentUserAssignedIdentityClientId'))]"
                           },
                           "scriptFileName": {
                             "value": "Set-NtfsPermissions.ps1"

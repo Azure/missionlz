@@ -491,10 +491,10 @@ module workspace_global 'modules/sharedServices/sharedServices.bicep' = {
     globalWorkspacePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_controlPlane.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
     mlzTags: tier3_controlPlane.outputs.mlzTags
-    resourceGroupName: replace(tier3_controlPlane.outputs.namingConvention.resourceGroup, tier3_controlPlane.outputs.tokens.service, 'globalWorkspace')
-    workspaceGlobalName: replace(tier3_controlPlane.outputs.namingConvention.workspaceGlobal, tier3_controlPlane.outputs.tokens.service, 'global')
-    workspaceGlobalNetworkInterfaceName: replace(tier3_controlPlane.outputs.namingConvention.workspaceGlobalNetworkInterface, tier3_controlPlane.outputs.tokens.service, 'global')
-    workspaceGlobalPrivateEndpointName: replace(tier3_controlPlane.outputs.namingConvention.workspaceGlobalPrivateEndpoint, tier3_controlPlane.outputs.tokens.service, 'global')
+    resourceGroupName: replace(replace(replace(tier3_controlPlane.outputs.namingConvention.resourceGroup, tier3_controlPlane.outputs.tokens.service, 'globalWorkspace'), '-${stampIndex}', ''), '${identifier}-', '')
+    workspaceGlobalName: replace(replace(replace(tier3_controlPlane.outputs.namingConvention.workspaceGlobal, tier3_controlPlane.outputs.tokens.service, 'global'), '-${stampIndex}', ''), '${identifier}-', '')
+    workspaceGlobalNetworkInterfaceName: replace(replace(replace(tier3_controlPlane.outputs.namingConvention.workspaceGlobalNetworkInterface, tier3_controlPlane.outputs.tokens.service, 'global'), '-${stampIndex}', ''), '${identifier}-', '')
+    workspaceGlobalPrivateEndpointName: replace(replace(replace(tier3_controlPlane.outputs.namingConvention.workspaceGlobalPrivateEndpoint, tier3_controlPlane.outputs.tokens.service, 'global'), '-${stampIndex}', ''), '${identifier}-', '')
   }
 }
 
@@ -540,6 +540,7 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: tier3_controlPlane.outputs.tokens.service
     sessionHostNamePrefix: length(deploymentLocations) == 2 ? replace(tier3_hosts.outputs.namingConvention.virtualMachine, tier3_hosts.outputs.tokens.service, '') : replace(tier3_controlPlane.outputs.namingConvention.virtualMachine, tier3_controlPlane.outputs.tokens.service, '')
+    stampIndex: string(stampIndex)
     subnetResourceId: tier3_controlPlane.outputs.subnetResourceId
     tags: tags 
     validationEnvironment: validationEnvironment   
