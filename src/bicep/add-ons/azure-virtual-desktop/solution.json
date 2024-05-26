@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "2804582298610478446"
+      "templateHash": "3015575520007536703"
     }
   },
   "parameters": {
@@ -672,7 +672,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "5760152189882232532"
+              "templateHash": "18300600614181264545"
             }
           },
           "parameters": {
@@ -940,7 +940,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "16881625523433024595"
+                      "templateHash": "8363189288729066877"
                     }
                   },
                   "parameters": {
@@ -1496,7 +1496,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.27.1.19265",
-                              "templateHash": "2390405762046931912"
+                              "templateHash": "10432608483393344913"
                             }
                           },
                           "parameters": {
@@ -1574,8 +1574,8 @@
                               "privateLinkScopeNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
                               "privateLinkScopePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
                               "recoveryServicesVault": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').recoveryServicesVaults)]",
-                              "recoveryServicesNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
-                              "recoveryServicesPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
+                              "recoveryServicesVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
+                              "recoveryServicesVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
                               "resourceGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').resourceGroups)]",
                               "routeTable": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').routeTables)]",
                               "storageAccount": "[toLower(replace(replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName')), '-', ''))]",
@@ -4846,7 +4846,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "5760152189882232532"
+              "templateHash": "18300600614181264545"
             }
           },
           "parameters": {
@@ -5114,7 +5114,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "16881625523433024595"
+                      "templateHash": "8363189288729066877"
                     }
                   },
                   "parameters": {
@@ -5670,7 +5670,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.27.1.19265",
-                              "templateHash": "2390405762046931912"
+                              "templateHash": "10432608483393344913"
                             }
                           },
                           "parameters": {
@@ -5748,8 +5748,8 @@
                               "privateLinkScopeNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
                               "privateLinkScopePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
                               "recoveryServicesVault": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').recoveryServicesVaults)]",
-                              "recoveryServicesNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
-                              "recoveryServicesPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
+                              "recoveryServicesVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
+                              "recoveryServicesVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
                               "resourceGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').resourceGroups)]",
                               "routeTable": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').routeTables)]",
                               "storageAccount": "[toLower(replace(replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName')), '-', ''))]",

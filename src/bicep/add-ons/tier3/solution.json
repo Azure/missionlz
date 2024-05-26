@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "6877974702104389401"
+      "templateHash": "18300600614181264545"
     }
   },
   "parameters": {
@@ -273,7 +273,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "11171233226932915639"
+              "templateHash": "8363189288729066877"
             }
           },
           "parameters": {
@@ -829,7 +829,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "13218155481958331255"
+                      "templateHash": "10432608483393344913"
                     }
                   },
                   "parameters": {
@@ -907,11 +907,11 @@
                       "privateLinkScopeNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
                       "privateLinkScopePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
                       "recoveryServicesVault": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').recoveryServicesVaults)]",
-                      "recoveryServicesNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
-                      "recoveryServicesPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
+                      "recoveryServicesVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
+                      "recoveryServicesVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
                       "resourceGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').resourceGroups)]",
                       "routeTable": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').routeTables)]",
-                      "storageAccount": "[toLower(take(format('{0}{1}', replace(replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName')), '-', ''), uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('subscriptionId'))), 24))]",
+                      "storageAccount": "[toLower(replace(replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName')), '-', ''))]",
                       "storageAccountNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, parameters('resourceAbbreviations').storageAccounts))]",
                       "storageAccountPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, parameters('resourceAbbreviations').storageAccounts))]",
                       "subnet": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').subnets)]",
