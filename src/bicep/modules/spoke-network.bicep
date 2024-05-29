@@ -7,7 +7,6 @@ targetScope = 'subscription'
 
 param additionalSubnets array = []
 param deployNetworkWatcher bool
-param firewallSkuTier string
 param location string
 param mlzTags object
 param networkSecurityGroupName string
@@ -106,7 +105,6 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     }]
     tags: tags
     vNetDnsServers: vNetDnsServers
-    firewallSkuTier: firewallSkuTier
   }
   dependsOn: [
     networkWatcher

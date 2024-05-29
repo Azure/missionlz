@@ -8,7 +8,6 @@ targetScope = 'subscription'
 param additionalSubnets array
 param deploymentNameSuffix string
 param deployNetworkWatcher bool
-param firewallSkuTier string
 param hubVirtualNetworkResourceId string
 param location string
 param mlzTags object
@@ -33,7 +32,6 @@ module spokeNetwork '../../../modules/spoke-network.bicep' = {
   params: {
     additionalSubnets: additionalSubnets
     deployNetworkWatcher: deployNetworkWatcher
-    firewallSkuTier: firewallSkuTier
     location: location
     mlzTags: mlzTags
     networkSecurityGroupName: networkSecurityGroupName

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "7876898860551299685"
+      "templateHash": "17459808081475959355"
     }
   },
   "parameters": {
@@ -1810,7 +1810,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "893825226169234564"
+              "templateHash": "13127603248861671698"
             }
           },
           "parameters": {
@@ -1963,11 +1963,7 @@
                   "virtualNetworkName": {
                     "value": "[variables('hub').namingConvention.virtualNetwork]"
                   },
-                  "vNetDnsServers": {
-                    "value": [
-                      "[parameters('firewallSettings').clientPrivateIpAddress]"
-                    ]
-                  }
+                  "vNetDnsServers": "[if(or(equals(parameters('firewallSettings').skuTier, 'Premium'), equals(parameters('firewallSettings').skuTier, 'Standard')), createObject('value', createArray(parameters('firewallSettings').clientPrivateIpAddress)), createObject('value', createArray()))]"
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1976,7 +1972,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "16727244682030781582"
+                      "templateHash": "592655120704499159"
                     }
                   },
                   "parameters": {
@@ -2357,9 +2353,6 @@
                           },
                           "vNetDnsServers": {
                             "value": "[parameters('vNetDnsServers')]"
-                          },
-                          "firewallSkuTier": {
-                            "value": "[parameters('firewallSkuTier')]"
                           }
                         },
                         "template": {
@@ -2369,7 +2362,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.27.1.19265",
-                              "templateHash": "4325479931624604061"
+                              "templateHash": "2265853539539159849"
                             }
                           },
                           "parameters": {
@@ -2393,9 +2386,6 @@
                             },
                             "vNetDnsServers": {
                               "type": "array"
-                            },
-                            "firewallSkuTier": {
-                              "type": "string"
                             }
                           },
                           "resources": [
@@ -2412,26 +2402,30 @@
                                   ]
                                 },
                                 "subnets": "[parameters('subnets')]",
-                                "dhcpOptions": "[if(and(not(equals(parameters('vNetDnsServers'), null())), or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard'))), createObject('dnsServers', parameters('vNetDnsServers')), null())]"
+                                "dhcpOptions": "[if(empty(parameters('vNetDnsServers')), null(), createObject('dnsServers', parameters('vNetDnsServers')))]"
                               }
                             }
                           ],
                           "outputs": {
-                            "name": {
+                            "addressPrefix": {
                               "type": "string",
-                              "value": "[parameters('name')]"
+                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2021-02-01').addressSpace.addressPrefixes[0]]"
+                            },
+                            "dnsServers": {
+                              "type": "array",
+                              "value": "[parameters('vNetDnsServers')]"
                             },
                             "id": {
                               "type": "string",
                               "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('name'))]"
                             },
+                            "name": {
+                              "type": "string",
+                              "value": "[parameters('name')]"
+                            },
                             "subnets": {
                               "type": "array",
                               "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2021-02-01').subnets]"
-                            },
-                            "addressPrefix": {
-                              "type": "string",
-                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2021-02-01').addressSpace.addressPrefixes[0]]"
                             }
                           }
                         }
@@ -2967,6 +2961,10 @@
                       "type": "string",
                       "value": "[if(parameters('deployBastion'), reference(resourceId('Microsoft.Resources/deployments', 'virtualNetwork'), '2022-09-01').outputs.subnets.value[3].id, '')]"
                     },
+                    "dnsServers": {
+                      "type": "array",
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'virtualNetwork'), '2022-09-01').outputs.dnsServers.value]"
+                    },
                     "firewallName": {
                       "type": "string",
                       "value": "[reference(resourceId('Microsoft.Resources/deployments', 'firewall'), '2022-09-01').outputs.name.value]"
@@ -3029,9 +3027,6 @@
                   "deployNetworkWatcher": {
                     "value": "[and(parameters('deployNetworkWatcher'), variables('spokes')[copyIndex()].deployUniqueResources)]"
                   },
-                  "firewallSkuTier": {
-                    "value": "[parameters('firewallSettings').skuTier]"
-                  },
                   "location": {
                     "value": "[parameters('location')]"
                   },
@@ -3075,9 +3070,7 @@
                     "value": "[variables('spokes')[copyIndex()].namingConvention.virtualNetwork]"
                   },
                   "vNetDnsServers": {
-                    "value": [
-                      "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('hub').subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPrivateIPAddress.value]"
-                    ]
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('hub').subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dnsServers.value]"
                   }
                 },
                 "template": {
@@ -3087,7 +3080,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "4742978871908330688"
+                      "templateHash": "17262762423710705329"
                     }
                   },
                   "parameters": {
@@ -3097,9 +3090,6 @@
                     },
                     "deployNetworkWatcher": {
                       "type": "bool"
-                    },
-                    "firewallSkuTier": {
-                      "type": "string"
                     },
                     "location": {
                       "type": "string"
@@ -3452,9 +3442,6 @@
                           },
                           "vNetDnsServers": {
                             "value": "[parameters('vNetDnsServers')]"
-                          },
-                          "firewallSkuTier": {
-                            "value": "[parameters('firewallSkuTier')]"
                           }
                         },
                         "template": {
@@ -3464,7 +3451,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.27.1.19265",
-                              "templateHash": "4325479931624604061"
+                              "templateHash": "2265853539539159849"
                             }
                           },
                           "parameters": {
@@ -3488,9 +3475,6 @@
                             },
                             "vNetDnsServers": {
                               "type": "array"
-                            },
-                            "firewallSkuTier": {
-                              "type": "string"
                             }
                           },
                           "resources": [
@@ -3507,26 +3491,30 @@
                                   ]
                                 },
                                 "subnets": "[parameters('subnets')]",
-                                "dhcpOptions": "[if(and(not(equals(parameters('vNetDnsServers'), null())), or(equals(parameters('firewallSkuTier'), 'Premium'), equals(parameters('firewallSkuTier'), 'Standard'))), createObject('dnsServers', parameters('vNetDnsServers')), null())]"
+                                "dhcpOptions": "[if(empty(parameters('vNetDnsServers')), null(), createObject('dnsServers', parameters('vNetDnsServers')))]"
                               }
                             }
                           ],
                           "outputs": {
-                            "name": {
+                            "addressPrefix": {
                               "type": "string",
-                              "value": "[parameters('name')]"
+                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2021-02-01').addressSpace.addressPrefixes[0]]"
+                            },
+                            "dnsServers": {
+                              "type": "array",
+                              "value": "[parameters('vNetDnsServers')]"
                             },
                             "id": {
                               "type": "string",
                               "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('name'))]"
                             },
+                            "name": {
+                              "type": "string",
+                              "value": "[parameters('name')]"
+                            },
                             "subnets": {
                               "type": "array",
                               "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2021-02-01').subnets]"
-                            },
-                            "addressPrefix": {
-                              "type": "string",
-                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2021-02-01').addressSpace.addressPrefixes[0]]"
                             }
                           }
                         }

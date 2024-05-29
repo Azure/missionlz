@@ -58,9 +58,9 @@ module hubNetwork 'hub-network.bicep' = {
     tags: tags
     virtualNetworkAddressPrefix: hub.vnetAddressPrefix
     virtualNetworkName: hub.namingConvention.virtualNetwork
-    vNetDnsServers: [
+    vNetDnsServers: firewallSettings.skuTier == 'Premium' || firewallSettings.skuTier == 'Standard' ? [
       firewallSettings.clientPrivateIpAddress
-    ]
+    ] : []
   }
 }
 
@@ -68,7 +68,6 @@ module spokeNetworks 'spoke-network.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-vnet-${spoke.name}-${deploymentNameSuffix}'
   params: {
     deployNetworkWatcher: deployNetworkWatcher && spoke.deployUniqueResources
-    firewallSkuTier: firewallSettings.skuTier
     location: location
     mlzTags: mlzTags
     networkSecurityGroupName: spoke.namingConvention.networkSecurityGroup
@@ -83,7 +82,7 @@ module spokeNetworks 'spoke-network.bicep' = [for (spoke, i) in spokes: {
     tags: tags
     virtualNetworkAddressPrefix: spoke.vnetAddressPrefix
     virtualNetworkName: spoke.namingConvention.virtualNetwork
-    vNetDnsServers: [ hubNetwork.outputs.firewallPrivateIPAddress ]
+    vNetDnsServers: hubNetwork.outputs.dnsServers
   }
 }]
 
