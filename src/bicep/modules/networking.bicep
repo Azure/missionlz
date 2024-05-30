@@ -91,9 +91,10 @@ module spokeNetworks 'spoke-network.bicep' = [for (spoke, i) in spokes: {
 module hubVirtualNetworkPeerings 'hub-network-peerings.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-vnet-peerings-hub-${i}-${deploymentNameSuffix}'
   params: {
+    deploymentNameSuffix: deploymentNameSuffix
     hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
     resourceGroupName: hubResourceGroupName
-    spokeName: spoke.name
+    spokeShortName: spoke.shortName
     spokeVirtualNetworkResourceId: spokeNetworks[i].outputs.virtualNetworkResourceId
     subscriptionId: hub.subscriptionId
   }
@@ -102,9 +103,10 @@ module hubVirtualNetworkPeerings 'hub-network-peerings.bicep' = [for (spoke, i) 
 module spokeVirtualNetworkPeerings 'spoke-network-peering.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-vnet-peerings-${spoke.name}-${deploymentNameSuffix}'
   params: {
+    deploymentNameSuffix: deploymentNameSuffix
     hubVirtualNetworkResourceId: hubNetwork.outputs.virtualNetworkResourceId
     resourceGroupName: spokeResourceGroupNames[i]
-    spokeName: spoke.name
+    spokeShortName: spoke.shortName
     spokeVirtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
     subscriptionId: spoke.subscriptionId
   }

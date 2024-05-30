@@ -24,11 +24,10 @@ param tags object
 param vNetDnsServers array
 param virtualNetworkAddressPrefix string
 param virtualNetworkName string
-param workloadName string
 param workloadShortName string
 
 module spokeNetwork '../../../modules/spoke-network.bicep' = {
-  name: 'spokeNetwork'
+  name: 'deploy-network-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     additionalSubnets: additionalSubnets
     deployNetworkWatcher: deployNetworkWatcher
@@ -51,22 +50,24 @@ module spokeNetwork '../../../modules/spoke-network.bicep' = {
 }
 
 module workloadVirtualNetworkPeerings '../../../modules/spoke-network-peering.bicep' = {
-  name: 'deploy-vnet-peering-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-spoke-peering-${workloadShortName}-${deploymentNameSuffix}'
   params: {
+    deploymentNameSuffix: deploymentNameSuffix
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     resourceGroupName: resourceGroupName
-    spokeName: workloadName
+    spokeShortName: workloadShortName
     spokeVirtualNetworkName: spokeNetwork.outputs.virtualNetworkName
     subscriptionId: subscriptionId
   }
 }
 
 module hubToWorkloadVirtualNetworkPeering '../../../modules/hub-network-peerings.bicep' = {
-  name: 'deploy-vnet-peering-hub-${deploymentNameSuffix}'
+  name: 'deploy-hub-peering-${workloadShortName}-${deploymentNameSuffix}'
   params: {
+    deploymentNameSuffix: deploymentNameSuffix
     hubVirtualNetworkName: split(hubVirtualNetworkResourceId, '/')[8]
     resourceGroupName: split(hubVirtualNetworkResourceId, '/')[4]
-    spokeName: workloadName
+    spokeShortName: workloadShortName
     spokeVirtualNetworkResourceId: spokeNetwork.outputs.virtualNetworkResourceId
     subscriptionId: split(hubVirtualNetworkResourceId, '/')[2]
   }

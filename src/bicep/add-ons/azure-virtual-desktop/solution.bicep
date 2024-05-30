@@ -366,7 +366,7 @@ var storageService = split(fslogixStorageService, ' ')[0]
 var storageSuffix = environment().suffixes.storage
 
 module tier3_controlPlane '../tier3/solution.bicep' = {
-  name: 'deploy-tier3-control-plane-${deploymentNameSuffix}'
+  name: 'deploy-tier3-avd-cp-${deploymentNameSuffix}'
   params: {
     additionalSubnets: contains(fslogixStorageService, 'AzureNetAppFiles') && !empty(azureNetAppFilesSubnetAddressPrefix) && length(deploymentLocations) == 1
       ? [
@@ -378,7 +378,7 @@ module tier3_controlPlane '../tier3/solution.bicep' = {
       : []
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
-    deploymentNameSuffix: 'control-plane-${deploymentNameSuffix}'
+    deploymentNameSuffix: 'cp-${deploymentNameSuffix}'
     deployNetworkWatcher: deployNetworkWatcher
     deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
@@ -398,7 +398,7 @@ module tier3_controlPlane '../tier3/solution.bicep' = {
 }
 
 module tier3_hosts '../tier3/solution.bicep' = if (length(deploymentLocations) == 2) {
-  name: 'deploy-tier3-session-hosts-${deploymentNameSuffix}'
+  name: 'deploy-tier3-avd-hosts-${deploymentNameSuffix}'
   params: {
     additionalSubnets: contains(fslogixStorageService, 'AzureNetAppFiles') && !empty(azureNetAppFilesSubnetAddressPrefix) && length(deploymentLocations) == 2
       ? [

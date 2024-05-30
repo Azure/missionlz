@@ -612,6 +612,7 @@ module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
     subnetResourceId: networking.outputs.hubSubnetResourceId
     tags: tags
     tokens: logic.outputs.tokens
+    workloadShortName: 'ops'
   }
 }
 
