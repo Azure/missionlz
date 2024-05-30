@@ -60,6 +60,10 @@ You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/ro
 
 2. After a successful deployment, see our [add-ons](./src/bicep/add-ons/) directory for how to extend the capabilities of Mission Landing Zone.
 
+### Deploy using a TemplateSpec in Azure Secret or Azure Top Secret
+
+Click [here](./docs/deployment-guide-templatespec.md) to learn how to create a templatespec.
+
 ### Deploy using the Azure CLI
 
 1. Clone the repository and change directory to the root of the repository:
