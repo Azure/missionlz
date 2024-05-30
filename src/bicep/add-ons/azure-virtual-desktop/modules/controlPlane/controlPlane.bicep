@@ -124,7 +124,7 @@ module workspace 'workspace.bicep' = {
     workspaceFeedName: replace(replace(namingConvention.workspaceFeed, serviceToken, 'feed'), '-${stampIndex}', '')
     workspaceFeedNetworkInterfaceName: replace(replace(namingConvention.workspaceFeedNetworkInterface, serviceToken, 'feed'), '-${stampIndex}', '')
     workspaceFeedPrivateEndpointName: replace(replace(namingConvention.workspaceFeedPrivateEndpoint, serviceToken, 'feed'), '-${stampIndex}', '')
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(replace(namingConvention.workspaceFeed, serviceToken, ''), '-${stampIndex}', '') : '${workspaceFriendlyName} (${locationControlPlane})'
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(replace(namingConvention.workspaceFeed, '-${serviceToken}', ''), '-${stampIndex}', '') : '${workspaceFriendlyName} (${locationControlPlane})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }
