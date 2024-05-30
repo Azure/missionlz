@@ -308,25 +308,20 @@ var endAvSetRange = (sessionHostCount + sessionHostIndex) / maxAvSetMembers // T
 var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - beginAvSetRange) + 1))
 
 // OTHER LOGIC & COMPUTED VALUES
+var artifactsUri = 'https://${artifactsStorageAccountName}.blob.${environment().suffixes.storage}/${artifactsContainerName}/'
+var artifactsStorageAccountName = split(artifactsStorageAccountResourceId, '/')[8]
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
-var fileShares = fileShareNames[fslogixContainerType]
 var deployFslogix = fslogixStorageService == 'None' || !contains(activeDirectorySolution, 'DomainServices')
   ? false
   : true
-var netbios = split(domainName, '.')[0]
-var pooledHostPool = split(hostPoolType, ' ')[0] == 'Pooled' ? true : false
-var roleDefinitions = {
-  DesktopVirtualizationPowerOnContributor: '489581de-a3bd-480d-9518-53dea7416b33'
-  DesktopVirtualizationUser: '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63'
-  Reader: 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
-  VirtualMachineUserLogin: 'fb879df8-f326-4884-b1cf-06f3ad86be52'
-}
-var storageSku = fslogixStorageService == 'None' ? 'None' : split(fslogixStorageService, ' ')[1]
-var storageService = split(fslogixStorageService, ' ')[0]
-var storageSuffix = environment().suffixes.storage
-
-var artifactsUri = 'https://${artifactsStorageAccountName}.blob.${environment().suffixes.storage}/${artifactsContainerName}/'
-var artifactsStorageAccountName = split(artifactsStorageAccountResourceId, '/')[8]
+var deploymentLocations = union(
+  [
+    locationControlPlane
+  ],
+  [
+    locationVirtualMachines
+  ]
+)
 var fileShareNames = {
   CloudCacheProfileContainer: [
     'profile-containers'
@@ -343,15 +338,10 @@ var fileShareNames = {
     'profile-containers'
   ]
 }
+var fileShares = fileShareNames[fslogixContainerType]
+var netbios = split(domainName, '.')[0]
+var pooledHostPool = split(hostPoolType, ' ')[0] == 'Pooled' ? true : false
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
-var deploymentLocations = union(
-  [
-    locationControlPlane
-  ],
-  [
-    locationVirtualMachines
-  ]
-)
 var resourceGroupServices = union(
   [
     'controlPlane'
@@ -365,6 +355,15 @@ var resourceGroupServices = union(
       ]
     : []
 )
+var roleDefinitions = {
+  DesktopVirtualizationPowerOnContributor: '489581de-a3bd-480d-9518-53dea7416b33'
+  DesktopVirtualizationUser: '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63'
+  Reader: 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
+  VirtualMachineUserLogin: 'fb879df8-f326-4884-b1cf-06f3ad86be52'
+}
+var storageSku = fslogixStorageService == 'None' ? 'None' : split(fslogixStorageService, ' ')[1]
+var storageService = split(fslogixStorageService, ' ')[0]
+var storageSuffix = environment().suffixes.storage
 
 module tier3_controlPlane '../tier3/solution.bicep' = {
   name: 'deploy-tier3-control-plane-${deploymentNameSuffix}'
@@ -379,6 +378,7 @@ module tier3_controlPlane '../tier3/solution.bicep' = {
       : []
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
+    deploymentNameSuffix: 'control-plane-${deploymentNameSuffix}'
     deployNetworkWatcher: deployNetworkWatcher
     deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
@@ -408,9 +408,10 @@ module tier3_hosts '../tier3/solution.bicep' = if (length(deploymentLocations) =
           }
         ]
       : []
-    deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
-    deployDefender: deployDefender
-    deployNetworkWatcher: deployNetworkWatcher
+    deployActivityLogDiagnosticSetting: false
+    deployDefender: false
+    deploymentNameSuffix: 'hosts-${deploymentNameSuffix}'
+    deployNetworkWatcher: false
     deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation

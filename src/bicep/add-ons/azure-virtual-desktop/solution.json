@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "11493918491092148118"
+      "templateHash": "15895832246238062884"
     }
   },
   "parameters": {
@@ -564,22 +564,11 @@
     "beginAvSetRange": "[div(parameters('sessionHostIndex'), variables('maxAvSetMembers'))]",
     "endAvSetRange": "[div(add(parameters('sessionHostCount'), parameters('sessionHostIndex')), variables('maxAvSetMembers'))]",
     "availabilitySetsCount": "[length(range(variables('beginAvSetRange'), add(sub(variables('endAvSetRange'), variables('beginAvSetRange')), 1)))]",
-    "customImageId": "[if(empty(parameters('imageVersionResourceId')), 'null', format('\"{0}\"', parameters('imageVersionResourceId')))]",
-    "fileShares": "[variables('fileShareNames')[parameters('fslogixContainerType')]]",
-    "deployFslogix": "[if(or(equals(parameters('fslogixStorageService'), 'None'), not(contains(parameters('activeDirectorySolution'), 'DomainServices'))), false(), true())]",
-    "netbios": "[split(parameters('domainName'), '.')[0]]",
-    "pooledHostPool": "[if(equals(split(parameters('hostPoolType'), ' ')[0], 'Pooled'), true(), false())]",
-    "roleDefinitions": {
-      "DesktopVirtualizationPowerOnContributor": "489581de-a3bd-480d-9518-53dea7416b33",
-      "DesktopVirtualizationUser": "1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63",
-      "Reader": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
-      "VirtualMachineUserLogin": "fb879df8-f326-4884-b1cf-06f3ad86be52"
-    },
-    "storageSku": "[if(equals(parameters('fslogixStorageService'), 'None'), 'None', split(parameters('fslogixStorageService'), ' ')[1])]",
-    "storageService": "[split(parameters('fslogixStorageService'), ' ')[0]]",
-    "storageSuffix": "[environment().suffixes.storage]",
     "artifactsUri": "[format('https://{0}.blob.{1}/{2}/', variables('artifactsStorageAccountName'), environment().suffixes.storage, parameters('artifactsContainerName'))]",
     "artifactsStorageAccountName": "[split(parameters('artifactsStorageAccountResourceId'), '/')[8]]",
+    "customImageId": "[if(empty(parameters('imageVersionResourceId')), 'null', format('\"{0}\"', parameters('imageVersionResourceId')))]",
+    "deployFslogix": "[if(or(equals(parameters('fslogixStorageService'), 'None'), not(contains(parameters('activeDirectorySolution'), 'DomainServices'))), false(), true())]",
+    "deploymentLocations": "[union(createArray(parameters('locationControlPlane')), createArray(parameters('locationVirtualMachines')))]",
     "fileShareNames": {
       "CloudCacheProfileContainer": [
         "profile-containers"
@@ -596,9 +585,20 @@
         "profile-containers"
       ]
     },
+    "fileShares": "[variables('fileShareNames')[parameters('fslogixContainerType')]]",
+    "netbios": "[split(parameters('domainName'), '.')[0]]",
+    "pooledHostPool": "[if(equals(split(parameters('hostPoolType'), ' ')[0], 'Pooled'), true(), false())]",
     "privateDnsZoneResourceIdPrefix": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/privateDnsZones/', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4])]",
-    "deploymentLocations": "[union(createArray(parameters('locationControlPlane')), createArray(parameters('locationVirtualMachines')))]",
-    "resourceGroupServices": "[union(createArray('controlPlane', 'feedWorkspace', 'hosts', 'management'), if(variables('deployFslogix'), createArray('storage'), createArray()))]"
+    "resourceGroupServices": "[union(createArray('controlPlane', 'feedWorkspace', 'hosts', 'management'), if(variables('deployFslogix'), createArray('storage'), createArray()))]",
+    "roleDefinitions": {
+      "DesktopVirtualizationPowerOnContributor": "489581de-a3bd-480d-9518-53dea7416b33",
+      "DesktopVirtualizationUser": "1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63",
+      "Reader": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
+      "VirtualMachineUserLogin": "fb879df8-f326-4884-b1cf-06f3ad86be52"
+    },
+    "storageSku": "[if(equals(parameters('fslogixStorageService'), 'None'), 'None', split(parameters('fslogixStorageService'), ' ')[1])]",
+    "storageService": "[split(parameters('fslogixStorageService'), ' ')[0]]",
+    "storageSuffix": "[environment().suffixes.storage]"
   },
   "resources": [
     {
@@ -618,6 +618,9 @@
           },
           "deployDefender": {
             "value": "[parameters('deployDefender')]"
+          },
+          "deploymentNameSuffix": {
+            "value": "[format('control-plane-{0}', parameters('deploymentNameSuffix'))]"
           },
           "deployNetworkWatcher": {
             "value": "[parameters('deployNetworkWatcher')]"
@@ -4772,13 +4775,16 @@
         "parameters": {
           "additionalSubnets": "[if(and(and(contains(parameters('fslogixStorageService'), 'AzureNetAppFiles'), not(empty(parameters('azureNetAppFilesSubnetAddressPrefix')))), equals(length(variables('deploymentLocations')), 2)), createObject('value', createArray(createObject('name', 'AzureNetAppFiles', 'addressPrefix', parameters('azureNetAppFilesSubnetAddressPrefix')))), createObject('value', createArray()))]",
           "deployActivityLogDiagnosticSetting": {
-            "value": "[parameters('deployActivityLogDiagnosticSetting')]"
+            "value": false
           },
           "deployDefender": {
-            "value": "[parameters('deployDefender')]"
+            "value": false
+          },
+          "deploymentNameSuffix": {
+            "value": "[format('hosts-{0}', parameters('deploymentNameSuffix'))]"
           },
           "deployNetworkWatcher": {
-            "value": "[parameters('deployNetworkWatcher')]"
+            "value": false
           },
           "deployPolicy": {
             "value": "[parameters('deployPolicy')]"
