@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "6632537311608895318"
+      "templateHash": "352931916535090372"
     }
   },
   "parameters": {
@@ -675,7 +675,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "14690703139882218420"
+              "templateHash": "9708587224602662941"
             }
           },
           "parameters": {
@@ -1814,7 +1814,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "5878376271738910349"
+                      "templateHash": "7255054464077859150"
                     }
                   },
                   "parameters": {
@@ -1883,7 +1883,7 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
                       "location": "[deployment().location]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -2457,7 +2457,7 @@
                             "value": "[parameters('workloadShortName')]"
                           },
                           "spokeVirtualNetworkName": {
-                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
+                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
                           },
                           "subscriptionId": {
                             "value": "[parameters('subscriptionId')]"
@@ -2557,7 +2557,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
+                        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
                       ]
                     },
                     {
@@ -2584,7 +2584,7 @@
                             "value": "[parameters('workloadShortName')]"
                           },
                           "spokeVirtualNetworkResourceId": {
-                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkResourceId.value]"
+                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkResourceId.value]"
                           },
                           "subscriptionId": {
                             "value": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]"
@@ -2684,22 +2684,22 @@
                         }
                       },
                       "dependsOn": [
-                        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
+                        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
                       ]
                     }
                   ],
                   "outputs": {
                     "networkSecurityGroupName": {
                       "type": "string",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
                     },
                     "subnetResourceId": {
                       "type": "string",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
                     },
                     "virtualNetworkName": {
                       "type": "string",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
                     }
                   }
                 }
@@ -4854,7 +4854,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "14690703139882218420"
+              "templateHash": "9708587224602662941"
             }
           },
           "parameters": {
@@ -5993,7 +5993,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "5878376271738910349"
+                      "templateHash": "7255054464077859150"
                     }
                   },
                   "parameters": {
@@ -6062,7 +6062,7 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
                       "location": "[deployment().location]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -6636,7 +6636,7 @@
                             "value": "[parameters('workloadShortName')]"
                           },
                           "spokeVirtualNetworkName": {
-                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
+                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
                           },
                           "subscriptionId": {
                             "value": "[parameters('subscriptionId')]"
@@ -6736,7 +6736,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
+                        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
                       ]
                     },
                     {
@@ -6763,7 +6763,7 @@
                             "value": "[parameters('workloadShortName')]"
                           },
                           "spokeVirtualNetworkResourceId": {
-                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkResourceId.value]"
+                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkResourceId.value]"
                           },
                           "subscriptionId": {
                             "value": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]"
@@ -6863,22 +6863,22 @@
                         }
                       },
                       "dependsOn": [
-                        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
+                        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
                       ]
                     }
                   ],
                   "outputs": {
                     "networkSecurityGroupName": {
                       "type": "string",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
                     },
                     "subnetResourceId": {
                       "type": "string",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
                     },
                     "virtualNetworkName": {
                       "type": "string",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
                     }
                   }
                 }

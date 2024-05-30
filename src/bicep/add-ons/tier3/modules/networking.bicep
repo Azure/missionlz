@@ -27,7 +27,7 @@ param virtualNetworkName string
 param workloadShortName string
 
 module spokeNetwork '../../../modules/spoke-network.bicep' = {
-  name: 'deploy-network-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-spoke-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     additionalSubnets: additionalSubnets
     deployNetworkWatcher: deployNetworkWatcher
