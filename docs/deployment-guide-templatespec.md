@@ -124,7 +124,8 @@ Parameter name | Default Value | Description
 
 #### Firewall SKUs
 
-By default, MLZ deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If necessary you can set a different firewall SKU (Standard) or location.
+By default, MLZ deploys **[Azure Firewall Premium](https://docs.microsoft.com/azure/firewall/premium-features). Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/azure/firewall/premium-features#supported-regions). If necessary you can set a different firewall SKU (Standard).
+
 Please validate the SKU availability in your region before deploying as there can be differences between clouds.
 
 Click the 'Next' button.
@@ -273,6 +274,7 @@ az security pricing create --name "<name of tier>" --tier Free
 ```
 
 > NOTE: The Azure portal allows changing all pricing tiers with a single setting, but the AZ CLI requires each setting to be managed individually.
+
 ## See Also
 
 [Bicep documentation](https://aka.ms/bicep/)
