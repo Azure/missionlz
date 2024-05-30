@@ -3,13 +3,12 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param ipConfigurationName string
 param location string
 param mlzTags object = {}
 param name string
-param networkSecurityGroupId string
+param networkSecurityGroupResourceId string
 param privateIPAddressAllocationMethod string
-param subnetId string
+param subnetResourceId string
 param tags object = {}
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' = {
@@ -19,17 +18,17 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' = {
   properties: {
     ipConfigurations: [
       {
-        name: ipConfigurationName
+        name: 'ipconfig'
         properties: {
           subnet: {
-            id: subnetId
+            id: subnetResourceId
           }
           privateIPAllocationMethod: privateIPAddressAllocationMethod
         }
       }
     ]
     networkSecurityGroup: {
-      id: networkSecurityGroupId
+      id: networkSecurityGroupResourceId
     }
   }
 }

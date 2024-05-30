@@ -3,20 +3,20 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param name string
-
 param logAnalyticsWorkspaceResourceId string
 param logs array
 param logStorageAccountResourceId string
 param metrics array
+param networkSecurityGroupDiagnosticSettingName string
+param networkSecurityGroupName string
 
 resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-02-01' existing = {
-  name: name
+  name: networkSecurityGroupName
 }
 
 resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
   scope: networkSecurityGroup
-  name: '${networkSecurityGroup.name}-diagnostics'
+  name: networkSecurityGroupDiagnosticSettingName
   properties: {
     storageAccountId: logStorageAccountResourceId
     workspaceId: logAnalyticsWorkspaceResourceId

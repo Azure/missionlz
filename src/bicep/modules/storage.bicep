@@ -9,19 +9,20 @@ param blobsPrivateDnsZoneResourceId string
 param deployIdentity bool
 param deploymentNameSuffix string
 param keyVaultUri string
-param logStorageSkuName string
 param location string
+param logStorageSkuName string
 param mlzTags object
-param networks array
+param resourceGroupNames array
 param serviceToken string
 param storageEncryptionKeyName string
 param tablesPrivateDnsZoneResourceId string
 param tags object
+param tiers array
 param userAssignedIdentityResourceId string
 
-module storageAccount 'storage-account.bicep' = [for (network, i) in networks: {
-  name: 'deploy-storage-account-${network.name}-${deploymentNameSuffix}'
-  scope: resourceGroup(network.subscriptionId, network.resourceGroupName)
+module storageAccount 'storage-account.bicep' = [for (tier, i) in tiers: {
+  name: 'deploy-storage-account-${tier.name}-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
     keyVaultUri: keyVaultUri
@@ -29,11 +30,11 @@ module storageAccount 'storage-account.bicep' = [for (network, i) in networks: {
     mlzTags: mlzTags
     serviceToken: serviceToken
     skuName: logStorageSkuName
-    storageAccountName: network.logStorageAccountName
-    storageAccountNetworkInterfaceNamePrefix: network.logStorageAccountNetworkInterfaceNamePrefix
-    storageAccountPrivateEndpointNamePrefix: network.logStorageAccountPrivateEndpointNamePrefix
+    storageAccountName: tier.namingConvention.storageAccount
+    storageAccountNetworkInterfaceNamePrefix: tier.namingConvention.storageAccountNetworkInterface
+    storageAccountPrivateEndpointNamePrefix: tier.namingConvention.storageAccountPrivateEndpoint
     storageEncryptionKeyName: storageEncryptionKeyName
-    subnetResourceId: resourceId(network.subscriptionId, network.resourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', network.virtualNetworkName, network.subnetName)
+    subnetResourceId: resourceId(tier.subscriptionId, resourceGroupNames[i], 'Microsoft.Network/virtualNetworks/subnets', tier.namingConvention.virtualNetwork, tier.namingConvention.subnet)
     tablesPrivateDnsZoneResourceId: tablesPrivateDnsZoneResourceId
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
@@ -41,11 +42,11 @@ module storageAccount 'storage-account.bicep' = [for (network, i) in networks: {
 }]
 
 output storageAccountResourceIds array = union([
-  resourceId(networks[0].subscriptionId, networks[0].resourceGroupName, 'Microsoft.Storage/storageAccounts', networks[0].logStorageAccountName)
-  resourceId(networks[1].subscriptionId, networks[1].resourceGroupName, 'Microsoft.Storage/storageAccounts', networks[1].logStorageAccountName)
-  resourceId(networks[2].subscriptionId, networks[2].resourceGroupName, 'Microsoft.Storage/storageAccounts', networks[2].logStorageAccountName)
+  resourceId(tiers[0].subscriptionId, resourceGroupNames[0], 'Microsoft.Storage/storageAccounts', tiers[0].namingConvention.storageAccount)
+  resourceId(tiers[1].subscriptionId, resourceGroupNames[1], 'Microsoft.Storage/storageAccounts', tiers[1].namingConvention.storageAccount)
+  resourceId(tiers[2].subscriptionId, resourceGroupNames[2], 'Microsoft.Storage/storageAccounts', tiers[2].namingConvention.storageAccount)
 ], deployIdentity ? [
-  resourceId(networks[3].subscriptionId, networks[3].resourceGroupName, 'Microsoft.Storage/storageAccounts', networks[3].logStorageAccountName)
+  resourceId(tiers[3].subscriptionId, resourceGroupNames[3], 'Microsoft.Storage/storageAccounts', tiers[3].namingConvention.storageAccount)
 ] : []
 )
 

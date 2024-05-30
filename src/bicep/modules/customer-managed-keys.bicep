@@ -9,18 +9,20 @@ param deploymentNameSuffix string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
 param mlzTags object
-param networkProperties object
+param resourceGroupName string
 param subnetResourceId string
 param tags object
+param tier object
+param tokens object
 
 module keyVault 'key-vault.bicep' = {
   name: 'deploy-key-vault-${deploymentNameSuffix}'
-  scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
-    keyVaultName: networkProperties.keyVaultName
-    keyVaultNetworkInterfaceName: networkProperties.keyVaultNetworkInterfaceName
+    keyVaultName: take(replace(tier.namingConvention.keyVault, tokens.service, ''), 24)
+    keyVaultNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.service, '')
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    keyVaultPrivateEndpointName: networkProperties.keyVaultPrivateEndpointName
+    keyVaultPrivateEndpointName: replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.service, '')
     location: location
     mlzTags: mlzTags
     subnetResourceId: subnetResourceId
@@ -30,10 +32,10 @@ module keyVault 'key-vault.bicep' = {
 
 module diskEncryptionSet 'disk-encryption-set.bicep' = {
   name: 'deploy-disk-encryption-set-${deploymentNameSuffix}'
-  scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: networkProperties.diskEncryptionSetName
+    diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
     keyUrl: keyVault.outputs.keyUriWithVersion
     keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
@@ -44,17 +46,18 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = {
 
 module userAssignedIdentity 'user-assigned-identity.bicep' = {
   name: 'deploy-user-assigned-identity-${deploymentNameSuffix}'
-  scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
+    keyVaultName: keyVault.outputs.keyVaultName
     location: location
     mlzTags: mlzTags
-    name: networkProperties.userAssignedIdentityName
     tags: tags
+    userAssignedIdentityName: replace(tier.namingConvention.userAssignedIdentity, '-${tokens.service}', '')
   }
 }
 
 output diskEncryptionSetResourceId string = diskEncryptionSet.outputs.resourceId
-output KeyVaultName string = keyVault.outputs.keyVaultName
+output keyVaultName string = keyVault.outputs.keyVaultName
 output keyVaultUri string = keyVault.outputs.keyVaultUri
 output keyVaultResourceId string = keyVault.outputs.keyVaultResourceId
 output storageKeyName string = keyVault.outputs.storageKeyName

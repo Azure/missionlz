@@ -12,8 +12,8 @@ resource privateLinkScope 'microsoft.insights/privateLinkScopes@2021-09-01' = {
   location: 'global'
   properties: {
     accessModeSettings: {
-      ingestionAccessMode: 'Private'
-      queryAccessMode: 'Private'
+      ingestionAccessMode: 'PrivateOnly'
+      queryAccessMode: 'PrivateOnly'
     }
   }
 }

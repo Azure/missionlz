@@ -5,18 +5,18 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-param spokeName string
-param spokeResourceGroupName string
-param spokeVirtualNetworkName string
-
-param hubVirtualNetworkName string
 param hubVirtualNetworkResourceId string
+param resourceGroupName string
+param spokeName string
+param spokeVirtualNetworkName string
+param subscriptionId string
 
 module spokeNetworkPeering '../modules/virtual-network-peering.bicep' = {
   name: '${spokeName}-to-hub-vnet-peering'
-  scope: resourceGroup(spokeResourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    name: '${spokeVirtualNetworkName}/to-${hubVirtualNetworkName}'
     remoteVirtualNetworkResourceId: hubVirtualNetworkResourceId
+    virtualNetworkName: spokeVirtualNetworkName
+    virtualNetworkPeerName: 'to-${split(hubVirtualNetworkResourceId, '/')[8]}'
   }
 }

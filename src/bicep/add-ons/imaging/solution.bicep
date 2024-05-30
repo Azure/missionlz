@@ -239,18 +239,9 @@ param virtualNetworkDiagnosticsMetrics array = []
 @description('The WSUS Server Url if WSUS is specified. (i.e., https://wsus.corp.contoso.com:8531)')
 param wsusServer string = ''
 
-var automationAccountPrivateDnsZoneResourceId = resourceId(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4], 'Microsoft.Network/privateDnsZones','privatelink.azure-automation.${privateDnsZoneSuffixes_AzureAutomation[environment().name] ?? cloudSuffix}')
-var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.azure.', ''), '/', '')
 var keyVaultPrivateDnsZoneResourceId = resourceId(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4], 'Microsoft.Network/privateDnsZones', replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore'))
 var imageDefinitionName = empty(computeGalleryImageResourceId) ? '${imageDefinitionNamePrefix}-${marketplaceImageSKU}' : '${imageDefinitionNamePrefix}-${split(computeGalleryImageResourceId, '/')[10]}'
-var privateDnsZoneSuffixes_AzureAutomation = {
-  AzureCloud: 'net'
-  AzureUSGovernment: 'us'
-  USNat: null
-  USSec: null
-}
 var subscriptionId = subscription().subscriptionId
-var locations = (loadJsonContent('../../data/locations.json'))[environment().name]
 var workloadName = 'Imaging'
 var workloadShortName = 'img'
 
@@ -287,28 +278,28 @@ module tier3 '../tier3/solution.bicep' = {
 module baseline 'modules/baseline.bicep' = {
   name: 'deploy-imaging-baseline-${deploymentNameSuffix}'
   params: {
-    computeGalleryName: tier3.outputs.network.computeGalleryName
+    computeGalleryName: tier3.outputs.namingConvention.computeGallery
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetResourceId: tier3.outputs.diskEncryptionSetResourceId
     enableBuildAutomation: enableBuildAutomation
     exemptPolicyAssignmentIds: exemptPolicyAssignmentIds
     location: location
     mlzTags: tier3.outputs.mlzTags
-    resourceGroupName: tier3.outputs.network.resourceGroupName
+    resourceGroupName: tier3.outputs.namingConvention.resourceGroup
     storageAccountResourceId: storageAccountResourceId
     subscriptionId: subscriptionId
     tags: tags
-    userAssignedIdentityName: tier3.outputs.network.userAssignedIdentityName
+    userAssignedIdentityName: tier3.outputs.namingConvention.userAssignedIdentity
   }
 }
 
 module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomation) {
   name: 'deploy-build-automation-${deploymentNameSuffix}'
   params: {
-    actionGroupName: tier3.outputs.network.actionGroupName
+    actionGroupName: tier3.outputs.namingConvention.actionGroup
     arcGisProInstaller: arcGisProInstaller
-    automationAccountName: tier3.outputs.network.automationAccountName
-    automationAccountPrivateDnsZoneResourceId: automationAccountPrivateDnsZoneResourceId
+    automationAccountName: tier3.outputs.namingConvention.automationAccount
+    automationAccountPrivateDnsZoneResourceId: resourceId(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4], 'Microsoft.Network/privateDnsZones', filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.azure-automation'))[0])
     computeGalleryImageResourceId: computeGalleryImageResourceId
     computeGalleryResourceId: baseline.outputs.computeGalleryResourceId
     containerName: containerName
@@ -325,7 +316,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     imageDefinitionName: imageDefinitionName
     imageMajorVersion: imageMajorVersion
     imagePatchVersion: imagePatchVersion
-    imageVirtualMachineName: replace(tier3.outputs.network.virtualMachineName, tier3.outputs.tokens.service, 'b')
+    imageVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'b')
     installAccess: installAccess
     installArcGisPro: installArcGisPro
     installExcel: installExcel
@@ -341,13 +332,13 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     installVirtualDesktopOptimizationTool: installVirtualDesktopOptimizationTool
     installVisio: installVisio
     installWord: installWord
-    keyVaultName: tier3.outputs.network.keyVaultName
+    keyVaultName: tier3.outputs.namingConvention.keyVault
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     localAdministratorPassword: localAdministratorPassword
     localAdministratorUsername: localAdministratorUsername
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    managementVirtualMachineName: replace(tier3.outputs.network.virtualMachineName, tier3.outputs.tokens.service, 'm')
+    managementVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'm')
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
@@ -356,14 +347,14 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     officeInstaller: officeInstaller
     oUPath: oUPath
     replicaCount: replicaCount
-    resourceGroupName: tier3.outputs.network.resourceGroupName
+    resourceGroupName: tier3.outputs.namingConvention.resourceGroup
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnetResourceId
     subscriptionId: subscriptionId
     tags: tags
     teamsInstaller: teamsInstaller
-    timeZone: locations[location].timeZone
+    timeZone: tier3.outputs.locatonProperties.timeZone
     updateService: updateService
     userAssignedIdentityClientId: baseline.outputs.userAssignedIdentityClientId
     userAssignedIdentityPrincipalId: baseline.outputs.userAssignedIdentityPrincipalId
@@ -373,9 +364,6 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     virtualMachineSize: virtualMachineSize
     wsusServer: wsusServer
   }
-  dependsOn: [
-    tier3
-  ]
 }
 
 module imageBuild 'modules/imageBuild.bicep' = {
@@ -383,7 +371,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
   params: {
     arcGisProInstaller: arcGisProInstaller
     computeGalleryImageResourceId: computeGalleryImageResourceId
-    computeGalleryName: tier3.outputs.network.computeGalleryName
+    computeGalleryName: tier3.outputs.namingConvention.computeGallery
     containerName: containerName
     customizations: customizations
     deploymentNameSuffix: deploymentNameSuffix
@@ -394,7 +382,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     imageDefinitionName: imageDefinitionName
     imageMajorVersion: imageMajorVersion
     imagePatchVersion: imagePatchVersion
-    imageVirtualMachineName: replace(tier3.outputs.network.windowsVmName, tier3.outputs.tokens.service, 'b')
+    imageVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'b')
     installAccess: installAccess
     installArcGisPro: installArcGisPro
     installExcel: installExcel
@@ -410,11 +398,11 @@ module imageBuild 'modules/imageBuild.bicep' = {
     installVirtualDesktopOptimizationTool: installVirtualDesktopOptimizationTool
     installVisio: installVisio
     installWord: installWord
-    keyVaultName: tier3.outputs.network.keyVaultName
+    keyVaultName: tier3.outputs.namingConvention.keyVault
     localAdministratorPassword: localAdministratorPassword
     localAdministratorUsername: localAdministratorUsername
     location: location
-    managementVirtualMachineName: replace(tier3.outputs.network.windowsVmName, tier3.outputs.tokens.service, 'm')
+    managementVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'm')
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
@@ -422,7 +410,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     replicaCount: replicaCount
-    resourceGroupName: tier3.outputs.network.resourceGroupName
+    resourceGroupName: tier3.outputs.namingConvention.resourceGroup
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnetResourceId

@@ -4,7 +4,6 @@ Licensed under the MIT License.
 */
 
 param bastionHostSubnetResourceId string
-param ipConfigurationName string
 param location string
 param mlzTags object
 param name string
@@ -34,7 +33,7 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2021-02-01' = {
   properties: {
     ipConfigurations: [
       {
-        name: ipConfigurationName
+        name: 'ipconfig'
         properties: {
           subnet: {
             id: bastionHostSubnetResourceId
