@@ -5,166 +5,122 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-param deployIdentity bool
+param deploymentNameSuffix string
 param environmentAbbreviation string
-param hubSubscriptionId string
-param identityNetworkSecurityGroupDiagnosticsLogs array
-param identityNetworkSecurityGroupDiagnosticsMetrics array
-param identityNetworkSecurityGroupRules array
-param identitySubnetAddressPrefix string
-param identitySubscriptionId string
-param identityVirtualNetworkAddressPrefix string
-param identityVirtualNetworkDiagnosticsLogs array
-param identityVirtualNetworkDiagnosticsMetrics array
-param operationsNetworkSecurityGroupDiagnosticsLogs array
-param operationsNetworkSecurityGroupDiagnosticsMetrics array
-param operationsNetworkSecurityGroupRules array
-param operationsSubnetAddressPrefix string
-param operationsSubscriptionId string
-param operationsVirtualNetworkAddressPrefix string
-param operationsVirtualNetworkDiagnosticsLogs array
-param operationsVirtualNetworkDiagnosticsMetrics array
+param location string
+param networks array
 param resourcePrefix string
-param resources object
-param sharedServicesNetworkSecurityGroupDiagnosticsLogs array
-param sharedServicesNetworkSecurityGroupDiagnosticsMetrics array
-param sharedServicesNetworkSecurityGroupRules array
-param sharedServicesSubnetAddressPrefix string
-param sharedServicesSubscriptionId string
-param sharedServicesVirtualNetworkAddressPrefix string
-param sharedServicesVirtualNetworkDiagnosticsLogs array
-param sharedServicesVirtualNetworkDiagnosticsMetrics array
-param tokens object
+param stampIndex string = ''
 
-// NETWORK NAMES & SHORT NAMES
-
-var hubName = 'hub'
-var hubShortName = 'hub'
-var identityName = 'identity'
-var identityShortName = 'id'
-var operationsName = 'operations'
-var operationsShortName = 'ops'
-var sharedServicesName = 'sharedServices'
-var sharedServicesShortName = 'svcs'
-
-var hub = {
-  name: hubName
-  subscriptionId: hubSubscriptionId
-  resourceGroupName: replace(replace(resources.resourceGroup, '-${tokens.service}', ''), tokens.network, hubName)
-  deployUniqueResources: true
-  bastionHostIPConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'bas'), tokens.network, hubName)
-  bastionHostName: replace(replace(resources.bastionHost, '-${tokens.service}', ''), tokens.network, hubName)
-  bastionHostPublicIPAddressName: replace(replace(resources.publicIpAddress, tokens.service, 'bas'), tokens.network, hubName)
-  diskEncryptionSetName: replace(replace(resources.diskEncryptionSet, '-${tokens.service}', ''), tokens.network, hubName)
-  firewallClientIpConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'client-afw'), tokens.network, hubName)
-  firewallClientPublicIPAddressName: replace(replace(resources.publicIpAddress, tokens.service, 'client-afw'), tokens.network, hubName)
-  firewallManagementIpConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'mgmt-afw'), tokens.network, hubName)
-  firewallManagementPublicIPAddressName: replace(replace(resources.publicIpAddress, tokens.service, 'mgmt-afw'), tokens.network, hubName)
-  firewallName: replace(replace(resources.firewall, '-${tokens.service}', ''), tokens.network, hubName)
-  firewallPolicyName: replace(replace(resources.firewallPolicy, '-${tokens.service}', ''), tokens.network, hubName)
-  keyVaultName: take(replace(replace(replace(resources.keyVault, tokens.service, ''), tokens.network, hubShortName), 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, hubSubscriptionId)), 24)
-  keyVaultNetworkInterfaceName: replace(replace(resources.networkInterface, tokens.service, 'kv'), tokens.network, hubName)
-  keyVaultPrivateEndpointName: replace(replace(resources.privateEndpoint, tokens.service, 'kv'), tokens.network, hubName)
-  linuxDiskName: replace(replace(resources.disk, tokens.service, 'linux'), tokens.network, hubName)
-  linuxNetworkInterfaceIpConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'linux'), tokens.network, hubName)
-  linuxNetworkInterfaceName: replace(replace(resources.networkInterface, tokens.service, 'linux'), tokens.network, hubName)
-  linuxVmName: replace(replace(resources.virtualMachine, tokens.service, 'lra'), tokens.network, hubName)
-  logStorageAccountName: take(replace(replace(replace(resources.storageAccount, tokens.service, ''), tokens.network, hubShortName), 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, hubSubscriptionId)), 24)
-  logStorageAccountNetworkInterfaceNamePrefix: replace(replace(resources.networkInterface, tokens.service, '${tokens.service}-st'), tokens.network, hubName)
-  logStorageAccountPrivateEndpointNamePrefix: replace(replace(resources.privateEndpoint, tokens.service, '${tokens.service}-st'), tokens.network, hubName)
-  networkSecurityGroupName: replace(replace(resources.networkSecurityGroup, '-${tokens.service}', ''), tokens.network, hubName)
-  networkWatcherName: replace(replace(resources.networkWatcher, '-${tokens.service}', ''), tokens.network, hubName)
-  routeTableName: replace(replace(resources.routeTable, '-${tokens.service}', ''), tokens.network, hubName)
-  subnetName: replace(replace(resources.subnet, '-${tokens.service}', ''), tokens.network, hubName)
-  userAssignedIdentityName: replace(replace(resources.userAssignedIdentity, '-${tokens.service}', ''), tokens.network, hubName)
-  virtualNetworkName: replace(replace(resources.virtualNetwork, '-${tokens.service}', ''), tokens.network, hubName)
-  windowsDiskName: replace(replace(resources.disk, tokens.service, 'windows'), tokens.network, hubName)
-  windowsNetworkInterfaceIpConfigurationName: replace(replace(resources.ipConfiguration, tokens.service, 'windows'), tokens.network, hubName)
-  windowsNetworkInterfaceName: replace(replace(resources.networkInterface, tokens.service, 'windows'), tokens.network, hubName)
-  windowsVmName: replace(replace(resources.virtualMachine, tokens.service, 'wra'), tokens.network, hubName)
+var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
+var environmentName = {
+  dev: 'Development'
+  prod: 'Production'
+  test: 'Test'
+}
+var locations = loadJsonContent('../data/locations.json')[environment().name]
+var mlzTags = {
+  environment: environmentName[environmentAbbreviation]
+  landingZoneName: 'MissionLandingZone'
+  landingZoneVersion: loadTextContent('../data/version.txt')
+  resourcePrefix: resourcePrefix
+}
+var resourceAbbreviations = loadJsonContent('../data/resourceAbbreviations.json')
+var tokens = {
+  resource: 'resource_token'
+  service: 'service_token'
 }
 
-// SPOKES
+/*
 
-var spokes = union(spokesCommon, spokesIdentity)
-var spokesCommon = [
-  {
-    name: operationsName
-    subscriptionId: operationsSubscriptionId
-    resourceGroupName: replace(replace(resources.resourceGroup, '-${tokens.service}', ''), tokens.network, operationsName)
-    deployUniqueResources: contains([ hubSubscriptionId ], operationsSubscriptionId) ? false : true
-    logAnalyticsWorkspaceName: replace(replace(resources.logAnalyticsWorkspace, '-${tokens.service}', ''), tokens.network, operationsName)
-    logStorageAccountName: take(replace(replace(replace(resources.storageAccount, tokens.service, ''), tokens.network, operationsShortName), 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, operationsSubscriptionId)), 24)
-    logStorageAccountNetworkInterfaceNamePrefix: replace(replace(resources.networkInterface, tokens.service, '${tokens.service}-st'), tokens.network, operationsName)
-    logStorageAccountPrivateEndpointNamePrefix: replace(replace(resources.privateEndpoint, tokens.service, '${tokens.service}-st'), tokens.network, operationsName)
-    networkSecurityGroupDiagnosticsLogs: operationsNetworkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: operationsNetworkSecurityGroupDiagnosticsMetrics
-    networkSecurityGroupName: replace(replace(resources.networkSecurityGroup, '-${tokens.service}', ''), tokens.network, operationsName)
-    networkSecurityGroupRules: operationsNetworkSecurityGroupRules
-    networkWatcherName: replace(replace(resources.networkWatcher, '-${tokens.service}', ''), tokens.network, operationsName)
-    privateLinkScopeName: replace(replace(resources.privateLinkScope, '-${tokens.service}', ''), tokens.network, operationsName)
-    privateLinkScopeNetworkInterfaceName: replace(replace(resources.networkInterface, tokens.service, 'pls'), tokens.network, operationsName)
-    privateLinkScopePrivateEndpointName: replace(replace(resources.privateEndpoint, tokens.service, 'pls'), tokens.network, operationsName)
-    routeTableName: replace(replace(resources.routeTable, '-${tokens.service}', ''), tokens.network, operationsName)
-    subnetAddressPrefix: operationsSubnetAddressPrefix
-    subnetName: replace(replace(resources.subnet, '-${tokens.service}', ''), tokens.network, operationsName)
-    subnetPrivateEndpointNetworkPolicies: 'Disabled'
-    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
-    virtualNetworkAddressPrefix: operationsVirtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: operationsVirtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: operationsVirtualNetworkDiagnosticsMetrics
-    virtualNetworkName: replace(replace(resources.virtualNetwork, '-${tokens.service}', ''), tokens.network, operationsName)
-  }
-  {
-    name: sharedServicesName
-    subscriptionId: sharedServicesSubscriptionId
-    resourceGroupName: replace(replace(resources.resourceGroup, '-${tokens.service}', ''), tokens.network, sharedServicesName)
-    deployUniqueResources: contains([ hubSubscriptionId, operationsSubscriptionId ], sharedServicesSubscriptionId) ? false : true
-    logStorageAccountName: take(replace(replace(replace(resources.storageAccount, tokens.service, ''), tokens.network, sharedServicesShortName), 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, sharedServicesSubscriptionId)), 24)
-    logStorageAccountNetworkInterfaceNamePrefix: replace(replace(resources.networkInterface, tokens.service, '${tokens.service}-st'), tokens.network, sharedServicesName)
-    logStorageAccountPrivateEndpointNamePrefix: replace(replace(resources.privateEndpoint, tokens.service, '${tokens.service}-st'), tokens.network, sharedServicesName)
-    networkSecurityGroupDiagnosticsLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: sharedServicesNetworkSecurityGroupDiagnosticsMetrics
-    networkSecurityGroupName: replace(replace(resources.networkSecurityGroup, '-${tokens.service}', ''), tokens.network, sharedServicesName)
-    networkSecurityGroupRules: sharedServicesNetworkSecurityGroupRules
-    networkWatcherName: replace(replace(resources.networkWatcher, '-${tokens.service}', ''), tokens.network, sharedServicesName)
-    routeTableName: replace(replace(resources.routeTable, '-${tokens.service}', ''), tokens.network, sharedServicesName)
-    subnetAddressPrefix: sharedServicesSubnetAddressPrefix
-    subnetName: replace(replace(resources.subnet, '-${tokens.service}', ''), tokens.network, sharedServicesName)
-    subnetPrivateEndpointNetworkPolicies: 'Disabled'
-    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
-    virtualNetworkAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: sharedServicesVirtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: sharedServicesVirtualNetworkDiagnosticsMetrics
-    virtualNetworkName: replace(replace(resources.virtualNetwork, '-${tokens.service}', ''), tokens.network, sharedServicesName)
-  }
-]
-var spokesIdentity = deployIdentity ? [
-  {
-    name: identityName
-    subscriptionId: identitySubscriptionId
-    resourceGroupName: replace(replace(resources.resourceGroup, '-${tokens.service}', ''), tokens.network, identityName)
-    deployUniqueResources: contains([ hubSubscriptionId, operationsSubscriptionId, sharedServicesSubscriptionId ], identitySubscriptionId) ? false : true
-    logStorageAccountName: take(replace(replace(replace(resources.storageAccount, tokens.service, ''), tokens.network, identityShortName), 'unique_token', uniqueString(resourcePrefix, environmentAbbreviation, identitySubscriptionId)), 24)
-    logStorageAccountNetworkInterfaceNamePrefix: replace(replace(resources.networkInterface, tokens.service, '${tokens.service}-st'), tokens.network, identityName)
-    logStorageAccountPrivateEndpointNamePrefix: replace(replace(resources.privateEndpoint, tokens.service, '${tokens.service}-st'), tokens.network, identityName)
-    networkSecurityGroupDiagnosticsLogs: identityNetworkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
-    networkSecurityGroupName: replace(replace(resources.networkSecurityGroup, '-${tokens.service}', ''), tokens.network, identityName)
-    networkSecurityGroupRules: identityNetworkSecurityGroupRules
-    networkWatcherName: replace(replace(resources.networkWatcher, '-${tokens.service}', ''), tokens.network, identityName)
-    routeTableName: replace(replace(resources.routeTable, '-${tokens.service}', ''), tokens.network, identityName)
-    subnetAddressPrefix: identitySubnetAddressPrefix
-    subnetName: replace(replace(resources.subnet, '-${tokens.service}', ''), tokens.network, identityName)
-    subnetPrivateEndpointNetworkPolicies: 'Disabled'
-    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
-    virtualNetworkAddressPrefix: identityVirtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: identityVirtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: identityVirtualNetworkDiagnosticsMetrics
-    virtualNetworkName: replace(replace(resources.virtualNetwork, '-${tokens.service}', ''), tokens.network, identityName)
-  }
-] : []
+  RESOURCE NAMES
 
-output networks array = union([
-  hub
-], spokes)
+*/
+
+module namingConventions 'naming-convention.bicep' = [for network in networks: {
+  name: 'naming-convention-${network.name}-${deploymentNameSuffix}'
+  params: {
+    locationAbbreviation: locations[location].abbreviation
+    environmentAbbreviation: environmentAbbreviation
+    networkName: network.name
+    networkShortName: network.shortName
+    resourceAbbreviations: resourceAbbreviations
+    resourcePrefix: resourcePrefix
+    stampIndex: stampIndex
+    subscriptionId: network.subscriptionId
+    tokens: tokens
+  }
+}]
+
+/*
+
+  PRIVATE DNS ZONE NAMES
+
+*/
+
+var privateDnsZoneNames = union([
+  'privatelink.agentsvc.azure-automation.${privateDnsZoneSuffixes_AzureAutomation[environment().name] ?? cloudSuffix}' // Automation
+  'privatelink.azure-automation.${privateDnsZoneSuffixes_AzureAutomation[environment().name] ?? cloudSuffix}' // Automation
+  'privatelink.${privateDnsZoneSuffixes_AzureWebSites[environment().name] ?? 'appservice.${cloudSuffix}'}' // Web Apps & Function Apps
+  'scm.privatelink.${privateDnsZoneSuffixes_AzureWebSites[environment().name] ?? 'appservice.${cloudSuffix}'}' // Web Apps & Function Apps
+  'privatelink.wvd.${privateDnsZoneSuffixes_AzureVirtualDesktop[environment().name] ?? cloudSuffix}' // Azure Virtual Desktop
+  'privatelink-global.wvd.${privateDnsZoneSuffixes_AzureVirtualDesktop[environment().name] ?? cloudSuffix}' // Azure Virtual Desktop
+  'privatelink.file.${environment().suffixes.storage}' // Azure Files
+  'privatelink.queue.${environment().suffixes.storage}' // Azure Queues
+  'privatelink.table.${environment().suffixes.storage}' // Azure Tables
+  'privatelink.blob.${environment().suffixes.storage}' // Azure Blobs
+  'privatelink${replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')}' // Key Vault
+  'privatelink.monitor.${privateDnsZoneSuffixes_Monitor[environment().name] ?? cloudSuffix}' // Azure Monitor
+  'privatelink.ods.opinsights.${privateDnsZoneSuffixes_Monitor[environment().name] ?? cloudSuffix}' // Azure Monitor
+  'privatelink.oms.opinsights.${privateDnsZoneSuffixes_Monitor[environment().name] ?? cloudSuffix}' // Azure Monitor
+], privateDnsZoneNames_Backup) // Recovery Services
+var privateDnsZoneNames_Backup = [for location in items(locations): 'privatelink.${location.value.recoveryServicesGeo}.backup.windowsazure.${privateDnsZoneSuffixes_Backup[environment().name] ?? cloudSuffix}']
+var privateDnsZoneSuffixes_AzureAutomation = {
+  AzureCloud: 'net'
+  AzureUSGovernment: 'us'
+  USNat: null
+  USSec: null
+}
+var privateDnsZoneSuffixes_AzureVirtualDesktop = {
+  AzureCloud: 'microsoft.com'
+  AzureUSGovernment: 'azure.us'
+  USNat: null
+  USSec: null
+}
+var privateDnsZoneSuffixes_AzureWebSites = {
+  AzureCloud: 'azurewebsites.net'
+  AzureUSGovernment: 'azurewebsites.us'
+  USNat: null
+  USSec: null
+}
+var privateDnsZoneSuffixes_Backup = {
+  AzureCloud: 'com'
+  AzureUSGovernment: 'us'
+  USNat: null
+  USSec: null
+}
+var privateDnsZoneSuffixes_Monitor = {
+  AzureCloud: 'azure.com'
+  AzureUSGovernment: 'azure.us'
+  USNat: null
+  USSec: null
+}
+
+output locationProperties object = locations[location]
+output mlzTags object = mlzTags
+output privateDnsZones array = privateDnsZoneNames
+output tiers array = [for (network, i) in networks: {
+  name: network.name
+  shortName: network.shortName
+  deployUniqueResources: network.deployUniqueResources
+  subscriptionId: network.subscriptionId
+  nsgDiagLogs: network.nsgDiagLogs
+  nsgDiagMetrics: network.nsgDiagMetrics
+  nsgRules: network.nsgRules
+  vnetAddressPrefix: network.vnetAddressPrefix
+  vnetDiagLogs: network.vnetDiagLogs
+  vnetDiagMetrics: network.vnetDiagMetrics
+  subnetAddressPrefix: network.subnetAddressPrefix
+  namingConvention: namingConventions[i].outputs.names
+}]
+output tokens object = tokens

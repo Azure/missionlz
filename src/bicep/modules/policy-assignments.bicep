@@ -8,12 +8,13 @@ targetScope = 'subscription'
 param deploymentNameSuffix string
 param location string
 param logAnalyticsWorkspaceResourceId string
-param networks array
 param policy string
+param resourceGroupNames array
+param tiers array
 
-module policyAssignment 'policy-assignment.bicep' = [for network in networks: {
-  name: 'assign-policy-${network.name}-${deploymentNameSuffix}'
-  scope: resourceGroup(network.subscriptionId, network.resourceGroupName)
+module policyAssignment 'policy-assignment.bicep' = [for (tier, i) in tiers: {
+  name: 'assign-policy-${tier.name}-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId

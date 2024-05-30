@@ -46,14 +46,14 @@ If you already have an Azure Landing Zone, you can skip this step. For more on w
 
  :arrow_forward: The third step is to deploy the Azure Virtual Desktop (AVD) solution. This solution provides a fully operational [stamp](https://learn.microsoft.com/azure/architecture/patterns/deployment-stamp) in an Azure subscription adhering  to the [Zero Trust principles](https://learn.microsoft.com/security/zero-trust/azure-infrastructure-avd).
 
-This template represents the strategic design path and target technical state for Azure Virtual Desktop deployment. Many of the [common features](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/azureVirtualDesktop/docs/features) used with AVD have been automated in this solution for your convenience.
+This template represents the strategic design path and target technical state for Azure Virtual Desktop deployment. Many of the [common features](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/azure-virtual-desktop/docs/features) used with AVD have been automated in this solution for your convenience.
 
-Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azureVirtualDesktop/docs/prerequisites.md) and to review the parameter descriptions to the understand the consequences of your selections. Also, please review Esri's guidance on [VDI and ArcGIS Pro](https://architecture.arcgis.com/en/framework/architecture-practices/architectural-foundations/deployment-concepts/vdi-and-arcgis-pro.html).
+Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azure-virtual-desktop/docs/prerequisites.md) and to review the parameter descriptions to the understand the consequences of your selections. Also, please review Esri's guidance on [VDI and ArcGIS Pro](https://architecture.arcgis.com/en/framework/architecture-practices/architectural-foundations/deployment-concepts/vdi-and-arcgis-pro.html).
 
 This Azure Virtual Desktop Accelerator only deploys the specific Azure Virtual Desktop resources, shown in the architectural diagram above. It is assumed that an appropriate landing zone foundation is already setup. This means that policies and governance should already be in place.
 
 > [!WARNING]
-> Failure to complete the [prerequisites](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azureVirtualDesktop/docs/prerequisites.md) will result in an unsuccessful deployment.
+> Failure to complete the [prerequisites](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azure-virtual-desktop/docs/prerequisites.md) will result in an unsuccessful deployment.
 
 ## Step 4
 
@@ -112,14 +112,14 @@ This [Azure Zero Trust Imaging](https://github.com/Azure/missionlz/blob/main/src
 
 ## The Azure Virtual Desktop (AVD) solution
 
-The [Azure Virtual Desktop (AVD) solution](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/azureVirtualDesktop#readme) provides an architectural approach and reference implementation to prepare landing zone subscriptions for a scalable Azure Virtual Desktop deployment. Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azureVirtualDesktop/docs/prerequisites.md)
+The [Azure Virtual Desktop (AVD) solution](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/azure-virtual-desktop#readme) provides an architectural approach and reference implementation to prepare landing zone subscriptions for a scalable Azure Virtual Desktop deployment. Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azure-virtual-desktop/docs/prerequisites.md)
 
 <!-- markdownlint-disable MD013 -->
 1. Deploy The Azure Virtual Desktop (AVD) solution into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
 
     | Azure Commercial | Azure Government |
     | :--- | :--- |
-    |[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FazureVirtualDesktop%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FazureVirtualDesktop%2FuiDefinition.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FazureVirtualDesktop%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FazureVirtualDesktop%2FuiDefinition.json) |
+    |[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fazure-virtual-desktop%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fazure-virtual-desktop%2FuiDefinition.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fazure-virtual-desktop%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fazure-virtual-desktop%2FuiDefinition.json) |
 <!-- markdownlint-enable MD013 -->
 
 ## ArcGIS on Azure
