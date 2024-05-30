@@ -297,7 +297,7 @@ module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryService
 output artifactsUserAssignedIdentityClientId string = artifacts.outputs.userAssignedIdentityClientId
 output artifactsUserAssignedIdentityPrincipalId string = artifacts.outputs.userAssignedIdentityPrincipalId
 output artifactsUserAssignedIdentityResourceId string = artifacts.outputs.userAssignedIdentityResourceId
-output automationAccountName string = automationAccount.outputs.name
+output automationAccountName string = scalingTool || fslogixStorageService == 'AzureFiles Premium' ? automationAccount.outputs.name : ''
 output dataCollectionRuleResourceId string = enableMonitoring ? monitoring.outputs.dataCollectionRuleResourceId : ''
 output deploymentUserAssignedIdentityClientId string = deploymentUserAssignedIdentity.outputs.clientId
 output deploymentUserAssignedIdentityPrincipalId string = deploymentUserAssignedIdentity.outputs.principalId

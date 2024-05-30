@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "16955340697557106730"
+      "templateHash": "14816154102444519289"
     }
   },
   "parameters": {
@@ -9138,7 +9138,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "16878648559668656577"
+              "templateHash": "5191248593877951674"
             }
           },
           "parameters": {
@@ -11548,7 +11548,7 @@
             },
             "automationAccountName": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-aa-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+              "value": "[if(or(parameters('scalingTool'), equals(parameters('fslogixStorageService'), 'AzureFiles Premium')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-aa-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value, '')]"
             },
             "dataCollectionRuleResourceId": {
               "type": "string",
