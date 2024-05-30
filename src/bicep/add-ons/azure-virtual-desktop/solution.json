@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "352931916535090372"
+      "templateHash": "12338271801434187974"
     }
   },
   "parameters": {
@@ -642,6 +642,9 @@
           },
           "identifier": {
             "value": "[parameters('identifier')]"
+          },
+          "location": {
+            "value": "[parameters('locationControlPlane')]"
           },
           "logAnalyticsWorkspaceResourceId": {
             "value": "[parameters('operationsLogAnalyticsWorkspaceResourceId')]"
@@ -4821,6 +4824,9 @@
           },
           "identifier": {
             "value": "[parameters('identifier')]"
+          },
+          "location": {
+            "value": "[parameters('locationVirtualMachines')]"
           },
           "logAnalyticsWorkspaceResourceId": {
             "value": "[parameters('operationsLogAnalyticsWorkspaceResourceId')]"

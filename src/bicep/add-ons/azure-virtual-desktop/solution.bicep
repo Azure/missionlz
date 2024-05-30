@@ -386,6 +386,7 @@ module tier3_controlPlane '../tier3/solution.bicep' = {
     firewallResourceId: hubAzureFirewallResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
+    location: locationControlPlane
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     policy: policy
     stampIndex: string(stampIndex)
@@ -418,6 +419,7 @@ module tier3_hosts '../tier3/solution.bicep' = if (length(deploymentLocations) =
     firewallResourceId: hubAzureFirewallResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
+    location: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     policy: policy
     stampIndex: string(stampIndex)
