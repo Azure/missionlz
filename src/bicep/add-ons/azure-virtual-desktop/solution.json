@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "11636095499466212684"
+      "templateHash": "808422908246757697"
     }
   },
   "parameters": {
@@ -9186,6 +9186,9 @@
           },
           "virtualMachineUsername": {
             "value": "[parameters('virtualMachineUsername')]"
+          },
+          "workspaceFeedNamingConvention": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.workspaceFeed]"
           }
         },
         "template": {
@@ -9195,7 +9198,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "6574207466603284060"
+              "templateHash": "1612631887220395760"
             }
           },
           "parameters": {
@@ -9333,6 +9336,9 @@
             },
             "virtualMachineSize": {
               "type": "string"
+            },
+            "workspaceFeedNamingConvention": {
+              "type": "string"
             }
           },
           "variables": {
@@ -9343,7 +9349,7 @@
             "userAssignedIdentityNamePrefix": "[parameters('namingConvention').userAssignedIdentity]",
             "virtualNetworkName": "[split(parameters('subnetResourceId'), '/')[8]]",
             "virtualNetworkResourceGroupName": "[split(parameters('subnetResourceId'), '/')[4]]",
-            "workspaceFeedName": "[replace(replace(parameters('namingConvention').workspaceFeed, parameters('serviceToken'), 'feed'), format('-{0}', parameters('stampIndex')), '')]"
+            "workspaceFeedName": "[replace(replace(parameters('workspaceFeedNamingConvention'), parameters('serviceToken'), 'feed'), format('-{0}', parameters('stampIndex')), '')]"
           },
           "resources": [
             {

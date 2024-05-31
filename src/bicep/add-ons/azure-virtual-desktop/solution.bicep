@@ -526,6 +526,7 @@ module management 'modules/management/management.bicep' = {
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
+    workspaceFeedNamingConvention: tier3_controlPlane.outputs.namingConvention.workspaceFeed
   }
   dependsOn: [
     rgs

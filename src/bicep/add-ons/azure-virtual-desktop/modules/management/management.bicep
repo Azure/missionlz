@@ -47,6 +47,7 @@ param virtualMachineMonitoringAgent string
 param virtualMachinePassword string
 param virtualMachineUsername string
 param virtualMachineSize string
+param workspaceFeedNamingConvention string
 
 var cpuCountMax = contains(hostPoolType, 'Pooled') ? 32 : 128
 var cpuCountMin = contains(hostPoolType, 'Pooled') ? 4 : 2
@@ -92,7 +93,7 @@ var roleAssignments = union([
 var userAssignedIdentityNamePrefix = namingConvention.userAssignedIdentity
 var virtualNetworkName = split(subnetResourceId, '/')[8]
 var virtualNetworkResourceGroupName = split(subnetResourceId, '/')[4]
-var workspaceFeedName = replace(replace(namingConvention.workspaceFeed, serviceToken, 'feed'), '-${stampIndex}', '')
+var workspaceFeedName = replace(replace(workspaceFeedNamingConvention, serviceToken, 'feed'), '-${stampIndex}', '')
 
 // Disabling the deployment below until Enhanced Policies in Recovery Services support managed disks with private link
 /* module diskAccess 'diskAccess.bicep' = {
