@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "2058624906992936580"
+      "templateHash": "11636095499466212684"
     }
   },
   "parameters": {
@@ -9164,6 +9164,9 @@
           "sessionHostCount": {
             "value": "[parameters('sessionHostCount')]"
           },
+          "stampIndex": {
+            "value": "[parameters('stampIndex')]"
+          },
           "storageService": {
             "value": "[variables('storageService')]"
           },
@@ -9192,7 +9195,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "5191248593877951674"
+              "templateHash": "6574207466603284060"
             }
           },
           "parameters": {
@@ -9304,6 +9307,9 @@
             "sessionHostCount": {
               "type": "int"
             },
+            "stampIndex": {
+              "type": "int"
+            },
             "storageService": {
               "type": "string"
             },
@@ -9330,13 +9336,14 @@
             }
           },
           "variables": {
+            "cpuCountMax": "[if(contains(parameters('hostPoolType'), 'Pooled'), 32, 128)]",
+            "cpuCountMin": "[if(contains(parameters('hostPoolType'), 'Pooled'), 4, 2)]",
             "hostPoolName": "[parameters('namingConvention').hostPool]",
-            "userAssignedIdentityNamePrefix": "[parameters('namingConvention').userAssignedIdentity]",
-            "CpuCountMax": "[if(contains(parameters('hostPoolType'), 'Pooled'), 32, 128)]",
-            "CpuCountMin": "[if(contains(parameters('hostPoolType'), 'Pooled'), 4, 2)]",
             "roleAssignments": "[union(createArray(createObject('roleDefinitionId', 'f353d9bd-d4a6-484e-a77a-8050b599b867', 'resourceGroup', parameters('resourceGroupManagement'), 'subscription', subscription().subscriptionId), createObject('roleDefinitionId', '86240b0e-9422-4c43-887b-b61143f32ba8', 'resourceGroup', parameters('resourceGroupControlPlane'), 'subscription', subscription().subscriptionId), createObject('roleDefinitionId', '2ad6aaab-ead9-4eaa-8ac5-da422f562408', 'resourceGroup', parameters('resourceGroupControlPlane'), 'subscription', subscription().subscriptionId), createObject('roleDefinitionId', 'a959dbd1-f747-45e3-8ba6-dd80f235f97c', 'resourceGroup', parameters('resourceGroupManagement'), 'subscription', subscription().subscriptionId), createObject('roleDefinitionId', '21efdde3-836f-432b-bf3d-3e8e734d4b2b', 'resourceGroup', parameters('resourceGroupFeedWorkspace'), 'subscription', subscription().subscriptionId), createObject('roleDefinitionId', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1', 'resourceGroup', split(parameters('artifactsStorageAccountResourceId'), '/')[4], 'subscription', split(parameters('artifactsStorageAccountResourceId'), '/')[2])), if(parameters('deployFslogix'), createArray(createObject('roleDefinitionId', '17d1049b-9a84-46fb-8f53-869881c3d3ab', 'resourceGroup', parameters('resourceGroupStorage'), 'subscription', subscription().subscriptionId)), createArray()))]",
-            "VirtualNetworkName": "[split(parameters('subnetResourceId'), '/')[8]]",
-            "VirtualNetworkResourceGroupName": "[split(parameters('subnetResourceId'), '/')[4]]"
+            "userAssignedIdentityNamePrefix": "[parameters('namingConvention').userAssignedIdentity]",
+            "virtualNetworkName": "[split(parameters('subnetResourceId'), '/')[8]]",
+            "virtualNetworkResourceGroupName": "[split(parameters('subnetResourceId'), '/')[4]]",
+            "workspaceFeedName": "[replace(replace(parameters('namingConvention').workspaceFeed, parameters('serviceToken'), 'feed'), format('-{0}', parameters('stampIndex')), '')]"
           },
           "resources": [
             {
@@ -9908,10 +9915,10 @@
                     "value": "[parameters('virtualMachineUsername')]"
                   },
                   "virtualNetwork": {
-                    "value": "[variables('VirtualNetworkName')]"
+                    "value": "[variables('virtualNetworkName')]"
                   },
                   "virtualNetworkResourceGroup": {
-                    "value": "[variables('VirtualNetworkResourceGroupName')]"
+                    "value": "[variables('virtualNetworkResourceGroupName')]"
                   }
                 },
                 "template": {
@@ -10333,7 +10340,7 @@
                     "value": "[parameters('locationVirtualMachines')]"
                   },
                   "parameters": {
-                    "value": "[format('-ActiveDirectorySolution {0} -CpuCountMax {1} -CpuCountMin {2} -DomainName {3} -Environment {4} -imageVersionResourceId {5} -Location {6} -SessionHostCount {7} -StorageService {8} -SubscriptionId {9} -TenantId {10} -UserAssignedIdentityClientId {11} -VirtualMachineSize {12} -VirtualNetworkName {13} -VirtualNetworkResourceGroupName {14} -WorkspaceFeedName {15} -WorkspaceResourceGroupName {16}', parameters('activeDirectorySolution'), variables('CpuCountMax'), variables('CpuCountMin'), if(empty(parameters('domainName')), 'NotApplicable', parameters('domainName')), environment().name, if(empty(parameters('imageVersionResourceId')), 'NotApplicable', parameters('imageVersionResourceId')), parameters('locationVirtualMachines'), parameters('sessionHostCount'), parameters('storageService'), subscription().subscriptionId, tenant().tenantId, reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.clientId.value, parameters('virtualMachineSize'), variables('VirtualNetworkName'), variables('VirtualNetworkResourceGroupName'), parameters('namingConvention').workspaceFeed, parameters('resourceGroupFeedWorkspace'))]"
+                    "value": "[format('-ActiveDirectorySolution {0} -CpuCountMax {1} -CpuCountMin {2} -DomainName {3} -Environment {4} -imageVersionResourceId {5} -Location {6} -SessionHostCount {7} -StorageService {8} -SubscriptionId {9} -TenantId {10} -UserAssignedIdentityClientId {11} -VirtualMachineSize {12} -VirtualNetworkName {13} -VirtualNetworkResourceGroupName {14} -WorkspaceFeedName {15} -WorkspaceResourceGroupName {16}', parameters('activeDirectorySolution'), variables('cpuCountMax'), variables('cpuCountMin'), if(empty(parameters('domainName')), 'NotApplicable', parameters('domainName')), environment().name, if(empty(parameters('imageVersionResourceId')), 'NotApplicable', parameters('imageVersionResourceId')), parameters('locationVirtualMachines'), parameters('sessionHostCount'), parameters('storageService'), subscription().subscriptionId, tenant().tenantId, reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.clientId.value, parameters('virtualMachineSize'), variables('virtualNetworkName'), variables('virtualNetworkResourceGroupName'), variables('workspaceFeedName'), parameters('resourceGroupFeedWorkspace'))]"
                   },
                   "scriptFileName": {
                     "value": "Get-Validations.ps1"

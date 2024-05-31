@@ -513,6 +513,7 @@ module management 'modules/management/management.bicep' = {
     scalingTool: scalingTool
     serviceToken: tier3_controlPlane.outputs.tokens.service
     sessionHostCount: sessionHostCount
+    stampIndex: stampIndex
     storageService: storageService
     subnetResourceId: length(deploymentLocations) == 2
       ? tier3_hosts.outputs.subnetResourceId
