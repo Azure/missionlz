@@ -47,8 +47,11 @@ param deployActivityLogDiagnosticSetting bool
 @description('Choose whether to deploy Defender for Cloud.')
 param deployDefender bool
 
-@description('Choose whether to deploy Network Watcher for the deployment location.')
-param deployNetworkWatcher bool
+@description('Choose whether to deploy Network Watcher for the AVD control plane location.')
+param deployNetworkWatcherControlPlane bool
+
+@description('Choose whether to deploy Network Watcher for the AVD session hosts location. This is necessary when the control plane and session hosts are in different locations.')
+param deployNetworkWatcherVirtualMachines bool
 
 @description('Choose whether to deploy a policy assignment.')
 param deployPolicy bool
@@ -156,7 +159,7 @@ param imageSku string = 'win11-22h2-avd-m365'
 @description('The deployment location for the AVD management resources.')
 param locationControlPlane string = deployment().location
 
-@description('The deployment location for the AVD sessions hosts.')
+@description('The deployment location for the AVD sessions hosts. This is necessary when the users are closer to a different location than the control plane location.')
 param locationVirtualMachines string = deployment().location
 
 @maxValue(730)
@@ -379,7 +382,7 @@ module tier3_controlPlane '../tier3/solution.bicep' = {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: 'cp-${deploymentNameSuffix}'
-    deployNetworkWatcher: deployNetworkWatcher
+    deployNetworkWatcher: deployNetworkWatcherControlPlane
     deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
@@ -412,7 +415,7 @@ module tier3_hosts '../tier3/solution.bicep' = if (length(deploymentLocations) =
     deployActivityLogDiagnosticSetting: false
     deployDefender: false
     deploymentNameSuffix: 'hosts-${deploymentNameSuffix}'
-    deployNetworkWatcher: false
+    deployNetworkWatcher: deployNetworkWatcherVirtualMachines
     deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation

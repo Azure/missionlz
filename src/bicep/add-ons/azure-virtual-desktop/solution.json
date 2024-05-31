@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "12338271801434187974"
+      "templateHash": "9529503822804328911"
     }
   },
   "parameters": {
@@ -95,10 +95,16 @@
         "description": "Choose whether to deploy Defender for Cloud."
       }
     },
-    "deployNetworkWatcher": {
+    "deployNetworkWatcherControlPlane": {
       "type": "bool",
       "metadata": {
-        "description": "Choose whether to deploy Network Watcher for the deployment location."
+        "description": "Choose whether to deploy Network Watcher for the AVD control plane location."
+      }
+    },
+    "deployNetworkWatcherVirtualMachines": {
+      "type": "bool",
+      "metadata": {
+        "description": "Choose whether to deploy Network Watcher for the AVD session hosts location. This is necessary when the control plane and session hosts are in different locations."
       }
     },
     "deployPolicy": {
@@ -297,7 +303,7 @@
       "type": "string",
       "defaultValue": "[deployment().location]",
       "metadata": {
-        "description": "The deployment location for the AVD sessions hosts."
+        "description": "The deployment location for the AVD sessions hosts. This is necessary when the users are closer to a different location than the control plane location."
       }
     },
     "logAnalyticsWorkspaceRetention": {
@@ -623,7 +629,7 @@
             "value": "[format('cp-{0}', parameters('deploymentNameSuffix'))]"
           },
           "deployNetworkWatcher": {
-            "value": "[parameters('deployNetworkWatcher')]"
+            "value": "[parameters('deployNetworkWatcherControlPlane')]"
           },
           "deployPolicy": {
             "value": "[parameters('deployPolicy')]"
@@ -4805,7 +4811,7 @@
             "value": "[format('hosts-{0}', parameters('deploymentNameSuffix'))]"
           },
           "deployNetworkWatcher": {
-            "value": false
+            "value": "[parameters('deployNetworkWatcherVirtualMachines')]"
           },
           "deployPolicy": {
             "value": "[parameters('deployPolicy')]"
