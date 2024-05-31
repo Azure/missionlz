@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.27.1.19265",
-      "templateHash": "9529503822804328911"
+      "templateHash": "2058624906992936580"
     }
   },
   "parameters": {
@@ -15422,7 +15422,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.27.1.19265",
-              "templateHash": "17180714621964508955"
+              "templateHash": "17716285698485463640"
             }
           },
           "parameters": {
@@ -15652,7 +15652,7 @@
           },
           "resources": [
             {
-              "condition": "[and(parameters('pooledHostPool'), equals(parameters('availability'), 'availabilitySets'))]",
+              "condition": "[and(parameters('pooledHostPool'), equals(parameters('availability'), 'AvailabilitySets'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-avail-{0}', parameters('deploymentNameSuffix'))]",
@@ -15686,7 +15686,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "277818289187459275"
+                      "templateHash": "8000362665447174812"
                     }
                   },
                   "parameters": {
@@ -15714,7 +15714,7 @@
                       },
                       "type": "Microsoft.Compute/availabilitySets",
                       "apiVersion": "2019-07-01",
-                      "name": "[format('{0}{1}', parameters('availabilitySetNamePrefix'), padLeft(add(range(0, parameters('availabilitySetsCount'))[copyIndex()], parameters('availabilitySetsIndex')), 2, '0'))]",
+                      "name": "[format('{0}-{1}', parameters('availabilitySetNamePrefix'), padLeft(add(range(0, parameters('availabilitySetsCount'))[copyIndex()], parameters('availabilitySetsIndex')), 2, '0'))]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsAvailabilitySets')]",
                       "sku": {
@@ -15980,7 +15980,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.27.1.19265",
-                      "templateHash": "2295619283331331115"
+                      "templateHash": "11456107670961585576"
                     }
                   },
                   "parameters": {
@@ -16243,7 +16243,7 @@
                         }
                       },
                       "properties": {
-                        "availabilitySet": "[if(equals(parameters('availability'), 'AvailabilitySets'), createObject('id', resourceId('Microsoft.Compute/availabilitySets', format('{0}{1}', parameters('availabilitySetNamePrefix'), padLeft(div(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 200), 2, '0')))), null())]",
+                        "availabilitySet": "[if(equals(parameters('availability'), 'AvailabilitySets'), createObject('id', resourceId('Microsoft.Compute/availabilitySets', format('{0}-{1}', parameters('availabilitySetNamePrefix'), padLeft(div(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 200), 2, '0')))), null())]",
                         "hardwareProfile": {
                           "vmSize": "[parameters('virtualMachineSize')]"
                         },

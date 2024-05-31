@@ -83,7 +83,7 @@ var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}}/re
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 var virtualMachineNamePrefix = replace(namingConvention.virtualMachine, serviceToken, '')
 
-module availabilitySets 'availabilitySets.bicep' = if (pooledHostPool && availability == 'availabilitySets') {
+module availabilitySets 'availabilitySets.bicep' = if (pooledHostPool && availability == 'AvailabilitySets') {
   name: 'deploy-avail-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupHosts)
   params: {
