@@ -58,9 +58,9 @@ module hubNetwork 'hub-network.bicep' = {
     tags: tags
     virtualNetworkAddressPrefix: hub.vnetAddressPrefix
     virtualNetworkName: hub.namingConvention.virtualNetwork
-    vNetDnsServers: [
+    vNetDnsServers: firewallSettings.skuTier == 'Premium' || firewallSettings.skuTier == 'Standard' ? [
       firewallSettings.clientPrivateIpAddress
-    ]
+    ] : []
   }
 }
 
@@ -68,7 +68,6 @@ module spokeNetworks 'spoke-network.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-vnet-${spoke.name}-${deploymentNameSuffix}'
   params: {
     deployNetworkWatcher: deployNetworkWatcher && spoke.deployUniqueResources
-    firewallSkuTier: firewallSettings.skuTier
     location: location
     mlzTags: mlzTags
     networkSecurityGroupName: spoke.namingConvention.networkSecurityGroup
@@ -83,7 +82,7 @@ module spokeNetworks 'spoke-network.bicep' = [for (spoke, i) in spokes: {
     tags: tags
     virtualNetworkAddressPrefix: spoke.vnetAddressPrefix
     virtualNetworkName: spoke.namingConvention.virtualNetwork
-    vNetDnsServers: [ hubNetwork.outputs.firewallPrivateIPAddress ]
+    vNetDnsServers: hubNetwork.outputs.dnsServers
   }
 }]
 
@@ -92,9 +91,10 @@ module spokeNetworks 'spoke-network.bicep' = [for (spoke, i) in spokes: {
 module hubVirtualNetworkPeerings 'hub-network-peerings.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-vnet-peerings-hub-${i}-${deploymentNameSuffix}'
   params: {
+    deploymentNameSuffix: deploymentNameSuffix
     hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
     resourceGroupName: hubResourceGroupName
-    spokeName: spoke.name
+    spokeShortName: spoke.shortName
     spokeVirtualNetworkResourceId: spokeNetworks[i].outputs.virtualNetworkResourceId
     subscriptionId: hub.subscriptionId
   }
@@ -103,9 +103,10 @@ module hubVirtualNetworkPeerings 'hub-network-peerings.bicep' = [for (spoke, i) 
 module spokeVirtualNetworkPeerings 'spoke-network-peering.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-vnet-peerings-${spoke.name}-${deploymentNameSuffix}'
   params: {
+    deploymentNameSuffix: deploymentNameSuffix
     hubVirtualNetworkResourceId: hubNetwork.outputs.virtualNetworkResourceId
     resourceGroupName: spokeResourceGroupNames[i]
-    spokeName: spoke.name
+    spokeShortName: spoke.shortName
     spokeVirtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
     subscriptionId: spoke.subscriptionId
   }

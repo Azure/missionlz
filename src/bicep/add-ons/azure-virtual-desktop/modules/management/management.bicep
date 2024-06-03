@@ -37,6 +37,7 @@ param roleDefinitions object
 param scalingTool bool
 param serviceToken string
 param sessionHostCount int
+param stampIndex int
 param storageService string
 param subnetResourceId string
 param tags object
@@ -46,12 +47,11 @@ param virtualMachineMonitoringAgent string
 param virtualMachinePassword string
 param virtualMachineUsername string
 param virtualMachineSize string
+param workspaceFeedNamingConvention string
 
+var cpuCountMax = contains(hostPoolType, 'Pooled') ? 32 : 128
+var cpuCountMin = contains(hostPoolType, 'Pooled') ? 4 : 2
 var hostPoolName = namingConvention.hostPool
-var userAssignedIdentityNamePrefix = namingConvention.userAssignedIdentity
-
-var CpuCountMax = contains(hostPoolType, 'Pooled') ? 32 : 128
-var CpuCountMin = contains(hostPoolType, 'Pooled') ? 4 : 2
 var roleAssignments = union([
   {
     roleDefinitionId: 'f353d9bd-d4a6-484e-a77a-8050b599b867' // Automation Contributor (Purpose: adds runbook to automation account)
@@ -90,8 +90,10 @@ var roleAssignments = union([
     subscription: subscription().subscriptionId
   }
 ] : [])
-var VirtualNetworkName = split(subnetResourceId, '/')[8]
-var VirtualNetworkResourceGroupName = split(subnetResourceId, '/')[4]
+var userAssignedIdentityNamePrefix = namingConvention.userAssignedIdentity
+var virtualNetworkName = split(subnetResourceId, '/')[8]
+var virtualNetworkResourceGroupName = split(subnetResourceId, '/')[4]
+var workspaceFeedName = replace(replace(workspaceFeedNamingConvention, serviceToken, 'feed'), '-${stampIndex}', '')
 
 // Disabling the deployment below until Enhanced Policies in Recovery Services support managed disks with private link
 /* module diskAccess 'diskAccess.bicep' = {
@@ -197,8 +199,8 @@ module virtualMachine 'virtualMachine.bicep' = {
     virtualMachineName: replace(namingConvention.virtualMachine, serviceToken, 'mgt')
     virtualMachinePassword: virtualMachinePassword
     virtualMachineUsername: virtualMachineUsername
-    virtualNetwork: VirtualNetworkName
-    virtualNetworkResourceGroup: VirtualNetworkResourceGroupName
+    virtualNetwork: virtualNetworkName
+    virtualNetworkResourceGroup: virtualNetworkResourceGroupName
   }
 }
 
@@ -212,7 +214,7 @@ module validations '../common/customScriptExtensions.bicep' = {
       '${artifactsUri}Get-Validations.ps1'
     ]
     location: locationVirtualMachines
-    parameters: '-ActiveDirectorySolution ${activeDirectorySolution} -CpuCountMax ${CpuCountMax} -CpuCountMin ${CpuCountMin} -DomainName ${empty(domainName) ? 'NotApplicable' : domainName} -Environment ${environment().name} -imageVersionResourceId ${empty(imageVersionResourceId) ? 'NotApplicable' : imageVersionResourceId} -Location ${locationVirtualMachines} -SessionHostCount ${sessionHostCount} -StorageService ${storageService} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentity.outputs.clientId} -VirtualMachineSize ${virtualMachineSize} -VirtualNetworkName ${VirtualNetworkName} -VirtualNetworkResourceGroupName ${VirtualNetworkResourceGroupName} -WorkspaceFeedName ${namingConvention.workspaceFeed} -WorkspaceResourceGroupName ${resourceGroupFeedWorkspace}'
+    parameters: '-ActiveDirectorySolution ${activeDirectorySolution} -CpuCountMax ${cpuCountMax} -CpuCountMin ${cpuCountMin} -DomainName ${empty(domainName) ? 'NotApplicable' : domainName} -Environment ${environment().name} -imageVersionResourceId ${empty(imageVersionResourceId) ? 'NotApplicable' : imageVersionResourceId} -Location ${locationVirtualMachines} -SessionHostCount ${sessionHostCount} -StorageService ${storageService} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentity.outputs.clientId} -VirtualMachineSize ${virtualMachineSize} -VirtualNetworkName ${virtualNetworkName} -VirtualNetworkResourceGroupName ${virtualNetworkResourceGroupName} -WorkspaceFeedName ${workspaceFeedName} -WorkspaceResourceGroupName ${resourceGroupFeedWorkspace}'
     scriptFileName: 'Get-Validations.ps1'
     tags: union({
       'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
@@ -297,7 +299,7 @@ module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryService
 output artifactsUserAssignedIdentityClientId string = artifacts.outputs.userAssignedIdentityClientId
 output artifactsUserAssignedIdentityPrincipalId string = artifacts.outputs.userAssignedIdentityPrincipalId
 output artifactsUserAssignedIdentityResourceId string = artifacts.outputs.userAssignedIdentityResourceId
-output automationAccountName string = automationAccount.outputs.name
+output automationAccountName string = scalingTool || fslogixStorageService == 'AzureFiles Premium' ? automationAccount.outputs.name : ''
 output dataCollectionRuleResourceId string = enableMonitoring ? monitoring.outputs.dataCollectionRuleResourceId : ''
 output deploymentUserAssignedIdentityClientId string = deploymentUserAssignedIdentity.outputs.clientId
 output deploymentUserAssignedIdentityPrincipalId string = deploymentUserAssignedIdentity.outputs.principalId

@@ -22,7 +22,7 @@ param virtualNetworkName string
 
 module activityLogDiagnosticSettings '../../../modules/activity-log-diagnostic-settings.bicep' =
   if (deployActivityLogDiagnosticSetting) {
-    name: 'deploy-activity-diags-${tier.name}-${deploymentNameSuffix}'
+    name: 'deploy-activity-diags-${tier.shortName}-${deploymentNameSuffix}'
     scope: subscription(tier.subscriptionId)
     params: {
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
@@ -30,7 +30,7 @@ module activityLogDiagnosticSettings '../../../modules/activity-log-diagnostic-s
   }
 
 module keyvaultDiagnostics '../../../modules/key-vault-diagnostics.bicep' = {
-  name: 'deploy-kv-diags-${deploymentNameSuffix}'
+  name: 'deploy-kv-diags-${tier.shortName}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     keyVaultDiagnosticSettingName: tier.namingConvention.keyVaultDiagnosticSetting
@@ -42,7 +42,7 @@ module keyvaultDiagnostics '../../../modules/key-vault-diagnostics.bicep' = {
 }  
 
 module networkSecurityGroupDiagnostics '../../../modules/network-security-group-diagnostics.bicep' = {
-  name: 'deploy-nsg-diags-${tier.name}-${deploymentNameSuffix}'
+  name: 'deploy-nsg-diags-${tier.shortName}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
@@ -55,7 +55,7 @@ module networkSecurityGroupDiagnostics '../../../modules/network-security-group-
 }
 
 module virtualNetworkDiagnostics '../../../modules/virtual-network-diagnostics.bicep' = {
-  name: 'deploy-vnet-diags-${tier.name}-${deploymentNameSuffix}'
+  name: 'deploy-vnet-diags-${tier.shortName}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId

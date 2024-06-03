@@ -123,7 +123,6 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     subnets: subnets
     tags: tags
     vNetDnsServers: vNetDnsServers
-    firewallSkuTier: firewallSkuTier
   }
   dependsOn: [
     networkWatcher
@@ -178,6 +177,7 @@ module firewall '../modules/firewall.bicep' = {
 }
 
 output bastionHostSubnetResourceId string = deployBastion ? virtualNetwork.outputs.subnets[3].id : ''
+output dnsServers array = virtualNetwork.outputs.dnsServers
 output firewallName string = firewall.outputs.name
 output firewallPrivateIPAddress string = firewall.outputs.privateIPAddress
 output firewallResourceId string = firewall.outputs.resourceId

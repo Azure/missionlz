@@ -38,7 +38,7 @@ var tokens = {
 */
 
 module namingConventions 'naming-convention.bicep' = [for network in networks: {
-  name: 'naming-convention-${network.name}-${deploymentNameSuffix}'
+  name: 'naming-convention-${network.shortName}-${deploymentNameSuffix}'
   params: {
     locationAbbreviation: locations[location].abbreviation
     environmentAbbreviation: environmentAbbreviation

@@ -123,6 +123,11 @@ resource azureFirewall 'Microsoft.Network/azureFirewalls@2020-11-01' existing = 
   scope: resourceGroup(split(firewallResourceId, '/')[2], split(firewallResourceId, '/')[4])
 }
 
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
+  name: split(hubVirtualNetworkResourceId, '/')[8]
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+}
+
 module logic '../../modules/logic.bicep' = {
   name: 'get-logic-${workloadShortName}-${deploymentNameSuffix}'
   params: {
@@ -160,12 +165,11 @@ module rg '../../modules/resource-group.bicep' = {
 }
 
 module networking 'modules/networking.bicep' = {
-  name: 'deploy-networking-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-network-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     additionalSubnets: additionalSubnets
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcher: deployNetworkWatcher
-    firewallSkuTier: azureFirewall.properties.sku.tier
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     location: location
     mlzTags: logic.outputs.mlzTags
@@ -181,10 +185,7 @@ module networking 'modules/networking.bicep' = {
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkName: logic.outputs.tiers[0].namingConvention.virtualNetwork
-    vNetDnsServers: [
-      azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
-    ]
-    workloadName: toLower(workloadName)
+    vNetDnsServers: virtualNetwork.properties.?dhcpOptions.dnsServers ?? [] 
     workloadShortName: workloadShortName
   }
   dependsOn: [
@@ -209,6 +210,7 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = {
     tags: tags
     tier: logic.outputs.tiers[0]
     tokens: logic.outputs.tokens
+    workloadShortName: workloadShortName
   }
 }
 
@@ -242,7 +244,7 @@ module storage 'modules/storage.bicep' = {
 }
 
 module diagnostics 'modules/diagnostics.bicep' = {
-  name: 'deploy-diagnostics-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-diag-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deploymentNameSuffix: deploymentNameSuffix
@@ -263,7 +265,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
 
 module policyAssignments '../../modules/policy-assignments.bicep' =
   if (deployPolicy) {
-    name: 'assign-policy-${toLower(workloadName)}-${deploymentNameSuffix}'
+    name: 'assign-policy-${workloadShortName}-${deploymentNameSuffix}'
     params: {
       deploymentNameSuffix: deploymentNameSuffix
       location: location
@@ -281,7 +283,7 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
 
 module defenderForCloud '../../modules/defender-for-cloud.bicep' =
   if (deployDefender) {
-    name: 'set-${toLower(workloadName)}-sub-defender'
+    name: 'set-defender-${workloadShortName}-${deploymentNameSuffix}'
     params: {
       emailSecurityContact: emailSecurityContact
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId

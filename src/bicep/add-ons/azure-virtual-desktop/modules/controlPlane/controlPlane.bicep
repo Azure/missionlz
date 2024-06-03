@@ -30,6 +30,7 @@ param roleDefinitions object
 param securityPrincipalObjectIds array
 param serviceToken string
 param sessionHostNamePrefix string
+param stampIndex string
 param subnetResourceId string
 param tags object
 param validationEnvironment bool
@@ -119,11 +120,11 @@ module workspace 'workspace.bicep' = {
     subnetResourceId: subnetResourceId
     tags: tags
     virtualMachineName: managementVirtualMachineName
-    workspaceFeedDiagnoticSettingName: replace(namingConvention.workspaceFeedDiagnosticSetting, serviceToken, 'feed')
-    workspaceFeedName: replace(namingConvention.workspaceFeed, serviceToken, 'feed')
-    workspaceFeedNetworkInterfaceName: replace(namingConvention.workspaceFeedNetworkInterface, serviceToken, 'feed')
-    workspaceFeedPrivateEndpointName: replace(namingConvention.workspaceFeedPrivateEndpoint, serviceToken, 'feed')
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(namingConvention.workspaceFeed, serviceToken, '') : '${workspaceFriendlyName} (${locationControlPlane})'
+    workspaceFeedDiagnoticSettingName: replace(replace(namingConvention.workspaceFeedDiagnosticSetting, serviceToken, 'feed'), '-${stampIndex}', '')
+    workspaceFeedName: replace(replace(namingConvention.workspaceFeed, serviceToken, 'feed'), '-${stampIndex}', '')
+    workspaceFeedNetworkInterfaceName: replace(replace(namingConvention.workspaceFeedNetworkInterface, serviceToken, 'feed'), '-${stampIndex}', '')
+    workspaceFeedPrivateEndpointName: replace(replace(namingConvention.workspaceFeedPrivateEndpoint, serviceToken, 'feed'), '-${stampIndex}', '')
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(replace(namingConvention.workspaceFeed, '-${serviceToken}', ''), '-${stampIndex}', '') : '${workspaceFriendlyName} (${locationControlPlane})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }

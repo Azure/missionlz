@@ -528,7 +528,7 @@ var networks = union([
     name: 'identity'
     shortName: 'id'
     deployUniqueResources: contains([ hubSubscriptionId, operationsSubscriptionId, sharedServicesSubscriptionId ], identitySubscriptionId) ? false : true
-    subscriptionId: sharedServicesSubscriptionId
+    subscriptionId: identitySubscriptionId
     nsgDiagLogs: identityNetworkSecurityGroupDiagnosticsLogs
     nsgDiagMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
     nsgRules: identityNetworkSecurityGroupRules
@@ -612,6 +612,7 @@ module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
     subnetResourceId: networking.outputs.hubSubnetResourceId
     tags: tags
     tokens: logic.outputs.tokens
+    workloadShortName: 'ops'
   }
 }
 
