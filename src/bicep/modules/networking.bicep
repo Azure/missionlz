@@ -6,10 +6,12 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param bastionHostSubnetAddressPrefix string
+param azureGatewaySubnetAddressPrefix string
 param deployIdentity bool
 param deploymentNameSuffix string
 param deployNetworkWatcher bool
 param deployBastion bool
+param deployAzureGatewaySubnet bool
 param dnsServers array
 param enableProxy bool
 param firewallSettings object
@@ -30,8 +32,10 @@ module hubNetwork 'hub-network.bicep' = {
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
+    azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
     deployNetworkWatcher: deployNetworkWatcher
     deployBastion: deployBastion
+    deployAzureGatewaySubnet: deployAzureGatewaySubnet
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallClientPrivateIpAddress: firewallSettings.clientPrivateIpAddress

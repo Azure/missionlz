@@ -4,8 +4,10 @@ Licensed under the MIT License.
 */
 
 param bastionHostSubnetAddressPrefix string
+param azureGatewaySubnetAddressPrefix string
 param deployNetworkWatcher bool
 param deployBastion bool
+param deployAzureGatewaySubnet bool
 param dnsServers array
 param enableProxy bool
 param firewallClientPrivateIpAddress string
@@ -76,6 +78,13 @@ var subnets = union([
     name: 'AzureBastionSubnet'
     properties: {
       addressPrefix: bastionHostSubnetAddressPrefix
+    }
+  } 
+] : [], deployAzureGatewaySubnet ? [
+  {
+    name: 'GatewaySubnet'
+    properties: {
+      addressPrefix: azureGatewaySubnetAddressPrefix
     }
   }
 ] : [])
