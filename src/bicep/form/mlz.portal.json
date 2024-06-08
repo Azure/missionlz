@@ -1042,6 +1042,63 @@
               ]
             },
             {
+              "name": "azureGatewaySubnetSection",
+              "label": "Azure Gateway Subnet",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "deployAzureGatewaySubnet",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Deploy Azure Gateway Subnet?",
+                  "toolTip": "Check here to deploy Azure Gateway Subnet.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "remoteAccessSubnetTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "visible": "[steps('remoteAccess').azureGatewaySubnetSection.deployAzureGatewaySubnet]",
+                  "options": {
+                    "text": "Specify a CIDR range for the Azure Gateway subnet within the Hub Virtual Network range. It must be of size /26 or larger."
+                  }
+                },
+                {
+                  "name": "azureGatewaySubnetAddressCidrRange",
+                  "label": "Azure Gateway Subnet CIDR Range",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": "[steps('remoteAccess').azureGatewaySubnetSection.deployAzureGatewaySubnet]",
+                  "defaultValue": "10.0.129.192/26",
+                  "toolTip": "[concat('Specify a CIDR range for the Azure Gateway subnet within the Hub Virtual Network range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '. It must be of size /26 or larger.')]",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-6]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,26]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('remoteAccess').azureGatewaySubnetSection.azureGatewaySubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "[concat('First octet not within the Hub virtual network CIDR range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('remoteAccess').azureGatewaySubnetSection.azureGatewaySubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "[concat('Second octet not within the Hub virtual network CIDR range: ',  steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('remoteAccess').azureGatewaySubnetSection.azureGatewaySubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "[concat('Third octet not within the Hub virtual network CIDR range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('remoteAccess').azureGatewaySubnetSection.azureGatewaySubnetAddressCidrRange, '/')))]",
+                        "message": "[concat('Subnet mask not within the Hub virtual network CIDR range: ', steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange)]"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
               "name": "windowsVmSection",
               "label": "Windows Virtual Machine",
               "type": "Microsoft.Common.Section",
@@ -1208,6 +1265,7 @@
       "subscriptionId": "[steps('basics').hubSection.hubSubscriptionId]",
       "parameters": {
         "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSection.bastionSubnetAddressCidrRange]",
+        "azureGateSubnetAddressPrefix": "[steps('remoteAccess').azureGatewaySubnetSection.azureGatewaySubnetAddressCidrRange]",
         "defenderSkuTier": "[if(steps('compliance').defenderSection.deployDefender, 'Standard', 'Free')]",
         "deployDefenderPlans": "[steps('compliance').defenderSection.deployDefenderPlans]",
         "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
@@ -1216,6 +1274,7 @@
         "deployNetworkWatcher": "[empty(filter(steps('networking').networkWatchersApi.value, (item) => equals(item.location, steps('basics').locationSection.location.name)))]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
         "deployBastion": "[steps('remoteAccess').azureBastionSection.deployBastion]",
+        "deployAzureGatewaySubnet": "[steps('remoteAccess').azureGatewaySubnetSection.deployAzureGatewaySubnet]",
         "deploySentinel": "[steps('compliance').sentinelSection.deploySentinel]",
         "emailSecurityContact": "[steps('compliance').defenderSection.emailSecurityContact]",
         "firewallClientSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange]",

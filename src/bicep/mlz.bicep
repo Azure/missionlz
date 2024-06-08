@@ -326,6 +326,9 @@ param logStorageSkuName string = 'Standard_GRS'
 @description('When set to "true", provisions Azure Bastion Host only. It defaults to "false".')
 param deployBastion bool = false
 
+@description('When set to "true", provisions Azure Gateway Subnet only. It defaults to "false".')
+param deployAzureGatewaySubnet bool = false
+
 @description('When set to "true", provisions Windows Virtual Machine Host only. It defaults to "false".')
 param deployWindowsVirtualMachine bool = false
 
@@ -334,6 +337,9 @@ param deployLinuxVirtualMachine bool = false
 
 @description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
 param bastionHostSubnetAddressPrefix string = '10.0.128.192/26'
+
+@description('The CIDR Subnet Address Prefix for the Azure Gateway Subnet. It must be in the Hub Virtual Network space. It must be /26.')
+param azureGatewaySubnetAddressPrefix string = '10.0.129.192/26'
 
 @description('The Azure Bastion Public IP Address Availability Zones. It defaults to "No-Zone" because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.')
 param bastionHostPublicIPAddressAvailabilityZones array = []
@@ -572,10 +578,12 @@ module networking 'modules/networking.bicep' = {
   name: 'deploy-networking-${deploymentNameSuffix}'
   params: {
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
+    azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
     deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcher: deployNetworkWatcher
     deployBastion: deployBastion
+    deployAzureGatewaySubnet: deployAzureGatewaySubnet
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallSettings: {
