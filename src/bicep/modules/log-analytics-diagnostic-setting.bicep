@@ -23,12 +23,12 @@ resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2017-05-01-pre
   properties: {
     workspaceId: logAnalyticsWorkspace.id
     storageAccountId: stg.id
-    logs: [
+    logs: environment().name == 'AzureCloud' ? [
       {
         category: 'Audit'
         enabled: true
       }
-    ]
+    ] : []
     metrics: [
       {
         category: 'AllMetrics'
