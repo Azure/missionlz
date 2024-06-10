@@ -144,6 +144,30 @@
                       }
                     ]
                   }
+                },
+                {
+                  "name": "workloadName",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Workload Name",
+                  "toolTip": "Input a 10 character workload name for the resource group and resource names created with this solution. The workload should represent the name of the service the tier 3 deployment will support.",
+                  "placeholder": "Example: tier3",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-z0-9A-Z]{1,10}$",
+                    "validationMessage": "The value must be 1 - 10 characters in length and must be alphanumeric."
+                  }
+                },
+                {
+                  "name": "workloadShortName",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Workload Short Name",
+                  "toolTip": "Input a 3 character workload short name for the resource group and resource names created with this solution. The workload short name should be an abbreviation of the workload name.",
+                  "placeholder": "Example: t3",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-z0-9A-Z]{1,3}$",
+                    "validationMessage": "The value must be 1 - 3 characters in length and must be alphanumeric."
+                  }
                 }
               ]
             }
@@ -407,7 +431,9 @@
         "policy": "[if(steps('compliance').policySection.deployPolicy, steps('compliance').policySection.policy, '')]",
         "subnetAddressPrefix": "[steps('networking').networking.subnetAddressCidrRange]",
         "tags": "[steps('tags').tags]",
-        "virtualNetworkAddressPrefix": "[steps('networking').networking.virtualNetworkAddressCidrRange]"
+        "virtualNetworkAddressPrefix": "[steps('networking').networking.virtualNetworkAddressCidrRange]",
+        "workloadName": "[steps('basics').naming.workloadName]",
+        "workloadShortName": "[steps('basics').naming.workloadShortName]"
       },
       "kind": "Subscription",
       "location": "[steps('basics').scope.location.name]",

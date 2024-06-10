@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "3062331425262079203"
+      "templateHash": "15328188546614556383"
     }
   },
   "parameters": {
@@ -6986,7 +6986,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "4137052730409380446"
+              "templateHash": "4240331160697686852"
             }
           },
           "parameters": {
@@ -7156,7 +7156,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "5224308046834771366"
+                      "templateHash": "8594084510137329954"
                     }
                   },
                   "parameters": {
@@ -7183,12 +7183,7 @@
                       "properties": {
                         "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
                         "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('diagnosticStorageAccountName'))]",
-                        "logs": [
-                          {
-                            "category": "Audit",
-                            "enabled": true
-                          }
-                        ],
+                        "logs": "[if(equals(environment().name, 'AzureCloud'), createArray(createObject('category', 'Audit', 'enabled', true())), createArray())]",
                         "metrics": [
                           {
                             "category": "AllMetrics",

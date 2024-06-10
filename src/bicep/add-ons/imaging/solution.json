@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.27.1.19265",
-      "templateHash": "15739025302537884367"
+      "version": "0.28.1.47646",
+      "templateHash": "4948594257340044286"
     }
   },
   "parameters": {
@@ -594,8 +594,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.27.1.19265",
-              "templateHash": "12613552117945428082"
+              "version": "0.28.1.47646",
+              "templateHash": "7231398820336929499"
             }
           },
           "parameters": {
@@ -862,8 +862,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "8363189288729066877"
+                      "version": "0.28.1.47646",
+                      "templateHash": "4043054769176836480"
                     }
                   },
                   "parameters": {
@@ -1376,7 +1376,7 @@
                       },
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('naming-convention-{0}-{1}', parameters('networks')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
+                      "name": "[format('naming-convention-{0}-{1}', parameters('networks')[copyIndex()].shortName, parameters('deploymentNameSuffix'))]",
                       "location": "[deployment().location]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -1418,8 +1418,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "10432608483393344913"
+                              "version": "0.28.1.47646",
+                              "templateHash": "11580563852245464992"
                             }
                           },
                           "parameters": {
@@ -1561,7 +1561,7 @@
                           "vnetDiagLogs": "[parameters('networks')[copyIndex()].vnetDiagLogs]",
                           "vnetDiagMetrics": "[parameters('networks')[copyIndex()].vnetDiagMetrics]",
                           "subnetAddressPrefix": "[parameters('networks')[copyIndex()].subnetAddressPrefix]",
-                          "namingConvention": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-convention-{0}-{1}', parameters('networks')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value]"
+                          "namingConvention": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-convention-{0}-{1}', parameters('networks')[copyIndex()].shortName, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value]"
                         }
                       }
                     },
@@ -1603,8 +1603,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "11578255285976861685"
+                      "version": "0.28.1.47646",
+                      "templateHash": "16981911414796661053"
                     }
                   },
                   "parameters": {
@@ -1658,7 +1658,7 @@
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('deploy-networking-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -1723,9 +1723,6 @@
                   "vNetDnsServers": {
                     "value": "[coalesce(tryGet(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01'), 'dhcpOptions', 'dnsServers'), createArray())]"
                   },
-                  "workloadName": {
-                    "value": "[toLower(parameters('workloadName'))]"
-                  },
                   "workloadShortName": {
                     "value": "[parameters('workloadShortName')]"
                   }
@@ -1736,8 +1733,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "3177815773272746024"
+                      "version": "0.28.1.47646",
+                      "templateHash": "13007482851565428861"
                     }
                   },
                   "parameters": {
@@ -1798,9 +1795,6 @@
                     "virtualNetworkName": {
                       "type": "string"
                     },
-                    "workloadName": {
-                      "type": "string"
-                    },
                     "workloadShortName": {
                       "type": "string"
                     }
@@ -1809,7 +1803,7 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "spokeNetwork",
+                      "name": "[format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
                       "location": "[deployment().location]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -1875,8 +1869,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "17262762423710705329"
+                              "version": "0.28.1.47646",
+                              "templateHash": "15250750281746986897"
                             }
                           },
                           "parameters": {
@@ -1983,8 +1977,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.27.1.19265",
-                                      "templateHash": "12935581119437417634"
+                                      "version": "0.28.1.47646",
+                                      "templateHash": "17152995037494078504"
                                     }
                                   },
                                   "parameters": {
@@ -2066,8 +2060,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.27.1.19265",
-                                      "templateHash": "18262399193161292353"
+                                      "version": "0.28.1.47646",
+                                      "templateHash": "8470734590353387928"
                                     }
                                   },
                                   "parameters": {
@@ -2169,8 +2163,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.27.1.19265",
-                                      "templateHash": "13830033528097307473"
+                                      "version": "0.28.1.47646",
+                                      "templateHash": "4604600344009608460"
                                     }
                                   },
                                   "parameters": {
@@ -2246,8 +2240,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.27.1.19265",
-                                      "templateHash": "2265853539539159849"
+                                      "version": "0.28.1.47646",
+                                      "templateHash": "12920788887150549633"
                                     }
                                   },
                                   "parameters": {
@@ -2362,7 +2356,7 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-vnet-peering-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-spoke-peering-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
                       "location": "[deployment().location]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -2370,17 +2364,20 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "deploymentNameSuffix": {
+                            "value": "[parameters('deploymentNameSuffix')]"
+                          },
                           "hubVirtualNetworkResourceId": {
                             "value": "[parameters('hubVirtualNetworkResourceId')]"
                           },
                           "resourceGroupName": {
                             "value": "[parameters('resourceGroupName')]"
                           },
-                          "spokeName": {
-                            "value": "[parameters('workloadName')]"
+                          "spokeShortName": {
+                            "value": "[parameters('workloadShortName')]"
                           },
                           "spokeVirtualNetworkName": {
-                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkName.value]"
+                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
                           },
                           "subscriptionId": {
                             "value": "[parameters('subscriptionId')]"
@@ -2392,18 +2389,21 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "1081420821337659529"
+                              "version": "0.28.1.47646",
+                              "templateHash": "3137630721293344936"
                             }
                           },
                           "parameters": {
+                            "deploymentNameSuffix": {
+                              "type": "string"
+                            },
                             "hubVirtualNetworkResourceId": {
                               "type": "string"
                             },
                             "resourceGroupName": {
                               "type": "string"
                             },
-                            "spokeName": {
+                            "spokeShortName": {
                               "type": "string"
                             },
                             "spokeVirtualNetworkName": {
@@ -2417,7 +2417,7 @@
                             {
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2022-09-01",
-                              "name": "[format('{0}-to-hub-vnet-peering', parameters('spokeName'))]",
+                              "name": "[format('peer-{0}-to-hub-{1}', parameters('spokeShortName'), parameters('deploymentNameSuffix'))]",
                               "subscriptionId": "[parameters('subscriptionId')]",
                               "resourceGroup": "[parameters('resourceGroupName')]",
                               "properties": {
@@ -2442,8 +2442,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.27.1.19265",
-                                      "templateHash": "4225396596043462595"
+                                      "version": "0.28.1.47646",
+                                      "templateHash": "17390826727171662541"
                                     }
                                   },
                                   "parameters": {
@@ -2477,13 +2477,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[subscriptionResourceId('Microsoft.Resources/deployments', 'spokeNetwork')]"
+                        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-vnet-peering-hub-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-hub-peering-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
                       "location": "[deployment().location]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -2491,17 +2491,20 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "deploymentNameSuffix": {
+                            "value": "[parameters('deploymentNameSuffix')]"
+                          },
                           "hubVirtualNetworkName": {
                             "value": "[split(parameters('hubVirtualNetworkResourceId'), '/')[8]]"
                           },
                           "resourceGroupName": {
                             "value": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]"
                           },
-                          "spokeName": {
-                            "value": "[parameters('workloadName')]"
+                          "spokeShortName": {
+                            "value": "[parameters('workloadShortName')]"
                           },
                           "spokeVirtualNetworkResourceId": {
-                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkResourceId.value]"
+                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkResourceId.value]"
                           },
                           "subscriptionId": {
                             "value": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]"
@@ -2513,18 +2516,21 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "16991872399359859910"
+                              "version": "0.28.1.47646",
+                              "templateHash": "1031623525996139958"
                             }
                           },
                           "parameters": {
+                            "deploymentNameSuffix": {
+                              "type": "string"
+                            },
                             "hubVirtualNetworkName": {
                               "type": "string"
                             },
                             "resourceGroupName": {
                               "type": "string"
                             },
-                            "spokeName": {
+                            "spokeShortName": {
                               "type": "string"
                             },
                             "spokeVirtualNetworkResourceId": {
@@ -2538,7 +2544,7 @@
                             {
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2022-09-01",
-                              "name": "[format('hub-to-{0}-vnet-peering', parameters('spokeName'))]",
+                              "name": "[format('peer-hub-to-{0}-{1}', parameters('spokeShortName'), parameters('deploymentNameSuffix'))]",
                               "subscriptionId": "[parameters('subscriptionId')]",
                               "resourceGroup": "[parameters('resourceGroupName')]",
                               "properties": {
@@ -2563,8 +2569,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.27.1.19265",
-                                      "templateHash": "4225396596043462595"
+                                      "version": "0.28.1.47646",
+                                      "templateHash": "17390826727171662541"
                                     }
                                   },
                                   "parameters": {
@@ -2598,22 +2604,22 @@
                         }
                       },
                       "dependsOn": [
-                        "[subscriptionResourceId('Microsoft.Resources/deployments', 'spokeNetwork')]"
+                        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
                       ]
                     }
                   ],
                   "outputs": {
                     "networkSecurityGroupName": {
                       "type": "string",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.networkSecurityGroupName.value]"
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
                     },
                     "subnetResourceId": {
                       "type": "string",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.subnetResourceId.value]"
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
                     },
                     "virtualNetworkName": {
                       "type": "string",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'spokeNetwork'), '2022-09-01').outputs.virtualNetworkName.value]"
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
                     }
                   }
                 }
@@ -2650,7 +2656,7 @@
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
                   },
                   "subnetResourceId": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -2660,6 +2666,9 @@
                   },
                   "tokens": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value]"
+                  },
+                  "workloadShortName": {
+                    "value": "[parameters('workloadShortName')]"
                   }
                 },
                 "template": {
@@ -2668,8 +2677,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "7828233421610885078"
+                      "version": "0.28.1.47646",
+                      "templateHash": "1841441769041268305"
                     }
                   },
                   "parameters": {
@@ -2699,13 +2708,16 @@
                     },
                     "tokens": {
                       "type": "object"
+                    },
+                    "workloadShortName": {
+                      "type": "string"
                     }
                   },
                   "resources": [
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-kv-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[parameters('tier').subscriptionId]",
                       "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
@@ -2745,8 +2757,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "12300580845424356573"
+                              "version": "0.28.1.47646",
+                              "templateHash": "7405834931933819304"
                             }
                           },
                           "parameters": {
@@ -2958,7 +2970,7 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-disk-encryption-set-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-des-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[parameters('tier').subscriptionId]",
                       "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
@@ -2974,10 +2986,10 @@
                             "value": "[parameters('tier').namingConvention.diskEncryptionSet]"
                           },
                           "keyUrl": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-kv-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
                           },
                           "keyVaultResourceId": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-kv-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -2985,7 +2997,10 @@
                           "mlzTags": {
                             "value": "[parameters('mlzTags')]"
                           },
-                          "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), createObject('value', parameters('tags')['Microsoft.Compute/diskEncryptionSets']), createObject('value', createObject()))]"
+                          "tags": "[if(contains(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), createObject('value', parameters('tags')['Microsoft.Compute/diskEncryptionSets']), createObject('value', createObject()))]",
+                          "workloadShortName": {
+                            "value": "[parameters('workloadShortName')]"
+                          }
                         },
                         "template": {
                           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -2993,8 +3008,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "15986878026863280024"
+                              "version": "0.28.1.47646",
+                              "templateHash": "7625943238700140088"
                             }
                           },
                           "parameters": {
@@ -3018,6 +3033,9 @@
                             },
                             "tags": {
                               "type": "object"
+                            },
+                            "workloadShortName": {
+                              "type": "string"
                             }
                           },
                           "resources": [
@@ -3044,7 +3062,7 @@
                             {
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2022-09-01",
-                              "name": "[format('assign-role-disk-encryption-set-ops-{0}', parameters('deploymentNameSuffix'))]",
+                              "name": "[format('assign-role-des-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
                               "properties": {
                                 "expressionEvaluationOptions": {
                                   "scope": "inner"
@@ -3070,8 +3088,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.27.1.19265",
-                                      "templateHash": "6383470207031311407"
+                                      "version": "0.28.1.47646",
+                                      "templateHash": "12311612567285718476"
                                     }
                                   },
                                   "parameters": {
@@ -3128,13 +3146,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]"
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-kv-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-user-assigned-identity-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-id-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[parameters('tier').subscriptionId]",
                       "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
@@ -3144,7 +3162,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "keyVaultName": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-kv-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -3165,8 +3183,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "6007785905664733866"
+                              "version": "0.28.1.47646",
+                              "templateHash": "13565568332021378537"
                             }
                           },
                           "parameters": {
@@ -3218,41 +3236,41 @@
                         }
                       },
                       "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]"
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-kv-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
                       ]
                     }
                   ],
                   "outputs": {
                     "diskEncryptionSetResourceId": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-disk-encryption-set-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-des-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                     },
                     "keyVaultName": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-kv-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
                     },
                     "keyVaultUri": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-kv-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
                     },
                     "keyVaultResourceId": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-kv-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
                     },
                     "storageKeyName": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-kv-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
                     },
                     "userAssignedIdentityResourceId": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-user-assigned-identity-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-id-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                     }
                   }
                 }
               },
               "dependsOn": [
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
               ]
             },
@@ -3295,7 +3313,7 @@
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
                   },
                   "subnetResourceId": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
                   },
                   "tablesPrivateDnsZoneResourceId": {
                     "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', format('privatelink.table.{0}', environment().suffixes.storage))]"
@@ -3313,8 +3331,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "15276628086161283630"
+                      "version": "0.28.1.47646",
+                      "templateHash": "6660778048819495354"
                     }
                   },
                   "parameters": {
@@ -3420,8 +3438,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "6116693144339389145"
+                              "version": "0.28.1.47646",
+                              "templateHash": "12908544435848997555"
                             }
                           },
                           "parameters": {
@@ -3614,14 +3632,14 @@
               "dependsOn": [
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
               ]
             },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('deploy-diagnostics-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-diag-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -3651,7 +3669,7 @@
                     "value": "[parameters('networkSecurityGroupDiagnosticsMetrics')]"
                   },
                   "networkSecurityGroupName": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
                   },
                   "resourceGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
@@ -3669,7 +3687,7 @@
                     "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
                   },
                   "virtualNetworkName": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
                   }
                 },
                 "template": {
@@ -3678,8 +3696,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "738419494311113164"
+                      "version": "0.28.1.47646",
+                      "templateHash": "7523124167390698300"
                     }
                   },
                   "parameters": {
@@ -3731,7 +3749,7 @@
                       "condition": "[parameters('deployActivityLogDiagnosticSetting')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-activity-diags-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-activity-diags-{0}-{1}', parameters('tier').shortName, parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[parameters('tier').subscriptionId]",
                       "location": "[deployment().location]",
                       "properties": {
@@ -3750,8 +3768,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "11148640012050316356"
+                              "version": "0.28.1.47646",
+                              "templateHash": "4966252766778833703"
                             }
                           },
                           "parameters": {
@@ -3809,7 +3827,7 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-kv-diags-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-kv-diags-{0}-{1}', parameters('tier').shortName, parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[parameters('tier').subscriptionId]",
                       "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
@@ -3840,8 +3858,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "11931053519285250235"
+                              "version": "0.28.1.47646",
+                              "templateHash": "505841804747422350"
                             }
                           },
                           "parameters": {
@@ -3880,7 +3898,7 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-nsg-diags-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-nsg-diags-{0}-{1}', parameters('tier').shortName, parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[parameters('tier').subscriptionId]",
                       "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
@@ -3914,8 +3932,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "12049539018034280966"
+                              "version": "0.28.1.47646",
+                              "templateHash": "1055200934770590443"
                             }
                           },
                           "parameters": {
@@ -3958,7 +3976,7 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-vnet-diags-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-vnet-diags-{0}-{1}', parameters('tier').shortName, parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[parameters('tier').subscriptionId]",
                       "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
@@ -3992,8 +4010,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "13356625654141484072"
+                              "version": "0.28.1.47646",
+                              "templateHash": "11627959113425338284"
                             }
                           },
                           "parameters": {
@@ -4039,7 +4057,7 @@
               "dependsOn": [
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
               ]
@@ -4048,7 +4066,7 @@
               "condition": "[parameters('deployPolicy')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('assign-policy-{0}-{1}', toLower(parameters('workloadName')), parameters('deploymentNameSuffix'))]",
+              "name": "[format('assign-policy-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -4083,8 +4101,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "379956182717650153"
+                      "version": "0.28.1.47646",
+                      "templateHash": "12217068430353603455"
                     }
                   },
                   "parameters": {
@@ -4140,8 +4158,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "9464536540108620518"
+                              "version": "0.28.1.47646",
+                              "templateHash": "5750015592710669395"
                             }
                           },
                           "parameters": {
@@ -4316,8 +4334,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.27.1.19265",
-                                      "templateHash": "6383470207031311407"
+                                      "version": "0.28.1.47646",
+                                      "templateHash": "12311612567285718476"
                                     }
                                   },
                                   "parameters": {
@@ -4380,7 +4398,7 @@
               "condition": "[parameters('deployDefender')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('set-{0}-sub-defender', toLower(parameters('workloadName')))]",
+              "name": "[format('set-defender-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -4401,8 +4419,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "4615387508967890473"
+                      "version": "0.28.1.47646",
+                      "templateHash": "17254696147980897511"
                     }
                   },
                   "parameters": {
@@ -4663,7 +4681,7 @@
             },
             "subnetResourceId": {
               "type": "string",
-              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
             },
             "tier": {
               "type": "object",
@@ -4735,8 +4753,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.27.1.19265",
-              "templateHash": "8630605827791317526"
+              "version": "0.28.1.47646",
+              "templateHash": "14916216460485452667"
             }
           },
           "parameters": {
@@ -4809,8 +4827,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "13759626184114148432"
+                      "version": "0.28.1.47646",
+                      "templateHash": "15172248307286226033"
                     }
                   },
                   "parameters": {
@@ -4875,8 +4893,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "17687598991768621670"
+                      "version": "0.28.1.47646",
+                      "templateHash": "243773653755057995"
                     }
                   },
                   "parameters": {
@@ -4939,8 +4957,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "9130216839897209969"
+                      "version": "0.28.1.47646",
+                      "templateHash": "11424503135687179969"
                     }
                   },
                   "parameters": {
@@ -4998,8 +5016,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "17099342548900691404"
+                      "version": "0.28.1.47646",
+                      "templateHash": "13762038911439373028"
                     }
                   },
                   "parameters": {
@@ -5069,8 +5087,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "3134856228976238865"
+                      "version": "0.28.1.47646",
+                      "templateHash": "14580847877405877094"
                     }
                   },
                   "parameters": {
@@ -5159,8 +5177,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "1168271578929005824"
+                      "version": "0.28.1.47646",
+                      "templateHash": "5483911469402989132"
                     }
                   },
                   "parameters": {
@@ -5434,8 +5452,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.27.1.19265",
-              "templateHash": "11104203183456811915"
+              "version": "0.28.1.47646",
+              "templateHash": "9724593096085700116"
             }
           },
           "parameters": {
@@ -5686,8 +5704,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "4564997318133612334"
+                      "version": "0.28.1.47646",
+                      "templateHash": "14324103808411717521"
                     }
                   },
                   "parameters": {
@@ -5772,8 +5790,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "5461299690063875958"
+                      "version": "0.28.1.47646",
+                      "templateHash": "8104651807867762850"
                     }
                   },
                   "parameters": {
@@ -5982,8 +6000,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "13497026656634671294"
+                      "version": "0.28.1.47646",
+                      "templateHash": "5637366946494171316"
                     }
                   },
                   "parameters": {
@@ -8076,8 +8094,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "18313089215192789399"
+                      "version": "0.28.1.47646",
+                      "templateHash": "12305457991980968950"
                     }
                   },
                   "parameters": {
@@ -8481,8 +8499,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "2529599718800993112"
+                      "version": "0.28.1.47646",
+                      "templateHash": "2788348448032843201"
                     }
                   },
                   "parameters": {
@@ -9023,8 +9041,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.27.1.19265",
-                              "templateHash": "2240423513039706342"
+                              "version": "0.28.1.47646",
+                              "templateHash": "12243796019392406074"
                             }
                           },
                           "parameters": {
@@ -9394,8 +9412,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.27.1.19265",
-              "templateHash": "3043154765819979342"
+              "version": "0.28.1.47646",
+              "templateHash": "12007278414814098299"
             }
           },
           "parameters": {
@@ -9672,8 +9690,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "18313089215192789399"
+                      "version": "0.28.1.47646",
+                      "templateHash": "12305457991980968950"
                     }
                   },
                   "parameters": {
@@ -9923,8 +9941,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "2429770344246940475"
+                      "version": "0.28.1.47646",
+                      "templateHash": "9802229466929425628"
                     }
                   },
                   "parameters": {
@@ -10174,8 +10192,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "13360471770564755176"
+                      "version": "0.28.1.47646",
+                      "templateHash": "15503830999586309937"
                     }
                   },
                   "parameters": {
@@ -10596,8 +10614,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "11383113088463030963"
+                      "version": "0.28.1.47646",
+                      "templateHash": "2715805601220279767"
                     }
                   },
                   "parameters": {
@@ -10711,8 +10729,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "18119176974738530329"
+                      "version": "0.28.1.47646",
+                      "templateHash": "1650618207431397804"
                     }
                   },
                   "parameters": {
@@ -10797,8 +10815,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "11383113088463030963"
+                      "version": "0.28.1.47646",
+                      "templateHash": "2715805601220279767"
                     }
                   },
                   "parameters": {
@@ -10905,8 +10923,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "5536241312462033174"
+                      "version": "0.28.1.47646",
+                      "templateHash": "3613520651386567731"
                     }
                   },
                   "parameters": {
@@ -10986,8 +11004,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "10792230585696247813"
+                      "version": "0.28.1.47646",
+                      "templateHash": "13679818714828956681"
                     }
                   },
                   "parameters": {
@@ -11119,8 +11137,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "17548680377152926438"
+                      "version": "0.28.1.47646",
+                      "templateHash": "3987139898621271906"
                     }
                   },
                   "parameters": {
@@ -11275,8 +11293,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.27.1.19265",
-                      "templateHash": "6467358955768371447"
+                      "version": "0.28.1.47646",
+                      "templateHash": "18267245652370756748"
                     }
                   },
                   "parameters": {
