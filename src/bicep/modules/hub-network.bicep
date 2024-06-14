@@ -3,6 +3,7 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+param bastionHostNetworkSecurityGroup string
 param bastionHostSubnetAddressPrefix string
 param azureGatewaySubnetAddressPrefix string
 param deployNetworkWatcher bool
@@ -89,13 +90,146 @@ var subnets = union([
   }
 ] : [])
 
-module networkSecurityGroup '../modules/network-security-group.bicep' = {
+//array for bastion nsg
+
+var bastionNetworkSecurityGroupRules = [
+  {
+    name: 'AllowHttpsInBound'
+    properties: {
+      protocol: 'Tcp'
+      sourcePortRange: '*'
+      sourceAddressPrefix: 'Internet'
+      destinationPortRange: '443'
+      destinationAddressPrefix: '*'
+      access: 'Allow'
+      priority: 120
+      direction: 'Inbound'
+    }
+  }
+  {
+    name: 'AllowGatewayManagerInBound'
+    properties: {
+      protocol: 'Tcp'
+      sourcePortRange: '*'
+      sourceAddressPrefix: 'GatewayManager'
+      destinationPortRange: '443'
+      destinationAddressPrefix: '*'
+      access: 'Allow'
+      priority: 130
+      direction: 'Inbound'
+    }
+  }
+  {
+    name: 'AllowLoadBalancerInBound'
+    properties: {
+      protocol: 'Tcp'
+      sourcePortRange: '*'
+      sourceAddressPrefix: 'AzureLoadBalancer'
+      destinationPortRange: '443'
+      destinationAddressPrefix: '*'
+      access: 'Allow'
+      priority: 140
+      direction: 'Inbound'
+    }
+  }
+  {
+    name: 'AllowBastionHostCommunicationInBound'
+    properties: {
+      protocol: '*'
+      sourcePortRange: '*'
+      sourceAddressPrefix: 'VirtualNetwork'
+      destinationPortRanges: [
+        '8080'
+        '5701'
+      ]
+      destinationAddressPrefix: 'VirtualNetwork'
+      access: 'Allow'
+      priority: 150
+      direction: 'Inbound'
+    }
+  }
+  {
+    name: 'AllowSshRdpOutBound'
+    properties: {
+      protocol: 'Tcp'
+      sourcePortRange: '*'
+      sourceAddressPrefix: '*'
+      destinationPortRanges: [
+        '22'
+        '3389'
+      ]
+      destinationAddressPrefix: 'VirtualNetwork'
+      access: 'Allow'
+      priority: 120
+      direction: 'Outbound'
+    }
+  }
+  {
+    name: 'AllowAzureCloudCommunicationOutBound'
+    properties: {
+      protocol: 'Tcp'
+      sourcePortRange: '*'
+      sourceAddressPrefix: '*'
+      destinationPortRange: '443'
+      destinationAddressPrefix: 'AzureCloud'
+      access: 'Allow'
+      priority: 130
+      direction: 'Outbound'
+    }
+  }
+  {
+    name: 'AllowBastionHostCommunicationOutBound'
+    properties: {
+      protocol: '*'
+      sourcePortRange: '*'
+      sourceAddressPrefix: 'VirtualNetwork'
+      destinationPortRanges: [
+        '8080'
+        '5701'
+      ]
+      destinationAddressPrefix: 'VirtualNetwork'
+      access: 'Allow'
+      priority: 140
+      direction: 'Outbound'
+    }
+  }
+  {
+    name: 'AllowGetSessionInformationOutBound'
+    properties: {
+      protocol: '*'
+      sourcePortRange: '*'
+      sourceAddressPrefix: '*'
+      destinationAddressPrefix: 'Internet'
+      destinationPortRanges: [
+        '80'
+        '443'
+      ]
+      access: 'Allow'
+      priority: 150
+      direction: 'Outbound'
+    }
+  }
+]
+
+module bastionNetworkSecurityGroup '../modules/network-security-group.bicep' = {
   name: 'networkSecurityGroup'
   params: {
     location: location
     mlzTags: mlzTags
     name: networkSecurityGroupName
     securityRules: networkSecurityGroupRules
+    tags: tags
+  }
+}
+
+
+module networkSecurityGroup '../modules/network-security-group.bicep' = if (deployBastion == 'True') {
+  name: bastionHostNetworkSecurityGroup
+  params: {
+    location: location
+    mlzTags: mlzTags
+    name: bastionHostNetworkSecurityGroup
+    securityRules: bastionNetworkSecurityGroupRules
     tags: tags
   }
 }
