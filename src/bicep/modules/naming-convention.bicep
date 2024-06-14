@@ -80,7 +80,7 @@ var names = {
   logAnalyticsWorkspaceDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.logAnalyticsWorkspaces)
   netAppAccountCapacityPool: replace(namingConvention, tokens.resource, resourceAbbreviations.netAppCapacityPools)
   netAppAccount: replace(namingConvention, tokens.resource, resourceAbbreviations.netAppAccounts)
-  networkSecurityGroup: replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkSecurityGroups)
+  networkSecurityGroup: replace(namingConvention, tokens.resource, resourceAbbreviations.networkSecurityGroups)
   networkSecurityGroupDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.networkSecurityGroups)
   networkWatcher: replace(namingConvention, tokens.resource, resourceAbbreviations.networkWatchers)
   privateLinkScope: replace(namingConvention, tokens.resource, resourceAbbreviations.privateLinkScopes)

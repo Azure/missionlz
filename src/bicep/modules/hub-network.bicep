@@ -223,7 +223,7 @@ module networkSecurityGroup '../modules/network-security-group.bicep' = {
 }
 
 
-module bastionNetworkSecurityGroup '../modules/network-security-group.bicep' = if (deployBastion == 'True') {
+module bastionNetworkSecurityGroup '../modules/network-security-group.bicep' = if (deployBastion) {
   name: 'bastionNSG'
   params: {
     location: location

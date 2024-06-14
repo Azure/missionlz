@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "11979399886664083965"
+      "templateHash": "10968048699493756150"
     }
   },
   "parameters": {
@@ -882,7 +882,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "13573336247191495709"
+              "templateHash": "17624108366935160596"
             }
           },
           "parameters": {
@@ -1438,7 +1438,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "9306061858464267743"
+                      "templateHash": "5685452971915623928"
                     }
                   },
                   "parameters": {
@@ -1511,7 +1511,7 @@
                       "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, parameters('resourceAbbreviations').logAnalyticsWorkspaces)]",
                       "netAppAccountCapacityPool": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').netAppCapacityPools)]",
                       "netAppAccount": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').netAppAccounts)]",
-                      "networkSecurityGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups)]",
+                      "networkSecurityGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups)]",
                       "networkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, parameters('resourceAbbreviations').networkSecurityGroups)]",
                       "networkWatcher": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').networkWatchers)]",
                       "privateLinkScope": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').privateLinkScopes)]",
@@ -1832,7 +1832,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "14641958688461810442"
+              "templateHash": "14865196186221314225"
             }
           },
           "parameters": {
@@ -2009,7 +2009,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "9831337034334645232"
+                      "templateHash": "14642552144385344178"
                     }
                   },
                   "parameters": {
@@ -2323,7 +2323,7 @@
                       }
                     },
                     {
-                      "condition": "[equals(parameters('deployBastion'), 'True')]",
+                      "condition": "[parameters('deployBastion')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "bastionNSG",
