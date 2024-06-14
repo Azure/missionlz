@@ -517,7 +517,7 @@
               "name": "friendlyNames",
               "type": "Microsoft.Common.Section",
               "label": "Friendly Names for AVD Client",
-              "visible": "[not(equals(steps('basics').scenario.profile, 'arcGisPro'))]",
+              "visible": true,
               "elements": [
                 {
                   "name": "custom",
