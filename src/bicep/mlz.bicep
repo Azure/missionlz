@@ -459,10 +459,11 @@ param defenderSkuTier string = 'Free'
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string = ''
 
-//Allowed Values for paid workload protection Plans.  
-//Even if the customer wants the free tier, we must specify a plan from this list. This is why we specify VirtualMachines as a default value.
-@allowed([
-  'Api'
+// Allowed Values for paid workload protection Plans.  
+// Users must select a plan from portal ui def or manually specify any of the plans that are available in the desired cloud.  
+// The portal does not parse the allowed values field for arrays  correctly at this time.
+// As a default, the array is set to ['VirtualMachines'].
+/*   'Api'
   'AppServices'
   'Arm'
   'CloudPosture'
@@ -476,8 +477,8 @@ param emailSecurityContact string = ''
   'SqlServers'
   'SqlServerVirtualMachines'
   'StorageAccounts'
-  'VirtualMachines'
-])
+  'VirtualMachine*/
+  
 @description('Paid Workload Protection plans for Defender for Cloud')
 param deployDefenderPlans array = ['VirtualMachines']
 
