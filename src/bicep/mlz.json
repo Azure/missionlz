@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "10193721622851005557"
+      "templateHash": "11979399886664083965"
     }
   },
   "parameters": {
@@ -1832,7 +1832,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "6128915667914290826"
+              "templateHash": "14641958688461810442"
             }
           },
           "parameters": {
@@ -2009,7 +2009,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "11093870564993237329"
+                      "templateHash": "9831337034334645232"
                     }
                   },
                   "parameters": {
@@ -2326,7 +2326,7 @@
                       "condition": "[equals(parameters('deployBastion'), 'True')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[parameters('bastionHostNetworkSecurityGroup')]",
+                      "name": "bastionNSG",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"

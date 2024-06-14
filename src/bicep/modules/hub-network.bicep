@@ -224,7 +224,7 @@ module networkSecurityGroup '../modules/network-security-group.bicep' = {
 
 
 module bastionNetworkSecurityGroup '../modules/network-security-group.bicep' = if (deployBastion == 'True') {
-  name: bastionHostNetworkSecurityGroup
+  name: 'bastionNSG'
   params: {
     location: location
     mlzTags: mlzTags
