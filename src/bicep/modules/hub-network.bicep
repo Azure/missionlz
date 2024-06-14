@@ -79,6 +79,9 @@ var subnets = union([
     name: 'AzureBastionSubnet'
     properties: {
       addressPrefix: bastionHostSubnetAddressPrefix
+      networkSecurityGroup: {
+        id: bastionNetworkSecurityGroup.outputs.id
+      }
     }
   } 
 ] : [], deployAzureGatewaySubnet ? [
