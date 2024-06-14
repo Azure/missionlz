@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "10678831554062098875"
+      "templateHash": "11925661903175419138"
     }
   },
   "parameters": {
@@ -814,20 +814,6 @@
     "deployDefenderPlans": {
       "type": "array",
       "defaultValue": [
-        "VirtualMachines"
-      ],
-      "allowedValues": [
-        "Api",
-        "AppServices",
-        "Arm",
-        "CloudPosture",
-        "Containers",
-        "CosmosDbs",
-        "KeyVaults",
-        "OpenSourceRelationalDatabases",
-        "SqlServers",
-        "SqlServerVirtualMachines",
-        "StorageAccounts",
         "VirtualMachines"
       ],
       "metadata": {
