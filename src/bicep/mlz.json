@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "13941551207664490305"
+      "templateHash": "10193721622851005557"
     }
   },
   "parameters": {
@@ -1832,7 +1832,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "13210976783145141709"
+              "templateHash": "6128915667914290826"
             }
           },
           "parameters": {
@@ -2009,7 +2009,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "11539197010090933187"
+                      "templateHash": "11093870564993237329"
                     }
                   },
                   "parameters": {
@@ -2591,7 +2591,7 @@
                             "value": "[parameters('virtualNetworkName')]"
                           },
                           "subnets": {
-                            "value": "[union(createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallClientSubnetAddressPrefix'))), createObject('name', 'AzureFirewallManagementSubnet', 'properties', createObject('addressPrefix', parameters('firewallManagementSubnetAddressPrefix'))), createObject('name', parameters('subnetName'), 'properties', createObject('addressPrefix', parameters('subnetAddressPrefix'), 'networkSecurityGroup', createObject('id', reference(resourceId('Microsoft.Resources/deployments', parameters('bastionHostNetworkSecurityGroup')), '2022-09-01').outputs.id.value), 'privateEndpointNetworkPolicies', 'Disabled', 'privateLinkServiceNetworkPolicies', 'Disabled', 'routeTable', createObject('id', reference(resourceId('Microsoft.Resources/deployments', 'routeTable'), '2022-09-01').outputs.id.value)))), if(parameters('deployBastion'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionHostSubnetAddressPrefix')))), createArray()), if(parameters('deployAzureGatewaySubnet'), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('azureGatewaySubnetAddressPrefix')))), createArray()))]"
+                            "value": "[union(createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallClientSubnetAddressPrefix'))), createObject('name', 'AzureFirewallManagementSubnet', 'properties', createObject('addressPrefix', parameters('firewallManagementSubnetAddressPrefix'))), createObject('name', parameters('subnetName'), 'properties', createObject('addressPrefix', parameters('subnetAddressPrefix'), 'networkSecurityGroup', createObject('id', reference(resourceId('Microsoft.Resources/deployments', 'networkSecurityGroup'), '2022-09-01').outputs.id.value), 'privateEndpointNetworkPolicies', 'Disabled', 'privateLinkServiceNetworkPolicies', 'Disabled', 'routeTable', createObject('id', reference(resourceId('Microsoft.Resources/deployments', 'routeTable'), '2022-09-01').outputs.id.value)))), if(parameters('deployBastion'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionHostSubnetAddressPrefix')))), createArray()), if(parameters('deployAzureGatewaySubnet'), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('azureGatewaySubnetAddressPrefix')))), createArray()))]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
@@ -2676,7 +2676,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Resources/deployments', parameters('bastionHostNetworkSecurityGroup'))]",
+                        "[resourceId('Microsoft.Resources/deployments', 'networkSecurityGroup')]",
                         "[resourceId('Microsoft.Resources/deployments', 'networkWatcher')]",
                         "[resourceId('Microsoft.Resources/deployments', 'routeTable')]"
                       ]
@@ -3224,11 +3224,11 @@
                     },
                     "networkSecurityGroupName": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Resources/deployments', parameters('bastionHostNetworkSecurityGroup')), '2022-09-01').outputs.name.value]"
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'networkSecurityGroup'), '2022-09-01').outputs.name.value]"
                     },
                     "networkSecurityGroupResourceId": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Resources/deployments', parameters('bastionHostNetworkSecurityGroup')), '2022-09-01').outputs.id.value]"
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'networkSecurityGroup'), '2022-09-01').outputs.id.value]"
                     },
                     "subnetAddressPrefix": {
                       "type": "string",

@@ -211,7 +211,7 @@ var bastionNetworkSecurityGroupRules = [
   }
 ]
 
-module bastionNetworkSecurityGroup '../modules/network-security-group.bicep' = {
+module networkSecurityGroup '../modules/network-security-group.bicep' = {
   name: 'networkSecurityGroup'
   params: {
     location: location
@@ -223,7 +223,7 @@ module bastionNetworkSecurityGroup '../modules/network-security-group.bicep' = {
 }
 
 
-module networkSecurityGroup '../modules/network-security-group.bicep' = if (deployBastion == 'True') {
+module bastionNetworkSecurityGroup '../modules/network-security-group.bicep' = if (deployBastion == 'True') {
   name: bastionHostNetworkSecurityGroup
   params: {
     location: location
