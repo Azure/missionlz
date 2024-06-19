@@ -9,7 +9,6 @@ To mimic the Quickstart experience of an Azure Commercial or Azure Government ML
   - [Prerequisites](#prerequisites)
   - [Create the TemplateSpecFile](#create-the-templatespecfile)
   - [MLZ-Core resources deployed](#mlz-core-resources-deployed)
-    - [MLZ Resources](#mlz-resources)
   - [See Also](#see-also)
 
 This guide describes how to create an Azure TemplateSpecFile. The TemplateSpecFile is used to execute a user-friendly MLZ deployment GUI.  This GUI is the same Quickstart experience available in Azure Commercial and Azure Government. The TemplateSpec File is created via Powershell and requires only 2 files, [src/bicep/mlz.json](../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../src/bicep/form/mlz.json).
@@ -77,8 +76,6 @@ The parameters explained:
 To follow a walkthrough of the MLZ deployment click [Walkthrough](./deployment-guide-walkthrough.md).
 
 ## MLZ-Core resources deployed
-
-### MLZ Resources
 
 Once deployed MLZ will deploy a number of resources into 4 Resource Groups:
 1. Hub

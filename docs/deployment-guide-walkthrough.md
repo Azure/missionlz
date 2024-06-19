@@ -114,28 +114,27 @@ If you wish to remotely access the network and the resources you've deployed you
 
 You will see check boxes for:
 
-1. Azure Bastion
-2. Azure Gateway Subnet
-3. Windows Virtual Machine
-4. Linux Virtual Machine
+Azure Bastion
+Azure Gateway Subnet
+Windows Virtual Machine
+Linux Virtual Machine
 
 Any or all 4 resources may be deployed.  See below for options for each resource.
 
 1. Azure Bastion subnet CIDR range.
 2. Azure Gateway subnet CIDR range.
 
->Note: GatewaySubnet is a reserved name in Azure and is required only if you plan to implement a Site-to-Site or ExpressRoute VPN
+>Note: GatewaySubnet is a reserved name in Azure and is required only if you plan to implement a Site-to-Site or ExpressRoute VPN.
 
 3. Windows VM:
-
-    1. Username
-    2. Password
-    3. Password confirmation
-    4. Option for Hybrid Use Benefit for Windows [Azure Hybrid Benefit](https://learn.microsoft.com/en-us/windows-server/get-started/azure-hybrid-benefit?tabs=azure)
+      1. Username
+      2. Password
+      3. Password confirmation
+      4. Option for Hybrid Use Benefit for Windows [Azure Hybrid Benefit](https://learn.microsoft.com/en-us/windows-server/get-started/azure-hybrid-benefit?tabs=azure)
 4. Linux VM:
-    1. Username
-    2. Password
-    3. Password confirmation
+      1. Username
+      2. Password
+      3. Password confirmation
 
 Click the 'Next' button.
 
