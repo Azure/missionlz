@@ -12,15 +12,15 @@ This guide describes each tab and the components of an MLZ deployment.
 
 ## MLZ Deployment Walkthrough
 
-### Basics tab
+### Basics step
 
-The first tab will prompt you for Basic information regarding your MLZ deployment; Subscription(s), Location, Resource Naming Prefix and Environment Abbreviation.
+The first tab will prompt you for basic information regarding your MLZ deployment: Subscription(s), Location, Resource Naming Prefix, and Environment Abbreviation.
 
 #### One Subscription or Multiple
 
 MLZ can deploy to a single subscription or multiple subscriptions. Microsoft recommends for test and evaluation deployments use a single subscription. For a production deployment a single subscription maybe used or multiple if you wish to keep billing of resources separate.
 
-Select subscription(s) for each; Hub, Identity, Operations, and Shared Services.  
+Select subscription(s) for each: Hub, Identity, Operations, and Shared Services.  
 
 >Note: Identity is optional and includes a check box to deploy it or not.
 
@@ -30,7 +30,7 @@ Select the necessary region in your Environment to deploy your MLZ resources.
 
 #### Resource Naming Prefix
 
-Specify a prefix for your MLZ resources.  This prefix can help distinguish your MLZ resources and ResourceGroups from other Azure resources.  Minimum of 3 letters and/or numbers to a maximum of 6.
+Specify a prefix for your MLZ resources. This prefix can help distinguish your MLZ resources and resource groups from other Azure resources. Ideally, the prefix would be an abbreviation for your organization or the department governing these resources.  The value must be a minimum of 3 letters and/or numbers to a maximum of 6.
 
 #### Environment Abbreviation
 
@@ -38,7 +38,7 @@ Available options include dev, test, or prod.
 
 Click the 'Next' button.
 
-### Networking tab
+### Networking step
 
 #### Networks
 
@@ -61,13 +61,13 @@ Parameter name | Default Value | Description
 
 #### Firewall SKUs
 
-By default, MLZ deploys **[Azure Firewall Premium](https://docs.microsoft.com/azure/firewall/premium-features). Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/azure/firewall/premium-features#supported-regions). If necessary you can set a different firewall SKU (Standard).
+By default, MLZ deploys **[Azure Firewall Premium](https://docs.microsoft.com/azure/firewall/premium-features). Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/azure/firewall/premium-features#supported-regions). If necessary you can set a different firewall SKU (Standard or Basic).
 
 Please validate the SKU availability in your region before deploying as there can be differences between clouds.
 
 Click the 'Next' button.
 
-### Security and Compliance tab
+### Security and Compliance step
 
 MLZ has optional features that can be enabled by setting parameters during the MLZ deployment.
 
@@ -75,7 +75,7 @@ MLZ has optional features that can be enabled by setting parameters during the M
 
 By default [Microsoft Defender for Cloud](https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction) offers a free set of monitoring capabilities that are enabled via an Azure policy when you first set up a subscription and view the Microsoft Defender for Cloud portal blade.
 
-Microsoft Defender for Cloud offers a standard/defender sku which enables a greater depth of awareness including more recommendations and threat analytics. You can enable this higher depth level of security in MLZ by clicking the box 'Enable additional features for Microsoft Defender for Cloud.'  Then use the pulldown menu to select additional DfC features.
+Microsoft Defender for Cloud (DfC) offers a standard / defender SKU which enables a greater depth of awareness including more recommendations and threat analytics. You can enable this higher depth level of security in MLZ by clicking the box 'Enable additional features for Microsoft Defender for Cloud.'  Then use the pulldown menu to select additional DfC features.
 
 If additional features are enabled then a Security Contact E-mail Address will also be prompted.
 
@@ -104,7 +104,7 @@ Further configuration of Sentinel post MLZ deployment is required to take full a
 
 Click the 'Next' button.
 
-### Remote Access tab
+### Remote Access step
 
 #### Remote access with a Bastion Host
 
@@ -138,7 +138,7 @@ Any or all 4 resources may be deployed.  See below for options for each resource
 
 Click the 'Next' button.
 
-### Tags tab
+### Tags step
 
 #### Best Practices for Azure Tags
 
@@ -154,11 +154,9 @@ Click 'Next' to Validate Settings and finally, 'Create.'
 
 If necessary, the deployment of a Mission Landing Zone can be deleted with these steps:
 
-1. Delete the 4 default resource groups; Hub, Identity, Shared Services, and Operations.  Delete any add-on tier resource groups that were added in addition to MLZ-Core.
-2. Delete the diagnostic settings deployed at the subscription level.
+1. Delete the 4 default resource groups: Hub, Identity, Shared Services, and Operations.  Delete any add-on tier resource groups that were added in addition to MLZ-Core.
+2. Delete the diagnostic setting for the Activity Log deployed at the subscription level.
 3. If Microsoft Defender for Cloud was deployed (parameter `deployDefender=true` was used) then remove subscription-level policy assignments and downgrade the Microsoft Defender for Cloud pricing tiers.
-
-> NOTE: If you deploy and delete Mission Landing Zone in the same subscription multiple times without deleting the subscription-level diagnostic settings, the sixth deployment will fail. Azure has a limit of five diagnostic settings per subscription. The error will be similar to this: `"The limit of 5 diagnostic settings was reached."`
 
 To delete the diagnostic settings from the Azure Portal: choose the subscription blade, then Activity log in the left panel. At the top of the Activity log screen click the Diagnostics settings button. From there you can click the Edit setting link and delete the diagnostic setting.
 
