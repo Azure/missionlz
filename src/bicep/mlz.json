@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "15328188546614556383"
+      "templateHash": "8962868757577362982"
     }
   },
   "parameters": {
@@ -816,20 +816,6 @@
       "defaultValue": [
         "VirtualMachines"
       ],
-      "allowedValues": [
-        "Api",
-        "AppServices",
-        "Arm",
-        "CloudPosture",
-        "Containers",
-        "CosmosDbs",
-        "KeyVaults",
-        "OpenSourceRelationalDatabases",
-        "SqlServers",
-        "SqlServerVirtualMachines",
-        "StorageAccounts",
-        "VirtualMachines"
-      ],
       "metadata": {
         "description": "Paid Workload Protection plans for Defender for Cloud"
       }
@@ -882,7 +868,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "4043054769176836480"
+              "templateHash": "17624108366935160596"
             }
           },
           "parameters": {
@@ -1438,7 +1424,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "11580563852245464992"
+                      "templateHash": "5685452971915623928"
                     }
                   },
                   "parameters": {
@@ -1490,6 +1476,8 @@
                       "azureFirewallManagementPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-mgmt-{1}', parameters('resourceAbbreviations').publicIpAddresses, parameters('resourceAbbreviations').azureFirewalls))]",
                       "azureFirewallPolicy": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').firewallPolicies)]",
                       "bastionHost": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').bastionHosts)]",
+                      "bastionHostNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups), parameters('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
+                      "bastionHostDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
                       "bastionHostPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').publicIpAddresses), parameters('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
                       "bastionHostPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', parameters('resourceAbbreviations').publicIpAddresses, parameters('resourceAbbreviations').bastionHosts))]",
                       "computeGallery": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').computeGallieries), '-', '_')]",
@@ -1830,7 +1818,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "15931519876422891377"
+              "templateHash": "4240364673116660568"
             }
           },
           "parameters": {
@@ -1902,6 +1890,9 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "bastionHostNetworkSecurityGroup": {
+                    "value": "[variables('hub').namingConvention.bastionHostNetworkSecurityGroup]"
+                  },
                   "bastionHostSubnetAddressPrefix": {
                     "value": "[parameters('bastionHostSubnetAddressPrefix')]"
                   },
@@ -2004,10 +1995,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "6328462881323724447"
+                      "templateHash": "11334430934503633029"
                     }
                   },
                   "parameters": {
+                    "bastionHostNetworkSecurityGroup": {
+                      "type": "string"
+                    },
                     "bastionHostSubnetAddressPrefix": {
                       "type": "string"
                     },
@@ -2115,6 +2109,126 @@
                       "type": "array"
                     }
                   },
+                  "variables": {
+                    "bastionNetworkSecurityGroupRules": [
+                      {
+                        "name": "AllowHttpsInBound",
+                        "properties": {
+                          "protocol": "Tcp",
+                          "sourcePortRange": "*",
+                          "sourceAddressPrefix": "Internet",
+                          "destinationPortRange": "443",
+                          "destinationAddressPrefix": "*",
+                          "access": "Allow",
+                          "priority": 120,
+                          "direction": "Inbound"
+                        }
+                      },
+                      {
+                        "name": "AllowGatewayManagerInBound",
+                        "properties": {
+                          "protocol": "Tcp",
+                          "sourcePortRange": "*",
+                          "sourceAddressPrefix": "GatewayManager",
+                          "destinationPortRange": "443",
+                          "destinationAddressPrefix": "*",
+                          "access": "Allow",
+                          "priority": 130,
+                          "direction": "Inbound"
+                        }
+                      },
+                      {
+                        "name": "AllowLoadBalancerInBound",
+                        "properties": {
+                          "protocol": "Tcp",
+                          "sourcePortRange": "*",
+                          "sourceAddressPrefix": "AzureLoadBalancer",
+                          "destinationPortRange": "443",
+                          "destinationAddressPrefix": "*",
+                          "access": "Allow",
+                          "priority": 140,
+                          "direction": "Inbound"
+                        }
+                      },
+                      {
+                        "name": "AllowBastionHostCommunicationInBound",
+                        "properties": {
+                          "protocol": "*",
+                          "sourcePortRange": "*",
+                          "sourceAddressPrefix": "VirtualNetwork",
+                          "destinationPortRanges": [
+                            "8080",
+                            "5701"
+                          ],
+                          "destinationAddressPrefix": "VirtualNetwork",
+                          "access": "Allow",
+                          "priority": 150,
+                          "direction": "Inbound"
+                        }
+                      },
+                      {
+                        "name": "AllowSshRdpOutBound",
+                        "properties": {
+                          "protocol": "Tcp",
+                          "sourcePortRange": "*",
+                          "sourceAddressPrefix": "*",
+                          "destinationPortRanges": [
+                            "22",
+                            "3389"
+                          ],
+                          "destinationAddressPrefix": "VirtualNetwork",
+                          "access": "Allow",
+                          "priority": 120,
+                          "direction": "Outbound"
+                        }
+                      },
+                      {
+                        "name": "AllowAzureCloudCommunicationOutBound",
+                        "properties": {
+                          "protocol": "Tcp",
+                          "sourcePortRange": "*",
+                          "sourceAddressPrefix": "*",
+                          "destinationPortRange": "443",
+                          "destinationAddressPrefix": "AzureCloud",
+                          "access": "Allow",
+                          "priority": 130,
+                          "direction": "Outbound"
+                        }
+                      },
+                      {
+                        "name": "AllowBastionHostCommunicationOutBound",
+                        "properties": {
+                          "protocol": "*",
+                          "sourcePortRange": "*",
+                          "sourceAddressPrefix": "VirtualNetwork",
+                          "destinationPortRanges": [
+                            "8080",
+                            "5701"
+                          ],
+                          "destinationAddressPrefix": "VirtualNetwork",
+                          "access": "Allow",
+                          "priority": 140,
+                          "direction": "Outbound"
+                        }
+                      },
+                      {
+                        "name": "AllowGetSessionInformationOutBound",
+                        "properties": {
+                          "protocol": "*",
+                          "sourcePortRange": "*",
+                          "sourceAddressPrefix": "*",
+                          "destinationAddressPrefix": "Internet",
+                          "destinationPortRanges": [
+                            "80",
+                            "443"
+                          ],
+                          "access": "Allow",
+                          "priority": 150,
+                          "direction": "Outbound"
+                        }
+                      }
+                    ]
+                  },
                   "resources": [
                     {
                       "type": "Microsoft.Resources/deployments",
@@ -2137,6 +2251,85 @@
                           },
                           "securityRules": {
                             "value": "[parameters('networkSecurityGroupRules')]"
+                          },
+                          "tags": {
+                            "value": "[parameters('tags')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.28.1.47646",
+                              "templateHash": "17152995037494078504"
+                            }
+                          },
+                          "parameters": {
+                            "location": {
+                              "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "securityRules": {
+                              "type": "array"
+                            },
+                            "tags": {
+                              "type": "object"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Network/networkSecurityGroups",
+                              "apiVersion": "2021-02-01",
+                              "name": "[parameters('name')]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkSecurityGroups'), parameters('tags')['Microsoft.Network/networkSecurityGroups'], createObject()), parameters('mlzTags'))]",
+                              "properties": {
+                                "securityRules": "[parameters('securityRules')]"
+                              }
+                            }
+                          ],
+                          "outputs": {
+                            "id": {
+                              "type": "string",
+                              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('name'))]"
+                            },
+                            "name": {
+                              "type": "string",
+                              "value": "[parameters('name')]"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "condition": "[parameters('deployBastion')]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "bastionNSG",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
+                          "name": {
+                            "value": "[parameters('bastionHostNetworkSecurityGroup')]"
+                          },
+                          "securityRules": {
+                            "value": "[variables('bastionNetworkSecurityGroupRules')]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
@@ -2384,7 +2577,7 @@
                             "value": "[parameters('virtualNetworkName')]"
                           },
                           "subnets": {
-                            "value": "[union(createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallClientSubnetAddressPrefix'))), createObject('name', 'AzureFirewallManagementSubnet', 'properties', createObject('addressPrefix', parameters('firewallManagementSubnetAddressPrefix'))), createObject('name', parameters('subnetName'), 'properties', createObject('addressPrefix', parameters('subnetAddressPrefix'), 'networkSecurityGroup', createObject('id', reference(resourceId('Microsoft.Resources/deployments', 'networkSecurityGroup'), '2022-09-01').outputs.id.value), 'privateEndpointNetworkPolicies', 'Disabled', 'privateLinkServiceNetworkPolicies', 'Disabled', 'routeTable', createObject('id', reference(resourceId('Microsoft.Resources/deployments', 'routeTable'), '2022-09-01').outputs.id.value)))), if(parameters('deployBastion'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionHostSubnetAddressPrefix')))), createArray()), if(parameters('deployAzureGatewaySubnet'), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('azureGatewaySubnetAddressPrefix')))), createArray()))]"
+                            "value": "[union(createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallClientSubnetAddressPrefix'))), createObject('name', 'AzureFirewallManagementSubnet', 'properties', createObject('addressPrefix', parameters('firewallManagementSubnetAddressPrefix'))), createObject('name', parameters('subnetName'), 'properties', createObject('addressPrefix', parameters('subnetAddressPrefix'), 'networkSecurityGroup', createObject('id', reference(resourceId('Microsoft.Resources/deployments', 'networkSecurityGroup'), '2022-09-01').outputs.id.value), 'privateEndpointNetworkPolicies', 'Disabled', 'privateLinkServiceNetworkPolicies', 'Disabled', 'routeTable', createObject('id', reference(resourceId('Microsoft.Resources/deployments', 'routeTable'), '2022-09-01').outputs.id.value)))), if(parameters('deployBastion'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionHostSubnetAddressPrefix'), 'networkSecurityGroup', createObject('id', reference(resourceId('Microsoft.Resources/deployments', 'bastionNSG'), '2022-09-01').outputs.id.value)))), createArray()), if(parameters('deployAzureGatewaySubnet'), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('azureGatewaySubnetAddressPrefix')))), createArray()))]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
@@ -2469,6 +2662,7 @@
                         }
                       },
                       "dependsOn": [
+                        "[resourceId('Microsoft.Resources/deployments', 'bastionNSG')]",
                         "[resourceId('Microsoft.Resources/deployments', 'networkSecurityGroup')]",
                         "[resourceId('Microsoft.Resources/deployments', 'networkWatcher')]",
                         "[resourceId('Microsoft.Resources/deployments', 'routeTable')]"
