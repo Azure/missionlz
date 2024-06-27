@@ -92,4 +92,3 @@ Click [here](./docs/deployment-guide-walkthrough.md) to learn about each tab and
 ## Getting Started
 
 For more detailed deployment instructions, see the [Deployment Guide for Bicep](docs/deployment-guide-bicep.md) and the [Deployment Guide for Terraform](docs/deployment-guide-terraform.md) in the [`docs`](docs) folder.
-
