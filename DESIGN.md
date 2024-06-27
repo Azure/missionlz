@@ -1,5 +1,7 @@
 # Mission LZ Design
 
+[**Home**](./README.md) | [**Design**](./DESIGN.md) | [**Resources**](./RESOURCES.md)
+
 ## Scope
 
 Mission LZ has the following scope:
