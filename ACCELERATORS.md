@@ -1,4 +1,4 @@
-## Mission Landing Zone Accelerators
+# Mission Landing Zone Accelerators
 
 [**Home**](./README.md) | [**Design**](./DESIGN.md) | [**Accelerators**](./ACCELERATORS.md) | [**Resources**](./RESOURCES.md)
 
