@@ -1,3 +1,5 @@
+# Mission LZ Design
+
 ## Scope
 
 Mission LZ has the following scope:
