@@ -1,6 +1,6 @@
 # Mission LZ
 
-[**Home**](./README.md) | [**Design**](./DESIGN.md) | [**Resources**](./RESOURCES.md)
+[**Home**](./README.md) | [**Design**](./DESIGN.md) | [**Accelerators**](./ACCELERATORS.md) | [**Resources**](./RESOURCES.md)
 
 Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their workloads and teams.
 
