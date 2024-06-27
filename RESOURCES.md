@@ -1,6 +1,6 @@
 # Mission LZ Resources
 
-[**Home**](./README.md) | [**Design**](./DESIGN.md) | [**Resources**](./RESOURCES.md)
+[**Home**](./README.md) | [**Design**](./DESIGN.md) | [**Accelerators**](./ACCELERATORS.md) | [**Resources**](./RESOURCES.md)
 
 ## What is a Landing Zone?
 
