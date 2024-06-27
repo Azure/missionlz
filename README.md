@@ -1,5 +1,7 @@
 # Mission LZ
 
+[**Home**](./README.md) | [**Design**](./DESIGN.md) | [**Accelerators**](./ACCELERATORS.md) | [**Resources**](./RESOURCES.md)
+
 Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their workloads and teams.
 
 Mission Landing Zone addresses a narrowly scoped, specific need for a [Secure Cloud Computing Architecture (SCCA)](docs/scca.md) compliant hub and spoke infrastructure.
@@ -30,18 +32,6 @@ Our intent is to enable IT Admins to use this software to:
 - Develop a known good configuration that can be used for production with multiple Azure subscriptions
 - Customize the deployment configuration to suit specific needs
 - Deploy multiple customer workloads in production
-
-## Mission Landing Zone Add-ons
-
-- [ESRI ArcGIS Pro & Enterprise with AVD](./docs/esri.md)
-- [AVD (Azure Virtual Desktop)](./src/bicep/add-ons/azure-virtual-desktop/README.md)
-- [Zero Trust Imaging](./src/bicep/add-ons/imaging/README.md)
-
-## What is a Landing Zone?
-
-A **landing zone** is networking infrastructure configured to provide a secure environment for hosting workloads.
-
-[![Landing Zones Azure Academy Video](https://img.youtube.com/vi/9BKgz9Rl1eo/0.jpg)](https://youtu.be/9BKgz9Rl1eo "Don't let this happen to you 😮 Build A Landing Zone 👍 - Click to Watch!")
 
 ## Quickstart
 
@@ -98,87 +88,7 @@ Click [here](./docs/deployment-guide-walkthrough.md) to learn about each tab and
 
 > Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your browser: <https://docs.microsoft.com/en-us/azure/cloud-shell/overview>
 
-For more detailed deployment instructions, see our deployment guides for [Bicep](docs/deployment-guide-bicep.md) and [Terraform](docs/deployment-guide-terraform.md).
-
-## Scope
-
-Mission LZ has the following scope:
-
-- Hub and spoke networking intended to comply with SCCA controls
-- Predefined spokes for identity, operations, shared services, and workloads
-- Ability to create multiple, isolated workloads or team subscriptions
-- Remote access
-- Compatibility with SCCA compliance (and other compliance frameworks)
-- Security using standard Azure tools with sensible defaults
-- Azure Policy initiatives
-
-<!-- markdownlint-disable MD033 -->
-<!-- allow html for images so that they can be sized -->
-<img src="docs/images/scope-v2.png" alt="A table of the components Mission LZ provisions in Azure beneath a rectangle labeled DISA Secure Cloud Computing Architecture Controls" width="600" />
-<!-- markdownlint-enable MD033 -->
-
-## Networking
-
-Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity and Authorization), T1 (Infrastructure Operations), T2 (DevSecOps and Shared Services), and multiple T3s (Workloads). Access control can be configured to allow separation of duties between all tiers.
-
-<!-- markdownlint-disable MD033 -->
-<!-- allow html for images so that they can be sized -->
-<img src="docs/images/networking.png" alt="A diagram that depicts a hub with four spokes, each spoke pointing at the hub" width="600" />
-<!-- markdownlint-enable MD033 -->
-
-Each virtual network has been given a default address prefix to ensure they fall within the default super network. Refer to the [Networking page](docs/networking.md) for all the default address prefixes.
-
-## Subscriptions
-
-Most customers will deploy each tier to a separate Azure subscription, but multiple subscriptions are not required. A single subscription deployment is good for a testing and evaluation, or possibly a small IT Admin team.
-
-## Firewall
-
-All network traffic is directed through the firewall residing in the Network Hub resource group. The firewall is configured as the default route for all the T0 (Identity and Authorization) through T3 (workload/team environments) resource groups as follows:
-
-| Name          | Address prefix | Next hop type     | Next hop IP address|
-|---------------|----------------|-------------------|--------------------|
-| default_route | 0.0.0.0/0      | Virtual Appliance | 10.0.128.68        |
-
-The default firewall configured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). The Azure Firewall Premium SKU includes the IDPS feature necessary to satisfy the SCCA VDSS requirement. However, if you do not require IDPS, you can optionally deploy Azure Firewall Standard by settings the `firewallSkuTier` parameter to `Standard`.
-
-Presently, there are two firewall rules configured to ensure access to the Azure Portal and to facilitate interactive logon via PowerShell and Azure CLI, all other traffic is restricted by default. Below are the collection of rules configured for Azure Commercial and Azure Government clouds:
-
-| Rule Collection Priority | Rule Collection Name      | Rule Name       | Source        | Port      | Protocol                               |
-|--------------------------|---------------------------|-----------------|---------------|-----------|----------------------------------------|
-| 100                      | AllowAzureCloud           | AzureCloud      | *             | *         | Any                                    |
-| 110                      | AzureAuth                 | msftauth        | *             | Https:443 | aadcdn.msftauth.net, aadcdn.msauth.net |
-| 200                      | AllowTrafficBetweenSpokes | AllSpokeTraffic | 10.0.128.0/18 | *         | Any                                    |
-
-To deploy Mission LZ using Azure Stack Hub and an F5 BIG-IP Virtual Edition instead of Azure Firewall Premium, there is an alternate repository with instructions [found here](https://github.com/Azure/missionlz-edge).
 
 ## Getting Started
 
-See the [Deployment Guide for Bicep](docs/deployment-guide-bicep.md) and the [Deployment Guide for Terraform](docs/deployment-guide-terraform.md) in the [`docs`](docs) folder.
-
-## Product Roadmap
-
-See the [Projects](https://github.com/Azure/missionlz/projects) page for the release timeline and feature areas.
-
-Here's a summary of what Mission Landing Zone deploys of as of April 2024:
-
-<!-- markdownlint-disable MD033 -->
-<!-- allow html for images so that they can be sized -->
-<img src="docs/images/20211220_updated_missionlz_as_of_Apr2024_light.png" alt="A diagram that depicts a hub and spoke network topology built with Azure resources" width="1200" />
-<!-- markdownlint-enable MD033 -->
-
-## Contributing
-
-This project welcomes contributions and suggestions. See our [Contributing Guide](CONTRIBUTING.md) for details.
-
-## Feedback, Support, and How to Contact Us
-
-Please see the [Support and Feedback Guide](SUPPORT.md). To report a security issue please see our [security guidance](./SECURITY.md).
-
-## Trademarks
-
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
-trademarks or logos is subject to and must follow
-[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
-Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
-Any use of third-party trademarks or logos are subject to those third-party's policies.
+For more detailed deployment instructions, see the [Deployment Guide for Bicep](docs/deployment-guide-bicep.md) and the [Deployment Guide for Terraform](docs/deployment-guide-terraform.md) in the [`docs`](docs) folder.
