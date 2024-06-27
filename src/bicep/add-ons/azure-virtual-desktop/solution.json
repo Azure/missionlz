@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "10163665230854085925"
+      "templateHash": "17654450060344383930"
     }
   },
   "parameters": {
@@ -15435,7 +15435,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "738746403074002130"
+              "templateHash": "11844454544264665588"
             }
           },
           "parameters": {
@@ -15993,7 +15993,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "1172544219631447582"
+                      "templateHash": "2398448621797892984"
                     }
                   },
                   "parameters": {
@@ -16255,6 +16255,7 @@
                           "[format('{0}', parameters('artifactsUserAssignedIdentityResourceId'))]": {}
                         }
                       },
+                      "plan": "[if(equals(parameters('imagePublisher'), 'esri'), createObject('name', parameters('imageSku'), 'product', parameters('imageOffer'), 'publisher', parameters('imagePublisher')), null())]",
                       "properties": {
                         "availabilitySet": "[if(equals(parameters('availability'), 'AvailabilitySets'), createObject('id', resourceId('Microsoft.Compute/availabilitySets', format('{0}-{1}', parameters('availabilitySetNamePrefix'), padLeft(div(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 200), 2, '0')))), null())]",
                         "hardwareProfile": {
@@ -16475,7 +16476,7 @@
                           "timestamp": "[parameters('timestamp')]"
                         },
                         "protectedSettings": {
-                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -activeDirectorySolution {0} -amdVmSize {1} -avdAgentBootLoaderMsiName \"{2}\" -avdAgentMsiName \"{3}\" -Environment {4} -fslogix {5} -fslogixContainerType {6} -hostPoolName {7} -HostPoolRegistrationToken \"{8}\" -imageOffer {9} -imagePublisher {10} -netAppFileShares {11} -nvidiaVmSize {12} -pooledHostPool {13} -storageAccountPrefix {14} -storageCount {15} -storageIndex {16} -storageService {17} -storageSuffix {18} -uniqueToken {19}', parameters('activeDirectorySolution'), variables('amdVmSize'), parameters('avdAgentBootLoaderMsiName'), parameters('avdAgentMsiName'), environment().name, parameters('deployFslogix'), parameters('fslogixContainerType'), parameters('hostPoolName'), reference(resourceId(parameters('resourceGroupControlPlane'), 'Microsoft.DesktopVirtualization/hostpools', parameters('hostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('imageOffer'), parameters('imagePublisher'), parameters('netAppFileShares'), variables('nvidiaVmSize'), variables('pooledHostPool'), parameters('storageAccountPrefix'), parameters('storageCount'), parameters('storageIndex'), parameters('storageService'), parameters('storageSuffix'), parameters('uniqueToken'))]",
+                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -activeDirectorySolution {0} -amdVmSize {1} -avdAgentBootLoaderMsiName \"{2}\" -avdAgentMsiName \"{3}\" -Environment {4} -fslogix {5} -fslogixContainerType {6} -hostPoolName {7} -HostPoolRegistrationToken \"{8}\" -imageOffer {9} -imagePublisher {10} -netAppFileShares {11} -nvidiaVmSize {12} -pooledHostPool {13} -storageAccountPrefix {14} -storageCount {15} -storageIndex {16} -storageService {17} -storageSuffix {18} -uniqueToken {19}', parameters('activeDirectorySolution'), variables('amdVmSize'), parameters('avdAgentBootLoaderMsiName'), parameters('avdAgentMsiName'), environment().name, parameters('deployFslogix'), parameters('fslogixContainerType'), parameters('hostPoolName'), reference(resourceId(parameters('resourceGroupControlPlane'), 'Microsoft.DesktopVirtualization/hostpools', parameters('hostPoolName')), '2021-01-14-preview', 'Full').properties.registrationInfo.token, parameters('imageOffer'), parameters('imagePublisher'), parameters('netAppFileShares'), variables('nvidiaVmSize'), variables('pooledHostPool'), parameters('storageAccountPrefix'), parameters('storageCount'), parameters('storageIndex'), parameters('storageService'), parameters('storageSuffix'), parameters('uniqueToken'))]",
                           "managedidentity": {
                             "clientId": "[parameters('artifactsUserAssignedIdentityClientId')]"
                           }
