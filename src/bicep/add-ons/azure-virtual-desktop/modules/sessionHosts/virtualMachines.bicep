@@ -71,6 +71,7 @@ var fslogixExclusionsOfficeContainers = contains(fslogixContainerType, 'Office')
 var fslogixExclusionsProfileContainers = ';"${fslogixProfileShare}";"${fslogixProfileShare}.lock";"${fslogixProfileShare}.meta";"${fslogixProfileShare}.metadata"'
 var fslogixOfficeShare = '\\\\${storageAccountToken}.file.${storageSuffix}\\office-containers\\*\\*.VHDX'
 var fslogixProfileShare = '\\\\${storageAccountToken}.file.${storageSuffix}\\profile-containers\\*\\*.VHDX'
+var hostPoolRegistrationToken = reference(resourceId(resourceGroupControlPlane, 'Microsoft.DesktopVirtualization/hostpools', hostPoolName), '2021-01-14-preview', 'Full').properties.registrationInfo.token
 var imageReference = empty(imageVersionResourceId) ? {
   publisher: imagePublisher
   offer: imageOffer
@@ -139,6 +140,11 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
       '${artifactsUserAssignedIdentityResourceId}': {}
     }
   }
+  plan: imagePublisher == 'esri' ? {
+    name: imageSku
+    product: imageOffer
+    publisher: imagePublisher
+  } : null
   properties: {
     availabilitySet: availability == 'AvailabilitySets' ? {
       id: resourceId('Microsoft.Compute/availabilitySets', '${availabilitySetNamePrefix}-${padLeft((i + sessionHostIndex) / 200, 2, '0')}')
@@ -324,7 +330,7 @@ resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/exte
       timestamp: timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -activeDirectorySolution ${activeDirectorySolution} -amdVmSize ${amdVmSize} -avdAgentBootLoaderMsiName "${avdAgentBootLoaderMsiName}" -avdAgentMsiName "${avdAgentMsiName}" -Environment ${environment().name} -fslogix ${deployFslogix} -fslogixContainerType ${fslogixContainerType} -hostPoolName ${hostPoolName} -HostPoolRegistrationToken "${reference(resourceId(resourceGroupControlPlane, 'Microsoft.DesktopVirtualization/hostpools', hostPoolName), '2019-12-10-preview').registrationInfo.token}" -imageOffer ${imageOffer} -imagePublisher ${imagePublisher} -netAppFileShares ${netAppFileShares} -nvidiaVmSize ${nvidiaVmSize} -pooledHostPool ${pooledHostPool} -storageAccountPrefix ${storageAccountPrefix} -storageCount ${storageCount} -storageIndex ${storageIndex} -storageService ${storageService} -storageSuffix ${storageSuffix} -uniqueToken ${uniqueToken}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -activeDirectorySolution ${activeDirectorySolution} -amdVmSize ${amdVmSize} -avdAgentBootLoaderMsiName "${avdAgentBootLoaderMsiName}" -avdAgentMsiName "${avdAgentMsiName}" -Environment ${environment().name} -fslogix ${deployFslogix} -fslogixContainerType ${fslogixContainerType} -hostPoolName ${hostPoolName} -HostPoolRegistrationToken "${hostPoolRegistrationToken}" -imageOffer ${imageOffer} -imagePublisher ${imagePublisher} -netAppFileShares ${netAppFileShares} -nvidiaVmSize ${nvidiaVmSize} -pooledHostPool ${pooledHostPool} -storageAccountPrefix ${storageAccountPrefix} -storageCount ${storageCount} -storageIndex ${storageIndex} -storageService ${storageService} -storageSuffix ${storageSuffix} -uniqueToken ${uniqueToken}'
       managedidentity: {
         clientId: artifactsUserAssignedIdentityClientId
       }
