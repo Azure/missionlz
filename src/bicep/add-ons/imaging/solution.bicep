@@ -354,7 +354,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     subscriptionId: subscriptionId
     tags: tags
     teamsInstaller: teamsInstaller
-    timeZone: tier3.outputs.locatonProperties.timeZone
+    timeZone: tier3.outputs.locationProperties.timeZone
     updateService: updateService
     userAssignedIdentityClientId: baseline.outputs.userAssignedIdentityClientId
     userAssignedIdentityPrincipalId: baseline.outputs.userAssignedIdentityPrincipalId

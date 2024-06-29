@@ -13,6 +13,8 @@ param domainName string
 param existingFeedWorkspace bool
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
+param hubResourceGroupName string
+param hubSubscriptionId string
 param imageOffer string
 param imagePublisher string
 param imageSku string
@@ -25,6 +27,7 @@ param maxSessionLimit int
 param mlzTags object
 param monitoring bool
 param namingConvention object
+param resourceAbbreviations object
 param resourceGroups array
 param roleDefinitions object
 param securityPrincipalObjectIds array
@@ -66,6 +69,15 @@ module hostPool 'hostPool.bicep' = {
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageType: imageType
+    keyVaultName: replace(namingConvention.keyVault, serviceToken, resourceAbbreviations.hostPools)
+    keyVaultNetworkInterfaceName: replace(namingConvention.keyVaultNetworkInterface, serviceToken, resourceAbbreviations.hostPools)
+    keyVaultPrivateDnsZoneResourceId: resourceId(
+      hubSubscriptionId,
+      hubResourceGroupName,
+      'Microsoft.Network/privateDnsZones',
+      replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
+    )
+    keyVaultPrivateEndpointName: replace(namingConvention.keyVaultPrivateEndpoint, serviceToken, resourceAbbreviations.hostPools)
     location: locationControlPlane
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     maxSessionLimit: maxSessionLimit

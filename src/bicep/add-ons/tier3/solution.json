@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "7231398820336929499"
+      "templateHash": "17558927729562713174"
     }
   },
   "parameters": {
@@ -273,7 +273,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "4043054769176836480"
+              "templateHash": "8069409265346833848"
             }
           },
           "parameters": {
@@ -954,6 +954,10 @@
             "privateDnsZones": {
               "type": "array",
               "value": "[variables('privateDnsZoneNames')]"
+            },
+            "resourceAbbreviations": {
+              "type": "object",
+              "value": "[variables('resourceAbbreviations')]"
             },
             "tiers": {
               "type": "array",
@@ -4065,7 +4069,7 @@
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
     },
-    "locatonProperties": {
+    "locationProperties": {
       "type": "object",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value]"
     },
@@ -4080,6 +4084,10 @@
     "privateDnsZones": {
       "type": "array",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
+    },
+    "resourceAbbreviations": {
+      "type": "object",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceAbbreviations.value]"
     },
     "resourcePrefix": {
       "type": "string",

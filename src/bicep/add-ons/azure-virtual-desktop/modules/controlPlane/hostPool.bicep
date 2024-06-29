@@ -15,6 +15,10 @@ param hostPoolPrivateEndpointName string
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
 param imageType string
+param keyVaultName string
+param keyVaultNetworkInterfaceName string
+param keyVaultPrivateDnsZoneResourceId string
+param keyVaultPrivateEndpointName string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param maxSessionLimit int
@@ -126,6 +130,84 @@ resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-pre
   properties: {
     logs: hostPoolLogs
     workspaceId: logAnalyticsWorkspaceResourceId
+  }
+}
+
+resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
+  name: keyVaultName
+  location: location
+  tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
+  properties: {
+    enabledForDeployment: true
+    enabledForDiskEncryption: false
+    enabledForTemplateDeployment: true
+    enablePurgeProtection: true
+    enableRbacAuthorization: true
+    enableSoftDelete: true
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Deny'
+      ipRules: []
+      virtualNetworkRules: []
+    }
+    publicNetworkAccess: 'Disabled'
+    sku: {
+      family: 'A'
+      name: 'standard'
+    }
+    softDeleteRetentionInDays: 7 
+    tenantId: subscription().tenantId
+  }
+}
+
+resource privateEndpoint_keyVault 'Microsoft.Network/privateEndpoints@2023-04-01' = {
+  name: keyVaultPrivateEndpointName
+  location: location
+  tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
+  properties: {
+    customNetworkInterfaceName: keyVaultNetworkInterfaceName
+    privateLinkServiceConnections: [
+      {
+        name: keyVaultPrivateEndpointName
+        properties: {
+          privateLinkServiceId: vault.id
+          groupIds: [
+            'vault'
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: subnetResourceId
+    }
+  }
+}
+
+resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
+  parent: privateEndpoint_keyVault
+  name: keyVaultName
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          privateDnsZoneId: keyVaultPrivateDnsZoneResourceId
+        }
+      }
+    ]
+  }
+}
+
+resource secret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+  parent: vault
+  name: 'avdHostPoolRegistrationToken'
+  tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
+  properties: {
+    attributes: {
+      enabled: true
+    }
+    contentType: 'text/plain'
+    value: hostPool.properties.registrationInfo.token
   }
 }
 

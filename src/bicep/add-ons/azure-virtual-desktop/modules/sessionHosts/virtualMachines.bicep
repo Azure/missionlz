@@ -24,6 +24,8 @@ param domainName string
 param enableDrainMode bool
 param fslogixContainerType string
 param hostPoolName string
+@secure()
+param hostPoolRegistrationToken string
 param hostPoolType string
 param imageOffer string
 param imagePublisher string
@@ -71,7 +73,6 @@ var fslogixExclusionsOfficeContainers = contains(fslogixContainerType, 'Office')
 var fslogixExclusionsProfileContainers = ';"${fslogixProfileShare}";"${fslogixProfileShare}.lock";"${fslogixProfileShare}.meta";"${fslogixProfileShare}.metadata"'
 var fslogixOfficeShare = '\\\\${storageAccountToken}.file.${storageSuffix}\\office-containers\\*\\*.VHDX'
 var fslogixProfileShare = '\\\\${storageAccountToken}.file.${storageSuffix}\\profile-containers\\*\\*.VHDX'
-var hostPoolRegistrationToken = reference(resourceId(resourceGroupControlPlane, 'Microsoft.DesktopVirtualization/hostpools', hostPoolName), '2021-01-14-preview', 'Full').properties.registrationInfo.token
 var imageReference = empty(imageVersionResourceId) ? {
   publisher: imagePublisher
   offer: imageOffer
