@@ -1,7 +1,10 @@
 param activeDirectorySolution string
+param artifactsUri string
 param avdPrivateDnsZoneResourceId string
 param customImageId string
 param customRdpProperty string
+param deploymentNameSuffix string
+param deploymentUserAssignedIdentityClientId string
 param diskSku string
 param domainName string
 param galleryImageOffer string
@@ -21,9 +24,11 @@ param keyVaultPrivateDnsZoneResourceId string
 param keyVaultPrivateEndpointName string
 param location string
 param logAnalyticsWorkspaceResourceId string
+param managementVirtualMachineName string
 param maxSessionLimit int
 param mlzTags object
 param monitoring bool
+param resourceGroupManagement string
 param sessionHostNamePrefix string
 param subnetResourceId string
 param tags object
@@ -183,7 +188,7 @@ resource privateEndpoint_keyVault 'Microsoft.Network/privateEndpoints@2023-04-01
   }
 }
 
-resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
+resource privateDnsZoneGroup_keyVault 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
   parent: privateEndpoint_keyVault
   name: keyVaultName
   properties: {
@@ -198,17 +203,25 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
   }
 }
 
-resource secret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  parent: vault
-  name: 'avdHostPoolRegistrationToken'
-  tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
-  properties: {
-    attributes: {
-      enabled: true
-    }
-    contentType: 'text/plain'
-    value: hostPool.properties.registrationInfo.token
+module hostPoolRegistrationToken '../common/customScriptExtensions.bicep' = {
+  name: 'deploy-host-pool-registration-token-${deploymentNameSuffix}'
+  scope: resourceGroup(resourceGroupManagement)
+  params: {
+    fileUris: [
+      '${artifactsUri}Set-HostPoolRegistrationToken.ps1'
+    ]
+    location: location
+    parameters: '-HostPoolName "${hostPoolName}" -HostPoolResourceGroupName "${resourceGroup().name}" -KeyVaultUri "${vault.properties.vaultUri}" -SubscriptionId "${subscription().subscriptionId}"'
+    scriptFileName: 'Set-HostPoolRegistrationToken.ps1'
+    tags: union({
+      'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
+    }, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)    
+    userAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
+    virtualMachineName: managementVirtualMachineName
   }
+  dependsOn: [
+    privateDnsZoneGroup_keyVault
+  ]
 }
 
 output name string = hostPool.name

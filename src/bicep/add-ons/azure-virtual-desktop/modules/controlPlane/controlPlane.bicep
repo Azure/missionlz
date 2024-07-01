@@ -88,6 +88,11 @@ module hostPool 'hostPool.bicep' = {
     tags: tags
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
+    artifactsUri: artifactsUri
+    deploymentNameSuffix: deploymentNameSuffix
+    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
+    managementVirtualMachineName: managementVirtualMachineName
+    resourceGroupManagement: resourceGroups[3]
   }
 }
 
