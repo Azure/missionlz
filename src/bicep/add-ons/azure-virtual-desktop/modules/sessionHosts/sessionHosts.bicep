@@ -109,7 +109,7 @@ module roleAssignments '../common/roleAssignment.bicep' = [for i in range(0, len
 }]
 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
-  name: replace(namingConvention.keyVault, serviceToken, resourceAbbreviations.hostPools)
+  name: take(replace(namingConvention.keyVault, serviceToken, resourceAbbreviations.hostPools), 24)
   scope: resourceGroup(resourceGroupControlPlane)
 }
 
