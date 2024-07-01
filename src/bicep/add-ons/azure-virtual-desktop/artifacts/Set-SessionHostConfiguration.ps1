@@ -104,8 +104,14 @@ function Write-Log
     $Entry | Out-File -FilePath $Path -Append
 }
 
+
+##############################################################
+#  Preferences
+##############################################################
+
 $ErrorActionPreference = 'Stop'
 $WarningPreference = 'SilentlyContinue'
+
 
 try 
 {
