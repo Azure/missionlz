@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "1690576675345919321"
+      "templateHash": "1289894362955911350"
     }
   },
   "parameters": {
@@ -12173,7 +12173,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "8330849403433783073"
+              "templateHash": "928298817975687134"
             }
           },
           "parameters": {
@@ -12370,7 +12370,7 @@
                     "value": "[variables('imageType')]"
                   },
                   "keyVaultName": {
-                    "value": "[replace(parameters('namingConvention').keyVault, parameters('serviceToken'), parameters('resourceAbbreviations').hostPools)]"
+                    "value": "[take(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), parameters('resourceAbbreviations').hostPools), 24)]"
                   },
                   "keyVaultNetworkInterfaceName": {
                     "value": "[replace(parameters('namingConvention').keyVaultNetworkInterface, parameters('serviceToken'), parameters('resourceAbbreviations').hostPools)]"
@@ -15586,7 +15586,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "6009628340347373115"
+              "templateHash": "15992546004882868677"
             }
           },
           "parameters": {
@@ -16053,7 +16053,7 @@
                   "hostPoolRegistrationToken": {
                     "reference": {
                       "keyVault": {
-                        "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.KeyVault/vaults', replace(parameters('namingConvention').keyVault, parameters('serviceToken'), parameters('resourceAbbreviations').hostPools))]"
+                        "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.KeyVault/vaults', take(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), parameters('resourceAbbreviations').hostPools), 24))]"
                       },
                       "secretName": "avdHostPoolRegistrationToken"
                     }
