@@ -69,7 +69,7 @@ module hostPool 'hostPool.bicep' = {
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageType: imageType
-    keyVaultName: replace(namingConvention.keyVault, serviceToken, resourceAbbreviations.hostPools)
+    keyVaultName: take(replace(namingConvention.keyVault, serviceToken, resourceAbbreviations.hostPools), 24)
     keyVaultNetworkInterfaceName: replace(namingConvention.keyVaultNetworkInterface, serviceToken, resourceAbbreviations.hostPools)
     keyVaultPrivateDnsZoneResourceId: resourceId(
       hubSubscriptionId,
