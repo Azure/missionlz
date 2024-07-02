@@ -134,7 +134,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-11-01' = {
     licenseType: 'Windows_Server'
   }
   identity: {
-    type: 'SystemAssigned, UserAssigned'
+    type: 'UserAssigned'
     userAssignedIdentities: {
       '${deploymentUserAssignedIdentityResourceId}': {}
     }
