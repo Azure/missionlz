@@ -5,6 +5,7 @@ param customImageId string
 param customRdpProperty string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
+param deploymentUserAssignedIdentityPrincipalId string
 param diskSku string
 param domainName string
 param galleryImageOffer string
@@ -203,6 +204,26 @@ resource privateDnsZoneGroup_keyVault 'Microsoft.Network/privateEndpoints/privat
   }
 }
 
+resource roleAssignment_hostPool 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(deploymentUserAssignedIdentityPrincipalId, 'e307426c-f9b6-4e81-87de-d99efb3c32bc', hostPool.id)
+  scope: hostPool
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'e307426c-f9b6-4e81-87de-d99efb3c32bc') // Desktop Virtualization Host Pool Contributor
+    principalId: deploymentUserAssignedIdentityPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource roleAssignment_keyVault 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(deploymentUserAssignedIdentityPrincipalId, 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7', vault.id)
+  scope: vault
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7') // Key Vault Secrets Officer
+    principalId: deploymentUserAssignedIdentityPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 module hostPoolRegistrationToken '../common/customScriptExtensions.bicep' = {
   name: 'deploy-host-pool-registration-token-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
@@ -211,7 +232,7 @@ module hostPoolRegistrationToken '../common/customScriptExtensions.bicep' = {
       '${artifactsUri}Set-HostPoolRegistrationToken.ps1'
     ]
     location: location
-    parameters: '-HostPoolName "${hostPoolName}" -HostPoolResourceGroupName "${resourceGroup().name}" -KeyVaultUri "${vault.properties.vaultUri}" -SubscriptionId "${subscription().subscriptionId}"'
+    parameters: '-HostPoolName "${hostPoolName}" -HostPoolResourceGroupName "${resourceGroup().name}" -KeyVaultUri "${vault.properties.vaultUri}" -ResourceManagerUri "${environment().resourceManager}" -SubscriptionId "${subscription().subscriptionId}"'
     scriptFileName: 'Set-HostPoolRegistrationToken.ps1'
     tags: union({
       'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
