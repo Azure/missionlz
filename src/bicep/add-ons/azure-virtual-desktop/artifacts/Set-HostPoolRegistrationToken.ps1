@@ -10,6 +10,9 @@ Param(
     [string]$KeyVaultUri,
     
     [parameter(Mandatory)]
+    [string]$ResourceManagerUri,
+
+    [parameter(Mandatory)]
     [string]$SubscriptionId
 )
 
@@ -48,10 +51,13 @@ $WarningPreference = 'SilentlyContinue'
 ##############################################################
 try 
 {
+    # Fix the resource manager URI since only AzureCloud contains a trailing slash
+    $ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}
+
     # Get an access token for Azure resources
     $AzureManagementAccessToken = (Invoke-RestMethod `
         -Headers @{Metadata="true"} `
-        -Uri 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F').access_token
+        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed)).access_token
     Write-Log -Type 'INFO' -Message 'Successfully retrieved access token for Azure Management API'
 
     # Set header for Azure Management API
@@ -66,21 +72,21 @@ try
         -Body (@{properties = @{registrationInfo = @{expirationTime = $(Get-Date).AddMinutes(90); registrationTokenOperation = "Update" }}} | ConvertTo-Json) `
         -Headers $AzureManagementHeader `
         -Method 'PATCH' `
-        -Uri $('https://management.azure.com/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '?api-version=2022-02-10-preview') | Out-Null
+        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '?api-version=2022-02-10-preview') | Out-Null
     Write-Log -Type 'INFO' -Message 'Successfully updated host pool registration token'
 
     # Use the access token to get the host pool registration token
     $HostPoolRegistrationToken = (Invoke-RestMethod `
         -Headers $AzureManagementHeader `
         -Method 'POST' `
-        -Uri $('https://management.azure.com/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/retrieveRegistrationToken?api-version=2022-02-10-preview')).token
+        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/retrieveRegistrationToken?api-version=2022-02-10-preview')).token
     Write-Log -Type 'INFO' -Message 'Successfully retrieved host pool registration token'
 
     # Get an access token for the Azure key vault
     $KeyVaultAccessToken = (Invoke-RestMethod `
         -Headers @{Metadata="true"} `
         -Method 'GET' `
-        -Uri 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net').access_token
+        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultUri)).access_token
     Write-Log -Type 'INFO' -Message 'Successfully retrieved access token for Azure Key Vault API'
 
     # Set header for Azure Key Vault API
