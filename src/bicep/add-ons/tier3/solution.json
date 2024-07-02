@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "17558927729562713174"
+      "templateHash": "13795124894092032190"
     }
   },
   "parameters": {
@@ -273,7 +273,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "8069409265346833848"
+              "templateHash": "14573578632087474774"
             }
           },
           "parameters": {
@@ -829,7 +829,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "11580563852245464992"
+                      "templateHash": "16087355130952958407"
                     }
                   },
                   "parameters": {
@@ -893,9 +893,9 @@
                       "hostPoolNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').hostPools)]",
                       "hostPoolPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').hostPools)]",
                       "keyVault": "[format('{0}{1}', replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').keyVaults), '-', ''), parameters('networkName'), parameters('networkShortName')), uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('subscriptionId')))]",
-                      "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}{1}', parameters('tokens').service, parameters('resourceAbbreviations').keyVaults))]",
-                      "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}{1}', parameters('tokens').service, parameters('resourceAbbreviations').keyVaults))]",
-                      "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}{1}', parameters('tokens').service, parameters('resourceAbbreviations').keyVaults))]",
+                      "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', parameters('resourceAbbreviations').keyVaults, parameters('tokens').service))]",
+                      "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', parameters('resourceAbbreviations').keyVaults, parameters('tokens').service))]",
+                      "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-{1}', parameters('resourceAbbreviations').keyVaults, parameters('tokens').service))]",
                       "logAnalyticsWorkspace": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').logAnalyticsWorkspaces)]",
                       "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, parameters('resourceAbbreviations').logAnalyticsWorkspaces)]",
                       "netAppAccountCapacityPool": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').netAppCapacityPools)]",
