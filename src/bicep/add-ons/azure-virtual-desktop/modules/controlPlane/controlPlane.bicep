@@ -7,6 +7,7 @@ param customImageId string
 param customRdpProperty string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
+param deploymentUserAssignedIdentityPrincipalId string
 param desktopFriendlyName string
 param diskSku string
 param domainName string
@@ -56,6 +57,7 @@ module hostPool 'hostPool.bicep' = {
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
     customImageId: customImageId
     customRdpProperty: customRdpProperty
+    deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentityPrincipalId
     diskSku: diskSku
     domainName: domainName
     galleryImageOffer: galleryImageOffer
