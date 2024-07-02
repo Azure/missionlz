@@ -611,6 +611,7 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     customRdpProperty: customRdpProperty
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
+    deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     desktopFriendlyName: empty(desktopFriendlyName) ? string(stampIndex) : desktopFriendlyName
     diskSku: diskSku
     domainName: domainName
