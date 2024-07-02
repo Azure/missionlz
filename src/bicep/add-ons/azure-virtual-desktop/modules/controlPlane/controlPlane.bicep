@@ -20,9 +20,11 @@ param imageOffer string
 param imagePublisher string
 param imageSku string
 param imageVersionResourceId string
+param keyVaultDiagnosticLogs array
 param locationControlPlane string
 param locationVirtualMachines string
 param logAnalyticsWorkspaceResourceId string
+param logAnalyticsWorkspaceResourceId_Ops string
 param managementVirtualMachineName string
 param maxSessionLimit int
 param mlzTags object
@@ -35,6 +37,8 @@ param securityPrincipalObjectIds array
 param serviceToken string
 param sessionHostNamePrefix string
 param stampIndex string
+@secure()
+param storageAccountResourceId string
 param subnetResourceId string
 param tags object
 param validationEnvironment bool
@@ -54,9 +58,12 @@ module hostPool 'hostPool.bicep' = {
   scope: resourceGroup(resourceGroups[0])
   params: {
     activeDirectorySolution: activeDirectorySolution
+    artifactsUri: artifactsUri
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
     customImageId: customImageId
     customRdpProperty: customRdpProperty
+    deploymentNameSuffix: deploymentNameSuffix
+    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentityPrincipalId
     diskSku: diskSku
     domainName: domainName
@@ -71,6 +78,8 @@ module hostPool 'hostPool.bicep' = {
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageType: imageType
+    keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
+    keyVaultDiagnosticSettingName: replace(namingConvention.keyVaultDiagnosticSetting, serviceToken, resourceAbbreviations.hostPools)
     keyVaultName: take(replace(namingConvention.keyVault, serviceToken, resourceAbbreviations.hostPools), 24)
     keyVaultNetworkInterfaceName: replace(namingConvention.keyVaultNetworkInterface, serviceToken, resourceAbbreviations.hostPools)
     keyVaultPrivateDnsZoneResourceId: resourceId(
@@ -82,19 +91,18 @@ module hostPool 'hostPool.bicep' = {
     keyVaultPrivateEndpointName: replace(namingConvention.keyVaultPrivateEndpoint, serviceToken, resourceAbbreviations.hostPools)
     location: locationControlPlane
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceResourceId_Ops: logAnalyticsWorkspaceResourceId_Ops
+    managementVirtualMachineName: managementVirtualMachineName
     maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
     monitoring: monitoring
+    resourceGroupManagement: resourceGroups[3]
     sessionHostNamePrefix: sessionHostNamePrefix
+    storageAccountResourceId: storageAccountResourceId
     subnetResourceId: subnetResourceId
     tags: tags
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
-    artifactsUri: artifactsUri
-    deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    managementVirtualMachineName: managementVirtualMachineName
-    resourceGroupManagement: resourceGroups[3]
   }
 }
 

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "11349856824177858523"
+      "templateHash": "15389136495201259520"
     }
   },
   "parameters": {
@@ -290,6 +290,22 @@
       "defaultValue": "win11-22h2-avd-m365",
       "metadata": {
         "description": "SKU for the virtual machine image"
+      }
+    },
+    "keyVaultDiagnosticLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "AuditEvent",
+          "enabled": true
+        },
+        {
+          "category": "AzurePolicyEvaluationDetails",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Key Vault Diagnostic Logs categories to collect. See \"https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault\" for valid values."
       }
     },
     "locationControlPlane": {
@@ -684,7 +700,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "13795124894092032190"
+              "templateHash": "6800502719800922837"
             }
           },
           "parameters": {
@@ -4752,6 +4768,10 @@
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value]"
             },
+            "logAnalyticsWorkspaceResourceId": {
+              "type": "string",
+              "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+            },
             "mlzTags": {
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
@@ -4771,6 +4791,10 @@
             "resourcePrefix": {
               "type": "string",
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallResourceId'), '/')[2], split(parameters('firewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('firewallResourceId'), '/')[8]), '2020-11-01', 'full').tags.resourcePrefix]"
+            },
+            "storageAccountResourceId": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountResourceId.value]"
             },
             "storageEncryptionKeyName": {
               "type": "string",
@@ -4874,7 +4898,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "13795124894092032190"
+              "templateHash": "6800502719800922837"
             }
           },
           "parameters": {
@@ -8942,6 +8966,10 @@
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value]"
             },
+            "logAnalyticsWorkspaceResourceId": {
+              "type": "string",
+              "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+            },
             "mlzTags": {
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
@@ -8961,6 +8989,10 @@
             "resourcePrefix": {
               "type": "string",
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallResourceId'), '/')[2], split(parameters('firewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('firewallResourceId'), '/')[8]), '2020-11-01', 'full').tags.resourcePrefix]"
+            },
+            "storageAccountResourceId": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountResourceId.value]"
             },
             "storageEncryptionKeyName": {
               "type": "string",
@@ -12109,6 +12141,9 @@
           "imageVersionResourceId": {
             "value": "[parameters('imageVersionResourceId')]"
           },
+          "keyVaultDiagnosticLogs": {
+            "value": "[parameters('keyVaultDiagnosticLogs')]"
+          },
           "locationControlPlane": {
             "value": "[parameters('locationControlPlane')]"
           },
@@ -12116,6 +12151,9 @@
             "value": "[parameters('locationVirtualMachines')]"
           },
           "logAnalyticsWorkspaceResourceId": "[if(parameters('monitoring'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value), createObject('value', ''))]",
+          "logAnalyticsWorkspaceResourceId_Ops": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+          },
           "managementVirtualMachineName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]"
           },
@@ -12150,6 +12188,9 @@
           "stampIndex": {
             "value": "[string(parameters('stampIndex'))]"
           },
+          "storageAccountResourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountResourceId.value]"
+          },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value]"
           },
@@ -12176,7 +12217,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "5829186502040205068"
+              "templateHash": "6757500035368437085"
             }
           },
           "parameters": {
@@ -12240,6 +12281,9 @@
             "imageVersionResourceId": {
               "type": "string"
             },
+            "keyVaultDiagnosticLogs": {
+              "type": "array"
+            },
             "locationControlPlane": {
               "type": "string"
             },
@@ -12247,6 +12291,9 @@
               "type": "string"
             },
             "logAnalyticsWorkspaceResourceId": {
+              "type": "string"
+            },
+            "logAnalyticsWorkspaceResourceId_Ops": {
               "type": "string"
             },
             "managementVirtualMachineName": {
@@ -12284,6 +12331,9 @@
             },
             "stampIndex": {
               "type": "string"
+            },
+            "storageAccountResourceId": {
+              "type": "securestring"
             },
             "subnetResourceId": {
               "type": "string"
@@ -12327,6 +12377,9 @@
                   "activeDirectorySolution": {
                     "value": "[parameters('activeDirectorySolution')]"
                   },
+                  "artifactsUri": {
+                    "value": "[parameters('artifactsUri')]"
+                  },
                   "avdPrivateDnsZoneResourceId": {
                     "value": "[parameters('avdPrivateDnsZoneResourceId')]"
                   },
@@ -12335,6 +12388,12 @@
                   },
                   "customRdpProperty": {
                     "value": "[parameters('customRdpProperty')]"
+                  },
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "deploymentUserAssignedIdentityClientId": {
+                    "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
                   },
                   "deploymentUserAssignedIdentityPrincipalId": {
                     "value": "[parameters('deploymentUserAssignedIdentityPrincipalId')]"
@@ -12378,6 +12437,12 @@
                   "imageType": {
                     "value": "[variables('imageType')]"
                   },
+                  "keyVaultDiagnosticLogs": {
+                    "value": "[parameters('keyVaultDiagnosticLogs')]"
+                  },
+                  "keyVaultDiagnosticSettingName": {
+                    "value": "[replace(parameters('namingConvention').keyVaultDiagnosticSetting, parameters('serviceToken'), parameters('resourceAbbreviations').hostPools)]"
+                  },
                   "keyVaultName": {
                     "value": "[take(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), parameters('resourceAbbreviations').hostPools), 24)]"
                   },
@@ -12396,6 +12461,12 @@
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
+                  "logAnalyticsWorkspaceResourceId_Ops": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId_Ops')]"
+                  },
+                  "managementVirtualMachineName": {
+                    "value": "[parameters('managementVirtualMachineName')]"
+                  },
                   "maxSessionLimit": {
                     "value": "[parameters('maxSessionLimit')]"
                   },
@@ -12405,8 +12476,14 @@
                   "monitoring": {
                     "value": "[parameters('monitoring')]"
                   },
+                  "resourceGroupManagement": {
+                    "value": "[parameters('resourceGroups')[3]]"
+                  },
                   "sessionHostNamePrefix": {
                     "value": "[parameters('sessionHostNamePrefix')]"
+                  },
+                  "storageAccountResourceId": {
+                    "value": "[parameters('storageAccountResourceId')]"
                   },
                   "subnetResourceId": {
                     "value": "[parameters('subnetResourceId')]"
@@ -12419,21 +12496,6 @@
                   },
                   "virtualMachineSize": {
                     "value": "[parameters('virtualMachineSize')]"
-                  },
-                  "artifactsUri": {
-                    "value": "[parameters('artifactsUri')]"
-                  },
-                  "deploymentNameSuffix": {
-                    "value": "[parameters('deploymentNameSuffix')]"
-                  },
-                  "deploymentUserAssignedIdentityClientId": {
-                    "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
-                  },
-                  "managementVirtualMachineName": {
-                    "value": "[parameters('managementVirtualMachineName')]"
-                  },
-                  "resourceGroupManagement": {
-                    "value": "[parameters('resourceGroups')[3]]"
                   }
                 },
                 "template": {
@@ -12443,7 +12505,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "10068636154190399598"
+                      "templateHash": "17186527714074022076"
                     }
                   },
                   "parameters": {
@@ -12510,6 +12572,12 @@
                     "imageType": {
                       "type": "string"
                     },
+                    "keyVaultDiagnosticLogs": {
+                      "type": "array"
+                    },
+                    "keyVaultDiagnosticSettingName": {
+                      "type": "string"
+                    },
                     "keyVaultName": {
                       "type": "string"
                     },
@@ -12528,6 +12596,9 @@
                     "logAnalyticsWorkspaceResourceId": {
                       "type": "string"
                     },
+                    "logAnalyticsWorkspaceResourceId_Ops": {
+                      "type": "string"
+                    },
                     "managementVirtualMachineName": {
                       "type": "string"
                     },
@@ -12544,6 +12615,9 @@
                       "type": "string"
                     },
                     "sessionHostNamePrefix": {
+                      "type": "string"
+                    },
+                    "storageAccountResourceId": {
                       "type": "string"
                     },
                     "subnetResourceId": {
@@ -12779,6 +12853,75 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-kv-diags-{0}', parameters('deploymentNameSuffix'))]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "keyVaultDiagnosticSettingName": {
+                            "value": "[parameters('keyVaultDiagnosticSettingName')]"
+                          },
+                          "keyVaultName": {
+                            "value": "[parameters('keyVaultName')]"
+                          },
+                          "keyVaultStorageAccountId": {
+                            "value": "[parameters('storageAccountResourceId')]"
+                          },
+                          "logAnalyticsWorkspaceResourceId": {
+                            "value": "[parameters('logAnalyticsWorkspaceResourceId_Ops')]"
+                          },
+                          "logs": {
+                            "value": "[parameters('keyVaultDiagnosticLogs')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.28.1.47646",
+                              "templateHash": "505841804747422350"
+                            }
+                          },
+                          "parameters": {
+                            "keyVaultDiagnosticSettingName": {
+                              "type": "string"
+                            },
+                            "keyVaultName": {
+                              "type": "string"
+                            },
+                            "keyVaultStorageAccountId": {
+                              "type": "string"
+                            },
+                            "logAnalyticsWorkspaceResourceId": {
+                              "type": "string"
+                            },
+                            "logs": {
+                              "type": "array"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Insights/diagnosticSettings",
+                              "apiVersion": "2017-05-01-preview",
+                              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+                              "name": "[parameters('keyVaultDiagnosticSettingName')]",
+                              "properties": {
+                                "storageAccountId": "[parameters('keyVaultStorageAccountId')]",
+                                "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
+                                "logs": "[parameters('logs')]"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
                       "name": "[format('deploy-host-pool-registration-token-{0}', parameters('deploymentNameSuffix'))]",
                       "resourceGroup": "[parameters('resourceGroupManagement')]",
                       "properties": {
@@ -12882,6 +13025,7 @@
                         }
                       },
                       "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', parameters('hostPoolPrivateEndpointName'), 'default')]",
                         "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
                         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                       ]

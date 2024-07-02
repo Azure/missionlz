@@ -19,18 +19,22 @@ param hostPoolPrivateEndpointName string
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
 param imageType string
+param keyVaultDiagnosticLogs array
+param keyVaultDiagnosticSettingName string
 param keyVaultName string
 param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
 param keyVaultPrivateEndpointName string
 param location string
 param logAnalyticsWorkspaceResourceId string
+param logAnalyticsWorkspaceResourceId_Ops string
 param managementVirtualMachineName string
 param maxSessionLimit int
 param mlzTags object
 param monitoring bool
 param resourceGroupManagement string
 param sessionHostNamePrefix string
+param storageAccountResourceId string
 param subnetResourceId string
 param tags object
 param time string = utcNow('u')
@@ -90,7 +94,7 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
   }
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
+resource privateEndpoint_hostPool 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: hostPoolPrivateEndpointName
   location: location
   tags: union({
@@ -115,8 +119,8 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   }
 }
 
-resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-05-01' = {
-  parent: privateEndpoint
+resource privateDnsZoneGroup_hostPool 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-05-01' = {
+  parent: privateEndpoint_hostPool
   name: 'default'
   properties: {
     privateDnsZoneConfigs: [
@@ -130,7 +134,7 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   }
 }
 
-resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (monitoring) {
+resource diagnosticSetting_hostPool 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (monitoring) {
   name: hostPoolDiagnosticSettingName
   scope: hostPool
   properties: {
@@ -204,6 +208,17 @@ resource privateDnsZoneGroup_keyVault 'Microsoft.Network/privateEndpoints/privat
   }
 }
 
+module diagnosticSetting_keyVault '../../../../modules/key-vault-diagnostics.bicep' = {
+  name: 'deploy-kv-diags-${deploymentNameSuffix}'
+  params: {
+    keyVaultDiagnosticSettingName: keyVaultDiagnosticSettingName
+    keyVaultName: keyVaultName
+    keyVaultStorageAccountId: storageAccountResourceId
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId_Ops
+    logs: keyVaultDiagnosticLogs
+  }
+}
+
 resource roleAssignment_hostPool 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(deploymentUserAssignedIdentityPrincipalId, 'e307426c-f9b6-4e81-87de-d99efb3c32bc', hostPool.id)
   scope: hostPool
@@ -241,6 +256,7 @@ module hostPoolRegistrationToken '../common/customScriptExtensions.bicep' = {
     virtualMachineName: managementVirtualMachineName
   }
   dependsOn: [
+    privateDnsZoneGroup_hostPool
     privateDnsZoneGroup_keyVault
   ]
 }

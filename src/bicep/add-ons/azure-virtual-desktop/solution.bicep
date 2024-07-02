@@ -156,6 +156,18 @@ param imagePublisher string = 'MicrosoftWindowsDesktop'
 @description('SKU for the virtual machine image')
 param imageSku string = 'win11-22h2-avd-m365'
 
+@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
+param keyVaultDiagnosticLogs array = [
+  {
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
 @description('The deployment location for the AVD management resources.')
 param locationControlPlane string = deployment().location
 
@@ -624,9 +636,11 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     imagePublisher: imagePublisher
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
+    keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: monitoring ? management.outputs.logAnalyticsWorkspaceResourceId : ''
+    logAnalyticsWorkspaceResourceId_Ops: tier3_controlPlane.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
     mlzTags: tier3_controlPlane.outputs.mlzTags
@@ -657,6 +671,7 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
           ''
         )
     stampIndex: string(stampIndex)
+    storageAccountResourceId: tier3_controlPlane.outputs.storageAccountResourceId
     subnetResourceId: tier3_controlPlane.outputs.subnetResourceId
     tags: tags
     validationEnvironment: validationEnvironment

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "13795124894092032190"
+      "templateHash": "6800502719800922837"
     }
   },
   "parameters": {
@@ -4073,6 +4073,10 @@
       "type": "object",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value]"
     },
+    "logAnalyticsWorkspaceResourceId": {
+      "type": "string",
+      "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+    },
     "mlzTags": {
       "type": "object",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
@@ -4092,6 +4096,10 @@
     "resourcePrefix": {
       "type": "string",
       "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallResourceId'), '/')[2], split(parameters('firewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('firewallResourceId'), '/')[8]), '2020-11-01', 'full').tags.resourcePrefix]"
+    },
+    "storageAccountResourceId": {
+      "type": "string",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountResourceId.value]"
     },
     "storageEncryptionKeyName": {
       "type": "string",
