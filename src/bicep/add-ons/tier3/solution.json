@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "7231398820336929499"
+      "templateHash": "17066332396931848255"
     }
   },
   "parameters": {
@@ -273,7 +273,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "4043054769176836480"
+              "templateHash": "4272770488837434140"
             }
           },
           "parameters": {
@@ -829,7 +829,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "11580563852245464992"
+                      "templateHash": "17119819693163294488"
                     }
                   },
                   "parameters": {
@@ -881,6 +881,8 @@
                       "azureFirewallManagementPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-mgmt-{1}', parameters('resourceAbbreviations').publicIpAddresses, parameters('resourceAbbreviations').azureFirewalls))]",
                       "azureFirewallPolicy": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').firewallPolicies)]",
                       "bastionHost": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').bastionHosts)]",
+                      "bastionHostNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups), parameters('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
+                      "bastionHostDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
                       "bastionHostPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').publicIpAddresses), parameters('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
                       "bastionHostPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', parameters('resourceAbbreviations').publicIpAddresses, parameters('resourceAbbreviations').bastionHosts))]",
                       "computeGallery": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').computeGallieries), '-', '_')]",
@@ -893,9 +895,9 @@
                       "hostPoolNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, parameters('resourceAbbreviations').hostPools)]",
                       "hostPoolPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, parameters('resourceAbbreviations').hostPools)]",
                       "keyVault": "[format('{0}{1}', replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').keyVaults), '-', ''), parameters('networkName'), parameters('networkShortName')), uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('subscriptionId')))]",
-                      "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}{1}', parameters('tokens').service, parameters('resourceAbbreviations').keyVaults))]",
-                      "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}{1}', parameters('tokens').service, parameters('resourceAbbreviations').keyVaults))]",
-                      "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}{1}', parameters('tokens').service, parameters('resourceAbbreviations').keyVaults))]",
+                      "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', parameters('resourceAbbreviations').keyVaults, parameters('tokens').service))]",
+                      "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', parameters('resourceAbbreviations').keyVaults, parameters('tokens').service))]",
+                      "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-{1}', parameters('resourceAbbreviations').keyVaults, parameters('tokens').service))]",
                       "logAnalyticsWorkspace": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').logAnalyticsWorkspaces)]",
                       "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, parameters('resourceAbbreviations').logAnalyticsWorkspaces)]",
                       "netAppAccountCapacityPool": "[replace(variables('namingConvention'), parameters('tokens').resource, parameters('resourceAbbreviations').netAppCapacityPools)]",
@@ -954,6 +956,10 @@
             "privateDnsZones": {
               "type": "array",
               "value": "[variables('privateDnsZoneNames')]"
+            },
+            "resourceAbbreviations": {
+              "type": "object",
+              "value": "[variables('resourceAbbreviations')]"
             },
             "tiers": {
               "type": "array",
@@ -2036,6 +2042,151 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('deploy-vnet-links-{0}-sub-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
+      "resourceGroup": "[variables('hubResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "azureFirewallSku": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallResourceId'), '/')[2], split(parameters('firewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('firewallResourceId'), '/')[8]), '2020-11-01').sku.tier]"
+          },
+          "deploymentNameSuffix": {
+            "value": "[parameters('deploymentNameSuffix')]"
+          },
+          "privateDnsZoneNames": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
+          },
+          "virtualNetworkName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
+          },
+          "virtualNetworkResourceGroupName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+          },
+          "virtualNetworkSubscriptionId": {
+            "value": "[variables('subscriptionId')]"
+          },
+          "workloadShortName": {
+            "value": "[parameters('workloadShortName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "11012674483264519459"
+            }
+          },
+          "parameters": {
+            "azureFirewallSku": {
+              "type": "string"
+            },
+            "deploymentNameSuffix": {
+              "type": "string"
+            },
+            "privateDnsZoneNames": {
+              "type": "array"
+            },
+            "virtualNetworkName": {
+              "type": "string"
+            },
+            "virtualNetworkResourceGroupName": {
+              "type": "string"
+            },
+            "virtualNetworkSubscriptionId": {
+              "type": "string"
+            },
+            "workloadShortName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "condition": "[equals(parameters('azureFirewallSku'), 'Basic')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-vnet-links-{0}-rg-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "privateDnsZoneNames": {
+                    "value": "[parameters('privateDnsZoneNames')]"
+                  },
+                  "virtualNetworkName": {
+                    "value": "[parameters('virtualNetworkName')]"
+                  },
+                  "virtualNetworkResourceGroupName": {
+                    "value": "[parameters('virtualNetworkResourceGroupName')]"
+                  },
+                  "virtualNetworkSubscriptionId": {
+                    "value": "[parameters('virtualNetworkSubscriptionId')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.28.1.47646",
+                      "templateHash": "13752723825727791999"
+                    }
+                  },
+                  "parameters": {
+                    "privateDnsZoneNames": {
+                      "type": "array"
+                    },
+                    "virtualNetworkName": {
+                      "type": "string"
+                    },
+                    "virtualNetworkResourceGroupName": {
+                      "type": "string"
+                    },
+                    "virtualNetworkSubscriptionId": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "copy": {
+                        "name": "virtualNetworkLinks",
+                        "count": "[length(parameters('privateDnsZoneNames'))]"
+                      },
+                      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                      "apiVersion": "2018-09-01",
+                      "name": "[format('{0}/{1}', parameters('privateDnsZoneNames')[copyIndex()], parameters('virtualNetworkName'))]",
+                      "location": "global",
+                      "properties": {
+                        "registrationEnabled": false,
+                        "virtualNetwork": {
+                          "id": "[resourceId(parameters('virtualNetworkSubscriptionId'), parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -4065,9 +4216,13 @@
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
     },
-    "locatonProperties": {
+    "locationProperties": {
       "type": "object",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value]"
+    },
+    "logAnalyticsWorkspaceResourceId": {
+      "type": "string",
+      "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
     },
     "mlzTags": {
       "type": "object",
@@ -4081,9 +4236,17 @@
       "type": "array",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
     },
+    "resourceAbbreviations": {
+      "type": "object",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceAbbreviations.value]"
+    },
     "resourcePrefix": {
       "type": "string",
       "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallResourceId'), '/')[2], split(parameters('firewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('firewallResourceId'), '/')[8]), '2020-11-01', 'full').tags.resourcePrefix]"
+    },
+    "storageAccountResourceId": {
+      "type": "string",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountResourceId.value]"
     },
     "storageEncryptionKeyName": {
       "type": "string",
