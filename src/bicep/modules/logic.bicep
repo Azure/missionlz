@@ -109,6 +109,7 @@ var privateDnsZoneSuffixes_Monitor = {
 output locationProperties object = locations[location]
 output mlzTags object = mlzTags
 output privateDnsZones array = privateDnsZoneNames
+output resourceAbbreviations object = resourceAbbreviations
 output tiers array = [for (network, i) in networks: {
   name: network.name
   shortName: network.shortName
