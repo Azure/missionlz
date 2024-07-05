@@ -1,10 +1,10 @@
 param activeDirectorySolution string
-param artifactsUri string
+// param artifactsUri string
 param avdPrivateDnsZoneResourceId string
 param customImageId string
 param customRdpProperty string
 param deploymentNameSuffix string
-param deploymentUserAssignedIdentityClientId string
+// param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityPrincipalId string
 param diskSku string
 param domainName string
@@ -28,16 +28,15 @@ param keyVaultPrivateEndpointName string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param logAnalyticsWorkspaceResourceId_Ops string
-param managementVirtualMachineName string
+// param managementVirtualMachineName string
 param maxSessionLimit int
 param mlzTags object
 param monitoring bool
-param resourceGroupManagement string
+// param resourceGroupManagement string
 param sessionHostNamePrefix string
 param storageAccountResourceId string
 param subnetResourceId string
 param tags object
-param time string = utcNow('u')
 param validationEnvironment bool
 param virtualMachineSize string
 
@@ -89,10 +88,6 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
     personalDesktopAssignmentType: contains(hostPoolType, 'Personal') ? split(hostPoolType, ' ')[1] : null
     preferredAppGroupType: 'Desktop'
     publicNetworkAccess: hostPoolPublicNetworkAccess
-    registrationInfo: {
-      expirationTime: dateTimeAdd(time, 'PT2H')
-      registrationTokenOperation: 'Update'
-    }
     startVMOnConnect: true
     validationEnvironment: validationEnvironment
     vmTemplate: '{"domain":"${domainName}","galleryImageOffer":${galleryImageOffer},"galleryImagePublisher":${galleryImagePublisher},"galleryImageSKU":${galleryImageSku},"imageType":${imageType},"customImageId":${customImageId},"namePrefix":"${sessionHostNamePrefix}","osDiskType":"${diskSku}","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":${galleryItemId},"hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
@@ -260,7 +255,17 @@ resource roleAssignment_keyVault 'Microsoft.Authorization/roleAssignments@2022-0
   }
 }
 
-module hostPoolRegistrationToken '../common/customScriptExtensions.bicep' = {
+module registrationToken 'registrationToken.bicep' = {
+  name: 'deploy-registration-token-${deploymentNameSuffix}'
+  params: {
+    hostPoolName: hostPool.name
+    keyVaultName: vault.name
+    location: location
+  }
+}
+
+/* Leaving this deployment as a backup in case ARM output fails */
+/* module hostPoolRegistrationToken '../common/customScriptExtensions.bicep' = {
   name: 'deploy-host-pool-registration-token-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
@@ -284,7 +289,7 @@ module hostPoolRegistrationToken '../common/customScriptExtensions.bicep' = {
     privateDnsZoneGroup_hostPool
     privateDnsZoneGroup_keyVault
   ]
-}
+} */
 
 output name string = hostPool.name
 output resourceId string = hostPool.id
