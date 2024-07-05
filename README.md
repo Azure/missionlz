@@ -64,6 +64,10 @@ You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/ro
 
 Click [here](./docs/deployment-guide-templatespec.md) to learn how to create a templatespec.
 
+### Walkthrough of the Azure Quickstart Mission LZ deployment template
+
+Click [here](./docs/deployment-guide-walkthrough.md) to learn about each tab and the components of an MLZ deployment.
+
 ### Deploy using the Azure CLI
 
 1. Clone the repository and change directory to the root of the repository:
