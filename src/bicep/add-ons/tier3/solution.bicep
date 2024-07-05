@@ -193,6 +193,21 @@ module networking 'modules/networking.bicep' = {
   ]
 }
 
+// This module deploys VNET links when the Azure Firewall SKU is "Basic".
+module virtualNetworkLinks 'modules/virtual-network-links.bicep' = {
+  name: 'deploy-vnet-links-${workloadShortName}-sub-${deploymentNameSuffix}'
+  scope: resourceGroup(hubResourceGroupName)
+  params: {
+    azureFirewallSku: azureFirewall.properties.sku.tier
+    deploymentNameSuffix: deploymentNameSuffix
+    privateDnsZoneNames: logic.outputs.privateDnsZones
+    virtualNetworkName: networking.outputs.virtualNetworkName
+    virtualNetworkResourceGroupName: rg.outputs.name
+    virtualNetworkSubscriptionId: subscriptionId
+    workloadShortName: workloadShortName
+  }
+}
+
 module customerManagedKeys '../../modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-${workloadShortName}-${deploymentNameSuffix}'
   params: {
@@ -292,11 +307,14 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
 
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
 output keyVaultUri string = customerManagedKeys.outputs.keyVaultUri
-output locatonProperties object = logic.outputs.locationProperties
+output locationProperties object = logic.outputs.locationProperties
+output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspaceResourceId
 output mlzTags object = logic.outputs.mlzTags
 output namingConvention object = logic.outputs.tiers[0].namingConvention
 output privateDnsZones array = logic.outputs.privateDnsZones
+output resourceAbbreviations object = logic.outputs.resourceAbbreviations
 output resourcePrefix string = azureFirewall.tags.resourcePrefix
+output storageAccountResourceId string = storage.outputs.storageAccountResourceId
 output storageEncryptionKeyName string = customerManagedKeys.outputs.storageKeyName
 output subnetResourceId string = networking.outputs.subnetResourceId
 output tier object = logic.outputs.tiers[0]
