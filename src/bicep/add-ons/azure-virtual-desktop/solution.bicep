@@ -156,6 +156,18 @@ param imagePublisher string = 'MicrosoftWindowsDesktop'
 @description('SKU for the virtual machine image')
 param imageSku string = 'win11-22h2-avd-m365'
 
+@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
+param keyVaultDiagnosticLogs array = [
+  {
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
 @description('The deployment location for the AVD management resources.')
 param locationControlPlane string = deployment().location
 
@@ -502,8 +514,8 @@ module management 'modules/management/management.bicep' = {
     privateDnsZones: tier3_controlPlane.outputs.privateDnsZones
     recoveryServices: recoveryServices
     recoveryServicesGeo: length(deploymentLocations) == 2
-      ? tier3_hosts.outputs.locatonProperties.recoveryServicesGeo
-      : tier3_controlPlane.outputs.locatonProperties.recoveryServicesGeo
+      ? tier3_hosts.outputs.locationProperties.recoveryServicesGeo
+      : tier3_controlPlane.outputs.locationProperties.recoveryServicesGeo
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupFeedWorkspace: rgs[1].outputs.name
     resourceGroupHosts: rgs[2].outputs.name
@@ -520,8 +532,8 @@ module management 'modules/management/management.bicep' = {
       : tier3_controlPlane.outputs.subnetResourceId
     tags: tags
     timeZone: length(deploymentLocations) == 2
-      ? tier3_hosts.outputs.locatonProperties.timeZone
-      : tier3_controlPlane.outputs.locatonProperties.timeZone
+      ? tier3_hosts.outputs.locationProperties.timeZone
+      : tier3_controlPlane.outputs.locationProperties.timeZone
     virtualMachineMonitoringAgent: virtualMachineMonitoringAgent
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
@@ -611,24 +623,30 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     customRdpProperty: customRdpProperty
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
+    deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     desktopFriendlyName: empty(desktopFriendlyName) ? string(stampIndex) : desktopFriendlyName
     diskSku: diskSku
     domainName: domainName
     existingFeedWorkspace: management.outputs.existingFeedWorkspace
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
+    hubResourceGroupName: split(hubVirtualNetworkResourceId, '/')[4]
+    hubSubscriptionId: split(hubVirtualNetworkResourceId, '/')[2]
     imageOffer: imageOffer
     imagePublisher: imagePublisher
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
+    keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: monitoring ? management.outputs.logAnalyticsWorkspaceResourceId : ''
+    logAnalyticsWorkspaceResourceId_Ops: tier3_controlPlane.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
     mlzTags: tier3_controlPlane.outputs.mlzTags
     monitoring: monitoring
     namingConvention: tier3_controlPlane.outputs.namingConvention
+    resourceAbbreviations: tier3_controlPlane.outputs.resourceAbbreviations
     resourceGroups: union(
       [
         rgs[0].outputs.name // controlPlane
@@ -653,6 +671,7 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
           ''
         )
     stampIndex: string(stampIndex)
+    storageAccountResourceId: tier3_controlPlane.outputs.storageAccountResourceId
     subnetResourceId: tier3_controlPlane.outputs.subnetResourceId
     tags: tags
     validationEnvironment: validationEnvironment
@@ -709,8 +728,8 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: tier3_controlPlane.outputs.tokens.service
     smbServerLocation: length(deploymentLocations) == 2
-      ? tier3_hosts.outputs.locatonProperties.timeZone
-      : tier3_controlPlane.outputs.locatonProperties.timeZone
+      ? tier3_hosts.outputs.locationProperties.timeZone
+      : tier3_controlPlane.outputs.locationProperties.timeZone
     storageCount: storageCount
     storageEncryptionKeyName: length(deploymentLocations) == 2
       ? tier3_hosts.outputs.storageEncryptionKeyName
@@ -723,8 +742,8 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
       : tier3_controlPlane.outputs.subnetResourceId
     tags: tags
     timeZone: length(deploymentLocations) == 2
-      ? tier3_hosts.outputs.locatonProperties.abbreviation
-      : tier3_controlPlane.outputs.locatonProperties.abbreviation
+      ? tier3_hosts.outputs.locationProperties.abbreviation
+      : tier3_controlPlane.outputs.locationProperties.abbreviation
   }
   dependsOn: [
     controlPlane
@@ -789,6 +808,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     organizationalUnitPath: organizationalUnitPath
     pooledHostPool: pooledHostPool
     recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
+    resourceAbbreviations: tier3_controlPlane.outputs.resourceAbbreviations
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupHosts: rgs[2].outputs.name
     resourceGroupManagement: rgs[3].outputs.name
@@ -811,11 +831,11 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
       : tier3_controlPlane.outputs.subnetResourceId
     tags: tags
     timeDifference: length(deploymentLocations) == 2
-      ? tier3_hosts.outputs.locatonProperties.timeDifference
-      : tier3_controlPlane.outputs.locatonProperties.timeDifference
+      ? tier3_hosts.outputs.locationProperties.timeDifference
+      : tier3_controlPlane.outputs.locationProperties.timeDifference
     timeZone: length(deploymentLocations) == 2
-      ? tier3_hosts.outputs.locatonProperties.timeZone
-      : tier3_controlPlane.outputs.locatonProperties.timeZone
+      ? tier3_hosts.outputs.locationProperties.timeZone
+      : tier3_controlPlane.outputs.locationProperties.timeZone
     virtualMachineMonitoringAgent: virtualMachineMonitoringAgent
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
