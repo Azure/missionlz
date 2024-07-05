@@ -47,6 +47,7 @@ param pooledHostPool bool
 param enableRecoveryServices bool
 param enableScalingTool bool
 param recoveryServicesVaultName string
+param resourceAbbreviations object
 param resourceGroupControlPlane string
 param resourceGroupHosts string
 param resourceGroupManagement string
@@ -107,6 +108,11 @@ module roleAssignments '../common/roleAssignment.bicep' = [for i in range(0, len
   }
 }]
 
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
+  name: take(replace(namingConvention.keyVault, serviceToken, resourceAbbreviations.hostPools), 24)
+  scope: resourceGroup(resourceGroupControlPlane)
+}
+
 @batchSize(1)
 module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostBatchCount): {
   name: 'deploy-vms-${i - 1}-${deploymentNameSuffix}'
@@ -137,6 +143,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     enableDrainMode: drainMode
     fslogixContainerType: fslogixContainerType
     hostPoolName: hostPoolName
+    hostPoolRegistrationToken: keyVault.getSecret('avdHostPoolRegistrationToken')
     hostPoolType: hostPoolType
     imageVersionResourceId: imageVersionResourceId
     imageOffer: imageOffer
