@@ -76,10 +76,11 @@ To follow a walkthrough of the MLZ deployment click [Walkthrough](./deployment-g
 ## MLZ-Core resources deployed
 
 Once deployed MLZ will deploy a number of resources into 4 Resource Groups:
+
 1. Hub
-2. Operations
-3. Shared Services
-4. Identity, if selected.
+1. Operations
+1. Shared Services
+1. Identity, if selected.
 
 The majority of resources will exist in the Hub resource group, mostly Private DNS Zones.  All resource groups will contain VNETS, Route Tables, and Storage Accounts.  The Operations hub will include additional logging Solutions.  The items listed here are not a complete list of resources.
 
