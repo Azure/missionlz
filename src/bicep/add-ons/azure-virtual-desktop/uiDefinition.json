@@ -201,7 +201,7 @@
                   "name": "enablePartnerTelemetry",
                   "type": "Microsoft.Common.CheckBox",
                   "label": "Enable Partner Telemetry",
-                  "visible": "[not(equals(steps('basics').scenario.profile, 'arcGisPro'))]",
+                  "visible": "[equals(steps('basics').scenario.profile, 'arcGisPro')]",
                   "toolTip": "Choose whether to enable partner telemetry when deploying ArcGIS Pro.",
                   "constraints": {
                     "required": false
