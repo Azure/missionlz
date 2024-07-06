@@ -198,6 +198,16 @@
                   }
                 },
                 {
+                  "name": "enablePartnerTelemetry",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable Partner Telemetry",
+                  "visible": "[not(equals(steps('basics').scenario.profile, 'arcGisPro'))]",
+                  "toolTip": "Choose whether to enable partner telemetry when deploying ArcGIS Pro.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
                   "name": "virtualMachineSkusApi",
                   "type": "Microsoft.Solutions.ArmApiControl",
                   "request": {
@@ -1819,6 +1829,7 @@
         "domainName": "[steps('hosts').identity.domainName]",
         "drainMode": "[steps('management').drainMode.enable]",
         "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '')]",
+        "enablePartnerTelemetry": "[steps('basics').scenario.enablePartnerTelemetry]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
         "fslogixShareSizeInGB": "[if(equals(steps('userProfiles').profileSolution, 'local'), 100, steps('userProfiles').storage.fileShareSize)]",
         "fslogixContainerType": "[steps('userProfiles').storage.fslogixContainerType]",
@@ -1840,6 +1851,7 @@
         "operationsLogAnalyticsWorkspaceResourceId": "[first(map(steps('basics').operationsLogAnalyticsWorkspaceApi.value, (item) => item.id))]",
         "organizationalUnitPath": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), '', steps('hosts').identity.ouPath)]",
         "policy": "[steps('compliance').policySection.policy]",
+        "profile": "[steps('basics').scenario.profile]",
         "recoveryServices": "[steps('management').backup.recoveryServices]",
         "scalingBeginPeakTime": "[if(steps('management').scaling.enable, steps('management').scaling.beginPeakTime, '9:00')]",
         "scalingEndPeakTime": "[if(steps('management').scaling.enable, steps('management').scaling.endPeakTime, '17:00')]",
