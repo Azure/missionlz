@@ -11,6 +11,7 @@ param deploymentUserAssignedIdentityPrincipalId string
 param desktopFriendlyName string
 param diskSku string
 param domainName string
+param environmentAbbreviation string
 param existingFeedWorkspace bool
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
@@ -67,6 +68,7 @@ module hostPool 'hostPool.bicep' = {
     deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentityPrincipalId
     diskSku: diskSku
     domainName: domainName
+    environmentAbbreviation: environmentAbbreviation
     galleryImageOffer: galleryImageOffer
     galleryImagePublisher: galleryImagePublisher
     galleryImageSku: galleryImageSku
