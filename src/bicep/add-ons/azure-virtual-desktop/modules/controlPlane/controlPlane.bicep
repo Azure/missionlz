@@ -58,12 +58,12 @@ module hostPool 'hostPool.bicep' = {
   scope: resourceGroup(resourceGroups[0])
   params: {
     activeDirectorySolution: activeDirectorySolution
-    // artifactsUri: artifactsUri
+    artifactsUri: artifactsUri
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
     customImageId: customImageId
     customRdpProperty: customRdpProperty
     deploymentNameSuffix: deploymentNameSuffix
-    // deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
+    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentityPrincipalId
     diskSku: diskSku
     domainName: domainName
@@ -92,11 +92,11 @@ module hostPool 'hostPool.bicep' = {
     location: locationControlPlane
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logAnalyticsWorkspaceResourceId_Ops: logAnalyticsWorkspaceResourceId_Ops
-    // managementVirtualMachineName: managementVirtualMachineName
+    managementVirtualMachineName: managementVirtualMachineName
     maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
     monitoring: monitoring
-    // resourceGroupManagement: resourceGroups[3]
+    resourceGroupManagement: resourceGroups[3]
     sessionHostNamePrefix: sessionHostNamePrefix
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: subnetResourceId

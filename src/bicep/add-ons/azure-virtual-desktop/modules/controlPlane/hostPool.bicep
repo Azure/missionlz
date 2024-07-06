@@ -1,10 +1,10 @@
 param activeDirectorySolution string
-// param artifactsUri string
+param artifactsUri string
 param avdPrivateDnsZoneResourceId string
 param customImageId string
 param customRdpProperty string
 param deploymentNameSuffix string
-// param deploymentUserAssignedIdentityClientId string
+param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityPrincipalId string
 param diskSku string
 param domainName string
@@ -28,11 +28,11 @@ param keyVaultPrivateEndpointName string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param logAnalyticsWorkspaceResourceId_Ops string
-// param managementVirtualMachineName string
+param managementVirtualMachineName string
 param maxSessionLimit int
 param mlzTags object
 param monitoring bool
-// param resourceGroupManagement string
+param resourceGroupManagement string
 param sessionHostNamePrefix string
 param storageAccountResourceId string
 param subnetResourceId string
@@ -255,17 +255,7 @@ resource roleAssignment_keyVault 'Microsoft.Authorization/roleAssignments@2022-0
   }
 }
 
-module registrationToken 'registrationToken.bicep' = {
-  name: 'deploy-registration-token-${deploymentNameSuffix}'
-  params: {
-    hostPoolName: hostPool.name
-    keyVaultName: vault.name
-    location: location
-  }
-}
-
-/* Leaving this deployment as a backup in case ARM output fails */
-/* module hostPoolRegistrationToken '../common/customScriptExtensions.bicep' = {
+module hostPoolRegistrationToken '../common/customScriptExtensions.bicep' = {
   name: 'deploy-host-pool-registration-token-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
@@ -289,7 +279,7 @@ module registrationToken 'registrationToken.bicep' = {
     privateDnsZoneGroup_hostPool
     privateDnsZoneGroup_keyVault
   ]
-} */
+}
 
 output name string = hostPool.name
 output resourceId string = hostPool.id
