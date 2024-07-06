@@ -651,6 +651,7 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     desktopFriendlyName: empty(desktopFriendlyName) ? string(stampIndex) : desktopFriendlyName
     diskSku: diskSku
     domainName: domainName
+    environmentAbbreviation: environmentAbbreviation
     existingFeedWorkspace: management.outputs.existingFeedWorkspace
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
