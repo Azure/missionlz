@@ -212,6 +212,7 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
     keyVaultPrivateDnsZoneResourceId: resourceId(
       hubSubscriptionId,
       hubResourceGroupName,
