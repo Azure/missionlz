@@ -8,7 +8,7 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existin
 }
 
 resource registrationToken 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
-  name: hostPoolName
+  name: hostPool.name
   location: location
   properties: {
     hostPoolType: hostPool.properties.hostPoolType
