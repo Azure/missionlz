@@ -613,13 +613,14 @@ module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-hub-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    tier: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
-    resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
+    environmentAbbreviation: environmentAbbreviation
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     location: location
     mlzTags: logic.outputs.mlzTags
+    resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
     subnetResourceId: networking.outputs.hubSubnetResourceId
     tags: tags
+    tier: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
     tokens: logic.outputs.tokens
     workloadShortName: 'ops'
   }
