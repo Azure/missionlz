@@ -8,6 +8,7 @@ param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityPrincipalId string
 param diskSku string
 param domainName string
+param environmentAbbreviation string
 param galleryImageOffer string
 param galleryImagePublisher string
 param galleryImageSku string
@@ -173,9 +174,9 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     publicNetworkAccess: 'Disabled'
     sku: {
       family: 'A'
-      name: 'standard'
+      name: 'premium'
     }
-    softDeleteRetentionInDays: 7
+    softDeleteRetentionInDays: environmentAbbreviation == 'dev' || environmentAbbreviation == 'test' ? 7 : 90
     tenantId: subscription().tenantId
   }
 }
