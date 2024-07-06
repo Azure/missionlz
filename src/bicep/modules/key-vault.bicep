@@ -4,6 +4,7 @@ Licensed under the MIT License.
 */
 
 param diskEncryptionKeyExpirationInDays int = 30
+param environmentAbbreviation string
 param keyVaultName string
 param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
@@ -19,7 +20,7 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
   properties: {
     enabledForDeployment: false
-    enabledForDiskEncryption: true
+    enabledForDiskEncryption: false
     enabledForTemplateDeployment: false
     enablePurgeProtection: true
     enableRbacAuthorization: true
@@ -33,9 +34,9 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     publicNetworkAccess: 'Disabled'
     sku: {
       family: 'A'
-      name: 'standard'
+      name: 'premium'
     }
-    softDeleteRetentionInDays: 7 
+    softDeleteRetentionInDays: environmentAbbreviation == 'dev' || environmentAbbreviation == 'test' ? 7 : 90
     tenantId: subscription().tenantId
   }
 }
