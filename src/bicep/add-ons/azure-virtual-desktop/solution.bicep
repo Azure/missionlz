@@ -86,6 +86,9 @@ param drainMode bool = false
 @description('The email address to use for Defender for Cloud notifications.')
 param emailSecurityContact string
 
+@description('Enable the partner telemetry deployment. This will allow ESRI to see data around the ArcGIS Pro deployments. https://learn.microsoft.com/en-us/partner-center/marketplace-offers/azure-partner-customer-usage-attribution')
+param enableTelemetry bool = false
+
 @allowed([
   'dev' // Development
   'prod' // Production
@@ -202,6 +205,13 @@ param organizationalUnitPath string = ''
 
 @description('The policy to assign to the workload.')
 param policy string = 'NISTRev4'
+
+@allowed([
+  'ArcGISPro'
+  'Generic'
+])
+@description('The profile of the workload for the AVD session hosts. When ArcGISPro is selected, telemetry data is collected for ESRI in the Partner Center.')
+param profile string = 'Generic'
 
 @description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
 param recoveryServices bool = false
@@ -379,6 +389,20 @@ var roleDefinitions = {
 var storageSku = fslogixStorageService == 'None' ? 'None' : split(fslogixStorageService, ' ')[1]
 var storageService = split(fslogixStorageService, ' ')[0]
 var storageSuffix = environment().suffixes.storage
+
+#disable-next-line no-deployments-resources
+resource partnerAttribution 'Microsoft.Resources/deployments@2021-04-01' = if (enableTelemetry && profile == 'ArcGISPro') {
+  name: 'pid-4e82be1d-7fcb-4913-a90c-aa84d7ea3a1c'
+  location: locationControlPlane
+  properties: {
+    mode: 'Incremental'
+    template: {
+        '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+        contentVersion: '1.0.0.0'
+        resources: []
+    }
+  }
+}
 
 module tier3_controlPlane '../tier3/solution.bicep' = {
   name: 'deploy-tier3-avd-cp-${deploymentNameSuffix}'
