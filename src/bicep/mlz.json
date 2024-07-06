@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "14771639124603141661"
+      "templateHash": "9260110315612728638"
     }
   },
   "parameters": {
@@ -4307,11 +4307,8 @@
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
-          "tier": {
-            "value": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value, lambda('tier', equals(lambdaVariables('tier').name, 'hub')))[0]]"
-          },
-          "resourceGroupName": {
-            "value": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-resource-groups-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value, lambda('name', contains(lambdaVariables('name'), 'hub')))[0]]"
+          "environmentAbbreviation": {
+            "value": "[parameters('environmentAbbreviation')]"
           },
           "keyVaultPrivateDnsZoneResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZoneResourceIds.value.keyVault]"
@@ -4322,11 +4319,17 @@
           "mlzTags": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
+          "resourceGroupName": {
+            "value": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-resource-groups-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value, lambda('name', contains(lambdaVariables('name'), 'hub')))[0]]"
+          },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hubSubnetResourceId.value]"
           },
           "tags": {
             "value": "[parameters('tags')]"
+          },
+          "tier": {
+            "value": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value, lambda('tier', equals(lambdaVariables('tier').name, 'hub')))[0]]"
           },
           "tokens": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value]"
@@ -4342,11 +4345,14 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "1841441769041268305"
+              "templateHash": "4296293032067375863"
             }
           },
           "parameters": {
             "deploymentNameSuffix": {
+              "type": "string"
+            },
+            "environmentAbbreviation": {
               "type": "string"
             },
             "keyVaultPrivateDnsZoneResourceId": {
@@ -4390,6 +4396,9 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "environmentAbbreviation": {
+                    "value": "[parameters('environmentAbbreviation')]"
+                  },
                   "keyVaultName": {
                     "value": "[take(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').service, ''), 24)]"
                   },
@@ -4422,13 +4431,16 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "7405834931933819304"
+                      "templateHash": "10082271868939804348"
                     }
                   },
                   "parameters": {
                     "diskEncryptionKeyExpirationInDays": {
                       "type": "int",
                       "defaultValue": 30
+                    },
+                    "environmentAbbreviation": {
+                      "type": "string"
                     },
                     "keyVaultName": {
                       "type": "string"
@@ -4464,7 +4476,7 @@
                       "tags": "[union(if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "enabledForDeployment": false,
-                        "enabledForDiskEncryption": true,
+                        "enabledForDiskEncryption": false,
                         "enabledForTemplateDeployment": false,
                         "enablePurgeProtection": true,
                         "enableRbacAuthorization": true,
@@ -4478,9 +4490,9 @@
                         "publicNetworkAccess": "Disabled",
                         "sku": {
                           "family": "A",
-                          "name": "standard"
+                          "name": "premium"
                         },
-                        "softDeleteRetentionInDays": 7,
+                        "softDeleteRetentionInDays": "[if(or(equals(parameters('environmentAbbreviation'), 'dev'), equals(parameters('environmentAbbreviation'), 'test')), 7, 90)]",
                         "tenantId": "[subscription().tenantId]"
                       }
                     },

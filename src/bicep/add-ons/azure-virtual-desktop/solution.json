@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "1187360595943816707"
+      "templateHash": "792864222761210969"
     }
   },
   "parameters": {
@@ -733,7 +733,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "17066332396931848255"
+              "templateHash": "11288550352876593921"
             }
           },
           "parameters": {
@@ -2932,6 +2932,9 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
+                  "environmentAbbreviation": {
+                    "value": "[parameters('environmentAbbreviation')]"
+                  },
                   "keyVaultPrivateDnsZoneResourceId": {
                     "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', replace(format('privatelink{0}', environment().suffixes.keyvaultDns), 'vault', 'vaultcore'))]"
                   },
@@ -2967,11 +2970,14 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "1841441769041268305"
+                      "templateHash": "4296293032067375863"
                     }
                   },
                   "parameters": {
                     "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "environmentAbbreviation": {
                       "type": "string"
                     },
                     "keyVaultPrivateDnsZoneResourceId": {
@@ -3015,6 +3021,9 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "environmentAbbreviation": {
+                            "value": "[parameters('environmentAbbreviation')]"
+                          },
                           "keyVaultName": {
                             "value": "[take(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').service, ''), 24)]"
                           },
@@ -3047,13 +3056,16 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.28.1.47646",
-                              "templateHash": "7405834931933819304"
+                              "templateHash": "10082271868939804348"
                             }
                           },
                           "parameters": {
                             "diskEncryptionKeyExpirationInDays": {
                               "type": "int",
                               "defaultValue": 30
+                            },
+                            "environmentAbbreviation": {
+                              "type": "string"
                             },
                             "keyVaultName": {
                               "type": "string"
@@ -3089,7 +3101,7 @@
                               "tags": "[union(if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "enabledForDeployment": false,
-                                "enabledForDiskEncryption": true,
+                                "enabledForDiskEncryption": false,
                                 "enabledForTemplateDeployment": false,
                                 "enablePurgeProtection": true,
                                 "enableRbacAuthorization": true,
@@ -3103,9 +3115,9 @@
                                 "publicNetworkAccess": "Disabled",
                                 "sku": {
                                   "family": "A",
-                                  "name": "standard"
+                                  "name": "premium"
                                 },
-                                "softDeleteRetentionInDays": 7,
+                                "softDeleteRetentionInDays": "[if(or(equals(parameters('environmentAbbreviation'), 'dev'), equals(parameters('environmentAbbreviation'), 'test')), 7, 90)]",
                                 "tenantId": "[subscription().tenantId]"
                               }
                             },
@@ -5078,7 +5090,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "17066332396931848255"
+              "templateHash": "11288550352876593921"
             }
           },
           "parameters": {
@@ -7277,6 +7289,9 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
+                  "environmentAbbreviation": {
+                    "value": "[parameters('environmentAbbreviation')]"
+                  },
                   "keyVaultPrivateDnsZoneResourceId": {
                     "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', replace(format('privatelink{0}', environment().suffixes.keyvaultDns), 'vault', 'vaultcore'))]"
                   },
@@ -7312,11 +7327,14 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "1841441769041268305"
+                      "templateHash": "4296293032067375863"
                     }
                   },
                   "parameters": {
                     "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "environmentAbbreviation": {
                       "type": "string"
                     },
                     "keyVaultPrivateDnsZoneResourceId": {
@@ -7360,6 +7378,9 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "environmentAbbreviation": {
+                            "value": "[parameters('environmentAbbreviation')]"
+                          },
                           "keyVaultName": {
                             "value": "[take(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').service, ''), 24)]"
                           },
@@ -7392,13 +7413,16 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.28.1.47646",
-                              "templateHash": "7405834931933819304"
+                              "templateHash": "10082271868939804348"
                             }
                           },
                           "parameters": {
                             "diskEncryptionKeyExpirationInDays": {
                               "type": "int",
                               "defaultValue": 30
+                            },
+                            "environmentAbbreviation": {
+                              "type": "string"
                             },
                             "keyVaultName": {
                               "type": "string"
@@ -7434,7 +7458,7 @@
                               "tags": "[union(if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "enabledForDeployment": false,
-                                "enabledForDiskEncryption": true,
+                                "enabledForDiskEncryption": false,
                                 "enabledForTemplateDeployment": false,
                                 "enablePurgeProtection": true,
                                 "enableRbacAuthorization": true,
@@ -7448,9 +7472,9 @@
                                 "publicNetworkAccess": "Disabled",
                                 "sku": {
                                   "family": "A",
-                                  "name": "standard"
+                                  "name": "premium"
                                 },
-                                "softDeleteRetentionInDays": 7,
+                                "softDeleteRetentionInDays": "[if(or(equals(parameters('environmentAbbreviation'), 'dev'), equals(parameters('environmentAbbreviation'), 'test')), 7, 90)]",
                                 "tenantId": "[subscription().tenantId]"
                               }
                             },
@@ -12441,6 +12465,9 @@
           "domainName": {
             "value": "[parameters('domainName')]"
           },
+          "environmentAbbreviation": {
+            "value": "[parameters('environmentAbbreviation')]"
+          },
           "existingFeedWorkspace": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.existingFeedWorkspace.value]"
           },
@@ -12544,7 +12571,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "15796309007291611536"
+              "templateHash": "11914577509556129969"
             }
           },
           "parameters": {
@@ -12579,6 +12606,9 @@
               "type": "string"
             },
             "domainName": {
+              "type": "string"
+            },
+            "environmentAbbreviation": {
               "type": "string"
             },
             "existingFeedWorkspace": {
@@ -12731,6 +12761,9 @@
                   "domainName": {
                     "value": "[parameters('domainName')]"
                   },
+                  "environmentAbbreviation": {
+                    "value": "[parameters('environmentAbbreviation')]"
+                  },
                   "galleryImageOffer": {
                     "value": "[variables('galleryImageOffer')]"
                   },
@@ -12832,7 +12865,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "16539571799828694218"
+                      "templateHash": "11126777192461047080"
                     }
                   },
                   "parameters": {
@@ -12864,6 +12897,9 @@
                       "type": "string"
                     },
                     "domainName": {
+                      "type": "string"
+                    },
+                    "environmentAbbreviation": {
                       "type": "string"
                     },
                     "galleryImageOffer": {
@@ -13090,9 +13126,9 @@
                         "publicNetworkAccess": "Disabled",
                         "sku": {
                           "family": "A",
-                          "name": "standard"
+                          "name": "premium"
                         },
-                        "softDeleteRetentionInDays": 7,
+                        "softDeleteRetentionInDays": "[if(or(equals(parameters('environmentAbbreviation'), 'dev'), equals(parameters('environmentAbbreviation'), 'test')), 7, 90)]",
                         "tenantId": "[subscription().tenantId]"
                       }
                     },
