@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "11048139354503194654"
+      "templateHash": "1187360595943816707"
     }
   },
   "parameters": {
@@ -171,6 +171,13 @@
       "type": "string",
       "metadata": {
         "description": "The email address to use for Defender for Cloud notifications."
+      }
+    },
+    "enableTelemetry": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enable the partner telemetry deployment. This will allow ESRI to see data around the ArcGIS Pro deployments. https://learn.microsoft.com/en-us/partner-center/marketplace-offers/azure-partner-customer-usage-attribution"
       }
     },
     "environmentAbbreviation": {
@@ -372,6 +379,17 @@
       "defaultValue": "NISTRev4",
       "metadata": {
         "description": "The policy to assign to the workload."
+      }
+    },
+    "profile": {
+      "type": "string",
+      "defaultValue": "Generic",
+      "allowedValues": [
+        "ArcGISPro",
+        "Generic"
+      ],
+      "metadata": {
+        "description": "The profile of the workload for the AVD session hosts. When ArcGISPro is selected, telemetry data is collected for ESRI in the Partner Center."
       }
     },
     "recoveryServices": {
@@ -623,6 +641,21 @@
     "storageSuffix": "[environment().suffixes.storage]"
   },
   "resources": [
+    {
+      "condition": "[and(parameters('enableTelemetry'), equals(parameters('profile'), 'ArcGISPro'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "pid-4e82be1d-7fcb-4913-a90c-aa84d7ea3a1c",
+      "location": "[parameters('locationControlPlane')]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -12511,7 +12544,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "6498938906401865093"
+              "templateHash": "15796309007291611536"
             }
           },
           "parameters": {
@@ -12671,6 +12704,9 @@
                   "activeDirectorySolution": {
                     "value": "[parameters('activeDirectorySolution')]"
                   },
+                  "artifactsUri": {
+                    "value": "[parameters('artifactsUri')]"
+                  },
                   "avdPrivateDnsZoneResourceId": {
                     "value": "[parameters('avdPrivateDnsZoneResourceId')]"
                   },
@@ -12682,6 +12718,9 @@
                   },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "deploymentUserAssignedIdentityClientId": {
+                    "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
                   },
                   "deploymentUserAssignedIdentityPrincipalId": {
                     "value": "[parameters('deploymentUserAssignedIdentityPrincipalId')]"
@@ -12752,6 +12791,9 @@
                   "logAnalyticsWorkspaceResourceId_Ops": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId_Ops')]"
                   },
+                  "managementVirtualMachineName": {
+                    "value": "[parameters('managementVirtualMachineName')]"
+                  },
                   "maxSessionLimit": {
                     "value": "[parameters('maxSessionLimit')]"
                   },
@@ -12760,6 +12802,9 @@
                   },
                   "monitoring": {
                     "value": "[parameters('monitoring')]"
+                  },
+                  "resourceGroupManagement": {
+                    "value": "[parameters('resourceGroups')[3]]"
                   },
                   "sessionHostNamePrefix": {
                     "value": "[parameters('sessionHostNamePrefix')]"
@@ -12787,11 +12832,14 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "8447304409037448088"
+                      "templateHash": "16539571799828694218"
                     }
                   },
                   "parameters": {
                     "activeDirectorySolution": {
+                      "type": "string"
+                    },
+                    "artifactsUri": {
                       "type": "string"
                     },
                     "avdPrivateDnsZoneResourceId": {
@@ -12804,6 +12852,9 @@
                       "type": "string"
                     },
                     "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "deploymentUserAssignedIdentityClientId": {
                       "type": "string"
                     },
                     "deploymentUserAssignedIdentityPrincipalId": {
@@ -12875,6 +12926,9 @@
                     "logAnalyticsWorkspaceResourceId_Ops": {
                       "type": "string"
                     },
+                    "managementVirtualMachineName": {
+                      "type": "string"
+                    },
                     "maxSessionLimit": {
                       "type": "int"
                     },
@@ -12883,6 +12937,9 @@
                     },
                     "monitoring": {
                       "type": "bool"
+                    },
+                    "resourceGroupManagement": {
+                      "type": "string"
                     },
                     "sessionHostNamePrefix": {
                       "type": "string"
@@ -13188,21 +13245,36 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-registration-token-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-host-pool-registration-token-{0}', parameters('deploymentNameSuffix'))]",
+                      "resourceGroup": "[parameters('resourceGroupManagement')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
                         },
                         "mode": "Incremental",
                         "parameters": {
-                          "hostPoolName": {
-                            "value": "[parameters('hostPoolName')]"
-                          },
-                          "keyVaultName": {
-                            "value": "[parameters('keyVaultName')]"
+                          "fileUris": {
+                            "value": [
+                              "[format('{0}Set-HostPoolRegistrationToken.ps1', parameters('artifactsUri'))]"
+                            ]
                           },
                           "location": {
                             "value": "[parameters('location')]"
+                          },
+                          "parameters": {
+                            "value": "[format('-HostPoolName \"{0}\" -HostPoolResourceGroupName \"{1}\" -KeyVaultUri \"{2}\" -ResourceManagerUri \"{3}\" -SubscriptionId \"{4}\" -UserAssignedIdentityClientId \"{5}\"', parameters('hostPoolName'), resourceGroup().name, reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2022-07-01').vaultUri, environment().resourceManager, subscription().subscriptionId, parameters('deploymentUserAssignedIdentityClientId'))]"
+                          },
+                          "scriptFileName": {
+                            "value": "Set-HostPoolRegistrationToken.ps1"
+                          },
+                          "tags": {
+                            "value": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, resourceGroup().name, parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]"
+                          },
+                          "userAssignedIdentityClientId": {
+                            "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
+                          },
+                          "virtualMachineName": {
+                            "value": "[parameters('managementVirtualMachineName')]"
                           }
                         },
                         "template": {
@@ -13212,57 +13284,72 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.28.1.47646",
-                              "templateHash": "6418720989763542453"
+                              "templateHash": "9525111714453920757"
                             }
                           },
                           "parameters": {
-                            "hostPoolName": {
-                              "type": "string"
-                            },
-                            "keyVaultName": {
-                              "type": "string"
+                            "fileUris": {
+                              "type": "array"
                             },
                             "location": {
                               "type": "string"
                             },
-                            "time": {
+                            "parameters": {
+                              "type": "securestring"
+                            },
+                            "scriptFileName": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "type": "object"
+                            },
+                            "timestamp": {
                               "type": "string",
-                              "defaultValue": "[utcNow('u')]"
+                              "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
+                            },
+                            "userAssignedIdentityClientId": {
+                              "type": "string"
+                            },
+                            "virtualMachineName": {
+                              "type": "string"
                             }
                           },
                           "resources": [
                             {
-                              "type": "Microsoft.DesktopVirtualization/hostPools",
-                              "apiVersion": "2023-09-05",
-                              "name": "[parameters('hostPoolName')]",
+                              "type": "Microsoft.Compute/virtualMachines/extensions",
+                              "apiVersion": "2021-03-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'CustomScriptExtension')]",
                               "location": "[parameters('location')]",
+                              "tags": "[parameters('tags')]",
                               "properties": {
-                                "hostPoolType": "[reference(resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')), '2023-09-05').hostPoolType]",
-                                "preferredAppGroupType": "[reference(resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')), '2023-09-05').preferredAppGroupType]",
-                                "maxSessionLimit": "[reference(resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')), '2023-09-05').maxSessionLimit]",
-                                "loadBalancerType": "[reference(resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')), '2023-09-05').loadBalancerType]",
-                                "registrationInfo": {
-                                  "expirationTime": "[dateTimeAdd(parameters('time'), 'PT2H')]",
-                                  "registrationTokenOperation": "Update"
+                                "publisher": "Microsoft.Compute",
+                                "type": "CustomScriptExtension",
+                                "typeHandlerVersion": "1.10",
+                                "autoUpgradeMinorVersion": true,
+                                "settings": {
+                                  "timestamp": "[parameters('timestamp')]"
+                                },
+                                "protectedSettings": {
+                                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File {0} {1}', parameters('scriptFileName'), parameters('parameters'))]",
+                                  "fileUris": "[parameters('fileUris')]",
+                                  "managedIdentity": {
+                                    "clientId": "[parameters('userAssignedIdentityClientId')]"
+                                  }
                                 }
                               }
-                            },
-                            {
-                              "type": "Microsoft.KeyVault/vaults/secrets",
-                              "apiVersion": "2023-07-01",
-                              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'avdHostPoolRegistrationToken')]",
-                              "properties": {
-                                "value": "[reference(resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')), '2023-09-05').registrationInfo.token]"
-                              },
-                              "dependsOn": [
-                                "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]"
-                              ]
                             }
-                          ]
+                          ],
+                          "outputs": {
+                            "value": {
+                              "type": "object",
+                              "value": "[json(filter(reference(resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'CustomScriptExtension'), '2021-03-01').instanceView.substatuses, lambda('item', equals(lambdaVariables('item').code, 'ComponentStatus/StdOut/succeeded')))[0].message)]"
+                            }
+                          }
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', parameters('hostPoolPrivateEndpointName'), 'default')]",
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
                         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                       ]
                     }
