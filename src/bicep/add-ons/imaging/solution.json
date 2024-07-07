@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "8096380705328319511"
+      "templateHash": "3334716535030482279"
     }
   },
   "parameters": {
@@ -595,7 +595,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "17066332396931848255"
+              "templateHash": "2343498731780315501"
             }
           },
           "parameters": {
@@ -2794,6 +2794,9 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
+                  "environmentAbbreviation": {
+                    "value": "[parameters('environmentAbbreviation')]"
+                  },
                   "keyVaultPrivateDnsZoneResourceId": {
                     "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', replace(format('privatelink{0}', environment().suffixes.keyvaultDns), 'vault', 'vaultcore'))]"
                   },
@@ -2829,11 +2832,14 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "1841441769041268305"
+                      "templateHash": "7448690052617321806"
                     }
                   },
                   "parameters": {
                     "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "environmentAbbreviation": {
                       "type": "string"
                     },
                     "keyVaultPrivateDnsZoneResourceId": {
@@ -2877,17 +2883,20 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "environmentAbbreviation": {
+                            "value": "[parameters('environmentAbbreviation')]"
+                          },
                           "keyVaultName": {
                             "value": "[take(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').service, ''), 24)]"
                           },
                           "keyVaultNetworkInterfaceName": {
-                            "value": "[replace(parameters('tier').namingConvention.keyVaultNetworkInterface, parameters('tokens').service, '')]"
+                            "value": "[replace(parameters('tier').namingConvention.keyVaultNetworkInterface, format('{0}-', parameters('tokens').service), '')]"
                           },
                           "keyVaultPrivateDnsZoneResourceId": {
                             "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
                           },
                           "keyVaultPrivateEndpointName": {
-                            "value": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').service, '')]"
+                            "value": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, format('{0}-', parameters('tokens').service), '')]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -2909,13 +2918,16 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.28.1.47646",
-                              "templateHash": "7405834931933819304"
+                              "templateHash": "10082271868939804348"
                             }
                           },
                           "parameters": {
                             "diskEncryptionKeyExpirationInDays": {
                               "type": "int",
                               "defaultValue": 30
+                            },
+                            "environmentAbbreviation": {
+                              "type": "string"
                             },
                             "keyVaultName": {
                               "type": "string"
@@ -2951,7 +2963,7 @@
                               "tags": "[union(if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "enabledForDeployment": false,
-                                "enabledForDiskEncryption": true,
+                                "enabledForDiskEncryption": false,
                                 "enabledForTemplateDeployment": false,
                                 "enablePurgeProtection": true,
                                 "enableRbacAuthorization": true,
@@ -2965,9 +2977,9 @@
                                 "publicNetworkAccess": "Disabled",
                                 "sku": {
                                   "family": "A",
-                                  "name": "standard"
+                                  "name": "premium"
                                 },
-                                "softDeleteRetentionInDays": 7,
+                                "softDeleteRetentionInDays": "[if(or(equals(parameters('environmentAbbreviation'), 'dev'), equals(parameters('environmentAbbreviation'), 'test')), 7, 90)]",
                                 "tenantId": "[subscription().tenantId]"
                               }
                             },
@@ -3825,6 +3837,9 @@
                   "resourceGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
                   },
+                  "serviceToken": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service]"
+                  },
                   "storageAccountResourceId": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountResourceId.value]"
                   },
@@ -3848,7 +3863,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "7523124167390698300"
+                      "templateHash": "11423521069696011126"
                     }
                   },
                   "parameters": {
@@ -3877,6 +3892,9 @@
                       "type": "string"
                     },
                     "resourceGroupName": {
+                      "type": "string"
+                    },
+                    "serviceToken": {
                       "type": "string"
                     },
                     "storageAccountResourceId": {
@@ -3988,7 +4006,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "keyVaultDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.keyVaultDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.keyVaultDiagnosticSetting, format('{0}-', parameters('serviceToken')), '')]"
                           },
                           "keyVaultName": {
                             "value": "[parameters('keyVaultName')]"

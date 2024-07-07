@@ -23,9 +23,9 @@ module keyVault 'key-vault.bicep' = {
   params: {
     environmentAbbreviation: environmentAbbreviation
     keyVaultName: take(replace(tier.namingConvention.keyVault, tokens.service, ''), 24)
-    keyVaultNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.service, '')
+    keyVaultNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, '${tokens.service}-', '')
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    keyVaultPrivateEndpointName: replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.service, '')
+    keyVaultPrivateEndpointName: replace(tier.namingConvention.keyVaultPrivateEndpoint, '${tokens.service}-', '')
     location: location
     mlzTags: mlzTags
     subnetResourceId: subnetResourceId

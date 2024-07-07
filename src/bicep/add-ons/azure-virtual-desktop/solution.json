@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "9003463652664314515"
+      "templateHash": "11091273211648450594"
     }
   },
   "parameters": {
@@ -710,7 +710,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "1967932288004501397"
+              "templateHash": "2343498731780315501"
             }
           },
           "parameters": {
@@ -2947,7 +2947,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "4296293032067375863"
+                      "templateHash": "7448690052617321806"
                     }
                   },
                   "parameters": {
@@ -3005,13 +3005,13 @@
                             "value": "[take(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').service, ''), 24)]"
                           },
                           "keyVaultNetworkInterfaceName": {
-                            "value": "[replace(parameters('tier').namingConvention.keyVaultNetworkInterface, parameters('tokens').service, '')]"
+                            "value": "[replace(parameters('tier').namingConvention.keyVaultNetworkInterface, format('{0}-', parameters('tokens').service), '')]"
                           },
                           "keyVaultPrivateDnsZoneResourceId": {
                             "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
                           },
                           "keyVaultPrivateEndpointName": {
-                            "value": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').service, '')]"
+                            "value": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, format('{0}-', parameters('tokens').service), '')]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -3978,7 +3978,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "5634917684910175487"
+                      "templateHash": "11423521069696011126"
                     }
                   },
                   "parameters": {
@@ -4121,7 +4121,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "keyVaultDiagnosticSettingName": {
-                            "value": "[replace(parameters('tier').namingConvention.keyVaultDiagnosticSetting, parameters('serviceToken'), '')]"
+                            "value": "[replace(parameters('tier').namingConvention.keyVaultDiagnosticSetting, format('{0}-', parameters('serviceToken')), '')]"
                           },
                           "keyVaultName": {
                             "value": "[parameters('keyVaultName')]"
@@ -5073,7 +5073,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "1967932288004501397"
+              "templateHash": "2343498731780315501"
             }
           },
           "parameters": {
@@ -7310,7 +7310,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "4296293032067375863"
+                      "templateHash": "7448690052617321806"
                     }
                   },
                   "parameters": {
@@ -7368,13 +7368,13 @@
                             "value": "[take(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').service, ''), 24)]"
                           },
                           "keyVaultNetworkInterfaceName": {
-                            "value": "[replace(parameters('tier').namingConvention.keyVaultNetworkInterface, parameters('tokens').service, '')]"
+                            "value": "[replace(parameters('tier').namingConvention.keyVaultNetworkInterface, format('{0}-', parameters('tokens').service), '')]"
                           },
                           "keyVaultPrivateDnsZoneResourceId": {
                             "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
                           },
                           "keyVaultPrivateEndpointName": {
-                            "value": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').service, '')]"
+                            "value": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, format('{0}-', parameters('tokens').service), '')]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -8341,7 +8341,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "5634917684910175487"
+                      "templateHash": "11423521069696011126"
                     }
                   },
                   "parameters": {
@@ -8484,7 +8484,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "keyVaultDiagnosticSettingName": {
-                            "value": "[replace(parameters('tier').namingConvention.keyVaultDiagnosticSetting, parameters('serviceToken'), '')]"
+                            "value": "[replace(parameters('tier').namingConvention.keyVaultDiagnosticSetting, format('{0}-', parameters('serviceToken')), '')]"
                           },
                           "keyVaultName": {
                             "value": "[parameters('keyVaultName')]"
