@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "11288550352876593921"
+      "templateHash": "1967932288004501397"
     }
   },
   "parameters": {
@@ -3247,6 +3247,9 @@
           "resourceGroupName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
+          "serviceToken": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service]"
+          },
           "storageAccountResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountResourceId.value]"
           },
@@ -3270,7 +3273,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "7523124167390698300"
+              "templateHash": "5634917684910175487"
             }
           },
           "parameters": {
@@ -3299,6 +3302,9 @@
               "type": "string"
             },
             "resourceGroupName": {
+              "type": "string"
+            },
+            "serviceToken": {
               "type": "string"
             },
             "storageAccountResourceId": {
@@ -3410,7 +3416,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "keyVaultDiagnosticSettingName": {
-                    "value": "[parameters('tier').namingConvention.keyVaultDiagnosticSetting]"
+                    "value": "[replace(parameters('tier').namingConvention.keyVaultDiagnosticSetting, parameters('serviceToken'), '')]"
                   },
                   "keyVaultName": {
                     "value": "[parameters('keyVaultName')]"

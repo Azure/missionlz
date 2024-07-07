@@ -271,6 +271,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     networkSecurityGroupName: networking.outputs.networkSecurityGroupName
     resourceGroupName: rg.outputs.name
+    serviceToken: logic.outputs.tokens.service
     storageAccountResourceId: storage.outputs.storageAccountResourceId
     tier: logic.outputs.tiers[0]
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
