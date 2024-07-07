@@ -113,6 +113,16 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   scope: resourceGroup(resourceGroupControlPlane)
 }
 
+resource gallery 'Microsoft.Compute/galleries@2023-07-03' existing = if (empty(imageVersionResourceId)) {
+  scope: resourceGroup(split(imageVersionResourceId, '/')[2], split(imageVersionResourceId, '/')[4])
+  name: split(imageVersionResourceId, '/')[8]
+}
+
+resource image 'Microsoft.Compute/galleries/images@2023-07-03' existing = if (empty(imageVersionResourceId)) {
+  parent: gallery
+  name: split(imageVersionResourceId, '/')[10]
+}
+
 @batchSize(1)
 module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostBatchCount): {
   name: 'deploy-vms-${i - 1}-${deploymentNameSuffix}'
@@ -146,9 +156,9 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     hostPoolRegistrationToken: keyVault.getSecret('avdHostPoolRegistrationToken')
     hostPoolType: hostPoolType
     imageVersionResourceId: imageVersionResourceId
-    imageOffer: imageOffer
-    imagePublisher: imagePublisher
-    imageSku: imageSku
+    imageOffer: empty(imageVersionResourceId) ? imageOffer : image.properties.purchasePlan.product
+    imagePublisher: empty(imageVersionResourceId) ? imagePublisher: image.properties.purchasePlan.publisher
+    imageSku: empty(imageVersionResourceId) ? imageSku : image.properties.purchasePlan.name
     location: location
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     managementVirtualMachineName: managementVirtualMachineName
