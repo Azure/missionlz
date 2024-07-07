@@ -390,8 +390,9 @@ var storageSku = fslogixStorageService == 'None' ? 'None' : split(fslogixStorage
 var storageService = split(fslogixStorageService, ' ')[0]
 var storageSuffix = environment().suffixes.storage
 
+// This module deploys telemetry for ArcGIS Pro deployments
 #disable-next-line no-deployments-resources
-resource partnerAttribution 'Microsoft.Resources/deployments@2021-04-01' = if (enableTelemetry && profile == 'ArcGISPro') {
+resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (enableTelemetry && profile == 'ArcGISPro') {
   name: 'pid-4e82be1d-7fcb-4913-a90c-aa84d7ea3a1c'
   location: locationControlPlane
   properties: {
