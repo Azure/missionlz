@@ -23,12 +23,6 @@ param artifactsStorageAccountResourceId string
 @description('The desired availability option when deploying a pooled host pool. The best practice is to deploy to availability zones for the highest resilency and service level agreement.')
 param availability string = 'AvailabilityZones'
 
-@description('The blob name of the MSI file for the AVD Agent installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
-param avdAgentMsiName string
-
-@description('The blob name of the MSI file for the AVD Agent Boot Loader installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
-param avdAgentBootLoaderMsiName string
-
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
 
@@ -283,13 +277,6 @@ param validationEnvironment bool = false
 
 @description('The number of virtual CPUs per virtual machine for the selected virtual machine size.')
 param virtualMachineVirtualCpuCount int
-
-@allowed([
-  'AzureMonitorAgent'
-  'LogAnalyticsAgent'
-])
-@description('Input the desired monitoring agent to send events and performance counters to a log analytics workspace.')
-param virtualMachineMonitoringAgent string = 'LogAnalyticsAgent'
 
 @secure()
 @description('The local administrator password for the AVD session hosts')
@@ -559,7 +546,6 @@ module management 'modules/management/management.bicep' = {
     timeZone: length(deploymentLocations) == 2
       ? tier3_hosts.outputs.locationProperties.timeZone
       : tier3_controlPlane.outputs.locationProperties.timeZone
-    virtualMachineMonitoringAgent: virtualMachineMonitoringAgent
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
@@ -790,8 +776,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: beginAvSetRange
     availabilityZones: management.outputs.validateAvailabilityZones
-    avdAgentBootLoaderMsiName: avdAgentBootLoaderMsiName
-    avdAgentMsiName: avdAgentMsiName
     dataCollectionRuleResourceId: management.outputs.dataCollectionRuleResourceId
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
@@ -818,7 +802,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
     location: locationVirtualMachines
-    logAnalyticsWorkspaceName: management.outputs.logAnalyticsWorkspaceName
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
     mlzTags: tier3_controlPlane.outputs.mlzTags
@@ -862,7 +845,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     timeZone: length(deploymentLocations) == 2
       ? tier3_hosts.outputs.locationProperties.timeZone
       : tier3_controlPlane.outputs.locationProperties.timeZone
-    virtualMachineMonitoringAgent: virtualMachineMonitoringAgent
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername

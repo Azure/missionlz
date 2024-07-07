@@ -42,7 +42,6 @@ param storageService string
 param subnetResourceId string
 param tags object
 param timeZone string
-param virtualMachineMonitoringAgent string
 @secure()
 param virtualMachinePassword string
 param virtualMachineUsername string
@@ -248,7 +247,6 @@ module monitoring 'monitoring.bicep' = if (enableMonitoring) {
     mlzTags: mlzTags
     resourceGroupControlPlane: resourceGroupControlPlane
     tags: tags
-    virtualMachineMonitoringAgent: virtualMachineMonitoringAgent
   }
 }
 

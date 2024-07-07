@@ -10,8 +10,6 @@ param availability string
 param availabilitySetsCount int
 param availabilitySetsIndex int
 param availabilityZones array
-param avdAgentBootLoaderMsiName string
-param avdAgentMsiName string
 param dataCollectionRuleResourceId string
 param deployFslogix bool
 param deploymentNameSuffix string
@@ -35,7 +33,6 @@ param imagePublisher string
 param imageSku string
 param imageVersionResourceId string
 param location string
-param logAnalyticsWorkspaceName string
 param managementVirtualMachineName string
 param maxResourcesPerTemplateDeployment int
 param mlzTags object
@@ -69,7 +66,6 @@ param subnetResourceId string
 param tags object
 param timeDifference string
 param timeZone string
-param virtualMachineMonitoringAgent string
 @secure()
 param virtualMachinePassword string
 param virtualMachineSize string
@@ -136,8 +132,6 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     availability: availability
     availabilitySetNamePrefix: availabilitySetNamePrefix
     availabilityZones: availabilityZones
-    avdAgentBootLoaderMsiName: avdAgentBootLoaderMsiName
-    avdAgentMsiName: avdAgentMsiName
     batchCount: i
     dataCollectionRuleAssociationName: namingConvention.dataCollectionRuleAssociation
     dataCollectionRuleResourceId: dataCollectionRuleResourceId
@@ -154,13 +148,11 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     fslogixContainerType: fslogixContainerType
     hostPoolName: hostPoolName
     hostPoolRegistrationToken: keyVault.getSecret('avdHostPoolRegistrationToken')
-    hostPoolType: hostPoolType
     imageVersionResourceId: imageVersionResourceId
     imageOffer: empty(imageVersionResourceId) ? imageOffer : image.properties.purchasePlan.product
     imagePublisher: empty(imageVersionResourceId) ? imagePublisher: image.properties.purchasePlan.publisher
     imageSku: empty(imageVersionResourceId) ? imageSku : image.properties.purchasePlan.name
     location: location
-    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     managementVirtualMachineName: managementVirtualMachineName
     monitoring: monitoring
     netAppFileShares: netAppFileShares
@@ -180,7 +172,6 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     tagsNetworkInterfaces: tagsNetworkInterfaces
     tagsVirtualMachines: tagsVirtualMachines
     uniqueToken: uniqueToken
-    virtualMachineMonitoringAgent: virtualMachineMonitoringAgent
     virtualMachineNamePrefix: virtualMachineNamePrefix
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize

@@ -6,8 +6,6 @@ param activeDirectorySolution string
 param availability string
 param availabilitySetNamePrefix string
 param availabilityZones array
-param avdAgentBootLoaderMsiName string
-param avdAgentMsiName string
 param batchCount int
 param dataCollectionRuleAssociationName string
 param dataCollectionRuleResourceId string
@@ -26,13 +24,11 @@ param fslogixContainerType string
 param hostPoolName string
 @secure()
 param hostPoolRegistrationToken string
-param hostPoolType string
 param imageOffer string
 param imagePublisher string
 param imageSku string
 param imageVersionResourceId string
 param location string
-param logAnalyticsWorkspaceName string
 param managementVirtualMachineName string
 param monitoring bool
 param netAppFileShares array
@@ -53,7 +49,6 @@ param tagsNetworkInterfaces object
 param tagsVirtualMachines object
 param timestamp string = utcNow('yyyyMMddhhmmss')
 param uniqueToken string
-param virtualMachineMonitoringAgent string
 param virtualMachineNamePrefix string
 @secure()
 param virtualMachinePassword string
@@ -101,9 +96,13 @@ var nvidiaVmSizes = [
   'Standard_NV36adms_A10_v5'
   'Standard_NV72ads_A10_v5'
 ]
-var pooledHostPool = (split(hostPoolType, ' ')[0] == 'Pooled')
 var sessionHostNamePrefix = replace(virtualMachineNamePrefix, serviceToken, '')
 var storageAccountToken = take('${storageAccountPrefix}??${uniqueToken}', 24)
+var systemData = {
+  aadJoinPreview: false
+  sessionHostConfigurationVersion: ''
+  firstPartyExtension: false
+}
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, sessionHostCount): {
   name: '${replace(networkInterfaceNamePrefix, '-${serviceToken}', '')}-${padLeft((i + sessionHostIndex), 4, '0')}'
@@ -264,29 +263,7 @@ resource extension_GuestAttestation 'Microsoft.Compute/virtualMachines/extension
   }
 }]
 
-resource extension_MicrosoftMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): if (monitoring && virtualMachineMonitoringAgent == 'LogAnalyticsAgent') {
-  parent: virtualMachine[i]
-  name: 'MicrosoftmonitoringAgent'
-  location: location
-  tags: tagsVirtualMachines
-  properties: {
-    publisher: 'Microsoft.EnterpriseCloud.monitoring'
-    type: 'MicrosoftmonitoringAgent'
-    typeHandlerVersion: '1.0'
-    autoUpgradeMinorVersion: true
-    settings: {
-      workspaceId: monitoring ? reference(resourceId(resourceGroupManagement, 'Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName), '2015-03-20').customerId : null
-    }
-    protectedSettings: {
-      workspaceKey: monitoring ? listKeys(resourceId(resourceGroupManagement, 'Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName), '2015-03-20').primarySharedKey : null
-    }
-  }
-  dependsOn: [
-    extension_IaasAntimalware
-  ]
-}]
-
-resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = [for i in range(0, sessionHostCount): if (monitoring && virtualMachineMonitoringAgent == 'AzureMonitorAgent') {
+resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = [for i in range(0, sessionHostCount): if (monitoring) {
   parent: virtualMachine[i]
   name: 'AzureMonitorWindowsAgent'
   location: location
@@ -300,7 +277,7 @@ resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/e
   }
 }]
 
-resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' = [for i in range(0, sessionHostCount): if (monitoring && virtualMachineMonitoringAgent == 'AzureMonitorAgent') {
+resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' = [for i in range(0, sessionHostCount): if (monitoring) {
   scope: virtualMachine[i]
   name: dataCollectionRuleAssociationName
   properties: {
@@ -324,14 +301,12 @@ resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/exte
     autoUpgradeMinorVersion: true
     settings: {
       fileUris: [
-        '${artifactsUri}${avdAgentBootLoaderMsiName}'
-        '${artifactsUri}${avdAgentMsiName}'
         '${artifactsUri}Set-SessionHostConfiguration.ps1'
       ]
       timestamp: timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -activeDirectorySolution ${activeDirectorySolution} -amdVmSize ${amdVmSize} -avdAgentBootLoaderMsiName "${avdAgentBootLoaderMsiName}" -avdAgentMsiName "${avdAgentMsiName}" -Environment ${environment().name} -fslogix ${deployFslogix} -fslogixContainerType ${fslogixContainerType} -hostPoolName ${hostPoolName} -HostPoolRegistrationToken "${hostPoolRegistrationToken}" -imageOffer ${imageOffer} -imagePublisher ${imagePublisher} -netAppFileShares ${netAppFileShares} -nvidiaVmSize ${nvidiaVmSize} -pooledHostPool ${pooledHostPool} -storageAccountPrefix ${storageAccountPrefix} -storageCount ${storageCount} -storageIndex ${storageIndex} -storageService ${storageService} -storageSuffix ${storageSuffix} -uniqueToken ${uniqueToken}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -activeDirectorySolution ${activeDirectorySolution} -amdVmSize ${amdVmSize} -fslogix ${deployFslogix} -fslogixContainerType ${fslogixContainerType} -netAppFileShares ${netAppFileShares} -nvidiaVmSize ${nvidiaVmSize} -storageAccountPrefix ${storageAccountPrefix} -storageCount ${storageCount} -storageIndex ${storageIndex} -storageService ${storageService} -storageSuffix ${storageSuffix} -uniqueToken ${uniqueToken}'
       managedidentity: {
         clientId: artifactsUserAssignedIdentityClientId
       }
@@ -339,11 +314,46 @@ resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/exte
   }
   dependsOn: [
     dataCollectionRuleAssociation
-    extension_MicrosoftMonitoringAgent
   ]
 }]
 
-// Enables drain mode on the session hosts so users cannot login to hosts immediately after the deployment
+resource extension_DesiredStateConfiguration 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): {
+  parent: virtualMachine[i]
+  name: 'DesiredStateConfiguration'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Powershell'
+    type: 'DSC'
+    typeHandlerVersion: '2.73'
+    autoUpgradeMinorVersion: true
+    settings: {
+      modulesUrl: 'https://wvdportalstorageblob.blob.${environment().suffixes.storage}/galleryartifacts/Configuration_1.0.02721.349.zip'
+      configurationFunction: 'Configuration.ps1\\AddSessionHost'
+      properties: {
+        hostPoolName: hostPoolName
+          registrationInfoTokenCredential: {
+            UserName: 'PLACEHOLDER_DO_NOT_USE'
+            Password: 'PrivateSettingsRef:RegistrationInfoToken'
+          }
+          aadJoin:  !contains(activeDirectorySolution, 'DomainServices')
+          UseAgentDownloadEndpoint: true
+          adJoinPreview: contains(systemData, 'aadJoinPreview') &&  systemData.aadJoinPreview
+          mdmId: intune ? '0000000a-0000-0000-c000-000000000000' : ''
+          sessionHostConfigurationLastUpdateTime: systemData.sessionHostConfigurationVersion
+      }
+    }
+    protectedSettings: {
+      Items: {
+          RegistrationInfoToken: hostPoolRegistrationToken
+      }
+    }
+  }
+  dependsOn: [
+    extension_CustomScriptExtension
+  ]
+}]
+
+// Enables drain mode on the session hosts so users cannot login to the hosts immediately after the deployment
 module drainMode '../common/customScriptExtensions.bicep' = if (enableDrainMode) {
   name: 'deploy-drain-mode-${batchCount}-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
@@ -359,7 +369,7 @@ module drainMode '../common/customScriptExtensions.bicep' = if (enableDrainMode)
     virtualMachineName: managementVirtualMachineName
   }
   dependsOn: [
-    extension_CustomScriptExtension
+    extension_DesiredStateConfiguration
   ]
 }
 

@@ -10,39 +10,11 @@ Param(
 
     [parameter(Mandatory)]
     [string]
-    $AvdAgentBootLoaderMsiName,
-
-    [parameter(Mandatory)]
-    [string]
-    $AvdAgentMsiName,
-    
-    [parameter(Mandatory)]
-    [string]
-    $Environment,
-
-    [parameter(Mandatory)]
-    [string]
     $Fslogix,
 
     [parameter(Mandatory)]
     [string]
-    $FslogixContainerType,
-
-    [parameter(Mandatory)]
-    [string]
-    $HostPoolName,
-
-    [parameter(Mandatory)]
-    [string]
-    $HostPoolRegistrationToken,    
-
-    [parameter(Mandatory)]
-    [string]
-    $ImageOffer,
-    
-    [parameter(Mandatory)]
-    [string]
-    $ImagePublisher,
+    $FslogixContainerType,  
 
     [parameter(Mandatory)]
     [string]
@@ -51,10 +23,6 @@ Param(
     [parameter(Mandatory)]
     [string]
     $NvidiaVmSize,
-
-    [parameter(Mandatory)]
-    [string]
-    $PooledHostPool,
 
     [parameter(Mandatory)]
     [string]
@@ -115,11 +83,6 @@ $WarningPreference = 'SilentlyContinue'
 
 try 
 {
-    if ($ImagePublisher -eq 'esri')
-    {
-        Install-WindowsFeature RDS-RD-Server
-    }
-
     # Convert NetAppFiles share names from a JSON array to a PowerShell array
     [array]$NetAppFileShares = $NetAppFileShares.Replace("'",'"') | ConvertFrom-Json
     Write-Log -Message "Azure NetApp Files, Shares:" -Type 'INFO'
@@ -483,27 +446,6 @@ try
             Write-Log -Message "Registry setting exists with correct value: $LogOutputValue" -Type 'INFO'    
         }
         Start-Sleep -Seconds 1 | Out-Null
-    }
-
-
-    ##############################################################
-    #  Install the AVD Agent
-    ##############################################################
-    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i `"$AvdAgentBootLoaderMsiName`" /quiet /qn /norestart /passive" -Wait -Passthru | Out-Null
-    Write-Log -Message 'Installed AVD Agent Bootloader' -Type 'INFO'
-    Start-Sleep -Seconds 5 | Out-Null
-
-    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i `"$AvdAgentMsiName`" /quiet /qn /norestart /passive REGISTRATIONTOKEN=$HostPoolRegistrationToken" -Wait -PassThru | Out-Null
-    Write-Log -Message 'Installed AVD Agent' -Type 'INFO'
-    Start-Sleep -Seconds 5 | Out-Null
-
-
-    ##############################################################
-    #  Restart VM
-    ##############################################################
-    if(($ActiveDirectorySolution -eq "MicrosoftEntraId" -or $ActiveDirectorySolution -eq "MicrosoftEntraIdIntuneEnrollment") -and $AmdVmSize -eq 'false' -and $NvidiaVmSize -eq 'false')
-    {
-        Start-Process -FilePath 'shutdown' -ArgumentList '/r /t 30' | Out-Null
     }
 
     $Output = [pscustomobject][ordered]@{
