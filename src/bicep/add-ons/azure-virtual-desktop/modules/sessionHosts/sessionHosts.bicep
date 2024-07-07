@@ -3,7 +3,7 @@ targetScope = 'subscription'
 param acceleratedNetworking string
 param activeDirectorySolution string
 param artifactsUri string
-param artifactsUserAssignedIdentityClientId string
+// param artifactsUserAssignedIdentityClientId string
 param artifactsUserAssignedIdentityResourceId string
 param automationAccountName string
 param availability string
@@ -127,7 +127,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     acceleratedNetworking: acceleratedNetworking
     activeDirectorySolution: activeDirectorySolution
     artifactsUri: artifactsUri
-    artifactsUserAssignedIdentityClientId: artifactsUserAssignedIdentityClientId
+    // artifactsUserAssignedIdentityClientId: artifactsUserAssignedIdentityClientId
     artifactsUserAssignedIdentityResourceId: artifactsUserAssignedIdentityResourceId
     availability: availability
     availabilitySetNamePrefix: availabilitySetNamePrefix

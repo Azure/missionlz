@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "11091273211648450594"
+      "templateHash": "9968364795815945740"
     }
   },
   "parameters": {
@@ -15596,9 +15596,6 @@
           "artifactsUri": {
             "value": "[variables('artifactsUri')]"
           },
-          "artifactsUserAssignedIdentityClientId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.artifactsUserAssignedIdentityClientId.value]"
-          },
           "artifactsUserAssignedIdentityResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.artifactsUserAssignedIdentityResourceId.value]"
           },
@@ -15787,7 +15784,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "4501895838830753752"
+              "templateHash": "2456501920875612567"
             }
           },
           "parameters": {
@@ -15798,9 +15795,6 @@
               "type": "string"
             },
             "artifactsUri": {
-              "type": "string"
-            },
-            "artifactsUserAssignedIdentityClientId": {
               "type": "string"
             },
             "artifactsUserAssignedIdentityResourceId": {
@@ -16173,9 +16167,6 @@
                   "artifactsUri": {
                     "value": "[parameters('artifactsUri')]"
                   },
-                  "artifactsUserAssignedIdentityClientId": {
-                    "value": "[parameters('artifactsUserAssignedIdentityClientId')]"
-                  },
                   "artifactsUserAssignedIdentityResourceId": {
                     "value": "[parameters('artifactsUserAssignedIdentityResourceId')]"
                   },
@@ -16323,14 +16314,11 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "9752326028325342563"
+                      "templateHash": "14261521910741013318"
                     }
                   },
                   "parameters": {
                     "artifactsUri": {
-                      "type": "string"
-                    },
-                    "artifactsUserAssignedIdentityClientId": {
                       "type": "string"
                     },
                     "artifactsUserAssignedIdentityResourceId": {
@@ -16489,6 +16477,7 @@
                     }
                   },
                   "variables": {
+                    "$fxv#0": "[Cmdletbinding()]\nParam(\n    [parameter(Mandatory)]\n    [string]\n    $ActiveDirectorySolution,\n\n    [parameter(Mandatory)]\n    [string]\n    $AmdVmSize,\n\n    [parameter(Mandatory)]\n    [string]\n    $Fslogix,\n\n    [parameter(Mandatory)]\n    [string]\n    $FslogixContainerType,  \n\n    [parameter(Mandatory)]\n    [string]\n    $NetAppFileShares,\n\n    [parameter(Mandatory)]\n    [string]\n    $NvidiaVmSize,\n\n    [parameter(Mandatory)]\n    [string]\n    $StorageAccountPrefix,\n\n    [parameter(Mandatory)]\n    [int]\n    $StorageCount,\n\n    [parameter(Mandatory)]\n    [int]\n    $StorageIndex,\n\n    [parameter(Mandatory)]\n    [string]\n    $StorageService,\n\n    [parameter(Mandatory)]\n    [string]\n    $StorageSuffix,\n\n    [parameter(Mandatory)]\n    [string]\n    $UniqueToken\n)\n\n\n##############################################################\n#  Functions\n##############################################################\nfunction Write-Log\n{\n    param(\n        [parameter(Mandatory)]\n        [string]$Message,\n        \n        [parameter(Mandatory)]\n        [string]$Type\n    )\n    $Path = 'C:\\cse.txt'\n    if(!(Test-Path -Path $Path))\n    {\n        New-Item -Path 'C:\\' -Name 'cse.txt' | Out-Null\n    }\n    $Timestamp = Get-Date -Format 'MM/dd/yyyy HH:mm:ss.ff'\n    $Entry = '[' + $Timestamp + '] [' + $Type + '] ' + $Message\n    $Entry | Out-File -FilePath $Path -Append\n}\n\n\n##############################################################\n#  Preferences\n##############################################################\n\n$ErrorActionPreference = 'Stop'\n$WarningPreference = 'SilentlyContinue'\n\n\ntry \n{\n    # Convert NetAppFiles share names from a JSON array to a PowerShell array\n    [array]$NetAppFileShares = $NetAppFileShares.Replace(\"'\",'\"') | ConvertFrom-Json\n    Write-Log -Message \"Azure NetApp Files, Shares:\" -Type 'INFO'\n    $NetAppFileShares | Add-Content -Path 'C:\\cse.txt' -Force\n\n    ##############################################################\n    #  Add Recommended Security Settings\n    ##############################################################\n    $Settings = @(\n\n        # Set Kerberos Encryption for STIG compliance\n        [PSCustomObject]@{\n            Name = 'SupportedEncryptionTypes'\n            Path = 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters'\n            PropertyType = 'DWord'\n            Value = 2147483640\n        }\n    )\n\n    ##############################################################\n    #  Add Recommended AVD Settings\n    ##############################################################\n    $Settings = @(\n\n        # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates\n        [PSCustomObject]@{\n            Name = 'NoAutoUpdate'\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\n            PropertyType = 'DWord'\n            Value = 1\n        },\n\n        # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection\n        [PSCustomObject]@{\n            Name = 'fEnableTimeZoneRedirection'\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\n            PropertyType = 'DWord'\n            Value = 1\n        }\n    )\n\n\n    ##############################################################\n    #  Add GPU Settings\n    ##############################################################\n    # This setting applies to the VM Size's recommended for AVD with a GPU\n    if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') \n    {\n        $Settings += @(\n\n            # Configure GPU-accelerated app rendering: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering\n            [PSCustomObject]@{\n                Name = 'bEnumerateHWBeforeSW'\n                Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\n                PropertyType = 'DWord'\n                Value = 1\n            },\n\n            # Configure fullscreen video encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding\n            [PSCustomObject]@{\n                Name = 'AVC444ModePreferred'\n                Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\n                PropertyType = 'DWord'\n                Value = 1\n            }\n        )\n    }\n\n    # This setting applies only to VM Size's recommended for AVD with a Nvidia GPU\n    if($NvidiaVmSize -eq 'true')\n    {\n        $Settings += @(\n\n            # Configure GPU-accelerated frame encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-frame-encoding\n            [PSCustomObject]@{\n                Name = 'AVChardwareEncodePreferred'\n                Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\n                PropertyType = 'DWord'\n                Value = 1\n            }\n        )\n    }\n\n\n    ##############################################################\n    #  Add Fslogix Settings\n    ##############################################################\n    if($Fslogix -eq 'true')\n    {\n        $FilesSuffix = '.file.' + $StorageSuffix\n        $CloudCacheOfficeContainers = @()\n        $CloudCacheProfileContainers = @()\n        $OfficeContainers = @()\n        $ProfileContainers = @()\n        switch($StorageService)\n        {\n            'AzureFiles' {\n                for($i = $StorageIndex; $i -lt $($StorageIndex + $StorageCount); $i++)\n                {\n                    $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,24) + $FilesSuffix + '\\office-containers;'\n                    $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,24) + $FilesSuffix + '\\profile-containers;'\n                    $OfficeContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,24) + $FilesSuffix + '\\office-containers'\n                    $ProfileContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,24) + $FilesSuffix + '\\profile-containers'\n                }\n            }\n            'AzureNetAppFiles' {\n                $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $NetAppFileShares[0] + '\\office-containers;'\n                $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers;'\n                $OfficeContainers += '\\\\' + $NetAppFileShares[0] + '\\office-containers'\n                $ProfileContainers += '\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers'\n            }\n        }\n        \n        $Shares = @()\n        $Shares += $OfficeContainers\n        $Shares += $ProfileContainers\n        $SharesOutput = if($Shares.Count -eq 1){$Shares}else{$Shares -join ', '}\n        Write-Log -Message \"File Shares: $SharesOutput\" -Type 'INFO'\n\n        $Settings += @(\n\n            # Enables Fslogix profile containers: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#enabled\n            [PSCustomObject]@{\n                Name = 'Enabled'\n                Path = 'HKLM:\\SOFTWARE\\Fslogix\\Profiles'\n                PropertyType = 'DWord'\n                Value = 1\n            },\n\n            # Deletes a local profile if it exists and matches the profile being loaded from VHD: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#deletelocalprofilewhenvhdshouldapply\n            [PSCustomObject]@{\n                Name = 'DeleteLocalProfileWhenVHDShouldApply'\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\n                PropertyType = 'DWord'\n                Value = 1\n            },\n\n            # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#flipflopprofiledirectoryname\n            [PSCustomObject]@{\n                Name = 'FlipFlopProfileDirectoryName'\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\n                PropertyType = 'DWord'\n                Value = 1\n            },\n\n            # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretrycount\n            [PSCustomObject]@{\n                Name = 'LockedRetryCount'\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\n                PropertyType = 'DWord'\n                Value = 3\n            },\n\n            # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretryinterval\n            [PSCustomObject]@{\n                Name = 'LockedRetryInterval'\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\n                PropertyType = 'DWord'\n                Value = 15\n            },\n\n            # Specifies if the profile container can be accessed concurrently: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#profiletype\n            [PSCustomObject]@{\n                Name = 'ProfileType'\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\n                PropertyType = 'DWord'\n                Value = 0\n            },\n\n            # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachintervalseconds\n            [PSCustomObject]@{\n                Name = 'ReAttachIntervalSeconds'\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\n                PropertyType = 'DWord'\n                Value = 15\n            },\n\n            # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachretrycount\n            [PSCustomObject]@{\n                Name = 'ReAttachRetryCount'\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\n                PropertyType = 'DWord'\n                Value = 3\n            },\n\n            # Specifies the maximum size of the user's container in megabytes. Newly created VHD(x) containers are of this size: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#sizeinmbs\n            [PSCustomObject]@{\n                Name = 'SizeInMBs'\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\n                PropertyType = 'DWord'\n                Value = 30000\n            },\n\n            # Specifies the file extension for the profile containers: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#volumetype\n            [PSCustomObject]@{\n                Name = 'VolumeType'\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\n                PropertyType = 'String'\n                Value = 'VHDX'\n            }\n        )\n\n        if($FslogixContainerType -like \"CloudCache*\")\n        {\n            $Settings += @(\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\n                [PSCustomObject]@{\n                    Name = 'CCDLocations'\n                    Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\n                    PropertyType = 'MultiString'\n                    Value = $CloudCacheProfileContainers\n                }\n            )           \n        }\n        else\n        {\n            $Settings += @(\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\n                [PSCustomObject]@{\n                    Name = 'VHDLocations'\n                    Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\n                    PropertyType = 'MultiString'\n                    Value = $ProfileContainers\n                }\n            )\n        }\n\n        if($FslogixContainerType -like \"*OfficeContainer\")\n        {\n            $Settings += @(\n\n                # Enables Fslogix office containers: https://learn.microsoft.com/fslogix/office-container-configuration-reference#enabled\n                [PSCustomObject]@{\n                    Name = 'Enabled'\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\n                    PropertyType = 'DWord'\n                    Value = 1\n                },\n\n                # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/office-container-configuration-reference#flipflopprofiledirectoryname\n                [PSCustomObject]@{\n                    Name = 'FlipFlopProfileDirectoryName'\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\n                    PropertyType = 'DWord'\n                    Value = 1\n                },         \n                \n                # Teams data is redirected to the container: https://learn.microsoft.com/fslogix/office-container-configuration-reference#includeteams\n                [PSCustomObject]@{\n                    Name = 'IncludeTeams'\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\n                    PropertyType = 'DWord'\n                    Value = 1\n                },                  \n\n                # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretrycount\n                [PSCustomObject]@{\n                    Name = 'LockedRetryCount'\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\n                    PropertyType = 'DWord'\n                    Value = 3\n                },\n\n                # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretryinterval\n                [PSCustomObject]@{\n                    Name = 'LockedRetryInterval'\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\n                    PropertyType = 'DWord'\n                    Value = 15\n                },\n\n                # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachintervalseconds\n                [PSCustomObject]@{\n                    Name = 'ReAttachIntervalSeconds'\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\n                    PropertyType = 'DWord'\n                    Value = 15\n                },\n\n                # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachretrycount\n                [PSCustomObject]@{\n                    Name = 'ReAttachRetryCount'\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\n                    PropertyType = 'DWord'\n                    Value = 3\n                },\n\n                # Specifies the maximum size of the user's container in megabytes: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#sizeinmbs\n                [PSCustomObject]@{\n                    Name = 'SizeInMBs'\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\n                    PropertyType = 'DWord'\n                    Value = 30000\n                },\n\n                # Specifies the type of container: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#volumetype\n                [PSCustomObject]@{\n                    Name = 'VolumeType'\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\n                    PropertyType = 'String'\n                    Value = 'VHDX'\n                }\n            )\n\n            if($FslogixContainerType -like \"CloudCache*\")\n            {\n                $Settings += @(\n                    # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\n                    [PSCustomObject]@{\n                        Name = 'CCDLocations'\n                        Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\n                        PropertyType = 'MultiString'\n                        Value = $CloudCacheOfficeContainers\n                    }\n                )           \n            }\n            else\n            {\n                $Settings += @(\n                    # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/office-container-configuration-reference#vhdlocations\n                    [PSCustomObject]@{\n                        Name = 'VHDLocations'\n                        Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\n                        PropertyType = 'MultiString'\n                        Value = $OfficeContainers\n                    }\n                )\n            }\n        }\n    }\n\n\n    # Set registry settings\n    foreach($Setting in $Settings)\n    {\n        # Create registry key(s) if necessary\n        if(!(Test-Path -Path $Setting.Path))\n        {\n            New-Item -Path $Setting.Path -Force | Out-Null\n        }\n\n        # Checks for existing registry setting\n        $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\n        $LogOutputValue = 'Path: ' + $Setting.Path + ', Name: ' + $Setting.Name + ', PropertyType: ' + $Setting.PropertyType + ', Value: ' + $Setting.Value\n        \n        # Creates the registry setting when it does not exist\n        if(!$Value)\n        {\n            New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\n            Write-Log -Message \"Added registry setting: $LogOutputValue\" -Type 'INFO'\n        }\n        # Updates the registry setting when it already exists\n        elseif($Value.$($Setting.Name) -ne $Setting.Value)\n        {\n            Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\n            Write-Log -Message \"Updated registry setting: $LogOutputValue\" -Type 'INFO'\n        }\n        # Writes log output when registry setting has the correct value\n        else \n        {\n            Write-Log -Message \"Registry setting exists with correct value: $LogOutputValue\" -Type 'INFO'    \n        }\n        Start-Sleep -Seconds 1 | Out-Null\n    }\n\n    $Output = [pscustomobject][ordered]@{\n        activeDirectorySolution = $ActiveDirectorySolution\n    }\n    $JsonOutput = $Output | ConvertTo-Json\n    return $JsonOutput\n}\ncatch \n{\n    Write-Log -Message $_ -Type 'ERROR'\n    throw\n}\n",
                     "amdVmSize": "[contains(variables('amdVmSizes'), parameters('virtualMachineSize'))]",
                     "amdVmSizes": [
                       "Standard_NV4as_v4",
@@ -16524,12 +16513,7 @@
                       "Standard_NV72ads_A10_v5"
                     ],
                     "sessionHostNamePrefix": "[replace(parameters('virtualMachineNamePrefix'), parameters('serviceToken'), '')]",
-                    "storageAccountToken": "[take(format('{0}??{1}', parameters('storageAccountPrefix'), parameters('uniqueToken')), 24)]",
-                    "systemData": {
-                      "aadJoinPreview": false,
-                      "sessionHostConfigurationVersion": "",
-                      "firstPartyExtension": false
-                    }
+                    "storageAccountToken": "[take(format('{0}??{1}', parameters('storageAccountPrefix'), parameters('uniqueToken')), 24)]"
                   },
                   "resources": [
                     {
@@ -16748,39 +16732,6 @@
                     },
                     {
                       "copy": {
-                        "name": "extension_CustomScriptExtension",
-                        "count": "[length(range(0, parameters('sessionHostCount')))]"
-                      },
-                      "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'CustomScriptExtension')]",
-                      "location": "[parameters('location')]",
-                      "tags": "[parameters('tagsVirtualMachines')]",
-                      "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.10",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                          "fileUris": [
-                            "[format('{0}Set-SessionHostConfiguration.ps1', parameters('artifactsUri'))]"
-                          ],
-                          "timestamp": "[parameters('timestamp')]"
-                        },
-                        "protectedSettings": {
-                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -activeDirectorySolution {0} -amdVmSize {1} -fslogix {2} -fslogixContainerType {3} -netAppFileShares {4} -nvidiaVmSize {5} -storageAccountPrefix {6} -storageCount {7} -storageIndex {8} -storageService {9} -storageSuffix {10} -uniqueToken {11}', parameters('activeDirectorySolution'), variables('amdVmSize'), parameters('deployFslogix'), parameters('fslogixContainerType'), parameters('netAppFileShares'), variables('nvidiaVmSize'), parameters('storageAccountPrefix'), parameters('storageCount'), parameters('storageIndex'), parameters('storageService'), parameters('storageSuffix'), parameters('uniqueToken'))]",
-                          "managedidentity": {
-                            "clientId": "[parameters('artifactsUserAssignedIdentityClientId')]"
-                          }
-                        }
-                      },
-                      "dependsOn": [
-                        "dataCollectionRuleAssociation",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
-                      ]
-                    },
-                    {
-                      "copy": {
                         "name": "extension_DesiredStateConfiguration",
                         "count": "[length(range(0, parameters('sessionHostCount')))]"
                       },
@@ -16803,10 +16754,8 @@
                               "Password": "PrivateSettingsRef:RegistrationInfoToken"
                             },
                             "aadJoin": "[not(contains(parameters('activeDirectorySolution'), 'DomainServices'))]",
-                            "UseAgentDownloadEndpoint": true,
-                            "adJoinPreview": "[and(contains(variables('systemData'), 'aadJoinPreview'), variables('systemData').aadJoinPreview)]",
-                            "mdmId": "[if(variables('intune'), '0000000a-0000-0000-c000-000000000000', '')]",
-                            "sessionHostConfigurationLastUpdateTime": "[variables('systemData').sessionHostConfigurationVersion]"
+                            "UseAgentDownloadEndpoint": false,
+                            "mdmId": "[if(variables('intune'), '0000000a-0000-0000-c000-000000000000', '')]"
                           }
                         },
                         "protectedSettings": {
@@ -16816,7 +16765,7 @@
                         }
                       },
                       "dependsOn": [
-                        "extension_CustomScriptExtension",
+                        "runCommand",
                         "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
@@ -16921,6 +16870,149 @@
                       "dependsOn": [
                         "extension_AADLoginForWindows",
                         "extension_JsonADDomainExtension",
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                      ]
+                    },
+                    {
+                      "copy": {
+                        "name": "runCommand",
+                        "count": "[length(range(0, parameters('sessionHostCount')))]"
+                      },
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-run-command-{0}-{1}-{2}', parameters('batchCount'), range(0, parameters('sessionHostCount'))[copyIndex()], parameters('deploymentNameSuffix'))]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "name": {
+                            "value": "Set-SessionHostConfiguration"
+                          },
+                          "parameters": {
+                            "value": [
+                              {
+                                "name": "activeDirectorySolution",
+                                "value": "[parameters('activeDirectorySolution')]"
+                              },
+                              {
+                                "name": "amdVmSize",
+                                "value": "[variables('amdVmSize')]"
+                              },
+                              {
+                                "name": "fslogix",
+                                "value": "[parameters('deployFslogix')]"
+                              },
+                              {
+                                "name": "fslogixContainerType",
+                                "value": "[parameters('fslogixContainerType')]"
+                              },
+                              {
+                                "name": "netAppFileShares",
+                                "value": "[parameters('netAppFileShares')]"
+                              },
+                              {
+                                "name": "[variables('nvidiaVmSize')]",
+                                "value": "[variables('nvidiaVmSize')]"
+                              },
+                              {
+                                "name": "[parameters('storageAccountPrefix')]",
+                                "value": "[parameters('storageAccountPrefix')]"
+                              },
+                              {
+                                "name": "[parameters('storageCount')]",
+                                "value": "[parameters('storageCount')]"
+                              },
+                              {
+                                "name": "[parameters('storageIndex')]",
+                                "value": "[parameters('storageIndex')]"
+                              },
+                              {
+                                "name": "[parameters('storageService')]",
+                                "value": "[parameters('storageService')]"
+                              },
+                              {
+                                "name": "[parameters('storageSuffix')]",
+                                "value": "[parameters('storageSuffix')]"
+                              },
+                              {
+                                "name": "[parameters('uniqueToken')]",
+                                "value": "[parameters('uniqueToken')]"
+                              }
+                            ]
+                          },
+                          "protectedParameters": {
+                            "value": []
+                          },
+                          "script": {
+                            "value": "[variables('$fxv#0')]"
+                          },
+                          "tags": {
+                            "value": "[parameters('tagsVirtualMachines')]"
+                          },
+                          "virtualMachineName": {
+                            "value": "[format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0'))]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.28.1.47646",
+                              "templateHash": "14471434976059558803"
+                            }
+                          },
+                          "parameters": {
+                            "location": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "parameters": {
+                              "type": "array"
+                            },
+                            "protectedParameters": {
+                              "type": "array"
+                            },
+                            "script": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "type": "object"
+                            },
+                            "virtualMachineName": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Compute/virtualMachines/runCommands",
+                              "apiVersion": "2023-09-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[parameters('tags')]",
+                              "properties": {
+                                "asyncExecution": false,
+                                "parameters": "[parameters('parameters')]",
+                                "protectedParameters": "[parameters('protectedParameters')]",
+                                "source": {
+                                  "script": "[parameters('script')]"
+                                },
+                                "treatFailureAsDeploymentFailure": true
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "dataCollectionRuleAssociation",
                         "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },

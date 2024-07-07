@@ -769,7 +769,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     acceleratedNetworking: management.outputs.validateAcceleratedNetworking
     activeDirectorySolution: activeDirectorySolution
     artifactsUri: artifactsUri
-    artifactsUserAssignedIdentityClientId: management.outputs.artifactsUserAssignedIdentityClientId
+    // artifactsUserAssignedIdentityClientId: management.outputs.artifactsUserAssignedIdentityClientId
     artifactsUserAssignedIdentityResourceId: management.outputs.artifactsUserAssignedIdentityResourceId
     automationAccountName: management.outputs.automationAccountName
     availability: availability
