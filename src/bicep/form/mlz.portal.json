@@ -1265,7 +1265,7 @@
       "subscriptionId": "[steps('basics').hubSection.hubSubscriptionId]",
       "parameters": {
         "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSection.bastionSubnetAddressCidrRange]",
-        "azureGateSubnetAddressPrefix": "[steps('remoteAccess').azureGatewaySubnetSection.azureGatewaySubnetAddressCidrRange]",
+        "azureGatewaySubnetAddressPrefix": "[steps('remoteAccess').azureGatewaySubnetSection.azureGatewaySubnetAddressCidrRange]",
         "defenderSkuTier": "[if(steps('compliance').defenderSection.deployDefender, 'Standard', 'Free')]",
         "deployDefenderPlans": "[steps('compliance').defenderSection.deployDefenderPlans]",
         "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
