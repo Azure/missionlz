@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "792864222761210969"
+      "templateHash": "5634561718807947990"
     }
   },
   "parameters": {
@@ -16252,7 +16252,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "15992546004882868677"
+              "templateHash": "5878303885008197503"
             }
           },
           "parameters": {
@@ -16730,15 +16730,9 @@
                   "imageVersionResourceId": {
                     "value": "[parameters('imageVersionResourceId')]"
                   },
-                  "imageOffer": {
-                    "value": "[parameters('imageOffer')]"
-                  },
-                  "imagePublisher": {
-                    "value": "[parameters('imagePublisher')]"
-                  },
-                  "imageSku": {
-                    "value": "[parameters('imageSku')]"
-                  },
+                  "imageOffer": "[if(empty(parameters('imageVersionResourceId')), createObject('value', parameters('imageOffer')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('imageVersionResourceId'), '/')[2], split(parameters('imageVersionResourceId'), '/')[4]), 'Microsoft.Compute/galleries/images', split(parameters('imageVersionResourceId'), '/')[8], split(parameters('imageVersionResourceId'), '/')[10]), '2023-07-03').purchasePlan.product))]",
+                  "imagePublisher": "[if(empty(parameters('imageVersionResourceId')), createObject('value', parameters('imagePublisher')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('imageVersionResourceId'), '/')[2], split(parameters('imageVersionResourceId'), '/')[4]), 'Microsoft.Compute/galleries/images', split(parameters('imageVersionResourceId'), '/')[8], split(parameters('imageVersionResourceId'), '/')[10]), '2023-07-03').purchasePlan.publisher))]",
+                  "imageSku": "[if(empty(parameters('imageVersionResourceId')), createObject('value', parameters('imageSku')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('imageVersionResourceId'), '/')[2], split(parameters('imageVersionResourceId'), '/')[4]), 'Microsoft.Compute/galleries/images', split(parameters('imageVersionResourceId'), '/')[8], split(parameters('imageVersionResourceId'), '/')[10]), '2023-07-03').purchasePlan.name))]",
                   "location": {
                     "value": "[parameters('location')]"
                   },
