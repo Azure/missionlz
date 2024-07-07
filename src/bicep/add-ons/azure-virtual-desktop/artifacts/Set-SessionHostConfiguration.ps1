@@ -115,6 +115,11 @@ $WarningPreference = 'SilentlyContinue'
 
 try 
 {
+    if ($ImagePublisher -eq 'esri')
+    {
+        Install-WindowsFeature RDS-RD-Server
+    }
+
     # Convert NetAppFiles share names from a JSON array to a PowerShell array
     [array]$NetAppFileShares = $NetAppFileShares.Replace("'",'"') | ConvertFrom-Json
     Write-Log -Message "Azure NetApp Files, Shares:" -Type 'INFO'
