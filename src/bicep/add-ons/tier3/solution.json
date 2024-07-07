@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "1967932288004501397"
+      "templateHash": "12751396269965848966"
     }
   },
   "parameters": {
@@ -3273,7 +3273,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "5634917684910175487"
+              "templateHash": "11423521069696011126"
             }
           },
           "parameters": {
@@ -3416,7 +3416,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "keyVaultDiagnosticSettingName": {
-                    "value": "[replace(parameters('tier').namingConvention.keyVaultDiagnosticSetting, parameters('serviceToken'), '')]"
+                    "value": "[replace(parameters('tier').namingConvention.keyVaultDiagnosticSetting, format('{0}-', parameters('serviceToken')), '')]"
                   },
                   "keyVaultName": {
                     "value": "[parameters('keyVaultName')]"

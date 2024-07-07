@@ -34,7 +34,7 @@ module keyvaultDiagnostics '../../../modules/key-vault-diagnostics.bicep' = {
   name: 'deploy-kv-diags-${tier.shortName}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
-    keyVaultDiagnosticSettingName: replace(tier.namingConvention.keyVaultDiagnosticSetting, serviceToken, '')
+    keyVaultDiagnosticSettingName: replace(tier.namingConvention.keyVaultDiagnosticSetting, '${serviceToken}-', '')
     keyVaultName: keyVaultName
     keyVaultStorageAccountId: storageAccountResourceId
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
