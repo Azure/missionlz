@@ -1,7 +1,7 @@
 param location string
 param name string
-param parameters array
-param protectedParameters array
+param parameters array = []
+param protectedParameters array = []
 param script string
 param tags object
 param virtualMachineName string
