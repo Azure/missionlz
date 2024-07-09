@@ -1,16 +1,12 @@
 targetScope = 'subscription'
 
-param acceleratedNetworking string
 param activeDirectorySolution string
-param artifactsUri string
-// param artifactsUserAssignedIdentityClientId string
-param artifactsUserAssignedIdentityResourceId string
-param automationAccountName string
 param availability string
 param availabilitySetsCount int
 param availabilitySetsIndex int
 param availabilityZones array
 param dataCollectionRuleResourceId string
+param delegatedSubnetResourceId string
 param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
@@ -22,11 +18,11 @@ param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
 param drainMode bool
+param enableAcceleratedNetworking bool
 param environmentAbbreviation string
 param fslogixContainerType string
 param hostPoolName string
 param hostPoolType string
-param hybridRunbookWorkerGroupName string
 param identifier string
 param imageOffer string
 param imagePublisher string
@@ -41,6 +37,8 @@ param namingConvention object
 param netAppFileShares array
 param organizationalUnitPath string
 param pooledHostPool bool
+param privateDnsZoneResourceIdPrefix string
+param privateDnsZones array
 param enableRecoveryServices bool
 param enableScalingTool bool
 param recoveryServicesVaultName string
@@ -65,7 +63,6 @@ param storageSuffix string
 param subnetResourceId string
 param tags object
 param timeDifference string
-param timeZone string
 @secure()
 param virtualMachinePassword string
 param virtualMachineSize string
@@ -124,11 +121,8 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
   name: 'deploy-vms-${i - 1}-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupHosts)
   params: {
-    acceleratedNetworking: acceleratedNetworking
+    enableAcceleratedNetworking: enableAcceleratedNetworking
     activeDirectorySolution: activeDirectorySolution
-    artifactsUri: artifactsUri
-    // artifactsUserAssignedIdentityClientId: artifactsUserAssignedIdentityClientId
-    artifactsUserAssignedIdentityResourceId: artifactsUserAssignedIdentityResourceId
     availability: availability
     availabilitySetNamePrefix: availabilitySetNamePrefix
     availabilityZones: availabilityZones
@@ -208,25 +202,25 @@ module scalingTool '../management/scalingTool.bicep' = if (enableScalingTool && 
   name: 'deploy-scaling-tool-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    artifactsUri: artifactsUri
-    automationAccountName: automationAccountName
     beginPeakTime: scalingBeginPeakTime
-    deploymentNameSuffix: deploymentNameSuffix
+    delegatedSubnetResourceId: delegatedSubnetResourceId
     endPeakTime: scalingEndPeakTime
+    environmentAbbreviation: environmentAbbreviation
+    resourceAbbreviations: resourceAbbreviations
     hostPoolName: hostPoolName
     hostPoolResourceGroupName: resourceGroupControlPlane
-    hybridRunbookWorkerGroupName: hybridRunbookWorkerGroupName
     limitSecondsToForceLogOffUser: scalingLimitSecondsToForceLogOffUser
     location: location
-    managementVirtualMachineName: managementVirtualMachineName
     minimumNumberOfRdsh: scalingMinimumNumberOfRdsh
-    resourceGroupControlPlane: resourceGroupControlPlane
-    resourceGroupHosts: resourceGroupHosts
+    namingConvention: namingConvention
+    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: privateDnsZones
+    sessionHostsResourceGroupName: resourceGroupHosts
     sessionThresholdPerCPU: scalingSessionThresholdPerCPU
+    subnetResourceId: subnetResourceId
     tags: tagsAutomationAccounts
     timeDifference: timeDifference
-    timeZone: timeZone
-    userAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
+    serviceToken: serviceToken
   }
   dependsOn: [
     recoveryServices
