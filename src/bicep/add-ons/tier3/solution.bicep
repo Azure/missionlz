@@ -222,7 +222,7 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = {
     location: location
     mlzTags: logic.outputs.mlzTags
     resourceGroupName: rg.outputs.name
-    subnetResourceId: networking.outputs.subnetResourceId
+    subnetResourceId: networking.outputs.subnets[0].id
     tags: tags
     tier: logic.outputs.tiers[0]
     tokens: logic.outputs.tokens
@@ -247,7 +247,7 @@ module storage 'modules/storage.bicep' = {
     resourceGroupName: rg.outputs.name
     serviceToken: logic.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
-    subnetResourceId: networking.outputs.subnetResourceId
+    subnetResourceId: networking.outputs.subnets[0].id
     tablesPrivateDnsZoneResourceId: resourceId(
       hubSubscriptionId,
       hubResourceGroupName,
@@ -308,6 +308,7 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
   }
 
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
+output dnsServers array = virtualNetwork.properties.?dhcpOptions.dnsServers ?? []
 output keyVaultUri string = customerManagedKeys.outputs.keyVaultUri
 output locationProperties object = logic.outputs.locationProperties
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspaceResourceId
@@ -318,7 +319,7 @@ output resourceAbbreviations object = logic.outputs.resourceAbbreviations
 output resourcePrefix string = azureFirewall.tags.resourcePrefix
 output storageAccountResourceId string = storage.outputs.storageAccountResourceId
 output storageEncryptionKeyName string = customerManagedKeys.outputs.storageKeyName
-output subnetResourceId string = networking.outputs.subnetResourceId
+output subnets array = networking.outputs.subnets
 output tier object = logic.outputs.tiers[0]
 output tokens object = logic.outputs.tokens
 output userAssignedIdentityResourceId string = customerManagedKeys.outputs.userAssignedIdentityResourceId

@@ -74,5 +74,5 @@ module hubToWorkloadVirtualNetworkPeering '../../../modules/hub-network-peerings
 }
 
 output networkSecurityGroupName string = spokeNetwork.outputs.networkSecurityGroupName
-output subnetResourceId string = spokeNetwork.outputs.subnetResourceId
+output subnets array = spokeNetwork.outputs.subnets
 output virtualNetworkName string = spokeNetwork.outputs.virtualNetworkName

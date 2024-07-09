@@ -350,7 +350,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     resourceGroupName: tier3.outputs.namingConvention.resourceGroup
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
-    subnetResourceId: tier3.outputs.subnetResourceId
+    subnetResourceId: tier3.outputs.subnets[0].id
     subscriptionId: subscriptionId
     tags: tags
     teamsInstaller: teamsInstaller
@@ -413,7 +413,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     resourceGroupName: tier3.outputs.namingConvention.resourceGroup
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
-    subnetResourceId: tier3.outputs.subnetResourceId
+    subnetResourceId: tier3.outputs.subnets[0].id
     tags: tags
     teamsInstaller: teamsInstaller
     updateService: updateService
