@@ -27,9 +27,19 @@ var delegations = {
   AzureNetAppFiles: [
     {
       name: 'Microsoft.Netapp.volumes'
-      id: resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', virtualNetworkName, 'AzureNetAppFiles', 'Microsoft.Netapp.volumes')
+      id: resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', virtualNetworkName, 'AzureNetAppFiles', 'delegation')
       properties: {
         serviceName: 'Microsoft.Netapp/volumes'
+      }
+      type: 'Microsoft.Network/virtualNetworks/subnets/delegations'
+    }
+  ]
+  FunctionAppOutbound: [
+    {
+      name: 'Microsoft.Web/sites'
+      id: resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', virtualNetworkName, 'FunctionAppOutbound', 'delegation')
+      properties: {
+        serviceName: 'Microsoft.Web/serverfarms'
       }
       type: 'Microsoft.Network/virtualNetworks/subnets/delegations'
     }
@@ -111,11 +121,9 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
   ]
 }
 
-output virtualNetworkName string = virtualNetwork.outputs.name
-output virtualNetworkResourceId string = virtualNetwork.outputs.id
-output virtualNetworkAddressPrefix string = virtualNetwork.outputs.addressPrefix
-output subnetName string = virtualNetwork.outputs.subnets[0].name
-output subnetAddressPrefix string = virtualNetwork.outputs.subnets[0].properties.addressPrefix
-output subnetResourceId string = virtualNetwork.outputs.subnets[0].id
 output networkSecurityGroupName string = networkSecurityGroup.outputs.name
 output networkSecurityGroupResourceId string =  networkSecurityGroup.outputs.id
+output subnets array = virtualNetwork.outputs.subnets
+output virtualNetworkAddressPrefix string = virtualNetwork.outputs.addressPrefix
+output virtualNetworkName string = virtualNetwork.outputs.name
+output virtualNetworkResourceId string = virtualNetwork.outputs.id
