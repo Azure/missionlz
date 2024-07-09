@@ -1,59 +1,42 @@
 param(
-
-    [parameter(Mandatory)]
     [string]$ApplicationGroupReferences,
-
-    [parameter(Mandatory)]
-    [string]$Environment,
-
-    [parameter(Mandatory)]
     [string]$ResourceGroupName,
-
-    [parameter(Mandatory)]
+    [string]$ResourceManagerUri,
     [string]$SubscriptionId,
-
-    [parameter(Mandatory)]
-    [string]$TenantId,
-
-    [parameter(Mandatory)]
     [string]$UserAssignedIdentityClientId,
-
-    [parameter(Mandatory)]
     [string]$WorkspaceName
-
 )
 
 $ErrorActionPreference = 'Stop'
+$WarningPreference = 'SilentlyContinue'
 
-try
-{
-    Connect-AzAccount `
-        -Environment $Environment `
-        -Tenant $TenantId `
-        -Subscription $SubscriptionId `
-        -Identity `
-        -AccountId $UserAssignedIdentityClientId | Out-Null
+# Fix the resource manager URI since only AzureCloud contains a trailing slash
+$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}
 
-    $OldAppGroupReferences = (Get-AzWvdWorkspace -ResourceGroupName $ResourceGroupName -Name $WorkspaceName).ApplicationGroupReference
-    [array]$NewAppGroupReferences = $ApplicationGroupReferences.Replace("'",'"') | ConvertFrom-Json
-    $OldAppGroupReferences = $OldAppGroupReferences -ne $NewAppGroupReferences
-    $CombinedApplicationGroupReferences = $OldAppGroupReferences + $NewAppGroupReferences
+# Get an access token for Azure resources
+$AzureManagementAccessToken = (Invoke-RestMethod `
+    -Headers @{Metadata="true"} `
+    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token
 
-    Update-AzWvdWorkspace `
-        -ResourceGroupName $ResourceGroupName `
-        -Name $WorkspaceName `
-        -ApplicationGroupReference $CombinedApplicationGroupReferences | Out-Null
-
-    Disconnect-AzAccount | Out-Null
-
-    $Output = [pscustomobject][ordered]@{
-        workspaceName = $WorkspaceName
-    }
-    $JsonOutput = $Output | ConvertTo-Json
-    return $JsonOutput
+# Set header for Azure Management API
+$AzureManagementHeader = @{
+    'Content-Type'='application/json'
+    'Authorization'='Bearer ' + $AzureManagementAccessToken
 }
-catch 
-{
-    Write-Host $_ | Select-Object *
-    throw
-}
+
+# Use the access token to get the app group references on the workspace
+$OldAppGroupReferences = (Invoke-RestMethod `
+    -Headers $AzureManagementHeader `
+    -Method 'GET' `
+    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/workspaces/' + $WorkspaceName + '?api-version=2022-02-10-preview')).properties.applicationGroupReferences
+
+[array]$NewAppGroupReferences = $ApplicationGroupReferences.Replace("'",'"') | ConvertFrom-Json
+$OldAppGroupReferences = $OldAppGroupReferences -ne $NewAppGroupReferences
+$CombinedApplicationGroupReferences = $OldAppGroupReferences + $NewAppGroupReferences
+
+# Use the access token to update the app group references on the workspace
+Invoke-RestMethod `
+    -Body (@{properties = @{applicationGroupReferences = $CombinedApplicationGroupReferences}} | ConvertTo-Json) `
+    -Headers $AzureManagementHeader `
+    -Method 'PATCH' `
+    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/workspaces/' + $WorkspaceName + '?api-version=2022-02-10-preview') | Out-Null

@@ -1,87 +1,47 @@
-[Cmdletbinding()]
 Param(
-    [parameter(Mandatory)]
-    [string]
-    $Environment,
-
-    [parameter(Mandatory)]
-    [string]
-    $HostPoolName,
-
-    [parameter(Mandatory)]
-    [string]
-    $HostPoolResourceGroupName,
-
-    [parameter(Mandatory)]
-    [int]
-    $SessionHostCount,
-
-    [parameter(Mandatory)]
-    [int]
-    $SessionHostIndex,
-
-    [parameter(Mandatory)]
-    [string]
-    $SubscriptionId,
-
-    [parameter(Mandatory)]
-    [string]
-    $TenantId,
-
-    [parameter(Mandatory)]
-    [string]
-    $UserAssignedIdentityClientId,
-
-    [parameter(Mandatory)]
-    [string]
-    $VirtualMachineNamePrefix
+    [string]$Environment,
+    [string]$HostPoolName,
+    [string]$HostPoolResourceGroupName,
+    [string]$ResourceManagerUri,
+    [int]$SessionHostCount,
+    [int]$SessionHostIndex,
+    [string]$SubscriptionId,
+    [string]$TenantId,
+    [string]$UserAssignedIdentityClientId,
+    [string]$VirtualMachineNamePrefix
 )
-
-function Write-Log
-{
-    param(
-        [parameter(Mandatory)]
-        [string]$Message,
-        
-        [parameter(Mandatory)]
-        [string]$Type
-    )
-    $Path = 'C:\cse.txt'
-    if(!(Test-Path -Path $Path))
-    {
-        New-Item -Path 'C:\' -Name 'cse.txt' | Out-Null
-    }
-    $Timestamp = Get-Date -Format 'MM/dd/yyyy HH:mm:ss.ff'
-    $Entry = '[' + $Timestamp + '] [' + $Type + '] ' + $Message
-    $Entry | Out-File -FilePath $Path -Append
-}
 
 $ErrorActionPreference = 'Stop'
 $WarningPreference = 'SilentlyContinue'
 
-try 
-{
-    Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null
-    $SessionHosts = (Get-AzWvdSessionHost -ResourceGroupName $HostPoolResourceGroupName -HostPoolName $HostPoolName).Name
-    for($i = $SessionHostIndex; $i -lt $($SessionHostIndex + $SessionHostCount); $i++)
-    {
-        $VmNameFull = $VirtualMachineNamePrefix + $i.ToString().PadLeft(4,'0')
-        $SessionHostName = ($SessionHosts | Where-Object {$_ -like "*$VmNameFull*"}).Replace("$HostPoolName/", '')
-        Update-AzWvdSessionHost -ResourceGroupName $HostPoolResourceGroupName -HostPoolName $HostPoolName -Name $SessionHostName -AllowNewSession:$False | Out-Null
-        Write-Log -Message "Drain Mode set successfully for session host, $SessionHostName" -Type 'INFO'
-    }
-    Write-Log -Message 'Drain Mode Succeeded' -Type 'INFO'
-    $Output = [pscustomobject][ordered]@{
-        hostPool = $HostPoolName
-    }
+# Fix the resource manager URI since only AzureCloud contains a trailing slash
+$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}
 
-    Disconnect-AzAccount | Out-Null
+# Get an access token for Azure resources
+$AzureManagementAccessToken = (Invoke-RestMethod `
+    -Headers @{Metadata="true"} `
+    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token
 
-    $JsonOutput = $Output | ConvertTo-Json
-    return $JsonOutput
+# Set header for Azure Management API
+$AzureManagementHeader = @{
+    'Content-Type'='application/json'
+    'Authorization'='Bearer ' + $AzureManagementAccessToken
 }
-catch 
+
+# Get the AVD session hosts
+$SessionHosts = (Invoke-RestMethod `
+    -Headers $AzureManagementHeader `
+    -Method 'GET' `
+    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts?api-version=2022-02-10-preview')).value.name
+
+# Enable drain mode for the AVD session hosts
+for($i = $SessionHostIndex; $i -lt $($SessionHostIndex + $SessionHostCount); $i++)
 {
-    Write-Log -Message $_ -Type 'ERROR'
-    throw
+    $VmNameFull = $VirtualMachineNamePrefix + $i.ToString().PadLeft(4,'0')
+    $SessionHostName = ($SessionHosts | Where-Object {$_ -like "*$VmNameFull*"}).Replace("$HostPoolName/", '')
+    Invoke-RestMethod `
+        -Body (@{properties = @{allowNewSession = $false}} | ConvertTo-Json) `
+        -Headers $AzureManagementHeader `
+        -Method 'PATCH' `
+        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts/' + $SessionHostName + '?api-version=2022-02-10-preview') | Out-Null
 }
