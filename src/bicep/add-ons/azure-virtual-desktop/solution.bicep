@@ -23,6 +23,9 @@ param artifactsStorageAccountResourceId string
 @description('The desired availability option when deploying a pooled host pool. The best practice is to deploy to availability zones for the highest resilency and service level agreement.')
 param availability string = 'AvailabilityZones'
 
+@description('The availability zones allowed for the AVD session hosts deployment location.')
+param availabilityZones array
+
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
 
@@ -80,6 +83,9 @@ param drainMode bool = false
 @description('The email address to use for Defender for Cloud notifications.')
 param emailSecurityContact string
 
+@description('Determine whether to enable accelerated networking on the AVD session hosts. https://learn.microsoft.com/en-us/azure/virtual-network/accelerated-networking-overview')
+param enableAcceleratedNetworking bool
+
 @description('Enable the partner telemetry deployment. This will allow ESRI to see data around the ArcGIS Pro deployments. https://learn.microsoft.com/en-us/partner-center/marketplace-offers/azure-partner-customer-usage-attribution')
 param enableTelemetry bool = false
 
@@ -90,6 +96,12 @@ param enableTelemetry bool = false
 ])
 @description('The abbreviation for the target environment.')
 param environmentAbbreviation string = 'dev'
+
+@description('Determine whether the Active Directory Connection for Azure NetApp Files already exists.')
+param existingActiveDirectoryConnection bool = false
+
+@description('Determine whether the AVD workspaces already exist and will be shared within the business unit or project.')
+param existingWorkspaces bool = false
 
 @description('The file share size(s) in GB for the Fslogix storage solution.')
 param fslogixShareSizeInGB int = 100
@@ -112,6 +124,9 @@ param fslogixContainerType string = 'ProfileContainer'
 ])
 @description('Enable an Fslogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements')
 param fslogixStorageService string = 'AzureFiles Standard'
+
+@description('The address prefix for the function app subnet for the scaling tool. This is required to enable private outbound access.')
+param functionAppSubnetAddressPrefix string = ''
 
 @allowed([
   'Disabled'
@@ -322,6 +337,14 @@ var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - begin
 // OTHER LOGIC & COMPUTED VALUES
 var artifactsUri = 'https://${artifactsStorageAccountName}.blob.${environment().suffixes.storage}/${artifactsContainerName}/'
 var artifactsStorageAccountName = split(artifactsStorageAccountResourceId, '/')[8]
+var azureNetAppFilesSubnet = contains(fslogixStorageService, 'AzureNetAppFiles') && !empty(azureNetAppFilesSubnetAddressPrefix)
+? [
+    {
+      name: 'AzureNetAppFiles'
+      addressPrefix: azureNetAppFilesSubnetAddressPrefix
+    }
+  ]
+: []
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
 var deployFslogix = fslogixStorageService == 'None' || !contains(activeDirectorySolution, 'DomainServices')
   ? false
@@ -351,6 +374,14 @@ var fileShareNames = {
   ]
 }
 var fileShares = fileShareNames[fslogixContainerType]
+var functionAppSubnet = scalingTool
+? [
+  {
+    name: 'FunctionAppOutbound'
+    addressPrefix: functionAppSubnetAddressPrefix
+  }
+]
+: [] 
 var netbios = split(domainName, '.')[0]
 var pooledHostPool = split(hostPoolType, ' ')[0] == 'Pooled' ? true : false
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
@@ -395,14 +426,7 @@ resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
 module tier3_controlPlane '../tier3/solution.bicep' = {
   name: 'deploy-tier3-avd-cp-${deploymentNameSuffix}'
   params: {
-    additionalSubnets: contains(fslogixStorageService, 'AzureNetAppFiles') && !empty(azureNetAppFilesSubnetAddressPrefix) && length(deploymentLocations) == 1
-      ? [
-          {
-            name: 'AzureNetAppFiles'
-            addressPrefix: azureNetAppFilesSubnetAddressPrefix
-          }
-        ]
-      : []
+    additionalSubnets: length(deploymentLocations) == 1 ? union(azureNetAppFilesSubnet, functionAppSubnet) : []
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: 'cp-${deploymentNameSuffix}'
@@ -428,14 +452,7 @@ module tier3_controlPlane '../tier3/solution.bicep' = {
 module tier3_hosts '../tier3/solution.bicep' = if (length(deploymentLocations) == 2) {
   name: 'deploy-tier3-avd-hosts-${deploymentNameSuffix}'
   params: {
-    additionalSubnets: contains(fslogixStorageService, 'AzureNetAppFiles') && !empty(azureNetAppFilesSubnetAddressPrefix) && length(deploymentLocations) == 2
-      ? [
-          {
-            name: 'AzureNetAppFiles'
-            addressPrefix: azureNetAppFilesSubnetAddressPrefix
-          }
-        ]
-      : []
+    additionalSubnets: length(deploymentLocations) == 2 ? union(azureNetAppFilesSubnet, functionAppSubnet) : []
     deployActivityLogDiagnosticSetting: false
     deployDefender: false
     deploymentNameSuffix: 'hosts-${deploymentNameSuffix}'
@@ -498,7 +515,6 @@ module management 'modules/management/management.bicep' = {
     activeDirectorySolution: activeDirectorySolution
     artifactsStorageAccountResourceId: artifactsStorageAccountResourceId
     artifactsUri: artifactsUri
-    availability: availability
     avdObjectId: avdObjectId
     azurePowerShellModuleMsiName: azurePowerShellModuleMsiName
     deployFslogix: deployFslogix
@@ -513,7 +529,6 @@ module management 'modules/management/management.bicep' = {
     enableMonitoring: monitoring
     fslogixStorageService: fslogixStorageService
     hostPoolType: hostPoolType
-    imageVersionResourceId: imageVersionResourceId
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
@@ -536,20 +551,16 @@ module management 'modules/management/management.bicep' = {
     roleDefinitions: roleDefinitions
     scalingTool: scalingTool
     serviceToken: tier3_controlPlane.outputs.tokens.service
-    sessionHostCount: sessionHostCount
-    stampIndex: stampIndex
     storageService: storageService
     subnetResourceId: length(deploymentLocations) == 2
-      ? tier3_hosts.outputs.subnetResourceId
-      : tier3_controlPlane.outputs.subnetResourceId
+      ? tier3_hosts.outputs.subnets[0].id
+      : tier3_controlPlane.outputs.subnets[0].id
     tags: tags
     timeZone: length(deploymentLocations) == 2
       ? tier3_hosts.outputs.locationProperties.timeZone
       : tier3_controlPlane.outputs.locationProperties.timeZone
     virtualMachinePassword: virtualMachinePassword
-    virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
-    workspaceFeedNamingConvention: tier3_controlPlane.outputs.namingConvention.workspaceFeed
   }
   dependsOn: [
     rgs
@@ -563,7 +574,7 @@ module workspace_global 'modules/sharedServices/sharedServices.bicep' = {
   scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    existingWorkspace: management.outputs.existingFeedWorkspace
+    existingWorkspace: existingWorkspaces
     globalWorkspacePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_controlPlane.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
     mlzTags: tier3_controlPlane.outputs.mlzTags
@@ -628,7 +639,6 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
   name: 'deploy-control-plane-${deploymentNameSuffix}'
   params: {
     activeDirectorySolution: activeDirectorySolution
-    artifactsUri: artifactsUri
     avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_controlPlane.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
     customImageId: customImageId
     customRdpProperty: customRdpProperty
@@ -639,7 +649,7 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     diskSku: diskSku
     domainName: domainName
     environmentAbbreviation: environmentAbbreviation
-    existingFeedWorkspace: management.outputs.existingFeedWorkspace
+    existingFeedWorkspace: existingWorkspaces
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     hubResourceGroupName: split(hubVirtualNetworkResourceId, '/')[4]
@@ -684,7 +694,7 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
         )
     stampIndex: string(stampIndex)
     storageAccountResourceId: tier3_controlPlane.outputs.storageAccountResourceId
-    subnetResourceId: tier3_controlPlane.outputs.subnetResourceId
+    subnetResourceId: tier3_controlPlane.outputs.subnets[0].id
     tags: tags
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
@@ -699,15 +709,16 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
 module fslogix 'modules/fslogix/fslogix.bicep' = {
   name: 'deploy-fslogix-${deploymentNameSuffix}'
   params: {
-    activeDirectoryConnection: management.outputs.validateANFfActiveDirectory
     activeDirectorySolution: activeDirectorySolution
     artifactsUri: artifactsUri
     availability: availability
     azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_controlPlane.outputs.privateDnsZones, name => contains(name, 'file'))[0]}'
-    delegatedSubnetId: management.outputs.validateANFSubnetId
+    delegatedSubnetId: length(deploymentLocations) == 2
+    ? filter(tier3_hosts.outputs.subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
+    : filter(tier3_controlPlane.outputs.subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
-    dnsServers: management.outputs.validateANFDnsServers
+    dnsServers: string(tier3_controlPlane.outputs.dnsServers)
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
@@ -715,6 +726,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
       ? tier3_hosts.outputs.userAssignedIdentityResourceId
       : tier3_controlPlane.outputs.userAssignedIdentityResourceId
     environmentAbbreviation: environmentAbbreviation
+    existingActiveDirectoryConnection: existingActiveDirectoryConnection
     fileShares: fileShares
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
@@ -750,8 +762,8 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     storageService: storageService
     storageSku: storageSku
     subnetResourceId: length(deploymentLocations) == 2
-      ? tier3_hosts.outputs.subnetResourceId
-      : tier3_controlPlane.outputs.subnetResourceId
+      ? tier3_hosts.outputs.subnets[0].id
+      : tier3_controlPlane.outputs.subnets[0].id
     tags: tags
     timeZone: length(deploymentLocations) == 2
       ? tier3_hosts.outputs.locationProperties.abbreviation
@@ -766,17 +778,15 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
 module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
   name: 'deploy-session-hosts-${deploymentNameSuffix}'
   params: {
-    acceleratedNetworking: management.outputs.validateAcceleratedNetworking
     activeDirectorySolution: activeDirectorySolution
-    artifactsUri: artifactsUri
-    // artifactsUserAssignedIdentityClientId: management.outputs.artifactsUserAssignedIdentityClientId
-    artifactsUserAssignedIdentityResourceId: management.outputs.artifactsUserAssignedIdentityResourceId
-    automationAccountName: management.outputs.automationAccountName
     availability: availability
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: beginAvSetRange
-    availabilityZones: management.outputs.validateAvailabilityZones
+    availabilityZones: availabilityZones
     dataCollectionRuleResourceId: management.outputs.dataCollectionRuleResourceId
+    delegatedSubnetResourceId: scalingTool && deploymentLocations == 1
+    ? filter(tier3_controlPlane.outputs.subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
+    : filter(tier3_hosts.outputs.subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
@@ -789,13 +799,13 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
     drainMode: drainMode
+    enableAcceleratedNetworking: enableAcceleratedNetworking
     enableRecoveryServices: recoveryServices
     enableScalingTool: scalingTool
     environmentAbbreviation: environmentAbbreviation
     fslogixContainerType: fslogixContainerType
     hostPoolName: controlPlane.outputs.hostPoolName
     hostPoolType: hostPoolType
-    hybridRunbookWorkerGroupName: management.outputs.hybridRunbookWorkerGroupName
     identifier: identifier
     imageOffer: imageOffer
     imagePublisher: imagePublisher
@@ -816,6 +826,8 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
         ]
     organizationalUnitPath: organizationalUnitPath
     pooledHostPool: pooledHostPool
+    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: tier3_controlPlane.outputs.privateDnsZones
     recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
     resourceAbbreviations: tier3_controlPlane.outputs.resourceAbbreviations
     resourceGroupControlPlane: rgs[0].outputs.name
@@ -836,15 +848,12 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     storageService: storageService
     storageSuffix: storageSuffix
     subnetResourceId: length(deploymentLocations) == 2
-      ? tier3_hosts.outputs.subnetResourceId
-      : tier3_controlPlane.outputs.subnetResourceId
+      ? tier3_hosts.outputs.subnets[0].id
+      : tier3_controlPlane.outputs.subnets[0].id
     tags: tags
     timeDifference: length(deploymentLocations) == 2
       ? tier3_hosts.outputs.locationProperties.timeDifference
       : tier3_controlPlane.outputs.locationProperties.timeDifference
-    timeZone: length(deploymentLocations) == 2
-      ? tier3_hosts.outputs.locationProperties.timeZone
-      : tier3_controlPlane.outputs.locationProperties.timeZone
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername

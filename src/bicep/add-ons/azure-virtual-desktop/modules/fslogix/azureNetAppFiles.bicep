@@ -1,5 +1,5 @@
 param artifactsUri string
-param activeDirectoryConnection string
+param existingActiveDirectoryConnection bool
 param delegatedSubnetId string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
@@ -28,7 +28,7 @@ resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
   location: location
   tags: tagsNetAppAccount
   properties: {
-    activeDirectories: activeDirectoryConnection == 'false' ? null : [
+    activeDirectories: existingActiveDirectoryConnection ? [
       {
         aesEncryption: true
         domain: domainName
@@ -38,7 +38,7 @@ resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
         smbServerName: 'anf-${smbServerLocation}'
         username: split(domainJoinUserPrincipalName, '@')[0]
       }
-    ]
+    ] : null
     encryption: {
       keySource: 'Microsoft.NetApp'
     }

@@ -1,5 +1,4 @@
 param activeDirectorySolution string
-param artifactsUri string
 param avdPrivateDnsZoneResourceId string
 param customImageId string
 param customRdpProperty string
@@ -256,16 +255,39 @@ resource roleAssignment_keyVault 'Microsoft.Authorization/roleAssignments@2022-0
   }
 }
 
-module hostPoolRegistrationToken '../common/customScriptExtensions.bicep' = {
+module hostPoolRegistrationToken '../common/runCommand.bicep' = {
   name: 'deploy-host-pool-registration-token-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    fileUris: [
-      '${artifactsUri}Set-HostPoolRegistrationToken.ps1'
-    ]
     location: location
-    parameters: '-HostPoolName "${hostPoolName}" -HostPoolResourceGroupName "${resourceGroup().name}" -KeyVaultUri "${vault.properties.vaultUri}" -ResourceManagerUri "${environment().resourceManager}" -SubscriptionId "${subscription().subscriptionId}" -UserAssignedIdentityClientId "${deploymentUserAssignedIdentityClientId}"'
-    scriptFileName: 'Set-HostPoolRegistrationToken.ps1'
+    name: 'Set-HostPoolRegistrationToken.ps1'
+    parameters: [
+      {
+        name: 'HostPoolName' 
+        value: hostPoolName
+      }
+      {
+        name: 'HostPoolResourceGroupName'
+        value: resourceGroup().name
+      }
+      {
+        name: 'KeyVaultUri' 
+        value: vault.properties.vaultUri
+      }
+      {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
+        name: 'SubscriptionId'
+        value: subscription().subscriptionId
+      }
+      {
+        name: 'UserAssignedIdentityClientId'
+        value: deploymentUserAssignedIdentityClientId
+      }
+    ]
+    script: loadTextContent('../../artifacts/Set-HostPoolRegistrationToken.ps1')
     tags: union(
       {
         'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
@@ -273,7 +295,6 @@ module hostPoolRegistrationToken '../common/customScriptExtensions.bicep' = {
       contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
       mlzTags
     )
-    userAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
     virtualMachineName: managementVirtualMachineName
   }
   dependsOn: [

@@ -1,5 +1,4 @@
 param applicationGroupReferences array
-param artifactsUri string
 param avdPrivateDnsZoneResourceId string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
@@ -21,20 +20,46 @@ param workspaceFeedPrivateEndpointName string
 param workspaceFriendlyName string
 param workspacePublicNetworkAccess string
 
-module addApplicationGroups '../common/customScriptExtensions.bicep' = if (existing) {
+module addApplicationGroups '../common/runCommand.bicep' = if (existing) {
   scope: resourceGroup(resourceGroupManagement)
   name: 'add-vdag-references-${deploymentNameSuffix}'
   params: {
-    fileUris: [
-      '${artifactsUri}Update-AvdWorkspace.ps1'
-    ]
     location: locationVirtualMachines
-    parameters: '-ApplicationGroupReferences "${applicationGroupReferences}" -Environment ${environment().name} -ResourceGroupName ${resourceGroup().name} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentityClientId} -WorkspaceName ${workspaceFeedName}'
-    scriptFileName: 'Update-AvdWorkspace.ps1'
-    tags: union({
-      'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-    }, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)    
-    userAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
+    name: 'Update-AvdWorkspace'
+    parameters: [
+      {
+        name: 'ApplicationGroupReferences'
+        value: applicationGroupReferences
+      }
+      {
+        name: 'ResourceGroupName'
+        value: resourceGroup().name
+      }
+      {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
+        name: 'SubscriptionId'
+        value: subscription().subscriptionId
+      }
+      {
+        name: 'UserAssignedIdentityClientId'
+        value: deploymentUserAssignedIdentityClientId
+      }
+      {
+        name: 'WorkspaceName'
+        value: workspaceFeedName
+      }
+    ]
+    script: loadTextContent('../../artifacts/Update-AvdWorkspace.ps1')
+    tags: union(
+      {
+        'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
+      },
+      contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+      mlzTags
+    )
     virtualMachineName: virtualMachineName
   }
 }

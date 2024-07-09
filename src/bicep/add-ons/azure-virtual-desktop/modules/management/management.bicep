@@ -3,7 +3,6 @@ targetScope = 'subscription'
 param activeDirectorySolution string
 param artifactsUri string
 param artifactsStorageAccountResourceId string
-param availability string
 param avdObjectId string
 param azurePowerShellModuleMsiName string
 param deploymentNameSuffix string
@@ -17,7 +16,6 @@ param deployFslogix bool
 param diskEncryptionSetResourceId string
 param fslogixStorageService string
 param hostPoolType string
-param imageVersionResourceId string
 param locationVirtualMachines string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
@@ -36,8 +34,6 @@ param resourceGroupStorage string
 param roleDefinitions object
 param scalingTool bool
 param serviceToken string
-param sessionHostCount int
-param stampIndex int
 param storageService string
 param subnetResourceId string
 param tags object
@@ -45,11 +41,7 @@ param timeZone string
 @secure()
 param virtualMachinePassword string
 param virtualMachineUsername string
-param virtualMachineSize string
-param workspaceFeedNamingConvention string
 
-var cpuCountMax = contains(hostPoolType, 'Pooled') ? 32 : 128
-var cpuCountMin = contains(hostPoolType, 'Pooled') ? 4 : 2
 var hostPoolName = namingConvention.hostPool
 var roleAssignments = union([
   {
@@ -92,7 +84,6 @@ var roleAssignments = union([
 var userAssignedIdentityNamePrefix = namingConvention.userAssignedIdentity
 var virtualNetworkName = split(subnetResourceId, '/')[8]
 var virtualNetworkResourceGroupName = split(subnetResourceId, '/')[4]
-var workspaceFeedName = replace(replace(workspaceFeedNamingConvention, serviceToken, 'feed'), '-${stampIndex}', '')
 
 // Disabling the deployment below until Enhanced Policies in Recovery Services support managed disks with private link
 /* module diskAccess 'diskAccess.bicep' = {
@@ -154,25 +145,8 @@ resource roleAssignment_validation 'Microsoft.Authorization/roleAssignments@2022
   }
 }
 
-module artifacts 'artifacts.bicep' = {
-  scope: resourceGroup(split(artifactsStorageAccountResourceId, '/')[2], split(artifactsStorageAccountResourceId, '/')[4])
-  name: 'deploy-artifacts-${deploymentNameSuffix}'
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    hostPoolName: hostPoolName
-    location: locationVirtualMachines
-    mlzTags: mlzTags
-    resourceGroupControlPlane: resourceGroupControlPlane
-    resourceGroupManagement: resourceGroupManagement
-    storageAccountName: split(artifactsStorageAccountResourceId, '/')[8]
-    subscriptionId: subscription().subscriptionId
-    tags: tags
-    userAssignedIdentityName: replace(userAssignedIdentityNamePrefix, serviceToken, 'artifacts')
-  }
-}
-
 // Management VM
-// The management VM is required to validate the deployment and configure FSLogix storage.
+// The management VM is required to execute PowerShell scripts.
 module virtualMachine 'virtualMachine.bicep' = {
   name: 'deploy-mgmt-vm-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
@@ -200,26 +174,6 @@ module virtualMachine 'virtualMachine.bicep' = {
     virtualMachineUsername: virtualMachineUsername
     virtualNetwork: virtualNetworkName
     virtualNetworkResourceGroup: virtualNetworkResourceGroupName
-  }
-}
-
-// Deployment Validations
-// This module validates the selected parameter values and collects required data
-module validations '../common/customScriptExtensions.bicep' = {
-  scope: resourceGroup(resourceGroupManagement)
-  name: 'validate-deployment-${deploymentNameSuffix}'
-  params: {
-    fileUris: [
-      '${artifactsUri}Get-Validations.ps1'
-    ]
-    location: locationVirtualMachines
-    parameters: '-ActiveDirectorySolution ${activeDirectorySolution} -CpuCountMax ${cpuCountMax} -CpuCountMin ${cpuCountMin} -DomainName ${empty(domainName) ? 'NotApplicable' : domainName} -Environment ${environment().name} -imageVersionResourceId ${empty(imageVersionResourceId) ? 'NotApplicable' : imageVersionResourceId} -Location ${locationVirtualMachines} -SessionHostCount ${sessionHostCount} -StorageService ${storageService} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentity.outputs.clientId} -VirtualMachineSize ${virtualMachineSize} -VirtualNetworkName ${virtualNetworkName} -VirtualNetworkResourceGroupName ${virtualNetworkResourceGroupName} -WorkspaceFeedName ${workspaceFeedName} -WorkspaceResourceGroupName ${resourceGroupFeedWorkspace}'
-    scriptFileName: 'Get-Validations.ps1'
-    tags: union({
-      'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-    }, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
-    userAssignedIdentityClientId: deploymentUserAssignedIdentity.outputs.clientId
-    virtualMachineName: virtualMachine.outputs.Name
   }
 }
 
@@ -294,22 +248,13 @@ module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryService
   }
 }
 
-output artifactsUserAssignedIdentityClientId string = artifacts.outputs.userAssignedIdentityClientId
-output artifactsUserAssignedIdentityPrincipalId string = artifacts.outputs.userAssignedIdentityPrincipalId
-output artifactsUserAssignedIdentityResourceId string = artifacts.outputs.userAssignedIdentityResourceId
 output automationAccountName string = scalingTool || fslogixStorageService == 'AzureFiles Premium' ? automationAccount.outputs.name : ''
 output dataCollectionRuleResourceId string = enableMonitoring ? monitoring.outputs.dataCollectionRuleResourceId : ''
 output deploymentUserAssignedIdentityClientId string = deploymentUserAssignedIdentity.outputs.clientId
 output deploymentUserAssignedIdentityPrincipalId string = deploymentUserAssignedIdentity.outputs.principalId
 output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedIdentity.outputs.resourceId
-output existingFeedWorkspace bool = validations.outputs.value.existingWorkspace == 'true' ? true : false
 output hybridRunbookWorkerGroupName string = scalingTool || fslogixStorageService == 'AzureFiles Premium' ? automationAccount.outputs.hybridRunbookWorkerGroupName : ''
 output logAnalyticsWorkspaceName string = enableMonitoring ? monitoring.outputs.logAnalyticsWorkspaceName : ''
 output logAnalyticsWorkspaceResourceId string = enableMonitoring ? monitoring.outputs.logAnalyticsWorkspaceResourceId : ''
 output recoveryServicesVaultName string = recoveryServices && ((contains(activeDirectorySolution, 'DomainServices') && contains(hostPoolType, 'Pooled') && contains(fslogixStorageService, 'AzureFiles')) || contains(hostPoolType, 'Personal')) ? recoveryServicesVault.outputs.name : ''
-output validateAcceleratedNetworking string = validations.outputs.value.acceleratedNetworking
-output validateANFDnsServers string = validations.outputs.value.anfDnsServers
-output validateANFfActiveDirectory string = validations.outputs.value.anfActiveDirectory
-output validateANFSubnetId string = validations.outputs.value.anfSubnetId
-output validateAvailabilityZones array = availability == 'AvailabilityZones' ? validations.outputs.value.availabilityZones : [ '1' ]
 output virtualMachineName string = virtualMachine.outputs.Name

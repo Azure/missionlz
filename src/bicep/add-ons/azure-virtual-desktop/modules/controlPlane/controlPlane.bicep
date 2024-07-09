@@ -1,7 +1,6 @@
 targetScope = 'subscription'
 
 param activeDirectorySolution string
-param artifactsUri string
 param avdPrivateDnsZoneResourceId string
 param customImageId string
 param customRdpProperty string
@@ -59,7 +58,6 @@ module hostPool 'hostPool.bicep' = {
   scope: resourceGroup(resourceGroups[0])
   params: {
     activeDirectorySolution: activeDirectorySolution
-    artifactsUri: artifactsUri
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
     customImageId: customImageId
     customRdpProperty: customRdpProperty
@@ -112,7 +110,6 @@ module applicationGroup 'applicationGroup.bicep' = {
   name: 'deploy-vdag-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroups[0])
   params: {
-    artifactsUri: artifactsUri
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
     desktopApplicationGroupName: replace(namingConvention.applicationGroup, serviceToken, 'desktop')
@@ -134,7 +131,6 @@ module workspace 'workspace.bicep' = {
   scope: resourceGroup(resourceGroups[1])
   params: {
     applicationGroupReferences: applicationGroup.outputs.applicationGroupReference
-    artifactsUri: artifactsUri
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
