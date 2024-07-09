@@ -1,7 +1,3 @@
-param artifactsUri string
-// param artifactsUserAssignedIdentityClientId string
-param artifactsUserAssignedIdentityResourceId string
-param acceleratedNetworking string
 param activeDirectorySolution string
 param availability string
 param availabilitySetNamePrefix string
@@ -19,6 +15,7 @@ param diskSku string
 param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
+param enableAcceleratedNetworking bool
 param enableDrainMode bool
 param fslogixContainerType string
 param hostPoolName string
@@ -124,7 +121,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [
           }
         }
       ]
-      enableAcceleratedNetworking: acceleratedNetworking == 'True' ? true : false
+      enableAcceleratedNetworking: enableAcceleratedNetworking
       enableIPForwarding: false
     }
   }
@@ -140,12 +137,6 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [
           availabilityZones[i % length(availabilityZones)]
         ]
       : null
-    identity: {
-      type: 'UserAssigned'
-      userAssignedIdentities: {
-        '${artifactsUserAssignedIdentityResourceId}': {}
-      }
-    }
     plan: imagePublisher == 'esri'
       ? {
           name: imageSku
@@ -313,7 +304,7 @@ resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAss
   }
 ]
 
-module runCommand '../common/runCommand.bicep' = [
+module setSessionHostConfiguration '../common/runCommand.bicep' = [
   for i in range(0, sessionHostCount): {
     name: 'deploy-run-command-${batchCount}-${i}-${deploymentNameSuffix}'
     params: {
@@ -321,55 +312,54 @@ module runCommand '../common/runCommand.bicep' = [
       name: 'Set-SessionHostConfiguration'
       parameters: [
         {
-          name: 'activeDirectorySolution'
+          name: 'ActiveDirectorySolution'
           value: activeDirectorySolution
         }
         {
-          name: 'amdVmSize'
+          name: 'AmdVmSize'
           value: amdVmSize
         }
         {
-          name: 'fslogix' 
+          name: 'Fslogix' 
           value: deployFslogix
         }
         {
-          name: 'fslogixContainerType'
+          name: 'FslogixContainerType'
           value: fslogixContainerType
         }
         {
-          name: 'netAppFileShares'
-          value: netAppFileShares
+          name: 'NetAppFileShares'
+          value: string(netAppFileShares)
         }
         {
-          name: nvidiaVmSize
+          name: 'NvidiaVmSize'
           value: nvidiaVmSize
         }
         {
-          name: storageAccountPrefix 
+          name: 'StorageAccountPrefix'
           value: storageAccountPrefix
         }
         {
-          name: storageCount 
+          name: 'StorageCount'
           value: storageCount
         }
         {
-          name: storageIndex 
+          name: 'StorageIndex'
           value: storageIndex
         }
         {
-          name: storageService 
+          name: 'StorageService'
           value: storageService
         }
         {
-          name: storageSuffix 
+          name: 'StorageSuffix'
           value: storageSuffix
         }
         {
-          name: uniqueToken 
+          name: 'UniqueToken'
           value: uniqueToken
         }
       ]
-      protectedParameters: []
       script: loadTextContent('../../artifacts/Set-SessionHostConfiguration.ps1')
       tags: tagsVirtualMachines
       virtualMachineName: virtualMachine[i].name
@@ -380,37 +370,7 @@ module runCommand '../common/runCommand.bicep' = [
   }
 ]
 
-/* resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [
-  for i in range(0, sessionHostCount): {
-    parent: virtualMachine[i]
-    name: 'CustomScriptExtension'
-    location: location
-    tags: tagsVirtualMachines
-    properties: {
-      publisher: 'Microsoft.Compute'
-      type: 'CustomScriptExtension'
-      typeHandlerVersion: '1.10'
-      autoUpgradeMinorVersion: true
-      settings: {
-        fileUris: [
-          '${artifactsUri}Set-SessionHostConfiguration.ps1'
-        ]
-        timestamp: timestamp
-      }
-      protectedSettings: {
-        commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -activeDirectorySolution ${activeDirectorySolution} -amdVmSize ${amdVmSize} -fslogix ${deployFslogix} -fslogixContainerType ${fslogixContainerType} -netAppFileShares ${netAppFileShares} -nvidiaVmSize ${nvidiaVmSize} -storageAccountPrefix ${storageAccountPrefix} -storageCount ${storageCount} -storageIndex ${storageIndex} -storageService ${storageService} -storageSuffix ${storageSuffix} -uniqueToken ${uniqueToken}'
-        managedidentity: {
-          clientId: artifactsUserAssignedIdentityClientId
-        }
-      }
-    }
-    dependsOn: [
-      dataCollectionRuleAssociation
-    ]
-  }
-] */
-
-resource extension_DesiredStateConfiguration 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [
+resource installAvdAgents 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [
   for i in range(0, sessionHostCount): {
     parent: virtualMachine[i]
     name: 'DesiredStateConfiguration'
@@ -441,29 +401,66 @@ resource extension_DesiredStateConfiguration 'Microsoft.Compute/virtualMachines/
       }
     }
     dependsOn: [
-      runCommand
-      // extension_CustomScriptExtension
+      setSessionHostConfiguration
     ]
   }
 ]
 
 // Enables drain mode on the session hosts so users cannot login to the hosts immediately after the deployment
-module drainMode '../common/customScriptExtensions.bicep' = if (enableDrainMode) {
+module drainMode '../common/runCommand.bicep' = if (enableDrainMode) {
   name: 'deploy-drain-mode-${batchCount}-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    fileUris: [
-      '${artifactsUri}Set-AvdDrainMode.ps1'
-    ]
     location: location
-    parameters: '-Environment ${environment().name} -hostPoolName ${hostPoolName} -HostPoolResourceGroupName ${resourceGroupControlPlane} -sessionHostCount ${sessionHostCount} -sessionHostIndex ${sessionHostIndex} -SubscriptionId ${subscription().subscriptionId} -TenantId ${tenant().tenantId} -userAssignedidentityClientId ${deploymentUserAssignedidentityClientId} -virtualMachineNamePrefix ${sessionHostNamePrefix}'
-    scriptFileName: 'Set-AvdDrainMode.ps1'
+    name: 'Set-AvdDrainMode'
+    parameters: [
+      {
+        name: 'Environment'
+        value: environment().name
+      }
+      { 
+        name: 'hostPoolName' 
+        value: hostPoolName
+      }
+      {
+        name: 'HostPoolResourceGroupName' 
+        value: resourceGroupControlPlane
+      }
+      {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
+        name: 'sessionHostCount' 
+        value: sessionHostCount
+      }
+      {
+        name: 'sessionHostIndex' 
+        value: sessionHostIndex
+      }
+      {
+        name: 'SubscriptionId' 
+        value: subscription().subscriptionId
+      }
+      {
+        name: 'TenantId' 
+        value: tenant().tenantId
+      }
+      {
+        name: 'userAssignedidentityClientId' 
+        value: deploymentUserAssignedidentityClientId
+      }
+      {
+        name: 'virtualMachineNamePrefix' 
+        value: sessionHostNamePrefix
+      }
+    ]
+    script: loadTextContent('../../artifacts/Set-AvdDrainMode.ps1')
     tags: tagsVirtualMachines
-    userAssignedIdentityClientId: deploymentUserAssignedidentityClientId
     virtualMachineName: managementVirtualMachineName
   }
   dependsOn: [
-    extension_DesiredStateConfiguration
+    installAvdAgents
   ]
 }
 
