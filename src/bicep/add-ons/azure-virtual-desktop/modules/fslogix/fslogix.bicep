@@ -1,7 +1,6 @@
 targetScope = 'subscription'
 
-param artifactsUri string
-param existingActiveDirectoryConnection bool
+param existingSharedActiveDirectoryConnection bool
 param activeDirectorySolution string
 param availability string
 param azureFilesPrivateDnsZoneResourceId string
@@ -59,11 +58,9 @@ module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureN
   name: 'deploy-anf-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupStorage)
   params: {
-    existingActiveDirectoryConnection: existingActiveDirectoryConnection
-    artifactsUri: artifactsUri
+    existingSharedActiveDirectoryConnection: existingSharedActiveDirectoryConnection
     delegatedSubnetId: delegatedSubnetId
     deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
     dnsServers: dnsServers
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -91,7 +88,6 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
   scope: resourceGroup(resourceGroupStorage)
   params: {
     activeDirectorySolution: activeDirectorySolution
-    artifactsUri: artifactsUri
     automationAccountName: namingConvention.automationAccount
     availability: availability
     azureFilesPrivateDnsZoneResourceId: azureFilesPrivateDnsZoneResourceId

@@ -1,17 +1,15 @@
 param(
     [string]$ApplicationGroupReferences,
-    [string]$ResourceGroupName,
     [string]$ResourceManagerUri,
-    [string]$SubscriptionId,
     [string]$UserAssignedIdentityClientId,
-    [string]$WorkspaceName
+    [string]$WorkspaceResourceId
 )
 
 $ErrorActionPreference = 'Stop'
 $WarningPreference = 'SilentlyContinue'
 
 # Fix the resource manager URI since only AzureCloud contains a trailing slash
-$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}
+$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}
 
 # Get an access token for Azure resources
 $AzureManagementAccessToken = (Invoke-RestMethod `
@@ -28,7 +26,7 @@ $AzureManagementHeader = @{
 $OldAppGroupReferences = (Invoke-RestMethod `
     -Headers $AzureManagementHeader `
     -Method 'GET' `
-    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/workspaces/' + $WorkspaceName + '?api-version=2022-02-10-preview')).properties.applicationGroupReferences
+    -Uri $($ResourceManagerUriFixed + $WorkspaceResourceId + '?api-version=2022-02-10-preview')).properties.applicationGroupReferences
 
 [array]$NewAppGroupReferences = $ApplicationGroupReferences.Replace("'",'"') | ConvertFrom-Json
 $OldAppGroupReferences = $OldAppGroupReferences -ne $NewAppGroupReferences
@@ -39,4 +37,4 @@ Invoke-RestMethod `
     -Body (@{properties = @{applicationGroupReferences = $CombinedApplicationGroupReferences}} | ConvertTo-Json) `
     -Headers $AzureManagementHeader `
     -Method 'PATCH' `
-    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/workspaces/' + $WorkspaceName + '?api-version=2022-02-10-preview') | Out-Null
+    -Uri $($ResourceManagerUriFixed + $WorkspaceResourceId + '?api-version=2022-02-10-preview') | Out-Null

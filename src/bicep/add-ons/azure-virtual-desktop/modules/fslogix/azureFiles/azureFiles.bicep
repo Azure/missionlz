@@ -1,5 +1,4 @@
 param activeDirectorySolution string
-param artifactsUri string
 param automationAccountName string
 param availability string
 param azureFilesPrivateDnsZoneResourceId string
@@ -209,18 +208,90 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
   ]
 }]
 
-module ntfsPermissions '../../common/customScriptExtensions.bicep' = if (contains(activeDirectorySolution, 'DomainServices')) {
+module ntfsPermissions '../../common/runCommand.bicep' = if (contains(activeDirectorySolution, 'DomainServices')) {
   name: 'deploy-fslogix-ntfs-permissions-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    fileUris: [
-      '${artifactsUri}Set-NtfsPermissions.ps1'
-    ]
     location: location
-    parameters: '-domainJoinPassword "${domainJoinPassword}" -domainJoinUserPrincipalName ${domainJoinUserPrincipalName} -activeDirectorySolution ${activeDirectorySolution} -Environment ${environment().name} -fslogixContainerType ${fslogixContainerType} -netbios ${netbios} -organizationalUnitPath "${organizationalUnitPath}" -securityPrincipalNames "${securityPrincipalNames}" -StorageAccountPrefix ${storageAccountNamePrefix} -StorageAccountResourceGroupName ${resourceGroupStorage} -storageCount ${storageCount} -storageIndex ${storageIndex} -storageService ${storageService} -StorageSuffix ${environment().suffixes.storage} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId} -UniqueToken ${uniqueToken} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentityClientId}'
-    scriptFileName: 'Set-NtfsPermissions.ps1'
+    name: 'Set-NtfsPermissions.ps1'
+    parameters: [
+      {
+        name: 'ActiveDirectorySolution'
+        value: activeDirectorySolution
+      }
+      {
+        name: 'Environment'
+        value: environment().name
+      }
+      {
+        name: 'FslogixContainerType'
+        value: fslogixContainerType
+      }
+      {
+        name: 'Netbios'
+        value: netbios
+      }
+      {
+        name: 'OrganizationalUnitPath'
+        value: organizationalUnitPath
+      }
+      {
+        name: 'SecurityPrincipalNames'
+        value: securityPrincipalNames
+      }
+      {
+        name: 'StorageAccountPrefix'
+        value: storageAccountNamePrefix
+      }
+      {
+        name: 'StorageAccountResourceGroupName'
+        value: resourceGroupStorage
+      }
+      {
+        name: 'StorageCount'
+        value: storageCount
+      }
+      {
+        name: 'StorageIndex'
+        value: storageIndex
+      }
+      {
+        name: 'StorageService'
+        value: storageService
+      }
+      {
+        name: 'StorageSuffix'
+        value: environment().suffixes.storage
+      }
+      {
+        name: 'SubscriptionId'
+        value: subscription().subscriptionId
+      }
+      {
+        name: 'TenantId'
+        value: subscription().tenantId
+      }
+      {
+        name: 'UniqueToken'
+        value: uniqueToken
+      }
+      {
+        name: 'UserAssignedIdentityClientId'
+        value: deploymentUserAssignedIdentityClientId
+      }
+    ]
+    protectedParameters: [
+      {
+        name: 'DomainJoinPassword'
+        value: domainJoinPassword
+      }
+      {
+        name: 'DomainJoinUserPrincipalName'
+        value: domainJoinUserPrincipalName
+      }
+    ]
+    script: loadTextContent('../../../artifacts/Set-NtfsPermissions.ps1')
     tags: tagsVirtualMachines
-    userAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
     virtualMachineName: managementVirtualMachineName
   }
   dependsOn: [
@@ -253,7 +324,6 @@ module autoIncreasePremiumFileShareQuota '../../management/autoIncreasePremiumFi
   name: 'deploy-file-share-scaling-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    artifactsUri: artifactsUri
     automationAccountName: automationAccountName
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId

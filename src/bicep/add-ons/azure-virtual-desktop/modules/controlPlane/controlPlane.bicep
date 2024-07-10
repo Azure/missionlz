@@ -11,7 +11,7 @@ param desktopFriendlyName string
 param diskSku string
 param domainName string
 param environmentAbbreviation string
-param existingFeedWorkspace bool
+param existingFeedWorkspaceResourceId string
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
 param hubResourceGroupName string
@@ -134,7 +134,7 @@ module workspace 'workspace.bicep' = {
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    existing: existingFeedWorkspace
+    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     hostPoolName: hostPoolName
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines

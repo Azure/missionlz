@@ -9,12 +9,6 @@ targetScope = 'subscription'
 @description('The service providing domain services for Azure Virtual Desktop.  This is needed to properly configure the session hosts and if applicable, the Azure Storage Account.')
 param activeDirectorySolution string
 
-@description('The name of the Azure Blobs container hosting the required artifacts.')
-param artifactsContainerName string
-
-@description('The resource ID for the storage account hosting the artifacts in Blob storage.')
-param artifactsStorageAccountResourceId string
-
 @allowed([
   'AvailabilitySets'
   'AvailabilityZones'
@@ -31,9 +25,6 @@ param avdObjectId string
 
 @description('The subnet address prefix for the Azure NetApp Files delegated subnet.')
 param azureNetAppFilesSubnetAddressPrefix string = ''
-
-@description('The blob name of the MSI file for the  Azure PowerShell Module installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
-param azurePowerShellModuleMsiName string
 
 @description('The RDP properties to add or remove RDP functionality on the AVD host pool. The string must end with a semi-colon. Settings reference: https://learn.microsoft.com/windows-server/remote/remote-desktop-services/clients/rdp-files')
 param customRdpProperty string = 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;'
@@ -97,11 +88,11 @@ param enableTelemetry bool = false
 @description('The abbreviation for the target environment.')
 param environmentAbbreviation string = 'dev'
 
-@description('Determine whether the Active Directory Connection for Azure NetApp Files already exists.')
-param existingActiveDirectoryConnection bool = false
+@description('Determine whether the Shared Active Directory Connection for Azure NetApp Files already exists.')
+param existingSharedActiveDirectoryConnection bool = false
 
-@description('Determine whether the AVD workspaces already exist and will be shared within the business unit or project.')
-param existingWorkspaces bool = false
+@description('The resource ID for the existing feed workspace within a business unit or project.')
+param existingFeedWorkspaceResourceId string = ''
 
 @description('The file share size(s) in GB for the Fslogix storage solution.')
 param fslogixShareSizeInGB int = 100
@@ -124,9 +115,6 @@ param fslogixContainerType string = 'ProfileContainer'
 ])
 @description('Enable an Fslogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements')
 param fslogixStorageService string = 'AzureFiles Standard'
-
-@description('The address prefix for the function app subnet for the scaling tool. This is required to enable private outbound access.')
-param functionAppSubnetAddressPrefix string = ''
 
 @allowed([
   'Disabled'
@@ -225,6 +213,9 @@ param profile string = 'Generic'
 @description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
 param recoveryServices bool = false
 
+@description('The subnet address prefix for the tool to scale Azure Files Premium.')
+param scaleAzureFilesPremiumSubnetAddressPrefix string = ''
+
 @description('The time when session hosts will scale up and continue to stay on to support peak demand; Format 24 hours e.g. 9:00 for 9am')
 param scalingBeginPeakTime string = '9:00'
 
@@ -242,6 +233,9 @@ param scalingSessionThresholdPerCPU string = '1'
 
 @description('Deploys the required resources for the Scaling Tool. https://docs.microsoft.com/en-us/azure/virtual-desktop/scaling-automation-logic-apps')
 param scalingTool bool = false
+
+@description('The subnet address prefix for the scaling tool subnet. This delegated subnet is required to enable private outbound access.')
+param scalingToolSubnetAddressPrefix string = ''
 
 @description('The array of Security Principals with their object IDs and display names to assign to the AVD Application Group and FSLogix Storage.')
 param securityPrincipals array
@@ -335,8 +329,6 @@ var endAvSetRange = (sessionHostCount + sessionHostIndex) / maxAvSetMembers // T
 var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - beginAvSetRange) + 1))
 
 // OTHER LOGIC & COMPUTED VALUES
-var artifactsUri = 'https://${artifactsStorageAccountName}.blob.${environment().suffixes.storage}/${artifactsContainerName}/'
-var artifactsStorageAccountName = split(artifactsStorageAccountResourceId, '/')[8]
 var azureNetAppFilesSubnet = contains(fslogixStorageService, 'AzureNetAppFiles') && !empty(azureNetAppFilesSubnetAddressPrefix)
 ? [
     {
@@ -374,11 +366,19 @@ var fileShareNames = {
   ]
 }
 var fileShares = fileShareNames[fslogixContainerType]
-var functionAppSubnet = scalingTool
+var scaleAzureFilesPremiumSubnet = fslogixStorageService == 'AzureFiles Premium'
 ? [
   {
-    name: 'FunctionAppOutbound'
-    addressPrefix: functionAppSubnetAddressPrefix
+    name: 'ScaleAzureFilesPremiumOutbound'
+    addressPrefix: scaleAzureFilesPremiumSubnetAddressPrefix
+  }
+]
+: [] 
+var scalingToolSubnet = scalingTool
+? [
+  {
+    name: 'ScalingToolOutbound'
+    addressPrefix: scalingToolSubnetAddressPrefix
   }
 ]
 : [] 
@@ -426,7 +426,7 @@ resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
 module tier3_controlPlane '../tier3/solution.bicep' = {
   name: 'deploy-tier3-avd-cp-${deploymentNameSuffix}'
   params: {
-    additionalSubnets: length(deploymentLocations) == 1 ? union(azureNetAppFilesSubnet, functionAppSubnet) : []
+    additionalSubnets: length(deploymentLocations) == 1 ? union(azureNetAppFilesSubnet, scalingToolSubnet, scaleAzureFilesPremiumSubnet) : []
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: 'cp-${deploymentNameSuffix}'
@@ -452,7 +452,7 @@ module tier3_controlPlane '../tier3/solution.bicep' = {
 module tier3_hosts '../tier3/solution.bicep' = if (length(deploymentLocations) == 2) {
   name: 'deploy-tier3-avd-hosts-${deploymentNameSuffix}'
   params: {
-    additionalSubnets: length(deploymentLocations) == 2 ? union(azureNetAppFilesSubnet, functionAppSubnet) : []
+    additionalSubnets: length(deploymentLocations) == 2 ? union(azureNetAppFilesSubnet, scalingToolSubnet, scaleAzureFilesPremiumSubnet) : []
     deployActivityLogDiagnosticSetting: false
     deployDefender: false
     deploymentNameSuffix: 'hosts-${deploymentNameSuffix}'
@@ -513,10 +513,7 @@ module management 'modules/management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
   params: {
     activeDirectorySolution: activeDirectorySolution
-    artifactsStorageAccountResourceId: artifactsStorageAccountResourceId
-    artifactsUri: artifactsUri
     avdObjectId: avdObjectId
-    azurePowerShellModuleMsiName: azurePowerShellModuleMsiName
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetResourceId: length(deploymentLocations) == 2
@@ -574,7 +571,7 @@ module workspace_global 'modules/sharedServices/sharedServices.bicep' = {
   scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    existingWorkspace: existingWorkspaces
+    existingWorkspace: !empty(existingFeedWorkspaceResourceId)
     globalWorkspacePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_controlPlane.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
     mlzTags: tier3_controlPlane.outputs.mlzTags
@@ -649,7 +646,7 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     diskSku: diskSku
     domainName: domainName
     environmentAbbreviation: environmentAbbreviation
-    existingFeedWorkspace: existingWorkspaces
+    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     hubResourceGroupName: split(hubVirtualNetworkResourceId, '/')[4]
@@ -710,7 +707,6 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
   name: 'deploy-fslogix-${deploymentNameSuffix}'
   params: {
     activeDirectorySolution: activeDirectorySolution
-    artifactsUri: artifactsUri
     availability: availability
     azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_controlPlane.outputs.privateDnsZones, name => contains(name, 'file'))[0]}'
     delegatedSubnetId: length(deploymentLocations) == 2
@@ -726,7 +722,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
       ? tier3_hosts.outputs.userAssignedIdentityResourceId
       : tier3_controlPlane.outputs.userAssignedIdentityResourceId
     environmentAbbreviation: environmentAbbreviation
-    existingActiveDirectoryConnection: existingActiveDirectoryConnection
+    existingSharedActiveDirectoryConnection: existingSharedActiveDirectoryConnection
     fileShares: fileShares
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB

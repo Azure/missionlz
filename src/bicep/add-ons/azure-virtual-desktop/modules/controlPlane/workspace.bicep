@@ -2,7 +2,7 @@ param applicationGroupReferences array
 param avdPrivateDnsZoneResourceId string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
-param existing bool
+param existingFeedWorkspaceResourceId string
 param hostPoolName string
 param locationControlPlane string
 param locationVirtualMachines string
@@ -20,7 +20,7 @@ param workspaceFeedPrivateEndpointName string
 param workspaceFriendlyName string
 param workspacePublicNetworkAccess string
 
-module addApplicationGroups '../common/runCommand.bicep' = if (existing) {
+module addApplicationGroups '../common/runCommand.bicep' = if (!empty(existingFeedWorkspaceResourceId)) {
   scope: resourceGroup(resourceGroupManagement)
   name: 'add-vdag-references-${deploymentNameSuffix}'
   params: {
@@ -32,24 +32,16 @@ module addApplicationGroups '../common/runCommand.bicep' = if (existing) {
         value: applicationGroupReferences
       }
       {
-        name: 'ResourceGroupName'
-        value: resourceGroup().name
-      }
-      {
         name: 'ResourceManagerUri'
         value: environment().resourceManager
-      }
-      {
-        name: 'SubscriptionId'
-        value: subscription().subscriptionId
       }
       {
         name: 'UserAssignedIdentityClientId'
         value: deploymentUserAssignedIdentityClientId
       }
       {
-        name: 'WorkspaceName'
-        value: workspaceFeedName
+        name: 'WorkspaceResourceId'
+        value: existingFeedWorkspaceResourceId
       }
     ]
     script: loadTextContent('../../artifacts/Update-AvdWorkspace.ps1')
@@ -64,7 +56,7 @@ module addApplicationGroups '../common/runCommand.bicep' = if (existing) {
   }
 }
 
-resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = if (!existing) {
+resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = if (empty(existingFeedWorkspaceResourceId)) {
   name: workspaceFeedName
   location: locationControlPlane
   tags: mlzTags
@@ -75,7 +67,7 @@ resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = if 
   }
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = if (!existing) {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = if (empty(existingFeedWorkspaceResourceId)) {
   name: workspaceFeedPrivateEndpointName
   location: locationControlPlane
   tags: mlzTags
@@ -98,7 +90,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = if (!
   }
 }
 
-resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-05-01' = if (!existing) {
+resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-05-01' = if (empty(existingFeedWorkspaceResourceId)) {
   parent: privateEndpoint
   name: 'default'
   properties: {
@@ -113,7 +105,7 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   }
 }
 
-resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!existing && monitoring) {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (empty(existingFeedWorkspaceResourceId) && monitoring) {
   name: workspaceFeedDiagnoticSettingName
   scope: workspace
   properties: {
