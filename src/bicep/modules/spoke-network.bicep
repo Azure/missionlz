@@ -34,7 +34,17 @@ var delegations = {
       type: 'Microsoft.Network/virtualNetworks/subnets/delegations'
     }
   ]
-  FunctionAppOutbound: [
+  ScaleAzureFilesPremiumOutbound: [
+    {
+      name: 'Microsoft.Web/sites'
+      id: resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', virtualNetworkName, 'FunctionAppOutbound', 'delegation')
+      properties: {
+        serviceName: 'Microsoft.Web/serverfarms'
+      }
+      type: 'Microsoft.Network/virtualNetworks/subnets/delegations'
+    }
+  ]
+  ScalingToolOutbound: [
     {
       name: 'Microsoft.Web/sites'
       id: resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', virtualNetworkName, 'FunctionAppOutbound', 'delegation')
