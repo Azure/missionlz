@@ -1,4 +1,3 @@
-param artifactsUri string
 param automationAccountName string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
