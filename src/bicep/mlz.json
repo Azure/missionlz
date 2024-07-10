@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "1795172618674459693"
+      "templateHash": "2548017473292619958"
     }
   },
   "parameters": {
@@ -1831,7 +1831,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "949902161186876580"
+              "templateHash": "14860938616275778141"
             }
           },
           "parameters": {
@@ -3325,7 +3325,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "4678402463831840744"
+                      "templateHash": "16535621650389420748"
                     }
                   },
                   "parameters": {
@@ -3394,7 +3394,17 @@
                           "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
                         }
                       ],
-                      "FunctionAppOutbound": [
+                      "ScaleAzureFilesPremiumOutbound": [
+                        {
+                          "name": "Microsoft.Web/sites",
+                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'FunctionAppOutbound', 'delegation')]",
+                          "properties": {
+                            "serviceName": "Microsoft.Web/serverfarms"
+                          },
+                          "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                        }
+                      ],
+                      "ScalingToolOutbound": [
                         {
                           "name": "Microsoft.Web/sites",
                           "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'FunctionAppOutbound', 'delegation')]",

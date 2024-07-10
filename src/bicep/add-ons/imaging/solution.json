@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "135587781087990506"
+      "templateHash": "2544432460989790643"
     }
   },
   "parameters": {
@@ -595,7 +595,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "5735959504684028099"
+              "templateHash": "7409547841917262319"
             }
           },
           "parameters": {
@@ -1749,7 +1749,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "1318762400660880588"
+                      "templateHash": "8730995830014844997"
                     }
                   },
                   "parameters": {
@@ -1885,7 +1885,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.28.1.47646",
-                              "templateHash": "4678402463831840744"
+                              "templateHash": "16535621650389420748"
                             }
                           },
                           "parameters": {
@@ -1954,7 +1954,17 @@
                                   "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
                                 }
                               ],
-                              "FunctionAppOutbound": [
+                              "ScaleAzureFilesPremiumOutbound": [
+                                {
+                                  "name": "Microsoft.Web/sites",
+                                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'FunctionAppOutbound', 'delegation')]",
+                                  "properties": {
+                                    "serviceName": "Microsoft.Web/serverfarms"
+                                  },
+                                  "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                                }
+                              ],
+                              "ScalingToolOutbound": [
                                 {
                                   "name": "Microsoft.Web/sites",
                                   "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'FunctionAppOutbound', 'delegation')]",
