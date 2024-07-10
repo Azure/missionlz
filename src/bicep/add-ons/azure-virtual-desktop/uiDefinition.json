@@ -387,9 +387,17 @@
               ]
             },
             {
+              "name": "workspacesApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.DesktopVirtualization/workspaces?api-version=2022-02-10-preview')]"
+              }
+            },
+            {
               "name": "workspace",
               "type": "Microsoft.Common.Section",
-              "visible": true,
+              "visible": "[empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), and(contains(item.name, 'feed'), and(contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location)))))))]",
               "label": "Workspace",
               "elements": [
                 {
@@ -523,7 +531,7 @@
                   "defaultValue": "",
                   "placeholder": "Example: Information Technology",
                   "toolTip": "Input the friendly name for the AVD workspace that will be displayed in the end user's client. This value should apply to all the stamp indexes within the same identifier and would mostly likely represent your business unit or project.",
-                  "visible": "[steps('controlPlane').friendlyNames.custom]",
+                  "visible": "[and(steps('controlPlane').friendlyNames.custom, empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), and(contains(item.name, 'feed'), and(contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))))))))]",
                   "constraints": {
                     "required": false,
                     "regex": "^.{1,64}$",
@@ -832,6 +840,14 @@
                   "osPlatform": "Windows",
                   "count": "[steps('hosts').virtualMachine.count]",
                   "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Pooled'))]"
+                },
+                {
+                  "name": "resourceSkusApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/skus?api-version=2021-07-01&$filter=location eq ', decodeUriComponent('%27'), steps('basics').scope.location.name, decodeUriComponent('%27'))]"
+                  }
                 }
               ]
             },
@@ -1022,6 +1038,16 @@
                   }
                 },
                 {
+                  "name": "existingSharedActiveDirectoryConnection",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Existing shared Active Directory connection",
+                  "visible": "[equals(steps('userProfiles').storage.service, 'AzureNetAppFiles')]",
+                  "toolTip": "Choose whether a Shared AD Connection for Azure NetApp File exists.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
                   "name": "sku",
                   "type": "Microsoft.Common.DropDown",
                   "visible": "[equals(steps('userProfiles').profileSolution, 'fslogix')]",
@@ -1119,7 +1145,7 @@
                   "name": "subnetAddressCidrRangeWorkload",
                   "label": "Subnet CIDR range (Workload)",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/2', if(and(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles')), '5', '4'))]",
+                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/26')]",
                   "toolTip": "Specify a CIDR range for the workload subnet within the AVD spoke virtual network range [24,28].",
                   "constraints": {
                     "required": true,
@@ -1152,7 +1178,73 @@
                   "label": "Subnet CIDR range (Azure NetApp Files)",
                   "type": "Microsoft.Common.TextBox",
                   "visible": "[and(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles'))]",
-                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.128/25')]",
+                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.64/26')]",
+                  "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24,28].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "subnetAddressCidrRangeScalingTool",
+                  "label": "Subnet CIDR range (Scaling Tool)",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": "[and(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), steps('management').scaling.enable)]",
+                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.128/26')]",
+                  "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24,28].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "subnetAddressCidrRangeScaleAzureFilesPremium",
+                  "label": "Subnet CIDR range (Scale Azure Files Premium)",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": "[and(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), and(equals(steps('userProfiles').storage.service, 'AzureFiles'), equals(steps('userProfiles').storage.sku, 'Premium')))]",
+                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.192/26')]",
                   "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24,28].",
                   "constraints": {
                     "required": true,
@@ -1208,7 +1300,7 @@
                   "name": "subnetAddressCidrRangeWorkload",
                   "label": "Subnet CIDR range (Workload)",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.0/2', if(equals(steps('userProfiles').storage.service, 'AzureNetAppFiles'), '5', '4'))]",
+                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.0/26')]",
                   "toolTip": "Specify a CIDR range for the default subnet within the AVD Hosts spoke virtual network range [24,28].",
                   "constraints": {
                     "required": true,
@@ -1241,7 +1333,7 @@
                   "label": "Subnet CIDR range (Azure NetApp Files)",
                   "type": "Microsoft.Common.TextBox",
                   "visible": "[and(not(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location)), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles'))]",
-                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.128/25')]",
+                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.64/26')]",
                   "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24,28].",
                   "constraints": {
                     "required": true,
@@ -1264,6 +1356,72 @@
                       },
                       {
                         "isValid": "[lessOrEquals(last(split(steps('networking').hosts.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').hosts.subnetAddressCidrRangeAnf, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "subnetAddressCidrRangeScalingTool",
+                  "label": "Subnet CIDR range (Scaling Tool)",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": "[and(not(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location)), steps('management').scaling.enable)]",
+                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.128/26')]",
+                  "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24,28].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "subnetAddressCidrRangeScaleAzureFilesPremium",
+                  "label": "Subnet CIDR range (Scale Azure Files Premium)",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": "[and(not(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location)), and(equals(steps('userProfiles').storage.service, 'AzureFiles'), equals(steps('userProfiles').storage.sku, 'Premium')))]",
+                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.192/26')]",
+                  "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24,28].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')))]",
                         "message": "CIDR range not within virtual network CIDR range (subnet mask)."
                       }
                     ]
@@ -1462,108 +1620,6 @@
           ]
         },
         {
-          "name": "artifacts",
-          "label": "Artifacts",
-          "elements": [
-            {
-              "name": "storage",
-              "type": "Microsoft.Common.Section",
-              "label": "Artifacts storage",
-              "elements": [
-                {
-                  "name": "description",
-                  "type": "Microsoft.Common.TextBlock",
-                  "visible": true,
-                  "options": {
-                    "text": "Select the storage account and container that hosts the artifacts required to deploy this solution."
-                  }
-                },
-                {
-                  "name": "storageAccount",
-                  "type": "Microsoft.Solutions.ResourceSelector",
-                  "label": "Existing storage account",
-                  "resourceType": "Microsoft.Storage/storageAccounts",
-                  "options": {
-                    "filter": {
-                      "subscription": "all",
-                      "location": "all"
-                    }
-                  }
-                },
-                {
-                  "name": "containerApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "request": {
-                    "method": "GET",
-                    "path": "[concat(steps('artifacts').storage.storageAccount.id, '/blobServices/default/containers?api-version=2023-01-01')]"
-                  }
-                },
-                {
-                  "name": "container",
-                  "type": "Microsoft.Common.DropDown",
-                  "visible": true,
-                  "label": "Existing container",
-                  "defaultValue": "",
-                  "filter": true,
-                  "toolTip": "Select the existing container containing the required artifacts.",
-                  "constraints": {
-                    "required": true,
-                    "allowedValues": "[map(steps('artifacts').storage.containerApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]"
-                  }
-                }
-              ],
-              "visible": true
-            },
-            {
-              "name": "files",
-              "type": "Microsoft.Common.Section",
-              "label": "Artifacts file names",
-              "elements": [
-                {
-                  "name": "description",
-                  "type": "Microsoft.Common.TextBlock",
-                  "visible": true,
-                  "options": {
-                    "text": "Input the file names for the required artifacts from the specified Azure Blobs container above."
-                  }
-                },
-                {
-                  "name": "azurePowerShellModuleMsiName",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Azure PowerShell Module Installer (.msi)",
-                  "defaultValue": "Az-Cmdlets-10.2.0.37547-x64.msi",
-                  "toolTip": "Input the file / blob name for the Azure PowerShell Module installer.",
-                  "placeholder": "",
-                  "multiLine": false,
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "isValid": "[endsWith(steps('artifacts').files.azurePowerShellModuleMsiName, '.msi')]",
-                        "message": "The file name must end with '.msi'."
-                      }
-                    ]
-                  },
-                  "visible": true
-                },
-                {
-                  "name": "filesWarning",
-                  "type": "Microsoft.Common.InfoBox",
-                  "visible": true,
-                  "options": {
-                    "style": "Warning",
-                    "text": "The files listed above are prerequisites for this solution. They must be downloaded and staged in Azure Blob storage. Once staged, ensure the file names listed above match the file names in Azure Blob storage since the names can change over time. Refer to the following link to download the files:",
-                    "uri": {
-                      "text": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azure-virtual-desktop/docs/prerequisites.md#required",
-                      "value": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azure-virtual-desktop/docs/prerequisites.md#required"
-                    }
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
           "name": "compliance",
           "label": "Compliance",
           "elements": [
@@ -1749,11 +1805,9 @@
     "outputs": {
       "parameters": {
         "activeDirectorySolution": "[if(and(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), steps('hosts').identity.intune), 'MicrosoftEntraIdIntuneEnrollment', steps('hosts').identity.solution)]",
-        "artifactsContainerName": "[steps('artifacts').storage.container]",
-        "artifactsStorageAccountResourceId": "[steps('artifacts').storage.storageAccount.id]",
         "availability": "[steps('hosts').virtualMachine.availability]",
+        "availabilityZones": "[map(first(map(first(filter(steps('hosts').virtualMachine.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Pooled')), steps('hosts').virtualMachine.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6))), steps('hosts').virtualMachine.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4))), steps('hosts').virtualMachine.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3))), steps('hosts').virtualMachine.sizeArcGisProSingleHeavy, steps('hosts').virtualMachine.sizeGeneric))))))), (item) => item.locationInfo)), (item) => item.zones)]",
         "avdObjectId": "[if(empty(steps('basics').servicePrincipalsApi), steps('management').startVmOnConnect.objectId, first(map(steps('basics').servicePrincipalsApi.value, (item) => item.id)))]",
-        "azurePowerShellModuleMsiName": "[steps('artifacts').files.azurePowerShellModuleMsiName.blobName]",
         "azureNetAppFilesSubnetAddressPrefix": "[if(and(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles')), steps('networking').controlPlane.subnetAddressCidrRangeAnf, steps('networking').hosts.subnetAddressCidrRangeAnf)]",
         "customRdpProperty": "[steps('controlPlane').hostPool.customRdpProperties]",
         "deployActivityLogDiagnosticSetting": "[empty(steps('compliance').diagnosticSettingsApi.value)]",
@@ -1768,8 +1822,11 @@
         "domainName": "[steps('hosts').identity.domainName]",
         "drainMode": "[steps('management').drainMode.enable]",
         "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '')]",
+        "enableAcceleratedNetworking": "[map(first(filter(map(first(filter(steps('hosts').virtualMachine.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Pooled')), steps('hosts').virtualMachine.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6))), steps('hosts').virtualMachine.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4))), steps('hosts').virtualMachine.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3))), steps('hosts').virtualMachine.sizeArcGisProSingleHeavy, steps('hosts').virtualMachine.sizeGeneric))))))), (item) => item.capabilities), (item) => equals(item.name, 'AcceleratedNetworkingEnabled'))), (item) => item.value)]",
         "enablePartnerTelemetry": "[steps('basics').scenario.enablePartnerTelemetry]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
+        "existingActiveDirectoryConnection": "[steps('userProfiles').storage.existingSharedActiveDirectoryConnection]",
+        "existingFeedWorkspaceResourceId": "[map(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), and(contains(item.name, 'feed'), and(contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location)))))), (item) => item.id)]",
         "fslogixShareSizeInGB": "[if(equals(steps('userProfiles').profileSolution, 'local'), 100, steps('userProfiles').storage.fileShareSize)]",
         "fslogixContainerType": "[steps('userProfiles').storage.fslogixContainerType]",
         "fslogixStorageService": "[if(equals(steps('userProfiles').profileSolution, 'local'), 'None', concat( steps('userProfiles').storage.service, ' ', steps('userProfiles').storage.sku))]",
@@ -1792,12 +1849,14 @@
         "policy": "[steps('compliance').policySection.policy]",
         "profile": "[steps('basics').scenario.profile]",
         "recoveryServices": "[steps('management').backup.recoveryServices]",
+        "scaleAzureFilesPremiumSubnetAddressPrefix": "[if(and(equals(steps('userProfiles').storage.service, 'AzureFiles'), equals(steps('userProfiles').storage.sku, 'Premium')), steps('networking').controlPlane.subnetAddressCidrRangeScaleAzureFilesPremium, '')]",
         "scalingBeginPeakTime": "[if(steps('management').scaling.enable, steps('management').scaling.beginPeakTime, '9:00')]",
         "scalingEndPeakTime": "[if(steps('management').scaling.enable, steps('management').scaling.endPeakTime, '17:00')]",
         "scalingLimitSecondsToForceLogOffUser": "[if(steps('management').scaling.enable, steps('management').scaling.forceLogOff, '0')]",
         "scalingMinimumNumberOfRdsh": "[if(steps('management').scaling.enable, steps('management').scaling.minimumHosts, '0')]",
         "scalingSessionThresholdPerCPU": "[if(steps('management').scaling.enable, steps('management').scaling.cpuThreshold, '1')]",
         "scalingTool": "[steps('management').scaling.enable]",
+        "scalingToolSubnetAddressPrefix": "[if(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location), steps('networking').controlPlane.subnetAddressCidrRangeScalingTool, steps('networking').hosts.subnetAddressCidrRangeScalingTool)]",
         "securityPrincipals": "[if(empty(steps('controlPlane').assignment.groupsApi), steps('controlPlane').assignment.groupsGrid, steps('controlPlane').assignment.groupsDropDown)]",
         "sessionHostCount": "[steps('hosts').virtualMachine.count]",
         "sessionHostIndex": 0,
