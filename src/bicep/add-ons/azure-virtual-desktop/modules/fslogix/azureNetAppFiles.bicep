@@ -1,4 +1,4 @@
-param delegatedSubnetId string
+param delegatedSubnetResourceId string
 param deploymentNameSuffix string
 param dnsServers string
 @secure()
@@ -120,7 +120,7 @@ resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-
     smbEncryption: true
     snapshotDirectoryVisible: true
     // snapshotId: 'string'
-    subnetId: delegatedSubnetId
+    subnetId: delegatedSubnetResourceId
     // throughputMibps: int
     // unixPermissions: 'string'
     usageThreshold: 107374182400
