@@ -26,7 +26,6 @@ param recoveryServices bool
 param recoveryServicesGeo string
 param resourceAbbreviations object
 param resourceGroupControlPlane string
-param resourceGroupFeedWorkspace string
 param resourceGroupHosts string
 param resourceGroupManagement string
 param resourceGroupStorage string
@@ -73,7 +72,7 @@ var roleAssignments = union(
     }
     {
       roleDefinitionId: '21efdde3-836f-432b-bf3d-3e8e734d4b2b' // Desktop Virtualization Workspace Contributor (Purpose: update the app group references on an existing feed workspace)
-      resourceGroup: resourceGroupFeedWorkspace
+      resourceGroup: resourceGroupControlPlane
       subscription: subscription().subscriptionId
     }
   ],
