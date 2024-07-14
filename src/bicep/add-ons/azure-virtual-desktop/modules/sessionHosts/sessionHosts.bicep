@@ -6,7 +6,6 @@ param availabilitySetsCount int
 param availabilitySetsIndex int
 param availabilityZones array
 param dataCollectionRuleResourceId string
-param delegatedSubnetResourceId string
 param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
@@ -21,6 +20,7 @@ param drainMode bool
 param enableAcceleratedNetworking bool
 param environmentAbbreviation string
 param fslogixContainerType string
+param functionAppName string
 param hostPoolName string
 param hostPoolType string
 param identifier string
@@ -37,8 +37,6 @@ param namingConvention object
 param netAppFileShares array
 param organizationalUnitPath string
 param pooledHostPool bool
-param privateDnsZoneResourceIdPrefix string
-param privateDnsZones array
 param enableRecoveryServices bool
 param enableScalingTool bool
 param recoveryServicesVaultName string
@@ -47,11 +45,6 @@ param resourceGroupControlPlane string
 param resourceGroupHosts string
 param resourceGroupManagement string
 param roleDefinitions object
-param scalingBeginPeakTime string
-param scalingEndPeakTime string
-param scalingLimitSecondsToForceLogOffUser string
-param scalingMinimumNumberOfRdsh string
-param scalingSessionThresholdPerCPU string
 param securityPrincipalObjectIds array
 param serviceToken string
 param sessionHostBatchCount int
@@ -62,18 +55,16 @@ param storageService string
 param storageSuffix string
 param subnetResourceId string
 param tags object
-param timeDifference string
 @secure()
 param virtualMachinePassword string
 param virtualMachineSize string
 param virtualMachineUsername string
 
 var availabilitySetNamePrefix = namingConvention.availabilitySet
-var tagsAutomationAccounts = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Automation/automationAccounts') ? tags['Microsoft.Automation/automationAccounts'] : {}, mlzTags)
-var tagsAvailabilitySets = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/availabilitySets') ? tags['Microsoft.Compute/availabilitySets'] : {}, mlzTags)
-var tagsNetworkInterfaces = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}, mlzTags)
-var tagsRecoveryServicesVault = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.recoveryServices/vaults') ? tags['Microsoft.recoveryServices/vaults'] : {}, mlzTags)
-var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+var tagsAvailabilitySets = union({'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/availabilitySets') ? tags['Microsoft.Compute/availabilitySets'] : {}, mlzTags)
+var tagsNetworkInterfaces = union({'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}, mlzTags)
+var tagsRecoveryServicesVault = union({'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.recoveryServices/vaults') ? tags['Microsoft.recoveryServices/vaults'] : {}, mlzTags)
+var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 var virtualMachineNamePrefix = replace(namingConvention.virtualMachine, serviceToken, '')
 
@@ -198,31 +189,17 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
   ]
 }
 
-module scalingTool '../management/scalingTool.bicep' = if (enableScalingTool && pooledHostPool) {
+module scalingTool '../common/function.bicep' = if (enableScalingTool && pooledHostPool) {
   name: 'deploy-scaling-tool-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    beginPeakTime: scalingBeginPeakTime
-    delegatedSubnetResourceId: delegatedSubnetResourceId
-    endPeakTime: scalingEndPeakTime
-    environmentAbbreviation: environmentAbbreviation
-    resourceAbbreviations: resourceAbbreviations
-    hostPoolName: hostPoolName
-    hostPoolResourceGroupName: resourceGroupControlPlane
-    limitSecondsToForceLogOffUser: scalingLimitSecondsToForceLogOffUser
-    location: location
-    minimumNumberOfRdsh: scalingMinimumNumberOfRdsh
-    namingConvention: namingConvention
-    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: privateDnsZones
-    sessionHostsResourceGroupName: resourceGroupHosts
-    sessionThresholdPerCPU: scalingSessionThresholdPerCPU
-    subnetResourceId: subnetResourceId
-    tags: tagsAutomationAccounts
-    timeDifference: timeDifference
-    serviceToken: serviceToken
+    files: {
+      'requirements.psd1': loadTextContent('../../artifacts/scaling-tool/requirements.psd1')
+      'run.ps1': loadTextContent('../../artifacts/scaling-tool/run.ps1')
+      '../profile.ps1': loadTextContent('../../artifacts/scaling-tool/profile.ps1')
+    }
+    functionAppName: functionAppName
+    functionName: 'avd-scaling-tool'
+    schedule: '0 */15 * * * *'
   }
-  dependsOn: [
-    recoveryServices
-  ]
 }
