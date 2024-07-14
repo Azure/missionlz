@@ -256,42 +256,6 @@
           "label": "Control Plane",
           "elements": [
             {
-              "name": "controlPlane",
-              "type": "Microsoft.Common.Section",
-              "visible": true,
-              "label": "Control Plane",
-              "elements": [
-                {
-                  "name": "locationsApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "request": {
-                    "method": "GET",
-                    "path": "[concat(steps('basics').scope.subscription.id, '/locations?api-version=2022-12-01')]"
-                  }
-                },
-                {
-                  "name": "providerApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "request": {
-                    "method": "GET",
-                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.DesktopVirtualization/resourceTypes?api-version=2021-04-01')]"
-                  }
-                },
-                {
-                  "name": "location",
-                  "label": "Location",
-                  "type": "Microsoft.Common.DropDown",
-                  "defaultValue": "[steps('basics').scope.location.displayName]",
-                  "toolTip": "Select the location for the AVD management resources: host pool, workspace, application group, etc.",
-                  "filter": true,
-                  "constraints": {
-                    "allowedValues": "[map(filter(steps('controlPlane').controlPlane.locationsApi.value, (item) => contains(first(map(filter(steps('controlPlane').controlPlane.providerApi.value, (item) => equals(item.resourceType, 'hostpools')), (item) => item.locations)), item.displayName)), (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.name, '\"}')))]",
-                    "required": true
-                  }
-                }
-              ]
-            },
-            {
               "name": "hostPool",
               "type": "Microsoft.Common.Section",
               "visible": true,
@@ -1333,7 +1297,7 @@
                   "label": "Subnet CIDR range (Azure NetApp Files)",
                   "type": "Microsoft.Common.TextBox",
                   "visible": "[and(not(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location)), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles'))]",
-                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.64/26')]",
+                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.224/28')]",
                   "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24,28].",
                   "constraints": {
                     "required": true,
@@ -1362,12 +1326,12 @@
                   }
                 },
                 {
-                  "name": "subnetAddressCidrRangeScalingTool",
-                  "label": "Subnet CIDR range (Scaling Tool)",
+                  "name": "subnetAddressCidrRangeFunctionApp",
+                  "label": "Subnet CIDR range (Function App)",
                   "type": "Microsoft.Common.TextBox",
                   "visible": "[and(not(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location)), steps('management').scaling.enable)]",
-                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.128/26')]",
-                  "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24,28].",
+                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.240/28')]",
+                  "toolTip": "Specify a CIDR range for the Function App subnet within the AVD spoke virtual network range [24,28] for the Scaling Tool and / or the Auto Increase Premium File Share Qutoa tool.",
                   "constraints": {
                     "required": true,
                     "validations": [
@@ -1376,52 +1340,19 @@
                         "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 1))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeFunctionApp, '/')), '.'), 1))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (first octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 2))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeFunctionApp, '/')), '.'), 2))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (second octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 3))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeFunctionApp, '/')), '.'), 3))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (third octet)."
                       },
                       {
-                        "isValid": "[lessOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')))]",
-                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "subnetAddressCidrRangeScaleAzureFilesPremium",
-                  "label": "Subnet CIDR range (Scale Azure Files Premium)",
-                  "type": "Microsoft.Common.TextBox",
-                  "visible": "[and(not(equals(steps('basics').scope.location.name, steps('controlPlane').controlPlane.location)), and(equals(steps('userProfiles').storage.service, 'AzureFiles'), equals(steps('userProfiles').storage.sku, 'Premium')))]",
-                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.192/26')]",
-                  "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24,28].",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
-                      },
-                      {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 1))), true)]",
-                        "message": "CIDR range not within virtual network CIDR range (first octet)."
-                      },
-                      {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 2))), true)]",
-                        "message": "CIDR range not within virtual network CIDR range (second octet)."
-                      },
-                      {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')), '.'), 3))), true)]",
-                        "message": "CIDR range not within virtual network CIDR range (third octet)."
-                      },
-                      {
-                        "isValid": "[lessOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').controlPlane.subnetAddressCidrRangeAnf, '/')))]",
+                        "isValid": "[lessOrEquals(last(split(steps('networking').controlPlane.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').controlPlane.subnetAddressCidrRangeFunctionApp, '/')))]",
                         "message": "CIDR range not within virtual network CIDR range (subnet mask)."
                       }
                     ]
@@ -1842,7 +1773,7 @@
         "imagePublisher": "[if(equals(steps('basics').scenario.profile, 'generic'), 'MicrosoftWindowsDesktop', 'esri')]",
         "imageSku": "[steps('hosts').image.sku]",
         "imageVersionResourceId": "[if(equals(steps('hosts').image.source, 'gallery'), steps('hosts').image.version, '')]",
-        "locationControlPlane": "[steps('controlPlane').controlPlane.location]",
+        "locationControlPlane": "[map(first(filter(steps('basics').hub.virtualNetworksApi.value, (item) => equals(item.id, steps('basics').hub.virtualNetwork))), (item) => item.location)]",
         "locationVirtualMachines": "[steps('basics').scope.location.name]",
         "logAnalyticsWorkspaceRetention": 30,
         "logAnalyticsWorkspaceSku": "PerGB2018",
