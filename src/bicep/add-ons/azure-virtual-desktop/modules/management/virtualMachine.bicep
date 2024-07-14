@@ -1,6 +1,3 @@
-param artifactsUri string
-param azurePowerShellModuleMsiName string
-param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityResourceId string
 param diskEncryptionSetResourceId string
 param diskName string
@@ -192,25 +189,6 @@ resource extension_GuestAttestation 'Microsoft.Compute/virtualMachines/extension
   }
 }
 
-module extension_CustomScriptExtension '../common/customScriptExtensions.bicep' = {
-  name: 'CSE_InstallAzurePowerShellAzModule_${timestamp}'
-  params: {
-    fileUris: [
-      '${artifactsUri}${azurePowerShellModuleMsiName}'
-      '${artifactsUri}Install-AzurePowerShellAzModule.ps1'
-    ]
-    location: location
-    parameters: '-Installer ${azurePowerShellModuleMsiName}'
-    scriptFileName: 'Install-AzurePowerShellAzModule.ps1'
-    tags: tagsVirtualMachines
-    virtualMachineName: virtualMachine.name
-    userAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-  }
-  dependsOn: [
-    extension_IaasAntimalware
-  ]
-}
-
 resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {
   parent: virtualMachine
   name: 'JsonADDomainExtension'
@@ -234,7 +212,8 @@ resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/exte
     }
   }
   dependsOn: [
-    extension_CustomScriptExtension
+    extension_IaasAntimalware
+    extension_GuestAttestation
   ]
 }
 
