@@ -5,9 +5,7 @@ try
 	[string]$FileShareName = $env:FileShareName
 	[string]$ResourceGroupName = $env:ResourceGroupName
 	[string]$ResourceManagerUrl = $env:ResourceManagerUrl
-	[string]$StorageAccountName = $env:StorageAccountName
 	[string]$StorageSuffix = $env:StorageSuffix
-	[string]$StorageUri = 'https://' + $StorageAccountName + '.file.' + $StorageSuffix + '/' + $FileShareName + '?restype=share&comp=properties'
 	[string]$SubscriptionId = $env:SubscriptionId
 
 	$ErrorActionPreference = 'Stop'
@@ -80,68 +78,77 @@ try
     Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Successfully authenticated with Azure using a managed identity"
 	#endregion Azure Authentication
 
-	# Get file share info
-	$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/fileServices/default/shares/' + $FileShareName + '?api-version=2023-05-01&$expand=stats'
-	$PFS = Invoke-RestMethod -Headers $Header -Method 'GET' -Uri $Uri
+	# Get storage accounts
+	$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.Storage/storageAccounts?api-version=2023-05-01'
+	$StorageAccountNames = (Invoke-RestMethod -Headers $Header -Method 'GET' -Uri $Uri).value.name
 
-	# Set variables for provisioned capacity and used capacity
-	$ProvisionedCapacity = $PFS.shareQuota
-	$UsedCapacity = $PFS.ShareUsageBytes
-	Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Capacity: $($ProvisionedCapacity)GB"
-	Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage: $([math]::Round($UsedCapacity/1GB, 0))GB"
+	foreach($StorageAccountName in $StorageAccountNames)
+	{
+		$StorageUri = 'https://' + $StorageAccountName + '.file.' + $StorageSuffix + '/' + $FileShareName + '?restype=share&comp=properties'
 
-	# Get storage account key
-	$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/listKeys?api-version=2023-05-01'
-	$StorageAccountKey = (Invoke-RestMethod -Headers $Header -Method 'POST' -Uri $Uri).keys[0].value
-	
-	# GB Based Scaling
-	# No scaling if no usage
-	if($UsedCapacity -eq 0)
-	{
-		Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage is 0GB. No Changes."
-	}
-	# Slow scaling up to 500GB
-	# Increases share quota by 100GB if less than 50GB remains on the share
-	# This allows time for an AVD Stamp to be rolled out 
-	elseif ($ProvisionedCapacity -lt 500)
-	{
-		if (($ProvisionedCapacity - ($UsedCapacity / ([Math]::Pow(2,30)))) -lt 50) {
-			Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage has surpassed the Share Quota remaining threshold of 50GB. Increasing the file share quota by 100GB." 
-			$Quota = $ProvisionedCapacity + 100
-			$StorageHeader = @{
-				'Authorization'="SharedKey myaccount: $StorageAccountKey"
-				'x-ms-date'="$((Get-Date).ToUniversalTime())"  
-				'x-ms-root-squash'='RootSquash'
-				'x-ms-share-quota'="$Quota"
-				'x-ms-version'='2020-02-10'
+		# Get file share info
+		$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/fileServices/default/shares/' + $FileShareName + '?api-version=2023-05-01&$expand=stats'
+		$PFS = Invoke-RestMethod -Headers $Header -Method 'GET' -Uri $Uri
+
+		# Set variables for provisioned capacity and used capacity
+		$ProvisionedCapacity = $PFS.shareQuota
+		$UsedCapacity = $PFS.ShareUsageBytes
+		Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Capacity: $($ProvisionedCapacity)GB"
+		Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage: $([math]::Round($UsedCapacity/1GB, 0))GB"
+
+		# Get storage account key
+		$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/listKeys?api-version=2023-05-01'
+		$StorageAccountKey = (Invoke-RestMethod -Headers $Header -Method 'POST' -Uri $Uri).keys[0].value
+		
+		# GB Based Scaling
+		# No scaling if no usage
+		if($UsedCapacity -eq 0)
+		{
+			Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage is 0GB. No Changes."
+		}
+		# Slow scaling up to 500GB
+		# Increases share quota by 100GB if less than 50GB remains on the share
+		# This allows time for an AVD Stamp to be rolled out 
+		elseif ($ProvisionedCapacity -lt 500)
+		{
+			if (($ProvisionedCapacity - ($UsedCapacity / ([Math]::Pow(2,30)))) -lt 50) {
+				Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage has surpassed the Share Quota remaining threshold of 50GB. Increasing the file share quota by 100GB." 
+				$Quota = $ProvisionedCapacity + 100
+				$StorageHeader = @{
+					'Authorization'="SharedKey myaccount: $StorageAccountKey"
+					'x-ms-date'="$((Get-Date).ToUniversalTime())"  
+					'x-ms-root-squash'='RootSquash'
+					'x-ms-share-quota'="$Quota"
+					'x-ms-version'='2020-02-10'
+				}
+				Invoke-RestMethod -Headers $StorageHeader -Method 'PUT' -Uri $StorageUri | Out-Null
+				Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "New Capacity: $($Quota)GB"
 			}
-			Invoke-RestMethod -Headers $StorageHeader -Method 'PUT' -Uri $StorageUri | Out-Null
-			Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "New Capacity: $($Quota)GB"
-		}
-		else {
-			Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage is below Share Quota remaining threshold of 50GB. No Changes."
-		}
-	}
-	# Aggressive scaling
-	# Increases share quota by 500GB if less than 500GB remains on the share
-	# This ensures plenty of space is available during mass onboarding
-	else 
-	{
-		if (($ProvisionedCapacity - ($UsedCapacity / ([Math]::Pow(2,30)))) -lt 500) {
-			Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage has surpassed the Share Quota remaining threshold of 500GB. Increasing the file share quota by 500GB." 
-			$Quota = $ProvisionedCapacity + 500
-			$StorageHeader = @{
-				'Authorization'="SharedKey myaccount: $StorageAccountKey"
-				'x-ms-date'="$((Get-Date).ToUniversalTime())"  
-				'x-ms-root-squash'='RootSquash'
-				'x-ms-share-quota'="$Quota"
-				'x-ms-version'='2020-02-10'
+			else {
+				Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage is below Share Quota remaining threshold of 50GB. No Changes."
 			}
-			Invoke-RestMethod -Headers $StorageHeader -Method 'PUT' -Uri $StorageUri | Out-Null
-			Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "New Capacity: $($Quota)GB"
 		}
-		else {
-			Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage is below Share Quota remaining threshold of 500GB. No Changes."
+		# Aggressive scaling
+		# Increases share quota by 500GB if less than 500GB remains on the share
+		# This ensures plenty of space is available during mass onboarding
+		else 
+		{
+			if (($ProvisionedCapacity - ($UsedCapacity / ([Math]::Pow(2,30)))) -lt 500) {
+				Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage has surpassed the Share Quota remaining threshold of 500GB. Increasing the file share quota by 500GB." 
+				$Quota = $ProvisionedCapacity + 500
+				$StorageHeader = @{
+					'Authorization'="SharedKey myaccount: $StorageAccountKey"
+					'x-ms-date'="$((Get-Date).ToUniversalTime())"  
+					'x-ms-root-squash'='RootSquash'
+					'x-ms-share-quota'="$Quota"
+					'x-ms-version'='2020-02-10'
+				}
+				Invoke-RestMethod -Headers $StorageHeader -Method 'PUT' -Uri $StorageUri | Out-Null
+				Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "New Capacity: $($Quota)GB"
+			}
+			else {
+				Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage is below Share Quota remaining threshold of 500GB. No Changes."
+			}
 		}
 	}
 }
