@@ -208,7 +208,7 @@ module functionApp 'functionApp.bicep' = if (scalingTool || fslogixStorageServic
   name: 'deploy-function-app-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
+    delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     hostPoolName: hostPoolName
