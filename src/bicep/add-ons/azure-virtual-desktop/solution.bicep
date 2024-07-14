@@ -191,6 +191,8 @@ param logAnalyticsWorkspaceRetention int = 30
 @description('The SKU for the Log Analytics Workspace to setup the AVD monitoring solution')
 param logAnalyticsWorkspaceSku string = 'PerGB2018'
 
+param managementSubnetAddressPrefix string
+
 @description('Deploys the required monitoring resources to enable AVD Insights and monitor features in the automation account.')
 param monitoring bool = true
 
@@ -213,9 +215,6 @@ param profile string = 'Generic'
 @description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
 param recoveryServices bool = false
 
-@description('The subnet address prefix for the tool to scale Azure Files Premium.')
-param scaleAzureFilesPremiumSubnetAddressPrefix string = ''
-
 @description('The time when session hosts will scale up and continue to stay on to support peak demand; Format 24 hours e.g. 9:00 for 9am')
 param scalingBeginPeakTime string = '9:00'
 
@@ -233,9 +232,6 @@ param scalingSessionThresholdPerCPU string = '1'
 
 @description('Deploys the required resources for the Scaling Tool. https://docs.microsoft.com/en-us/azure/virtual-desktop/scaling-automation-logic-apps')
 param scalingTool bool = false
-
-@description('The subnet address prefix for the scaling tool subnet. This delegated subnet is required to enable private outbound access.')
-param scalingToolSubnetAddressPrefix string = ''
 
 @description('The array of Security Principals with their object IDs and display names to assign to the AVD Application Group and FSLogix Storage.')
 param securityPrincipals array
@@ -366,22 +362,14 @@ var fileShareNames = {
   ]
 }
 var fileShares = fileShareNames[fslogixContainerType]
-var scaleAzureFilesPremiumSubnet = fslogixStorageService == 'AzureFiles Premium'
+var managementSubnet = scalingTool || fslogixStorageService == 'AzureFiles Premium'
 ? [
   {
-    name: 'ScaleAzureFilesPremiumOutbound'
-    addressPrefix: scaleAzureFilesPremiumSubnetAddressPrefix
+    name: 'FunctionAppOutbound'
+    addressPrefix: managementSubnetAddressPrefix
   }
 ]
-: [] 
-var scalingToolSubnet = scalingTool
-? [
-  {
-    name: 'ScalingToolOutbound'
-    addressPrefix: scalingToolSubnetAddressPrefix
-  }
-]
-: [] 
+: []
 var netbios = split(domainName, '.')[0]
 var pooledHostPool = split(hostPoolType, ' ')[0] == 'Pooled' ? true : false
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
@@ -426,7 +414,7 @@ resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
 module tier3_controlPlane '../tier3/solution.bicep' = {
   name: 'deploy-tier3-avd-cp-${deploymentNameSuffix}'
   params: {
-    additionalSubnets: length(deploymentLocations) == 1 ? union(azureNetAppFilesSubnet, scalingToolSubnet, scaleAzureFilesPremiumSubnet) : []
+    additionalSubnets: length(deploymentLocations) == 1 ? union(azureNetAppFilesSubnet, managementSubnet) : []
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: 'cp-${deploymentNameSuffix}'
@@ -452,7 +440,7 @@ module tier3_controlPlane '../tier3/solution.bicep' = {
 module tier3_hosts '../tier3/solution.bicep' = if (length(deploymentLocations) == 2) {
   name: 'deploy-tier3-avd-hosts-${deploymentNameSuffix}'
   params: {
-    additionalSubnets: length(deploymentLocations) == 2 ? union(azureNetAppFilesSubnet, scalingToolSubnet, scaleAzureFilesPremiumSubnet) : []
+    additionalSubnets: length(deploymentLocations) == 2 ? union(azureNetAppFilesSubnet, managementSubnet) : []
     deployActivityLogDiagnosticSetting: false
     deployDefender: false
     deploymentNameSuffix: 'hosts-${deploymentNameSuffix}'
@@ -524,6 +512,7 @@ module management 'modules/management/management.bicep' = {
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
     enableMonitoring: monitoring
+    environmentAbbreviation: environmentAbbreviation
     fslogixStorageService: fslogixStorageService
     hostPoolType: hostPoolType
     locationVirtualMachines: locationVirtualMachines
@@ -540,19 +529,31 @@ module management 'modules/management/management.bicep' = {
     recoveryServicesGeo: length(deploymentLocations) == 2
       ? tier3_hosts.outputs.locationProperties.recoveryServicesGeo
       : tier3_controlPlane.outputs.locationProperties.recoveryServicesGeo
+    resourceAbbreviations: tier3_controlPlane.outputs.resourceAbbreviations
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupFeedWorkspace: rgs[1].outputs.name
     resourceGroupHosts: rgs[2].outputs.name
     resourceGroupManagement: rgs[3].outputs.name
     resourceGroupStorage: deployFslogix ? rgs[4].outputs.name : ''
     roleDefinitions: roleDefinitions
+    scalingBeginPeakTime: scalingBeginPeakTime
+    scalingEndPeakTime: scalingEndPeakTime
+    scalingLimitSecondsToForceLogOffUser: scalingLimitSecondsToForceLogOffUser
+    scalingMinimumNumberOfRdsh: scalingMinimumNumberOfRdsh
+    scalingSessionThresholdPerCPU: scalingSessionThresholdPerCPU
     scalingTool: scalingTool
     serviceToken: tier3_controlPlane.outputs.tokens.service
     storageService: storageService
     subnetResourceId: length(deploymentLocations) == 2
       ? tier3_hosts.outputs.subnets[0].id
       : tier3_controlPlane.outputs.subnets[0].id
+    subnets: length(deploymentLocations) == 2
+      ? tier3_hosts.outputs.subnets
+      : tier3_controlPlane.outputs.subnets
     tags: tags
+    timeDifference: length(deploymentLocations) == 2
+    ? tier3_hosts.outputs.locationProperties.timeDifference
+    : tier3_controlPlane.outputs.locationProperties.timeDifference
     timeZone: length(deploymentLocations) == 2
       ? tier3_hosts.outputs.locationProperties.timeZone
       : tier3_controlPlane.outputs.locationProperties.timeZone
@@ -709,9 +710,6 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     activeDirectorySolution: activeDirectorySolution
     availability: availability
     azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_controlPlane.outputs.privateDnsZones, name => contains(name, 'file'))[0]}'
-    delegatedSubnetId: length(deploymentLocations) == 2
-    ? filter(tier3_hosts.outputs.subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
-    : filter(tier3_controlPlane.outputs.subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     dnsServers: string(tier3_controlPlane.outputs.dnsServers)
@@ -727,6 +725,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
+    functionAppName: management.outputs.functionAppName
     hostPoolType: hostPoolType
     identifier: identifier
     keyVaultUri: length(deploymentLocations) == 2
@@ -760,10 +759,10 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     subnetResourceId: length(deploymentLocations) == 2
       ? tier3_hosts.outputs.subnets[0].id
       : tier3_controlPlane.outputs.subnets[0].id
+    subnets: length(deploymentLocations) == 2
+      ? tier3_hosts.outputs.subnets
+      : tier3_controlPlane.outputs.subnets
     tags: tags
-    timeZone: length(deploymentLocations) == 2
-      ? tier3_hosts.outputs.locationProperties.abbreviation
-      : tier3_controlPlane.outputs.locationProperties.abbreviation
   }
   dependsOn: [
     controlPlane
@@ -780,9 +779,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     availabilitySetsIndex: beginAvSetRange
     availabilityZones: availabilityZones
     dataCollectionRuleResourceId: management.outputs.dataCollectionRuleResourceId
-    delegatedSubnetResourceId: scalingTool && deploymentLocations == 1
-    ? filter(tier3_controlPlane.outputs.subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
-    : filter(tier3_hosts.outputs.subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
@@ -800,6 +796,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     enableScalingTool: scalingTool
     environmentAbbreviation: environmentAbbreviation
     fslogixContainerType: fslogixContainerType
+    functionAppName: management.outputs.functionAppName
     hostPoolName: controlPlane.outputs.hostPoolName
     hostPoolType: hostPoolType
     identifier: identifier
@@ -822,19 +819,12 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
         ]
     organizationalUnitPath: organizationalUnitPath
     pooledHostPool: pooledHostPool
-    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: tier3_controlPlane.outputs.privateDnsZones
     recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
     resourceAbbreviations: tier3_controlPlane.outputs.resourceAbbreviations
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupHosts: rgs[2].outputs.name
     resourceGroupManagement: rgs[3].outputs.name
     roleDefinitions: roleDefinitions
-    scalingBeginPeakTime: scalingBeginPeakTime
-    scalingEndPeakTime: scalingEndPeakTime
-    scalingLimitSecondsToForceLogOffUser: scalingLimitSecondsToForceLogOffUser
-    scalingMinimumNumberOfRdsh: scalingMinimumNumberOfRdsh
-    scalingSessionThresholdPerCPU: scalingSessionThresholdPerCPU
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: tier3_controlPlane.outputs.tokens.service
     sessionHostBatchCount: sessionHostBatchCount
@@ -847,9 +837,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
       ? tier3_hosts.outputs.subnets[0].id
       : tier3_controlPlane.outputs.subnets[0].id
     tags: tags
-    timeDifference: length(deploymentLocations) == 2
-      ? tier3_hosts.outputs.locationProperties.timeDifference
-      : tier3_controlPlane.outputs.locationProperties.timeDifference
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
