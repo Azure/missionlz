@@ -32,7 +32,6 @@ param resourceGroupHosts string
 param resourceGroupManagement string
 param resourceGroupStorage string
 param roleDefinitions object
-param scalingTool bool
 param serviceToken string
 param storageService string
 param subnetResourceId string
@@ -85,10 +84,9 @@ var userAssignedIdentityNamePrefix = namingConvention.userAssignedIdentity
 var virtualNetworkName = split(subnetResourceId, '/')[8]
 var virtualNetworkResourceGroupName = split(subnetResourceId, '/')[4]
 
-// Disabling the deployment below until Enhanced Policies in Recovery Services support managed disks with private link
-/* module diskAccess 'diskAccess.bicep' = {
+module diskAccess 'diskAccess.bicep' = {
   scope: resourceGroup(resourceGroupManagement)
-  name: 'DiskAccess_${timestamp}'
+  name: 'deploy-disk-access-${deploymentNameSuffix}'
   params: {
     diskAccessName: namingConvention.diskAccess
     hostPoolName: hostPoolName
@@ -98,15 +96,13 @@ var virtualNetworkResourceGroupName = split(subnetResourceId, '/')[4]
     subnetResourceId: subnetResourceId
     tags: tags
   }
-} */
+}
 
 // Sets an Azure policy to disable public network access to managed disks
-// Once Enhanced Policies in Recovery Services support managed disks with private link, remove the "if" condition
-module policy 'policy.bicep' = if (contains(hostPoolType, 'Pooled') && recoveryServices) {
+module policy 'policy.bicep' = {
   name: 'deploy-policy-disks-${deploymentNameSuffix}'
   params: {
-    // Disabling the param below until Enhanced Policies in Recovery Services support managed disks with private link
-    //diskAccessResourceId: diskAccess.outputs.resourceId
+    diskAccessResourceId: diskAccess.outputs.resourceId
     location: locationVirtualMachines
     resourceGroupName: resourceGroupHosts
   }
@@ -187,7 +183,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 }
 
 // Monitoring Resources for AVD Insights
-// This module deploys a Log Analytics Workspace with either Windows Events & Windows Performance Counters or a Data Collection Rule 
+// This module deploys a Log Analytics Workspace with a Data Collection Rule 
 module monitoring 'monitoring.bicep' = if (enableMonitoring) {
   name: 'deploy-monitoring-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
@@ -201,28 +197,6 @@ module monitoring 'monitoring.bicep' = if (enableMonitoring) {
     mlzTags: mlzTags
     resourceGroupControlPlane: resourceGroupControlPlane
     tags: tags
-  }
-}
-
-// Automation Account required for the AVD Scaling Tool and the Auto Increase Premium File Share Quota solution
-module automationAccount 'automationAccount.bicep' = if (scalingTool || fslogixStorageService == 'AzureFiles Premium') {
-  name: 'deploy-aa-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupManagement)
-  params: {
-    automationAccountDiagnosticSettingName: namingConvention.automationAccountDiagnosticSetting
-    automationAccountName: namingConvention.automationAccount
-    automationAccountNetworkInterfaceName: namingConvention.automationAccountNetworkInterface
-    automationAccountPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => startsWith(name, 'privatelink.azure-automation'))[0]}'
-    automationAccountPrivateEndpointName: namingConvention.automationAccountPrivateEndpoint
-    hostPoolName: hostPoolName
-    location: locationVirtualMachines
-    logAnalyticsWorkspaceResourceId: enableMonitoring ? monitoring.outputs.logAnalyticsWorkspaceResourceId : ''
-    mlzTags: mlzTags
-    monitoring: enableMonitoring
-    resourceGroupControlPlane: resourceGroupControlPlane
-    subnetResourceId: subnetResourceId
-    tags: tags
-    virtualMachineName: virtualMachine.outputs.Name
   }
 }
 
@@ -248,12 +222,10 @@ module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryService
   }
 }
 
-output automationAccountName string = scalingTool || fslogixStorageService == 'AzureFiles Premium' ? automationAccount.outputs.name : ''
 output dataCollectionRuleResourceId string = enableMonitoring ? monitoring.outputs.dataCollectionRuleResourceId : ''
 output deploymentUserAssignedIdentityClientId string = deploymentUserAssignedIdentity.outputs.clientId
 output deploymentUserAssignedIdentityPrincipalId string = deploymentUserAssignedIdentity.outputs.principalId
 output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedIdentity.outputs.resourceId
-output hybridRunbookWorkerGroupName string = scalingTool || fslogixStorageService == 'AzureFiles Premium' ? automationAccount.outputs.hybridRunbookWorkerGroupName : ''
 output logAnalyticsWorkspaceName string = enableMonitoring ? monitoring.outputs.logAnalyticsWorkspaceName : ''
 output logAnalyticsWorkspaceResourceId string = enableMonitoring ? monitoring.outputs.logAnalyticsWorkspaceResourceId : ''
 output recoveryServicesVaultName string = recoveryServices && ((contains(activeDirectorySolution, 'DomainServices') && contains(hostPoolType, 'Pooled') && contains(fslogixStorageService, 'AzureFiles')) || contains(hostPoolType, 'Personal')) ? recoveryServicesVault.outputs.name : ''
