@@ -117,7 +117,7 @@ param fslogixContainerType string = 'ProfileContainer'
 param fslogixStorageService string = 'AzureFiles Standard'
 
 @description('The subnet address prefix for the delegated subnet for the Azure Function App. This subnet is required for the Scaling Tool and the Auto Increase Premium File Share Quotas tool.')
-param functionAppSubnetAddressPrefix string
+param functionAppSubnetAddressPrefix string = ''
 
 @allowed([
   'Disabled'

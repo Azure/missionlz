@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "17601182541818432940"
+      "templateHash": "3063817075259117596"
     }
   },
   "parameters": {
@@ -224,6 +224,7 @@
     },
     "functionAppSubnetAddressPrefix": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "The subnet address prefix for the delegated subnet for the Azure Function App. This subnet is required for the Scaling Tool and the Auto Increase Premium File Share Quotas tool."
       }
