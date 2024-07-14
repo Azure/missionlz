@@ -3,7 +3,7 @@ param applicationInsightsResourceId string
 param privateLinkScopeResourceId string
 
 #disable-next-line BCP081
-resource privateLinkScope 'microsoft.insights/privateLinkScopes@2021-09-01' existing = {
+resource privateLinkScope 'Microsoft.Insights/privateLinkScopes@2021-09-01' existing = {
   name: split(privateLinkScopeResourceId, '/')[8]
 }
 
