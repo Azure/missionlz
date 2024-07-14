@@ -1,8 +1,7 @@
 param additionalAppSettings array = []
 param delegatedSubnetResourceId string
+param deploymentNameSuffix string
 param environmentAbbreviation string
-param files object
-param functionName string
 param hostPoolName string
 param keyExpirationInDays int = 30
 param location string = resourceGroup().location
@@ -13,15 +12,19 @@ param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
 param privateLinkScopeResourceId string = ''
 param resourceAbbreviations object
+param resourceGroupControlPlane string
 param resourceGroupManagement string
-param roleAssignmentResourceGroups array
-param roleDefinitionId string
-param schedule string
-param service string
+param resourceGroupStorage string
+param roleAssignments array
+param scalingBeginPeakTime string
+param scalingEndPeakTime string
+param scalingLimitSecondsToForceLogOffUser string
+param scalingMinimumNumberOfRdsh string
+param scalingSessionThresholdPerCPU string
 param serviceToken string
 param subnetResourceId string
 param tags object
-param timestamp string = utcNow('yyyyMMddhhmmss')
+param timeDifference string
 
 var fileShareName = 'function-app'
 var functionAppKeyword = environment().name == 'AzureCloud' || environment().name == 'AzureUSGovernment'
@@ -33,6 +36,7 @@ var privateLinkScopeResourceGroupName = empty(logAnalyticsWorkspaceResourceId)
 var privateLinkScopeSubscriptionId = empty(logAnalyticsWorkspaceResourceId)
   ? subscription().subscriptionId
   : split(privateLinkScopeResourceId, '/')[2]
+var service = 'mgmt'
 var storagePrivateDnsZoneResourceIds = [
   '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
   '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'file'))[0]}'
@@ -357,7 +361,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 module privateLinkScope '../management/privateLinkScope.bicep' = {
-  name: 'PrivateLinkScope_${timestamp}'
+  name: 'deploy-private-link-scope-${deploymentNameSuffix}'
   scope: resourceGroup(privateLinkScopeSubscriptionId, privateLinkScopeResourceGroupName)
   params: {
     applicationInsightsName: applicationInsights.name
@@ -427,6 +431,81 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
             name: 'WEBSITE_CONTENTSHARE'
             value: fileShareName
           }
+          {
+            name: 'BeginPeakTime'
+            value: scalingBeginPeakTime
+          }
+          {
+            name: 'EndPeakTime'
+            value: scalingEndPeakTime
+          }
+          {
+            name: 'EnvironmentName'
+            value: environment().name
+          }
+          {
+            name: 'FileShareName'
+            value: 'profile-containers'
+          }
+          {
+            name: 'HostPoolName'
+            value: hostPoolName
+          }
+          {
+            name: 'HostPoolResourceGroupName'
+            value: resourceGroupControlPlane
+          }
+          {
+            name: 'LimitSecondsToForceLogOffUser'
+            value: scalingLimitSecondsToForceLogOffUser
+          }
+          {
+            name: 'LogOffMessageBody'
+            value: 'This session is about to be logged off. Please save your work.'
+          }
+          {
+            name: 'LogOffMessageTitle'
+            value: 'Session Log Off'
+          }
+          {
+            name: 'MaintenanceTagName'
+            value: 'Maintenance'
+          }
+          {
+            name: 'MinimumNumberOfRDSH'
+            value: scalingMinimumNumberOfRdsh
+          }
+          {
+            name: 'ResourceGroupName'
+            value: resourceGroupStorage
+          }
+          {
+            name: 'ResourceManagerUrl'
+            // This workaround is needed because the environment().resourceManager value is missing the trailing slash for some Azure environments
+            value: endsWith(environment().resourceManager, '/')
+              ? environment().resourceManager
+              : '${environment().resourceManager}/'
+          }
+          {
+            name: 'SessionThresholdPerCPU'
+            value: scalingSessionThresholdPerCPU
+          }
+          {
+            name: 'StorageSuffix'
+            value: environment().suffixes.storage
+          }
+          {
+            name: 'SubscriptionId'
+            value: subscription().subscriptionId
+          }
+          {
+            name: 'TenantId'
+            value: subscription().tenantId
+          }
+          {
+            name: 'TimeDifference'
+            value: timeDifference
+          }
         ],
         additionalAppSettings
       )
@@ -484,37 +563,16 @@ resource privateDnsZoneGroup_functionApp 'Microsoft.Network/privateEndpoints/pri
   }
 }
 
-resource function 'Microsoft.Web/sites/functions@2020-12-01' = {
-  parent: functionApp
-  name: functionName
-  properties: {
-    config: {
-      disabled: false
-      bindings: [
-        {
-          name: 'Timer'
-          type: 'timerTrigger'
-          direction: 'in'
-          schedule: schedule
-        }
-      ]
-    }
-    files: files
-  }
-  dependsOn: [
-    privateEndpoint_functionApp
-    privateDnsZoneGroup_functionApp
-  ]
-}
-
-module roleAssignments_ResourceGroups '../common/roleAssignment.bicep' = [
-  for i in range(0, length(roleAssignmentResourceGroups)): {
-    name: 'RoleAssignment_${roleAssignmentResourceGroups[i]}_${timestamp}'
-    scope: resourceGroup(roleAssignmentResourceGroups[i])
+module roleAssignments_resourceGroups '../common/roleAssignment.bicep' = [
+  for i in range(0, length(roleAssignments)): {
+    name: 'set-role-assignment-${i}-${deploymentNameSuffix}'
+    scope: resourceGroup(roleAssignments[i].scope)
     params: {
       principalId: functionApp.identity.principalId
       principalType: 'ServicePrincipal'
-      roleDefinitionId: roleDefinitionId
+      roleDefinitionId: roleAssignments[i].roleDefinitionId
     }
   }
 ]
+
+output functionAppName string = functionApp.name
