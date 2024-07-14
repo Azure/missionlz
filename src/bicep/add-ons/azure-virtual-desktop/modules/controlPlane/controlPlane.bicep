@@ -52,10 +52,12 @@ var galleryImageSku = empty(imageVersionResourceId) ? '"${imageSku}"' : 'null'
 var galleryItemId = empty(imageVersionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : 'null'
 var hostPoolName = namingConvention.hostPool
 var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
+var resourceGroupControlPlane = resourceGroups[0]
+var resourceGroupManagement = resourceGroups[2]
 
 module hostPool 'hostPool.bicep' = {
   name: 'deploy-vdpool-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroups[0])
+  scope: resourceGroup(resourceGroupControlPlane)
   params: {
     activeDirectorySolution: activeDirectorySolution
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
@@ -96,7 +98,7 @@ module hostPool 'hostPool.bicep' = {
     maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
     monitoring: monitoring
-    resourceGroupManagement: resourceGroups[3]
+    resourceGroupManagement: resourceGroupManagement
     sessionHostNamePrefix: sessionHostNamePrefix
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: subnetResourceId
@@ -108,7 +110,7 @@ module hostPool 'hostPool.bicep' = {
 
 module applicationGroup 'applicationGroup.bicep' = {
   name: 'deploy-vdag-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroups[0])
+  scope: resourceGroup(resourceGroupControlPlane)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
@@ -117,7 +119,7 @@ module applicationGroup 'applicationGroup.bicep' = {
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
     mlzTags: mlzTags
-    resourceGroupManagement: resourceGroups[3]
+    resourceGroupManagement: resourceGroupManagement
     roleDefinitions: roleDefinitions
     securityPrincipalObjectIds: securityPrincipalObjectIds
     desktopFriendlyName: desktopFriendlyName
@@ -128,7 +130,7 @@ module applicationGroup 'applicationGroup.bicep' = {
 
 module workspace 'workspace.bicep' = {
   name: 'deploy-vdws-feed-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroups[1])
+  scope: resourceGroup(resourceGroupControlPlane)
   params: {
     applicationGroupReferences: applicationGroup.outputs.applicationGroupReference
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
@@ -141,7 +143,7 @@ module workspace 'workspace.bicep' = {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     mlzTags: mlzTags
     monitoring: monitoring
-    resourceGroupManagement: resourceGroups[3]
+    resourceGroupManagement: resourceGroupManagement
     subnetResourceId: subnetResourceId
     tags: tags
     virtualMachineName: managementVirtualMachineName
