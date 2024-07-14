@@ -38,9 +38,6 @@ param deployDefender bool
 @description('The suffix used for naming deployments uniquely. It defaults to a timestamp with the utcNow function.')
 param deploymentNameSuffix string = utcNow()
 
-@description('Choose whether to deploy Network Watcher for the deployment location.')
-param deployNetworkWatcher bool
-
 @description('Choose whether to deploy a policy assignment.')
 param deployPolicy bool
 
@@ -56,6 +53,9 @@ param domainName string
 
 @description('The email address or distribution list to receive security alerts.')
 param emailSecurityContact string = ''
+
+@description('')
+param enableAcceleratedNetworking bool
 
 @description('Determines whether to use the hybrid use benefit for the Windows virtual machines.')
 param hybridUseBenefit bool
@@ -141,17 +141,11 @@ module azureVirtualDesktop '../azure-virtual-desktop/solution.bicep' = {
   name: 'deploy-azure-virtual-desktop-${deploymentNameSuffix}'
   params: {
     activeDirectorySolution: 'MicrosoftEntraDomainServices'
-    artifactsContainerName: containerName
-    artifactsStorageAccountResourceId: storageAccountResourceId
     availability: 'None'
-    avdAgentBootLoaderMsiName: avdAgentBootLoaderMsiName
-    avdAgentMsiName: avdAgentMsiName
     avdObjectId: avdObjectId
     azureNetAppFilesSubnetAddressPrefix: '10.0.140.128/25'
-    azurePowerShellModuleMsiName: azurePowerShellModuleMsiName
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
-    deployNetworkWatcher: deployNetworkWatcher
     deployPolicy: deployPolicy
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: '${domainJoinUsername}@${domainName}'
@@ -176,6 +170,10 @@ module azureVirtualDesktop '../azure-virtual-desktop/solution.bicep' = {
     virtualMachineVirtualCpuCount: int(replace(replace(virtualMachineSize, 'Standard_NV', ''), 'as_v4', ''))
     virtualNetworkAddressPrefixes: ['10.0.140.0/24']
     workspacePublicNetworkAccess: 'Enabled'
+    availabilityZones:
+    deployNetworkWatcherControlPlane:
+    deployNetworkWatcherVirtualMachines:
+    enableAcceleratedNetworking: enableAcceleratedNetworking
   }
 }
 
