@@ -361,7 +361,7 @@
             {
               "name": "workspace",
               "type": "Microsoft.Common.Section",
-              "visible": "[empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), and(contains(item.name, 'feed'), and(contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location)))))))]",
+              "visible": "[empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), and(contains(item.name, 'feed'), and(contains(item.name, steps('basics').naming.environment), equals(item.location, first(map(filter(steps('basics').hub.virtualNetworksApi.value, (item) => equals(item.id, steps('basics').hub.virtualNetwork)), (item) => item.location)))))))))]",
               "label": "Workspace",
               "elements": [
                 {
@@ -495,7 +495,7 @@
                   "defaultValue": "",
                   "placeholder": "Example: Information Technology",
                   "toolTip": "Input the friendly name for the AVD workspace that will be displayed in the end user's client. This value should apply to all the stamp indexes within the same identifier and would mostly likely represent your business unit or project.",
-                  "visible": "[and(steps('controlPlane').friendlyNames.custom, empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), and(contains(item.name, 'feed'), and(contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))))))))]",
+                  "visible": "[and(steps('controlPlane').friendlyNames.custom, empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), and(contains(item.name, 'feed'), and(contains(item.name, steps('basics').naming.environment), equals(item.location, first(map(filter(steps('basics').hub.virtualNetworksApi.value, (item) => equals(item.id, steps('basics').hub.virtualNetwork)), (item) => item.location))))))))))]",
                   "constraints": {
                     "required": false,
                     "regex": "^.{1,64}$",
@@ -1428,7 +1428,7 @@
               "name": "functionApp",
               "label": "Function App",
               "type": "Microsoft.Common.Section",
-              "visible": "[or(equals(concat(steps('userProfiles').storage.service, ' ', steps('userProfiles').storage.sku), 'AzureFiles Premium'), steps('management').scaling.enable)]",
+              "visible": true,
               "elements": [
                 {
                   "name": "subnetAddressCidrRange",
@@ -1438,7 +1438,7 @@
                   "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.192/26')]",
                   "toolTip": "Specify a CIDR range for the Function App subnet within the AVD spoke virtual network range [24,28] for the Scaling Tool and / or the Auto Increase Premium File Share Qutoa tool.",
                   "constraints": {
-                    "required": true,
+                    "required": false,
                     "validations": [
                       {
                         "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
@@ -1663,7 +1663,7 @@
         "customRdpProperty": "[steps('controlPlane').hostPool.customRdpProperties]",
         "deployActivityLogDiagnosticSetting": "[empty(steps('compliance').diagnosticSettingsApi.value)]",
         "deployDefender": "[and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value))]",
-        "deployNetworkWatcherControlPlane": "[empty(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('controlPlane').controlPlane.location)))]",
+        "deployNetworkWatcherControlPlane": "[empty(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, first(map(filter(steps('basics').hub.virtualNetworksApi.value, (item) => equals(item.id, steps('basics').hub.virtualNetwork)), (item) => item.location)))))]",
         "deployNetworkWatcherVirtualMachines": "[empty(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)))]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
         "desktopFriendlyName": "[steps('controlPlane').friendlyNames.desktop]",
@@ -1677,7 +1677,7 @@
         "enablePartnerTelemetry": "[steps('basics').scenario.enablePartnerTelemetry]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
         "existingActiveDirectoryConnection": "[steps('userProfiles').storage.existingSharedActiveDirectoryConnection]",
-        "existingFeedWorkspaceResourceId": "[map(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), and(contains(item.name, 'feed'), and(contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location)))))), (item) => item.id)]",
+        "existingFeedWorkspaceResourceId": "[first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), and(contains(item.name, 'feed'), and(contains(item.name, steps('basics').naming.environment), equals(item.location, first(map(filter(steps('basics').hub.virtualNetworksApi.value, (item) => equals(item.id, steps('basics').hub.virtualNetwork)), (item) => item.location))))))), (item) => item.id))]",
         "fslogixShareSizeInGB": "[if(equals(steps('userProfiles').profileSolution, 'local'), 100, steps('userProfiles').storage.fileShareSize)]",
         "fslogixContainerType": "[steps('userProfiles').storage.fslogixContainerType]",
         "fslogixStorageService": "[if(equals(steps('userProfiles').profileSolution, 'local'), 'None', concat(steps('userProfiles').storage.service, ' ', steps('userProfiles').storage.sku))]",
