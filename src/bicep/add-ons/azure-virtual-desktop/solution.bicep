@@ -427,6 +427,7 @@ module tier3_controlPlane '../tier3/solution.bicep' = {
     location: locationControlPlane
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     policy: policy
+    stampIndex: string(stampIndex) // This is used to keep resource names unique across multiple AVD stamps within the same business unit or project.
     subnetAddressPrefix: subnetAddressPrefixes[0]
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefixes[0]
@@ -438,7 +439,7 @@ module tier3_controlPlane '../tier3/solution.bicep' = {
 module tier3_hosts '../tier3/solution.bicep' = if (length(deploymentLocations) == 2) {
   name: 'deploy-tier3-avd-hosts-${deploymentNameSuffix}'
   params: {
-    additionalSubnets: length(deploymentLocations) == 2 ? union(azureNetAppFilesSubnet, managementSubnet) : []
+    additionalSubnets: union(azureNetAppFilesSubnet, managementSubnet)
     deployActivityLogDiagnosticSetting: false
     deployDefender: false
     deploymentNameSuffix: 'hosts-${deploymentNameSuffix}'
@@ -452,7 +453,7 @@ module tier3_hosts '../tier3/solution.bicep' = if (length(deploymentLocations) =
     location: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     policy: policy
-    stampIndex: string(stampIndex)
+    stampIndex: string(stampIndex) // This is used to keep resource names unique across multiple AVD stamps within the same business unit or project.
     subnetAddressPrefix: subnetAddressPrefixes[1]
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefixes[1]
@@ -543,9 +544,6 @@ module management 'modules/management/management.bicep' = {
     virtualMachinePassword: virtualMachinePassword
     virtualMachineUsername: virtualMachineUsername
   }
-  dependsOn: [
-    rgs
-  ]
 }
 
 // Global AVD Worksspace
@@ -815,7 +813,7 @@ module cleanUp 'modules/cleanUp/cleanUp.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     fslogixStorageService: fslogixStorageService
     location: locationVirtualMachines
-    resourceGroupManagement: rgs[3].outputs.name
+    resourceGroupManagement: rgs[2].outputs.name
     scalingTool: scalingTool
     userAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     virtualMachineName: management.outputs.virtualMachineName
