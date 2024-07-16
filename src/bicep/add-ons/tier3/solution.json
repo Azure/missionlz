@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "16843059943027570861"
+      "templateHash": "7204201004933622943"
     }
   },
   "parameters": {
@@ -166,6 +166,7 @@
     },
     "subnetAddressPrefix": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "The address prefix for the workload subnet."
       }
@@ -186,6 +187,7 @@
     },
     "virtualNetworkAddressPrefix": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "The address prefix for the workload Virtual Network."
       }
@@ -1006,6 +1008,7 @@
       }
     },
     {
+      "condition": "[not(empty(parameters('virtualNetworkAddressPrefix')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
@@ -1088,6 +1091,7 @@
       ]
     },
     {
+      "condition": "[not(empty(parameters('virtualNetworkAddressPrefix')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
@@ -2062,6 +2066,7 @@
       ]
     },
     {
+      "condition": "[not(empty(parameters('virtualNetworkAddressPrefix')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-vnet-links-{0}-sub-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
@@ -2207,6 +2212,7 @@
       ]
     },
     {
+      "condition": "[not(empty(parameters('virtualNetworkAddressPrefix')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
@@ -2864,6 +2870,7 @@
       ]
     },
     {
+      "condition": "[not(empty(parameters('virtualNetworkAddressPrefix')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-storage-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
@@ -3226,6 +3233,7 @@
       ]
     },
     {
+      "condition": "[not(empty(parameters('virtualNetworkAddressPrefix')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-diag-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
@@ -3658,7 +3666,7 @@
       ]
     },
     {
-      "condition": "[parameters('deployPolicy')]",
+      "condition": "[and(parameters('deployPolicy'), not(empty(parameters('virtualNetworkAddressPrefix'))))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('assign-policy-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
@@ -3990,7 +3998,7 @@
       ]
     },
     {
-      "condition": "[parameters('deployDefender')]",
+      "condition": "[and(parameters('deployDefender'), not(empty(parameters('virtualNetworkAddressPrefix'))))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('set-defender-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
@@ -4244,15 +4252,15 @@
   "outputs": {
     "diskEncryptionSetResourceId": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
+      "value": "[if(not(empty(parameters('virtualNetworkAddressPrefix'))), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value, '')]"
     },
     "dnsServers": {
       "type": "array",
-      "value": "[coalesce(tryGet(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01'), 'dhcpOptions', 'dnsServers'), createArray())]"
+      "value": "[if(not(empty(parameters('virtualNetworkAddressPrefix'))), coalesce(tryGet(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01'), 'dhcpOptions', 'dnsServers'), createArray()), createArray())]"
     },
     "keyVaultUri": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+      "value": "[if(not(empty(parameters('virtualNetworkAddressPrefix'))), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value, '')]"
     },
     "locationProperties": {
       "type": "object",
@@ -4284,15 +4292,15 @@
     },
     "storageAccountResourceId": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountResourceId.value]"
+      "value": "[if(not(empty(parameters('virtualNetworkAddressPrefix'))), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountResourceId.value, '')]"
     },
     "storageEncryptionKeyName": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
+      "value": "[if(not(empty(parameters('virtualNetworkAddressPrefix'))), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value, '')]"
     },
     "subnets": {
       "type": "array",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value]"
+      "value": "[if(not(empty(parameters('virtualNetworkAddressPrefix'))), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value, createArray())]"
     },
     "tier": {
       "type": "object",
@@ -4304,7 +4312,7 @@
     },
     "userAssignedIdentityResourceId": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
+      "value": "[if(not(empty(parameters('virtualNetworkAddressPrefix'))), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value, '')]"
     }
   }
 }
