@@ -1288,8 +1288,16 @@
           "label": "Networking",
           "elements": [
             {
+              "name": "virtualNetworkApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[concat(steps('basics').hub.virtualNetwork, '?api-version=2024-01-01')]"
+              }
+            },
+            {
               "name": "one",
-              "label": "[if(equals(steps('basics').scope.location.name, steps('basics').hub.virtualNetworkApi.location), 'Control Plane & Session Hosts Virtual Network', 'Control Plane Virtual Network')]",
+              "label": "[if(equals(steps('basics').scope.location.name, steps('networks').virtualNetworkApi.location), 'Control Plane & Session Hosts Virtual Network', 'Control Plane Virtual Network')]",
               "type": "Microsoft.Common.Section",
               "visible": true,
               "elements": [
@@ -1297,7 +1305,7 @@
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Virtual network CIDR range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "[if(equals(steps('basics').scope.location.name, steps('basics').hub.virtualNetworkApi.location), concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/23'), concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/24'))]",
+                  "defaultValue": "[if(equals(steps('basics').scope.location.name, steps('networks').virtualNetworkApi.location), concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/23'), concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/24'))]",
                   "toolTip": "Specify an address CIDR range within the range [10,26].",
                   "constraints": {
                     "required": true,
@@ -1345,7 +1353,7 @@
                   "name": "sessionHostsSubnetAddressCidrRange",
                   "label": "Session Hosts Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
-                  "visible": "[equals(steps('basics').scope.location.name, steps('basics').hub.virtualNetworkApi.location)]",
+                  "visible": "[equals(steps('basics').scope.location.name, steps('networks').virtualNetworkApi.location)]",
                   "defaultValue": "[if(or(steps('management').scaling.enable, or(equals(concat(steps('userProfiles').storage.service, ' ', steps('userProfiles').storage.sku), 'AzureFiles Premium'), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles'))), concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.0/25'), concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.0/24'))]",
                   "toolTip": "Specify a CIDR range for the default subnet within the AVD Hosts spoke virtual network range [24,28].",
                   "constraints": {
@@ -1378,7 +1386,7 @@
                   "name": "azureNetAppFilesSubnetAddressCidrRange",
                   "label": "Azure NetApp Files Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
-                  "visible": "[and(equals(steps('basics').scope.location.name, steps('basics').hub.virtualNetworkApi.location), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles'))]",
+                  "visible": "[and(equals(steps('basics').scope.location.name, steps('networks').virtualNetworkApi.location), equals(steps('userProfiles').storage.service, 'AzureNetAppFiles'))]",
                   "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.128/26')]",
                   "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24,28].",
                   "constraints": {
@@ -1411,7 +1419,7 @@
                   "name": "functionAppSubnetAddressCidrRange",
                   "label": "Function App Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
-                  "visible": "[and(equals(steps('basics').scope.location.name, steps('basics').hub.virtualNetworkApi.location), or(equals(steps('management').scaling.enable, true), and(equals(steps('userProfiles').storage.service, 'AzureFiles'), equals(steps('userProfiles').storage.sku, 'Premium'))))]",
+                  "visible": "[and(equals(steps('basics').scope.location.name, steps('networks').virtualNetworkApi.location), or(equals(steps('management').scaling.enable, true), and(equals(steps('userProfiles').storage.service, 'AzureFiles'), equals(steps('userProfiles').storage.sku, 'Premium'))))]",
                   "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.192/26')]",
                   "toolTip": "Specify a CIDR range for the Function App subnet within the AVD spoke virtual network range [24,28] for the Scaling Tool and / or the Auto Increase Premium File Share Qutoa tool.",
                   "constraints": {
@@ -1446,7 +1454,7 @@
               "name": "two",
               "label": "Session Hosts Virtual Network",
               "type": "Microsoft.Common.Section",
-              "visible": "[not(equals(steps('basics').scope.location.name, steps('basics').hub.virtualNetworkApi.location))]",
+              "visible": "[not(equals(steps('basics').scope.location.name, steps('networks').virtualNetworkApi.location))]",
               "elements": [
                 {
                   "name": "virtualNetworkAddressCidrRange",
