@@ -6,14 +6,20 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param environmentAbbreviation string
-param locationAbbreviation string
+param location string
 param networkName string
 param networkShortName string
-param resourceAbbreviations object
 param resourcePrefix string
 param stampIndex string = '' // Optional: Added to support AVD deployments
 param subscriptionId string
-param tokens object
+param tokens object = {
+  resource: 'resource_token'
+  service: 'service_token'
+}
+
+var locations = loadJsonContent('../data/locations.json')[environment().name]
+var locationAbbreviation = locations[location]
+var resourceAbbreviations = loadJsonContent('../data/resourceAbbreviations.json')
 
 /*
 
@@ -54,17 +60,17 @@ var names = {
   automationAccountPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, resourceAbbreviations.automationAccounts)
   availabilitySet: replace(namingConvention, tokens.resource, resourceAbbreviations.availabilitySets)
   azureFirewall: replace(namingConvention, tokens.resource, resourceAbbreviations.azureFirewalls)
-  azureFirewallClientPublicIPAddress: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.publicIpAddresses), tokens.service, 'client-${resourceAbbreviations.azureFirewalls}')
-  azureFirewallClientPublicIPAddressDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.publicIpAddresses}-client-${resourceAbbreviations.azureFirewalls}')
+  azureFirewallClientPublicIPAddress: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.publicIPAddresses), tokens.service, 'client-${resourceAbbreviations.azureFirewalls}')
+  azureFirewallClientPublicIPAddressDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.publicIPAddresses}-client-${resourceAbbreviations.azureFirewalls}')
   azureFirewallDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.azureFirewalls)
-  azureFirewallManagementPublicIPAddress: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.publicIpAddresses), tokens.service, 'mgmt-${resourceAbbreviations.azureFirewalls}')
-  azureFirewallManagementPublicIPAddressDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.publicIpAddresses}-mgmt-${resourceAbbreviations.azureFirewalls}')
+  azureFirewallManagementPublicIPAddress: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.publicIPAddresses), tokens.service, 'mgmt-${resourceAbbreviations.azureFirewalls}')
+  azureFirewallManagementPublicIPAddressDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.publicIPAddresses}-mgmt-${resourceAbbreviations.azureFirewalls}')
   azureFirewallPolicy: replace(namingConvention, tokens.resource, resourceAbbreviations.firewallPolicies)
   bastionHost: replace(namingConvention, tokens.resource, resourceAbbreviations.bastionHosts)
   bastionHostNetworkSecurityGroup: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkSecurityGroups), tokens.service, resourceAbbreviations.bastionHosts)
   bastionHostDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.bastionHosts)
-  bastionHostPublicIPAddress: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.publicIpAddresses), tokens.service, resourceAbbreviations.bastionHosts)
-  bastionHostPublicIPAddressDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.publicIpAddresses}-${resourceAbbreviations.bastionHosts}')
+  bastionHostPublicIPAddress: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.publicIPAddresses), tokens.service, resourceAbbreviations.bastionHosts)
+  bastionHostPublicIPAddressDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.publicIPAddresses}-${resourceAbbreviations.bastionHosts}')
   computeGallery: replace(replace(namingConvention, tokens.resource, resourceAbbreviations.computeGallieries), '-', '_') // Compute Galleries do not support hyphens
   dataCollectionRuleAssociation: replace(namingConvention, tokens.resource, resourceAbbreviations.dataCollectionRuleAssociations)
   dataCollectionRule: replace(namingConvention, tokens.resource, resourceAbbreviations.dataCollectionRules)
@@ -117,4 +123,7 @@ var names = {
   workspaceGlobalPrivateEndpoint: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, '${tokens.service}-${resourceAbbreviations.workspaces}'), '-${stampIndex}', '')
 }
 
+output locations object = locations
 output names object = names
+output resourceAbbreviations object = resourceAbbreviations
+output tokens object = tokens
