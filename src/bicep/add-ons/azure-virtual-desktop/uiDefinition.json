@@ -1398,7 +1398,7 @@
                   "name": "functionAppSubnetAddressCidrRange",
                   "label": "Function App Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
-                  "visible": "[and(equals(steps('basics').scope.location.name, steps('networks').virtualNetworkApi.location), or(equals(steps('management').scaling.enable, true), equals(steps('userProfiles').storage.service, 'AzureFiles Premium')))]",
+                  "visible": "[and(equals(steps('basics').scope.location.name, steps('networks').virtualNetworkApi.location), or(equals(steps('management').scaling.enable), equals(steps('userProfiles').storage.service, 'AzureFiles Premium')))]",
                   "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.192/26')]",
                   "toolTip": "Specify a CIDR range for the Function App subnet within the AVD spoke virtual network range [24,28] for the Scaling Tool and / or the Auto Increase Premium File Share Qutoa tool.",
                   "constraints": {
@@ -1521,7 +1521,7 @@
                   "name": "functionAppSubnetAddressCidrRange",
                   "label": "Function App Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
-                  "visible": "[or(steps('management').scaling.enable, equals(steps('userProfiles').storage.service, 'AzureFiles Premium'))]",
+                  "visible": "[and(not(equals(steps('basics').scope.location.name, steps('networks').virtualNetworkApi.location)), or(equals(steps('management').scaling.enable), equals(steps('userProfiles').storage.service, 'AzureFiles Premium')))]",
                   "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.192/26')]",
                   "toolTip": "Specify a CIDR range for the Function App subnet within the AVD spoke virtual network range [24,28] for the Scaling Tool and / or the Auto Increase Premium File Share Qutoa tool.",
                   "constraints": {
