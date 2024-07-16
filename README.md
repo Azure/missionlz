@@ -35,9 +35,14 @@ Our intent is to enable IT Admins to use this software to:
 
 ## Quickstart
 
-You can deploy Mission Landing Zone from the Azure Portal, or by executing an Azure CLI command.
+Mission Landing Zone may be deployed from the Azure Portal or command line tools. The following prerequisites must be in place on the target subscription(s) for a successful deployment:
 
-You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner) to the subscription(s) you deploy Mission Landing Zone into.
+- [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
+- Enable the Encryption At Host feature on your subscription:
+
+```powershell
+Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Microsoft.Compute"
+```
 
 ### Deploy from the Azure Portal
 <!-- markdownlint-disable MD013 -->
