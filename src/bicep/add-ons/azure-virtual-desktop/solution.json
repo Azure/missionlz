@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "2822991048191540976"
+      "templateHash": "1767215487187769800"
     }
   },
   "parameters": {
@@ -596,10 +596,8 @@
     "beginAvSetRange": "[div(parameters('sessionHostIndex'), variables('maxAvSetMembers'))]",
     "endAvSetRange": "[div(add(parameters('sessionHostCount'), parameters('sessionHostIndex')), variables('maxAvSetMembers'))]",
     "availabilitySetsCount": "[length(range(variables('beginAvSetRange'), add(sub(variables('endAvSetRange'), variables('beginAvSetRange')), 1)))]",
-    "azureNetAppFilesSubnet": "[if(and(contains(parameters('fslogixStorageService'), 'AzureNetAppFiles'), not(empty(parameters('azureNetAppFilesSubnetAddressPrefix')))), createArray(createObject('name', 'AzureNetAppFiles', 'addressPrefix', parameters('azureNetAppFilesSubnetAddressPrefix'))), createArray())]",
     "customImageId": "[if(empty(parameters('imageVersionResourceId')), 'null', format('\"{0}\"', parameters('imageVersionResourceId')))]",
     "deployFslogix": "[if(or(equals(parameters('fslogixStorageService'), 'None'), not(contains(parameters('activeDirectorySolution'), 'DomainServices'))), false(), true())]",
-    "deploymentLocations": "[union(createArray(parameters('locationControlPlane')), createArray(parameters('locationVirtualMachines')))]",
     "fileShareNames": {
       "CloudCacheProfileContainer": [
         "profile-containers"
@@ -617,7 +615,6 @@
       ]
     },
     "fileShares": "[variables('fileShareNames')[parameters('fslogixContainerType')]]",
-    "managementSubnet": "[if(or(parameters('scalingTool'), equals(parameters('fslogixStorageService'), 'AzureFiles Premium')), createArray(createObject('name', 'FunctionAppOutbound', 'addressPrefix', parameters('functionAppSubnetAddressPrefix'))), createArray())]",
     "netbios": "[split(parameters('domainName'), '.')[0]]",
     "pooledHostPool": "[if(equals(split(parameters('hostPoolType'), ' ')[0], 'Pooled'), true(), false())]",
     "privateDnsZoneResourceIdPrefix": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/privateDnsZones/', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4])]",
@@ -630,7 +627,17 @@
     },
     "storageSku": "[if(equals(parameters('fslogixStorageService'), 'None'), 'None', split(parameters('fslogixStorageService'), ' ')[1])]",
     "storageService": "[split(parameters('fslogixStorageService'), ' ')[0]]",
-    "storageSuffix": "[environment().suffixes.storage]"
+    "storageSuffix": "[environment().suffixes.storage]",
+    "subnets": {
+      "avdSessionHosts": [
+        {
+          "name": "AvdSessionHosts",
+          "addressPrefix": "[parameters('subnetAddressPrefixes')[1]]"
+        }
+      ],
+      "azureNetAppFiles": "[if(and(contains(parameters('fslogixStorageService'), 'AzureNetAppFiles'), not(empty(parameters('azureNetAppFilesSubnetAddressPrefix')))), createArray(createObject('name', 'AzureNetAppFiles', 'addressPrefix', parameters('azureNetAppFilesSubnetAddressPrefix'))), createArray())]",
+      "functionApp": "[if(or(parameters('scalingTool'), equals(parameters('fslogixStorageService'), 'AzureFiles Premium')), createArray(createObject('name', 'FunctionAppOutbound', 'addressPrefix', parameters('functionAppSubnetAddressPrefix'))), createArray())]"
+    }
   },
   "resources": [
     {
@@ -659,6 +666,7 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "additionalSubnets": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', union(variables('subnets').avdSessionHosts, variables('subnets').azureNetAppFiles, variables('subnets').functionApp)), createObject('value', createArray()))]",
           "deployActivityLogDiagnosticSetting": {
             "value": "[parameters('deployActivityLogDiagnosticSetting')]"
           },
@@ -698,6 +706,12 @@
           "policy": {
             "value": "[parameters('policy')]"
           },
+          "stampIndex": {
+            "value": "[string(parameters('stampIndex'))]"
+          },
+          "subnetName": {
+            "value": "AvdControlPlane"
+          },
           "subnetAddressPrefix": {
             "value": "[parameters('subnetAddressPrefixes')[0]]"
           },
@@ -721,7 +735,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "5735959504684028099"
+              "templateHash": "16843059943027570861"
             }
           },
           "parameters": {
@@ -884,6 +898,13 @@
               "type": "string",
               "metadata": {
                 "description": "The address prefix for the workload subnet."
+              }
+            },
+            "subnetName": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "The custom name for the workload subnet if the naming convention is not desired. Subnets are child resources and do not require a unique name between virtual networks, only within the same virtual network."
               }
             },
             "tags": {
@@ -1846,9 +1867,7 @@
                   "subnetAddressPrefix": {
                     "value": "[parameters('subnetAddressPrefix')]"
                   },
-                  "subnetName": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.subnet]"
-                  },
+                  "subnetName": "[if(empty(parameters('subnetName')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.subnet), createObject('value', parameters('subnetName')))]",
                   "subscriptionId": {
                     "value": "[variables('subscriptionId')]"
                   },
@@ -5022,7 +5041,7 @@
       }
     },
     {
-      "condition": "[equals(length(variables('deploymentLocations')), 2)]",
+      "condition": "[not(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))]",
@@ -5033,7 +5052,9 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "additionalSubnets": "[if(equals(length(variables('deploymentLocations')), 2), createObject('value', union(variables('azureNetAppFilesSubnet'), variables('managementSubnet'))), createObject('value', createArray()))]",
+          "additionalSubnets": {
+            "value": "[union(variables('subnets').azureNetAppFiles, variables('subnets').functionApp)]"
+          },
           "deployActivityLogDiagnosticSetting": {
             "value": false
           },
@@ -5076,6 +5097,9 @@
           "stampIndex": {
             "value": "[string(parameters('stampIndex'))]"
           },
+          "subnetName": {
+            "value": "AvdSessionHosts"
+          },
           "subnetAddressPrefix": {
             "value": "[parameters('subnetAddressPrefixes')[1]]"
           },
@@ -5099,7 +5123,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "5735959504684028099"
+              "templateHash": "16843059943027570861"
             }
           },
           "parameters": {
@@ -5262,6 +5286,13 @@
               "type": "string",
               "metadata": {
                 "description": "The address prefix for the workload subnet."
+              }
+            },
+            "subnetName": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "The custom name for the workload subnet if the naming convention is not desired. Subnets are child resources and do not require a unique name between virtual networks, only within the same virtual network."
               }
             },
             "tags": {
@@ -6224,9 +6255,7 @@
                   "subnetAddressPrefix": {
                     "value": "[parameters('subnetAddressPrefix')]"
                   },
-                  "subnetName": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.subnet]"
-                  },
+                  "subnetName": "[if(empty(parameters('subnetName')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.subnet), createObject('value', parameters('subnetName')))]",
                   "subscriptionId": {
                     "value": "[variables('subscriptionId')]"
                   },
@@ -9418,7 +9447,7 @@
           "mlzTags": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
-          "name": "[if(and(equals(length(variables('deploymentLocations')), 2), or(or(equals(variables('resourceGroupServices')[copyIndex()], 'hosts'), equals(variables('resourceGroupServices')[copyIndex()], 'management')), equals(variables('resourceGroupServices')[copyIndex()], 'storage'))), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, variables('resourceGroupServices')[copyIndex()])), if(equals(variables('resourceGroupServices')[copyIndex()], 'feedWorkspace'), createObject('value', replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, variables('resourceGroupServices')[copyIndex()]), format('-{0}', parameters('stampIndex')), '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, variables('resourceGroupServices')[copyIndex()]))))]",
+          "name": "[if(and(not(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines'))), or(or(equals(variables('resourceGroupServices')[copyIndex()], 'hosts'), equals(variables('resourceGroupServices')[copyIndex()], 'management')), equals(variables('resourceGroupServices')[copyIndex()], 'storage'))), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, variables('resourceGroupServices')[copyIndex()])), if(equals(variables('resourceGroupServices')[copyIndex()], 'feedWorkspace'), createObject('value', replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, variables('resourceGroupServices')[copyIndex()]), format('-{0}', parameters('stampIndex')), '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, variables('resourceGroupServices')[copyIndex()]))))]",
           "tags": {
             "value": "[parameters('tags')]"
           }
@@ -9505,9 +9534,7 @@
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
-          "diskEncryptionSetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
-          },
+          "diskEncryptionSetResourceId": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value))]",
           "diskSku": {
             "value": "[parameters('diskSku')]"
           },
@@ -9542,11 +9569,9 @@
             "value": "[parameters('logAnalyticsWorkspaceSku')]"
           },
           "mlzTags": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
-          "namingConvention": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value]"
-          },
+          "namingConvention": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value))]",
           "organizationalUnitPath": {
             "value": "[parameters('organizationalUnitPath')]"
           },
@@ -9554,16 +9579,14 @@
             "value": "[variables('privateDnsZoneResourceIdPrefix')]"
           },
           "privateDnsZones": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
           },
           "recoveryServices": {
             "value": "[parameters('recoveryServices')]"
           },
-          "recoveryServicesGeo": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.recoveryServicesGeo]"
-          },
+          "recoveryServicesGeo": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.recoveryServicesGeo), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.recoveryServicesGeo))]",
           "resourceAbbreviations": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceAbbreviations.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceAbbreviations.value]"
           },
           "resourceGroupControlPlane": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
@@ -9602,21 +9625,13 @@
           "storageService": {
             "value": "[variables('storageService')]"
           },
-          "subnetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id]"
-          },
-          "subnets": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value]"
-          },
+          "subnetResourceId": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id))]",
+          "subnets": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value))]",
           "tags": {
             "value": "[parameters('tags')]"
           },
-          "timeDifference": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.timeDifference]"
-          },
-          "timeZone": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.timeZone]"
-          },
+          "timeDifference": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.timeDifference), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.timeDifference))]",
+          "timeZone": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.timeZone), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.timeZone))]",
           "virtualMachinePassword": {
             "value": "[parameters('virtualMachinePassword')]"
           },
@@ -11840,7 +11855,10 @@
         }
       },
       "dependsOn": [
-        "rgs",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[3], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix')))]"
       ]
@@ -12294,7 +12312,7 @@
           "serviceToken": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service]"
           },
-          "sessionHostNamePrefix": "[if(equals(length(variables('deploymentLocations')), 2), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.virtualMachine, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.virtualMachine, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, '')))]",
+          "sessionHostNamePrefix": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.virtualMachine, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.virtualMachine, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, '')))]",
           "stampIndex": {
             "value": "[string(parameters('stampIndex'))]"
           },
@@ -13823,7 +13841,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.deploymentUserAssignedIdentityClientId.value]"
           },
           "dnsServers": {
-            "value": "[string(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dnsServers.value)]"
+            "value": "[string(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dnsServers.value)]"
           },
           "domainJoinPassword": {
             "value": "[parameters('domainJoinPassword')]"
@@ -13834,9 +13852,7 @@
           "domainName": {
             "value": "[parameters('domainName')]"
           },
-          "encryptionUserAssignedIdentityResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
-          },
+          "encryptionUserAssignedIdentityResourceId": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value))]",
           "environmentAbbreviation": {
             "value": "[parameters('environmentAbbreviation')]"
           },
@@ -13864,9 +13880,7 @@
           "identifier": {
             "value": "[parameters('identifier')]"
           },
-          "keyVaultUri": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
-          },
+          "keyVaultUri": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value))]",
           "location": {
             "value": "[parameters('locationVirtualMachines')]"
           },
@@ -13874,11 +13888,9 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]"
           },
           "mlzTags": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
-          "namingConvention": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value]"
-          },
+          "namingConvention": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value))]",
           "netbios": {
             "value": "[variables('netbios')]"
           },
@@ -13902,17 +13914,13 @@
             "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))]"
           },
           "serviceToken": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service]"
           },
-          "smbServerLocation": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.timeZone]"
-          },
+          "smbServerLocation": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.timeZone), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.timeZone))]",
           "storageCount": {
             "value": "[parameters('storageCount')]"
           },
-          "storageEncryptionKeyName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageEncryptionKeyName.value]"
-          },
+          "storageEncryptionKeyName": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageEncryptionKeyName.value), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageEncryptionKeyName.value))]",
           "storageIndex": {
             "value": "[parameters('storageIndex')]"
           },
@@ -13922,12 +13930,8 @@
           "storageSku": {
             "value": "[variables('storageSku')]"
           },
-          "subnetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id]"
-          },
-          "subnets": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value]"
-          },
+          "subnetResourceId": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id))]",
+          "subnets": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value))]",
           "tags": {
             "value": "[parameters('tags')]"
           }
@@ -15440,9 +15444,7 @@
           "deploymentUserAssignedIdentityClientId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.deploymentUserAssignedIdentityClientId.value]"
           },
-          "diskEncryptionSetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
-          },
+          "diskEncryptionSetResourceId": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value))]",
           "diskSku": {
             "value": "[parameters('diskSku')]"
           },
@@ -15515,9 +15517,7 @@
           "monitoring": {
             "value": "[parameters('monitoring')]"
           },
-          "namingConvention": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value]"
-          },
+          "namingConvention": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value))]",
           "netAppFileShares": "[if(variables('deployFslogix'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.netAppShares.value), createObject('value', createArray('None')))]",
           "organizationalUnitPath": {
             "value": "[parameters('organizationalUnitPath')]"
@@ -15529,7 +15529,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.recoveryServicesVaultName.value]"
           },
           "resourceAbbreviations": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceAbbreviations.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceAbbreviations.value]"
           },
           "resourceGroupControlPlane": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
@@ -15547,7 +15547,7 @@
             "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))]"
           },
           "serviceToken": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service]"
           },
           "sessionHostBatchCount": {
             "value": "[variables('sessionHostBatchCount')]"
@@ -15567,9 +15567,7 @@
           "storageSuffix": {
             "value": "[variables('storageSuffix')]"
           },
-          "subnetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id]"
-          },
+          "subnetResourceId": "[if(equals(parameters('locationControlPlane'), parameters('locationVirtualMachines')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id))]",
           "tags": {
             "value": "[parameters('tags')]"
           },
