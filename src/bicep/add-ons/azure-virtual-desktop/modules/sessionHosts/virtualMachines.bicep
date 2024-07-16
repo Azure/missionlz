@@ -132,7 +132,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [
     name: '${sessionHostNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
     location: location
     tags: tagsVirtualMachines
-    zones: availability == 'AvailabilityZones'
+    zones: availability == 'AvailabilityZones' && !empty(availabilityZones)
       ? [
           availabilityZones[i % length(availabilityZones)]
         ]

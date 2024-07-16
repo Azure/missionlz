@@ -326,26 +326,10 @@ var endAvSetRange = (sessionHostCount + sessionHostIndex) / maxAvSetMembers // T
 var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - beginAvSetRange) + 1))
 
 // OTHER LOGIC & COMPUTED VALUES
-var azureNetAppFilesSubnet = contains(fslogixStorageService, 'AzureNetAppFiles') && !empty(azureNetAppFilesSubnetAddressPrefix)
-? [
-    {
-      name: 'AzureNetAppFiles'
-      addressPrefix: azureNetAppFilesSubnetAddressPrefix
-    }
-  ]
-: []
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
 var deployFslogix = fslogixStorageService == 'None' || !contains(activeDirectorySolution, 'DomainServices')
   ? false
   : true
-var deploymentLocations = union(
-  [
-    locationControlPlane
-  ],
-  [
-    locationVirtualMachines
-  ]
-)
 var fileShareNames = {
   CloudCacheProfileContainer: [
     'profile-containers'
@@ -363,14 +347,6 @@ var fileShareNames = {
   ]
 }
 var fileShares = fileShareNames[fslogixContainerType]
-var managementSubnet = scalingTool || fslogixStorageService == 'AzureFiles Premium'
-? [
-  {
-    name: 'FunctionAppOutbound'
-    addressPrefix: functionAppSubnetAddressPrefix
-  }
-]
-: []
 var netbios = split(domainName, '.')[0]
 var pooledHostPool = split(hostPoolType, ' ')[0] == 'Pooled' ? true : false
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
@@ -395,6 +371,30 @@ var roleDefinitions = {
 var storageSku = fslogixStorageService == 'None' ? 'None' : split(fslogixStorageService, ' ')[1]
 var storageService = split(fslogixStorageService, ' ')[0]
 var storageSuffix = environment().suffixes.storage
+var subnets = {
+  avdSessionHosts: [
+    {
+      name: 'AvdSessionHosts'
+      addressPrefix: subnetAddressPrefixes[1]
+    }
+  ]
+  azureNetAppFiles: contains(fslogixStorageService, 'AzureNetAppFiles') && !empty(azureNetAppFilesSubnetAddressPrefix)
+    ? [
+        {
+          name: 'AzureNetAppFiles'
+          addressPrefix: azureNetAppFilesSubnetAddressPrefix
+        }
+      ]
+    : []
+  functionApp: scalingTool || fslogixStorageService == 'AzureFiles Premium'
+    ? [
+        {
+          name: 'FunctionAppOutbound'
+          addressPrefix: functionAppSubnetAddressPrefix
+        }
+      ]
+    : []
+}
 
 // This module deploys telemetry for ArcGIS Pro deployments
 #disable-next-line no-deployments-resources
@@ -404,9 +404,9 @@ resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
   properties: {
     mode: 'Incremental'
     template: {
-        '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
-        contentVersion: '1.0.0.0'
-        resources: []
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+      contentVersion: '1.0.0.0'
+      resources: []
     }
   }
 }
@@ -414,6 +414,9 @@ resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
 module tier3_controlPlane '../tier3/solution.bicep' = {
   name: 'deploy-tier3-avd-cp-${deploymentNameSuffix}'
   params: {
+    additionalSubnets: locationControlPlane == locationVirtualMachines
+      ? union(subnets.avdSessionHosts, subnets.azureNetAppFiles, subnets.functionApp)
+      : []
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: 'cp-${deploymentNameSuffix}'
@@ -428,6 +431,7 @@ module tier3_controlPlane '../tier3/solution.bicep' = {
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     policy: policy
     stampIndex: string(stampIndex) // This is used to keep resource names unique across multiple AVD stamps within the same business unit or project.
+    subnetName: 'AvdControlPlane'
     subnetAddressPrefix: subnetAddressPrefixes[0]
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefixes[0]
@@ -436,12 +440,12 @@ module tier3_controlPlane '../tier3/solution.bicep' = {
   }
 }
 
-module tier3_hosts '../tier3/solution.bicep' = if (length(deploymentLocations) == 2) {
+module tier3_hosts '../tier3/solution.bicep' = if (!(locationControlPlane == locationVirtualMachines)) {
   name: 'deploy-tier3-avd-hosts-${deploymentNameSuffix}'
   params: {
-    additionalSubnets: union(azureNetAppFilesSubnet, managementSubnet)
-    deployActivityLogDiagnosticSetting: false
-    deployDefender: false
+    additionalSubnets: union(subnets.azureNetAppFiles, subnets.functionApp)
+    deployActivityLogDiagnosticSetting: false // Tier3 Control Plane already deploys this setting for the subscription.
+    deployDefender: false // Tier3 Control Plane already deploys this setting for the subscription.
     deploymentNameSuffix: 'hosts-${deploymentNameSuffix}'
     deployNetworkWatcher: deployNetworkWatcherVirtualMachines
     deployPolicy: deployPolicy
@@ -454,6 +458,7 @@ module tier3_hosts '../tier3/solution.bicep' = if (length(deploymentLocations) =
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     policy: policy
     stampIndex: string(stampIndex) // This is used to keep resource names unique across multiple AVD stamps within the same business unit or project.
+    subnetName: 'AvdSessionHosts'
     subnetAddressPrefix: subnetAddressPrefixes[1]
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefixes[1]
@@ -469,12 +474,8 @@ module rgs '../../modules/resource-group.bicep' = [
     params: {
       location: service == 'controlPlane' || service == 'feedWorkspace' ? locationControlPlane : locationVirtualMachines
       mlzTags: tier3_controlPlane.outputs.mlzTags
-      name: length(deploymentLocations) == 2 && (service == 'hosts' || service == 'management' || service == 'storage')
-        ? replace(
-          tier3_hosts.outputs.namingConvention.resourceGroup, 
-          tier3_hosts.outputs.tokens.service, 
-          service
-        )
+      name: !(locationControlPlane == locationVirtualMachines) && (service == 'hosts' || service == 'management' || service == 'storage')
+        ? replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, service)
         : service == 'feedWorkspace'
             ? replace(
                 replace(
@@ -503,7 +504,9 @@ module management 'modules/management/management.bicep' = {
     avdObjectId: avdObjectId
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetResourceId: tier3_hosts.outputs.diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.diskEncryptionSetResourceId
+      : tier3_hosts.outputs.diskEncryptionSetResourceId
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -515,14 +518,18 @@ module management 'modules/management/management.bicep' = {
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
-    mlzTags: tier3_hosts.outputs.mlzTags
-    namingConvention: tier3_hosts.outputs.namingConvention
+    mlzTags: tier3_controlPlane.outputs.mlzTags
+    namingConvention: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.namingConvention
+      : tier3_hosts.outputs.namingConvention
     organizationalUnitPath: organizationalUnitPath
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: tier3_hosts.outputs.privateDnsZones
+    privateDnsZones: tier3_controlPlane.outputs.privateDnsZones
     recoveryServices: recoveryServices
-    recoveryServicesGeo: tier3_hosts.outputs.locationProperties.recoveryServicesGeo
-    resourceAbbreviations: tier3_hosts.outputs.resourceAbbreviations
+    recoveryServicesGeo: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.locationProperties.recoveryServicesGeo
+      : tier3_hosts.outputs.locationProperties.recoveryServicesGeo
+    resourceAbbreviations: tier3_controlPlane.outputs.resourceAbbreviations
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupHosts: rgs[1].outputs.name
     resourceGroupManagement: rgs[2].outputs.name
@@ -536,11 +543,19 @@ module management 'modules/management/management.bicep' = {
     scalingTool: scalingTool
     serviceToken: tier3_controlPlane.outputs.tokens.service
     storageService: storageService
-    subnetResourceId: tier3_hosts.outputs.subnets[0].id
-    subnets: tier3_hosts.outputs.subnets
+    subnetResourceId: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.subnets[0].id
+      : tier3_hosts.outputs.subnets[0].id
+    subnets: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.subnets
+      : tier3_hosts.outputs.subnets
     tags: tags
-    timeDifference: tier3_hosts.outputs.locationProperties.timeDifference
-    timeZone: tier3_hosts.outputs.locationProperties.timeZone
+    timeDifference: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.locationProperties.timeDifference
+      : tier3_hosts.outputs.locationProperties.timeDifference
+    timeZone: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.locationProperties.timeZone
+      : tier3_hosts.outputs.locationProperties.timeZone
     virtualMachinePassword: virtualMachinePassword
     virtualMachineUsername: virtualMachineUsername
   }
@@ -663,13 +678,9 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     roleDefinitions: roleDefinitions
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: tier3_controlPlane.outputs.tokens.service
-    sessionHostNamePrefix: length(deploymentLocations) == 2
-      ? replace(tier3_hosts.outputs.namingConvention.virtualMachine, tier3_hosts.outputs.tokens.service, '')
-      : replace(
-          tier3_controlPlane.outputs.namingConvention.virtualMachine,
-          tier3_controlPlane.outputs.tokens.service,
-          ''
-        )
+    sessionHostNamePrefix: locationControlPlane == locationVirtualMachines
+      ? replace(tier3_controlPlane.outputs.namingConvention.virtualMachine, tier3_controlPlane.outputs.tokens.service, '')
+      : replace(tier3_hosts.outputs.namingConvention.virtualMachine, tier3_hosts.outputs.tokens.service, '')
     stampIndex: string(stampIndex)
     storageAccountResourceId: tier3_controlPlane.outputs.storageAccountResourceId
     subnetResourceId: tier3_controlPlane.outputs.subnets[0].id
@@ -692,11 +703,13 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_controlPlane.outputs.privateDnsZones, name => contains(name, 'file'))[0]}'
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
-    dnsServers: string(tier3_hosts.outputs.dnsServers)
+    dnsServers: string(tier3_controlPlane.outputs.dnsServers)
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
-    encryptionUserAssignedIdentityResourceId: tier3_hosts.outputs.userAssignedIdentityResourceId
+    encryptionUserAssignedIdentityResourceId: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.userAssignedIdentityResourceId
+      : tier3_hosts.outputs.userAssignedIdentityResourceId
     environmentAbbreviation: environmentAbbreviation
     existingSharedActiveDirectoryConnection: existingSharedActiveDirectoryConnection
     fileShares: fileShares
@@ -706,11 +719,15 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     functionAppName: management.outputs.functionAppName
     hostPoolType: hostPoolType
     identifier: identifier
-    keyVaultUri: tier3_hosts.outputs.keyVaultUri
+    keyVaultUri: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.keyVaultUri
+      : tier3_hosts.outputs.keyVaultUri
     location: locationVirtualMachines
     managementVirtualMachineName: management.outputs.virtualMachineName
-    mlzTags: tier3_hosts.outputs.mlzTags
-    namingConvention: tier3_hosts.outputs.namingConvention
+    mlzTags: tier3_controlPlane.outputs.mlzTags
+    namingConvention: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.namingConvention
+      : tier3_hosts.outputs.namingConvention
     netbios: netbios
     organizationalUnitPath: organizationalUnitPath
     recoveryServices: recoveryServices
@@ -719,15 +736,23 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     resourceGroupStorage: deployFslogix ? rgs[3].outputs.name : ''
     securityPrincipalNames: map(securityPrincipals, item => item.name)
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    serviceToken: tier3_hosts.outputs.tokens.service
-    smbServerLocation: tier3_hosts.outputs.locationProperties.timeZone
+    serviceToken: tier3_controlPlane.outputs.tokens.service
+    smbServerLocation: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.locationProperties.timeZone
+      : tier3_hosts.outputs.locationProperties.timeZone
     storageCount: storageCount
-    storageEncryptionKeyName: tier3_hosts.outputs.storageEncryptionKeyName
+    storageEncryptionKeyName: locationControlPlane == locationVirtualMachines
+     ? tier3_controlPlane.outputs.storageEncryptionKeyName
+     : tier3_hosts.outputs.storageEncryptionKeyName
     storageIndex: storageIndex
     storageService: storageService
     storageSku: storageSku
-    subnetResourceId: tier3_hosts.outputs.subnets[0].id
-    subnets: tier3_hosts.outputs.subnets
+    subnetResourceId: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.subnets[0].id
+      : tier3_hosts.outputs.subnets[0].id
+    subnets: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.subnets
+      : tier3_hosts.outputs.subnets
     tags: tags
   }
   dependsOn: [
@@ -748,7 +773,9 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
-    diskEncryptionSetResourceId: tier3_hosts.outputs.diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.diskEncryptionSetResourceId
+      : tier3_hosts.outputs.diskEncryptionSetResourceId
     diskSku: diskSku
     divisionRemainderValue: divisionRemainderValue
     domainJoinPassword: domainJoinPassword
@@ -773,7 +800,9 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
     mlzTags: tier3_controlPlane.outputs.mlzTags
     monitoring: monitoring
-    namingConvention: tier3_hosts.outputs.namingConvention
+    namingConvention: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.namingConvention
+      : tier3_hosts.outputs.namingConvention
     netAppFileShares: deployFslogix
       ? fslogix.outputs.netAppShares
       : [
@@ -782,20 +811,22 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     organizationalUnitPath: organizationalUnitPath
     pooledHostPool: pooledHostPool
     recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
-    resourceAbbreviations: tier3_hosts.outputs.resourceAbbreviations
+    resourceAbbreviations: tier3_controlPlane.outputs.resourceAbbreviations
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupHosts: rgs[1].outputs.name
     resourceGroupManagement: rgs[2].outputs.name
     roleDefinitions: roleDefinitions
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    serviceToken: tier3_hosts.outputs.tokens.service
+    serviceToken: tier3_controlPlane.outputs.tokens.service
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
     storageCount: storageCount
     storageIndex: storageIndex
     storageService: storageService
     storageSuffix: storageSuffix
-    subnetResourceId: tier3_hosts.outputs.subnets[0].id
+    subnetResourceId: locationControlPlane == locationVirtualMachines
+      ? tier3_controlPlane.outputs.subnets[0].id
+      : tier3_hosts.outputs.subnets[0].id
     tags: tags
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
