@@ -27,6 +27,57 @@ An Azure landing zone consists of platform landing zones and application landing
 
 Reference: [ArcGIS Enterprise Single Machine or Multiple-Machine](https://enterprise.arcgis.com/en/server/latest/install/windows/deployment-scenarios.htm)
 
+
+## Prerequisites
+
+You must enable the feature EncryptionAtHost for your subscription before you can use this automation template.
+
+When you enable encryption at host, data stored on the VM host is encrypted at rest and flows encrypted to the Storage service. Temporary disks and ephemeral OS disks are encrypted at rest with platform-managed keys when you enable end-to-end encryption. The OS and data disk caches are encrypted at rest with either customer-managed or platform-managed keys, depending on what you select as the disk encryption type.
+
+Use the following steps to enable the feature for your subscription:
+
+
+
+1. **Azure portal**: Select the Cloud Shell icon on the [Azure portal](https://portal.azure.com):
+
+   ![Screenshot of icon to launch the Cloud Shell from the Azure portal.](https://learn.microsoft.com/en-us/azure/virtual-machines/media/disks-enable-host-based-encryption-portal/portal-launch-icon.png)
+
+1. Execute the following command to register the feature for your subscription
+
+   ### [Azure PowerShell](#tab/azure-powershell)
+
+   ```powershell
+   Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Microsoft.Compute"
+   ```
+
+   ### [Azure CLI](#tab/azure-cli)
+
+   ```azurecli
+   az feature register --name EncryptionAtHost  --namespace Microsoft.Compute
+   ```
+   ---
+
+1. Confirm that the registration state is **Registered** (registration might take a few minutes) using the following command before trying out the feature.
+
+   ### [Azure PowerShell](#tab/azure-powershell)
+
+   ```powershell
+   Get-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Microsoft.Compute"
+   ```
+
+   ### [Azure CLI](#tab/azure-cli)
+
+   ```azurecli
+   az feature show --name EncryptionAtHost --namespace Microsoft.Compute
+   ```
+   ---
+
+#### For documentation on using Azure cloud shell see [here](https://learn.microsoft.com/en-us/azure/cloud-shell/get-started/new-storage?tabs=azurecli). 
+
+ [!WARNING]
+> Failure to complete the prerequisites will result in an unsuccessful deployment.
+
+
 ## Step 1
 
 :arrow_forward: The first step is to deploy [Mission Landing Zone](https://github.com/Azure/missionlz/blob/main/README.md). This allows organizations to start with a foundational landing zone that supports their application portfolios, regardless of whether the applications are being migrated or are newly developed and deployed to Azure.
