@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "13522225025650487131"
+      "templateHash": "9873835239879779237"
     }
   },
   "parameters": {
@@ -11855,10 +11855,10 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[3], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix')))]"
       ]
@@ -15588,7 +15588,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "13705980156959410558"
+              "templateHash": "9415546083259010188"
             }
           },
           "parameters": {
@@ -16084,7 +16084,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "15683379523866807848"
+                      "templateHash": "3452442788540603330"
                     }
                   },
                   "parameters": {
@@ -16319,7 +16319,7 @@
                       "name": "[format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
-                      "zones": "[if(equals(parameters('availability'), 'AvailabilityZones'), createArray(parameters('availabilityZones')[mod(range(0, parameters('sessionHostCount'))[copyIndex()], length(parameters('availabilityZones')))]), null())]",
+                      "zones": "[if(and(equals(parameters('availability'), 'AvailabilityZones'), not(empty(parameters('availabilityZones')))), createArray(parameters('availabilityZones')[mod(range(0, parameters('sessionHostCount'))[copyIndex()], length(parameters('availabilityZones')))]), null())]",
                       "plan": "[if(equals(parameters('imagePublisher'), 'esri'), createObject('name', parameters('imageSku'), 'product', parameters('imageOffer'), 'publisher', parameters('imagePublisher')), null())]",
                       "properties": {
                         "availabilitySet": "[if(equals(parameters('availability'), 'AvailabilitySets'), createObject('id', resourceId('Microsoft.Compute/availabilitySets', format('{0}-{1}', parameters('availabilitySetNamePrefix'), padLeft(div(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 200), 2, '0')))), null())]",
