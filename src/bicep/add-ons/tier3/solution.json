@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "5735959504684028099"
+      "templateHash": "16843059943027570861"
     }
   },
   "parameters": {
@@ -168,6 +168,13 @@
       "type": "string",
       "metadata": {
         "description": "The address prefix for the workload subnet."
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The custom name for the workload subnet if the naming convention is not desired. Subnets are child resources and do not require a unique name between virtual networks, only within the same virtual network."
       }
     },
     "tags": {
@@ -1130,9 +1137,7 @@
           "subnetAddressPrefix": {
             "value": "[parameters('subnetAddressPrefix')]"
           },
-          "subnetName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.subnet]"
-          },
+          "subnetName": "[if(empty(parameters('subnetName')), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.subnet), createObject('value', parameters('subnetName')))]",
           "subscriptionId": {
             "value": "[variables('subscriptionId')]"
           },

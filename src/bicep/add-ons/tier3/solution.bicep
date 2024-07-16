@@ -92,6 +92,9 @@ param stampIndex string = ''
 @description('The address prefix for the workload subnet.')
 param subnetAddressPrefix string
 
+@description('The custom name for the workload subnet if the naming convention is not desired. Subnets are child resources and do not require a unique name between virtual networks, only within the same virtual network.')
+param subnetName string = ''
+
 @description('The tags to apply to the resources.')
 param tags object = {}
 
@@ -180,7 +183,7 @@ module networking 'modules/networking.bicep' = {
     routeTableName: logic.outputs.tiers[0].namingConvention.routeTable
     routeTableRouteNextHopIpAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
     subnetAddressPrefix: subnetAddressPrefix
-    subnetName: logic.outputs.tiers[0].namingConvention.subnet
+    subnetName: empty(subnetName) ? logic.outputs.tiers[0].namingConvention.subnet : subnetName
     subscriptionId: subscriptionId
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
