@@ -10,6 +10,9 @@ Param(
 $ErrorActionPreference = 'Stop'
 $WarningPreference = 'SilentlyContinue'
 
+# Wait for role assignment propagation
+Start-Sleep -Seconds 30
+
 # Fix the resource manager URI since only AzureCloud contains a trailing slash
 $ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}
 
@@ -24,9 +27,9 @@ $AzureManagementHeader = @{
     'Authorization'='Bearer ' + $AzureManagementAccessToken
 }
 
-# Use the access token to update the host pool registration token
+# Update the friendly name on the session desktop
 Invoke-RestMethod `
     -Body (@{properties = @{friendlyName = $FriendlyName.Replace('"', '')}} | ConvertTo-Json) `
     -Headers $AzureManagementHeader `
     -Method 'PATCH' `
-    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/applicationGroups/' + $ApplicationGroupName + '/desktops/SessionDesktop?api-version=2022-02-10-preview') | Out-Null
+    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/applicationGroups/' + $ApplicationGroupName + '/desktops/SessionDesktop?api-version=2022-02-10-preview') | Out-Null
