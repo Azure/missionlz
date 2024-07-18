@@ -256,14 +256,6 @@
                 "method": "GET",
                 "path": "[concat(first(map(filter(steps('basics').hubVirtualNetworkPeeringsApi.value, (item) => contains(item.properties.remoteVirtualNetwork.id, 'sharedServices')), (item) => item.properties.remoteVirtualNetwork.id)), '/subnets?api-version=2022-05-01')]"
               }
-            },
-            {
-              "name": "virtualNetworkApi",
-              "type": "Microsoft.Solutions.ArmApiControl",
-              "request": {
-                "method": "GET",
-                "path": "[concat(steps('basics').hub.virtualNetwork, '?api-version=2024-01-01')]"
-              }
             }
           ]
         },
@@ -413,7 +405,7 @@
             {
               "name": "workspace",
               "type": "Microsoft.Common.Section",
-              "visible": "[empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), and(contains(item.name, 'feed'), and(contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').virtualNetworkApi.location)))))))]",
+              "visible": "[empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), and(contains(item.name, 'feed'), and(contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location)))))))]",
               "label": "Workspace",
               "elements": [
                 {
@@ -548,7 +540,7 @@
                   "defaultValue": "",
                   "placeholder": "Example: Information Technology",
                   "toolTip": "Input the friendly name for the AVD workspace that will be displayed in the end user's client. This value should apply to all the stamp indexes within the same identifier and would mostly likely represent your business unit or project.",
-                  "visible": "[and(steps('controlPlane').friendlyNames.custom, empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').virtualNetworkApi.location))))))]",
+                  "visible": "[and(steps('controlPlane').friendlyNames.custom, empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))))))]",
                   "constraints": {
                     "required": false,
                     "regex": "^.{1,64}$",
@@ -1165,24 +1157,23 @@
               ]
             },
             {
-              "name": "scaling",
-              "type": "Microsoft.Common.Section",
-              "label": "Scaling",
+              "name": "deployScalingTool",
+              "type": "Microsoft.Common.CheckBox",
               "visible": "[equals(steps('controlPlane').hostPool.type, 'Pooled')]",
+              "label": "Deploy scaling tool?",
+              "defaultValue": false,
+              "toolTip": "Choose whether to deploy the required resources to enable the Scaling Tool. This tool should only be used when scaling plans are not available. It has been enhanced for zero-trust compliance and does not rely on AZ modules."
+            },
+            {
+              "name": "scalingSettings",
+              "label": "Scaling Tool Settings",
+              "type": "Microsoft.Common.Section",
+              "visible": "[steps('management').deployScalingTool]",
               "elements": [
-                {
-                  "name": "enable",
-                  "type": "Microsoft.Common.CheckBox",
-                  "visible": true,
-                  "label": "Enable scaling tool?",
-                  "defaultValue": false,
-                  "toolTip": "Choose whether to deploy the required resources to enable the Scaling Tool."
-                },
                 {
                   "name": "beginPeakTime",
                   "type": "Microsoft.Common.TextBox",
                   "label": "Begin Peak Time",
-                  "visible": "[steps('management').scaling.enable]",
                   "defaultValue": "8:00",
                   "placeholder": "",
                   "toolTip": "Input the time when peak hours begin for your end users.",
@@ -1200,7 +1191,6 @@
                   "name": "endPeakTime",
                   "type": "Microsoft.Common.TextBox",
                   "label": "End Peak Time",
-                  "visible": "[steps('management').scaling.enable]",
                   "defaultValue": "17:00",
                   "placeholder": "",
                   "toolTip": "Input the time when peak hours end for your end users.",
@@ -1218,7 +1208,6 @@
                   "name": "forceLogOff",
                   "type": "Microsoft.Common.TextBox",
                   "label": "Force Log Off (Seconds)",
-                  "visible": "[steps('management').scaling.enable]",
                   "defaultValue": "0",
                   "toolTip": "Use this setting to force logoff users if session time limit settings cannot be used.",
                   "placeholder": "",
@@ -1237,7 +1226,6 @@
                   "name": "minimumHosts",
                   "type": "Microsoft.Common.TextBox",
                   "label": "Minimum Number of Session Hosts",
-                  "visible": "[steps('management').scaling.enable]",
                   "defaultValue": "0",
                   "toolTip": "Use this setting to determine the minimum number of sessions hosts to keep online.",
                   "placeholder": "",
@@ -1256,7 +1244,6 @@
                   "name": "cpuThreshold",
                   "type": "Microsoft.Common.TextBox",
                   "label": "Session Threshold Per CPU",
-                  "visible": "[steps('management').scaling.enable]",
                   "defaultValue": "1",
                   "toolTip": "Use this setting to determine the number of sessions per CPU before turning on another host.",
                   "placeholder": "",
@@ -1435,11 +1422,11 @@
                   "name": "functionAppSubnetAddressCidrRange",
                   "label": "Function App Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
-                  "visible": "[or(equals(steps('management').scaling.enable, true), equals(steps('profiles').storage.service, 'AzureFiles Premium'))]",
+                  "visible": "[or(equals(steps('management').deployScalingTool), equals(steps('profiles').storage.service, 'AzureFiles Premium'))]",
                   "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.128/26')]",
                   "toolTip": "Specify a CIDR range for the Function App subnet within the AVD spoke virtual network range [24,28] for the Scaling Tool and / or the Auto Increase Premium File Share Qutoa tool.",
                   "constraints": {
-                    "required": false,
+                    "required": true,
                     "validations": [
                       {
                         "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
@@ -1498,7 +1485,7 @@
                   "name": "emailSecurityContact",
                   "type": "Microsoft.Common.TextBox",
                   "label": "Email Address for Security Notifications",
-                  "defaultValue": "[steps('basics').virtualNetworkApi.location]",
+                  "defaultValue": "",
                   "toolTip": "Please enter a valid email address for the security team.",
                   "constraints": {
                     "required": true,
@@ -1669,7 +1656,7 @@
         "enablePartnerTelemetry": "[steps('basics').scenario.enablePartnerTelemetry]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
         "existingActiveDirectoryConnection": "[steps('profiles').storage.existingSharedActiveDirectoryConnection]",
-        "existingFeedWorkspaceResourceId": "[first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').virtualNetworkApi.location))), (item) => item.id))]",
+        "existingFeedWorkspaceResourceId": "[first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))), (item) => item.id))]",
         "fslogixShareSizeInGB": "[if(equals(steps('profiles').profileSolution, 'local'), 100, steps('profiles').storage.fileShareSize)]",
         "fslogixContainerType": "[steps('profiles').storage.fslogixContainerType]",
         "fslogixStorageService": "[if(equals(steps('profiles').profileSolution, 'local'), 'None', steps('profiles').storage.service)]",
@@ -1693,12 +1680,12 @@
         "policy": "[steps('compliance').policySection.policy]",
         "profile": "[steps('basics').scenario.profile]",
         "recoveryServices": "[steps('management').backup.recoveryServices]",
-        "scalingBeginPeakTime": "[if(steps('management').scaling.enable, steps('management').scaling.beginPeakTime, '9:00')]",
-        "scalingEndPeakTime": "[if(steps('management').scaling.enable, steps('management').scaling.endPeakTime, '17:00')]",
-        "scalingLimitSecondsToForceLogOffUser": "[if(steps('management').scaling.enable, steps('management').scaling.forceLogOff, '0')]",
-        "scalingMinimumNumberOfRdsh": "[if(steps('management').scaling.enable, steps('management').scaling.minimumHosts, '0')]",
-        "scalingSessionThresholdPerCPU": "[if(steps('management').scaling.enable, steps('management').scaling.cpuThreshold, '1')]",
-        "scalingTool": "[steps('management').scaling.enable]",
+        "scalingBeginPeakTime": "[steps('management').scalingSettings.beginPeakTime]",
+        "scalingEndPeakTime": "[steps('management').scalingSettings.endPeakTime]",
+        "scalingLimitSecondsToForceLogOffUser": "[steps('management').scalingSettings.forceLogOff]",
+        "scalingMinimumNumberOfRdsh": "[steps('management').scalingSettings.minimumHosts]",
+        "scalingSessionThresholdPerCPU": "[steps('management').scalingSettings.cpuThreshold]",
+        "scalingTool": "[steps('management').deployScalingTool]",
         "securityPrincipals": "[if(empty(steps('controlPlane').groupsApi), steps('controlPlane').assignment.groupsGrid, steps('controlPlane').assignment.groupsDropDown)]",
         "sessionHostCount": "[steps('hosts').virtualMachines.count]",
         "sessionHostIndex": 0,
@@ -1715,8 +1702,8 @@
         "virtualMachineUsername": "[steps('hosts').localAdminCredentials.username]",
         "virtualMachineVirtualCpuCount": "[first(map(filter(first(map(filter(steps('basics').scenario.virtualMachineSkusApi.value, (item) => equals(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))]",
         "virtualNetworkAddressPrefixes": "[parse(concat('[\"', steps('network').vnet.virtualNetworkAddressCidrRange, '\"]'))]",
-        "workspaceFriendlyName": "[steps('controlPlane').friendlyNames.workspace]",
-        "workspacePublicNetworkAccess": "[steps('controlPlane').workspace.publicNetworkAccess]"
+        "workspaceFriendlyName": "[if(empty(first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))), (item) => item.id))), steps('controlPlane').friendlyNames.workspace, first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))), (item) => item.properties.friendlyName)))]",
+        "workspacePublicNetworkAccess": "[if(empty(first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))), (item) => item.id))), steps('controlPlane').workspace.publicNetworkAccess, first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))), (item) => item.properties.publicNetworkAccess)))]"
       },
       "kind": "Subscription",
       "location": "[steps('basics').scope.location.name]",
