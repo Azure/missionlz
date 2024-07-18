@@ -14,7 +14,7 @@ $WarningPreference = 'SilentlyContinue'
 Start-Sleep -Seconds 30
 
 # Fix the resource manager URI since only AzureCloud contains a trailing slash
-$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}
+$ResourceManagerUriFixed = if ($ResourceManagerUri[-1] -eq '/') {$ResourceManagerUri} else {$ResourceManagerUri + '/'}
 
 # Get an access token for Azure resources
 $AzureManagementAccessToken = (Invoke-RestMethod `
