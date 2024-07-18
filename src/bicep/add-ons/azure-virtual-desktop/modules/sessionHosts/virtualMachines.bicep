@@ -306,7 +306,7 @@ resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAss
 
 module setSessionHostConfiguration '../common/runCommand.bicep' = [
   for i in range(0, sessionHostCount): {
-    name: 'deploy-run-command-${batchCount}-${i}-${deploymentNameSuffix}'
+    name: 'set-config-${batchCount}-${i}-${deploymentNameSuffix}'
     params: {
       location: location
       name: 'Set-SessionHostConfiguration'
