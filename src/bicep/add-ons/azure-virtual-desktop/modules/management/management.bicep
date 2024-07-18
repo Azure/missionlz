@@ -51,11 +51,6 @@ var hostPoolName = namingConvention.hostPool
 var roleAssignments = union(
   [
     {
-      roleDefinitionId: 'f353d9bd-d4a6-484e-a77a-8050b599b867' // Automation Contributor (Purpose: adds runbook to automation account)
-      resourceGroup: resourceGroupManagement
-      subscription: subscription().subscriptionId
-    }
-    {
       roleDefinitionId: '86240b0e-9422-4c43-887b-b61143f32ba8' // Desktop Virtualization Application Group Contributor (Purpose: updates the friendly name for the desktop)
       resourceGroup: resourceGroupControlPlane
       subscription: subscription().subscriptionId
@@ -277,7 +272,7 @@ output dataCollectionRuleResourceId string = enableMonitoring ? monitoring.outpu
 output deploymentUserAssignedIdentityClientId string = deploymentUserAssignedIdentity.outputs.clientId
 output deploymentUserAssignedIdentityPrincipalId string = deploymentUserAssignedIdentity.outputs.principalId
 output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedIdentity.outputs.resourceId
-output functionAppName string = functionApp.outputs.functionAppName
+output functionAppName string = scalingTool || fslogixStorageService == 'AzureFiles Premium' ? functionApp.outputs.functionAppName : ''
 output logAnalyticsWorkspaceName string = enableMonitoring ? monitoring.outputs.logAnalyticsWorkspaceName : ''
 output logAnalyticsWorkspaceResourceId string = enableMonitoring
   ? monitoring.outputs.logAnalyticsWorkspaceResourceId
