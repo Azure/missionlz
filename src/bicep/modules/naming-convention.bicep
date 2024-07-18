@@ -18,7 +18,7 @@ param tokens object = {
 }
 
 var locations = loadJsonContent('../data/locations.json')[environment().name]
-var locationAbbreviation = locations[location]
+var locationAbbreviation = locations[location].abbreviation
 var resourceAbbreviations = loadJsonContent('../data/resourceAbbreviations.json')
 
 /*
