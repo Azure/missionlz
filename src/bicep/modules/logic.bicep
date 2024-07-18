@@ -50,7 +50,7 @@ module privateDnsZones 'private-dns-zones.bicep' = {
   }
 }
 
-output locationProperties object = namingConventions[0].outputs.locations
+output locationProperties object = namingConventions[0].outputs.locations[location]
 output mlzTags object = mlzTags
 output privateDnsZones array = privateDnsZones.outputs.names
 output resourceAbbreviations object = namingConventions[0].outputs.resourceAbbreviations
