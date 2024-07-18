@@ -372,14 +372,18 @@ var subnets = {
   avdControlPlane: [
     {
       name: 'AvdControlPlane'
-      addressPrefix: subnetAddressPrefixes[1]
+      properties: {
+        addressPrefix: subnetAddressPrefixes[1]
+      }
     }
   ]
   azureNetAppFiles: contains(fslogixStorageService, 'AzureNetAppFiles') && !empty(azureNetAppFilesSubnetAddressPrefix)
     ? [
         {
           name: 'AzureNetAppFiles'
-          addressPrefix: azureNetAppFilesSubnetAddressPrefix
+          properties: {
+            addressPrefix: azureNetAppFilesSubnetAddressPrefix
+          }
         }
       ]
     : []
@@ -387,7 +391,9 @@ var subnets = {
     ? [
         {
           name: 'FunctionAppOutbound'
-          addressPrefix: functionAppSubnetAddressPrefix
+          properties: {
+            addressPrefix: functionAppSubnetAddressPrefix
+          }
         }
       ]
     : []
@@ -443,12 +449,12 @@ module naming_hub '../../modules/naming-convention.bicep' = {
 }
 
 module tier3_hosts '../tier3/solution.bicep' = {
-  name: 'deploy-tier3-avd-hosts-${deploymentNameSuffix}'
+  name: 'deploy-tier3-avd-${deploymentNameSuffix}'
   params: {
-    additionalSubnets: union(subnets.azureNetAppFiles, subnets.functionApp)
+    additionalSubnets: union(subnets.avdControlPlane, subnets.azureNetAppFiles, subnets.functionApp)
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
-    deploymentNameSuffix: 'hosts-${deploymentNameSuffix}'
+    deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcher: deployNetworkWatcher
     deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
@@ -459,11 +465,11 @@ module tier3_hosts '../tier3/solution.bicep' = {
     location: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     policy: policy
-    stampIndex: string(stampIndex) // This is used to keep resource names unique across multiple AVD stamps within the same business unit or project.
+    stampIndex: string(stampIndex)
     subnetName: 'AvdSessionHosts'
-    subnetAddressPrefix: subnetAddressPrefixes[1]
+    subnetAddressPrefix: subnetAddressPrefixes[0]
     tags: tags
-    virtualNetworkAddressPrefix: virtualNetworkAddressPrefixes[1]
+    virtualNetworkAddressPrefix: virtualNetworkAddressPrefixes[0]
     workloadName: 'avd'
     workloadShortName: 'avd'
   }
@@ -515,7 +521,7 @@ module management 'modules/management/management.bicep' = {
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupHosts: rgs[1].outputs.name
     resourceGroupManagement: rgs[2].outputs.name
-    resourceGroupStorage: deployFslogix ? rgs[3].outputs.name : ''
+    resourceGroupStorage: deployFslogix ? replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, 'storage') : ''
     roleDefinitions: roleDefinitions
     scalingBeginPeakTime: scalingBeginPeakTime
     scalingEndPeakTime: scalingEndPeakTime
@@ -637,18 +643,8 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     monitoring: monitoring
     namingConvention: naming_controlPlane.outputs.names
     resourceAbbreviations: naming_controlPlane.outputs.resourceAbbreviations
-    resourceGroups: union(
-      [
-        rgs[0].outputs.name // controlPlane
-        rgs[1].outputs.name // hosts
-        rgs[2].outputs.name // management
-      ],
-      deployFslogix
-        ? [
-            rgs[3].outputs.name // storage
-          ]
-        : []
-    )
+    resourceGroupControlPlane: rgs[0].outputs.name
+    resourceGroupManagement: rgs[2].outputs.name
     roleDefinitions: roleDefinitions
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: naming_controlPlane.outputs.tokens.service
