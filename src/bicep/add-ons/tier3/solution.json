@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "6232925808989504535"
+      "templateHash": "5689616392926594908"
     }
   },
   "parameters": {
@@ -282,7 +282,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "1411929525657730214"
+              "templateHash": "12977283954248745263"
             }
           },
           "parameters": {
@@ -365,7 +365,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.28.1.47646",
-                      "templateHash": "15836796359857375039"
+                      "templateHash": "5529589761809982369"
                     }
                   },
                   "parameters": {
@@ -826,7 +826,7 @@
                       "workspaces": "vdws"
                     },
                     "locations": "[variables('$fxv#0')[environment().name]]",
-                    "locationAbbreviation": "[variables('locations')[parameters('location')]]",
+                    "locationAbbreviation": "[variables('locations')[parameters('location')].abbreviation]",
                     "resourceAbbreviations": "[variables('$fxv#1')]",
                     "namingConvention": "[format('{0}-{1}{2}-{3}-{4}-{5}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('networkName'), parameters('environmentAbbreviation'), variables('locationAbbreviation'))]",
                     "namingConvention_Service": "[format('{0}-{1}{2}-{3}-{4}-{5}-{6}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('tokens').service, parameters('networkName'), parameters('environmentAbbreviation'), variables('locationAbbreviation'))]",
@@ -1014,7 +1014,7 @@
           "outputs": {
             "locationProperties": {
               "type": "object",
-              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-convention-{0}-{1}', parameters('networks')[0].shortName, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locations.value]"
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-convention-{0}-{1}', parameters('networks')[0].shortName, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locations.value[parameters('location')]]"
             },
             "mlzTags": {
               "type": "object",
