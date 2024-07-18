@@ -31,7 +31,8 @@ param mlzTags object
 param monitoring bool
 param namingConvention object
 param resourceAbbreviations object
-param resourceGroups array
+param resourceGroupControlPlane string
+param resourceGroupManagement string
 param roleDefinitions object
 param securityPrincipalObjectIds array
 param serviceToken string
@@ -52,8 +53,6 @@ var galleryImageSku = empty(imageVersionResourceId) ? '"${imageSku}"' : 'null'
 var galleryItemId = empty(imageVersionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : 'null'
 var hostPoolName = namingConvention.hostPool
 var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
-var resourceGroupControlPlane = resourceGroups[0]
-var resourceGroupManagement = resourceGroups[2]
 
 module hostPool 'hostPool.bicep' = {
   name: 'deploy-vdpool-${deploymentNameSuffix}'
