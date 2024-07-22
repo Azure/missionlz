@@ -546,6 +546,13 @@ var networks = union([
   }
 ] : [])
 
+// ENCRYPTION AT HOST
+
+// resource registerEncryptionAtHost 'Microsoft.Features/featureProviders/subscriptionFeatureRegistrations@2021-07-01' = {
+//   name: 'Microsoft.Compute/EncryptionAtHost'
+// }
+
+
 // LOGIC FOR DEPLOYMENTS
 
 module logic 'modules/logic.bicep' = {
@@ -693,6 +700,7 @@ module remoteAccess 'modules/remote-access.bicep' = {
     }
     dependsOn: [
       monitoring
+      // registerEncryptionAtHost
     ]
   }
 
