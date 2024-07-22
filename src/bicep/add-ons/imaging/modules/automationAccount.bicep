@@ -73,6 +73,7 @@ param wsusServer string
 
 var parameters = {
   arcGisProInstaller: arcGisProInstaller
+  computeGalleryImageResourceId: computeGalleryImageResourceId
   computeGalleryResourceId: computeGalleryResourceId
   containerName: containerName
   customizations: string(customizations)
@@ -111,7 +112,7 @@ var parameters = {
   officeInstaller: officeInstaller
   replicaCount: string(replicaCount)
   resourceGroupName: resourceGroupName
-  computeGalleryImageResourceId: computeGalleryImageResourceId
+  resourceManagerUri: environment().resourceManager
   sourceImageType: sourceImageType
   storageAccountResourceId: storageAccountResourceId
   subnetResourceId: subnetResourceId
@@ -131,7 +132,6 @@ var parameters = {
 }
 var privateEndpointName = 'pe-${automationAccountName}'
 var runbookName = 'New-AzureZeroTrustImageBuild'
-var storageEndpoint = environment().suffixes.storage
 var subscriptionId = subscription().subscriptionId
 var tenantId = subscription().tenantId
 
@@ -205,7 +205,21 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   }
 }
 
-resource runCommand 'Microsoft.Compute/virtualMachines/runCommands@2023-07-01' = {
+resource runBook 'Microsoft.Automation/automationAccounts/runbooks@2023-11-01' = {
+  parent: automationAccount
+  name: runbookName
+  properties: {
+    runbookType: 'PowerShell'
+    logProgress: true
+    logVerbose: true
+  }
+  tags: union(
+    contains(tags, 'Microsoft.Automation/automationAccounts/runbooks') ? tags['Microsoft.Automation/automationAccounts/runbooks'] : {},
+    mlzTags
+  )
+}
+
+resource updateRunBook 'Microsoft.Compute/virtualMachines/runCommands@2023-07-01' = {
   name: 'runbook'
   location: location
   tags: union(
@@ -218,96 +232,57 @@ resource runCommand 'Microsoft.Compute/virtualMachines/runCommands@2023-07-01' =
     asyncExecution: false
     parameters: [
       {
-        name: 'AutomationAccountName'
-        value: automationAccountName
+        name: 'RunBookResourceId'
+        value: runBook.id
       }
       {
-        name: 'ContainerName'
-        value: containerName
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
       }
       {
-        name: 'Environment'
-        value: environment().name
-      }
-      {
-        name: 'ResourceGroupName'
-        value: resourceGroup().name
-      }
-      {
-        name: 'RunbookName'
-        value: runbookName
-      }
-      {
-        name: 'StorageAccountName'
-        value: split(storageAccountResourceId, '/')[8]
-      }
-      {
-        name: 'StorageEndpoint'
-        value: storageEndpoint
-      }
-      {
-        name: 'SubscriptionId'
-        value: subscription().subscriptionId
-      }
-      {
-        name: 'TenantId'
-        value: tenant().tenantId
+        name: 'RunbBookScriptContent'
+        value: loadTextContent('../scripts/New-AzureZeroTrustImageBuild.ps1')
       }
       {
         name: 'UserAssignedIdentityClientId'
         value: userAssignedIdentityClientId
       }
-      {
-        name: 'UserAssignedIdentityObjectId'
-        value: userAssignedIdentityPrincipalId
-      }
     ]
     source: {
       script: '''
-        param (
-          [string]$AutomationAccountName,
-          [string]$ContainerName,
-          [string]$Environment,
-          [string]$ResourceGroupName,
-          [string]$RunbookName,
-          [string]$StorageAccountName,
-          [string]$StorageEndpoint,
-          [string]$SubscriptionId,
-          [string]$TenantId,
-          [string]$UserAssignedIdentityClientId,
-          [string]$UserAssignedIdentityObjectId
+        param(
+            [string]$ResourceManagerUri,
+            [string]$RunBookResourceId,
+            [string]$RunBookScriptContent,
+            [string]$UserAssignedIdentityClientId
         )
         $ErrorActionPreference = 'Stop'
         $WarningPreference = 'SilentlyContinue'
-        $BlobName = 'New-AzureZeroTrustImageBuild.ps1'
-        $StorageAccountUrl = "https://" + $StorageAccountName + ".blob." + $StorageEndpoint + "/"
-        $TokenUri = "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId"
-        $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token
-        $File = "$env:windir\temp\$BlobName"
-        do
-        {
-            try
-            {
-                Write-Output "Download Attempt $i"
-                Invoke-WebRequest -Headers @{"x-ms-version"="2017-11-09"; Authorization ="Bearer $AccessToken"} -Uri "$StorageAccountUrl$ContainerName/$BlobName" -OutFile $File
+
+        Try {
+            # Fix the resource manager URI since only AzureCloud contains a trailing slash
+            $ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}
+
+            # Get an access token for Azure resources
+            $AzureManagementAccessToken = (Invoke-RestMethod `
+                -Headers @{Metadata="true"} `
+                -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token
+
+            # Set header for Azure Management API
+            $AzureManagementHeader = @{
+                'Content-Type'='application/json'
+                'Authorization'='Bearer ' + $AzureManagementAccessToken
             }
-            catch [System.Net.WebException]
-            {
-                Start-Sleep -Seconds 60
-                $i++
-                if($i -gt 10){throw}
-                continue
-            }
-            catch
-            {
-                $Output = $_ | select *
-                Write-Output $Output
-                throw
-            }
+
+            # Upload Content to Draft
+            Invoke-RestMethod -Headers $AzureManagementHeader -Method 'PUT' -Uri $($ResourceManagerUriFixed + $RunBookResourceId + '/draft/content?api-version=2023-11-01') -Body $RunBookScriptContent
+
+            # Publish the RunBook
+            Invoke-RestMethod -Headers $AzureManagementHeader -Method 'POST' -Uri $($ResourceManagerUriFixed + $RunBookResourceId + '/publish?api-version=2023-11-01')
         }
-        until(Test-Path -Path $File)
-        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null
-        Import-AzAutomationRunbook -Name $RunbookName -Path $File -Type PowerShell -AutomationAccountName $AutomationAccountName -ResourceGroupName $ResourceGroupName -Published -Force | Out-Null
+        catch {
+            throw
+        }
       '''
     }
   }
@@ -341,7 +316,7 @@ resource jobSchedule 'Microsoft.Automation/automationAccounts/jobSchedules@2022-
     }
   }
   dependsOn: [
-    runCommand
+    updateRunBook
   ]
 }
 
@@ -371,7 +346,7 @@ resource hybridRunbookWorker 'Microsoft.Automation/automationAccounts/hybridRunb
     vmResourceId: virtualMachine.id
   }
   dependsOn: [
-    runCommand
+    updateRunBook
   ]
 }
 
@@ -391,7 +366,7 @@ resource extension_HybridWorker 'Microsoft.Compute/virtualMachines/extensions@20
     }
   }
   dependsOn: [
-    runCommand
+    updateRunBook
   ]
 }
 
@@ -420,6 +395,6 @@ resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/exte
     }
     dependsOn: [
       extension_HybridWorker
-      runCommand
+      updateRunBook
     ]
   }
