@@ -552,7 +552,6 @@ var networks = union([
 //   name: 'Microsoft.Compute/EncryptionAtHost'
 // }
 
-
 // LOGIC FOR DEPLOYMENTS
 
 module logic 'modules/logic.bicep' = {
