@@ -28,7 +28,7 @@ resource removeVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@202
     mlzTags
   )
   properties: {
-    treatFailureAsDeploymentFailure: true
+    treatFailureAsDeploymentFailure: false
     asyncExecution: enableBuildAutomation ? false : true
     parameters: [
       {
@@ -90,11 +90,11 @@ resource removeVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@202
             }
 
             # Delete Image VM
-            $null = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'DELETE' -Uri $($ResourceManagerUriFixed + $ImageVmResourceId + '?api-version=2024-03-01')
+            Invoke-RestMethod -Headers $AzureManagementHeader -Method 'DELETE' -Uri $($ResourceManagerUriFixed + $ImageVmResourceId + '?api-version=2024-03-01')
             if($EnableBuildAutomation -eq 'false') {
-              # Delete the Management VM (Don't wait to prevent deployment failure.)
-              $ScriptBlock = {Invoke-RestMethod -Headers $AzureManagementHeader -Method 'DELETE' -Uri $($ResourceManagerUriFixed + $ManagementVmResourceId + '?api-version=2024-03-01')}
-              $null = Start-Job -ScriptBlock $ScriptBlock
+              # Wait 20 secs to make sure run command takes at least 20 secs to prevent failure.
+              Start-Sleep -Seconds 20
+              Invoke-RestMethod -Headers $AzureManagementHeader -Method 'DELETE' -Uri $($ResourceManagerUriFixed + $ManagementVmResourceId + '?api-version=2024-03-01')
             }
         }
         catch {
