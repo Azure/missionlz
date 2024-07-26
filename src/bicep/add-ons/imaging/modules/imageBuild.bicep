@@ -56,7 +56,7 @@ param storageAccountResourceId string
 param subnetResourceId string
 param tags object = {}
 param teamsInstaller string = ''
-param updateService string = 'MicrosoftUpdate'
+param updateService string = 'MU'
 param userAssignedIdentityClientId string
 param userAssignedIdentityPrincipalId string
 param userAssignedIdentityResourceId string
