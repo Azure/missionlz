@@ -65,64 +65,29 @@ param(
         $Arguments = $item.arguments
         Write-Host "Downloading $Installer from $BlobName"
         $BlobFileName = $BlobName.Split("/")[-1]
-        # Special case for VSIX files (.vsix and Install-Vsix scripts)
-        if ($BlobFileName -like ("*.vsix") -or $BlobFileName -like ("Install-Vsix.ps1") -or $BlobFileName -like ("Install-Vsix-All.ps1"))
+        New-Item -Path $env:windir\temp -Name $Installer -ItemType "directory" -Force
+        $InstallerDirectory = "$env:windir\temp\$Installer"
+        #Invoking WebClient to download blobs because it is more efficient than Invoke-WebRequest for large files.
+        $WebClient = New-Object System.Net.WebClient
+        $WebClient.Headers.Add('x-ms-version', '2017-11-09')
+        $webClient.Headers.Add("Authorization", "Bearer $AccessToken")
+        $webClient.DownloadFile("$StorageAccountUrl$ContainerName/$BlobName", "$InstallerDirectory\$BlobName")
+        Start-Sleep -Seconds 30
+        Set-Location -Path $env:windir\temp\$Installer
+        if($BlobName -like ("*.exe"))
         {
-          New-Item -Path $env:SystemDrive -Name 'VSCode' -ItemType "directory" -Force
-          New-Item -Path $env:SystemDrive\VSCode -Name 'extensions' -ItemType "directory" -Force
-          $InstallerDirectory = "$env:SystemDrive\VSCode\extensions"
-          Write-Host "VSIX related file path. Altering storage container copy to custom VS Code directory with user read and execute permissions"
-        }
-        else
-        {
-          New-Item -Path $env:windir\temp -Name $Installer -ItemType "directory" -Force
-          $InstallerDirectory = "$env:windir\temp\$Installer"
-        }
-        Write-Host "Setting file copy to install directory: $InstallerDirectory"
-
-        # Copy the file from the storage account - Special case for vsix files that need a recursive copy
-        if ($BlobFileName -notlike ("*.vsix"))
-        {
-          Write-Host "Invoking WebClient download for file : $BlobFileName"
-          #Invoking WebClient to download blobs because it is more efficient than Invoke-WebRequest for large files.
-          $WebClient = New-Object System.Net.WebClient
-          $WebClient.Headers.Add('x-ms-version', '2017-11-09')
-          $webClient.Headers.Add("Authorization", "Bearer $AccessToken")
-          $webClient.DownloadFile("$StorageAccountUrl$ContainerName$BlobName", "$InstallerDirectory\$BlobFileName")
-          Start-Sleep -Seconds 30
-        }
-        else
-        {
-          #BlobName is a comma delimited list of files to download - parse and download each file
-          $BlobNameList = $BlobName.Split(',')
-          Write-Host "Comma delimited list parsed from blob name: $BlobNameList"
-          foreach ($BlobNameItem in $BlobNameList)
-          {
-            $BlobFileName = $BlobNameItem.Split("/")[-1]
-            Write-Host "Iterating comma delimited list for blob item: $BlobNameItem"
-            Write-Host "Invoking WebClient download for file : $BlobFileName"
-            #Invoking WebClient to download blobs because it is more efficient than Invoke-WebRequest for large files.
-            $WebClient = New-Object System.Net.WebClient
-            $WebClient.Headers.Add('x-ms-version', '2017-11-09')
-            $webClient.Headers.Add("Authorization", "Bearer $AccessToken")
-            $webClient.DownloadFile("$StorageAccountUrl$ContainerName$BlobNameItem", "$InstallerDirectory\$BlobFileName")
-            Start-Sleep -Seconds 5
-          }
-        }
-        if($BlobFileName -like ("*.exe"))
-        {
-          Start-Process -FilePath $env:windir\temp\$Installer\$BlobFileName -ArgumentList $Arguments -NoNewWindow -Wait -PassThru
-          $wmistatus = Get-WmiObject -Class Win32_Product | Where-Object Name -like "*$($installer)*"
+          Start-Process -FilePath $env:windir\temp\$Installer\$BlobName -ArgumentList $Arguments -NoNewWindow -Wait -PassThru
+          $wmistatus = Get-WmiObject -Class Win32_Product | Where-Object Name -like "*$($Installer)*"
           if($wmistatus)
           {
             Write-Host $wmistatus.Name "is installed"
           }
-          $regstatus = Get-ItemProperty 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*' | Where-Object { $_.DisplayName -like "*$($installer)*" }
+          $regstatus = Get-ItemProperty 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*' | Where-Object { $_.DisplayName -like "*$($Installer)*" }
           if($regstatus)
           {
             Write-Host $regstatus.DisplayName "is installed"
           }
-          $regstatusWow6432 = Get-ItemProperty 'HKLM:\Software\WOW6432Node\*' | Where-Object { $_.PSChildName -like "*$($installer)*" }
+          $regstatusWow6432 = Get-ItemProperty 'HKLM:\Software\WOW6432Node\*' | Where-Object { $_.PSChildName -like "*$($Installer)*" }
           if($regstatusWow6432)
           {
             Write-Host $regstatusWow6432.PSChildName "is installed"
@@ -132,12 +97,10 @@ param(
             Write-host $Installer "did not install properly, please check arguments"
           }
         }
-        if($BlobFileName -like ("*.msi"))
+        if($BlobName -like ("*.msi"))
         {
-          Set-Location -Path $env:windir\temp\$Installer
-          $Path = (Get-ChildItem -Path "$env:windir\temp\$Installer\$BlobFileName" -Recurse | Where-Object {$_.Name -eq "$BlobFileName"}).FullName  
+          $Path = (Get-ChildItem -Path "$env:windir\temp\$Installer\$BlobName" -Recurse | Where-Object {$_.Name -eq "$BlobName"}).FullName  
           Write-Host "Invoking msiexec.exe for install path : $Path"
-          #NOTE: Must include the package/i path for the full msi installer file path
           Start-Process -FilePath msiexec.exe -ArgumentList "/i $Path $Arguments" -Wait
           $status = Get-WmiObject -Class Win32_Product | Where-Object Name -like "*$($installer)*"
           if($status)
@@ -149,42 +112,21 @@ param(
             Write-host $Installer "did not install properly, please check arguments"
           }
         }
-        if($BlobFileName -like ("*.bat"))
+        if($BlobName -like ("*.bat"))
         {
-          Set-Location -Path $env:windir\temp\$Installer
           Start-Process -FilePath cmd.exe -ArgumentList $env:windir\temp\$Installer\$Arguments -Wait
         }
-        if($BlobFileName -like ("*.ps1"))
+        if($BlobName -like ("*.ps1") -and $BlobName -notlike ("Install-BundleSoftware.ps1"))
         {
-          if($BlobFileName -like ("Install-Vsix.ps1") -or $BlobFileName -like ("Install-Vsix-All.ps1"))
-          {
-            Set-Location -Path $env:SystemDrive\VSCode\extensions
-            #NOTE: This is a manual script to run on user first time logon - do not run it as system
-          }
-          elseif($BlobFileName -like ("Install-BundleSoftware.ps1"))
-          {
-            Set-Location -Path $env:windir\temp\$Installer
-            $Path = (Get-ChildItem -Path "$env:windir\temp\$Installer\$BlobFileName" -Recurse | Where-Object {$_.Name -eq "$BlobFileName"}).FullName  
-            #Comment out to prevent loop
-            #Start-Process -FilePath PowerShell.exe -ArgumentList "-File $Path -UserAssignedIdentityObjectId $UserAssignedIdentityObjectId -StorageAccountName $StorageAccountName -ContainerName $ContainerName -StorageEndpoint $StorageEndpoint $Arguments" -Wait
-          }
-          else
-          {
-            Set-Location -Path $env:windir\temp\$Installer
-            $Path = (Get-ChildItem -Path "$env:windir\temp\$Installer\$BlobFileName" -Recurse | Where-Object {$_.Name -eq "$BlobFileName"}).FullName  
-            Start-Process -FilePath PowerShell.exe -ArgumentList "-File $Path $Arguments" -Wait
-          }
+          $Path = (Get-ChildItem -Path "$env:windir\temp\$Installer\$BlobName" -Recurse | Where-Object {$_.Name -eq "$BlobName"}).FullName  
+          Start-Process -FilePath PowerShell.exe -ArgumentList "-File $Path $Arguments" -Wait
         }
-        if($BlobFileName -like ("*.zip"))
+        if($BlobName -like ("*.zip"))
         {
-          Set-Location -Path $env:windir\temp\$Installer
-          Expand-Archive -Path $env:windir\temp\$Installer\$BlobFileName -DestinationPath $env:windir\temp\$Installer -Force
-          Remove-Item -Path .\$BlobFileName -Force -Recurse
+          Expand-Archive -Path $env:windir\temp\$Installer\$BlobName -DestinationPath $env:windir\temp\$Installer -Force
+          Remove-Item -Path .\$BlobName -Force -Recurse
         }
-        
-        #NOTE: Verify customers that are expected to persist for future users (ex. VSIX files ands scripts) are not removed
-        #Write-Host "Removing $Installer Files"
-        #Start-Sleep -Seconds 5
-        #Remove-item $env:windir\temp\$Installer -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue
+        Write-Host "Removing $Installer Files"
+        Remove-item $env:windir\temp\$Installer -Force -Recurse -Confirm:$false
     }
 }
