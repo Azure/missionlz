@@ -120,6 +120,7 @@ resource applications 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01'
         $webClient.DownloadFile("$StorageAccountUrl$ContainerName/$BlobName", "$InstallerDirectory\$BlobName")
         Start-Sleep -Seconds 30
         Set-Location -Path $env:windir\temp\$Installer
+        $Path = (Get-ChildItem -Path "$env:windir\temp\$Installer\$BlobName" -Recurse | Where-Object {$_.Name -eq "$BlobName"}).FullName  
         if($BlobName -like ("*.exe"))
         {
           Start-Process -FilePath $env:windir\temp\$Installer\$BlobName -ArgumentList $Arguments -NoNewWindow -Wait -PassThru
@@ -145,7 +146,6 @@ resource applications 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01'
         }
         if($BlobName -like ("*.msi"))
         {
-          $Path = (Get-ChildItem -Path "$env:windir\temp\$Installer\$BlobName" -Recurse | Where-Object {$_.Name -eq "$BlobName"}).FullName  
           Write-Host "Invoking msiexec.exe for install path : $Path"
           Start-Process -FilePath msiexec.exe -ArgumentList "/i $Path $Arguments" -Wait
           $status = Get-WmiObject -Class Win32_Product | Where-Object Name -like "*$($installer)*"
@@ -164,7 +164,6 @@ resource applications 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01'
         }
         if($BlobName -like ("*.ps1"))
         {
-          $Path = (Get-ChildItem -Path "$env:windir\temp\$Installer\$BlobName" -Recurse | Where-Object {$_.Name -eq "$BlobName"}).FullName  
           Start-Process -FilePath PowerShell.exe -ArgumentList "-File $Path $Arguments" -Wait
         }
         if($BlobName -like ("*.zip"))
