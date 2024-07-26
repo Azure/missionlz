@@ -12,8 +12,15 @@ param computeGalleryImageResourceId string = ''
 @description('The name of the container in the storage account where the installer files are located.')
 param containerName string
 
-@description('The array of customizations to apply to the image.')
-param customizations array = []
+@description('The array of customizations to apply to the image. Limit of 25 runCommands per virtual machine applies. Depending on other features used, the limit may be lower.')
+param customizations array = [
+  {
+    name: 'InstallBundle'
+    blobName: 'Install-BundleSoftware.ps1'
+    arguments: '-BundleManifestBlob bundlemanifest.json'
+    enabled: false
+  }
+]
 
 @description('Choose whether to deploy a diagnostic setting for the Activity Log.')
 param deployActivityLogDiagnosticSetting bool = false
@@ -78,6 +85,9 @@ param imageDefinitionNamePrefix string
 
 @description('The major version for the name of the image version resource.')
 param imageMajorVersion int
+
+@description('The minor version for the name of the image version resource.')
+param imageMinorVersion int
 
 @description('The patch version for the name of the image version resource.')
 param imagePatchVersion int
@@ -285,7 +295,7 @@ module baseline 'modules/baseline.bicep' = {
     exemptPolicyAssignmentIds: exemptPolicyAssignmentIds
     location: location
     mlzTags: tier3.outputs.mlzTags
-    resourceGroupName: tier3.outputs.namingConvention.resourceGroup
+    resourceGroupName: tier3.outputs.resourceGroupName
     storageAccountResourceId: storageAccountResourceId
     subscriptionId: subscriptionId
     tags: tags
@@ -315,6 +325,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     hybridUseBenefit: hybridUseBenefit
     imageDefinitionName: imageDefinitionName
     imageMajorVersion: imageMajorVersion
+    imageMinorVersion: imageMinorVersion
     imagePatchVersion: imagePatchVersion
     imageVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'b')
     installAccess: installAccess
@@ -332,7 +343,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     installVirtualDesktopOptimizationTool: installVirtualDesktopOptimizationTool
     installVisio: installVisio
     installWord: installWord
-    keyVaultName: tier3.outputs.namingConvention.keyVault
+    keyVaultName: tier3.outputs.keyVaultName
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     localAdministratorPassword: localAdministratorPassword
     localAdministratorUsername: localAdministratorUsername
@@ -347,7 +358,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     officeInstaller: officeInstaller
     oUPath: oUPath
     replicaCount: replicaCount
-    resourceGroupName: tier3.outputs.namingConvention.resourceGroup
+    resourceGroupName: tier3.outputs.resourceGroupName
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnetResourceId
@@ -381,6 +392,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     hybridUseBenefit: hybridUseBenefit
     imageDefinitionName: imageDefinitionName
     imageMajorVersion: imageMajorVersion
+    imageMinorVersion: imageMinorVersion
     imagePatchVersion: imagePatchVersion
     imageVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'b')
     installAccess: installAccess
@@ -410,7 +422,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     replicaCount: replicaCount
-    resourceGroupName: tier3.outputs.namingConvention.resourceGroup
+    resourceGroupName: tier3.outputs.resourceGroupName
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnetResourceId
