@@ -59,7 +59,7 @@ param(
   
   foreach ($item in $Bundle) {
   
-    If ($true -eq $item.Enabled) {
+    If($true -eq $item.Enabled) {
         $Installer = $item.name
         $BlobName = $item.blobName
         $Arguments = $item.arguments
@@ -67,17 +67,19 @@ param(
         $BlobFileName = $BlobName.Split("/")[-1]
         New-Item -Path $env:windir\temp -Name $Installer -ItemType "directory" -Force
         $InstallerDirectory = "$env:windir\temp\$Installer"
+        Write-Host "Setting file copy to install directory: $InstallerDirectory"
+        Set-Location -Path $InstallerDirectory
+        Write-Host "Invoking WebClient download for file : $BlobFileName"
         #Invoking WebClient to download blobs because it is more efficient than Invoke-WebRequest for large files.
         $WebClient = New-Object System.Net.WebClient
         $WebClient.Headers.Add('x-ms-version', '2017-11-09')
         $webClient.Headers.Add("Authorization", "Bearer $AccessToken")
         $webClient.DownloadFile("$StorageAccountUrl$ContainerName/$BlobName", "$InstallerDirectory\$BlobName")
         Start-Sleep -Seconds 30
-        Set-Location -Path $env:windir\temp\$Installer
-        $Path = (Get-ChildItem -Path "$env:windir\temp\$Installer\$BlobName" -Recurse | Where-Object {$_.Name -eq "$BlobName"}).FullName  
+        $Path = (Get-ChildItem -Path "$InstallerDirectory\$BlobName" -Recurse | Where-Object {$_.Name -eq "$BlobName"}).FullName  
         if($BlobName -like ("*.exe"))
         {
-          Start-Process -FilePath $env:windir\temp\$Installer\$BlobName -ArgumentList $Arguments -NoNewWindow -Wait -PassThru
+          Start-Process -FilePath $InstallerDirectory\$BlobName -ArgumentList $Arguments -NoNewWindow -Wait -PassThru
           $wmistatus = Get-WmiObject -Class Win32_Product | Where-Object Name -like "*$($Installer)*"
           if($wmistatus)
           {
@@ -114,7 +116,7 @@ param(
         }
         if($BlobName -like ("*.bat"))
         {
-          Start-Process -FilePath cmd.exe -ArgumentList $env:windir\temp\$Installer\$Arguments -Wait
+          Start-Process -FilePath cmd.exe -ArgumentList $InstallerDirectory\$Arguments -Wait
         }
         if($BlobName -like ("*.ps1") -and $BlobName -notlike ("Install-BundleSoftware.ps1"))
         {
@@ -122,10 +124,11 @@ param(
         }
         if($BlobName -like ("*.zip"))
         {
-          Expand-Archive -Path $env:windir\temp\$Installer\$BlobName -DestinationPath $env:windir\temp\$Installer -Force
+          Expand-Archive -Path $InstallerDirectory\$BlobName -DestinationPath $InstallerDirectory -Force
           Remove-Item -Path .\$BlobName -Force -Recurse
         }
         Write-Host "Removing $Installer Files"
-        Remove-item $env:windir\temp\$Installer -Force -Recurse -Confirm:$false
+        Start-Sleep -Seconds 5
+        Remove-item $InstallerDirectory -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue
     }
 }
