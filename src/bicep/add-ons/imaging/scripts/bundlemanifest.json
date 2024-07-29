@@ -1,0 +1,32 @@
+[
+    {
+        "name": "Git",
+        "blobName": "Git-2.45.2-64-bit.exe",
+        "arguments": "/NORESTART /VERYSILENT /SUPPRESSMSGBOXES /FORCECLOSEAPPLICATIONS",
+        "enabled": false
+    },
+    {
+        "name": "VSCode",
+        "blobName": "VSCodeSetup-x64-1.91.1.exe",
+        "arguments": "/NORESTART /VERYSILENT /SUPPRESSMSGBOXES /MERGETASKS=!runcode",
+        "enabled": false
+    },
+    {
+        "name": "ScreenCaptureProtection",
+        "blobName": "Set-ScreenCaptureProtection.ps1",
+        "arguments": "",
+        "enabled": false
+    },
+    {
+        "name": "AzureStorageExplorer",
+        "blobName": "StorageExplorer-windows-x64.exe",
+        "arguments": "/NORESTART /VERYSILENT /SUPPRESSMSGBOXES /FORCECLOSEAPPLICATIONS /ALLUSERS",
+        "enabled": false
+    },
+    {
+        "name": "AzureCLI",
+        "blobName": "azure-cli-2.62.0-x64.msi",
+        "arguments": "/quiet /norestart",
+        "enabled": false
+    }
+]

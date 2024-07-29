@@ -23,6 +23,7 @@ param excludeFromLatest bool
 param hybridUseBenefit bool
 param imageDefinitionName string
 param imageMajorVersion int
+param imageMinorVersion int
 param imagePatchVersion int
 param imageVirtualMachineName string
 param installAccess bool
@@ -83,6 +84,7 @@ var parameters = {
   hybridUseBenefit: hybridUseBenefit
   imageDefinitionName: imageDefinitionName
   imageMajorVersion: string(imageMajorVersion)
+  imageMinorVersion: string(imageMinorVersion)
   imagePatchVersion: string(imagePatchVersion)
   imageVirtualMachineName: imageVirtualMachineName
   installAccess: string(installAccess)
