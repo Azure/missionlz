@@ -364,26 +364,28 @@ param linuxVmAuthenticationType string = 'password'
 @minLength(12)
 param linuxVmAdminPasswordOrKey string = deployLinuxVirtualMachine ? '' : newGuid()
 
-@description('The size of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Standard_B2s".')
-param linuxVmSize string = 'Standard_B2s'
-
 @description('The disk creation option of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".')
 param linuxVmOsDiskCreateOption string = 'FromImage'
 
 @description('The disk type of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Standard_LRS".')
 param linuxVmOsDiskType string = 'Standard_LRS'
 
-@description('The image publisher of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Canonical".')
-param linuxVmImagePublisher string = 'Canonical'
-
-@description('The image offer of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "UbuntuServer".')
-param linuxVmImageOffer string = '0001-com-ubuntu-server-focal'
-
-@description('The image SKU of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "18.04-LTS".')
-param linuxVmImageSku string = '20_04-lts-gen2'
-
-@description('The image version of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "latest".')
-param linuxVmImageVersion string = 'latest'
+@allowed([
+  'Canonical for Ubuntu'
+  'RedHat'
+  'Debian'
+])
+@description('[Canonical for Ubuntu/RedHat/Debian] The available Linux Publishers')
+param linuxVmImagePublisher string = 'Canonical for Ubuntu'
+@allowed([
+  'Ubuntu'
+  'RHEL'
+  'Debian-12'
+])
+@description('[Ubuntu/RHEL/Debian-12] The available Linux Offers')
+param linuxVmImageOffer string = 'Ubuntu'
+param linuxVmImageSku string
+param linuxVmSize string = 'Standard_D2s_v3'
 
 @allowed([
   'Static'
@@ -665,14 +667,13 @@ module remoteAccess 'modules/remote-access.bicep' = {
       linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
       linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
       linuxVmAdminUsername: linuxVmAdminUsername
-      linuxVmAuthenticationType: linuxVmAuthenticationType
-      linuxVmImageOffer: linuxVmImageOffer
       linuxVmImagePublisher: linuxVmImagePublisher
+      linuxVmImageOffer: linuxVmImageOffer
       linuxVmImageSku: linuxVmImageSku
-      linuxVmImageVersion: linuxVmImageVersion
+      linuxVmSize: linuxVmSize
+      linuxVmAuthenticationType: linuxVmAuthenticationType
       linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
       linuxVmOsDiskType: linuxVmOsDiskType
-      linuxVmSize: linuxVmSize
       location: location
       logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
       mlzTags: logic.outputs.mlzTags

@@ -25,10 +25,9 @@ param osDiskType string
 param privateIPAddressAllocationMethod string
 param subnetResourceId string
 param tags object
-param vmImageOffer string
 param vmImagePublisher string
+param vmImageOffer string
 param vmImageSku string
-param vmImageVersion string
 param vmSize string
 
 var linuxConfiguration = {
@@ -111,7 +110,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
         publisher: vmImagePublisher
         offer: vmImageOffer
         sku: vmImageSku
-        version: vmImageVersion
+        version: 'latest'
       }
     }
     licenseType: null
