@@ -53,13 +53,7 @@ var storageSubResources = [
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: replace(namingConvention.userAssignedIdentityName, serviceToken, service)
   location: location
-  tags: union(
-    {
-      'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-    },
-    contains(tags, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tags['Microsoft.ManagedIdentity/userAssignedIdentities'] : {},
-    mlzTags
-  )
+  tags: tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}
 }
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
@@ -74,7 +68,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: replace(namingConvention.keyVaultName, serviceToken, service)
   location: location
-  tags: contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}
+  tags: tags[?'Microsoft.KeyVault/vaults'] ?? {}
   properties: {
     enabledForDeployment: false
     enabledForDiskEncryption: false
@@ -101,7 +95,7 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
 resource privateEndpoint_vault 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: replace(namingConvention.keyVaultPrivateEndpoint, serviceToken, service)
   location: location
-  tags: contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}
+  tags: tags[?'Microsoft.Network/privateEndpoints'] ?? {}
   properties: {
     customNetworkInterfaceName: replace(namingConvention.keyVaultNetworkInterface, serviceToken, service)
     privateLinkServiceConnections: [
@@ -175,7 +169,7 @@ resource key_storageAccount 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: replace(namingConvention.storageAccountName, serviceToken, service)
   location: location
-  tags: contains(tags, 'Microsoft.Storage/storageAccounts') ? tags['Microsoft.Storage/storageAccounts'] : {}
+  tags: tags[?'Microsoft.Storage/storageAccounts'] ?? {}
   sku: {
     name: 'Standard_LRS'
   }
@@ -279,7 +273,7 @@ resource privateEndpoints_storage 'Microsoft.Network/privateEndpoints@2023-04-01
       '${resource}-${resourceAbbreviations.storageAccounts}-scale'
     )
     location: location
-    tags: contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}
+    tags: tags[?'Microsoft.Network/privateEndpoints'] ?? {}
     properties: {
       customNetworkInterfaceName: replace(
         namingConvention.storageAccountNetworkInterface,
@@ -353,7 +347,7 @@ resource diagnosticSetting_storage_blob 'Microsoft.Insights/diagnosticsettings@2
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: replace(namingConvention.applicationInsightsName, serviceToken, service)
   location: location
-  tags: contains(tags, 'Microsoft.Insights/components') ? tags['Microsoft.Insights/components'] : {}
+  tags: tags[?'Microsoft.Insights/components'] ?? {}
   properties: {
     Application_Type: 'web'
   }
@@ -373,7 +367,7 @@ module privateLinkScope '../management/privateLinkScope.bicep' = {
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   name: replace(namingConvention.appServicePlanName, serviceToken, service)
   location: location
-  tags: contains(tags, 'Microsoft.Web/serverfarms') ? tags['Microsoft.Web/serverfarms'] : {}
+  tags: tags[?'Microsoft.Web/serverfarms'] ?? {}
   sku: {
     tier: 'ElasticPremium'
     name: 'EP1'
@@ -394,7 +388,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
 resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
   name: replace(namingConvention.functionAppName, serviceToken, service)
   location: location
-  tags: contains(tags, 'Microsoft.Web/sites') ? tags['Microsoft.Web/sites'] : {}
+  tags: tags[?'Microsoft.Web/sites'] ?? {}
   kind: 'functionapp'
   identity: {
     type: 'SystemAssigned'
@@ -426,6 +420,10 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
           {
             name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
             value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${listKeys(storageAccount.id,'2019-06-01').keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
+          }
+          {
+            name: 'WEBSITE_CONTENTOVERVNET'
+            value: 1
           }
           {
             name: 'WEBSITE_CONTENTSHARE'
