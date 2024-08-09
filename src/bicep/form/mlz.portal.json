@@ -45,6 +45,13 @@
               ]
             },
             {
+              "name": "resourceScope",
+              "type": "Microsoft.Common.ResourceScope",
+              "location": {
+                "resourceTypes": []
+              }
+            },
+            {
               "name": "selectSubscriptions",
               "label": "Select Subscription(s)",
               "type": "Microsoft.Common.Section",
@@ -1121,6 +1128,49 @@
                   }
                 },
                 {
+                  "name": "windowsVmSku",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Windows Server Version",
+                  "toolTip": "Select the desired Windows Server Version.",
+                  "placeholder": "",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "multiLine": true,
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "2019",
+                        "value": "2019-datacenter-gensecond"
+		                  },
+		                  {
+		                    "label": "2022",
+                        "value": "2022-datacenter-g2"
+		                  }
+                    ]
+                  },
+                  "visible": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]"
+                },
+                {
+                  "name": "windowsVmSize",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select an appropriate VM Size",
+                  "recommendedSizes": [
+                    "Standard_D2s_v3",
+                    "Standard_E2s_v3"
+                  ],
+                  "options": {
+                    "hideDiskTypeFilter": false
+                  },
+                  "osPlatform": "Windows",
+                  "imageReference": {
+                    "publisher": "MicrosoftWindowsServer",
+                    "offer": "WindowsServer",
+                    "sku": "[steps('remoteAccess').windowsVmSection.windowsVmSku]"
+                  },
+                  "visible": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]"
+                },
+                {
                   "name": "windowsVmAdminUsername",
                   "type": "Microsoft.Compute.UserNameTextBox",
                   "label": "Username",
@@ -1243,7 +1293,8 @@
                   "request": {
                     "method": "GET",
                     "path": "[concat(steps('basics').hubSection.hubSubscriptionId, '/providers/Microsoft.Compute/locations/', steps('basics').locationSection.location.name, '/publishers/', steps('remoteAccess').linuxVmSection.linuxVmImagePublisher, '/artifactTypes/vmImage/offers/', steps('remoteAccess').linuxVmSection.linuxVmImageOffer, '/skus?api-version=2024-03-01')]"
-                  }
+                  },
+                  "visible": false
                 },
                 {
                   "name": "linuxVmImageSku",
@@ -1256,7 +1307,7 @@
                   "multiLine": true,
                   "constraints": {
                     "required": true,
-                    "allowedValues": "[map(steps('remoteAccess').linuxVmSection.skuApi, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]"
+                    "allowedValues": "[map(filter(steps('remoteAccess').linuxVmSection.skuApi, (item) => contains(item.name, 'gen2')), (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]"
                   },
                   "visible": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]"
                 },
@@ -1278,7 +1329,7 @@
                     "offer": "[steps('remoteAccess').linuxVmSection.linuxVmImageOffer]",
                     "sku": "[steps('remoteAccess').linuxVmSection.linuxVmImageSku]"
                   },
-                  "visible": true
+                  "visible": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]"
                 },
                 {
                   "name": "linuxVmAdminUsername",
@@ -1407,6 +1458,8 @@
         "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
         "sharedServicesVirtualNetworkAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange]",
         "tags": "[steps('tags').tags]",
+        "windowsVmSku": "[steps('remoteAccess').windowsVmSection.windowsVmSku]",
+        "windowsVmSize": "[steps('remoteAccess').windowsVmSection.windowsVmSize]",
         "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword.password]",
         "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]"
       }

@@ -371,12 +371,12 @@ param linuxVmOsDiskCreateOption string = 'FromImage'
 param linuxVmOsDiskType string = 'Standard_LRS'
 
 @allowed([
-  'Canonical for Ubuntu'
+  'Canonical'
   'RedHat'
   'Debian'
 ])
 @description('[Canonical for Ubuntu/RedHat/Debian] The available Linux Publishers')
-param linuxVmImagePublisher string = 'Canonical for Ubuntu'
+param linuxVmImagePublisher string = 'Canonical'
 @allowed([
   'Ubuntu'
   'RHEL'
@@ -384,7 +384,7 @@ param linuxVmImagePublisher string = 'Canonical for Ubuntu'
 ])
 @description('[Ubuntu/RHEL/Debian-12] The available Linux Offers')
 param linuxVmImageOffer string = 'Ubuntu'
-param linuxVmImageSku string
+param linuxVmImageSku string = '18_04-lts-gen2'
 param linuxVmSize string = 'Standard_D2s_v3'
 
 @allowed([
@@ -413,7 +413,11 @@ param windowsVmPublisher string = 'MicrosoftWindowsServer'
 @description('The offer of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "WindowsServer".')
 param windowsVmOffer string = 'WindowsServer'
 
-@description('The SKU of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "2019-datacenter".')
+@allowed([
+  '2019-datacenter-gensecond'
+  '2022-datacenter-g2'
+])
+@description('The SKU of the Windows Virtual Machines to Azure Bastion remote into. It defaults to "2019-datacenter".')
 param windowsVmSku string = '2019-datacenter-gensecond'
 
 @description('The version of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "latest".')
