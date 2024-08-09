@@ -33,48 +33,63 @@ resource restartVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@20
     asyncExecution: false
     parameters: [
       {
-        name: 'Environment'
-        value: environment().name
-      }
-      {
-        name: 'ResourceGroupName'
-        value: resourceGroupName
-      }
-      {
-        name: 'SubscriptionId'
-        value: subscription().subscriptionId
-      }
-      {
-        name: 'TenantId'
-        value: tenant().tenantId
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
       }
       {
         name: 'UserAssignedIdentityClientId'
         value: userAssignedIdentityClientId
       }
       {
-        name: 'VirtualMachineName'
-        value: imageVirtualMachine.name
+        name: 'VmResourceId'
+        value: imageVirtualMachine.id
       }
     ]
     source: {
       script: '''
         param(
-          [string]$Environment,
-          [string]$ResourceGroupName,
-          [string]$SubscriptionId,
-          [string]$TenantId,
-          [string]$UserAssignedIdentityClientId,
-          [string]$VirtualMachineName
+            [Parameter(Mandatory=$true)]
+            [string]$ResourceManagerUri,
+
+            [Parameter(Mandatory=$true)]
+            [string]$UserAssignedIdentityClientId,
+
+            [Parameter(Mandatory=$true)]
+            [string]$VmResourceId
         )
+
         $ErrorActionPreference = 'Stop'
-        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null
-        Restart-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName
-        $AgentStatus = $Null
-        while ($Null -eq $AgentStatus) 
-        {
-            Start-Sleep -Seconds 5
-            $AgentStatus = (Get-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -Status).VMAgent
+        $WarningPreference = 'SilentlyContinue'
+
+        Try {
+            # Fix the resource manager URI since only AzureCloud contains a trailing slash
+            $ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}
+
+            # Get an access token for Azure resources
+            $AzureManagementAccessToken = (Invoke-RestMethod `
+                -Headers @{Metadata="true"} `
+                -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token
+
+            # Set header for Azure Management API
+            $AzureManagementHeader = @{
+                'Content-Type'='application/json'
+                'Authorization'='Bearer ' + $AzureManagementAccessToken
+            }
+            
+            # Restart the VM
+            $null = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Post' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/restart?api-version=2024-03-01')
+            $lastProvisioningState = ""
+            $VmStatus = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Get' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/instanceView?api-version=2024-03-01')
+            $provisioningState = ($VMStatus.statuses | Where-Object {$_.code -like 'PowerState*'}).code
+            While ($provisioningState -ne "PowerState/running") {
+                $lastProvisioningState = $provisioningState
+                Start-Sleep -Seconds 5
+                $VmStatus = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Get' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/instanceView?api-version=2024-03-01')
+                $provisioningState = ($VMStatus.statuses | Where-Object {$_.code -like 'PowerState*'}).code
+            }   
+        }
+        catch {
+            throw
         }
       '''
     }

@@ -3,7 +3,7 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param containerName string
+//param containerName string
 param diskEncryptionSetResourceId string
 param hybridUseBenefit bool
 @secure()
@@ -12,10 +12,10 @@ param localAdministratorPassword string
 param localAdministratorUsername string
 param location string
 param mlzTags object
-param storageAccountName string
+//param storageAccountName string
 param subnetResourceId string
 param tags object
-param userAssignedIdentityPrincipalId string
+//param userAssignedIdentityPrincipalId string
 param userAssignedIdentityResourceId string
 param virtualMachineName string
 
@@ -122,7 +122,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     licenseType: hybridUseBenefit ? 'Windows_Server' : null
   }
 }
-
+/*
 resource modules 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
   name: 'appAzModules'
   location: location
@@ -209,5 +209,6 @@ resource modules 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
     }
   }
 }
+*/
 
 output name string = virtualMachine.name

@@ -28,7 +28,7 @@ resource removeVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@202
     mlzTags
   )
   properties: {
-    treatFailureAsDeploymentFailure: true
+    treatFailureAsDeploymentFailure: false
     asyncExecution: enableBuildAutomation ? false : true
     parameters: [
       {
@@ -36,28 +36,16 @@ resource removeVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@202
         value: string(enableBuildAutomation)
       }
       {
-        name: 'Environment'
-        value: environment().name
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
       }
       {
-        name: 'ImageVmName'
-        value: imageVirtualMachine.name
+        name: 'ImageVmResourceId'
+        value: imageVirtualMachine.id
       }
       {
-        name: 'ManagementVmName'
-        value: virtualMachine.name
-      }
-      {
-        name: 'ResourceGroupName'
-        value: resourceGroup().name
-      }
-      {
-        name: 'SubscriptionId'
-        value: subscription().subscriptionId
-      }
-      {
-        name: 'TenantId'
-        value: tenant().tenantId
+        name: 'ManagementVmResourceId'
+        value: virtualMachine.id
       }
       {
         name: 'UserAssignedIdentityClientId'
@@ -67,21 +55,50 @@ resource removeVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@202
     source: {
       script: '''
         param(
-          [string]$EnableBuildAutomation,
-          [string]$Environment,
-          [string]$ImageVmName,
-          [string]$ManagementVmName,
-          [string]$ResourceGroupName,
-          [string]$SubscriptionId,
-          [string]$TenantId,
-          [string]$UserAssignedIdentityClientId
+            [Parameter(Mandatory=$false)]
+            [string]$EnableBuildAutomation,
+
+            [Parameter(Mandatory=$true)]
+            [string]$ResourceManagerUri,
+
+            [Parameter(Mandatory=$true)]
+            [string]$UserAssignedIdentityClientId,
+
+            [Parameter(Mandatory=$true)]
+            [string]$ImageVmResourceId,
+
+            [Parameter(Mandatory=$true)]
+            [string]$ManagementVmResourceId
         )
+
         $ErrorActionPreference = 'Stop'
-        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null
-        Remove-AzVM -ResourceGroupName $ResourceGroupName -Name $ImageVmName -Force
-        if($EnableBuildAutomation -eq 'false')
-        {
-          Remove-AzVM -ResourceGroupName $ResourceGroupName -Name $ManagementVmName -NoWait -Force -AsJob
+        $WarningPreference = 'SilentlyContinue'
+
+        Try {
+            # Fix the resource manager URI since only AzureCloud contains a trailing slash
+            $ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}
+
+            # Get an access token for Azure resources
+            $AzureManagementAccessToken = (Invoke-RestMethod `
+                -Headers @{Metadata="true"} `
+                -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token
+
+            # Set header for Azure Management API
+            $AzureManagementHeader = @{
+                'Content-Type'='application/json'
+                'Authorization'='Bearer ' + $AzureManagementAccessToken
+            }
+
+            # Delete Image VM
+            Invoke-RestMethod -Headers $AzureManagementHeader -Method 'DELETE' -Uri $($ResourceManagerUriFixed + $ImageVmResourceId + '?api-version=2024-03-01')
+            if($EnableBuildAutomation -eq 'false') {
+              # Wait 20 secs to make sure run command takes at least 20 secs to prevent failure.
+              Start-Sleep -Seconds 20
+              Invoke-RestMethod -Headers $AzureManagementHeader -Method 'DELETE' -Uri $($ResourceManagerUriFixed + $ManagementVmResourceId + '?api-version=2024-03-01')
+            }
+        }
+        catch {
+            throw
         }
       '''
     }
