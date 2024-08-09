@@ -28,13 +28,12 @@ param linuxVmAdminUsername string
   'password'
 ])
 param linuxVmAuthenticationType string
-param linuxVmImageOffer string
 param linuxVmImagePublisher string
+param linuxVmImageOffer string
 param linuxVmImageSku string
-param linuxVmImageVersion string
+param linuxVmSize string
 param linuxVmOsDiskCreateOption string
 param linuxVmOsDiskType string
-param linuxVmSize string
 param location string
 param logAnalyticsWorkspaceId string
 param mlzTags object
@@ -91,10 +90,9 @@ module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' =
       privateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
       subnetResourceId: hubSubnetResourceId
       tags: tags
-      vmImageOffer: linuxVmImageOffer
       vmImagePublisher: linuxVmImagePublisher
+      vmImageOffer: linuxVmImageOffer
       vmImageSku: linuxVmImageSku
-      vmImageVersion: linuxVmImageVersion
       vmSize: linuxVmSize
     }
   }

@@ -45,6 +45,13 @@
               ]
             },
             {
+              "name": "resourceScope",
+              "type": "Microsoft.Common.ResourceScope",
+              "location": {
+                "resourceTypes": []
+              }
+            },
+            {
               "name": "selectSubscriptions",
               "label": "Select Subscription(s)",
               "type": "Microsoft.Common.Section",
@@ -453,7 +460,9 @@
                   "type": "Microsoft.Common.DropDown",
                   "label": "Firewall SKU",
                   "placeholder": "",
-                  "defaultValue": ["Premium"],
+                  "defaultValue": [
+                    "Premium"
+                  ],
                   "toolTip": "Selecting a value other than Premium will reduce the security of the MLZ environment and your environment no longer be SCCA compliant. The Premium SKU is recommended for all production environments that require TLS inspection and SCCA.",
                   "multiselect": false,
                   "selectAll": false,
@@ -721,7 +730,7 @@
                   "options": {
                     "text": "Enabling the additional paid features of Microsoft Defender for Cloud is recommended.  If you have previously enabled any paid workload protection plans, you must select the checkbox and relevant plans on the dropdown list, to ensure protection is maintained through any deployment(s) of MLZ.",
                     "uri": "https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction#protect-cloud-workloads"
-                    }
+                  }
                 },
                 {
                   "name": "deployDefender",
@@ -1121,6 +1130,49 @@
                   }
                 },
                 {
+                  "name": "windowsVmSku",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Windows Server Version",
+                  "toolTip": "Select the desired Windows Server Version.",
+                  "placeholder": "",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "multiLine": true,
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "2019",
+                        "value": "2019-datacenter-gensecond"
+                      },
+                      {
+                        "label": "2022",
+                        "value": "2022-datacenter-g2"
+                      }
+                    ]
+                  },
+                  "visible": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]"
+                },
+                {
+                  "name": "windowsVmSize",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select an appropriate VM Size",
+                  "recommendedSizes": [
+                    "Standard_D2s_v3",
+                    "Standard_E2s_v3"
+                  ],
+                  "options": {
+                    "hideDiskTypeFilter": false
+                  },
+                  "osPlatform": "Windows",
+                  "imageReference": {
+                    "publisher": "MicrosoftWindowsServer",
+                    "offer": "WindowsServer",
+                    "sku": "[steps('remoteAccess').windowsVmSection.windowsVmSku]"
+                  },
+                  "visible": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]"
+                },
+                {
                   "name": "windowsVmAdminUsername",
                   "type": "Microsoft.Compute.UserNameTextBox",
                   "label": "Username",
@@ -1180,10 +1232,91 @@
                   }
                 },
                 {
-                  "name": "linuxVmDescriptionTextblock",
-                  "type": "Microsoft.Common.TextBlock",
+                  "name": "linuxVmImagePublisher",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Linux Image Publisher",
+                  "toolTip": "Select your preferred Linux Distribution Publisher.",
+                  "placeholder": "",
+                  "defaultValue": "Canonical for Ubuntu",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "multiLine": true,
+                  "filter": false,
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "Canonical for Ubuntu",
+                        "value": "Canonical"
+                      },
+                      {
+                        "label": "RedHat",
+                        "value": "RedHat"
+                      },
+                      {
+                        "label": "Debian",
+                        "value": "Debian"
+                      }
+                    ],
+                    "required": true
+                  },
+                  "visible": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]"
+                },
+                {
+                  "name": "linuxVmImageOffer",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Linux Image Offer",
+                  "toolTip": "Select your preferred Linux Distribution Offer.",
+                  "placeholder": "",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "multiLine": true,
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmImagePublisher, 'Canonical'), parse('[{\"label\": \"Ubuntu\",\"value\": \"ubuntu\"}]'), if(equals(steps('remoteAccess').linuxVmSection.linuxVmImagePublisher, 'RedHat'), parse('[{\"label\": \"RHEL\",\"value\": \"RHEL\"}]'), parse('[{\"label\": \"Debian\",\"value\": \"debian-12\"}]')))]"
+                  },
+                  "visible": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]"
+                },
+                {
+                  "name": "skuApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').hubSection.hubSubscriptionId, '/providers/Microsoft.Compute/locations/', steps('basics').locationSection.location.name, '/publishers/', steps('remoteAccess').linuxVmSection.linuxVmImagePublisher, '/artifactTypes/vmImage/offers/', steps('remoteAccess').linuxVmSection.linuxVmImageOffer, '/skus?api-version=2024-03-01')]"
+                  },
+                  "visible": false
+                },
+                {
+                  "name": "linuxVmImageSku",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Linux Image SKU",
+                  "toolTip": "Select the desired marketplace image SKU.",
+                  "placeholder": "",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "multiLine": true,
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[map(filter(steps('remoteAccess').linuxVmSection.skuApi, (item) => contains(item.name, 'gen2')), (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]"
+                  },
+                  "visible": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]"
+                },
+                {
+                  "name": "linuxVmSize",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select an appropriate VM Size",
+                  "recommendedSizes": [
+                    "Standard_D2s_v3",
+                    "Standard_E2s_v3"
+                  ],
                   "options": {
-                    "text": "Provide an administrator username and password for the Linux virtual machine."
+                    "hideDiskTypeFilter": false
+                  },
+                  "osPlatform": "Linux",
+                  "imageReference": {
+                    "publisher": "[steps('remoteAccess').linuxVmSection.linuxVmImagePublisher]",
+                    "offer": "[steps('remoteAccess').linuxVmSection.linuxVmImageOffer]",
+                    "sku": "[steps('remoteAccess').linuxVmSection.linuxVmImageSku]"
                   },
                   "visible": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]"
                 },
@@ -1218,6 +1351,14 @@
                     "hideConfirmation": false
                   },
                   "visible": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]"
+                },
+                {
+                  "name": "policyWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "options": {
+                    "style": "Warning",
+                    "text": "Please validate the desired Linux distribution is available, as there can be differences between clouds."
+                  }
                 }
               ]
             }
@@ -1289,8 +1430,12 @@
         "identitySubscriptionId": "[if(steps('basics').identitySection.deployIdentity, replace(steps('basics').identitySection.identitySubscriptionId, '/subscriptions/', ''), replace(steps('basics').hubSection.hubSubscriptionId, '/subscriptions/', ''))]",
         "identityVirtualNetworkAddressPrefix": "[steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange]",
         "linuxVmAdminPasswordOrKey": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.authenticationType, 'password'), steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.password, steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.sshPublicKey)]",
-        "linuxVmAdminUsername": "[steps('remoteAccess').linuxVmSection.linuxVmAdminUsername]",
         "linuxVmAuthenticationType": "password",
+        "linuxVmAdminUsername": "[steps('remoteAccess').linuxVmSection.linuxVmAdminUsername]",
+        "linuxVmImagePublisher": "[steps('remoteAccess').linuxVmSection.linuxVmImagePublisher]",
+        "linuxVmImageOffer": "[steps('remoteAccess').linuxVmSection.linuxVmImageOffer]",
+        "linuxVmImageSku": "[steps('remoteAccess').linuxVmSection.linuxVmImageSku]",
+        "linuxVmSize": "[steps('remoteAccess').linuxVmSection.linuxVmSize]",
         "location": "[steps('basics').locationSection.location.name]",
         "operationsSubnetAddressPrefix": "[steps('networking').operationsVirtualNetwork.subnetAddressCidrRange]",
         "operationsSubscriptionId": "[replace(steps('basics').operationsSection.operationsSubscriptionId, '/subscriptions/', '')]",
@@ -1302,6 +1447,8 @@
         "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
         "sharedServicesVirtualNetworkAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange]",
         "tags": "[steps('tags').tags]",
+        "windowsVmSku": "[steps('remoteAccess').windowsVmSection.windowsVmSku]",
+        "windowsVmSize": "[steps('remoteAccess').windowsVmSection.windowsVmSize]",
         "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword.password]",
         "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]"
       }
