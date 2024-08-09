@@ -1,5 +1,11 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param groupIds array
 param location string
+param mlzTags object
 param name string
 param networkInterfaceName string
 param privateDnsZoneConfigs array
@@ -10,7 +16,7 @@ param tags object
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: name
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
   properties: {
     customNetworkInterfaceName: networkInterfaceName
     privateLinkServiceConnections: [

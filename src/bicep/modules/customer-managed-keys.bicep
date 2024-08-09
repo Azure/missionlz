@@ -2,54 +2,64 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+
 targetScope = 'subscription'
 
 param deploymentNameSuffix string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
-param networkProperties object
+param mlzTags object
+param resourceGroupName string
 param subnetResourceId string
 param tags object
+param tier object
+param tokens object
+param workloadShortName string
 
 module keyVault 'key-vault.bicep' = {
-  name: 'deploy-key-vault-${deploymentNameSuffix}'
-  scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
+  name: 'deploy-kv-${workloadShortName}-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
-    keyVaultName: networkProperties.keyVaultName
-    keyVaultNetworkInterfaceName: networkProperties.keyVaultNetworkInterfaceName
+    keyVaultName: take(replace(tier.namingConvention.keyVault, tokens.service, ''), 24)
+    keyVaultNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.service, '')
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    keyVaultPrivateEndpointName: networkProperties.keyVaultPrivateEndpointName
+    keyVaultPrivateEndpointName: replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.service, '')
     location: location
+    mlzTags: mlzTags
     subnetResourceId: subnetResourceId
     tags: tags
   }
 }
 
 module diskEncryptionSet 'disk-encryption-set.bicep' = {
-  name: 'deploy-disk-encryption-set_${deploymentNameSuffix}'
-  scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
+  name: 'deploy-des-${workloadShortName}-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: networkProperties.diskEncryptionSetName
+    diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
     keyUrl: keyVault.outputs.keyUriWithVersion
     keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
+    mlzTags: mlzTags
     tags: contains(tags, 'Microsoft.Compute/diskEncryptionSets') ? tags['Microsoft.Compute/diskEncryptionSets'] : {}
+    workloadShortName: workloadShortName
   }
 }
 
 module userAssignedIdentity 'user-assigned-identity.bicep' = {
-  name: 'deploy-user-assigned-identity-${deploymentNameSuffix}'
-  scope: resourceGroup(networkProperties.subscriptionId, networkProperties.resourceGroupName)
+  name: 'deploy-id-${workloadShortName}-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
+    keyVaultName: keyVault.outputs.keyVaultName
     location: location
-    name: networkProperties.userAssignedIdentityName
+    mlzTags: mlzTags
     tags: tags
+    userAssignedIdentityName: replace(tier.namingConvention.userAssignedIdentity, '-${tokens.service}', '')
   }
 }
 
 output diskEncryptionSetResourceId string = diskEncryptionSet.outputs.resourceId
-output KeyVaultName string = keyVault.outputs.keyVaultName
+output keyVaultName string = keyVault.outputs.keyVaultName
 output keyVaultUri string = keyVault.outputs.keyVaultUri
 output keyVaultResourceId string = keyVault.outputs.keyVaultResourceId
 output storageKeyName string = keyVault.outputs.storageKeyName

@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param arcGisProInstaller string
 param actionGroupName string
 param automationAccountName string
@@ -43,6 +48,7 @@ param managementVirtualMachineName string
 param marketplaceImageOffer string
 param marketplaceImagePublisher string
 param marketplaceImageSKU string
+param mlzTags object
 param msrdcwebrtcsvcInstaller string
 param officeInstaller string
 param oUPath string
@@ -100,6 +106,7 @@ var parameters = {
   marketplaceImageOffer: marketplaceImageOffer
   marketplaceImagePublisher: marketplaceImagePublisher
   marketplaceImageSKU: marketplaceImageSKU
+  mlzTags: string(mlzTags)
   msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
   officeInstaller: officeInstaller
   replicaCount: string(replicaCount)
@@ -135,7 +142,10 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2023-07-01' existing 
 resource automationAccount 'Microsoft.Automation/automationAccounts@2022-08-08' = {
   name: automationAccountName
   location: location
-  tags: contains(tags, 'Microsoft.Automation/automationAccounts') ? tags['Microsoft.Automation/automationAccounts'] : {}
+  tags: union(
+    contains(tags, 'Microsoft.Automation/automationAccounts') ? tags['Microsoft.Automation/automationAccounts'] : {},
+    mlzTags
+  )
   properties: {
     disableLocalAuth: false
     publicNetworkAccess: false
@@ -152,12 +162,19 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2022-08-08' 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
   name: privateEndpointName
   location: location
-  tags: contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}
+  tags: union(
+    contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {},
+    mlzTags
+  )
   properties: {
     privateLinkServiceConnections: [
       {
         name: privateEndpointName
-        id: resourceId('Microsoft.Network/privateEndpoints/privateLinkServiceConnections', privateEndpointName, privateEndpointName)
+        id: resourceId(
+          'Microsoft.Network/privateEndpoints/privateLinkServiceConnections',
+          privateEndpointName,
+          privateEndpointName
+        )
         properties: {
           privateLinkServiceId: automationAccount.id
           groupIds: [
@@ -191,7 +208,10 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
 resource runCommand 'Microsoft.Compute/virtualMachines/runCommands@2023-07-01' = {
   name: 'runbook'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: union(
+    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+    mlzTags
+  )
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true
@@ -325,17 +345,19 @@ resource jobSchedule 'Microsoft.Automation/automationAccounts/jobSchedules@2022-
   ]
 }
 
-module monitoring 'monitoring.bicep' = if (!empty(logAnalyticsWorkspaceResourceId) && !empty(distributionGroup) && !empty(actionGroupName)) {
-  name: 'monitoring-${deploymentNameSuffix}'
-  params: {
-    actionGroupName: actionGroupName
-    automationAccountName: automationAccount.name
-    distributionGroup: distributionGroup
-    location: location
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    tags: tags
+module monitoring 'monitoring.bicep' =
+  if (!empty(logAnalyticsWorkspaceResourceId) && !empty(distributionGroup) && !empty(actionGroupName)) {
+    name: 'monitoring-${deploymentNameSuffix}'
+    params: {
+      actionGroupName: actionGroupName
+      automationAccountName: automationAccount.name
+      distributionGroup: distributionGroup
+      location: location
+      logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+      mlzTags: mlzTags
+      tags: tags
+    }
   }
-}
 
 resource hybridRunbookWorkerGroup 'Microsoft.Automation/automationAccounts/hybridRunbookWorkerGroups@2022-08-08' = {
   parent: automationAccount
@@ -373,30 +395,31 @@ resource extension_HybridWorker 'Microsoft.Compute/virtualMachines/extensions@20
   ]
 }
 
-resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (!empty(domainJoinUserPrincipalName) && !empty(domainName) && !empty(oUPath)) {
-  parent: virtualMachine
-  name: 'JsonADDomainExtension'
-  location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
-  properties: {
-    forceUpdateTag: time
-    publisher: 'Microsoft.Compute'
-    type: 'JsonADDomainExtension'
-    typeHandlerVersion: '1.3'
-    autoUpgradeMinorVersion: true
-    settings: {
-      Name: domainName
-      User: domainJoinUserPrincipalName
-      Restart: 'true'
-      Options: '3'
-      OUPath: oUPath
+resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' =
+  if (!empty(domainJoinUserPrincipalName) && !empty(domainName) && !empty(oUPath)) {
+    parent: virtualMachine
+    name: 'JsonADDomainExtension'
+    location: location
+    tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+    properties: {
+      forceUpdateTag: time
+      publisher: 'Microsoft.Compute'
+      type: 'JsonADDomainExtension'
+      typeHandlerVersion: '1.3'
+      autoUpgradeMinorVersion: true
+      settings: {
+        Name: domainName
+        User: domainJoinUserPrincipalName
+        Restart: 'true'
+        Options: '3'
+        OUPath: oUPath
+      }
+      protectedSettings: {
+        Password: domainJoinPassword
+      }
     }
-    protectedSettings: {
-      Password: domainJoinPassword
-    }
+    dependsOn: [
+      extension_HybridWorker
+      runCommand
+    ]
   }
-  dependsOn: [
-    extension_HybridWorker
-    runCommand
-  ]
-}

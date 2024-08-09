@@ -14,24 +14,37 @@ param diskName string
 param hybridUseBenefit bool
 param location string
 param logAnalyticsWorkspaceId  string
+param mlzTags object = {}
 param name string
 param networkInterfaceName string
+param networkSecurityGroupResourceId string
 param offer string
+param privateIPAddressAllocationMethod string
 param publisher string
 param size string
 param sku string
 param storageAccountType string
+param subnetResourceId string
 param tags object = {}
 param version string
 
-resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' existing = {
-  name: networkInterfaceName
-}
+module networkInterface '../modules/network-interface.bicep' = {
+    name: 'remoteAccess-windowsNetworkInterface'
+    params: {
+      location: location
+      mlzTags: mlzTags
+      name: networkInterfaceName
+      networkSecurityGroupResourceId: networkSecurityGroupResourceId
+      privateIPAddressAllocationMethod: privateIPAddressAllocationMethod
+      subnetResourceId: subnetResourceId
+      tags: tags
+    }
+  }
 
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   name: name
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   identity: {
     type: 'SystemAssigned'
   }
@@ -47,7 +60,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
     networkProfile: {
       networkInterfaces: [
         { 
-          id: networkInterface.id
+          id: networkInterface.outputs.id
           properties: {
             deleteOption: 'Delete'
           }

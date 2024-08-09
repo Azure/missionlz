@@ -11,18 +11,21 @@ param location string
 param logAnalyticsWorkspaceCappingDailyQuotaGb int
 param logAnalyticsWorkspaceRetentionInDays int
 param logAnalyticsWorkspaceSkuName string
-param operationsProperties object
+param mlzTags object
+param ops object
+param opsResourceGroupName string
 param privateDnsZoneResourceIds object
 param subnetResourceId string
 param tags object
 
 module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
   name: 'deploy-law-${deploymentNameSuffix}'
-  scope: resourceGroup(operationsProperties.subscriptionId, operationsProperties.resourceGroupName)
+  scope: resourceGroup(ops.subscriptionId, opsResourceGroupName)
   params: {
     deploySentinel: deploySentinel
     location: location
-    name: operationsProperties.logAnalyticsWorkspaceName
+    mlzTags: mlzTags
+    name: ops.namingConvention.logAnalyticsWorkspace
     retentionInDays: logAnalyticsWorkspaceRetentionInDays
     skuName: logAnalyticsWorkspaceSkuName
     tags: tags
@@ -33,23 +36,24 @@ module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
 
 module privateLinkScope 'private-link-scope.bicep' = {
   name: 'deploy-private-link-scope-${deploymentNameSuffix}'
-  scope: resourceGroup(operationsProperties.subscriptionId, operationsProperties.resourceGroupName)
+  scope: resourceGroup(ops.subscriptionId, opsResourceGroupName)
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-    name: operationsProperties.privateLinkScopeName
+    name: ops.namingConvention.privateLinkScope
   }
 }
 
 module privateEndpoint 'private-endpoint.bicep' = {
   name: 'deploy-private-endpoint-${deploymentNameSuffix}'
-  scope: resourceGroup(operationsProperties.subscriptionId, operationsProperties.resourceGroupName)
+  scope: resourceGroup(ops.subscriptionId, opsResourceGroupName)
   params: {
     groupIds: [
       'azuremonitor'
     ]
     location: location
-    name: operationsProperties.privateLinkScopePrivateEndpointName
-    networkInterfaceName: operationsProperties.privateLinkScopeNetworkInterfaceName
+    mlzTags: mlzTags
+    name: ops.namingConvention.privateLinkScopePrivateEndpoint
+    networkInterfaceName: ops.namingConvention.privateLinkScopeNetworkInterface
     privateDnsZoneConfigs: [
       {
         name: 'monitor'
@@ -73,6 +77,12 @@ module privateEndpoint 'private-endpoint.bicep' = {
         name: 'agentsvc'
         properties: {
           privateDnsZoneId: privateDnsZoneResourceIds.agentsvc
+        }
+      }
+      {
+        name: 'blob'
+        properties: {
+          privateDnsZoneId: privateDnsZoneResourceIds.blob
         }
       }
     ]

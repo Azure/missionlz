@@ -3,19 +3,20 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+param firewallDiagnosticSettingsName string
+param firewallName string
 param logAnalyticsWorkspaceResourceId string
 param logs array
 param logStorageAccountResourceId string
 param metrics array
-param name string
 
 resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' existing = {
-  name: name
+  name: firewallName
 }
 
 resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
   scope: firewall
-  name: '${firewall.name}-diagnostics'
+  name: firewallDiagnosticSettingsName
   properties: {
     storageAccountId: logStorageAccountResourceId
     workspaceId: logAnalyticsWorkspaceResourceId

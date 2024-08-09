@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param policyAssignmentId string
 
 resource exemption 'Microsoft.Authorization/policyExemptions@2022-07-01-preview' = {

@@ -2,6 +2,7 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+
 targetScope = 'subscription'
 
 // REQUIRED PARAMETERS
@@ -112,11 +113,11 @@ param firewallThreatIntelMode string = 'Alert'
 @description('[Alert/Deny/Off] The Azure Firewall Intrusion Detection mode. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
 param firewallIntrusionDetectionMode string = 'Alert'
 
-@description('[true/false] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers"')
+@description('[true/false] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "dnsServers"')
 param enableProxy bool = true
 
 @description('''['168.63.129.16'] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers". This should be a comma separated list of IP addresses to forward DNS traffic''')
-param dnsServers array = [ '168.63.129.16' ]
+param dnsServers array = ['168.63.129.16']
 
 @description('An array of Firewall Diagnostic Logs categories to collect. See "https://docs.microsoft.com/en-us/azure/firewall/firewall-diagnostics#enable-diagnostic-logging-through-the-azure-portal" for valid values.')
 param firewallDiagnosticsLogs array = [
@@ -130,7 +131,7 @@ param firewallDiagnosticsLogs array = [
   }
   {
     category: 'AzureFirewallDnsProxy'
-    enabled: true
+    enabled: enableProxy
   }
 ]
 
@@ -229,7 +230,7 @@ param identityNetworkSecurityGroupDiagnosticsMetrics array = []
 
 // KEY VAULT PARAMETERS
 @description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
-param KeyVaultDiagnosticsLogs array = [
+param keyVaultDiagnosticsLogs array = [
   {
     category: 'AuditEvent'
     enabled: true
@@ -239,7 +240,6 @@ param KeyVaultDiagnosticsLogs array = [
     enabled: true
   }
 ]
-
 
 // OPERATIONS PARAMETERS
 
@@ -323,11 +323,23 @@ param logStorageSkuName string = 'Standard_GRS'
 
 // REMOTE ACCESS PARAMETERS
 
-@description('When set to "true", provisions Azure Bastion Host and virtual machine jumpboxes. It defaults to "false".')
-param deployRemoteAccess bool = false
+@description('When set to "true", provisions Azure Bastion Host only. It defaults to "false".')
+param deployBastion bool = false
+
+@description('When set to "true", provisions Azure Gateway Subnet only. It defaults to "false".')
+param deployAzureGatewaySubnet bool = false
+
+@description('When set to "true", provisions Windows Virtual Machine Host only. It defaults to "false".')
+param deployWindowsVirtualMachine bool = false
+
+@description('When set to "true", provisions Linux Virtual Machine Host only. It defaults to "false".')
+param deployLinuxVirtualMachine bool = false
 
 @description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
 param bastionHostSubnetAddressPrefix string = '10.0.128.192/26'
+
+@description('The CIDR Subnet Address Prefix for the Azure Gateway Subnet. It must be in the Hub Virtual Network space. It must be /26.')
+param azureGatewaySubnetAddressPrefix string = '10.0.129.192/26'
 
 @description('The Azure Bastion Public IP Address Availability Zones. It defaults to "No-Zone" because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.')
 param bastionHostPublicIPAddressAvailabilityZones array = []
@@ -350,10 +362,7 @@ param linuxVmAuthenticationType string = 'password'
 @description('The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
 @secure()
 @minLength(12)
-param linuxVmAdminPasswordOrKey string = deployRemoteAccess ? '' : newGuid()
-
-@description('The size of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Standard_B2s".')
-param linuxVmSize string = 'Standard_B2s'
+param linuxVmAdminPasswordOrKey string = deployLinuxVirtualMachine ? '' : newGuid()
 
 @description('The disk creation option of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".')
 param linuxVmOsDiskCreateOption string = 'FromImage'
@@ -361,17 +370,22 @@ param linuxVmOsDiskCreateOption string = 'FromImage'
 @description('The disk type of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Standard_LRS".')
 param linuxVmOsDiskType string = 'Standard_LRS'
 
-@description('The image publisher of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Canonical".')
+@allowed([
+  'Canonical'
+  'RedHat'
+  'Debian'
+])
+@description('[Canonical for Ubuntu/RedHat/Debian] The available Linux Publishers')
 param linuxVmImagePublisher string = 'Canonical'
-
-@description('The image offer of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "UbuntuServer".')
-param linuxVmImageOffer string = 'UbuntuServer'
-
-@description('The image SKU of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "18.04-LTS".')
+@allowed([
+  'Ubuntu'
+  'RHEL'
+  'Debian-12'
+])
+@description('[Ubuntu/RHEL/Debian-12] The available Linux Offers')
+param linuxVmImageOffer string = 'Ubuntu'
 param linuxVmImageSku string = '18_04-lts-gen2'
-
-@description('The image version of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "latest".')
-param linuxVmImageVersion string = 'latest'
+param linuxVmSize string = 'Standard_D2s_v3'
 
 @allowed([
   'Static'
@@ -388,7 +402,7 @@ param windowsVmAdminUsername string = 'azureuser'
 @description('The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
 @secure()
 @minLength(12)
-param windowsVmAdminPassword string = deployRemoteAccess ? '' : newGuid()
+param windowsVmAdminPassword string = deployWindowsVirtualMachine ? '' : newGuid()
 
 @description('The size of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "Standard_DS1_v2".')
 param windowsVmSize string = 'Standard_DS1_v2'
@@ -399,7 +413,11 @@ param windowsVmPublisher string = 'MicrosoftWindowsServer'
 @description('The offer of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "WindowsServer".')
 param windowsVmOffer string = 'WindowsServer'
 
-@description('The SKU of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "2019-datacenter".')
+@allowed([
+  '2019-datacenter-gensecond'
+  '2022-datacenter-g2'
+])
+@description('The SKU of the Windows Virtual Machines to Azure Bastion remote into. It defaults to "2019-datacenter".')
 param windowsVmSku string = '2019-datacenter-gensecond'
 
 @description('The version of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "latest".')
@@ -447,10 +465,11 @@ param defenderSkuTier string = 'Free'
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string = ''
 
-//Allowed Values for paid workload protection Plans.  
-//Even if the customer wants the free tier, we must specify a plan from this list. This is why we specify VirtualMachines as a default value.
-@allowed([
-  'Api'
+// Allowed Values for paid workload protection Plans.  
+// Users must select a plan from portal ui def or manually specify any of the plans that are available in the desired cloud.  
+// The portal does not parse the allowed values field for arrays  correctly at this time.
+// As a default, the array is set to ['VirtualMachines'].
+/*   'Api'
   'AppServices'
   'Arm'
   'CloudPosture'
@@ -464,68 +483,85 @@ param emailSecurityContact string = ''
   'SqlServers'
   'SqlServerVirtualMachines'
   'StorageAccounts'
-  'VirtualMachines'
-])
+  'VirtualMachine*/
+  
 @description('Paid Workload Protection plans for Defender for Cloud')
 param deployDefenderPlans array = ['VirtualMachines']
 
-var calculatedTags = union(tags, defaultTags)
-var defaultTags = {
-  resourcePrefix: resourcePrefix
-  environmentAbbreviation: environmentAbbreviation
-  DeploymentType: 'MissionLandingZoneARM'
-}
+
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
 
-var logAnalyticsWorkspaceRetentionInDays = deploySentinel ? logAnalyticsSentinelWorkspaceRetentionInDays : logAnalyticsWorkspaceNoSentinelRetentionInDays
+var logAnalyticsWorkspaceRetentionInDays = deploySentinel
+  ? logAnalyticsSentinelWorkspaceRetentionInDays
+  : logAnalyticsWorkspaceNoSentinelRetentionInDays
 
-// NAMING CONVENTION
-
-module namingConvention 'modules/naming-convention.bicep' = {
-  name: 'get-naming-convention-${deploymentNameSuffix}'
-  params: {
-    environmentAbbreviation: environmentAbbreviation
-    location: location
-    resourcePrefix: resourcePrefix
+var networks = union([
+  {
+    name: 'hub'
+    shortName: 'hub'
+    deployUniqueResources: true
+    subscriptionId: hubSubscriptionId
+    nsgDiagLogs: hubNetworkSecurityGroupDiagnosticsLogs
+    nsgDiagMetrics: hubNetworkSecurityGroupDiagnosticsMetrics
+    nsgRules: hubNetworkSecurityGroupRules
+    vnetAddressPrefix: hubVirtualNetworkAddressPrefix
+    vnetDiagLogs: hubVirtualNetworkDiagnosticsLogs
+    vnetDiagMetrics: hubVirtualNetworkDiagnosticsMetrics
+    subnetAddressPrefix: hubSubnetAddressPrefix
   }
-}
+  {
+    name: 'operations'
+    shortName: 'ops'
+    deployUniqueResources: contains([ hubSubscriptionId ], operationsSubscriptionId) ? false : true
+    subscriptionId: operationsSubscriptionId  
+    nsgDiagLogs: operationsNetworkSecurityGroupDiagnosticsLogs
+    nsgDiagMetrics: operationsNetworkSecurityGroupDiagnosticsMetrics
+    nsgRules: operationsNetworkSecurityGroupRules
+    vnetAddressPrefix: operationsVirtualNetworkAddressPrefix
+    vnetDiagLogs: operationsVirtualNetworkDiagnosticsLogs
+    vnetDiagMetrics: operationsVirtualNetworkDiagnosticsMetrics
+    subnetAddressPrefix: operationsSubnetAddressPrefix
+  }
+  {
+    name: 'sharedServices'
+    shortName: 'svcs'
+    deployUniqueResources: contains([ hubSubscriptionId, operationsSubscriptionId ], sharedServicesSubscriptionId) ? false : true
+    subscriptionId: sharedServicesSubscriptionId  
+    nsgDiagLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
+    nsgDiagMetrics: sharedServicesNetworkSecurityGroupDiagnosticsMetrics
+    nsgRules: sharedServicesNetworkSecurityGroupRules
+    vnetAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
+    vnetDiagLogs: sharedServicesVirtualNetworkDiagnosticsLogs
+    vnetDiagMetrics: sharedServicesVirtualNetworkDiagnosticsMetrics
+    subnetAddressPrefix: sharedServicesSubnetAddressPrefix
+  }
+], deployIdentity ? [
+  {
+    name: 'identity'
+    shortName: 'id'
+    deployUniqueResources: contains([ hubSubscriptionId, operationsSubscriptionId, sharedServicesSubscriptionId ], identitySubscriptionId) ? false : true
+    subscriptionId: identitySubscriptionId
+    nsgDiagLogs: identityNetworkSecurityGroupDiagnosticsLogs
+    nsgDiagMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
+    nsgRules: identityNetworkSecurityGroupRules
+    vnetAddressPrefix: identityVirtualNetworkAddressPrefix
+    vnetDiagLogs: identityVirtualNetworkDiagnosticsLogs
+    vnetDiagMetrics: identityVirtualNetworkDiagnosticsMetrics
+    subnetAddressPrefix: identitySubnetAddressPrefix
+  }
+] : [])
 
 // LOGIC FOR DEPLOYMENTS
 
 module logic 'modules/logic.bicep' = {
   name: 'get-logic-${deploymentNameSuffix}'
   params: {
-    deployIdentity: deployIdentity
+    deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
-    hubSubscriptionId: hubSubscriptionId
-    identitySubnetAddressPrefix: identitySubnetAddressPrefix
-    identitySubscriptionId: identitySubscriptionId
-    operationsSubnetAddressPrefix: operationsSubnetAddressPrefix
-    operationsSubscriptionId: operationsSubscriptionId
+    location: location
+    networks: networks
     resourcePrefix: resourcePrefix
-    resources: namingConvention.outputs.resources
-    sharedServicesSubscriptionId: sharedServicesSubscriptionId
-    tokens: namingConvention.outputs.tokens
-    identityNetworkSecurityGroupDiagnosticsLogs: identityNetworkSecurityGroupDiagnosticsLogs
-    identityNetworkSecurityGroupDiagnosticsMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
-    identityNetworkSecurityGroupRules: identityNetworkSecurityGroupRules
-    identityVirtualNetworkAddressPrefix: identityVirtualNetworkAddressPrefix
-    identityVirtualNetworkDiagnosticsLogs: identityVirtualNetworkDiagnosticsLogs
-    identityVirtualNetworkDiagnosticsMetrics: identityVirtualNetworkDiagnosticsMetrics
-    operationsNetworkSecurityGroupDiagnosticsLogs: operationsNetworkSecurityGroupDiagnosticsLogs
-    operationsNetworkSecurityGroupDiagnosticsMetrics: operationsNetworkSecurityGroupDiagnosticsMetrics
-    operationsNetworkSecurityGroupRules: operationsNetworkSecurityGroupRules
-    operationsVirtualNetworkAddressPrefix: operationsVirtualNetworkAddressPrefix
-    operationsVirtualNetworkDiagnosticsLogs: operationsVirtualNetworkDiagnosticsLogs
-    operationsVirtualNetworkDiagnosticsMetrics: operationsVirtualNetworkDiagnosticsMetrics
-    sharedServicesNetworkSecurityGroupDiagnosticsLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
-    sharedServicesNetworkSecurityGroupDiagnosticsMetrics: sharedServicesNetworkSecurityGroupDiagnosticsMetrics
-    sharedServicesNetworkSecurityGroupRules: sharedServicesNetworkSecurityGroupRules
-    sharedServicesSubnetAddressPrefix: sharedServicesSubnetAddressPrefix
-    sharedServicesVirtualNetworkAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
-    sharedServicesVirtualNetworkDiagnosticsLogs: sharedServicesVirtualNetworkDiagnosticsLogs
-    sharedServicesVirtualNetworkDiagnosticsMetrics: sharedServicesVirtualNetworkDiagnosticsMetrics
   }
 }
 
@@ -536,8 +572,10 @@ module resourceGroups 'modules/resource-groups.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     location: location
-    networks: logic.outputs.networks
-    tags: calculatedTags
+    mlzTags: logic.outputs.mlzTags
+    serviceToken: logic.outputs.tokens.service
+    tiers: logic.outputs.tiers
+    tags: tags
   }
 }
 
@@ -547,10 +585,12 @@ module networking 'modules/networking.bicep' = {
   name: 'deploy-networking-${deploymentNameSuffix}'
   params: {
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
+    azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
     deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcher: deployNetworkWatcher
-    deployRemoteAccess: deployRemoteAccess
+    deployBastion: deployBastion
+    deployAzureGatewaySubnet: deployAzureGatewaySubnet
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallSettings: {
@@ -560,22 +600,17 @@ module networking 'modules/networking.bicep' = {
       intrusionDetectionMode: firewallIntrusionDetectionMode
       managementPublicIPAddressAvailabilityZones: firewallManagementPublicIPAddressAvailabilityZones
       managementSubnetAddressPrefix: firewallManagementSubnetAddressPrefix
-      publicIpAddressAllocationMethod: 'Static'
-      publicIpAddressSkuName: 'Standard'
       skuTier: firewallSkuTier
       supernetIPAddress: firewallSupernetIPAddress
       threatIntelMode: firewallThreatIntelMode
     }
-    hubNetworkSecurityGroupRules: hubNetworkSecurityGroupRules
-    hubSubnetAddressPrefix: hubSubnetAddressPrefix
-    hubVirtualNetworkAddressPrefix: hubVirtualNetworkAddressPrefix
     location: location
-    networks: logic.outputs.networks
-    tags: calculatedTags
+    mlzTags: logic.outputs.mlzTags
+    privateDnsZoneNames: logic.outputs.privateDnsZones
+    resourceGroupNames: resourceGroups.outputs.names
+    tags: tags
+    tiers: logic.outputs.tiers
   }
-  dependsOn: [
-    resourceGroups
-  ]
 }
 
 // CUSTOMER MANAGED KEYS
@@ -584,11 +619,15 @@ module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-hub-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
+    tier: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
+    resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     location: location
-    networkProperties: first(filter(logic.outputs.networks, network => network.name == 'hub')) 
+    mlzTags: logic.outputs.mlzTags
     subnetResourceId: networking.outputs.hubSubnetResourceId
-    tags: calculatedTags
+    tags: tags
+    tokens: logic.outputs.tokens
+    workloadShortName: 'ops'
   }
 }
 
@@ -603,59 +642,63 @@ module monitoring 'modules/monitoring.bicep' = {
     logAnalyticsWorkspaceCappingDailyQuotaGb: logAnalyticsWorkspaceCappingDailyQuotaGb
     logAnalyticsWorkspaceRetentionInDays: logAnalyticsWorkspaceRetentionInDays
     logAnalyticsWorkspaceSkuName: logAnalyticsWorkspaceSkuName
-    operationsProperties: first(filter(logic.outputs.networks, network => network.name == 'operations'))
+    mlzTags: logic.outputs.mlzTags
+    ops: filter(logic.outputs.tiers, tier => tier.name == 'operations')[0]
+    opsResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'operations'))[0]
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
     subnetResourceId: networking.outputs.operationsSubnetResourceId
-    tags: calculatedTags
+    tags: tags
   }
-  dependsOn: [
-    networking
-  ]
 }
 
 // REMOTE ACCESS
 
-module remoteAccess 'modules/remote-access.bicep' = if (deployRemoteAccess) {
-  name: 'deploy-remote-access-${deploymentNameSuffix}'
-  params: {
-    bastionHostPublicIPAddressAllocationMethod: 'Static'
-    bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-    bastionHostPublicIPAddressSkuName: 'Standard'
-    bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
-    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
-    hubNetworkSecurityGroupResourceId: networking.outputs.hubNetworkSecurityGroupResourceId
-    hubProperties: first(filter(logic.outputs.networks, network => network.name == 'hub')) 
-    hubSubnetResourceId: networking.outputs.hubSubnetResourceId
-    hybridUseBenefit: hybridUseBenefit
-    linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
-    linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
-    linuxVmAdminUsername: linuxVmAdminUsername
-    linuxVmAuthenticationType: linuxVmAuthenticationType
-    linuxVmImageOffer: linuxVmImageOffer
-    linuxVmImagePublisher: linuxVmImagePublisher
-    linuxVmImageSku: linuxVmImageSku
-    linuxVmImageVersion: linuxVmImageVersion
-    linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
-    linuxVmOsDiskType: linuxVmOsDiskType
-    linuxVmSize: linuxVmSize
-    location: location
-    logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-    tags: tags
-    windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
-    windowsVmAdminPassword: windowsVmAdminPassword
-    windowsVmAdminUsername: windowsVmAdminUsername
-    windowsVmCreateOption: windowsVmCreateOption
-    windowsVmOffer: windowsVmOffer
-    windowsVmPublisher: windowsVmPublisher
-    windowsVmSize: windowsVmSize
-    windowsVmSku: windowsVmSku
-    windowsVmStorageAccountType: windowsVmStorageAccountType
-    windowsVmVersion: windowsVmVersion
+module remoteAccess 'modules/remote-access.bicep' = {
+    name: 'deploy-remote-access-${deploymentNameSuffix}'
+    params: {
+      bastionHostPublicIPAddressAllocationMethod: 'Static'
+      bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
+      bastionHostPublicIPAddressSkuName: 'Standard'
+      bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
+      deployBastion: deployBastion
+      deployLinuxVirtualMachine: deployLinuxVirtualMachine
+      deployWindowsVirtualMachine: deployWindowsVirtualMachine
+      diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
+      hub: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
+      hubNetworkSecurityGroupResourceId: networking.outputs.hubNetworkSecurityGroupResourceId
+      hubResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
+      hubSubnetResourceId: networking.outputs.hubSubnetResourceId
+      hybridUseBenefit: hybridUseBenefit
+      linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
+      linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
+      linuxVmAdminUsername: linuxVmAdminUsername
+      linuxVmImagePublisher: linuxVmImagePublisher
+      linuxVmImageOffer: linuxVmImageOffer
+      linuxVmImageSku: linuxVmImageSku
+      linuxVmSize: linuxVmSize
+      linuxVmAuthenticationType: linuxVmAuthenticationType
+      linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
+      linuxVmOsDiskType: linuxVmOsDiskType
+      location: location
+      logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+      mlzTags: logic.outputs.mlzTags
+      serviceToken: logic.outputs.tokens.service
+      tags: tags
+      windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
+      windowsVmAdminPassword: windowsVmAdminPassword
+      windowsVmAdminUsername: windowsVmAdminUsername
+      windowsVmCreateOption: windowsVmCreateOption
+      windowsVmOffer: windowsVmOffer
+      windowsVmPublisher: windowsVmPublisher
+      windowsVmSize: windowsVmSize
+      windowsVmSku: windowsVmSku
+      windowsVmStorageAccountType: windowsVmStorageAccountType
+      windowsVmVersion: windowsVmVersion
+    }
+    dependsOn: [
+      monitoring
+    ]
   }
-  dependsOn: [
-    monitoring
-  ]
-}
 
 // STORAGE FOR LOGGING
 
@@ -664,15 +707,17 @@ module storage 'modules/storage.bicep' = {
   params: {
     blobsPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.blob
     deployIdentity: deployIdentity
+    deploymentNameSuffix: deploymentNameSuffix
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageSkuName: logStorageSkuName
-    networks: logic.outputs.networks
-    serviceToken: namingConvention.outputs.tokens.service
+    mlzTags: logic.outputs.mlzTags
+    resourceGroupNames: resourceGroups.outputs.names
+    serviceToken: logic.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
-    subnetResourceId: networking.outputs.hubSubnetResourceId
     tablesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.table
-    tags: calculatedTags
+    tags: tags
+    tiers: logic.outputs.tiers
     userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
   }
   dependsOn: [
@@ -685,21 +730,20 @@ module storage 'modules/storage.bicep' = {
 module diagnostics 'modules/diagnostics.bicep' = {
   name: 'deploy-resource-diag-${deploymentNameSuffix}'
   params: {
+    deployBastion: deployBastion
     deploymentNameSuffix: deploymentNameSuffix
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
-    KeyVaultName: customerManagedKeys.outputs.KeyVaultName
-    keyVaultDiagnosticLogs: KeyVaultDiagnosticsLogs
+    keyVaultName: customerManagedKeys.outputs.keyVaultName
+    keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-    networks: logic.outputs.networks
-    networkSecurityGroupDiagnosticsLogs: hubNetworkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: hubNetworkSecurityGroupDiagnosticsMetrics
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
+    resourceGroupNames: resourceGroups.outputs.names
+    serviceToken: logic.outputs.tokens.service
     storageAccountResourceIds: storage.outputs.storageAccountResourceIds
     supportedClouds: supportedClouds
-    virtualNetworkDiagnosticsLogs: hubVirtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: hubVirtualNetworkDiagnosticsMetrics
+    tiers: logic.outputs.tiers
   }
   dependsOn: [
     networking
@@ -708,35 +752,39 @@ module diagnostics 'modules/diagnostics.bicep' = {
 
 // POLICY ASSIGNMENTS
 
-module policyAssignments 'modules/policy-assignments.bicep' = if (deployPolicy) {
-  name: 'assign-policies-${deploymentNameSuffix}'
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    location: location
-    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-    networks: logic.outputs.networks
-    policy: policy
+module policyAssignments 'modules/policy-assignments.bicep' =
+  if (deployPolicy) {
+    name: 'assign-policies-${deploymentNameSuffix}'
+    params: {
+      deploymentNameSuffix: deploymentNameSuffix
+      location: location
+      logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+      policy: policy
+      resourceGroupNames: resourceGroups.outputs.names
+      tiers: logic.outputs.tiers
+    }
   }
-}
 
 // MICROSOFT DEFENDER FOR CLOUD
 
-module defenderforClouds 'modules/defenderforClouds.bicep' = if (deployDefender) {
-  name: 'deploy-defender-${deploymentNameSuffix}'
-  params: {
-    defenderSkuTier: defenderSkuTier
-    deploymentNameSuffix: deploymentNameSuffix
-    emailSecurityContact: emailSecurityContact
-    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-    networks: logic.outputs.networks
-    defenderPlans: deployDefenderPlans
+module defenderforClouds 'modules/defender-for-clouds.bicep' =
+  if (deployDefender) {
+    name: 'deploy-defender-${deploymentNameSuffix}'
+    params: {
+      defenderPlans: deployDefenderPlans
+      defenderSkuTier: defenderSkuTier
+      deploymentNameSuffix: deploymentNameSuffix
+      emailSecurityContact: emailSecurityContact
+      logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+      tiers: logic.outputs.tiers
+    }
   }
-}
 
 output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
-output hubSubnetResourceId string = networking.outputs.hubSubnetResourceId
 output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
 output identitySubnetResourceId string = networking.outputs.identitySubnetResourceId
+output locationProperties object = logic.outputs.locationProperties
 output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId
-output networks array = logic.outputs.networks
+output sharedServicesSubnetResourceId string = networking.outputs.sharedServicesSubnetResourceId
+output tiers array = logic.outputs.tiers

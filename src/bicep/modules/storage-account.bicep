@@ -6,6 +6,7 @@ Licensed under the MIT License.
 param blobsPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
+param mlzTags object
 param serviceToken string
 param skuName string
 param storageAccountName string
@@ -25,6 +26,7 @@ var zones = [
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
   location: location
+  tags: union(contains(tags, 'Microsoft.Storage/storageAccounts') ? tags['Microsoft.Storage/storageAccounts'] : {}, mlzTags)
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -35,7 +37,6 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   sku: {
     name: skuName
   }
-  tags: tags
   properties: {
     accessTier: 'Hot'
     allowBlobPublicAccess: false
@@ -88,7 +89,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for (zone, i) in zones: {
   name: replace(storageAccountPrivateEndpointNamePrefix, serviceToken, split(split(zone, '/')[8], '.')[1])
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
   properties: {
     customNetworkInterfaceName: replace(storageAccountNetworkInterfaceNamePrefix, serviceToken, split(split(zone, '/')[8], '.')[1])
     privateLinkServiceConnections: [

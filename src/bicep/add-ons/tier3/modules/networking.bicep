@@ -1,10 +1,16 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 targetScope = 'subscription'
 
+param additionalSubnets array
 param deploymentNameSuffix string
 param deployNetworkWatcher bool
-param firewallSkuTier string
 param hubVirtualNetworkResourceId string
 param location string
+param mlzTags object
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
 param networkWatcherName string
@@ -18,56 +24,55 @@ param tags object
 param vNetDnsServers array
 param virtualNetworkAddressPrefix string
 param virtualNetworkName string
-param workloadName string
 param workloadShortName string
 
 module spokeNetwork '../../../modules/spoke-network.bicep' = {
-  name: 'spokeNetwork'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  name: 'deploy-spoke-${workloadShortName}-${deploymentNameSuffix}'
   params: {
-    tags: tags
-    location:location
-    virtualNetworkName: virtualNetworkName
-    virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
-    vNetDnsServers: vNetDnsServers
+    additionalSubnets: additionalSubnets
+    deployNetworkWatcher: deployNetworkWatcher
+    location: location
+    mlzTags: mlzTags
     networkSecurityGroupName: networkSecurityGroupName
     networkSecurityGroupRules: networkSecurityGroupRules
-    subnetName: subnetName
-    subnetAddressPrefix: subnetAddressPrefix
-    subnetPrivateEndpointNetworkPolicies: 'Disabled'
-    subnetPrivateLinkServiceNetworkPolicies: 'Disabled'
-    deployNetworkWatcher: deployNetworkWatcher
-    firewallSkuTier: firewallSkuTier
     networkWatcherName: networkWatcherName
+    resourceGroupName: resourceGroupName
     routeTableName: routeTableName
     routeTableRouteNextHopIpAddress: routeTableRouteNextHopIpAddress
+    subnetAddressPrefix: subnetAddressPrefix
+    subnetName: subnetName
+    subscriptionId: subscriptionId
+    tags: tags
+    virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
+    virtualNetworkName: virtualNetworkName
+    vNetDnsServers: vNetDnsServers
   }
 }
 
 module workloadVirtualNetworkPeerings '../../../modules/spoke-network-peering.bicep' = {
-  name: 'deploy-vnet-peering-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-spoke-peering-${workloadShortName}-${deploymentNameSuffix}'
   params: {
-    spokeName: workloadName
-    spokeResourceGroupName: resourceGroupName
-    spokeVirtualNetworkName: spokeNetwork.outputs.virtualNetworkName
-    hubVirtualNetworkName: split(hubVirtualNetworkResourceId , '/')[8]
+    deploymentNameSuffix: deploymentNameSuffix
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
+    resourceGroupName: resourceGroupName
+    spokeShortName: workloadShortName
+    spokeVirtualNetworkName: spokeNetwork.outputs.virtualNetworkName
+    subscriptionId: subscriptionId
   }
 }
 
 module hubToWorkloadVirtualNetworkPeering '../../../modules/hub-network-peerings.bicep' = {
-  name: 'deploy-vnet-peering-hub-${deploymentNameSuffix}'
-  scope: resourceGroup(split(hubVirtualNetworkResourceId , '/')[2], split(hubVirtualNetworkResourceId , '/')[4])
+  name: 'deploy-hub-peering-${workloadShortName}-${deploymentNameSuffix}'
   params: {
-    hubVirtualNetworkName: split(hubVirtualNetworkResourceId , '/')[8]
-    spokes: [
-      {
-        type: workloadName
-        virtualNetworkName: virtualNetworkName
-        virtualNetworkResourceId: spokeNetwork.outputs.virtualNetworkResourceId
-      }
-    ]
+    deploymentNameSuffix: deploymentNameSuffix
+    hubVirtualNetworkName: split(hubVirtualNetworkResourceId, '/')[8]
+    resourceGroupName: split(hubVirtualNetworkResourceId, '/')[4]
+    spokeShortName: workloadShortName
+    spokeVirtualNetworkResourceId: spokeNetwork.outputs.virtualNetworkResourceId
+    subscriptionId: split(hubVirtualNetworkResourceId, '/')[2]
   }
 }
 
+output networkSecurityGroupName string = spokeNetwork.outputs.networkSecurityGroupName
 output subnetResourceId string = spokeNetwork.outputs.subnetResourceId
+output virtualNetworkName string = spokeNetwork.outputs.virtualNetworkName

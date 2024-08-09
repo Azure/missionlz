@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param existingLocalVirtualNetworkName string
 param existingRemoteVirtualNetworkName string
 param existingRemoteVirtualNetworkResourceGroupName string
@@ -10,7 +15,11 @@ resource existingLocalVirtualNetworkName_peering_to_remote_vnet 'Microsoft.Netwo
     allowGatewayTransit: false
     useRemoteGateways: false
     remoteVirtualNetwork: {
-      id: resourceId(existingRemoteVirtualNetworkResourceGroupName, 'Microsoft.Network/virtualNetworks', existingRemoteVirtualNetworkName)
+      id: resourceId(
+        existingRemoteVirtualNetworkResourceGroupName,
+        'Microsoft.Network/virtualNetworks',
+        existingRemoteVirtualNetworkName
+      )
     }
   }
 }

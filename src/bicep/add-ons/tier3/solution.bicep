@@ -2,7 +2,11 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+
 targetScope = 'subscription'
+
+@description('An array of additional subnets to support the tier3 workload.')
+param additionalSubnets array = []
 
 @description('Choose whether to deploy a diagnostic setting for the Activity Log.')
 param deployActivityLogDiagnosticSetting bool
@@ -36,6 +40,22 @@ param firewallResourceId string
 @description('The resource ID of the HUB Virtual Network.')
 param hubVirtualNetworkResourceId string
 
+@maxLength(3)
+@description('The identifier for the resource names. This value should represent the workload, project, or business unit.')
+param identifier string
+
+@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
+param keyVaultDiagnosticsLogs array = [
+  {
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
 @description('The location for the deployment. It defaults to the location of the deployment.')
 param location string = deployment().location
 
@@ -64,21 +84,13 @@ param networkSecurityGroupDiagnosticsMetrics array = []
 param networkSecurityGroupRules array = []
 
 @description('The policy to assign to the workload.')
-param policy string
+param policy string = 'NISTRev4'
 
-@minLength(3)
-@maxLength(10)
-@description('A prefix, 3 to 10 characters in length, to append to resource names (e.g. "dev", "test", "prod", "mlz"). It defaults to "mlz".')
-param resourcePrefix string
+@description('The stamp index allows for multiple AVD stamps with the same business unit or project to support different use cases.')
+param stampIndex string = ''
 
 @description('The address prefix for the workload subnet.')
 param subnetAddressPrefix string
-
-@description('The supported clouds for the deployment. It defaults to "AzureCloud" and "AzureUSGovernment".')
-param supportedClouds array = [
-  'AzureCloud'
-  'AzureUSGovernment'
-]
 
 @description('The tags to apply to the resources.')
 param tags object = {}
@@ -102,10 +114,6 @@ param workloadName string = 'tier3'
 @description('The short name for the workload.')
 param workloadShortName string = 't3'
 
-var calculatedTags = union(tags, defaultTags)
-var defaultTags = {
-  DeploymentType: 'MissionLandingZoneARM'
-}
 var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
 var hubSubscriptionId = split(hubVirtualNetworkResourceId, '/')[2]
 var subscriptionId = subscription().subscriptionId
@@ -115,25 +123,34 @@ resource azureFirewall 'Microsoft.Network/azureFirewalls@2020-11-01' existing = 
   scope: resourceGroup(split(firewallResourceId, '/')[2], split(firewallResourceId, '/')[4])
 }
 
-module namingConvention '../../modules/naming-convention.bicep' = {
-  name: 'get-naming-${workloadShortName}-${deploymentNameSuffix}'
-  params: {
-    environmentAbbreviation: environmentAbbreviation
-    location: location
-    resourcePrefix: resourcePrefix
-  }
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
+  name: split(hubVirtualNetworkResourceId, '/')[8]
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
 }
 
-module logic 'modules/logic.bicep' = {
+module logic '../../modules/logic.bicep' = {
   name: 'get-logic-${workloadShortName}-${deploymentNameSuffix}'
   params: {
+    deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
-    resourcePrefix: resourcePrefix
-    resources: namingConvention.outputs.resources
-    subscriptionId: subscriptionId
-    tokens: namingConvention.outputs.tokens
-    workloadName: workloadName
-    workloadShortName: workloadShortName
+    location: location
+    networks: [
+      {
+        name: workloadName
+        shortName: workloadShortName
+        deployUniqueResources: false
+        subscriptionId: subscriptionId
+        nsgDiagLogs: networkSecurityGroupDiagnosticsLogs
+        nsgDiagMetrics: networkSecurityGroupDiagnosticsMetrics
+        nsgRules: networkSecurityGroupRules
+        vnetAddressPrefix: virtualNetworkAddressPrefix
+        vnetDiagLogs: virtualNetworkDiagnosticsLogs
+        vnetDiagMetrics: virtualNetworkDiagnosticsMetrics
+        subnetAddressPrefix: subnetAddressPrefix
+      }
+    ]
+    resourcePrefix: identifier
+    stampIndex: stampIndex
   }
 }
 
@@ -141,35 +158,34 @@ module rg '../../modules/resource-group.bicep' = {
   name: 'deploy-rg-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     location: location
-    name: logic.outputs.network.resourceGroupName
-    tags: calculatedTags
+    mlzTags: logic.outputs.mlzTags
+    name: replace(logic.outputs.tiers[0].namingConvention.resourceGroup, logic.outputs.tokens.service, 'network')
+    tags: tags
   }
 }
 
 module networking 'modules/networking.bicep' = {
-  name: 'deploy-networking-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-network-${workloadShortName}-${deploymentNameSuffix}'
   params: {
+    additionalSubnets: additionalSubnets
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcher: deployNetworkWatcher
-    firewallSkuTier: azureFirewall.properties.sku.tier
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     location: location
-    networkSecurityGroupName: logic.outputs.network.networkSecurityGroupName
+    mlzTags: logic.outputs.mlzTags
+    networkSecurityGroupName: logic.outputs.tiers[0].namingConvention.networkSecurityGroup
     networkSecurityGroupRules: networkSecurityGroupRules
-    networkWatcherName: logic.outputs.network.networkWatcherName
-    resourceGroupName: logic.outputs.network.resourceGroupName
-    routeTableName: logic.outputs.network.routeTableName
+    networkWatcherName: logic.outputs.tiers[0].namingConvention.networkWatcher
+    resourceGroupName: rg.outputs.name
+    routeTableName: logic.outputs.tiers[0].namingConvention.routeTable
     routeTableRouteNextHopIpAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
     subnetAddressPrefix: subnetAddressPrefix
-    subnetName: logic.outputs.network.subnetName
+    subnetName: logic.outputs.tiers[0].namingConvention.subnet
     subscriptionId: subscriptionId
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
-    virtualNetworkName: logic.outputs.network.virtualNetworkName
-    vNetDnsServers: [
-      azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
-    ]
-    workloadName: workloadName
+    virtualNetworkName: logic.outputs.tiers[0].namingConvention.virtualNetwork
+    vNetDnsServers: virtualNetwork.properties.?dhcpOptions.dnsServers ?? [] 
     workloadShortName: workloadShortName
   }
   dependsOn: [
@@ -181,72 +197,108 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    keyVaultPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore'))
+    keyVaultPrivateDnsZoneResourceId: resourceId(
+      hubSubscriptionId,
+      hubResourceGroupName,
+      'Microsoft.Network/privateDnsZones',
+      replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
+    )
     location: location
-    networkProperties: logic.outputs.network
+    mlzTags: logic.outputs.mlzTags
+    resourceGroupName: rg.outputs.name
     subnetResourceId: networking.outputs.subnetResourceId
-    tags: calculatedTags
+    tags: tags
+    tier: logic.outputs.tiers[0]
+    tokens: logic.outputs.tokens
+    workloadShortName: workloadShortName
   }
 }
 
 module storage 'modules/storage.bicep' = {
   name: 'deploy-storage-${workloadShortName}-${deploymentNameSuffix}'
   params: {
-    blobsPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.blob.${environment().suffixes.storage}')
+    blobsPrivateDnsZoneResourceId: resourceId(
+      hubSubscriptionId,
+      hubResourceGroupName,
+      'Microsoft.Network/privateDnsZones',
+      'privatelink.blob.${environment().suffixes.storage}'
+    )
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageSkuName: logStorageSkuName
-    network: logic.outputs.network
-    serviceToken: namingConvention.outputs.tokens.service
+    mlzTags: logic.outputs.mlzTags
+    network: logic.outputs.tiers[0]
+    resourceGroupName: rg.outputs.name
+    serviceToken: logic.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     subnetResourceId: networking.outputs.subnetResourceId
-    tablesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.table.${environment().suffixes.storage}')
-    tags: calculatedTags
+    tablesPrivateDnsZoneResourceId: resourceId(
+      hubSubscriptionId,
+      hubResourceGroupName,
+      'Microsoft.Network/privateDnsZones',
+      'privatelink.table.${environment().suffixes.storage}'
+    )
+    tags: tags
     userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
   }
 }
 
 module diagnostics 'modules/diagnostics.bicep' = {
-  name: 'deploy-diagnostics-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-diag-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deploymentNameSuffix: deploymentNameSuffix
+    keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
+    keyVaultName: customerManagedKeys.outputs.keyVaultName
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    network: logic.outputs.network
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
+    networkSecurityGroupName: networking.outputs.networkSecurityGroupName
+    resourceGroupName: rg.outputs.name
     storageAccountResourceId: storage.outputs.storageAccountResourceId
-    supportedClouds: supportedClouds
+    tier: logic.outputs.tiers[0]
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
+    virtualNetworkName: networking.outputs.virtualNetworkName
   }
 }
 
-module policyAssignments '../../modules/policy-assignments.bicep' = if (deployPolicy) {
-  name: 'assign-policy-${workloadName}-${deploymentNameSuffix}'
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    location: location
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    networks: [
-      logic.outputs.network
+module policyAssignments '../../modules/policy-assignments.bicep' =
+  if (deployPolicy) {
+    name: 'assign-policy-${workloadShortName}-${deploymentNameSuffix}'
+    params: {
+      deploymentNameSuffix: deploymentNameSuffix
+      location: location
+      logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+      tiers: logic.outputs.tiers
+      policy: policy
+      resourceGroupNames: [
+        rg.outputs.name
+      ]
+    }
+    dependsOn: [
+      rg
     ]
-    policy: policy
   }
-  dependsOn: [
-    rg
-  ]
-}
 
-module defenderForCloud '../../modules/defenderForCloud.bicep' = if (deployDefender) {
-  name: 'set-${workloadName}-sub-defender'
-  params: {
-    logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
-    emailSecurityContact: emailSecurityContact
+module defenderForCloud '../../modules/defender-for-cloud.bicep' =
+  if (deployDefender) {
+    name: 'set-defender-${workloadShortName}-${deploymentNameSuffix}'
+    params: {
+      emailSecurityContact: emailSecurityContact
+      logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
+    }
   }
-}
 
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
-output network object = logic.outputs.network
+output keyVaultUri string = customerManagedKeys.outputs.keyVaultUri
+output locatonProperties object = logic.outputs.locationProperties
+output mlzTags object = logic.outputs.mlzTags
+output namingConvention object = logic.outputs.tiers[0].namingConvention
+output privateDnsZones array = logic.outputs.privateDnsZones
+output resourcePrefix string = azureFirewall.tags.resourcePrefix
+output storageEncryptionKeyName string = customerManagedKeys.outputs.storageKeyName
 output subnetResourceId string = networking.outputs.subnetResourceId
-output tokens object = namingConvention.outputs.tokens
+output tier object = logic.outputs.tiers[0]
+output tokens object = logic.outputs.tokens
+output userAssignedIdentityResourceId string = customerManagedKeys.outputs.userAssignedIdentityResourceId

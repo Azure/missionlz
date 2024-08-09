@@ -2,30 +2,54 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+
+targetScope = 'subscription'
+
+param additionalSubnets array = []
 param deployNetworkWatcher bool
-param firewallSkuTier string
 param location string
+param mlzTags object
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
 param networkWatcherName string
+param resourceGroupName string
 param routeTableName string
-param routeTableRouteName string = 'default_route'
-param routeTableRouteAddressPrefix string = '0.0.0.0/0'
 param routeTableRouteNextHopIpAddress string
-param routeTableRouteNextHopType string = 'VirtualAppliance'
 param subnetAddressPrefix string
 param subnetName string
-param subnetPrivateEndpointNetworkPolicies string
-param subnetPrivateLinkServiceNetworkPolicies string
+param subscriptionId string
 param tags object
 param virtualNetworkAddressPrefix string
 param virtualNetworkName string
 param vNetDnsServers array
 
+var delegations = {
+  AzureNetAppFiles: [
+    {
+      name: 'Microsoft.Netapp.volumes'
+      id: resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', virtualNetworkName, 'AzureNetAppFiles', 'Microsoft.Netapp.volumes')
+      properties: {
+        serviceName: 'Microsoft.Netapp/volumes'
+      }
+      type: 'Microsoft.Network/virtualNetworks/subnets/delegations'
+    }
+  ]
+}
+var subnets = union([
+  {
+    name: subnetName
+    properties: {
+      addressPrefix: subnetAddressPrefix
+    }
+  }
+], additionalSubnets)
+
 module networkSecurityGroup '../modules/network-security-group.bicep' = {
   name: 'networkSecurityGroup'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     location: location
+    mlzTags: mlzTags
     name: networkSecurityGroupName
     securityRules: networkSecurityGroupRules
     tags: tags
@@ -34,22 +58,23 @@ module networkSecurityGroup '../modules/network-security-group.bicep' = {
 
 module routeTable '../modules/route-table.bicep' = {
   name: 'routeTable'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     disableBgpRoutePropagation: true
     location: location
+    mlzTags: mlzTags
     name: routeTableName
-    routeAddressPrefix: routeTableRouteAddressPrefix
-    routeName: routeTableRouteName
     routeNextHopIpAddress: routeTableRouteNextHopIpAddress
-    routeNextHopType: routeTableRouteNextHopType
     tags: tags
   }
 }
 
 module networkWatcher '../modules/network-watcher.bicep' = if (deployNetworkWatcher) {
   name: 'networkWatcher'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     location: location
+    mlzTags: mlzTags
     name: networkWatcherName
     tags: tags
   }
@@ -57,29 +82,29 @@ module networkWatcher '../modules/network-watcher.bicep' = if (deployNetworkWatc
 
 module virtualNetwork '../modules/virtual-network.bicep' = {
   name: 'virtualNetwork'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     addressPrefix: virtualNetworkAddressPrefix
     location: location
+    mlzTags: mlzTags
     name: virtualNetworkName
-    subnets: [
-      {
-        name: subnetName
-        properties: {
-          addressPrefix: subnetAddressPrefix
-          networkSecurityGroup: {
-            id: networkSecurityGroup.outputs.id
-          }
-          routeTable: {
-            id: routeTable.outputs.id
-          }
-          privateEndpointNetworkPolicies: subnetPrivateEndpointNetworkPolicies
-          privateLinkServiceNetworkPolicies: subnetPrivateLinkServiceNetworkPolicies
+    subnets: [for subnet in subnets: {
+      name: subnet.name
+      properties: {
+        addressPrefix: subnet.properties.addressPrefix
+        delegations: delegations[?subnet.name] ?? []
+        networkSecurityGroup: {
+          id: networkSecurityGroup.outputs.id
         }
+        routeTable: {
+          id: routeTable.outputs.id
+        }
+        privateEndpointNetworkPolicies: 'Disabled'
+        privateLinkServiceNetworkPolicies: 'Disabled'
       }
-    ]
+    }]
     tags: tags
     vNetDnsServers: vNetDnsServers
-    firewallSkuTier: firewallSkuTier
   }
   dependsOn: [
     networkWatcher

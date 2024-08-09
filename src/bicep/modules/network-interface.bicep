@@ -3,33 +3,32 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param name string
 param location string
-param tags object = {}
-
-param ipConfigurationName string
-param subnetId string
-param networkSecurityGroupId string
+param mlzTags object = {}
+param name string
+param networkSecurityGroupResourceId string
 param privateIPAddressAllocationMethod string
+param subnetResourceId string
+param tags object = {}
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' = {
   name: name
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}, mlzTags)
   properties: {
     ipConfigurations: [
       {
-        name: ipConfigurationName
+        name: 'ipconfig'
         properties: {
           subnet: {
-            id: subnetId
+            id: subnetResourceId
           }
           privateIPAllocationMethod: privateIPAddressAllocationMethod
         }
       }
     ]
     networkSecurityGroup: {
-      id: networkSecurityGroupId
+      id: networkSecurityGroupResourceId
     }
   }
 }

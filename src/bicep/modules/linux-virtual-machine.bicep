@@ -15,15 +15,19 @@ param authenticationType string
 param diskEncryptionSetResourceId string
 param diskName string
 param location string
+param logAnalyticsWorkspaceId string
+param mlzTags object
 param name string
 param networkInterfaceName string
+param networkSecurityGroupResourceId string
 param osDiskCreateOption string
 param osDiskType string
+param privateIPAddressAllocationMethod string
+param subnetResourceId string
 param tags object
-param vmImageOffer string
 param vmImagePublisher string
+param vmImageOffer string
 param vmImageSku string
-param vmImageVersion string
 param vmSize string
 
 var linuxConfiguration = {
@@ -37,16 +41,24 @@ var linuxConfiguration = {
     ]
   }
 }
-param logAnalyticsWorkspaceId string
 
-resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' existing = {
-  name: networkInterfaceName
-}
+module networkInterface '../modules/network-interface.bicep' = {
+    name: 'remoteAccess-linuxNetworkInterface'
+    params: {
+      location: location
+      mlzTags: mlzTags
+      name: networkInterfaceName
+      networkSecurityGroupResourceId: networkSecurityGroupResourceId
+      privateIPAddressAllocationMethod: privateIPAddressAllocationMethod
+      subnetResourceId: subnetResourceId
+      tags: tags
+    }
+  }
 
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   name: name
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   properties: {
     diagnosticsProfile: {
       bootDiagnostics: {
@@ -59,7 +71,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
     networkProfile: {
       networkInterfaces: [
         {
-          id: networkInterface.id
+          id: networkInterface.outputs.id
           properties: {
             deleteOption: 'Delete'
           }
@@ -98,7 +110,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
         publisher: vmImagePublisher
         offer: vmImageOffer
         sku: vmImageSku
-        version: vmImageVersion
+        version: 'latest'
       }
     }
     licenseType: null
@@ -165,7 +177,7 @@ resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' 
   properties: {
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
     type: 'OmsAgentForLinux'
-    typeHandlerVersion: '1.17'
+    typeHandlerVersion: '1.19'
     settings: {
       workspaceId: reference(logAnalyticsWorkspaceId , '2015-11-01-preview').customerId
       stopOnMultipleConnections: true
