@@ -31,6 +31,7 @@ module hubNetwork 'hub-network.bicep' = {
   name: 'deploy-vnet-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
+    bastionHostNetworkSecurityGroup: hub.namingConvention.bastionHostNetworkSecurityGroup
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
     azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
     deployNetworkWatcher: deployNetworkWatcher
