@@ -1272,7 +1272,7 @@
                   "multiLine": true,
                   "constraints": {
                     "required": true,
-                    "allowedValues": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmImagePublisher, 'Canonical'), parse('[{\"label\": \"Ubuntu\",\"value\": \"ubuntu\"}]'), if(equals(steps('remoteAccess').linuxVmSection.linuxVmImagePublisher, 'RedHat'), parse('[{\"label\": \"RHEL\",\"value\": \"RHEL\"}]'), parse('[{\"label\": \"Debian\",\"value\": \"debian-12\"}]')))]"
+                    "allowedValues": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmImagePublisher, 'Canonical'), parse('[{\"label\": \"Archaic\",\"value\": \"ubuntuserver\"},{\"label\": \"Version 20\",\"value\": \"0001-com-ubuntu-server-focal\"},{\"label\": \"Version 22\",\"value\": \"0001-com-ubuntu-server-jammy\"}]'), if(equals(steps('remoteAccess').linuxVmSection.linuxVmImagePublisher, 'RedHat'), parse('[{\"label\": \"RHEL\",\"value\": \"RHEL\"}]'), parse('[{\"label\": \"Debian\",\"value\": \"debian-12\"}]')))]"
                   },
                   "visible": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]"
                 },

@@ -378,13 +378,15 @@ param linuxVmOsDiskType string = 'Standard_LRS'
 @description('[Canonical for Ubuntu/RedHat/Debian] The available Linux Publishers')
 param linuxVmImagePublisher string = 'Canonical'
 @allowed([
-  'Ubuntu'
+  'ubuntuserver'
+  '0001-com-ubuntu-server-focal'
+  '0001-com-ubuntu-server-jammy'
   'RHEL'
   'Debian-12'
 ])
 @description('[Ubuntu/RHEL/Debian-12] The available Linux Offers')
-param linuxVmImageOffer string = 'Ubuntu'
-param linuxVmImageSku string = '18_04-lts-gen2'
+param linuxVmImageOffer string = '0001-com-ubuntu-server-focal'
+param linuxVmImageSku string = '20_04-lts-gen2'
 param linuxVmSize string = 'Standard_D2s_v3'
 
 @allowed([
