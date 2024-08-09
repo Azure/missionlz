@@ -460,7 +460,9 @@
                   "type": "Microsoft.Common.DropDown",
                   "label": "Firewall SKU",
                   "placeholder": "",
-                  "defaultValue": ["Premium"],
+                  "defaultValue": [
+                    "Premium"
+                  ],
                   "toolTip": "Selecting a value other than Premium will reduce the security of the MLZ environment and your environment no longer be SCCA compliant. The Premium SKU is recommended for all production environments that require TLS inspection and SCCA.",
                   "multiselect": false,
                   "selectAll": false,
@@ -728,7 +730,7 @@
                   "options": {
                     "text": "Enabling the additional paid features of Microsoft Defender for Cloud is recommended.  If you have previously enabled any paid workload protection plans, you must select the checkbox and relevant plans on the dropdown list, to ensure protection is maintained through any deployment(s) of MLZ.",
                     "uri": "https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction#protect-cloud-workloads"
-                    }
+                  }
                 },
                 {
                   "name": "deployDefender",
@@ -1141,11 +1143,11 @@
                       {
                         "label": "2019",
                         "value": "2019-datacenter-gensecond"
-		                  },
-		                  {
-		                    "label": "2022",
+                      },
+                      {
+                        "label": "2022",
                         "value": "2022-datacenter-g2"
-		                  }
+                      }
                     ]
                   },
                   "visible": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]"
@@ -1245,15 +1247,15 @@
                       {
                         "label": "Canonical for Ubuntu",
                         "value": "Canonical"
-		                  },
-		                  {
-		                    "label": "RedHat",
+                      },
+                      {
+                        "label": "RedHat",
                         "value": "RedHat"
-		                  },
-		                  {
-		                    "label": "Debian",
+                      },
+                      {
+                        "label": "Debian",
                         "value": "Debian"
-		                  }
+                      }
                     ],
                     "required": true
                   },
@@ -1270,20 +1272,7 @@
                   "multiLine": true,
                   "constraints": {
                     "required": true,
-                    "allowedValues": [
-                      {
-		                    "label": "Ubuntu",
-                        "value": "ubuntu"
-		                  },
-		                  {
-		                    "label": "RHEL",
-                        "value": "RHEL"
-		                  },
-		                  {
-		                    "label": "Debian",
-                        "value": "debian-12"
-		                  }
-                    ]
+                    "allowedValues": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmImagePublisher, 'Canonical'), parse('[{\"label\": \"Ubuntu\",\"value\": \"ubuntu\"}]'), if(equals(steps('remoteAccess').linuxVmSection.linuxVmImagePublisher, 'RedHat'), parse('[{\"label\": \"RHEL\",\"value\": \"RHEL\"}]'), parse('[{\"label\": \"Debian\",\"value\": \"debian-12\"}]')))]"
                   },
                   "visible": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]"
                 },
