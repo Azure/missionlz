@@ -136,17 +136,17 @@ module managementVM 'managementVM.bicep' = {
   name: 'management-vm-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    containerName: containerName
+
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     hybridUseBenefit: hybridUseBenefit
     localAdministratorPassword: localAdministratorPassword
     localAdministratorUsername: localAdministratorUsername
     location: location
     mlzTags: mlzTags
-    storageAccountName: split(storageAccountResourceId, '/')[8]
+
     subnetResourceId: subnetResourceId
     tags: tags
-    userAssignedIdentityPrincipalId: userAssignedIdentityPrincipalId
+
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
     virtualMachineName: managementVirtualMachineName
   }
