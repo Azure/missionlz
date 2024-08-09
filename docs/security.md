@@ -1,4 +1,4 @@
-# DoD Security and Compliance features in MLZ
+# Security and Compliance Settings in MLZ
 
 **The following security settings and compliance features are available during the Mission Landing Zone deployment process:**
 
@@ -46,20 +46,82 @@ MLZ can be deployed with the free Foundational Cloud Security Posture Management
 
 ## Sentinel
 
-Sentinel is Microsoft’s Security Information and event management (SIEM) and Security orchestration, automation, and response (SOAR) solution. With Microsoft Sentinel, you get a single solution for attack detection, threat visibility, proactive hunting, and threat response. A Log Analytics Workspace is created and deployed specifically for Sentinel to collect log data from multiple services.
+Sentinel is Microsoft’s Security Information and Event Management (SIEM) and Security orchestration, automation, and response (SOAR) solution. With Microsoft Sentinel, you get a single solution for attack detection, threat visibility, proactive hunting, and threat response. A Log Analytics Workspace is created and deployed specifically for Sentinel to collect log data from multiple services.
 A Data Connector is deployed to import data from Microsoft Entra to track resource activity.
 
-**Log Analytics Workspace:**
+Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities.
 
-- ***-log-operations-dev-va
+**Log Analytics Workspace name:**
+
+- **log-operations-test-use**
 
 **Data Connector:**
 
-- Azure Activity: Azure Activity Log is a subscription log that provides insight into subscription-level events that occur in Azure, including events from Azure Resource Manager operational data,
+- **Azure Activity:** Azure Activity Log is a subscription log that provides insight into subscription-level events that occur in Azure, including events from Azure Resource Manager operational data, service health events, write operations taken on the resources in your subscription, and the status of activities performed in Azure.
+
+## Azure Firewall Post-Configurations
+
+<!-- markdownlint-disable MD013 -->
+Azure Firewall is a cloud-native and intelligent network firewall security service that provides the best threat protection for your cloud workloads running in Azure. It's a fully stateful firewall as a service with built-in high availability and unrestricted cloud scalability. For each rule, you can specify source and destination, port, and protocol. The following table is the list of FQDNs and endpoints your session host VMs need to access for Azure Virtual Desktop.
+<!-- markdownlint-enable MD013 -->
+
+### Firewall Policy
+
+<!-- markdownlint-disable MD013 -->
+You can use Firewall Policy to manage rule sets that Azure Firewall uses to filter traffic. Firewall policy organizes, prioritizes, and processes the rule sets based on a hierarchy. To allow the flow of communication for MLZ AVD resources, the **mlz-afw-hub-xxx-use2** azure firewall needs to have rules added to allow this communication to flow. The requried steps to allow successful communication includes adding network rules and application rules by modifying the MLZ firewall policy, **mlz-afwp-hub-xxx-ues2**. The rules that are deployed with this policy should be removed and replaced with the below network and application rules.
+<!-- markdownlint-enable MD013 -->
+
+### Rule Collection Groups
+
+A rule collection group is used to group rule collections. They're the first unit that the firewall processes, and they follow a priority order based on values. Below is an example of rule collection groups that should be created to manage AVD network communications.
+
+### Priority Processing
+
+<!-- markdownlint-disable MD013 -->
+Rules are processed based on Rule Collection Group Priority and Rule Collection priority. Priority is any number between 100 (highest priority) to 65,000 (lowest priority). When adding rules for MLZ AVD communication, consider the priority of each rule as they are processed in a priority order. Refer to the ***Rule processing using Firewall Policy*** link under the Reference links section for additional information.
+<!-- markdownlint-enable MD013 -->
+
+![alt text](image-17.png)
+
+### Network Rules
+
+<!-- markdownlint-disable MD013 -->
+Network rules allow or deny inbound and outbound traffic. You can use a network rule when you want to filter traffic based on IP addresses, any ports, and any protocols. The **mlz-afwp-hub-xxx-ues2** firewall policy should have the below rules added to allow AVD communication flow properly. Below are the rules for Azure Commercial and Azure Government. Please refer to the reference links section for information on additional optional Microsoft service endpoints that may need to be added to your firewall or NSGs to ensure proper access.
+<!-- markdownlint-enable MD013 -->
+
+- **Azure Commercial**
+![alt text](image-22.png)
+
+- **Azure Government**
+![alt text](image-25.png)
+
+**Application Rules**
+
+Application rules allow or deny outbound traffic. You can use an application rule when you want to filter traffic based on fully qualified domain names (FQDNs), URLs, and HTTP/HTTPS protocols.The below application rules should be added to the firewall policy to allow AVD communication.
+
+- **Azure Commercial**
+![alt text](image-24.png)
+
+- **Azure Government**
+![alt text](image-26.png)
+
+***References links:***
+
+- [Azure Firewall Policy rule sets](https://learn.microsoft.com/en-us/azure/firewall/policy-rule-sets)
+
+- [Required FQDNs and endpoints for Azure Virtual Desktops](https://learn.microsoft.com/en-us/azure/virtual-desktop/required-fqdn-endpoint?tabs=azure)
+
+- [Rule processing using Firewall Policy](https://learn.microsoft.com/en-us/azure/firewall/rule-processing#rule-processing-using-firewall-policy)
+
+- [Proxy server guidelines for Azure Virtual Desktop](https://learn.microsoft.com/en-us/azure/virtual-desktop/proxy-server-support)
+
+- [Microsoft 365 URL and IP address ranges](https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges?view=o365-worldwide)
+
+- [Microsoft 365 U.S. Government DoD endpoints](https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-u-s-government-dod-endpoints?view=o365-worldwide)
 
 ## Customer Responsibilities
 
-There are additional security best practices which should be implemented after deploying a Mission Landing Zone that are specific to each customer’s environment.
+There are additional security best practices which should be implemented after deploying a Mission Landing Zone that are specific to each customer’s environment. Below are links that provide guidance on how to configure these features.
 
 - [Deploy STIG-compliant Windows Virtual Machines](https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-stig-windows-vm)
 
