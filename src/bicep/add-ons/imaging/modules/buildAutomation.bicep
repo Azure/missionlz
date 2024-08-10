@@ -24,6 +24,7 @@ param excludeFromLatest bool
 param hybridUseBenefit bool
 param imageDefinitionName string
 param imageMajorVersion int
+param imageMinorVersion int
 param imagePatchVersion int
 param imageVirtualMachineName string
 param installAccess bool
@@ -149,6 +150,7 @@ module managementVM 'managementVM.bicep' = {
 
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
     virtualMachineName: managementVirtualMachineName
+    virtualMachineSize: virtualMachineSize
   }
 }
 
@@ -175,6 +177,7 @@ module automationAccount 'automationAccount.bicep' = {
     hybridUseBenefit: hybridUseBenefit
     imageDefinitionName: imageDefinitionName
     imageMajorVersion: imageMajorVersion
+    imageMinorVersion: imageMinorVersion
     imagePatchVersion: imagePatchVersion
     imageVirtualMachineName: imageVirtualMachineName
     installAccess: installAccess

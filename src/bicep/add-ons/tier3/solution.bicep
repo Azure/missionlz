@@ -292,10 +292,12 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
 
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
 output keyVaultUri string = customerManagedKeys.outputs.keyVaultUri
+output keyVaultName string = customerManagedKeys.outputs.keyVaultName
 output locatonProperties object = logic.outputs.locationProperties
 output mlzTags object = logic.outputs.mlzTags
 output namingConvention object = logic.outputs.tiers[0].namingConvention
 output privateDnsZones array = logic.outputs.privateDnsZones
+output resourceGroupName string = rg.outputs.name
 output resourcePrefix string = azureFirewall.tags.resourcePrefix
 output storageEncryptionKeyName string = customerManagedKeys.outputs.storageKeyName
 output subnetResourceId string = networking.outputs.subnetResourceId

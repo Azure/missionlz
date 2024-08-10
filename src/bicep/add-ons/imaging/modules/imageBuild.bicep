@@ -17,6 +17,7 @@ param excludeFromLatest bool = true
 param hybridUseBenefit bool = false
 param imageDefinitionName string
 param imageMajorVersion int
+param imageMinorVersion int
 param imagePatchVersion int
 param imageVirtualMachineName string
 param installAccess bool = false
@@ -55,7 +56,7 @@ param storageAccountResourceId string
 param subnetResourceId string
 param tags object = {}
 param teamsInstaller string = ''
-param updateService string = 'MicrosoftUpdate'
+param updateService string = 'MU'
 param userAssignedIdentityClientId string
 param userAssignedIdentityPrincipalId string
 param userAssignedIdentityResourceId string
@@ -64,8 +65,7 @@ param vDOTInstaller string = ''
 param virtualMachineSize string
 param wsusServer string = ''
 
-var autoImageVersion = '${imageMajorVersion}.${imageSuffix}.${imagePatchVersion}'
-var imageSuffix = take(deploymentNameSuffix, 9)
+var autoImageVersion = '${imageMajorVersion}.${imageMinorVersion}.${imagePatchVersion}'
 var storageAccountName = split(storageAccountResourceId, '/')[8]
 var storageEndpoint = environment().suffixes.storage
 var subscriptionId = subscription().subscriptionId
@@ -91,6 +91,7 @@ module managementVM 'managementVM.bicep' =
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentityResourceId
       virtualMachineName: managementVirtualMachineName
+      virtualMachineSize: virtualMachineSize
     }
   }
 
@@ -191,7 +192,7 @@ module microsoftUdpates 'microsoftUpdates.bicep' =
     ]
   }
 
-module restartVirtualMachine2 'restartVirtualMachine.bicep' = {
+module restartVirtualMachine2 'restartVirtualMachine.bicep' = if (installUpdates) {
   name: 'restart-vm-2-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {

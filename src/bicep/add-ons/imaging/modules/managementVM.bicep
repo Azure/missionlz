@@ -18,6 +18,7 @@ param tags object
 //param userAssignedIdentityPrincipalId string
 param userAssignedIdentityResourceId string
 param virtualMachineName string
+param virtualMachineSize string
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
   name: 'nic-${virtualMachineName}'
@@ -53,14 +54,16 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     mlzTags
   )
   identity: {
-    type: 'UserAssigned'
+    type: 'SystemAssigned, UserAssigned'
+    //A System Assigned Identity is required for the Hybrid Runbook Worker Extension
+    //https://learn.microsoft.com/en-us/azure/automation/troubleshoot/extension-based-hybrid-runbook-worker#scenario-hybrid-worker-deployment-fails-due-to-system-assigned-identity-not-enabled
     userAssignedIdentities: {
       '${userAssignedIdentityResourceId}': {}
     }
   }
   properties: {
     hardwareProfile: {
-      vmSize: 'Standard_D2s_v3'
+      vmSize: virtualMachineSize
     }
     osProfile: {
       computerName: virtualMachineName

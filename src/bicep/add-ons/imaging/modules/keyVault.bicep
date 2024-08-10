@@ -56,7 +56,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
     enabledForTemplateDeployment: true
     enabledForDiskEncryption: false
     enableRbacAuthorization: true
-    enableSoftDelete: false
+    enableSoftDelete: true
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Deny'
