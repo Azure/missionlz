@@ -77,7 +77,7 @@ resource generalizeVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands
             }
 
             # Stop the VM
-            $null = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Post' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/powerOff?api-version=2024-03-01')
+            #$null = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Post' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/powerOff?api-version=2024-03-01')
             # Wait for it to show as stopped in Azure
             Do {
                 Start-Sleep -Seconds 5
