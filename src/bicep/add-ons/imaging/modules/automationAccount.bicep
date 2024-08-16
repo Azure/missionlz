@@ -242,7 +242,7 @@ resource updateRunBook 'Microsoft.Compute/virtualMachines/runCommands@2023-07-01
         value: environment().resourceManager
       }
       {
-        name: 'RunbBookScriptContent'
+        name: 'RunBookScriptContent'
         value: loadTextContent('../scripts/New-AzureZeroTrustImageBuild.ps1')
       }
       {
