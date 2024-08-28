@@ -1,33 +1,5 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-# Terraform artifacts
-*.tfvars
-*.terraform
-*.tfstate
-*.tfstate.*
-terraform-provider-azurerm_v*
-terraform-provider-random_v*
-*.terraform.lock.hcl
-
-# Terraform logs
-crash.log
-
-# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-# example: *tfplan*
-*plan*
-!terraform-plan.yml
-!src/bicep/**
-*.plan*
-
 # Mac files
 .DS_Store
-
-# Ignore deploymentVariables.json as it is specific to a single instantiation of MLZ
-deploymentVariables.json
-
-# Ignore compiled bicep files from the examples that use the shared deployment variables file pattern.
-src/bicep/examples/appServicePlan/appService.json
-src/bicep/examples/containerRegistry/contRegistry.json
-src/bicep/examples/keyVault/azureKeyVault.json
-src/bicep/examples/tier3/tier3.json
