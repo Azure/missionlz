@@ -26,8 +26,6 @@ In particular, the current built-in NIST initiative has a couple policies attach
 
 These types of policies require a managed identity be created that the Policy engine can use to take these actions. This managed identity must have Contributor access to the resources but deploying as a Contributor and not owner limits the ability.
 
-The Terraform MLZ deployment cannot make this role assignment but the managed identity is created. This is by design for security purposes.
-
 3. The final note is that these are audits based on NIST controls and recommendations that will require out of band work.
 
 For example, storage account redundancy and encryption will require a decision process on what MLZ is using as temporary storage for logs versus requirements for the workloads.
@@ -62,51 +60,11 @@ az deployment group create \
   --parameters logAnalyticsWorkspaceResourceGroupName=<Log Analytics Workspace Resource Group Name>
 ```
 
-### Deploying with Terraform
-
-The Terraform implementaiton at `src/terraform/mlz/main.tf` supports assigning NIST 800-53 policies. You can enable this by providing a `true` value to the `create_policy_assignment` variable:
-
-```plaintext
-cd src/terraform/mlz
-terraform init
-terraform apply -var="create_policy_assignment=true"
-```
-
-After the resources are deployed, you will need to go into go into each assignment and retrieve the managed identity and modify its role access to contributor scoped to the associated resource group. This is due to the initiative including modify and deploy policies that act on resources, like deploying the require policy guest configuration extensions to VMs.
-
 ## Modifying
 
 ### Modifying with Bicep
 
 The project stores well-known policies at [src/bicep/modules/policies](../src/bicep/modules/policies) where JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
-
-### Modifying with Terraform
-
-This project uses a custom terraform module called 'policy-assignments'. This can be modified for adding additional initiatives if desired. The module deployments retrieve their parameter values from a local json file stored in the module directory named 'nist-parameter-values' and named after the cloud environment they are deploying to, public or usgovernment.
-
-Example parameters file snippet:
-
-```arm
-{
-    "listOfMembersToExcludeFromWindowsVMAdministratorsGroup":
-    {
-      "value": "admin"
-    },
-    "listOfMembersToIncludeInWindowsVMAdministratorsGroup":
-    {
-      "value": "azureuser"
-    },
-    "logAnalyticsWorkspaceIdforVMReporting":
-    {
-      "value": ${jsonencode(laws_instance_id)}
-    },
-    "IncludeArcMachines":
-    {
-        "value": "true"
-    }
-```
-
-In the above example the 'logAnalyticsWorkspaceIdforVMReporting' is retrieved from the running terraform deployment variables. This could be modified to use a central logging workspace if desired.
 
 ## What's Next
 
