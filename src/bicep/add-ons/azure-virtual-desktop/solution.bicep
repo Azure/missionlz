@@ -262,13 +262,6 @@ param validationEnvironment bool = false
 @description('The number of virtual CPUs per virtual machine for the selected virtual machine size.')
 param virtualMachineVirtualCpuCount int
 
-@allowed([
-  'AzureMonitorAgent'
-  'LogAnalyticsAgent'
-])
-@description('Input the desired monitoring agent to send events and performance counters to a log analytics workspace.')
-param virtualMachineMonitoringAgent string = 'LogAnalyticsAgent'
-
 @secure()
 @description('The local administrator password for the AVD session hosts')
 param virtualMachinePassword string
@@ -522,7 +515,6 @@ module management 'modules/management/management.bicep' = {
     timeZone: length(deploymentLocations) == 2
       ? tier3_hosts.outputs.locatonProperties.timeZone
       : tier3_controlPlane.outputs.locatonProperties.timeZone
-    virtualMachineMonitoringAgent: virtualMachineMonitoringAgent
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
@@ -773,7 +765,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
     location: locationVirtualMachines
-    logAnalyticsWorkspaceName: management.outputs.logAnalyticsWorkspaceName
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
     mlzTags: tier3_controlPlane.outputs.mlzTags
@@ -816,7 +807,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     timeZone: length(deploymentLocations) == 2
       ? tier3_hosts.outputs.locatonProperties.timeZone
       : tier3_controlPlane.outputs.locatonProperties.timeZone
-    virtualMachineMonitoringAgent: virtualMachineMonitoringAgent
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername

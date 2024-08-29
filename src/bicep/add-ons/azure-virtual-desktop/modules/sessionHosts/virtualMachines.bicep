@@ -30,7 +30,6 @@ param imagePublisher string
 param imageSku string
 param imageVersionResourceId string
 param location string
-param logAnalyticsWorkspaceName string
 param managementVirtualMachineName string
 param monitoring bool
 param netAppFileShares array
@@ -51,7 +50,6 @@ param tagsNetworkInterfaces object
 param tagsVirtualMachines object
 param timestamp string = utcNow('yyyyMMddhhmmss')
 param uniqueToken string
-param virtualMachineMonitoringAgent string
 param virtualMachineNamePrefix string
 @secure()
 param virtualMachinePassword string
@@ -262,29 +260,7 @@ resource extension_GuestAttestation 'Microsoft.Compute/virtualMachines/extension
   }
 }]
 
-resource extension_MicrosoftMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): if (monitoring && virtualMachineMonitoringAgent == 'LogAnalyticsAgent') {
-  parent: virtualMachine[i]
-  name: 'MicrosoftmonitoringAgent'
-  location: location
-  tags: tagsVirtualMachines
-  properties: {
-    publisher: 'Microsoft.EnterpriseCloud.monitoring'
-    type: 'MicrosoftmonitoringAgent'
-    typeHandlerVersion: '1.0'
-    autoUpgradeMinorVersion: true
-    settings: {
-      workspaceId: monitoring ? reference(resourceId(resourceGroupManagement, 'Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName), '2015-03-20').customerId : null
-    }
-    protectedSettings: {
-      workspaceKey: monitoring ? listKeys(resourceId(resourceGroupManagement, 'Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName), '2015-03-20').primarySharedKey : null
-    }
-  }
-  dependsOn: [
-    extension_IaasAntimalware
-  ]
-}]
-
-resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = [for i in range(0, sessionHostCount): if (monitoring && virtualMachineMonitoringAgent == 'AzureMonitorAgent') {
+resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = [for i in range(0, sessionHostCount): if (monitoring) {
   parent: virtualMachine[i]
   name: 'AzureMonitorWindowsAgent'
   location: location
@@ -298,7 +274,7 @@ resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/e
   }
 }]
 
-resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' = [for i in range(0, sessionHostCount): if (monitoring && virtualMachineMonitoringAgent == 'AzureMonitorAgent') {
+resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' = [for i in range(0, sessionHostCount): if (monitoring) {
   scope: virtualMachine[i]
   name: dataCollectionRuleAssociationName
   properties: {
@@ -337,7 +313,6 @@ resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/exte
   }
   dependsOn: [
     dataCollectionRuleAssociation
-    extension_MicrosoftMonitoringAgent
   ]
 }]
 
