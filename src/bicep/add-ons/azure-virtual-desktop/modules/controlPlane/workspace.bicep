@@ -88,25 +88,13 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   }
 }
 
-resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!existing && monitoring) {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (monitoring) {
   name: workspaceFeedDiagnoticSettingName
   scope: workspace
   properties: {
     logs: [
       {
-        category: 'Checkpoint'
-        enabled: true
-      }
-      {
-        category: 'Error'
-        enabled: true
-      }
-      {
-        category: 'Management'
-        enabled: true
-      }
-      {
-        category: 'Feed'
+        categoryGroup: 'allLogs'
         enabled: true
       }
     ]
