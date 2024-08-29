@@ -27,9 +27,8 @@ This feature deploys the required resources to enable the Insights workbook in t
 **Deployed Resources:**
 
 - Log Analytics Workspace
-  - Windows Events
-  - Performance Counters
-- Microsoft Monitoring Agent extension
+- Data Collection Rule
+- Azure Monitor Windows Agent
 - Diagnostic Settings
   - Host Pool
   - Workspace

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "11580206043680719663"
+      "templateHash": "16070271507397737264"
     }
   },
   "parameters": {
@@ -500,17 +500,6 @@
       "type": "int",
       "metadata": {
         "description": "The number of virtual CPUs per virtual machine for the selected virtual machine size."
-      }
-    },
-    "virtualMachineMonitoringAgent": {
-      "type": "string",
-      "defaultValue": "LogAnalyticsAgent",
-      "allowedValues": [
-        "AzureMonitorAgent",
-        "LogAnalyticsAgent"
-      ],
-      "metadata": {
-        "description": "Input the desired monitoring agent to send events and performance counters to a log analytics workspace."
       }
     },
     "virtualMachinePassword": {
@@ -9195,9 +9184,6 @@
             "value": "[parameters('tags')]"
           },
           "timeZone": "[if(equals(length(variables('deploymentLocations')), 2), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locatonProperties.value.timeZone), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locatonProperties.value.timeZone))]",
-          "virtualMachineMonitoringAgent": {
-            "value": "[parameters('virtualMachineMonitoringAgent')]"
-          },
           "virtualMachinePassword": {
             "value": "[parameters('virtualMachinePassword')]"
           },
@@ -9218,7 +9204,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "15401254465612816372"
+              "templateHash": "5006503674104982392"
             }
           },
           "parameters": {
@@ -9343,9 +9329,6 @@
               "type": "object"
             },
             "timeZone": {
-              "type": "string"
-            },
-            "virtualMachineMonitoringAgent": {
               "type": "string"
             },
             "virtualMachinePassword": {
@@ -10494,9 +10477,6 @@
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
-                  },
-                  "virtualMachineMonitoringAgent": {
-                    "value": "[parameters('virtualMachineMonitoringAgent')]"
                   }
                 },
                 "template": {
@@ -10506,7 +10486,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "16960574901422918318"
+                      "templateHash": "17584404965206329057"
                     }
                   },
                   "parameters": {
@@ -10536,394 +10516,7 @@
                     },
                     "tags": {
                       "type": "object"
-                    },
-                    "virtualMachineMonitoringAgent": {
-                      "type": "string"
                     }
-                  },
-                  "variables": {
-                    "WindowsEvents": [
-                      {
-                        "name": "Microsoft-FSLogix-Apps/Operational",
-                        "types": [
-                          {
-                            "eventType": "Error"
-                          },
-                          {
-                            "eventType": "Warning"
-                          },
-                          {
-                            "eventType": "Information"
-                          }
-                        ]
-                      },
-                      {
-                        "name": "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational",
-                        "types": [
-                          {
-                            "eventType": "Error"
-                          },
-                          {
-                            "eventType": "Warning"
-                          },
-                          {
-                            "eventType": "Information"
-                          }
-                        ]
-                      },
-                      {
-                        "name": "System",
-                        "types": [
-                          {
-                            "eventType": "Error"
-                          },
-                          {
-                            "eventType": "Warning"
-                          }
-                        ]
-                      },
-                      {
-                        "name": "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Admin",
-                        "types": [
-                          {
-                            "eventType": "Error"
-                          },
-                          {
-                            "eventType": "Warning"
-                          },
-                          {
-                            "eventType": "Information"
-                          }
-                        ]
-                      },
-                      {
-                        "name": "Microsoft-FSLogix-Apps/Admin",
-                        "types": [
-                          {
-                            "eventType": "Error"
-                          },
-                          {
-                            "eventType": "Warning"
-                          },
-                          {
-                            "eventType": "Information"
-                          }
-                        ]
-                      },
-                      {
-                        "name": "Application",
-                        "types": [
-                          {
-                            "eventType": "Error"
-                          },
-                          {
-                            "eventType": "Warning"
-                          }
-                        ]
-                      }
-                    ],
-                    "WindowsPerformanceCounters": [
-                      {
-                        "objectName": "LogicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Disk Transfers/sec"
-                      },
-                      {
-                        "objectName": "LogicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Current Disk Queue Length"
-                      },
-                      {
-                        "objectName": "LogicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Disk Reads/sec"
-                      },
-                      {
-                        "objectName": "LogicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "% Free Space"
-                      },
-                      {
-                        "objectName": "LogicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Avg. Disk sec/Read"
-                      },
-                      {
-                        "objectName": "LogicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Disk Writes/sec"
-                      },
-                      {
-                        "objectName": "LogicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Avg. Disk sec/Write"
-                      },
-                      {
-                        "objectName": "LogicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Free Megabytes"
-                      },
-                      {
-                        "objectName": "LogicalDisk",
-                        "instanceName": "C:",
-                        "intervalSeconds": 60,
-                        "counterName": "% Free Space"
-                      },
-                      {
-                        "objectName": "LogicalDisk",
-                        "instanceName": "C:",
-                        "intervalSeconds": 30,
-                        "counterName": "Avg. Disk Queue Length"
-                      },
-                      {
-                        "objectName": "LogicalDisk",
-                        "instanceName": "C:",
-                        "intervalSeconds": 60,
-                        "counterName": "Avg. Disk sec/Transfer"
-                      },
-                      {
-                        "objectName": "LogicalDisk",
-                        "instanceName": "C:",
-                        "intervalSeconds": 30,
-                        "counterName": "Current Disk Queue Length"
-                      },
-                      {
-                        "objectName": "Memory",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "% Committed Bytes In Use"
-                      },
-                      {
-                        "objectName": "Memory",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Available MBytes"
-                      },
-                      {
-                        "objectName": "Memory",
-                        "instanceName": "*",
-                        "intervalSeconds": 30,
-                        "counterName": "Available Mbytes"
-                      },
-                      {
-                        "objectName": "Memory",
-                        "instanceName": "*",
-                        "intervalSeconds": 30,
-                        "counterName": "Page Faults/sec"
-                      },
-                      {
-                        "objectName": "Memory",
-                        "instanceName": "*",
-                        "intervalSeconds": 30,
-                        "counterName": "Pages/sec"
-                      },
-                      {
-                        "objectName": "Network Adapter",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Bytes Sent/sec"
-                      },
-                      {
-                        "objectName": "Network Adapter",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Bytes Received/sec"
-                      },
-                      {
-                        "objectName": "Network Interface",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Bytes Total/sec"
-                      },
-                      {
-                        "objectName": "PhysicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Avg. Disk Bytes/Transfer"
-                      },
-                      {
-                        "objectName": "PhysicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Avg. Disk Bytes/Read"
-                      },
-                      {
-                        "objectName": "PhysicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Avg. Disk sec/Write"
-                      },
-                      {
-                        "objectName": "PhysicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Avg. Disk sec/Read"
-                      },
-                      {
-                        "objectName": "PhysicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Avg. Disk Bytes/Write"
-                      },
-                      {
-                        "objectName": "PhysicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Avg. Disk sec/Transfer"
-                      },
-                      {
-                        "objectName": "PhysicalDisk",
-                        "instanceName": "*",
-                        "intervalSeconds": 30,
-                        "counterName": "Avg. Disk Queue Length"
-                      },
-                      {
-                        "objectName": "Process",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "IO Write Operations/sec"
-                      },
-                      {
-                        "objectName": "Process",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "IO Read Operations/sec"
-                      },
-                      {
-                        "objectName": "Process",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Thread Count"
-                      },
-                      {
-                        "objectName": "Process",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "% User Time"
-                      },
-                      {
-                        "objectName": "Process",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Working Set"
-                      },
-                      {
-                        "objectName": "Process",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "% Processor Time"
-                      },
-                      {
-                        "objectName": "Processor",
-                        "instanceName": "_Total",
-                        "intervalSeconds": 60,
-                        "counterName": "% Processor Time"
-                      },
-                      {
-                        "objectName": "Processor Information",
-                        "instanceName": "_Total",
-                        "intervalSeconds": 30,
-                        "counterName": "% Processor Time"
-                      },
-                      {
-                        "objectName": "RemoteFX Graphics",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Frames Skipped/Second - Insufficient Server Resources"
-                      },
-                      {
-                        "objectName": "RemoteFX Graphics",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Average Encoding Time"
-                      },
-                      {
-                        "objectName": "RemoteFX Graphics",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Frames Skipped/Second - Insufficient Client Resources"
-                      },
-                      {
-                        "objectName": "RemoteFX Graphics",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Frames Skipped/Second - Insufficient Network Resources"
-                      },
-                      {
-                        "objectName": "RemoteFX Network",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Current UDP Bandwidth"
-                      },
-                      {
-                        "objectName": "RemoteFX Network",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Current TCP Bandwidth"
-                      },
-                      {
-                        "objectName": "RemoteFX Network",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Current TCP RTT"
-                      },
-                      {
-                        "objectName": "RemoteFX Network",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Current UDP RTT"
-                      },
-                      {
-                        "objectName": "System",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Processor Queue Length"
-                      },
-                      {
-                        "objectName": "Terminal Services",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Inactive Sessions"
-                      },
-                      {
-                        "objectName": "Terminal Services",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Total Sessions"
-                      },
-                      {
-                        "objectName": "Terminal Services",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "Active Sessions"
-                      },
-                      {
-                        "objectName": "Terminal Services Session",
-                        "instanceName": "*",
-                        "intervalSeconds": 60,
-                        "counterName": "% Processor Time"
-                      },
-                      {
-                        "objectName": "User Input Delay per Process",
-                        "instanceName": "*",
-                        "intervalSeconds": 30,
-                        "counterName": "Max Input Delay"
-                      },
-                      {
-                        "objectName": "User Input Delay per Session",
-                        "instanceName": "*",
-                        "intervalSeconds": 30,
-                        "counterName": "Max Input Delay"
-                      }
-                    ]
                   },
                   "resources": [
                     {
@@ -10945,55 +10538,9 @@
                       }
                     },
                     {
-                      "copy": {
-                        "name": "windowsEvents",
-                        "count": "[length(variables('WindowsEvents'))]",
-                        "mode": "serial",
-                        "batchSize": 1
-                      },
-                      "condition": "[equals(parameters('virtualMachineMonitoringAgent'), 'LogAnalyticsAgent')]",
-                      "type": "Microsoft.OperationalInsights/workspaces/dataSources",
-                      "apiVersion": "2020-08-01",
-                      "name": "[format('{0}/{1}', parameters('logAnalyticsWorkspaceName'), format('WindowsEvent{0}', copyIndex()))]",
-                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.OperationalInsights/workspaces'), parameters('tags')['Microsoft.OperationalInsights/workspaces'], createObject()), parameters('mlzTags'))]",
-                      "kind": "WindowsEvent",
-                      "properties": {
-                        "eventLogName": "[variables('WindowsEvents')[copyIndex()].name]",
-                        "eventTypes": "[variables('WindowsEvents')[copyIndex()].types]"
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
-                      ]
-                    },
-                    {
-                      "copy": {
-                        "name": "windowsPerformanceCounters",
-                        "count": "[length(variables('WindowsPerformanceCounters'))]",
-                        "mode": "serial",
-                        "batchSize": 1
-                      },
-                      "condition": "[equals(parameters('virtualMachineMonitoringAgent'), 'LogAnalyticsAgent')]",
-                      "type": "Microsoft.OperationalInsights/workspaces/dataSources",
-                      "apiVersion": "2020-08-01",
-                      "name": "[format('{0}/{1}', parameters('logAnalyticsWorkspaceName'), format('WindowsPerformanceCounter{0}', copyIndex()))]",
-                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.OperationalInsights/workspaces'), parameters('tags')['Microsoft.OperationalInsights/workspaces'], createObject()), parameters('mlzTags'))]",
-                      "kind": "WindowsPerformanceCounter",
-                      "properties": {
-                        "objectName": "[variables('WindowsPerformanceCounters')[copyIndex()].objectName]",
-                        "instanceName": "[variables('WindowsPerformanceCounters')[copyIndex()].instanceName]",
-                        "intervalSeconds": "[variables('WindowsPerformanceCounters')[copyIndex()].intervalSeconds]",
-                        "counterName": "[variables('WindowsPerformanceCounters')[copyIndex()].counterName]"
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
-                        "windowsEvents"
-                      ]
-                    },
-                    {
-                      "condition": "[equals(parameters('virtualMachineMonitoringAgent'), 'AzureMonitorAgent')]",
                       "type": "Microsoft.Insights/dataCollectionRules",
                       "apiVersion": "2022-06-01",
-                      "name": "[parameters('dataCollectionRuleName')]",
+                      "name": "[format('microsoft-avdi-{0}', parameters('dataCollectionRuleName'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Insights/dataCollectionRules'), parameters('tags')['Microsoft.Insights/dataCollectionRules'], createObject()), parameters('mlzTags'))]",
                       "kind": "Windows",
@@ -11092,7 +10639,7 @@
                     },
                     "dataCollectionRuleResourceId": {
                       "type": "string",
-                      "value": "[if(equals(parameters('virtualMachineMonitoringAgent'), 'AzureMonitorAgent'), resourceId('Microsoft.Insights/dataCollectionRules', parameters('dataCollectionRuleName')), '')]"
+                      "value": "[resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', parameters('dataCollectionRuleName')))]"
                     }
                   }
                 }
@@ -12168,7 +11715,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "4370575075267954008"
+              "templateHash": "16589890425303482968"
             }
           },
           "parameters": {
@@ -12393,7 +11940,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "5306067131173432805"
+                      "templateHash": "9757992956196370258"
                     }
                   },
                   "parameters": {
@@ -12484,33 +12031,7 @@
                     }
                   },
                   "variables": {
-                    "customRdpProperty_Complete": "[if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), format('{0}targetisaadjoined:i:1;enablerdsaadauth:i:1;', parameters('customRdpProperty')), parameters('customRdpProperty'))]",
-                    "hostPoolLogs": [
-                      {
-                        "category": "Checkpoint",
-                        "enabled": true
-                      },
-                      {
-                        "category": "Error",
-                        "enabled": true
-                      },
-                      {
-                        "category": "Management",
-                        "enabled": true
-                      },
-                      {
-                        "category": "Connection",
-                        "enabled": true
-                      },
-                      {
-                        "category": "HostRegistration",
-                        "enabled": true
-                      },
-                      {
-                        "category": "AgentHealthStatus",
-                        "enabled": true
-                      }
-                    ]
+                    "customRdpProperty_Complete": "[if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), format('{0}targetisaadjoined:i:1;enablerdsaadauth:i:1;', parameters('customRdpProperty')), parameters('customRdpProperty'))]"
                   },
                   "resources": [
                     {
@@ -12588,7 +12109,12 @@
                       "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostPoolName'))]",
                       "name": "[parameters('hostPoolDiagnosticSettingName')]",
                       "properties": {
-                        "logs": "[variables('hostPoolLogs')]",
+                        "logs": [
+                          {
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ],
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                       },
                       "dependsOn": [
@@ -12958,7 +12484,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "15509624468330821410"
+                      "templateHash": "15418443119610314281"
                     }
                   },
                   "parameters": {
@@ -13091,7 +12617,7 @@
                       ]
                     },
                     {
-                      "condition": "[and(not(parameters('existing')), parameters('monitoring'))]",
+                      "condition": "[parameters('monitoring')]",
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceFeedName'))]",
@@ -13099,19 +12625,7 @@
                       "properties": {
                         "logs": [
                           {
-                            "category": "Checkpoint",
-                            "enabled": true
-                          },
-                          {
-                            "category": "Error",
-                            "enabled": true
-                          },
-                          {
-                            "category": "Management",
-                            "enabled": true
-                          },
-                          {
-                            "category": "Feed",
+                            "categoryGroup": "allLogs",
                             "enabled": true
                           }
                         ],
@@ -15352,9 +14866,6 @@
           "location": {
             "value": "[parameters('locationVirtualMachines')]"
           },
-          "logAnalyticsWorkspaceName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceName.value]"
-          },
           "managementVirtualMachineName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]"
           },
@@ -15435,9 +14946,6 @@
           },
           "timeDifference": "[if(equals(length(variables('deploymentLocations')), 2), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locatonProperties.value.timeDifference), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locatonProperties.value.timeDifference))]",
           "timeZone": "[if(equals(length(variables('deploymentLocations')), 2), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-hosts-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locatonProperties.value.timeZone), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locatonProperties.value.timeZone))]",
-          "virtualMachineMonitoringAgent": {
-            "value": "[parameters('virtualMachineMonitoringAgent')]"
-          },
           "virtualMachinePassword": {
             "value": "[parameters('virtualMachinePassword')]"
           },
@@ -15455,7 +14963,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "17278384545458730996"
+              "templateHash": "5427307486288145574"
             }
           },
           "parameters": {
@@ -15561,9 +15069,6 @@
             "location": {
               "type": "string"
             },
-            "logAnalyticsWorkspaceName": {
-              "type": "string"
-            },
             "managementVirtualMachineName": {
               "type": "string"
             },
@@ -15658,9 +15163,6 @@
               "type": "string"
             },
             "timeZone": {
-              "type": "string"
-            },
-            "virtualMachineMonitoringAgent": {
               "type": "string"
             },
             "virtualMachinePassword": {
@@ -15934,9 +15436,6 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "logAnalyticsWorkspaceName": {
-                    "value": "[parameters('logAnalyticsWorkspaceName')]"
-                  },
                   "managementVirtualMachineName": {
                     "value": "[parameters('managementVirtualMachineName')]"
                   },
@@ -15990,9 +15489,6 @@
                   "uniqueToken": {
                     "value": "[variables('uniqueToken')]"
                   },
-                  "virtualMachineMonitoringAgent": {
-                    "value": "[parameters('virtualMachineMonitoringAgent')]"
-                  },
                   "virtualMachineNamePrefix": {
                     "value": "[variables('virtualMachineNamePrefix')]"
                   },
@@ -16013,7 +15509,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "17032180311798404185"
+                      "templateHash": "4097581622289323744"
                     }
                   },
                   "parameters": {
@@ -16110,9 +15606,6 @@
                     "location": {
                       "type": "string"
                     },
-                    "logAnalyticsWorkspaceName": {
-                      "type": "string"
-                    },
                     "managementVirtualMachineName": {
                       "type": "string"
                     },
@@ -16172,9 +15665,6 @@
                       "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
                     },
                     "uniqueToken": {
-                      "type": "string"
-                    },
-                    "virtualMachineMonitoringAgent": {
                       "type": "string"
                     },
                     "virtualMachineNamePrefix": {
@@ -16404,38 +15894,10 @@
                     },
                     {
                       "copy": {
-                        "name": "extension_MicrosoftMonitoringAgent",
-                        "count": "[length(range(0, parameters('sessionHostCount')))]"
-                      },
-                      "condition": "[and(parameters('monitoring'), equals(parameters('virtualMachineMonitoringAgent'), 'LogAnalyticsAgent'))]",
-                      "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'MicrosoftmonitoringAgent')]",
-                      "location": "[parameters('location')]",
-                      "tags": "[parameters('tagsVirtualMachines')]",
-                      "properties": {
-                        "publisher": "Microsoft.EnterpriseCloud.monitoring",
-                        "type": "MicrosoftmonitoringAgent",
-                        "typeHandlerVersion": "1.0",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                          "workspaceId": "[if(parameters('monitoring'), reference(resourceId(parameters('resourceGroupManagement'), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2015-03-20').customerId, null())]"
-                        },
-                        "protectedSettings": {
-                          "workspaceKey": "[if(parameters('monitoring'), listKeys(resourceId(parameters('resourceGroupManagement'), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2015-03-20').primarySharedKey, null())]"
-                        }
-                      },
-                      "dependsOn": [
-                        "extension_IaasAntimalware",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
-                      ]
-                    },
-                    {
-                      "copy": {
                         "name": "extension_AzureMonitorWindowsAgent",
                         "count": "[length(range(0, parameters('sessionHostCount')))]"
                       },
-                      "condition": "[and(parameters('monitoring'), equals(parameters('virtualMachineMonitoringAgent'), 'AzureMonitorAgent'))]",
+                      "condition": "[parameters('monitoring')]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AzureMonitorWindowsAgent')]",
@@ -16457,7 +15919,7 @@
                         "name": "dataCollectionRuleAssociation",
                         "count": "[length(range(0, parameters('sessionHostCount')))]"
                       },
-                      "condition": "[and(parameters('monitoring'), equals(parameters('virtualMachineMonitoringAgent'), 'AzureMonitorAgent'))]",
+                      "condition": "[parameters('monitoring')]",
                       "type": "Microsoft.Insights/dataCollectionRuleAssociations",
                       "apiVersion": "2022-06-01",
                       "scope": "[format('Microsoft.Compute/virtualMachines/{0}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]",
@@ -16503,7 +15965,6 @@
                       },
                       "dependsOn": [
                         "dataCollectionRuleAssociation",
-                        "extension_MicrosoftMonitoringAgent",
                         "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },

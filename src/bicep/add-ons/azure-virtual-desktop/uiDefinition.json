@@ -1407,27 +1407,6 @@
                   "label": "Enable monitoring for AVD Insights?",
                   "defaultValue": false,
                   "toolTip": "Deploy the required resources to enable AVD Insights."
-                },
-                {
-                  "name": "agent",
-                  "type": "Microsoft.Common.DropDown",
-                  "visible": "[steps('management').monitoring.enable]",
-                  "label": "Monitoring agent",
-                  "defaultValue": "Log Analytics Agent",
-                  "toolTip": "Select the solution for the FSLogix profiles.",
-                  "constraints": {
-                    "required": true,
-                    "allowedValues": [
-                      {
-                        "label": "Azure Monitor Agent",
-                        "value": "AzureMonitorAgent"
-                      },
-                      {
-                        "label": "Log Analytics Agent",
-                        "value": "LogAnalyticsAgent"
-                      }
-                    ]
-                  }
                 }
               ]
             }
@@ -1819,7 +1798,6 @@
         "tags": "[steps('tags').tags]",
         "usersPerCore": "[if(equals(steps('controlPlane').hostPool.type, 'Pooled'), steps('controlPlane').hostPool.workloadType, 1)]",
         "validationEnvironment": "[steps('controlPlane').hostPool.validation]",
-        "virtualMachineMonitoringAgent": "[steps('management').monitoring.agent]",
         "virtualMachinePassword": "[steps('hosts').localAdminCredentials.password]",
         "virtualMachineSize": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), steps('hosts').virtualMachine.sizeArcGisPro, steps('hosts').virtualMachine.sizeGeneric)]",
         "virtualMachineUsername": "[steps('hosts').localAdminCredentials.username]",

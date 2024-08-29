@@ -28,32 +28,6 @@ param validationEnvironment bool
 param virtualMachineSize string
 
 var customRdpProperty_Complete = contains(activeDirectorySolution, 'MicrosoftEntraId') ? '${customRdpProperty}targetisaadjoined:i:1;enablerdsaadauth:i:1;' : customRdpProperty
-var hostPoolLogs = [
-  {
-    category: 'Checkpoint'
-    enabled: true
-  }
-  {
-    category: 'Error'
-    enabled: true
-  }
-  {
-    category: 'Management'
-    enabled: true
-  }
-  {
-    category: 'Connection'
-    enabled: true
-  }
-  {
-    category: 'HostRegistration'
-    enabled: true
-  }
-  {
-    category: 'AgentHealthStatus'
-    enabled: true
-  }
-]
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
   name: hostPoolName
@@ -124,7 +98,12 @@ resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-pre
   name: hostPoolDiagnosticSettingName
   scope: hostPool
   properties: {
-    logs: hostPoolLogs
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ] 
     workspaceId: logAnalyticsWorkspaceResourceId
   }
 }
