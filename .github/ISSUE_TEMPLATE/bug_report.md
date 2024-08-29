@@ -24,5 +24,4 @@ Steps to reproduce the behavior:
 ## Additional context
 
 Operating System:
-Terraform Version:
 Cloud (public, Azure Government, etc.):

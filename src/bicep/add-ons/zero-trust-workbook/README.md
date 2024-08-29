@@ -1,6 +1,6 @@
 # Zero Trust (TIC3.0) Workbook Example
 
-This example adds an Azure Sentinel: Zero Trust (TIC3.0) Workbook solution to MLZ, provided Sentinel has already been deployed; either through the bicep or [terraform implementation instructions](../sentinel/README.md) in the Operations (T1) resource group.
+This example adds an Azure Sentinel: Zero Trust (TIC3.0) Workbook solution to MLZ, provided Sentinel has already been deployed in the Operations (T1) resource group.
 
 ## What this example does
 

@@ -10,7 +10,7 @@ Mission Landing Zone addresses a narrowly scoped, specific need for a [Secure Cl
 - Implements SCCA controls following Microsoft's [SACA](https://aka.ms/saca) implementation guidance
 - Deployable in Azure commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret clouds
 - A simple solution with low configuration and narrow scope
-- Written as [Bicep](./src/bicep/) and [Terraform](./src/terraform/) templates
+- Written as [Bicep](./src/bicep/) templates
 
 Mission Landing Zone is the right solution when:
 
@@ -88,7 +88,6 @@ Click [here](./docs/deployment-guide-walkthrough.md) to learn about each tab and
 
 > Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your browser: <https://docs.microsoft.com/en-us/azure/cloud-shell/overview>
 
-
 ## Getting Started
 
-For more detailed deployment instructions, see the [Deployment Guide for Bicep](docs/deployment-guide-bicep.md) and the [Deployment Guide for Terraform](docs/deployment-guide-terraform.md) in the [`docs`](docs) folder.
+For more detailed deployment instructions, see the [Deployment Guide for Bicep](docs/deployment-guide-bicep.md) in the [`docs`](docs) folder.
