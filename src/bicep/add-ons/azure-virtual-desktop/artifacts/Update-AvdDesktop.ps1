@@ -1,53 +1,35 @@
 Param(
-    [parameter(Mandatory)]
     [string]$ApplicationGroupName,
-
-    [parameter(Mandatory)]
-    [string]$Environment,
-
-    [parameter(Mandatory)]
     [string]$FriendlyName,
-
-    [parameter(Mandatory)]
     [string]$ResourceGroupName,
-
-    [parameter(Mandatory)]
+    [string]$ResourceManagerUri,
     [string]$SubscriptionId,
-
-    [parameter(Mandatory)]
-    [string]$TenantId,
-
-    [parameter(Mandatory)]
     [string]$UserAssignedIdentityClientId
 )
 
 $ErrorActionPreference = 'Stop'
+$WarningPreference = 'SilentlyContinue'
 
-try
-{
-    Connect-AzAccount `
-        -Environment $Environment `
-        -Tenant $TenantId `
-        -Subscription $SubscriptionId `
-        -Identity `
-        -AccountId $UserAssignedIdentityClientId | Out-Null
+# Wait for role assignment propagation
+Start-Sleep -Seconds 30
 
-    Update-AzWvdDesktop `
-        -ApplicationGroupName $ApplicationGroupName `
-        -Name 'SessionDesktop' `
-        -ResourceGroupName $ResourceGroupName `
-        -FriendlyName $FriendlyName.Replace('"', '') | Out-Null
+# Fix the resource manager URI since only AzureCloud contains a trailing slash
+$ResourceManagerUriFixed = if ($ResourceManagerUri[-1] -eq '/') {$ResourceManagerUri} else {$ResourceManagerUri + '/'}
 
-    Disconnect-AzAccount | Out-Null
+# Get an access token for Azure resources
+$AzureManagementAccessToken = (Invoke-RestMethod `
+    -Headers @{Metadata="true"} `
+    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token
 
-    $Output = [pscustomobject][ordered]@{
-        applicationGroupName = $ApplicationGroupName
-    }
-    $JsonOutput = $Output | ConvertTo-Json
-    return $JsonOutput
+# Set header for Azure Management API
+$AzureManagementHeader = @{
+    'Content-Type'='application/json'
+    'Authorization'='Bearer ' + $AzureManagementAccessToken
 }
-catch 
-{
-    Write-Host $_ | Select-Object *
-    throw
-}
+
+# Update the friendly name on the session desktop
+Invoke-RestMethod `
+    -Body (@{properties = @{friendlyName = $FriendlyName.Replace('"', '')}} | ConvertTo-Json) `
+    -Headers $AzureManagementHeader `
+    -Method 'PATCH' `
+    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/applicationGroups/' + $ApplicationGroupName + '/desktops/SessionDesktop?api-version=2022-02-10-preview') | Out-Null
