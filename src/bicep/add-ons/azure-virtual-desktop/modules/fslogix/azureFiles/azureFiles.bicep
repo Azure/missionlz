@@ -1,6 +1,4 @@
 param activeDirectorySolution string
-param artifactsUri string
-param automationAccountName string
 param availability string
 param azureFilesPrivateDnsZoneResourceId string
 param deploymentNameSuffix string
@@ -15,14 +13,18 @@ param fileShares array
 param fslogixShareSizeInGB int
 param fslogixContainerType string
 param fslogixStorageService string
+param functionAppName string
+param hostPoolName string
 param hostPoolType string
 param identifier string
 param keyVaultUri string
 param location string
 param managementVirtualMachineName string
+param mlzTags object
 param netbios string
 param organizationalUnitPath string
 param recoveryServicesVaultName string
+param resourceGroupControlPlane string
 param resourceGroupManagement string
 param resourceGroupStorage string
 param securityPrincipalObjectIds array
@@ -38,12 +40,7 @@ param storageIndex int
 param storageSku string
 param storageService string
 param subnetResourceId string
-param tagsAutomationAccounts object
-param tagsPrivateEndpoints object
-param tagsRecoveryServicesVault object
-param tagsStorageAccounts object
-param tagsVirtualMachines object
-param timeZone string
+param tags object
 
 var roleDefinitionId = '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb' // Storage File Data SMB Share Contributor 
 var smbMultiChannel = {
@@ -59,6 +56,11 @@ var smbSettings = {
 }
 var storageRedundancy = availability == 'availabilityZones' ? '_ZRS' : '_LRS'
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
+
+var tagsPrivateEndpoints = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
+var tagsStorageAccounts = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Storage/storageAccounts') ? tags['Microsoft.Storage/storageAccounts'] : {}, mlzTags)
+var tagsRecoveryServicesVault = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.recoveryServices/vaults') ? tags['Microsoft.recoveryServices/vaults'] : {}, mlzTags)
+var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
 
 resource storageAccounts 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, storageCount): {
   name: take('${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}${uniqueToken}', 24)
@@ -209,18 +211,90 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
   ]
 }]
 
-module ntfsPermissions '../../common/customScriptExtensions.bicep' = if (contains(activeDirectorySolution, 'DomainServices')) {
+module ntfsPermissions '../../common/runCommand.bicep' = if (contains(activeDirectorySolution, 'DomainServices')) {
   name: 'deploy-fslogix-ntfs-permissions-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    fileUris: [
-      '${artifactsUri}Set-NtfsPermissions.ps1'
-    ]
     location: location
-    parameters: '-domainJoinPassword "${domainJoinPassword}" -domainJoinUserPrincipalName ${domainJoinUserPrincipalName} -activeDirectorySolution ${activeDirectorySolution} -Environment ${environment().name} -fslogixContainerType ${fslogixContainerType} -netbios ${netbios} -organizationalUnitPath "${organizationalUnitPath}" -securityPrincipalNames "${securityPrincipalNames}" -StorageAccountPrefix ${storageAccountNamePrefix} -StorageAccountResourceGroupName ${resourceGroupStorage} -storageCount ${storageCount} -storageIndex ${storageIndex} -storageService ${storageService} -StorageSuffix ${environment().suffixes.storage} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId} -UniqueToken ${uniqueToken} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentityClientId}'
-    scriptFileName: 'Set-NtfsPermissions.ps1'
+    name: 'Set-NtfsPermissions.ps1'
+    parameters: [
+      {
+        name: 'ActiveDirectorySolution'
+        value: activeDirectorySolution
+      }
+      {
+        name: 'Environment'
+        value: environment().name
+      }
+      {
+        name: 'FslogixContainerType'
+        value: fslogixContainerType
+      }
+      {
+        name: 'Netbios'
+        value: netbios
+      }
+      {
+        name: 'OrganizationalUnitPath'
+        value: organizationalUnitPath
+      }
+      {
+        name: 'SecurityPrincipalNames'
+        value: securityPrincipalNames
+      }
+      {
+        name: 'StorageAccountPrefix'
+        value: storageAccountNamePrefix
+      }
+      {
+        name: 'StorageAccountResourceGroupName'
+        value: resourceGroupStorage
+      }
+      {
+        name: 'StorageCount'
+        value: storageCount
+      }
+      {
+        name: 'StorageIndex'
+        value: storageIndex
+      }
+      {
+        name: 'StorageService'
+        value: storageService
+      }
+      {
+        name: 'StorageSuffix'
+        value: environment().suffixes.storage
+      }
+      {
+        name: 'SubscriptionId'
+        value: subscription().subscriptionId
+      }
+      {
+        name: 'TenantId'
+        value: subscription().tenantId
+      }
+      {
+        name: 'UniqueToken'
+        value: uniqueToken
+      }
+      {
+        name: 'UserAssignedIdentityClientId'
+        value: deploymentUserAssignedIdentityClientId
+      }
+    ]
+    protectedParameters: [
+      {
+        name: 'DomainJoinPassword'
+        value: domainJoinPassword
+      }
+      {
+        name: 'DomainJoinUserPrincipalName'
+        value: domainJoinUserPrincipalName
+      }
+    ]
+    script: loadTextContent('../../../artifacts/Set-NtfsPermissions.ps1')
     tags: tagsVirtualMachines
-    userAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
     virtualMachineName: managementVirtualMachineName
   }
   dependsOn: [
@@ -249,23 +323,18 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
   ]
 }
 
-module autoIncreasePremiumFileShareQuota '../../management/autoIncreasePremiumFileShareQuota.bicep' = if (fslogixStorageService == 'AzureFiles Premium' && storageCount > 0) {
+module autoIncreaseStandardFileShareQuota '../../common/function.bicep' = if (fslogixStorageService == 'AzureFiles Premium' && storageCount > 0) {
   name: 'deploy-file-share-scaling-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    artifactsUri: artifactsUri
-    automationAccountName: automationAccountName
-    deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    fslogixContainerType: fslogixContainerType
-    location: location
-    managementVirtualMachineName: managementVirtualMachineName
-    storageAccountNamePrefix: storageAccountNamePrefix
-    storageCount: storageCount
-    storageIndex: storageIndex
-    storageResourceGroupName: resourceGroupStorage
-    tags: tagsAutomationAccounts
-    timeZone: timeZone
+    files: {
+      'requirements.psd1': loadTextContent('../../../artifacts/auto-increase-file-share/requirements.psd1')
+      'run.ps1': loadTextContent('../../../artifacts/auto-increase-file-share/run.ps1')
+      '../profile.ps1': loadTextContent('../../../artifacts/auto-increase-file-share/profile.ps1')
+    }
+    functionAppName: functionAppName
+    functionName: 'auto-increase-file-share-quota'
+    schedule: '0 */15 * * * *'
   }
   dependsOn: [
     ntfsPermissions
