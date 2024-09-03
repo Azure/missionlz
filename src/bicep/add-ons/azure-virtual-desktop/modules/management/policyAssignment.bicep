@@ -1,3 +1,4 @@
+param diskAccessResourceId string
 param location string
 param policyDefinitionId string
 param policyDisplayName string
@@ -13,5 +14,10 @@ resource policyAssignment 'Microsoft.Authorization/policyAssignments@2022-06-01'
   properties: {
     displayName: policyDisplayName
     policyDefinitionId: policyDefinitionId
+    parameters: !empty(diskAccessResourceId) ? {
+      diskAccessId: {
+        value: diskAccessResourceId
+      }       
+    } : {}
   }
 }
