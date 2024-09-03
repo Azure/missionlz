@@ -1,13 +1,11 @@
-param artifactsUri string
-param activeDirectoryConnection string
-param delegatedSubnetId string
+param delegatedSubnetResourceId string
 param deploymentNameSuffix string
-param deploymentUserAssignedIdentityClientId string
 param dnsServers string
 @secure()
 param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
+param existingSharedActiveDirectoryConnection bool
 param fileShares array
 param fslogixContainerType string
 param location string
@@ -28,7 +26,7 @@ resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
   location: location
   tags: tagsNetAppAccount
   properties: {
-    activeDirectories: activeDirectoryConnection == 'false' ? null : [
+    activeDirectories: existingSharedActiveDirectoryConnection ? [
       {
         aesEncryption: true
         domain: domainName
@@ -38,7 +36,7 @@ resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
         smbServerName: 'anf-${smbServerLocation}'
         username: split(domainJoinUserPrincipalName, '@')[0]
       }
-    ]
+    ] : null
     encryption: {
       keySource: 'Microsoft.NetApp'
     }
@@ -122,7 +120,7 @@ resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-
     smbEncryption: true
     snapshotDirectoryVisible: true
     // snapshotId: 'string'
-    subnetId: delegatedSubnetId
+    subnetId: delegatedSubnetResourceId
     // throughputMibps: int
     // unixPermissions: 'string'
     usageThreshold: 107374182400
@@ -130,18 +128,42 @@ resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-
   }
 }]
 
-module ntfsPermissions '../common/customScriptExtensions.bicep' = {
+module ntfsPermissions '../common/runCommand.bicep' = {
   name: 'deploy-fslogix-ntfs-permissions-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    fileUris: [
-      '${artifactsUri}Set-NtfsPermissions.ps1'
-    ]
     location: location
-    parameters: '-domainJoinPassword "${domainJoinPassword}" -domainJoinUserPrincipalName ${domainJoinUserPrincipalName} -fslogixContainerType ${fslogixContainerType} -securityPrincipalNames "${securityPrincipalNames}" -smbServerLocation ${smbServerLocation} -storageService ${storageService}'
-    scriptFileName: 'Set-NtfsPermissions.ps1'
+    name: 'Set-NtfsPermissions.ps1'
+    parameters: [
+      {
+        name: 'FslogixContainerType'
+        value:fslogixContainerType
+      }
+      {
+        name: 'SecurityPrincipalNames'
+        value:securityPrincipalNames
+      }
+      {
+        name: 'SmbServerLocation'
+        value:smbServerLocation
+      }
+      {
+        name: 'StorageService'
+        value:storageService
+      }
+    ]
+    protectedParameters: [
+      {
+        name: 'DomainJoinPassword'
+        value: domainJoinPassword
+      }
+      {
+        name: 'DomainJoinUserPrincipalName'
+        value: domainJoinUserPrincipalName
+      }
+    ]
+    script: loadTextContent('../../artifacts/Set-NtfsPermissions.ps1')
     tags: tagsVirtualMachines
-    userAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
     virtualMachineName: managementVirtualMachineName
   }
   dependsOn: [
