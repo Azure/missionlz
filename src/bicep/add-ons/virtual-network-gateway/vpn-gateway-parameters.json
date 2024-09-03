@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "value": "xxx-vnet-hub-dev-va"
+    },
+    "name": {
+      "value": "xxx-vgw-hub-dev-va"
+    },
+    "location": {
+      "value": "usgovvirginia"
+    },
+    "gatewayType": {
+      "value": "Vpn"
+    },
+    "publicIpAddressNames": {
+      "value": [
+        "xxx-pip-vgw-hub-dev-va-1",
+        "xxx-pip-vgw-hub-dev-va-2"
+      ]
+    },
+    "publicIpAddressSku": {
+      "value": "Standard"
+    },
+    "vpnType": {
+      "value": "RouteBased"
+    },
+    "vpnGatewayGeneration": {
+      "value": "Generation2"
+    },
+    "sku": {
+      "value": "VpnGw2"
+    },
+    "localNetworkGatewayName": {
+      "value": "xxx-lgw-hub-dev-va"
+    },
+    "gatewayIpAddress": {
+      "value": "LOCAL GATEWAY PUBLIC IP ADDRESS"
+    },
+    "addressPrefixes": {
+      "value": [
+        "LOCAL NETWORK ADDRESS SPACES"
+      ]
+    },
+    "sharedKey": {
+      "value": "SHARED KEY"
+    },
+    "keyVaultCertificateUri": {
+      "value": ""
+    }
+  }
+}
+
