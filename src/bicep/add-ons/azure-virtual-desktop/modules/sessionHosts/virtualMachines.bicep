@@ -1,4 +1,3 @@
-param acceleratedNetworking string
 param activeDirectorySolution string
 param availability string
 param availabilitySetNamePrefix string
@@ -16,6 +15,7 @@ param diskSku string
 param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
+param enableAcceleratedNetworking bool
 param enableDrainMode bool
 param fslogixContainerType string
 param hostPoolName string
@@ -119,7 +119,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [fo
         }
       }
     ]
-    enableAcceleratedNetworking: acceleratedNetworking == 'True' ? true : false
+    enableAcceleratedNetworking: enableAcceleratedNetworking
     enableIPForwarding: false
   }
 }]
