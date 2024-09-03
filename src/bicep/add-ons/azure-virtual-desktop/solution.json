@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "12656363380367266857"
+      "templateHash": "16736774779862756204"
     }
   },
   "parameters": {
@@ -6513,7 +6513,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "3768371314235060980"
+              "templateHash": "5252624285617579941"
             }
           },
           "parameters": {
@@ -6807,7 +6807,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "981084589045479870"
+                      "templateHash": "18281494089530265306"
                     }
                   },
                   "parameters": {
@@ -6832,8 +6832,8 @@
                       "apiVersion": "2021-06-01",
                       "name": "DiskNetworkAccess",
                       "properties": {
-                        "description": "[format('Disable network access to managed disks in the {0} resource group', parameters('resourceGroupName'))]",
-                        "displayName": "[format('Disable Disk Access ({0})', parameters('resourceGroupName'))]",
+                        "description": "Disable network access to managed disks.",
+                        "displayName": "Disable Disk Access",
                         "mode": "All",
                         "parameters": "[variables('parameters')]",
                         "policyRule": {
@@ -8708,9 +8708,9 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },

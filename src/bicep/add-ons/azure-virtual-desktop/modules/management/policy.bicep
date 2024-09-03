@@ -49,8 +49,8 @@ var operations = !empty(diskAccessResourceId)
 resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
   name: 'DiskNetworkAccess'
   properties: {
-    description: 'Disable network access to managed disks in the ${resourceGroupName} resource group'
-    displayName: 'Disable Disk Access (${resourceGroupName})'
+    description: 'Disable network access to managed disks.'
+    displayName: 'Disable Disk Access'
     mode: 'All'
     parameters: parameters
     policyRule: {
