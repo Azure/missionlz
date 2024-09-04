@@ -37,14 +37,6 @@
               }
             },
             {
-              "name": "virtualNetworksApi",
-              "type": "Microsoft.Solutions.ArmApiControl",
-              "request": {
-                "method": "GET",
-                "path": "[concat(steps('basics').hub.subscription, '/providers/Microsoft.Network/virtualNetworks?api-version=2023-05-01')]"
-              }
-            },
-            {
               "name": "hub",
               "label": "Hub Resources",
               "type": "Microsoft.Common.Section",
@@ -62,21 +54,31 @@
                   }
                 },
                 {
+                  "name": "virtualNetworksApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('basics').hub.subscription))]",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').hub.subscription, '/providers/Microsoft.Network/virtualNetworks?api-version=2023-05-01')]"
+                  }
+                },
+                {
                   "name": "virtualNetwork",
                   "type": "Microsoft.Common.DropDown",
                   "visible": true,
                   "label": "Virtual network",
-                  "defaultValue": "[filter(map(steps('basics').virtualNetworksApi.value, (item) => item.name), (item) => contains(item, 'hub'))]",
+                  "defaultValue": "[filter(map(steps('basics').hub.virtualNetworksApi.value, (item) => item.name), (item) => contains(item, 'hub'))]",
                   "filter": true,
                   "toolTip": "Select the existing Hub virtual network.",
                   "constraints": {
                     "required": true,
-                    "allowedValues": "[map(steps('basics').virtualNetworksApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
+                    "allowedValues": "[map(steps('basics').hub.virtualNetworksApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
                   }
                 },
                 {
                   "name": "azureFirewallsApi",
                   "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('basics').hub.virtualNetwork))]",
                   "request": {
                     "method": "GET",
                     "path": "[concat(steps('basics').hub.subscription, '/resourceGroups/', first(skip(split(steps('basics').hub.virtualNetwork, '/'), 4)), '/providers/Microsoft.Network/azureFirewalls?api-version=2023-09-01')]"
@@ -236,6 +238,7 @@
             {
               "name": "hubVirtualNetworkPeeringsApi",
               "type": "Microsoft.Solutions.ArmApiControl",
+              "condition": "[not(empty(steps('basics').hub.virtualNetwork))]",
               "request": {
                 "method": "GET",
                 "path": "[concat(steps('basics').hub.virtualNetwork, '/virtualNetworkPeerings?api-version=2024-01-01')]"
@@ -244,6 +247,7 @@
             {
               "name": "operationsLogAnalyticsWorkspaceApi",
               "type": "Microsoft.Solutions.ArmApiControl",
+              "condition": "[not(empty(steps('basics').hubVirtualNetworkPeeringsApi))]",
               "request": {
                 "method": "GET",
                 "path": "[concat('subscriptions/', first(skip(split(first(map(filter(steps('basics').hubVirtualNetworkPeeringsApi.value, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 2)), '/resourcegroups/', first(skip(split(first(map(filter(steps('basics').hubVirtualNetworkPeeringsApi.value, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 4)), '/providers/Microsoft.OperationalInsights/workspaces?api-version=2023-09-01')]"
@@ -252,6 +256,7 @@
             {
               "name": "sharedServicesSubnetsApi",
               "type": "Microsoft.Solutions.ArmApiControl",
+              "condition": "[not(empty(steps('basics').hubVirtualNetworkPeeringsApi))]",
               "request": {
                 "method": "GET",
                 "path": "[concat(first(map(filter(steps('basics').hubVirtualNetworkPeeringsApi.value, (item) => contains(item.properties.remoteVirtualNetwork.id, 'sharedServices')), (item) => item.properties.remoteVirtualNetwork.id)), '/subnets?api-version=2022-05-01')]"
@@ -611,6 +616,7 @@
                 {
                   "name": "skuApi",
                   "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('hosts').image.offer))]",
                   "request": {
                     "method": "GET",
                     "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/locations/', steps('basics').scope.location.name, '/publishers/', if(equals(steps('basics').scenario.profile, 'generic'), 'MicrosoftWindowsDesktop', 'esri'), '/artifacttypes/vmimage/offers/', steps('hosts').image.offer, '/skus?api-version=2022-08-01')]"
@@ -642,6 +648,7 @@
                 {
                   "name": "versionsApi",
                   "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('hosts').image.galleryImage))]",
                   "request": {
                     "method": "GET",
                     "path": "[concat(steps('hosts').image.galleryImage.id, '/versions?api-version=2023-07-03')]"
@@ -943,7 +950,7 @@
               "visible": "[not(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'))]",
               "elements": [
                 {
-                  "name": "userPrincipalName",
+                  "name": "domainUserPrincipalName",
                   "type": "Microsoft.Common.TextBox",
                   "label": "User Principal Name",
                   "toolTip": "Enter the user principal name with domain join privileges.",
@@ -955,7 +962,7 @@
                   }
                 },
                 {
-                  "name": "password",
+                  "name": "domainPassword",
                   "type": "Microsoft.Common.PasswordBox",
                   "label": {
                     "password": "Password"
@@ -977,7 +984,7 @@
               "label": "Local Administrator Credential",
               "elements": [
                 {
-                  "name": "username",
+                  "name": "localAdminUsername",
                   "type": "Microsoft.Common.TextBox",
                   "label": "Username",
                   "defaultValue": "",
@@ -991,7 +998,7 @@
                   "visible": true
                 },
                 {
-                  "name": "password",
+                  "name": "localAdminPassword",
                   "type": "Microsoft.Common.PasswordBox",
                   "label": {
                     "password": "Password",
@@ -1148,7 +1155,7 @@
               "visible": true,
               "elements": [
                 {
-                  "name": "enable",
+                  "name": "enableDrainMode",
                   "type": "Microsoft.Common.CheckBox",
                   "label": "Enable drain mode?",
                   "defaultValue": false,
@@ -1283,7 +1290,7 @@
               "visible": true,
               "elements": [
                 {
-                  "name": "enable",
+                  "name": "enableMonitoring",
                   "type": "Microsoft.Common.CheckBox",
                   "visible": true,
                   "label": "Enable monitoring with AVD Insights?",
@@ -1568,6 +1575,7 @@
             {
               "name": "logAnalyticsWorkspacesApi",
               "type": "Microsoft.Solutions.ArmApiControl",
+              "condition": "[not(empty(steps('basics').hubVirtualNetworkPeeringsApi))]",
               "request": {
                 "method": "GET",
                 "path": "[concat('/subscriptions/', first(skip(split(first(map(filter(steps('basics').hubVirtualNetworkPeeringsApi.value, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 2)), '/resourcegroups/', first(skip(split(first(map(filter(steps('basics').hubVirtualNetworkPeeringsApi.value, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 4)), '/providers/Microsoft.OperationalInsights/workspaces?api-version=2023-09-01')]"
@@ -1647,10 +1655,10 @@
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
         "desktopFriendlyName": "[steps('controlPlane').friendlyNames.desktop]",
         "diskSku": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Premium_LRS', steps('hosts').virtualMachines.diskSku)]",
-        "domainJoinPassword": "[steps('hosts').domainJoinCredentials.password]",
-        "domainJoinUserPrincipalName": "[steps('hosts').domainJoinCredentials.userPrincipalName]",
+        "domainJoinPassword": "[steps('hosts').domainJoinCredentials.domainPassword]",
+        "domainJoinUserPrincipalName": "[steps('hosts').domainJoinCredentials.domainUserPrincipalName]",
         "domainName": "[steps('hosts').identity.domainName]",
-        "drainMode": "[steps('management').drainMode.enable]",
+        "drainMode": "[steps('management').drainMode.enableDrainMode]",
         "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '')]",
         "enableAcceleratedNetworking": "[bool(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'AcceleratedNetworkingEnabled')), (item) => item.value)))]",
         "enableTelemetry": "[steps('basics').scenario.enablePartnerTelemetry]",
@@ -1674,7 +1682,7 @@
         "locationVirtualMachines": "[steps('basics').scope.location.name]",
         "logAnalyticsWorkspaceRetention": 30,
         "logAnalyticsWorkspaceSku": "PerGB2018",
-        "monitoring": "[steps('management').monitoring.enable]",
+        "monitoring": "[steps('management').monitoring.enableMonitoring]",
         "operationsLogAnalyticsWorkspaceResourceId": "[first(map(steps('basics').operationsLogAnalyticsWorkspaceApi.value, (item) => item.id))]",
         "organizationalUnitPath": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), '', steps('hosts').identity.ouPath)]",
         "policy": "[steps('compliance').policySection.policy]",
@@ -1697,9 +1705,9 @@
         "tags": "[steps('tags').tags]",
         "usersPerCore": "[if(equals(steps('controlPlane').hostPool.type, 'Pooled'), steps('controlPlane').hostPool.workloadType, 1)]",
         "validationEnvironment": "[steps('controlPlane').hostPool.validation]",
-        "virtualMachinePassword": "[steps('hosts').localAdminCredentials.password]",
+        "virtualMachinePassword": "[steps('hosts').localAdminCredentials.localAdminPassword]",
         "virtualMachineSize": "[if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric))))]",
-        "virtualMachineUsername": "[steps('hosts').localAdminCredentials.username]",
+        "virtualMachineUsername": "[steps('hosts').localAdminCredentials.localAdminUsername]",
         "virtualMachineVirtualCpuCount": "[first(map(filter(first(map(filter(steps('basics').scenario.virtualMachineSkusApi.value, (item) => equals(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))]",
         "virtualNetworkAddressPrefixes": "[parse(concat('[\"', steps('network').vnet.virtualNetworkAddressCidrRange, '\"]'))]",
         "workspaceFriendlyName": "[if(empty(first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))), (item) => item.id))), steps('controlPlane').friendlyNames.workspace, first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))), (item) => item.properties.friendlyName)))]",
