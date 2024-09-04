@@ -103,7 +103,7 @@ module workspace 'workspace.bicep' = {
   name: 'deploy-vdws-feed-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupControlPlane)
   params: {
-    applicationGroupReferences: applicationGroup.outputs.applicationGroupReference
+    applicationGroupResourceId: applicationGroup.outputs.resourceId
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
