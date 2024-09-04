@@ -321,7 +321,7 @@
                   }
                 },
                 {
-                  "name": "type",
+                  "name": "hostPoolType",
                   "type": "Microsoft.Common.DropDown",
                   "visible": true,
                   "label": "Host Pool Type",
@@ -346,7 +346,7 @@
                   "name": "workloadType",
                   "type": "Microsoft.Common.DropDown",
                   "label": "Workload Type",
-                  "visible": "[or(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('basics').scenario.profile, 'generic'), equals(steps('controlPlane').hostPool.type, 'Pooled')))]",
+                  "visible": "[or(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('basics').scenario.profile, 'generic'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')))]",
                   "filter": true,
                   "defaultValue": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Medium', 'Heavy (2 users per core)')]",
                   "toolTip": "Select the type of image to deploy on the session hosts.",
@@ -780,7 +780,7 @@
                   },
                   "osPlatform": "Windows",
                   "count": "[steps('hosts').virtualMachines.count]",
-                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)))]"
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)))]"
                 },
                 {
                   "name": "sizeArcGisProSingleMedium",
@@ -807,7 +807,7 @@
                   },
                   "osPlatform": "Windows",
                   "count": "[steps('hosts').virtualMachines.count]",
-                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4))]"
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4))]"
                 },
                 {
                   "name": "sizeArcGisProSingleHeavy",
@@ -832,7 +832,7 @@
                   },
                   "osPlatform": "Windows",
                   "count": "[steps('hosts').virtualMachines.count]",
-                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3))]"
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3))]"
                 },
                 {
                   "name": "sizeArcGisProMulti",
@@ -855,7 +855,7 @@
                   },
                   "osPlatform": "Windows",
                   "count": "[steps('hosts').virtualMachines.count]",
-                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Pooled'))]"
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'))]"
                 },
                 {
                   "name": "resourceSkusApi",
@@ -1164,23 +1164,24 @@
               ]
             },
             {
-              "name": "deployScalingTool",
-              "type": "Microsoft.Common.CheckBox",
-              "visible": "[equals(steps('controlPlane').hostPool.type, 'Pooled')]",
-              "label": "Deploy scaling tool?",
-              "defaultValue": false,
-              "toolTip": "Choose whether to deploy the required resources to enable the Scaling Tool. This tool should only be used when scaling plans are not available. It has been enhanced for zero-trust compliance and does not rely on AZ modules."
-            },
-            {
-              "name": "scalingSettings",
+              "name": "scalingTool",
               "label": "Scaling Tool Settings",
               "type": "Microsoft.Common.Section",
-              "visible": "[steps('management').deployScalingTool]",
+              "visible": true,
               "elements": [
+                {
+                  "name": "deployScalingTool",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Deploy scaling tool?",
+                  "visible": "[equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')]",
+                  "defaultValue": false,
+                  "toolTip": "Choose whether to deploy the required resources to enable the Scaling Tool. This tool should only be used when scaling plans are not available. It has been enhanced for zero-trust compliance and does not rely on AZ modules."
+                },
                 {
                   "name": "beginPeakTime",
                   "type": "Microsoft.Common.TextBox",
                   "label": "Begin Peak Time",
+                  "visible": "[steps('management').scalingTool.deployScalingTool]",
                   "defaultValue": "8:00",
                   "placeholder": "",
                   "toolTip": "Input the time when peak hours begin for your end users.",
@@ -1198,6 +1199,7 @@
                   "name": "endPeakTime",
                   "type": "Microsoft.Common.TextBox",
                   "label": "End Peak Time",
+                  "visible": "[steps('management').scalingTool.deployScalingTool]",
                   "defaultValue": "17:00",
                   "placeholder": "",
                   "toolTip": "Input the time when peak hours end for your end users.",
@@ -1215,6 +1217,7 @@
                   "name": "forceLogOff",
                   "type": "Microsoft.Common.TextBox",
                   "label": "Force Log Off (Seconds)",
+                  "visible": "[steps('management').scalingTool.deployScalingTool]",
                   "defaultValue": "0",
                   "toolTip": "Use this setting to force logoff users if session time limit settings cannot be used.",
                   "placeholder": "",
@@ -1233,6 +1236,7 @@
                   "name": "minimumHosts",
                   "type": "Microsoft.Common.TextBox",
                   "label": "Minimum Number of Session Hosts",
+                  "visible": "[steps('management').scalingTool.deployScalingTool]",
                   "defaultValue": "0",
                   "toolTip": "Use this setting to determine the minimum number of sessions hosts to keep online.",
                   "placeholder": "",
@@ -1251,6 +1255,7 @@
                   "name": "cpuThreshold",
                   "type": "Microsoft.Common.TextBox",
                   "label": "Session Threshold Per CPU",
+                  "visible": "[steps('management').scalingTool.deployScalingTool]",
                   "defaultValue": "1",
                   "toolTip": "Use this setting to determine the number of sessions per CPU before turning on another host.",
                   "placeholder": "",
@@ -1645,7 +1650,7 @@
       "parameters": {
         "activeDirectorySolution": "[if(and(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), steps('hosts').identity.intune), 'MicrosoftEntraIdIntuneEnrollment', steps('hosts').identity.solution)]",
         "availability": "[steps('hosts').virtualMachines.availability]",
-        "availabilityZones": "[first(map(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.locationInfo)), (item) => item.zones))]",
+        "availabilityZones": "[first(map(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.locationInfo)), (item) => item.zones))]",
         "avdObjectId": "[if(empty(steps('management').servicePrincipalsApi), steps('management').startVmOnConnect.objectId, first(map(steps('management').servicePrincipalsApi.value, (item) => item.id)))]",
         "azureNetAppFilesSubnetAddressPrefix": "[steps('network').vnet.azureNetAppFilesSubnetAddressCidrRange]",
         "customRdpProperty": "[steps('controlPlane').hostPool.customRdpProperties]",
@@ -1660,7 +1665,7 @@
         "domainName": "[steps('hosts').identity.domainName]",
         "drainMode": "[steps('management').drainMode.enableDrainMode]",
         "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '')]",
-        "enableAcceleratedNetworking": "[bool(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'AcceleratedNetworkingEnabled')), (item) => item.value)))]",
+        "enableAcceleratedNetworking": "[bool(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'AcceleratedNetworkingEnabled')), (item) => item.value)))]",
         "enableTelemetry": "[steps('basics').scenario.enablePartnerTelemetry]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
         "existingSharedActiveDirectoryConnection": "[steps('profiles').storage.existingSharedActiveDirectoryConnection]",
@@ -1670,7 +1675,7 @@
         "fslogixStorageService": "[if(equals(steps('profiles').profileSolution, 'local'), 'None', steps('profiles').storage.service)]",
         "functionAppSubnetAddressPrefix": "[steps('network').vnet.functionAppSubnetAddressCidrRange]",
         "hostPoolPublicNetworkAccess": "[steps('controlPlane').hostPool.publicNetworkAccess]",
-        "hostPoolType": "[if(equals(steps('controlPlane').hostPool.type, 'Pooled'), 'Pooled DepthFirst', 'Personal Automatic')]",
+        "hostPoolType": "[if(equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'), 'Pooled DepthFirst', 'Personal Automatic')]",
         "hubAzureFirewallResourceId": "[steps('basics').hub.azureFirewall]",
         "hubVirtualNetworkResourceId": "[steps('basics').hub.virtualNetwork]",
         "identifier": "[steps('basics').naming.identifier]",
@@ -1688,12 +1693,12 @@
         "policy": "[steps('compliance').policySection.policy]",
         "profile": "[steps('basics').scenario.profile]",
         "recoveryServices": "[steps('management').backup.recoveryServices]",
-        "scalingBeginPeakTime": "[steps('management').scalingSettings.beginPeakTime]",
-        "scalingEndPeakTime": "[steps('management').scalingSettings.endPeakTime]",
-        "scalingLimitSecondsToForceLogOffUser": "[steps('management').scalingSettings.forceLogOff]",
-        "scalingMinimumNumberOfRdsh": "[steps('management').scalingSettings.minimumHosts]",
-        "scalingSessionThresholdPerCPU": "[steps('management').scalingSettings.cpuThreshold]",
-        "scalingTool": "[steps('management').deployScalingTool]",
+        "scalingBeginPeakTime": "[steps('management').scalingTool.beginPeakTime]",
+        "scalingEndPeakTime": "[steps('management').scalingTool.endPeakTime]",
+        "scalingLimitSecondsToForceLogOffUser": "[steps('management').scalingTool.forceLogOff]",
+        "scalingMinimumNumberOfRdsh": "[steps('management').scalingTool.minimumHosts]",
+        "scalingSessionThresholdPerCPU": "[steps('management').scalingTool.cpuThreshold]",
+        "scalingTool": "[steps('management').scalingTool.deployScalingTool]",
         "securityPrincipals": "[if(empty(steps('controlPlane').groupsApi), steps('controlPlane').assignment.groupsGrid, steps('controlPlane').assignment.groupsDropDown)]",
         "sessionHostCount": "[steps('hosts').virtualMachines.count]",
         "sessionHostIndex": 0,
@@ -1703,12 +1708,12 @@
         "storageIndex": 0,
         "subnetAddressPrefixes": "[parse(concat('[\"', steps('network').vnet.sessionHostsSubnetAddressCidrRange, '\",\"', steps('network').vnet.controlPlaneSubnetAddressCidrRange, '\"]'))]",
         "tags": "[steps('tags').tags]",
-        "usersPerCore": "[if(equals(steps('controlPlane').hostPool.type, 'Pooled'), steps('controlPlane').hostPool.workloadType, 1)]",
+        "usersPerCore": "[if(equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'), steps('controlPlane').hostPool.workloadType, 1)]",
         "validationEnvironment": "[steps('controlPlane').hostPool.validation]",
         "virtualMachinePassword": "[steps('hosts').localAdminCredentials.localAdminPassword]",
-        "virtualMachineSize": "[if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric))))]",
+        "virtualMachineSize": "[if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric))))]",
         "virtualMachineUsername": "[steps('hosts').localAdminCredentials.localAdminUsername]",
-        "virtualMachineVirtualCpuCount": "[first(map(filter(first(map(filter(steps('basics').scenario.virtualMachineSkusApi.value, (item) => equals(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.type, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))]",
+        "virtualMachineVirtualCpuCount": "[first(map(filter(first(map(filter(steps('basics').scenario.virtualMachineSkusApi.value, (item) => equals(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))]",
         "virtualNetworkAddressPrefixes": "[parse(concat('[\"', steps('network').vnet.virtualNetworkAddressCidrRange, '\"]'))]",
         "workspaceFriendlyName": "[if(empty(first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))), (item) => item.id))), steps('controlPlane').friendlyNames.workspace, first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))), (item) => item.properties.friendlyName)))]",
         "workspacePublicNetworkAccess": "[if(empty(first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))), (item) => item.id))), steps('controlPlane').workspace.publicNetworkAccess, first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(startsWith(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('controlPlane').controlPlane.location))), (item) => item.properties.publicNetworkAccess)))]"
