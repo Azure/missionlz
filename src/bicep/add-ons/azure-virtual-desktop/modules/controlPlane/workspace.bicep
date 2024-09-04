@@ -1,4 +1,4 @@
-param applicationGroupReferences array
+param applicationGroupResourceId string
 param avdPrivateDnsZoneResourceId string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
@@ -28,8 +28,8 @@ module addApplicationGroups '../common/runCommand.bicep' = if (!empty(existingFe
     name: 'Update-AvdWorkspace'
     parameters: [
       {
-        name: 'ApplicationGroupReferences'
-        value: applicationGroupReferences
+        name: 'ApplicationGroupResourceId'
+        value: applicationGroupResourceId
       }
       {
         name: 'ResourceManagerUri'
@@ -61,7 +61,9 @@ resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = if 
   location: locationControlPlane
   tags: mlzTags
   properties: {
-    applicationGroupReferences: applicationGroupReferences
+    applicationGroupReferences: [
+      applicationGroupResourceId
+    ]
     friendlyName: workspaceFriendlyName
     publicNetworkAccess: workspacePublicNetworkAccess
   }
