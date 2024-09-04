@@ -1,5 +1,5 @@
 param(
-    [string]$ApplicationGroupReferences,
+    [string]$ApplicationGroupResourceId,
     [string]$ResourceManagerUri,
     [string]$UserAssignedIdentityClientId,
     [string]$WorkspaceResourceId
@@ -23,18 +23,18 @@ $AzureManagementHeader = @{
 }
 
 # Use the access token to get the app group references on the workspace
-$OldAppGroupReferences = (Invoke-RestMethod `
+$ExistingApplicationGroupReferences = (Invoke-RestMethod `
     -Headers $AzureManagementHeader `
     -Method 'GET' `
-    -Uri $($ResourceManagerUriFixed + $WorkspaceResourceId + '?api-version=2022-02-10-preview')).properties.applicationGroupReferences
+    -Uri $($ResourceManagerUriFixed + $WorkspaceResourceId + '?api-version=2023-09-05')).properties.applicationGroupReferences
 
-[array]$NewAppGroupReferences = $ApplicationGroupReferences.Replace("'",'"') | ConvertFrom-Json
-$OldAppGroupReferences = $OldAppGroupReferences -ne $NewAppGroupReferences
-$CombinedApplicationGroupReferences = $OldAppGroupReferences + $NewAppGroupReferences
+[array]$NewApplicationGroupReference = $ApplicationGroupResourceId.Split(',')
+  
+[array]$ApplicationGroupReferences = $ExistingApplicationGroupReferences + $NewApplicationGroupReference | Select-Object -Unique
 
 # Use the access token to update the app group references on the workspace
 Invoke-RestMethod `
-    -Body (@{properties = @{applicationGroupReferences = $CombinedApplicationGroupReferences}} | ConvertTo-Json) `
+    -Body (@{properties = @{applicationGroupReferences = $ApplicationGroupReferences}} | ConvertTo-Json) `
     -Headers $AzureManagementHeader `
     -Method 'PATCH' `
-    -Uri $($ResourceManagerUriFixed + $WorkspaceResourceId + '?api-version=2022-02-10-preview') | Out-Null
+    -Uri $($ResourceManagerUriFixed + $WorkspaceResourceId + '?api-version=2023-09-05') | Out-Null
