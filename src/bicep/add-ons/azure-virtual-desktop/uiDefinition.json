@@ -1434,7 +1434,7 @@
                   "name": "functionAppSubnetAddressCidrRange",
                   "label": "Function App Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
-                  "visible": "[or(equals(steps('management').scalingTool.deployScalingTool), equals(steps('profiles').storage.service, 'AzureFiles Premium'))]",
+                  "visible": "[or(steps('management').scalingTool.deployScalingTool, equals(steps('profiles').storage.service, 'AzureFiles Premium'))]",
                   "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.128/26')]",
                   "toolTip": "Specify a CIDR range for the Function App subnet within the AVD spoke virtual network range [24,28] for the Scaling Tool and / or the Auto Increase Premium File Share Qutoa tool.",
                   "constraints": {
