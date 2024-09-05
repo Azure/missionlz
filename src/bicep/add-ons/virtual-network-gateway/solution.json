@@ -1,0 +1,350 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.29.47.4906",
+      "templateHash": "12451148908914520438"
+    }
+  },
+  "parameters": {
+    "vgwname": {
+      "type": "string"
+    },
+    "vgwlocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "publicIpAddressNames": {
+      "type": "array"
+    },
+    "vgwsku": {
+      "type": "string"
+    },
+    "vnetName": {
+      "type": "string"
+    },
+    "localNetworkGatewayName": {
+      "type": "string"
+    },
+    "gatewayIpAddress": {
+      "type": "string"
+    },
+    "addressPrefixes": {
+      "type": "array"
+    },
+    "sharedKey": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The shared key to use for the VPN connection. If provided, the keyVaultCertificateUri parameter is ignored."
+      }
+    },
+    "keyVaultCertificateUri": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The URI of the Key Vault certificate to use for the VPN connection. If provided, the sharedKey parameter is ignored."
+      }
+    },
+    "deploymentNameSuffix": {
+      "type": "string",
+      "defaultValue": "[utcNow()]",
+      "metadata": {
+        "description": "A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the \"utcNow()\" function."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('vpnGatewayModule-{0}', parameters('deploymentNameSuffix'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vgwname": {
+            "value": "[parameters('vgwname')]"
+          },
+          "vgwlocation": {
+            "value": "[parameters('vgwlocation')]"
+          },
+          "publicIpAddressNames": {
+            "value": "[parameters('publicIpAddressNames')]"
+          },
+          "vgwsku": {
+            "value": "[parameters('vgwsku')]"
+          },
+          "vnetName": {
+            "value": "[parameters('vnetName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.29.47.4906",
+              "templateHash": "13127222668368015709"
+            }
+          },
+          "parameters": {
+            "vgwname": {
+              "type": "string"
+            },
+            "vgwlocation": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "publicIpAddressNames": {
+              "type": "array"
+            },
+            "vgwsku": {
+              "type": "string"
+            },
+            "vnetName": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "gatewaySubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'GatewaySubnet')]",
+            "firstPublicIpAddressId": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[0])]",
+            "secondPublicIpAddressId": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[1])]"
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "publicIpAddresses",
+                "count": "[length(parameters('publicIpAddressNames'))]"
+              },
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2023-02-01",
+              "name": "[parameters('publicIpAddressNames')[copyIndex()]]",
+              "location": "[parameters('vgwlocation')]",
+              "sku": {
+                "name": "Standard"
+              },
+              "properties": {
+                "publicIPAllocationMethod": "Static"
+              }
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworkGateways",
+              "apiVersion": "2023-02-01",
+              "name": "[parameters('vgwname')]",
+              "location": "[parameters('vgwlocation')]",
+              "properties": {
+                "gatewayType": "Vpn",
+                "ipConfigurations": [
+                  {
+                    "name": "first",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "subnet": {
+                        "id": "[variables('gatewaySubnetId')]"
+                      },
+                      "publicIPAddress": {
+                        "id": "[variables('firstPublicIpAddressId')]"
+                      }
+                    }
+                  },
+                  {
+                    "name": "second",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "publicIPAddress": {
+                        "id": "[variables('secondPublicIpAddressId')]"
+                      },
+                      "subnet": {
+                        "id": "[variables('gatewaySubnetId')]"
+                      }
+                    }
+                  }
+                ],
+                "activeActive": true,
+                "vpnType": "RouteBased",
+                "vpnGatewayGeneration": "Generation2",
+                "sku": {
+                  "name": "[parameters('vgwsku')]",
+                  "tier": "[parameters('vgwsku')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[0])]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[1])]"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('localNetworkGatewayModule-{0}', parameters('deploymentNameSuffix'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vgwlocation": {
+            "value": "[parameters('vgwlocation')]"
+          },
+          "localNetworkGatewayName": {
+            "value": "[parameters('localNetworkGatewayName')]"
+          },
+          "gatewayIpAddress": {
+            "value": "[parameters('gatewayIpAddress')]"
+          },
+          "addressPrefixes": {
+            "value": "[parameters('addressPrefixes')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.29.47.4906",
+              "templateHash": "3956066736891748152"
+            }
+          },
+          "parameters": {
+            "vgwlocation": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "localNetworkGatewayName": {
+              "type": "string"
+            },
+            "gatewayIpAddress": {
+              "type": "string"
+            },
+            "addressPrefixes": {
+              "type": "array"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/localNetworkGateways",
+              "apiVersion": "2023-02-01",
+              "name": "[parameters('localNetworkGatewayName')]",
+              "location": "[parameters('vgwlocation')]",
+              "properties": {
+                "gatewayIpAddress": "[parameters('gatewayIpAddress')]",
+                "localNetworkAddressSpace": {
+                  "addressPrefixes": "[parameters('addressPrefixes')]"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('vpnConnectionModule-{0}', parameters('deploymentNameSuffix'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vpnConnectionName": {
+            "value": "[format('{0}-to-{1}', parameters('vgwname'), parameters('localNetworkGatewayName'))]"
+          },
+          "vgwlocation": {
+            "value": "[parameters('vgwlocation')]"
+          },
+          "vpnGatewayName": {
+            "value": "[parameters('vgwname')]"
+          },
+          "vpnGatewayResourceGroupName": {
+            "value": "[resourceGroup().name]"
+          },
+          "sharedKey": {
+            "value": "[parameters('sharedKey')]"
+          },
+          "keyVaultCertificateUri": {
+            "value": "[parameters('keyVaultCertificateUri')]"
+          },
+          "localNetworkGatewayName": {
+            "value": "[parameters('localNetworkGatewayName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.29.47.4906",
+              "templateHash": "3794144760462293218"
+            }
+          },
+          "parameters": {
+            "vpnConnectionName": {
+              "type": "string"
+            },
+            "vgwlocation": {
+              "type": "string"
+            },
+            "vpnGatewayName": {
+              "type": "string"
+            },
+            "vpnGatewayResourceGroupName": {
+              "type": "string"
+            },
+            "sharedKey": {
+              "type": "string"
+            },
+            "keyVaultCertificateUri": {
+              "type": "string"
+            },
+            "localNetworkGatewayName": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "useSharedKey": "[not(empty(parameters('sharedKey')))]",
+            "useKeyVaultCertificate": "[not(empty(parameters('keyVaultCertificateUri')))]",
+            "errorMsg": "[if(and(variables('useSharedKey'), variables('useKeyVaultCertificate')), 'Cannot provide both sharedKey and keyVaultCertificateUri', '')]",
+            "connectionSharedKey": "[if(variables('useSharedKey'), parameters('sharedKey'), null())]",
+            "connectionIpsecPolicies": "[if(variables('useKeyVaultCertificate'), createArray(createObject('saLifeTimeSeconds', 3600, 'saDataSizeKilobytes', 102400000, 'ipsecEncryption', 'AES256', 'ipsecIntegrity', 'SHA256', 'ikeEncryption', 'AES256', 'ikeIntegrity', 'SHA256', 'dhGroup', 'DHGroup2', 'pfsGroup', 'PFS2')), null())]"
+          },
+          "resources": [
+            {
+              "condition": "[empty(variables('errorMsg'))]",
+              "type": "Microsoft.Network/connections",
+              "apiVersion": "2023-02-01",
+              "name": "[parameters('vpnConnectionName')]",
+              "location": "[parameters('vgwlocation')]",
+              "properties": {
+                "virtualNetworkGateway1": {
+                  "id": "[resourceId(parameters('vpnGatewayResourceGroupName'), 'Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName'))]"
+                },
+                "localNetworkGateway2": {
+                  "id": "[resourceId(parameters('vpnGatewayResourceGroupName'), 'Microsoft.Network/localNetworkGateways', parameters('localNetworkGatewayName'))]"
+                },
+                "connectionType": "IPsec",
+                "routingWeight": 10,
+                "sharedKey": "[variables('connectionSharedKey')]",
+                "ipsecPolicies": "[variables('connectionIpsecPolicies')]",
+                "enableBgp": false,
+                "usePolicyBasedTrafficSelectors": false
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
