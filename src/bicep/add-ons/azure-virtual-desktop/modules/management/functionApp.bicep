@@ -49,7 +49,7 @@ var storageSubResources = [
 ]
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: replace(namingConvention.userAssignedIdentityName, serviceToken, service)
+  name: replace(namingConvention.userAssignedIdentity, serviceToken, service)
   location: location
   tags: tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}
 }
