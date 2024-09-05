@@ -5,14 +5,11 @@
     "vnetName": {
       "value": "xxx-vnet-hub-dev-va"
     },
-    "name": {
+    "vgwname": {
       "value": "xxx-vgw-hub-dev-va"
     },
-    "location": {
+    "vgwlocation": {
       "value": "usgovvirginia"
-    },
-    "gatewayType": {
-      "value": "Vpn"
     },
     "publicIpAddressNames": {
       "value": [
@@ -20,16 +17,7 @@
         "xxx-pip-vgw-hub-dev-va-2"
       ]
     },
-    "publicIpAddressSku": {
-      "value": "Standard"
-    },
-    "vpnType": {
-      "value": "RouteBased"
-    },
-    "vpnGatewayGeneration": {
-      "value": "Generation2"
-    },
-    "sku": {
+    "vgwsku": {
       "value": "VpnGw2"
     },
     "localNetworkGatewayName": {

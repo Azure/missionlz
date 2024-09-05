@@ -1,5 +1,5 @@
 param vpnConnectionName string
-param location string
+param vgwlocation string
 param vpnGatewayName string
 param vpnGatewayResourceGroupName string
 param sharedKey string
@@ -29,7 +29,7 @@ var connectionIpsecPolicies = useKeyVaultCertificate ? [
 // Deploy the VPN connection only if the conditions are met
 resource vpnConnection 'Microsoft.Network/connections@2023-02-01' = if (empty(errorMsg)) {
   name: vpnConnectionName
-  location: location
+  location: vgwlocation
   properties: {
     virtualNetworkGateway1: {
       id: resourceId(vpnGatewayResourceGroupName, 'Microsoft.Network/virtualNetworkGateways', vpnGatewayName)
