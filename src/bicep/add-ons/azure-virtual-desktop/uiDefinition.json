@@ -1293,7 +1293,7 @@
               "name": "backup",
               "type": "Microsoft.Common.Section",
               "label": "Backup",
-              "visible": "[or(equals(steps('profiles').profileSolution, 'local'), and(equals(steps('profiles').profileSolution, 'fslogix'), contains(steps('profiles').storage.service, 'AzureFiles')))]",
+              "visible": "[and(not(contains(steps('profiles').storage.service, 'AzureNetAppFiles')), not(equals(steps('hosts').identity.solution, 'MicrosoftEntraId')))]",
               "elements": [
                 {
                   "name": "recoveryServices",
