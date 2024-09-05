@@ -64,7 +64,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 }
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: replace(namingConvention.keyVaultName, serviceToken, service)
+  name: replace(namingConvention.keyVault, serviceToken, service)
   location: location
   tags: tags[?'Microsoft.KeyVault/vaults'] ?? {}
   properties: {
@@ -165,7 +165,7 @@ resource key_storageAccount 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
 }
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: replace(namingConvention.storageAccountName, serviceToken, service)
+  name: replace(namingConvention.storageAccount, serviceToken, service)
   location: location
   tags: tags[?'Microsoft.Storage/storageAccounts'] ?? {}
   sku: {
@@ -343,7 +343,7 @@ resource diagnosticSetting_storage_blob 'Microsoft.Insights/diagnosticsettings@2
 }
 
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: replace(namingConvention.applicationInsightsName, serviceToken, service)
+  name: replace(namingConvention.applicationInsights, serviceToken, service)
   location: location
   tags: tags[?'Microsoft.Insights/components'] ?? {}
   properties: {
@@ -363,7 +363,7 @@ module privateLinkScope 'privateLinkScope.bicep' = {
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
-  name: replace(namingConvention.appServicePlanName, serviceToken, service)
+  name: replace(namingConvention.appServicePlan, serviceToken, service)
   location: location
   tags: tags[?'Microsoft.Web/serverfarms'] ?? {}
   sku: {
@@ -384,7 +384,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
 }
 
 resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
-  name: replace(namingConvention.functionAppName, serviceToken, service)
+  name: replace(namingConvention.functionApp, serviceToken, service)
   location: location
   tags: tags[?'Microsoft.Web/sites'] ?? {}
   kind: 'functionapp'
