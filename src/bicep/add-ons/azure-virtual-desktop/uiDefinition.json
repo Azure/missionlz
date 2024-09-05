@@ -463,7 +463,6 @@
                     }
                   }
                 },
-
                 {
                   "name": "groupsDropDown",
                   "type": "Microsoft.Common.DropDown",
@@ -591,12 +590,12 @@
                     "required": true,
                     "allowedValues": [
                       {
-                        "label":"Marketplace",
-                        "value":"marketplace"
+                        "label": "Marketplace",
+                        "value": "marketplace"
                       },
                       {
-                        "label":"Compute Gallery",
-                        "value":"gallery"
+                        "label": "Compute Gallery",
+                        "value": "gallery"
                       }
                     ]
                   }
@@ -725,16 +724,16 @@
                     "required": true,
                     "allowedValues": [
                       {
-                        "label":"Premium_LRS (Recommended)",
-                        "value":"Premium_LRS"
+                        "label": "Premium_LRS (Recommended)",
+                        "value": "Premium_LRS"
                       },
                       {
-                        "label":"Standard_LRS",
-                        "value":"Standard_LRS"
+                        "label": "Standard_LRS",
+                        "value": "Standard_LRS"
                       },
                       {
-                        "label":"StandardSSD_LRS",
-                        "value":"StandardSSD_LRS"
+                        "label": "StandardSSD_LRS",
+                        "value": "StandardSSD_LRS"
                       }
                     ]
                   },
@@ -1024,15 +1023,33 @@
           "label": "User Profiles",
           "elements": [
             {
+              "name": "entraSupportInfoBox",
+              "type": "Microsoft.Common.InfoBox",
+              "visible": "[equals(steps('hosts').identity.solution, 'MicrosoftEntraId')]",
+              "options": {
+                "style": "Info",
+                "text": "This solution currently does not support FSLogix with Entra joined session hosts."
+              }
+            },
+            {
               "name": "profileSolution",
               "type": "Microsoft.Common.DropDown",
-              "visible": true,
               "label": "Profile Solution",
-              "defaultValue": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), 'Local', 'FSLogix')]",
+              "visible": "[not(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'))]",
+              "defaultValue": "[if(equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), 'Local', 'FSLogix')]",
               "toolTip": "Select the user profile solution for your end users.",
               "constraints": {
                 "required": true,
-                "allowedValues": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), parse('[{\"label\":\"Local\",\"value\":\"local\"}]'), parse('[{\"label\":\"FSLogix\",\"value\":\"fslogix\"},{\"label\":\"Local\",\"value\":\"local\"}]'))]"
+                "allowedValues": [
+                  {
+                    "label": "FSLogix",
+                    "value": "fslogix"
+                  },
+                  {
+                    "label": "Local",
+                    "value": "local"
+                  }
+                ]
               }
             },
             {
