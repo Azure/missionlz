@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "2842789425457661965"
+      "templateHash": "17692502299855604145"
     }
   },
   "parameters": {
@@ -282,7 +282,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "2460051154130314006"
+              "templateHash": "3521680398522664732"
             }
           },
           "parameters": {
@@ -365,7 +365,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "12921581727902800739"
+                      "templateHash": "5204338258684819731"
                     }
                   },
                   "parameters": {
@@ -794,6 +794,7 @@
                       "azureFirewalls": "afw",
                       "bastionHosts": "bas",
                       "computeGallieries": "cg",
+                      "dataCollectionEndpoints": "dce",
                       "dataCollectionRuleAssociations": "dcra",
                       "dataCollectionRules": "dcr",
                       "diagnosticSettings": "diag",
@@ -853,6 +854,7 @@
                       "bastionHostPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').publicIPAddresses), parameters('tokens').service, variables('resourceAbbreviations').bastionHosts)]",
                       "bastionHostPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', variables('resourceAbbreviations').publicIPAddresses, variables('resourceAbbreviations').bastionHosts))]",
                       "computeGallery": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').computeGallieries), '-', '_')]",
+                      "dataCollectionEndpoint": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionEndpoints)]",
                       "dataCollectionRuleAssociation": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRuleAssociations)]",
                       "dataCollectionRule": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRules)]",
                       "diskAccess": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').diskAccesses)]",
@@ -864,7 +866,7 @@
                       "hostPoolDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').hostPools)]",
                       "hostPoolNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, variables('resourceAbbreviations').hostPools)]",
                       "hostPoolPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').hostPools)]",
-                      "keyVault": "[format('{0}{1}', replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').keyVaults), '-', ''), parameters('networkName'), parameters('networkShortName')), uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('subscriptionId')))]",
+                      "keyVault": "[take(format('{0}{1}', replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').keyVaults), '-', ''), parameters('networkName'), parameters('networkShortName')), uniqueString(parameters('resourcePrefix'), parameters('environmentAbbreviation'), parameters('subscriptionId'))), 24)]",
                       "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', variables('resourceAbbreviations').keyVaults, parameters('tokens').service))]",
                       "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', variables('resourceAbbreviations').keyVaults, parameters('tokens').service))]",
                       "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-{1}', variables('resourceAbbreviations').keyVaults, parameters('tokens').service))]",
