@@ -16,6 +16,7 @@ param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
 param enableAcceleratedNetworking bool
+param enableAvdInsights bool
 param enableDrainMode bool
 param fslogixContainerType string
 param hostPoolName string
@@ -26,7 +27,6 @@ param imageSku string
 param imageVersionResourceId string
 param location string
 param managementVirtualMachineName string
-param monitoring bool
 param netAppFileShares array
 param networkInterfaceNamePrefix string
 param organizationalUnitPath string
@@ -249,7 +249,7 @@ resource extension_GuestAttestation 'Microsoft.Compute/virtualMachines/extension
   }
 }]
 
-resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = [for i in range(0, sessionHostCount): if (monitoring) {
+resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = [for i in range(0, sessionHostCount): if (enableAvdInsights) {
   parent: virtualMachine[i]
   name: 'AzureMonitorWindowsAgent'
   location: location
@@ -263,7 +263,7 @@ resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/e
   }
 }]
 
-resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' = [for i in range(0, sessionHostCount): if (monitoring) {
+resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' = [for i in range(0, sessionHostCount): if (enableAvdInsights) {
   scope: virtualMachine[i]
   name: dataCollectionRuleAssociationName
   properties: {
