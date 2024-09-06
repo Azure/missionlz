@@ -4,6 +4,7 @@ param customImageId string
 param customRdpProperty string
 param diskSku string
 param domainName string
+param enableAvdInsights bool
 param galleryImageOffer string
 param galleryImagePublisher string
 param galleryImageSku string
@@ -19,7 +20,6 @@ param location string
 param logAnalyticsWorkspaceResourceId string
 param maxSessionLimit int
 param mlzTags object
-param monitoring bool
 param sessionHostNamePrefix string
 param subnetResourceId string
 param tags object
@@ -94,7 +94,7 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   }
 }
 
-resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (monitoring) {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableAvdInsights) {
   name: hostPoolDiagnosticSettingName
   scope: hostPool
   properties: {
