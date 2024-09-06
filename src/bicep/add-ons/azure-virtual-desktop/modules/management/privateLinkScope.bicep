@@ -31,6 +31,6 @@ resource scopedResource_logAnalyticsWorkspace 'Microsoft.Insights/privateLinkSco
   parent: privateLinkScope
   name: empty(logAnalyticsWorkspaceResourceId) ? 'logAnalyticsWorkspace' : split(logAnalyticsWorkspaceResourceId, '/')[8]
   properties: {
-    linkedResourceId: applicationInsightsResourceId
+    linkedResourceId: logAnalyticsWorkspaceResourceId
   }
 }
