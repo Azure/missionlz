@@ -10,6 +10,7 @@ param environmentAbbreviation string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
 param mlzTags object
+param resourceAbbreviations object
 param resourceGroupName string
 param subnetResourceId string
 param tags object
@@ -22,14 +23,14 @@ module keyVault 'key-vault.bicep' = {
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     environmentAbbreviation: environmentAbbreviation
-    keyVaultName: take(replace(tier.namingConvention.keyVault, tokens.service, ''), 24)
-    keyVaultNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, '${tokens.service}-', '')
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    keyVaultPrivateEndpointName: replace(tier.namingConvention.keyVaultPrivateEndpoint, '${tokens.service}-', '')
     location: location
     mlzTags: mlzTags
+    resourceAbbreviations: resourceAbbreviations
     subnetResourceId: subnetResourceId
     tags: tags
+    tier: tier
+    tokens: tokens
   }
 }
 
