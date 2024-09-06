@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "17788849196273994710"
+      "templateHash": "17254547241057478352"
     }
   },
   "parameters": {
@@ -6538,7 +6538,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "4620831365624709679"
+              "templateHash": "14253769807822053966"
             }
           },
           "parameters": {
@@ -7508,7 +7508,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "15515859799766771965"
+                      "templateHash": "926782961216520769"
                     }
                   },
                   "parameters": {
@@ -7689,7 +7689,7 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
-                          "applicationInsightsResourceId": {
+                          "logAnalyticsWorkspaceResourceId": {
                             "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
                           },
                           "privateLinkScopeResourceId": {
@@ -7703,11 +7703,15 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.29.47.4906",
-                              "templateHash": "139195957246339591"
+                              "templateHash": "10381043547446342711"
                             }
                           },
                           "parameters": {
                             "applicationInsightsResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "dataCollectionEndpointResourceId": {
                               "type": "string",
                               "defaultValue": ""
                             },
@@ -7724,16 +7728,25 @@
                               "condition": "[not(empty(parameters('applicationInsightsResourceId')))]",
                               "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
                               "apiVersion": "2021-09-01",
-                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], split(parameters('applicationInsightsResourceId'), '/')[8])]",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('applicationInsightsResourceId')), 'applicationInsights', split(parameters('applicationInsightsResourceId'), '/')[8]))]",
                               "properties": {
                                 "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
+                              }
+                            },
+                            {
+                              "condition": "[not(empty(parameters('dataCollectionEndpointResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('dataCollectionEndpointResourceId')), 'dataCollectionEndpoint', split(parameters('dataCollectionEndpointResourceId'), '/')[8]))]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('dataCollectionEndpointResourceId')]"
                               }
                             },
                             {
                               "condition": "[not(empty(parameters('logAnalyticsWorkspaceResourceId')))]",
                               "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
                               "apiVersion": "2021-09-01",
-                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])]",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('logAnalyticsWorkspaceResourceId')), 'logAnalyticsWorkspace', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]))]",
                               "properties": {
                                 "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
                               }
@@ -7743,6 +7756,87 @@
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-private-link-scope-{0}', parameters('deploymentNameSuffix'))]",
+                      "subscriptionId": "[split(parameters('privateLinkScopeResourceId'), '/')[2]]",
+                      "resourceGroup": "[split(parameters('privateLinkScopeResourceId'), '/')[4]]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "dataCollectionEndpointResourceId": {
+                            "value": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(parameters('namingConvention').dataCollectionEndpoint, parameters('serviceToken'), parameters('service')))]"
+                          },
+                          "privateLinkScopeResourceId": {
+                            "value": "[parameters('privateLinkScopeResourceId')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.29.47.4906",
+                              "templateHash": "10381043547446342711"
+                            }
+                          },
+                          "parameters": {
+                            "applicationInsightsResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "dataCollectionEndpointResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "logAnalyticsWorkspaceResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "privateLinkScopeResourceId": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "condition": "[not(empty(parameters('applicationInsightsResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('applicationInsightsResourceId')), 'applicationInsights', split(parameters('applicationInsightsResourceId'), '/')[8]))]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
+                              }
+                            },
+                            {
+                              "condition": "[not(empty(parameters('dataCollectionEndpointResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('dataCollectionEndpointResourceId')), 'dataCollectionEndpoint', split(parameters('dataCollectionEndpointResourceId'), '/')[8]))]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('dataCollectionEndpointResourceId')]"
+                              }
+                            },
+                            {
+                              "condition": "[not(empty(parameters('logAnalyticsWorkspaceResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('logAnalyticsWorkspaceResourceId')), 'logAnalyticsWorkspace', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]))]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(parameters('namingConvention').dataCollectionEndpoint, parameters('serviceToken'), parameters('service')))]"
                       ]
                     }
                   ],
@@ -7852,7 +7946,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "1294701904236223678"
+                      "templateHash": "9574608457338032723"
                     }
                   },
                   "parameters": {
@@ -8403,11 +8497,15 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.29.47.4906",
-                              "templateHash": "139195957246339591"
+                              "templateHash": "10381043547446342711"
                             }
                           },
                           "parameters": {
                             "applicationInsightsResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "dataCollectionEndpointResourceId": {
                               "type": "string",
                               "defaultValue": ""
                             },
@@ -8424,16 +8522,25 @@
                               "condition": "[not(empty(parameters('applicationInsightsResourceId')))]",
                               "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
                               "apiVersion": "2021-09-01",
-                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], split(parameters('applicationInsightsResourceId'), '/')[8])]",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('applicationInsightsResourceId')), 'applicationInsights', split(parameters('applicationInsightsResourceId'), '/')[8]))]",
                               "properties": {
                                 "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
+                              }
+                            },
+                            {
+                              "condition": "[not(empty(parameters('dataCollectionEndpointResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('dataCollectionEndpointResourceId')), 'dataCollectionEndpoint', split(parameters('dataCollectionEndpointResourceId'), '/')[8]))]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('dataCollectionEndpointResourceId')]"
                               }
                             },
                             {
                               "condition": "[not(empty(parameters('logAnalyticsWorkspaceResourceId')))]",
                               "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
                               "apiVersion": "2021-09-01",
-                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])]",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('logAnalyticsWorkspaceResourceId')), 'logAnalyticsWorkspace', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]))]",
                               "properties": {
                                 "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
                               }
@@ -8898,9 +9005,9 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
