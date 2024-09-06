@@ -72,6 +72,7 @@ var names = {
   bastionHostPublicIPAddress: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.publicIPAddresses), tokens.service, resourceAbbreviations.bastionHosts)
   bastionHostPublicIPAddressDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.publicIPAddresses}-${resourceAbbreviations.bastionHosts}')
   computeGallery: replace(replace(namingConvention, tokens.resource, resourceAbbreviations.computeGallieries), '-', '_') // Compute Galleries do not support hyphens
+  dataCollectionEndpoint: replace(namingConvention, tokens.resource, resourceAbbreviations.dataCollectionEndpoints)
   dataCollectionRuleAssociation: replace(namingConvention, tokens.resource, resourceAbbreviations.dataCollectionRuleAssociations)
   dataCollectionRule: replace(namingConvention, tokens.resource, resourceAbbreviations.dataCollectionRules)
   diskAccess: replace(namingConvention, tokens.resource, resourceAbbreviations.diskAccesses)
