@@ -5,17 +5,19 @@ Licensed under the MIT License.
 
 param diskEncryptionKeyExpirationInDays int = 30
 param environmentAbbreviation string
-param keyVaultName string
-param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
-param keyVaultPrivateEndpointName string
 param location string
 param mlzTags object
+param resourceAbbreviations object
 param subnetResourceId string
 param tags object
+param tier object
+param tokens object
+
+var keyVaultPrivateEndpointName = replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.service, 'cmk')
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: keyVaultName
+  name: '${resourceAbbreviations.keyVaults}${uniqueString(replace(tier.namingConvention.keyVault, tokens.service, 'cmk'), resourceGroup().id)}'
   location: location
   tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
   properties: {
@@ -46,7 +48,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   location: location
   tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
   properties: {
-    customNetworkInterfaceName: keyVaultNetworkInterfaceName
+    customNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.service, 'cmk')
     privateLinkServiceConnections: [
       {
         name: keyVaultPrivateEndpointName
@@ -66,7 +68,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
 
 resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
   parent: privateEndpoint
-  name: keyVaultName
+  name: vault.name
   properties: {
     privateDnsZoneConfigs: [
       {
