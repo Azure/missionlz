@@ -103,6 +103,7 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     keyVaultUri: keyVaultUri
     location: location
     managementVirtualMachineName: managementVirtualMachineName
+    namingConvention: namingConvention
     netbios: netbios
     organizationalUnitPath: organizationalUnitPath
     recoveryServicesVaultName: namingConvention.recoveryServicesVault
@@ -110,10 +111,7 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     resourceGroupStorage: resourceGroupStorage
     securityPrincipalNames: securityPrincipalNames
     securityPrincipalObjectIds: securityPrincipalObjectIds
-    serviceName: serviceToken
-    storageAccountNamePrefix: namingConvention.storageAccount
-    storageAccountNetworkInterfaceNamePrefix: namingConvention.storageAccountNetworkInterface
-    storageAccountPrivateEndpointNamePrefix: namingConvention.storageAccountPrivateEndpoint
+    serviceToken: serviceToken
     storageCount: storageCount
     storageEncryptionKeyName: storageEncryptionKeyName
     storageIndex: storageIndex
