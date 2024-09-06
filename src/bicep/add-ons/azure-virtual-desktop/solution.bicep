@@ -74,6 +74,12 @@ param emailSecurityContact string
 @description('Determine whether to enable accelerated networking on the AVD session hosts. https://learn.microsoft.com/en-us/azure/virtual-network/accelerated-networking-overview')
 param enableAcceleratedNetworking bool
 
+@description('Deploys the required resources to monitor the function app for the Scaling Tool and Auto Increase Premium File Share solutions.')
+param enableApplicationInsights bool = true
+
+@description('Deploys the required monitoring resources to enable AVD Insights.')
+param enableAvdInsights bool = true
+
 @description('Enable the partner telemetry deployment. This will allow ESRI to see data around the ArcGIS Pro deployments. https://learn.microsoft.com/en-us/partner-center/marketplace-offers/azure-partner-customer-usage-attribution')
 param enableTelemetry bool = false
 
@@ -179,9 +185,6 @@ param logAnalyticsWorkspaceRetention int = 30
 @description('The SKU for the Log Analytics Workspace to setup the AVD monitoring solution')
 param logAnalyticsWorkspaceSku string = 'PerGB2018'
 
-@description('Deploys the required monitoring resources to enable AVD Insights and monitor features in the automation account.')
-param monitoring bool = true
-
 @description('The resource ID of the Log Analytics Workspace to use for log storage.')
 param operationsLogAnalyticsWorkspaceResourceId string
 
@@ -190,6 +193,9 @@ param organizationalUnitPath string = ''
 
 @description('The policy to assign to the workload.')
 param policy string = 'NISTRev4'
+
+@description('The resource ID for the Azure Monitor Private Link Scope in the Operations subscription / resource group.')
+param privateLinkScopeResourceId string
 
 @allowed([
   'ArcGISPro'
@@ -491,7 +497,8 @@ module management 'modules/management/management.bicep' = {
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
-    enableMonitoring: monitoring
+    enableApplicationInsights: enableApplicationInsights
+    enableAvdInsights: enableAvdInsights
     environmentAbbreviation: environmentAbbreviation
     fslogixStorageService: fslogixStorageService
     hostPoolType: hostPoolType
@@ -503,6 +510,7 @@ module management 'modules/management/management.bicep' = {
     organizationalUnitPath: organizationalUnitPath
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: tier3_hosts.outputs.privateDnsZones
+    privateLinkScopeResourceId: privateLinkScopeResourceId
     recoveryServices: recoveryServices
     recoveryServicesGeo: tier3_hosts.outputs.locationProperties.recoveryServicesGeo
     resourceAbbreviations: tier3_hosts.outputs.resourceAbbreviations
@@ -609,6 +617,7 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     desktopFriendlyName: empty(desktopFriendlyName) ? string(stampIndex) : desktopFriendlyName
     diskSku: diskSku
     domainName: domainName
+    enableAvdInsights: enableAvdInsights
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
@@ -618,11 +627,10 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     imageVersionResourceId: imageVersionResourceId
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
-    logAnalyticsWorkspaceResourceId: monitoring ? management.outputs.logAnalyticsWorkspaceResourceId : ''
+    logAnalyticsWorkspaceResourceId: enableAvdInsights ? management.outputs.logAnalyticsWorkspaceResourceId : ''
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
     mlzTags: tier3_hosts.outputs.mlzTags
-    monitoring: monitoring
     namingConvention: naming_controlPlane.outputs.names
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupManagement: rgs[2].outputs.name
@@ -715,6 +723,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     domainName: domainName
     drainMode: drainMode
     enableAcceleratedNetworking: enableAcceleratedNetworking
+    enableAvdInsights: enableAvdInsights
     enableRecoveryServices: recoveryServices
     enableScalingTool: scalingTool
     environmentAbbreviation: environmentAbbreviation
@@ -731,7 +740,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
     mlzTags: tier3_hosts.outputs.mlzTags
-    monitoring: monitoring
     namingConvention: tier3_hosts.outputs.namingConvention
     netAppFileShares: deployFslogix
       ? fslogix.outputs.netAppShares
