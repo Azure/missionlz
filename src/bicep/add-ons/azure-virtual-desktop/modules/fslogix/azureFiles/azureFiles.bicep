@@ -21,6 +21,7 @@ param keyVaultUri string
 param location string
 param managementVirtualMachineName string
 param mlzTags object
+param namingConvention object
 param netbios string
 param organizationalUnitPath string
 param recoveryServicesVaultName string
@@ -29,11 +30,7 @@ param resourceGroupManagement string
 param resourceGroupStorage string
 param securityPrincipalObjectIds array
 param securityPrincipalNames array
-param serviceName string
-@minLength(3)
-param storageAccountNamePrefix string
-param storageAccountNetworkInterfaceNamePrefix string
-param storageAccountPrivateEndpointNamePrefix string
+param serviceToken string
 param storageCount int
 param storageEncryptionKeyName string
 param storageIndex int
@@ -54,6 +51,7 @@ var smbSettings = {
   kerberosTicketEncryption: 'AES-256;'
   channelEncryption: 'AES-128-GCM;AES-256-GCM;'
 }
+var storageAccountNamePrefix = uniqueString(replace(namingConvention.storageAccount, serviceToken, 'file-fslogix'), resourceGroup().id)
 var storageRedundancy = availability == 'availabilityZones' ? '_ZRS' : '_LRS'
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 
@@ -63,7 +61,7 @@ var tagsRecoveryServicesVault = union({'cm-resource-parent': '${subscription().i
 var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
 
 resource storageAccounts 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, storageCount): {
-  name: take('${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}${uniqueToken}', 24)
+  name: take('${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}', 15)
   location: location
   tags: tagsStorageAccounts
   sku: {
@@ -171,14 +169,14 @@ module shares 'shares.bicep' = [for i in range(0, storageCount): {
 }]
 
 resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for i in range(0, storageCount): {
-  name: '${replace(storageAccountPrivateEndpointNamePrefix, serviceName, 'file')}-${padLeft(i + storageIndex, 2, '0')}'
+  name: '${replace(namingConvention.storageAccountPrivateEndpoint, serviceToken, 'file-fslogix')}-${padLeft(i + storageIndex, 2, '0')}'
   location: location
   tags: tagsPrivateEndpoints
   properties: {
-    customNetworkInterfaceName: '${replace(storageAccountNetworkInterfaceNamePrefix, serviceName, 'file')}-${padLeft(i + storageIndex, 2, '0')}'
+    customNetworkInterfaceName: '${replace(namingConvention.storageAccountNetworkInterface, serviceToken, 'file-fslogix')}-${padLeft(i + storageIndex, 2, '0')}'
     privateLinkServiceConnections: [
       {
-        name: '${replace(storageAccountPrivateEndpointNamePrefix, serviceName, 'file')}-${padLeft(i + storageIndex, 2, '0')}'
+        name: '${replace(namingConvention.storageAccountPrivateEndpoint, serviceToken, 'file-fslogix')}-${padLeft(i + storageIndex, 2, '0')}'
         properties: {
           privateLinkServiceId: storageAccounts[i].id
           groupIds: [
@@ -195,7 +193,7 @@ resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for
 
 resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = [for i in range(0, storageCount): {
   parent: privateEndpoints[i]
-  name: '${storageAccountNamePrefix}-${padLeft(i + storageIndex, 2, '0')}'
+  name: storageAccounts[i].name
   properties: {
     privateDnsZoneConfigs: [
       {
