@@ -9,13 +9,11 @@ param location string
 param mlzTags object
 param serviceToken string
 param skuName string
-param storageAccountName string
-param storageAccountNetworkInterfaceNamePrefix string
-param storageAccountPrivateEndpointNamePrefix string
 param storageEncryptionKeyName string
 param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
 param tags object
+param tier object
 param userAssignedIdentityResourceId string
 
 var zones = [
@@ -24,7 +22,7 @@ var zones = [
 ]
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: storageAccountName
+  name: uniqueString(replace(tier.namingConvention.storageAccount, serviceToken, 'log'), resourceGroup().id)
   location: location
   tags: union(contains(tags, 'Microsoft.Storage/storageAccounts') ? tags['Microsoft.Storage/storageAccounts'] : {}, mlzTags)
   identity: {
@@ -87,14 +85,14 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 }
 
 resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for (zone, i) in zones: {
-  name: replace(storageAccountPrivateEndpointNamePrefix, serviceToken, split(split(zone, '/')[8], '.')[1])
+  name: replace(tier.namingConvention.storageAccountPrivateEndpoint, serviceToken, '${split(split(zone, '/')[8], '.')[1]}-log')
   location: location
   tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
   properties: {
-    customNetworkInterfaceName: replace(storageAccountNetworkInterfaceNamePrefix, serviceToken, split(split(zone, '/')[8], '.')[1])
+    customNetworkInterfaceName: replace(tier.namingConvention.storageAccountNetworkInterface, serviceToken, '${split(split(zone, '/')[8], '.')[1]}-log')
     privateLinkServiceConnections: [
       {
-        name: replace(storageAccountPrivateEndpointNamePrefix, serviceToken, split(split(zone, '/')[8], '.')[1])
+        name: replace(tier.namingConvention.storageAccountPrivateEndpoint, serviceToken, '${split(split(zone, '/')[8], '.')[1]}-log')
         properties: {
           privateLinkServiceId: storageAccount.id
           groupIds: [
@@ -111,7 +109,7 @@ resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for
 
 resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = [for (zone, i) in zones: {
   parent: privateEndpoints[i]
-  name: storageAccountName
+  name: storageAccount.name
   properties: {
     privateDnsZoneConfigs: [
       {
