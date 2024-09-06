@@ -224,6 +224,7 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = if (!(e
     )
     location: location
     mlzTags: logic.outputs.mlzTags
+    resourceAbbreviations: logic.outputs.resourceAbbreviations
     resourceGroupName: rg.outputs.name
     subnetResourceId: networking.outputs.subnets[0].id
     tags: tags
@@ -258,6 +259,7 @@ module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix
       'privatelink.table.${environment().suffixes.storage}'
     )
     tags: tags
+    tier: logic.outputs.tiers[0]
     userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
   }
 }
