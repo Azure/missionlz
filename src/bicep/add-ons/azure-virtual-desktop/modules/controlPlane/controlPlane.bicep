@@ -9,6 +9,7 @@ param deploymentUserAssignedIdentityClientId string
 param desktopFriendlyName string
 param diskSku string
 param domainName string
+param enableAvdInsights bool
 param existingFeedWorkspaceResourceId string
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
@@ -22,7 +23,6 @@ param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
 param maxSessionLimit int
 param mlzTags object
-param monitoring bool
 param namingConvention object
 param resourceGroupControlPlane string
 param resourceGroupManagement string
@@ -55,6 +55,7 @@ module hostPool 'hostPool.bicep' = {
     customRdpProperty: customRdpProperty
     diskSku: diskSku
     domainName: domainName
+    enableAvdInsights: enableAvdInsights
     galleryImageOffer: galleryImageOffer
     galleryImagePublisher: galleryImagePublisher
     galleryImageSku: galleryImageSku
@@ -70,7 +71,6 @@ module hostPool 'hostPool.bicep' = {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
-    monitoring: monitoring
     sessionHostNamePrefix: sessionHostNamePrefix
     subnetResourceId: subnetResourceId
     tags: tags
@@ -107,13 +107,13 @@ module workspace 'workspace.bicep' = {
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
+    enableAvdInsights: enableAvdInsights
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     hostPoolName: hostPoolName
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     mlzTags: mlzTags
-    monitoring: monitoring
     resourceGroupManagement: resourceGroupManagement
     subnetResourceId: subnetResourceId
     tags: tags
