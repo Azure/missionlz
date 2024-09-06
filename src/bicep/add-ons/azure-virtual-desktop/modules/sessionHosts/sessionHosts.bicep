@@ -18,6 +18,7 @@ param domainJoinUserPrincipalName string
 param domainName string
 param drainMode bool
 param enableAcceleratedNetworking bool
+param enableAvdInsights bool
 param environmentAbbreviation string
 param fslogixContainerType string
 param functionAppName string
@@ -32,7 +33,6 @@ param location string
 param managementVirtualMachineName string
 param maxResourcesPerTemplateDeployment int
 param mlzTags object
-param monitoring bool
 param namingConvention object
 param netAppFileShares array
 param organizationalUnitPath string
@@ -81,7 +81,7 @@ module availabilitySets 'availabilitySets.bicep' = if (pooledHostPool && availab
 
 // Role Assignment for Virtual Machine Login User
 // This module deploys the role assignments to login to Azure AD joined session hosts
-module roleAssignments '../common/roleAssignment.bicep' = [for i in range(0, length(securityPrincipalObjectIds)): if (!contains(activeDirectorySolution, 'DomainServices')) {
+module roleAssignments '../common/roleAssignments/resourceGroup.bicep' = [for i in range(0, length(securityPrincipalObjectIds)): if (!contains(activeDirectorySolution, 'DomainServices')) {
   name: 'deploy-role-assignments-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupHosts)
   params: {
@@ -123,6 +123,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
     enableAcceleratedNetworking: enableAcceleratedNetworking
+    enableAvdInsights: enableAvdInsights
     enableDrainMode: drainMode
     fslogixContainerType: fslogixContainerType
     hostPoolName: hostPoolName
@@ -133,7 +134,6 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     imageSku: empty(imageVersionResourceId) ? imageSku : image.properties.purchasePlan.name
     location: location
     managementVirtualMachineName: managementVirtualMachineName
-    monitoring: monitoring
     netAppFileShares: netAppFileShares
     networkInterfaceNamePrefix: namingConvention.virtualMachineNetworkInterface
     organizationalUnitPath: organizationalUnitPath
