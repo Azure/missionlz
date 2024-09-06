@@ -84,7 +84,7 @@ var names = {
   hostPoolDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.hostPools)
   hostPoolNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, resourceAbbreviations.hostPools)
   hostPoolPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, resourceAbbreviations.hostPools)
-  keyVault: '${replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.keyVaults), '-', ''), networkName, networkShortName)}${uniqueString(resourcePrefix, environmentAbbreviation, subscriptionId)}'
+  keyVault: take('${replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.keyVaults), '-', ''), networkName, networkShortName)}${uniqueString(resourcePrefix, environmentAbbreviation, subscriptionId)}', 24)
   keyVaultDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.keyVaults}-${tokens.service}')
   keyVaultNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, '${resourceAbbreviations.keyVaults}-${tokens.service}')
   keyVaultPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, '${resourceAbbreviations.keyVaults}-${tokens.service}')
@@ -103,7 +103,7 @@ var names = {
   recoveryServicesVaultPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, resourceAbbreviations.recoveryServicesVaults)
   resourceGroup: replace(namingConvention_Service, tokens.resource, resourceAbbreviations.resourceGroups)
   routeTable: replace(namingConvention, tokens.resource, resourceAbbreviations.routeTables)
-  storageAccount: toLower(replace(replace(replace(namingConvention, tokens.resource, resourceAbbreviations.storageAccounts), networkName, networkShortName), '-', ''))
+  storageAccount: take(toLower(replace(replace(replace(namingConvention, tokens.resource, resourceAbbreviations.storageAccounts), networkName, networkShortName), '-', '')), 15)
   storageAccountDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${tokens.service}-${resourceAbbreviations.storageAccounts}')
   storageAccountNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, '${tokens.service}-${resourceAbbreviations.storageAccounts}')
   storageAccountPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, '${tokens.service}-${resourceAbbreviations.storageAccounts}')
