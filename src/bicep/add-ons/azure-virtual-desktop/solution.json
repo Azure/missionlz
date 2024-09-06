@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "7079078077881160211"
+      "templateHash": "17760216978537347007"
     }
   },
   "parameters": {
@@ -6538,7 +6538,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "17578535526962260868"
+              "templateHash": "7163305362030168769"
             }
           },
           "parameters": {
@@ -7508,7 +7508,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "15770330651963030680"
+                      "templateHash": "11173270762028957151"
                     }
                   },
                   "parameters": {
@@ -7666,7 +7666,7 @@
                     {
                       "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Insights/dataCollectionEndpoints",
-                      "apiVersion": "2023-03-11",
+                      "apiVersion": "2021-04-01",
                       "name": "[replace(parameters('namingConvention').dataCollectionEndpoint, parameters('serviceToken'), parameters('service'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Insights/dataCollectionEndpoints'), parameters('tags')['Microsoft.Insights/dataCollectionEndpoints'], createObject()), parameters('mlzTags'))]",
@@ -7703,7 +7703,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.29.47.4906",
-                              "templateHash": "10381043547446342711"
+                              "templateHash": "9072751551138664925"
                             }
                           },
                           "parameters": {
@@ -7748,7 +7748,7 @@
                               "apiVersion": "2021-09-01",
                               "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('logAnalyticsWorkspaceResourceId')), 'logAnalyticsWorkspace', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]))]",
                               "properties": {
-                                "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
+                                "linkedResourceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                               }
                             }
                           ]
@@ -7784,7 +7784,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.29.47.4906",
-                              "templateHash": "10381043547446342711"
+                              "templateHash": "9072751551138664925"
                             }
                           },
                           "parameters": {
@@ -7829,7 +7829,7 @@
                               "apiVersion": "2021-09-01",
                               "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('logAnalyticsWorkspaceResourceId')), 'logAnalyticsWorkspace', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]))]",
                               "properties": {
-                                "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
+                                "linkedResourceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                               }
                             }
                           ]
@@ -7946,7 +7946,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "18049846761546397811"
+                      "templateHash": "6584752253938707986"
                     }
                   },
                   "parameters": {
@@ -8497,7 +8497,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.29.47.4906",
-                              "templateHash": "10381043547446342711"
+                              "templateHash": "9072751551138664925"
                             }
                           },
                           "parameters": {
@@ -8542,7 +8542,7 @@
                               "apiVersion": "2021-09-01",
                               "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('logAnalyticsWorkspaceResourceId')), 'logAnalyticsWorkspace', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]))]",
                               "properties": {
-                                "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
+                                "linkedResourceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                               }
                             }
                           ]
@@ -9005,8 +9005,8 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
