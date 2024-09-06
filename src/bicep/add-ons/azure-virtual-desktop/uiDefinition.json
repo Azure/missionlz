@@ -100,6 +100,47 @@
               ]
             },
             {
+              "name": "operations",
+              "label": "Operations Resources",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "subscription",
+                  "label": "Subscription",
+                  "type": "Microsoft.Common.DropDown",
+                  "defaultValue": "[steps('basics').scope.subscription.displayName]",
+                  "toolTip": "Select the subscription for your Mission Landing Zone Hub network, firewall, and remote access resources.",
+                  "filter": true,
+                  "constraints": {
+                    "allowedValues": "[map(steps('basics').subscriptionsApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "required": true
+                  }
+                },
+                {
+                  "name": "privateLinkScopesApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('basics').operations.subscription))]",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').operations.subscription, '/providers/microsoft.insights/privateLinkScopes?api-version=2019-10-17-preview')]"
+                  }
+                },
+                {
+                  "name": "privateLinkScope",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Azure firewall",
+                  "defaultValue": "[first(map(steps('basics').operations.privateLinkScopesApi.value, (item) => item.name))]",
+                  "filter": true,
+                  "toolTip": "Select the existing Azure Monitor Private Link Scope in the Operations subscription.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[map(steps('basics').operations.privateLinkScopesApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
+                  }
+                }
+              ]
+            },
+            {
               "name": "naming",
               "type": "Microsoft.Common.Section",
               "label": "Naming Components",
@@ -1312,12 +1353,20 @@
               "visible": true,
               "elements": [
                 {
-                  "name": "enableMonitoring",
+                  "name": "enableAvdInsights",
                   "type": "Microsoft.Common.CheckBox",
                   "visible": true,
-                  "label": "Enable monitoring with AVD Insights?",
-                  "defaultValue": false,
+                  "label": "Enable AVD Insights?",
+                  "defaultValue": true,
                   "toolTip": "Deploy the required resources to enable AVD Insights."
+                },
+                {
+                  "name": "enableApplicationInsights",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": "[or(steps('management').scalingTool.deployScalingTool, equals(steps('profiles').storage.service, 'AzureFiles Premium'))]",
+                  "label": "Enable Application Insights?",
+                  "defaultValue": true,
+                  "toolTip": "Deploy the required resources to monitor the Scaling Tool and / or the Auto Increase File Share Solution."
                 }
               ]
             }
@@ -1641,6 +1690,7 @@
                 "Microsoft.DesktopVirtualization/applicationGroups",
                 "Microsoft.DesktopVirtualization/hostPools",
                 "Microsoft.Insights/components",
+                "Microsoft.Insights/dataCollectionEndpoints",
                 "Microsoft.Insights/dataCollectionRules",
                 "Microsoft.Insights/privateLinkScopes",
                 "Microsoft.KeyVault/vaults",
@@ -1683,6 +1733,8 @@
         "drainMode": "[steps('management').drainMode.enableDrainMode]",
         "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '')]",
         "enableAcceleratedNetworking": "[bool(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'AcceleratedNetworkingEnabled')), (item) => item.value)))]",
+        "enableApplicationInsights": "[steps('management').monitoring.enableApplicationInsights]",
+        "enableAvdInsights": "[steps('management').monitoring.enableAvdInsights]",
         "enableTelemetry": "[steps('basics').scenario.enablePartnerTelemetry]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
         "existingSharedActiveDirectoryConnection": "[steps('profiles').storage.existingSharedActiveDirectoryConnection]",
@@ -1704,10 +1756,10 @@
         "locationVirtualMachines": "[steps('basics').scope.location.name]",
         "logAnalyticsWorkspaceRetention": 30,
         "logAnalyticsWorkspaceSku": "PerGB2018",
-        "monitoring": "[steps('management').monitoring.enableMonitoring]",
         "operationsLogAnalyticsWorkspaceResourceId": "[first(map(steps('basics').operationsLogAnalyticsWorkspaceApi.value, (item) => item.id))]",
         "organizationalUnitPath": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), '', steps('hosts').identity.ouPath)]",
         "policy": "[steps('compliance').policySection.policy]",
+        "privateLinkScopeResourceId": "[steps('basics').operations.privateLinkScope]",
         "profile": "[steps('basics').scenario.profile]",
         "recoveryServices": "[steps('management').backup.recoveryServices]",
         "scalingBeginPeakTime": "[steps('management').scalingTool.beginPeakTime]",
