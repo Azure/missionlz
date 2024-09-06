@@ -32,7 +32,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
 }
 
 module privateLinkScope_logAnalyticsWorkspace 'privateLinkScope.bicep' = {
-  name: 'deploy-private-link-scope-${deploymentNameSuffix}'
+  name: 'deploy-private-link-scope-law-${deploymentNameSuffix}'
   scope: resourceGroup(split(privateLinkScopeResourceId, '/')[2], split(privateLinkScopeResourceId, '/')[4])
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.id
@@ -143,7 +143,7 @@ resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2023
 }
 
 module privateLinkScope_dataCollectionEndpoint 'privateLinkScope.bicep' = {
-  name: 'deploy-private-link-scope-${deploymentNameSuffix}'
+  name: 'deploy-private-link-scope-dce-${deploymentNameSuffix}'
   scope: resourceGroup(split(privateLinkScopeResourceId, '/')[2], split(privateLinkScopeResourceId, '/')[4])
   params: {
     dataCollectionEndpointResourceId: dataCollectionEndpoint.id

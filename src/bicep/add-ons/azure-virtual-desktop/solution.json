@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "17254547241057478352"
+      "templateHash": "7079078077881160211"
     }
   },
   "parameters": {
@@ -6538,7 +6538,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "14253769807822053966"
+              "templateHash": "17578535526962260868"
             }
           },
           "parameters": {
@@ -7508,7 +7508,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "926782961216520769"
+                      "templateHash": "15770330651963030680"
                     }
                   },
                   "parameters": {
@@ -7680,7 +7680,7 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-private-link-scope-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-private-link-scope-law-{0}', parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[split(parameters('privateLinkScopeResourceId'), '/')[2]]",
                       "resourceGroup": "[split(parameters('privateLinkScopeResourceId'), '/')[4]]",
                       "properties": {
@@ -7761,7 +7761,7 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-private-link-scope-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-private-link-scope-dce-{0}', parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[split(parameters('privateLinkScopeResourceId'), '/')[2]]",
                       "resourceGroup": "[split(parameters('privateLinkScopeResourceId'), '/')[4]]",
                       "properties": {
@@ -7946,7 +7946,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "9574608457338032723"
+                      "templateHash": "18049846761546397811"
                     }
                   },
                   "parameters": {
@@ -8474,7 +8474,7 @@
                       "condition": "[parameters('enableApplicationInsights')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-private-link-scope-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-private-link-scope-appi-{0}', parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[split(parameters('privateLinkScopeResourceId'), '/')[2]]",
                       "resourceGroup": "[split(parameters('privateLinkScopeResourceId'), '/')[4]]",
                       "properties": {
@@ -9006,8 +9006,8 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
