@@ -103,7 +103,7 @@ var names = {
   recoveryServicesVaultPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, resourceAbbreviations.recoveryServicesVaults)
   resourceGroup: replace(namingConvention_Service, tokens.resource, resourceAbbreviations.resourceGroups)
   routeTable: replace(namingConvention, tokens.resource, resourceAbbreviations.routeTables)
-  storageAccount: take(toLower(replace(replace(replace(namingConvention, tokens.resource, resourceAbbreviations.storageAccounts), networkName, networkShortName), '-', '')), 15)
+  storageAccount: toLower(replace(replace(replace(namingConvention, tokens.resource, resourceAbbreviations.storageAccounts), networkName, networkShortName), '-', ''))
   storageAccountDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${tokens.service}-${resourceAbbreviations.storageAccounts}')
   storageAccountNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, '${tokens.service}-${resourceAbbreviations.storageAccounts}')
   storageAccountPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, '${tokens.service}-${resourceAbbreviations.storageAccounts}')
