@@ -424,7 +424,6 @@ module naming_controlPlane '../../modules/naming-convention.bicep' = {
     networkShortName: 'avd'
     resourcePrefix: identifier
     stampIndex: string(stampIndex)
-    subscriptionId: subscription().subscriptionId
   }
 }
 
@@ -438,7 +437,6 @@ module naming_hub '../../modules/naming-convention.bicep' = {
     networkShortName: 'avd'
     resourcePrefix: identifier
     stampIndex: string(stampIndex)
-    subscriptionId: subscription().subscriptionId
   }
 }
 
