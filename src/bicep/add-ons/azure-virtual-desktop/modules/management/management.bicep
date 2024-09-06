@@ -10,7 +10,8 @@ param diskSku string
 param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
-param enableMonitoring bool
+param enableApplicationInsights bool
+param enableAvdInsights bool
 param environmentAbbreviation string
 param fslogixStorageService string
 param hostPoolType string
@@ -22,6 +23,7 @@ param namingConvention object
 param organizationalUnitPath string
 param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
+param privateLinkScopeResourceId string
 param recoveryServices bool
 param recoveryServicesGeo string
 param resourceAbbreviations object
@@ -127,7 +129,7 @@ module deploymentUserAssignedIdentity 'userAssignedIdentity.bicep' = {
   }
 }
 
-module roleAssignments_deployment '../common/roleAssignment.bicep' = [
+module roleAssignments_deployment '../common/roleAssignments/resourceGroup.bicep' = [
   for i in range(0, length(roleAssignments)): {
     scope: resourceGroup(roleAssignments[i].subscription, roleAssignments[i].resourceGroup)
     name: 'deploy-role-assignment-${i}-${deploymentNameSuffix}'
@@ -182,18 +184,21 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 
 // Monitoring Resources for AVD Insights
 // This module deploys a Log Analytics Workspace with a Data Collection Rule 
-module monitoring 'monitoring.bicep' = if (enableMonitoring) {
+module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAvdInsights) {
   name: 'deploy-monitoring-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    dataCollectionRuleName: namingConvention.dataCollectionRule
+    deploymentNameSuffix: deploymentNameSuffix
+    enableAvdInsights: enableAvdInsights
     hostPoolName: hostPoolName
     location: locationVirtualMachines
-    logAnalyticsWorkspaceName: namingConvention.logAnalyticsWorkspace
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     mlzTags: mlzTags
+    namingConvention: namingConvention
+    privateLinkScopeResourceId: privateLinkScopeResourceId
     resourceGroupControlPlane: resourceGroupControlPlane
+    serviceToken: serviceToken
     tags: tags
   }
 }
@@ -204,28 +209,18 @@ module functionApp 'functionApp.bicep' = if (scalingTool || fslogixStorageServic
   params: {
     delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
     deploymentNameSuffix: deploymentNameSuffix
+    enableApplicationInsights: enableApplicationInsights
     environmentAbbreviation: environmentAbbreviation
     hostPoolName: hostPoolName
+    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     namingConvention: namingConvention
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: privateDnsZones
+    privateLinkScopeResourceId: privateLinkScopeResourceId
     resourceAbbreviations: resourceAbbreviations
     resourceGroupControlPlane: resourceGroupControlPlane
+    resourceGroupHosts: resourceGroupHosts
     resourceGroupStorage: resourceGroupStorage
-    roleAssignments: [
-      {
-        roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor
-        scope: resourceGroupStorage
-      }
-      {
-        roleDefinitionId: '40c5ff49-9181-41f8-ae61-143b0e78555e' // Desktop Virtualization Power On Off Contributor
-        scope: resourceGroupControlPlane
-      }
-      {
-        roleDefinitionId: '40c5ff49-9181-41f8-ae61-143b0e78555e' // Desktop Virtualization Power On Off Contributor
-        scope: resourceGroupHosts
-      }
-    ]
     scalingBeginPeakTime: scalingBeginPeakTime
     scalingEndPeakTime:scalingEndPeakTime
     scalingLimitSecondsToForceLogOffUser: scalingLimitSecondsToForceLogOffUser
@@ -266,19 +261,16 @@ module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryService
   }
 }
 
-output dataCollectionRuleResourceId string = enableMonitoring ? monitoring.outputs.dataCollectionRuleResourceId : ''
+output dataCollectionRuleResourceId string = enableAvdInsights ? monitoring.outputs.dataCollectionRuleResourceId : ''
 output deploymentUserAssignedIdentityClientId string = deploymentUserAssignedIdentity.outputs.clientId
 output deploymentUserAssignedIdentityPrincipalId string = deploymentUserAssignedIdentity.outputs.principalId
 output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedIdentity.outputs.resourceId
 output functionAppName string = scalingTool || fslogixStorageService == 'AzureFiles Premium' ? functionApp.outputs.functionAppName : ''
-output logAnalyticsWorkspaceName string = enableMonitoring ? monitoring.outputs.logAnalyticsWorkspaceName : ''
-output logAnalyticsWorkspaceResourceId string = enableMonitoring
+output logAnalyticsWorkspaceName string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceName : ''
+output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || enableAvdInsights
   ? monitoring.outputs.logAnalyticsWorkspaceResourceId
   : ''
-output recoveryServicesVaultName string = recoveryServices && ((contains(activeDirectorySolution, 'DomainServices') && contains(
-    hostPoolType,
-    'Pooled'
-  ) && contains(fslogixStorageService, 'AzureFiles')) || contains(hostPoolType, 'Personal'))
+output recoveryServicesVaultName string = recoveryServices && ((contains(activeDirectorySolution, 'DomainServices') && contains(hostPoolType,'Pooled') && contains(fslogixStorageService, 'AzureFiles')) || contains(hostPoolType, 'Personal'))
   ? recoveryServicesVault.outputs.name
   : ''
 output virtualMachineName string = virtualMachine.outputs.Name
