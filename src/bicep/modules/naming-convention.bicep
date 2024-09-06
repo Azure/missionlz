@@ -11,7 +11,6 @@ param networkName string
 param networkShortName string
 param resourcePrefix string
 param stampIndex string = '' // Optional: Added to support AVD deployments
-param subscriptionId string
 param tokens object = {
   resource: 'resource_token'
   service: 'service_token'
@@ -84,7 +83,7 @@ var names = {
   hostPoolDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.hostPools)
   hostPoolNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, resourceAbbreviations.hostPools)
   hostPoolPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, resourceAbbreviations.hostPools)
-  keyVault: take('${replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.keyVaults), '-', ''), networkName, networkShortName)}${uniqueString(resourcePrefix, environmentAbbreviation, subscriptionId)}', 24)
+  keyVault: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.keyVaults), '-', ''), networkName, networkShortName)
   keyVaultDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.keyVaults}-${tokens.service}')
   keyVaultNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, '${resourceAbbreviations.keyVaults}-${tokens.service}')
   keyVaultPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, '${resourceAbbreviations.keyVaults}-${tokens.service}')
@@ -103,7 +102,7 @@ var names = {
   recoveryServicesVaultPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, resourceAbbreviations.recoveryServicesVaults)
   resourceGroup: replace(namingConvention_Service, tokens.resource, resourceAbbreviations.resourceGroups)
   routeTable: replace(namingConvention, tokens.resource, resourceAbbreviations.routeTables)
-  storageAccount: toLower(replace(replace(replace(namingConvention, tokens.resource, resourceAbbreviations.storageAccounts), networkName, networkShortName), '-', ''))
+  storageAccount: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.storageAccounts), networkName, networkShortName)
   storageAccountDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${tokens.service}-${resourceAbbreviations.storageAccounts}')
   storageAccountNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, '${tokens.service}-${resourceAbbreviations.storageAccounts}')
   storageAccountPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, '${tokens.service}-${resourceAbbreviations.storageAccounts}')
