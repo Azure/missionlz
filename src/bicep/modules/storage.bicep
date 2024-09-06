@@ -30,13 +30,11 @@ module storageAccount 'storage-account.bicep' = [for (tier, i) in tiers: {
     mlzTags: mlzTags
     serviceToken: serviceToken
     skuName: logStorageSkuName
-    storageAccountName: tier.namingConvention.storageAccount
-    storageAccountNetworkInterfaceNamePrefix: tier.namingConvention.storageAccountNetworkInterface
-    storageAccountPrivateEndpointNamePrefix: tier.namingConvention.storageAccountPrivateEndpoint
     storageEncryptionKeyName: storageEncryptionKeyName
     subnetResourceId: resourceId(tier.subscriptionId, resourceGroupNames[i], 'Microsoft.Network/virtualNetworks/subnets', tier.namingConvention.virtualNetwork, tier.namingConvention.subnet)
     tablesPrivateDnsZoneResourceId: tablesPrivateDnsZoneResourceId
     tags: tags
+    tier: tier
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
   }
 }]
