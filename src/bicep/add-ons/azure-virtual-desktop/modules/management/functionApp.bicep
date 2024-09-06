@@ -1,19 +1,19 @@
-param additionalAppSettings array = []
 param delegatedSubnetResourceId string
 param deploymentNameSuffix string
+param enableApplicationInsights bool
 param environmentAbbreviation string
 param hostPoolName string
 param keyExpirationInDays int = 30
 param location string = resourceGroup().location
-param logAnalyticsWorkspaceResourceId string = ''
+param logAnalyticsWorkspaceResourceId string
 param namingConvention object
 param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
-param privateLinkScopeResourceId string = ''
+param privateLinkScopeResourceId string
 param resourceAbbreviations object
 param resourceGroupControlPlane string
+param resourceGroupHosts string
 param resourceGroupStorage string
-param roleAssignments array
 param scalingBeginPeakTime string
 param scalingEndPeakTime string
 param scalingLimitSecondsToForceLogOffUser string
@@ -24,16 +24,25 @@ param subnetResourceId string
 param tags object
 param timeDifference string
 
-var fileShareName = 'function-app'
+var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var functionAppKeyword = environment().name == 'AzureCloud' || environment().name == 'AzureUSGovernment'
   ? 'azurewebsites'
   : 'appservice'
-var privateLinkScopeResourceGroupName = empty(logAnalyticsWorkspaceResourceId)
-  ? resourceGroup().name
-  : split(privateLinkScopeResourceId, '/')[4]
-var privateLinkScopeSubscriptionId = empty(logAnalyticsWorkspaceResourceId)
-  ? subscription().subscriptionId
-  : split(privateLinkScopeResourceId, '/')[2]
+var functionAppScmPrivateDnsZoneResourceId = '${privateDnsZoneResourceIdPrefix}scm.${filter(privateDnsZones, name => contains(name, functionAppKeyword))[0]}'
+var roleAssignments = [
+  {
+    roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor
+    scope: resourceGroupStorage
+  }
+  {
+    roleDefinitionId: '40c5ff49-9181-41f8-ae61-143b0e78555e' // Desktop Virtualization Power On Off Contributor
+    scope: resourceGroupControlPlane
+  }
+  {
+    roleDefinitionId: '40c5ff49-9181-41f8-ae61-143b0e78555e' // Desktop Virtualization Power On Off Contributor
+    scope: resourceGroupHosts
+  }
+]
 var service = 'mgmt'
 var storagePrivateDnsZoneResourceIds = [
   '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
@@ -52,15 +61,6 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
   name: replace(namingConvention.userAssignedIdentity, serviceToken, service)
   location: location
   tags: tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}
-}
-
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(userAssignedIdentity.id, 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)
-  properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6') // Key Vault Crypto Service Encryption User
-    principalId: userAssignedIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
-  }
 }
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
@@ -87,6 +87,16 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     }
     softDeleteRetentionInDays: environmentAbbreviation == 'dev' || environmentAbbreviation == 'test' ? 7 : 90
     tenantId: subscription().tenantId
+  }
+}
+
+resource roleAssignment_Encryption 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(userAssignedIdentity.id, 'e147488a-f6f5-4113-8e2d-b22465e65bf6', vault.id)
+  scope: vault
+  properties: {
+    principalId: userAssignedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')  // Key Vault Crypto Service Encryption User
   }
 }
 
@@ -183,7 +193,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     allowBlobPublicAccess: false
     allowCrossTenantReplication: false
     allowedCopyScope: 'PrivateLink'
-    allowSharedKeyAccess: true
+    allowSharedKeyAccess: false
     azureFilesIdentityBasedAuthentication: {
       directoryServiceOptions: 'None'
     }
@@ -234,33 +244,6 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01' = {
   parent: storageAccount
   name: 'default'
-}
-
-resource fileServices 'Microsoft.Storage/storageAccounts/fileServices@2022-09-01' = {
-  parent: storageAccount
-  name: 'default'
-  properties: {
-    protocolSettings: {
-      smb: {
-        versions: 'SMB3.1.1;'
-        authenticationMethods: 'NTLMv2;'
-        channelEncryption: 'AES-128-GCM;AES-256-GCM;'
-      }
-    }
-    shareDeleteRetentionPolicy: {
-      enabled: false
-    }
-  }
-}
-
-resource share 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01' = {
-  parent: fileServices
-  name: fileShareName
-  properties: {
-    accessTier: 'TransactionOptimized'
-    shareQuota: 5120
-    enabledProtocols: 'SMB'
-  }
 }
 
 resource privateEndpoints_storage 'Microsoft.Network/privateEndpoints@2023-04-01' = [
@@ -318,7 +301,7 @@ resource privateDnsZoneGroups_storage 'Microsoft.Network/privateEndpoints/privat
   }
 ]
 
-resource diagnosticSetting_storage_blob 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
+resource diagnosticSetting_storage_blob 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (enableApplicationInsights) {
   scope: blobService
   name: replace(
     namingConvention.storageAccountDiagnosticSetting,
@@ -342,21 +325,22 @@ resource diagnosticSetting_storage_blob 'Microsoft.Insights/diagnosticsettings@2
   }
 }
 
-resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
+resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = if (enableApplicationInsights) {
   name: replace(namingConvention.applicationInsights, serviceToken, service)
   location: location
   tags: tags[?'Microsoft.Insights/components'] ?? {}
   properties: {
     Application_Type: 'web'
+    publicNetworkAccessForIngestion: 'Disabled'
+    publicNetworkAccessForQuery: 'Disabled'
   }
   kind: 'web'
 }
 
-module privateLinkScope 'privateLinkScope.bicep' = {
+module privateLinkScope 'privateLinkScope.bicep' = if (enableApplicationInsights) {
   name: 'deploy-private-link-scope-${deploymentNameSuffix}'
-  scope: resourceGroup(privateLinkScopeSubscriptionId, privateLinkScopeResourceGroupName)
+  scope: resourceGroup(split(privateLinkScopeResourceId, '/')[2], split(privateLinkScopeResourceId, '/')[4])
   params: {
-    applicationInsightsName: applicationInsights.name
     applicationInsightsResourceId: applicationInsights.id
     privateLinkScopeResourceId: privateLinkScopeResourceId
   }
@@ -367,20 +351,13 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   location: location
   tags: tags[?'Microsoft.Web/serverfarms'] ?? {}
   sku: {
-    tier: 'ElasticPremium'
-    name: 'EP1'
+    name: 'P1v3'
+    tier: 'PremiumV3'
+    size: 'P1v3'
+    family: 'Pv3'
+    capacity: 1
   }
   kind: 'functionapp'
-  properties: {
-    targetWorkerSizeId: 3
-    targetWorkerCount: 1
-    maximumElasticWorkerCount: 20
-    zoneRedundant: false
-  }
-  dependsOn: [
-    privateEndpoints_storage
-    privateDnsZoneGroups_storage
-  ]
 }
 
 resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
@@ -397,126 +374,133 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
     publicNetworkAccess: 'Disabled'
     serverFarmId: appServicePlan.id
     siteConfig: {
-      appSettings: union(
-        [
-          {
-            name: 'FUNCTIONS_EXTENSION_VERSION'
-            value: '~4'
-          }
-          {
-            name: 'FUNCTIONS_WORKER_RUNTIME'
-            value: 'powershell'
-          }
-          {
-            name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-            value: applicationInsights.properties.ConnectionString
-          }
-          {
-            name: 'AzureWebJobsStorage'
-            value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${listKeys(storageAccount.id,'2019-06-01').keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
-          }
-          {
-            name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-            value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${listKeys(storageAccount.id,'2019-06-01').keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
-          }
-          {
-            name: 'WEBSITE_CONTENTOVERVNET'
-            value: 1
-          }
-          {
-            name: 'WEBSITE_CONTENTSHARE'
-            value: fileShareName
-          }
-          {
-            name: 'BeginPeakTime'
-            value: scalingBeginPeakTime
-          }
-          {
-            name: 'EndPeakTime'
-            value: scalingEndPeakTime
-          }
-          {
-            name: 'EnvironmentName'
-            value: environment().name
-          }
-          {
-            name: 'FileShareName'
-            value: 'profile-containers'
-          }
-          {
-            name: 'HostPoolName'
-            value: hostPoolName
-          }
-          {
-            name: 'HostPoolResourceGroupName'
-            value: resourceGroupControlPlane
-          }
-          {
-            name: 'LimitSecondsToForceLogOffUser'
-            value: scalingLimitSecondsToForceLogOffUser
-          }
-          {
-            name: 'LogOffMessageBody'
-            value: 'This session is about to be logged off. Please save your work.'
-          }
-          {
-            name: 'LogOffMessageTitle'
-            value: 'Session Log Off'
-          }
-          {
-            name: 'MaintenanceTagName'
-            value: 'Maintenance'
-          }
-          {
-            name: 'MinimumNumberOfRDSH'
-            value: scalingMinimumNumberOfRdsh
-          }
-          {
-            name: 'ResourceGroupName'
-            value: resourceGroupStorage
-          }
-          {
-            name: 'ResourceManagerUrl'
-            // This workaround is needed because the environment().resourceManager value is missing the trailing slash for some Azure environments
-            value: endsWith(environment().resourceManager, '/')
-              ? environment().resourceManager
-              : '${environment().resourceManager}/'
-          }
-          {
-            name: 'SessionThresholdPerCPU'
-            value: scalingSessionThresholdPerCPU
-          }
-          {
-            name: 'StorageSuffix'
-            value: environment().suffixes.storage
-          }
-          {
-            name: 'SubscriptionId'
-            value: subscription().subscriptionId
-          }
-          {
-            name: 'TenantId'
-            value: subscription().tenantId
-          }
-          {
-            name: 'TimeDifference'
-            value: timeDifference
-          }
-        ],
-        additionalAppSettings
-      )
+      alwaysOn: true
+      appSettings:union([
+        {
+          name: 'AzureWebJobsStorage__blobServiceUri'
+          value: 'https://${storageAccount.name}.blob.${environment().suffixes.storage}'
+        }
+        {
+          name: 'AzureWebJobsStorage__credential'
+          value: 'managedidentity'
+        }
+        {
+          name: 'AzureWebJobsStorage__queueServiceUri'
+          value: 'https://${storageAccount.name}.queue.${environment().suffixes.storage}'
+        }
+        {
+          name: 'AzureWebJobsStorage__tableServiceUri'
+          value: 'https://${storageAccount.name}.table.${environment().suffixes.storage}'
+        }
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
+        {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'powershell'
+        }
+        {
+          name: 'WEBSITE_LOAD_USER_PROFILE'
+          value: '1'
+        }
+        {
+          name: 'BeginPeakTime'
+          value: scalingBeginPeakTime
+        }
+        {
+          name: 'EndPeakTime'
+          value: scalingEndPeakTime
+        }
+        {
+          name: 'EnvironmentName'
+          value: environment().name
+        }
+        {
+          name: 'FileShareName'
+          value: 'profile-containers'
+        }
+        {
+          name: 'HostPoolName'
+          value: hostPoolName
+        }
+        {
+          name: 'HostPoolResourceGroupName'
+          value: resourceGroupControlPlane
+        }
+        {
+          name: 'LimitSecondsToForceLogOffUser'
+          value: scalingLimitSecondsToForceLogOffUser
+        }
+        {
+          name: 'LogOffMessageBody'
+          value: 'This session is about to be logged off. Please save your work.'
+        }
+        {
+          name: 'LogOffMessageTitle'
+          value: 'Session Log Off'
+        }
+        {
+          name: 'MaintenanceTagName'
+          value: 'Maintenance'
+        }
+        {
+          name: 'MinimumNumberOfRDSH'
+          value: scalingMinimumNumberOfRdsh
+        }
+        {
+          name: 'ResourceGroupName'
+          value: resourceGroupStorage
+        }
+        {
+          name: 'ResourceManagerUrl'
+          // This workaround is needed because the environment().resourceManager value is missing the trailing slash for some Azure environments
+          value: endsWith(environment().resourceManager, '/')
+            ? environment().resourceManager
+            : '${environment().resourceManager}/'
+        }
+        {
+          name: 'SessionThresholdPerCPU'
+          value: scalingSessionThresholdPerCPU
+        }
+        {
+          name: 'StorageSuffix'
+          value: environment().suffixes.storage
+        }
+        {
+          name: 'SubscriptionId'
+          value: subscription().subscriptionId
+        }
+        {
+          name: 'TenantId'
+          value: subscription().tenantId
+        }
+        {
+          name: 'TimeDifference'
+          value: timeDifference
+        }
+      ], enableApplicationInsights ? [
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: applicationInsights.properties.ConnectionString
+        }
+      ] : [])
       cors: {
-        allowedOrigins: [
-          environment().portal
+        allowedOrigins: [ 
+          '${environment().portal}'
+          'https://functions-next.${cloudSuffix}'
+          'https://functions-staging.${cloudSuffix}'
+          'https://functions.${cloudSuffix}'
         ]
       }
-      ftpsState: 'FtpsOnly'
+      ftpsState: 'Disabled'
       netFrameworkVersion: 'v6.0'
       powerShellVersion: '7.2'
+      publicNetworkAccess: 'Disabled'
       use32BitWorkerProcess: false
     }
     virtualNetworkSubnetId: delegatedSubnetResourceId
-    vnetContentShareEnabled: true
+    vnetContentShareEnabled: false
     vnetRouteAllEnabled: true
   }
 }
@@ -559,7 +543,7 @@ resource privateDnsZoneGroup_functionApp 'Microsoft.Network/privateEndpoints/pri
   }
 }
 
-module roleAssignments_resourceGroups '../common/roleAssignment.bicep' = [
+module roleAssignments_resourceGroups '../common/roleAssignments/resourceGroup.bicep' = [
   for i in range(0, length(roleAssignments)): {
     name: 'set-role-assignment-${i}-${deploymentNameSuffix}'
     scope: resourceGroup(roleAssignments[i].scope)
@@ -570,5 +554,16 @@ module roleAssignments_resourceGroups '../common/roleAssignment.bicep' = [
     }
   }
 ]
+
+// This module is used to deploy the A record for the SCM site which does not use a dedicated private endpoint
+module scmARecord 'aRecord.bicep' = {
+  name: 'deploy-scm-a-record-${deploymentNameSuffix}'
+  scope: resourceGroup(split(functionAppScmPrivateDnsZoneResourceId, '/')[2], split(functionAppScmPrivateDnsZoneResourceId, '/')[4])
+  params: {
+    functionAppName: functionApp.name
+    ipv4Address: filter(privateDnsZoneGroup_functionApp.properties.privateDnsZoneConfigs[0].properties.recordSets, record => record.recordSetName == functionApp.name)[0].ipAddresses[0]
+    privateDnsZoneName: split(functionAppScmPrivateDnsZoneResourceId, '/')[8]
+  }
+}
 
 output functionAppName string = functionApp.name
