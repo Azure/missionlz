@@ -39,7 +39,6 @@ module namingConventions 'naming-convention.bicep' = [for network in networks: {
     networkShortName: network.shortName
     resourcePrefix: resourcePrefix
     stampIndex: stampIndex
-    subscriptionId: network.subscriptionId
   }
 }]
 
