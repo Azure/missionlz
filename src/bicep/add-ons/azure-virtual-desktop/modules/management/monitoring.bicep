@@ -128,7 +128,7 @@ resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' 
   }
 }
 
-resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2023-03-11' = if (enableAvdInsights) {
+resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2021-04-01' = if (enableAvdInsights) {
   name: replace(namingConvention.dataCollectionEndpoint, serviceToken, service)
   location: location
   tags: union({
