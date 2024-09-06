@@ -2,13 +2,13 @@ param applicationGroupResourceId string
 param avdPrivateDnsZoneResourceId string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
+param enableAvdInsights bool
 param existingFeedWorkspaceResourceId string
 param hostPoolName string
 param locationControlPlane string
 param locationVirtualMachines string
 param logAnalyticsWorkspaceResourceId string
 param mlzTags object
-param monitoring bool
 param resourceGroupManagement string
 param subnetResourceId string
 param tags object
@@ -107,7 +107,7 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   }
 }
 
-resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (monitoring) {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableAvdInsights) {
   name: workspaceFeedDiagnoticSettingName
   scope: workspace
   properties: {
