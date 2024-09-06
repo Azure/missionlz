@@ -17,6 +17,7 @@ param storageEncryptionKeyName string
 param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
 param tags object
+param tier object
 param userAssignedIdentityResourceId string
 
 module storageAccount '../../../modules/storage-account.bicep' = {
@@ -29,13 +30,11 @@ module storageAccount '../../../modules/storage-account.bicep' = {
     mlzTags: mlzTags
     serviceToken: serviceToken
     skuName: logStorageSkuName
-    storageAccountName: network.namingConvention.storageAccount
-    storageAccountNetworkInterfaceNamePrefix: network.namingConvention.storageAccountNetworkInterface
-    storageAccountPrivateEndpointNamePrefix: network.namingConvention.storageAccountPrivateEndpoint
     storageEncryptionKeyName: storageEncryptionKeyName
     subnetResourceId: subnetResourceId
     tablesPrivateDnsZoneResourceId: tablesPrivateDnsZoneResourceId
     tags: tags
+    tier: tier
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
   }
 }
