@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "9804732116833899366"
+      "templateHash": "17788849196273994710"
     }
   },
   "parameters": {
@@ -147,6 +147,20 @@
       "type": "bool",
       "metadata": {
         "description": "Determine whether to enable accelerated networking on the AVD session hosts. https://learn.microsoft.com/en-us/azure/virtual-network/accelerated-networking-overview"
+      }
+    },
+    "enableApplicationInsights": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Deploys the required resources to monitor the function app for the Scaling Tool and Auto Increase Premium File Share solutions."
+      }
+    },
+    "enableAvdInsights": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Deploys the required monitoring resources to enable AVD Insights."
       }
     },
     "enableTelemetry": {
@@ -335,13 +349,6 @@
         "description": "The SKU for the Log Analytics Workspace to setup the AVD monitoring solution"
       }
     },
-    "monitoring": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "Deploys the required monitoring resources to enable AVD Insights and monitor features in the automation account."
-      }
-    },
     "operationsLogAnalyticsWorkspaceResourceId": {
       "type": "string",
       "metadata": {
@@ -360,6 +367,12 @@
       "defaultValue": "NISTRev4",
       "metadata": {
         "description": "The policy to assign to the workload."
+      }
+    },
+    "privateLinkScopeResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "The resource ID for the Azure Monitor Private Link Scope in the Operations subscription / resource group."
       }
     },
     "profile": {
@@ -675,7 +688,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "12921581727902800739"
+              "templateHash": "216066643059093983"
             }
           },
           "parameters": {
@@ -1104,6 +1117,7 @@
               "azureFirewalls": "afw",
               "bastionHosts": "bas",
               "computeGallieries": "cg",
+              "dataCollectionEndpoints": "dce",
               "dataCollectionRuleAssociations": "dcra",
               "dataCollectionRules": "dcr",
               "diagnosticSettings": "diag",
@@ -1163,6 +1177,7 @@
               "bastionHostPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').publicIPAddresses), parameters('tokens').service, variables('resourceAbbreviations').bastionHosts)]",
               "bastionHostPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', variables('resourceAbbreviations').publicIPAddresses, variables('resourceAbbreviations').bastionHosts))]",
               "computeGallery": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').computeGallieries), '-', '_')]",
+              "dataCollectionEndpoint": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionEndpoints)]",
               "dataCollectionRuleAssociation": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRuleAssociations)]",
               "dataCollectionRule": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRules)]",
               "diskAccess": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').diskAccesses)]",
@@ -1276,7 +1291,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "12921581727902800739"
+              "templateHash": "216066643059093983"
             }
           },
           "parameters": {
@@ -1705,6 +1720,7 @@
               "azureFirewalls": "afw",
               "bastionHosts": "bas",
               "computeGallieries": "cg",
+              "dataCollectionEndpoints": "dce",
               "dataCollectionRuleAssociations": "dcra",
               "dataCollectionRules": "dcr",
               "diagnosticSettings": "diag",
@@ -1764,6 +1780,7 @@
               "bastionHostPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').publicIPAddresses), parameters('tokens').service, variables('resourceAbbreviations').bastionHosts)]",
               "bastionHostPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', variables('resourceAbbreviations').publicIPAddresses, variables('resourceAbbreviations').bastionHosts))]",
               "computeGallery": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').computeGallieries), '-', '_')]",
+              "dataCollectionEndpoint": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionEndpoints)]",
               "dataCollectionRuleAssociation": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRuleAssociations)]",
               "dataCollectionRule": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRules)]",
               "diskAccess": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').diskAccesses)]",
@@ -1919,7 +1936,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "2842789425457661965"
+              "templateHash": "16812797311151560442"
             }
           },
           "parameters": {
@@ -2196,7 +2213,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "2460051154130314006"
+                      "templateHash": "4399168032584192135"
                     }
                   },
                   "parameters": {
@@ -2279,7 +2296,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.29.47.4906",
-                              "templateHash": "12921581727902800739"
+                              "templateHash": "216066643059093983"
                             }
                           },
                           "parameters": {
@@ -2708,6 +2725,7 @@
                               "azureFirewalls": "afw",
                               "bastionHosts": "bas",
                               "computeGallieries": "cg",
+                              "dataCollectionEndpoints": "dce",
                               "dataCollectionRuleAssociations": "dcra",
                               "dataCollectionRules": "dcr",
                               "diagnosticSettings": "diag",
@@ -2767,6 +2785,7 @@
                               "bastionHostPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').publicIPAddresses), parameters('tokens').service, variables('resourceAbbreviations').bastionHosts)]",
                               "bastionHostPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', variables('resourceAbbreviations').publicIPAddresses, variables('resourceAbbreviations').bastionHosts))]",
                               "computeGallery": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').computeGallieries), '-', '_')]",
+                              "dataCollectionEndpoint": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionEndpoints)]",
                               "dataCollectionRuleAssociation": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRuleAssociations)]",
                               "dataCollectionRule": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRules)]",
                               "diskAccess": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').diskAccesses)]",
@@ -6402,8 +6421,11 @@
           "domainName": {
             "value": "[parameters('domainName')]"
           },
-          "enableMonitoring": {
-            "value": "[parameters('monitoring')]"
+          "enableApplicationInsights": {
+            "value": "[parameters('enableApplicationInsights')]"
+          },
+          "enableAvdInsights": {
+            "value": "[parameters('enableAvdInsights')]"
           },
           "environmentAbbreviation": {
             "value": "[parameters('environmentAbbreviation')]"
@@ -6437,6 +6459,9 @@
           },
           "privateDnsZones": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
+          },
+          "privateLinkScopeResourceId": {
+            "value": "[parameters('privateLinkScopeResourceId')]"
           },
           "recoveryServices": {
             "value": "[parameters('recoveryServices')]"
@@ -6513,7 +6538,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "10798632838904818239"
+              "templateHash": "4620831365624709679"
             }
           },
           "parameters": {
@@ -6544,7 +6569,10 @@
             "domainName": {
               "type": "string"
             },
-            "enableMonitoring": {
+            "enableApplicationInsights": {
+              "type": "bool"
+            },
+            "enableAvdInsights": {
               "type": "bool"
             },
             "environmentAbbreviation": {
@@ -6579,6 +6607,9 @@
             },
             "privateDnsZones": {
               "type": "array"
+            },
+            "privateLinkScopeResourceId": {
+              "type": "string"
             },
             "recoveryServices": {
               "type": "bool"
@@ -7422,7 +7453,7 @@
               ]
             },
             {
-              "condition": "[parameters('enableMonitoring')]",
+              "condition": "[or(parameters('enableApplicationInsights'), parameters('enableAvdInsights'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))]",
@@ -7433,17 +7464,17 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "dataCollectionRuleName": {
-                    "value": "[parameters('namingConvention').dataCollectionRule]"
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "enableAvdInsights": {
+                    "value": "[parameters('enableAvdInsights')]"
                   },
                   "hostPoolName": {
                     "value": "[variables('hostPoolName')]"
                   },
                   "location": {
                     "value": "[parameters('locationVirtualMachines')]"
-                  },
-                  "logAnalyticsWorkspaceName": {
-                    "value": "[parameters('namingConvention').logAnalyticsWorkspace]"
                   },
                   "logAnalyticsWorkspaceRetention": {
                     "value": "[parameters('logAnalyticsWorkspaceRetention')]"
@@ -7454,8 +7485,17 @@
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
                   },
+                  "namingConvention": {
+                    "value": "[parameters('namingConvention')]"
+                  },
+                  "privateLinkScopeResourceId": {
+                    "value": "[parameters('privateLinkScopeResourceId')]"
+                  },
                   "resourceGroupControlPlane": {
                     "value": "[parameters('resourceGroupControlPlane')]"
+                  },
+                  "serviceToken": {
+                    "value": "[parameters('serviceToken')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -7468,20 +7508,20 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "17584404965206329057"
+                      "templateHash": "15515859799766771965"
                     }
                   },
                   "parameters": {
-                    "dataCollectionRuleName": {
+                    "deploymentNameSuffix": {
                       "type": "string"
+                    },
+                    "enableAvdInsights": {
+                      "type": "bool"
                     },
                     "hostPoolName": {
                       "type": "string"
                     },
                     "location": {
-                      "type": "string"
-                    },
-                    "logAnalyticsWorkspaceName": {
                       "type": "string"
                     },
                     "logAnalyticsWorkspaceRetention": {
@@ -7493,7 +7533,20 @@
                     "mlzTags": {
                       "type": "object"
                     },
+                    "namingConvention": {
+                      "type": "object"
+                    },
+                    "privateLinkScopeResourceId": {
+                      "type": "string"
+                    },
                     "resourceGroupControlPlane": {
+                      "type": "string"
+                    },
+                    "service": {
+                      "type": "string",
+                      "defaultValue": "mgmt"
+                    },
+                    "serviceToken": {
                       "type": "string"
                     },
                     "tags": {
@@ -7504,7 +7557,7 @@
                     {
                       "type": "Microsoft.OperationalInsights/workspaces",
                       "apiVersion": "2021-06-01",
-                      "name": "[parameters('logAnalyticsWorkspaceName')]",
+                      "name": "[replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.OperationalInsights/workspaces'), parameters('tags')['Microsoft.OperationalInsights/workspaces'], createObject()), parameters('mlzTags'))]",
                       "properties": {
@@ -7515,14 +7568,15 @@
                         "workspaceCapping": {
                           "dailyQuotaGb": -1
                         },
-                        "publicNetworkAccessForIngestion": "Enabled",
-                        "publicNetworkAccessForQuery": "Enabled"
+                        "publicNetworkAccessForIngestion": "Disabled",
+                        "publicNetworkAccessForQuery": "Disabled"
                       }
                     },
                     {
+                      "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Insights/dataCollectionRules",
                       "apiVersion": "2022-06-01",
-                      "name": "[format('microsoft-avdi-{0}', parameters('dataCollectionRuleName'))]",
+                      "name": "[format('microsoft-avdi-{0}', replace(parameters('namingConvention').dataCollectionRule, parameters('serviceToken'), parameters('service')))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Insights/dataCollectionRules'), parameters('tags')['Microsoft.Insights/dataCollectionRules'], createObject()), parameters('mlzTags'))]",
                       "kind": "Windows",
@@ -7588,7 +7642,7 @@
                         "destinations": {
                           "logAnalytics": [
                             {
-                              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+                              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]",
                               "name": "la-workspace"
                             }
                           ]
@@ -7606,22 +7660,104 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
+                      ]
+                    },
+                    {
+                      "condition": "[parameters('enableAvdInsights')]",
+                      "type": "Microsoft.Insights/dataCollectionEndpoints",
+                      "apiVersion": "2023-03-11",
+                      "name": "[replace(parameters('namingConvention').dataCollectionEndpoint, parameters('serviceToken'), parameters('service'))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Insights/dataCollectionEndpoints'), parameters('tags')['Microsoft.Insights/dataCollectionEndpoints'], createObject()), parameters('mlzTags'))]",
+                      "kind": "Windows",
+                      "properties": {
+                        "networkAcls": {
+                          "publicNetworkAccess": "Disabled"
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-private-link-scope-{0}', parameters('deploymentNameSuffix'))]",
+                      "subscriptionId": "[split(parameters('privateLinkScopeResourceId'), '/')[2]]",
+                      "resourceGroup": "[split(parameters('privateLinkScopeResourceId'), '/')[4]]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "applicationInsightsResourceId": {
+                            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
+                          },
+                          "privateLinkScopeResourceId": {
+                            "value": "[parameters('privateLinkScopeResourceId')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.29.47.4906",
+                              "templateHash": "139195957246339591"
+                            }
+                          },
+                          "parameters": {
+                            "applicationInsightsResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "logAnalyticsWorkspaceResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "privateLinkScopeResourceId": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "condition": "[not(empty(parameters('applicationInsightsResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], split(parameters('applicationInsightsResourceId'), '/')[8])]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
+                              }
+                            },
+                            {
+                              "condition": "[not(empty(parameters('logAnalyticsWorkspaceResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
                       ]
                     }
                   ],
                   "outputs": {
                     "logAnalyticsWorkspaceName": {
                       "type": "string",
-                      "value": "[parameters('logAnalyticsWorkspaceName')]"
+                      "value": "[replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service'))]"
                     },
                     "logAnalyticsWorkspaceResourceId": {
                       "type": "string",
-                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
                     },
                     "dataCollectionRuleResourceId": {
                       "type": "string",
-                      "value": "[resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', parameters('dataCollectionRuleName')))]"
+                      "value": "[resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', replace(parameters('namingConvention').dataCollectionRule, parameters('serviceToken'), parameters('service'))))]"
                     }
                   }
                 }
@@ -7645,11 +7781,17 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
+                  "enableApplicationInsights": {
+                    "value": "[parameters('enableApplicationInsights')]"
+                  },
                   "environmentAbbreviation": {
                     "value": "[parameters('environmentAbbreviation')]"
                   },
                   "hostPoolName": {
                     "value": "[variables('hostPoolName')]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
                   },
                   "namingConvention": {
                     "value": "[parameters('namingConvention')]"
@@ -7660,30 +7802,20 @@
                   "privateDnsZones": {
                     "value": "[parameters('privateDnsZones')]"
                   },
+                  "privateLinkScopeResourceId": {
+                    "value": "[parameters('privateLinkScopeResourceId')]"
+                  },
                   "resourceAbbreviations": {
                     "value": "[parameters('resourceAbbreviations')]"
                   },
                   "resourceGroupControlPlane": {
                     "value": "[parameters('resourceGroupControlPlane')]"
                   },
+                  "resourceGroupHosts": {
+                    "value": "[parameters('resourceGroupHosts')]"
+                  },
                   "resourceGroupStorage": {
                     "value": "[parameters('resourceGroupStorage')]"
-                  },
-                  "roleAssignments": {
-                    "value": [
-                      {
-                        "roleDefinitionId": "17d1049b-9a84-46fb-8f53-869881c3d3ab",
-                        "scope": "[parameters('resourceGroupStorage')]"
-                      },
-                      {
-                        "roleDefinitionId": "40c5ff49-9181-41f8-ae61-143b0e78555e",
-                        "scope": "[parameters('resourceGroupControlPlane')]"
-                      },
-                      {
-                        "roleDefinitionId": "40c5ff49-9181-41f8-ae61-143b0e78555e",
-                        "scope": "[parameters('resourceGroupHosts')]"
-                      }
-                    ]
                   },
                   "scalingBeginPeakTime": {
                     "value": "[parameters('scalingBeginPeakTime')]"
@@ -7720,19 +7852,18 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "13585782800425002878"
+                      "templateHash": "1294701904236223678"
                     }
                   },
                   "parameters": {
-                    "additionalAppSettings": {
-                      "type": "array",
-                      "defaultValue": []
-                    },
                     "delegatedSubnetResourceId": {
                       "type": "string"
                     },
                     "deploymentNameSuffix": {
                       "type": "string"
+                    },
+                    "enableApplicationInsights": {
+                      "type": "bool"
                     },
                     "environmentAbbreviation": {
                       "type": "string"
@@ -7749,8 +7880,7 @@
                       "defaultValue": "[resourceGroup().location]"
                     },
                     "logAnalyticsWorkspaceResourceId": {
-                      "type": "string",
-                      "defaultValue": ""
+                      "type": "string"
                     },
                     "namingConvention": {
                       "type": "object"
@@ -7762,8 +7892,7 @@
                       "type": "array"
                     },
                     "privateLinkScopeResourceId": {
-                      "type": "string",
-                      "defaultValue": ""
+                      "type": "string"
                     },
                     "resourceAbbreviations": {
                       "type": "object"
@@ -7771,11 +7900,11 @@
                     "resourceGroupControlPlane": {
                       "type": "string"
                     },
-                    "resourceGroupStorage": {
+                    "resourceGroupHosts": {
                       "type": "string"
                     },
-                    "roleAssignments": {
-                      "type": "array"
+                    "resourceGroupStorage": {
+                      "type": "string"
                     },
                     "scalingBeginPeakTime": {
                       "type": "string"
@@ -7806,10 +7935,23 @@
                     }
                   },
                   "variables": {
-                    "fileShareName": "function-app",
+                    "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
                     "functionAppKeyword": "[if(or(equals(environment().name, 'AzureCloud'), equals(environment().name, 'AzureUSGovernment')), 'azurewebsites', 'appservice')]",
-                    "privateLinkScopeResourceGroupName": "[if(empty(parameters('logAnalyticsWorkspaceResourceId')), resourceGroup().name, split(parameters('privateLinkScopeResourceId'), '/')[4])]",
-                    "privateLinkScopeSubscriptionId": "[if(empty(parameters('logAnalyticsWorkspaceResourceId')), subscription().subscriptionId, split(parameters('privateLinkScopeResourceId'), '/')[2])]",
+                    "functionAppScmPrivateDnsZoneResourceId": "[format('{0}scm.{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), variables('functionAppKeyword'))))[0])]",
+                    "roleAssignments": [
+                      {
+                        "roleDefinitionId": "17d1049b-9a84-46fb-8f53-869881c3d3ab",
+                        "scope": "[parameters('resourceGroupStorage')]"
+                      },
+                      {
+                        "roleDefinitionId": "40c5ff49-9181-41f8-ae61-143b0e78555e",
+                        "scope": "[parameters('resourceGroupControlPlane')]"
+                      },
+                      {
+                        "roleDefinitionId": "40c5ff49-9181-41f8-ae61-143b0e78555e",
+                        "scope": "[parameters('resourceGroupHosts')]"
+                      }
+                    ],
                     "service": "mgmt",
                     "storagePrivateDnsZoneResourceIds": [
                       "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'blob')))[0])]",
@@ -7831,19 +7973,6 @@
                       "name": "[replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))]",
                       "location": "[parameters('location')]",
                       "tags": "[coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject())]"
-                    },
-                    {
-                      "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2022-04-01",
-                      "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
-                      "properties": {
-                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]",
-                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), '2023-01-31').principalId]",
-                        "principalType": "ServicePrincipal"
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service')))]"
-                      ]
                     },
                     {
                       "type": "Microsoft.KeyVault/vaults",
@@ -7872,6 +8001,21 @@
                         "softDeleteRetentionInDays": "[if(or(equals(parameters('environmentAbbreviation'), 'dev'), equals(parameters('environmentAbbreviation'), 'test')), 7, 90)]",
                         "tenantId": "[subscription().tenantId]"
                       }
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2020-04-01-preview",
+                      "scope": "[format('Microsoft.KeyVault/vaults/{0}', replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')))]",
+                      "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service'))))]",
+                      "properties": {
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), '2023-01-31').principalId]",
+                        "principalType": "ServicePrincipal",
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service')))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')))]"
+                      ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints",
@@ -7978,7 +8122,7 @@
                         "allowBlobPublicAccess": false,
                         "allowCrossTenantReplication": false,
                         "allowedCopyScope": "PrivateLink",
-                        "allowSharedKeyAccess": true,
+                        "allowSharedKeyAccess": false,
                         "azureFilesIdentityBasedAuthentication": {
                           "directoryServiceOptions": "None"
                         },
@@ -8039,39 +8183,6 @@
                       ]
                     },
                     {
-                      "type": "Microsoft.Storage/storageAccounts/fileServices",
-                      "apiVersion": "2022-09-01",
-                      "name": "[format('{0}/{1}', replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), 'default')]",
-                      "properties": {
-                        "protocolSettings": {
-                          "smb": {
-                            "versions": "SMB3.1.1;",
-                            "authenticationMethods": "NTLMv2;",
-                            "channelEncryption": "AES-128-GCM;AES-256-GCM;"
-                          }
-                        },
-                        "shareDeleteRetentionPolicy": {
-                          "enabled": false
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')))]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
-                      "apiVersion": "2022-09-01",
-                      "name": "[format('{0}/{1}/{2}', replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), 'default', variables('fileShareName'))]",
-                      "properties": {
-                        "accessTier": "TransactionOptimized",
-                        "shareQuota": 5120,
-                        "enabledProtocols": "SMB"
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts/fileServices', replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), 'default')]"
-                      ]
-                    },
-                    {
                       "copy": {
                         "name": "privateEndpoints_storage",
                         "count": "[length(variables('storageSubResources'))]"
@@ -8126,7 +8237,7 @@
                       ]
                     },
                     {
-                      "condition": "[not(empty(parameters('logAnalyticsWorkspaceResourceId')))]",
+                      "condition": "[parameters('enableApplicationInsights')]",
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2017-05-01-preview",
                       "scope": "[format('Microsoft.Storage/storageAccounts/{0}/blobServices/{1}', replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), 'default')]",
@@ -8151,13 +8262,16 @@
                       ]
                     },
                     {
+                      "condition": "[parameters('enableApplicationInsights')]",
                       "type": "Microsoft.Insights/components",
                       "apiVersion": "2020-02-02",
                       "name": "[replace(parameters('namingConvention').applicationInsights, parameters('serviceToken'), variables('service'))]",
                       "location": "[parameters('location')]",
                       "tags": "[coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/components'), createObject())]",
                       "properties": {
-                        "Application_Type": "web"
+                        "Application_Type": "web",
+                        "publicNetworkAccessForIngestion": "Disabled",
+                        "publicNetworkAccessForQuery": "Disabled"
                       },
                       "kind": "web"
                     },
@@ -8168,20 +8282,13 @@
                       "location": "[parameters('location')]",
                       "tags": "[coalesce(tryGet(parameters('tags'), 'Microsoft.Web/serverfarms'), createObject())]",
                       "sku": {
-                        "tier": "ElasticPremium",
-                        "name": "EP1"
+                        "name": "P1v3",
+                        "tier": "PremiumV3",
+                        "size": "P1v3",
+                        "family": "Pv3",
+                        "capacity": 1
                       },
-                      "kind": "functionapp",
-                      "properties": {
-                        "targetWorkerSizeId": 3,
-                        "targetWorkerCount": 1,
-                        "maximumElasticWorkerCount": 20,
-                        "zoneRedundant": false
-                      },
-                      "dependsOn": [
-                        "privateDnsZoneGroups_storage",
-                        "privateEndpoints_storage"
-                      ]
+                      "kind": "functionapp"
                     },
                     {
                       "type": "Microsoft.Web/sites",
@@ -8199,19 +8306,24 @@
                         "publicNetworkAccess": "Disabled",
                         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', replace(parameters('namingConvention').appServicePlan, parameters('serviceToken'), variables('service')))]",
                         "siteConfig": {
-                          "appSettings": "[union(createArray(createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', replace(parameters('namingConvention').applicationInsights, parameters('serviceToken'), variables('service'))), '2020-02-02').ConnectionString), createObject('name', 'AzureWebJobsStorage', 'value', format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};EndpointSuffix={2}', replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), listKeys(resourceId('Microsoft.Storage/storageAccounts', replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service'))), '2019-06-01').keys[0].value, environment().suffixes.storage)), createObject('name', 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING', 'value', format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};EndpointSuffix={2}', replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), listKeys(resourceId('Microsoft.Storage/storageAccounts', replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service'))), '2019-06-01').keys[0].value, environment().suffixes.storage)), createObject('name', 'WEBSITE_CONTENTOVERVNET', 'value', 1), createObject('name', 'WEBSITE_CONTENTSHARE', 'value', variables('fileShareName')), createObject('name', 'BeginPeakTime', 'value', parameters('scalingBeginPeakTime')), createObject('name', 'EndPeakTime', 'value', parameters('scalingEndPeakTime')), createObject('name', 'EnvironmentName', 'value', environment().name), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'HostPoolName', 'value', parameters('hostPoolName')), createObject('name', 'HostPoolResourceGroupName', 'value', parameters('resourceGroupControlPlane')), createObject('name', 'LimitSecondsToForceLogOffUser', 'value', parameters('scalingLimitSecondsToForceLogOffUser')), createObject('name', 'LogOffMessageBody', 'value', 'This session is about to be logged off. Please save your work.'), createObject('name', 'LogOffMessageTitle', 'value', 'Session Log Off'), createObject('name', 'MaintenanceTagName', 'value', 'Maintenance'), createObject('name', 'MinimumNumberOfRDSH', 'value', parameters('scalingMinimumNumberOfRdsh')), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupStorage')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'SessionThresholdPerCPU', 'value', parameters('scalingSessionThresholdPerCPU')), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId), createObject('name', 'TenantId', 'value', subscription().tenantId), createObject('name', 'TimeDifference', 'value', parameters('timeDifference'))), parameters('additionalAppSettings'))]",
+                          "alwaysOn": true,
+                          "appSettings": "[union(createArray(createObject('name', 'AzureWebJobsStorage__blobServiceUri', 'value', format('https://{0}.blob.{1}', replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__credential', 'value', 'managedidentity'), createObject('name', 'AzureWebJobsStorage__queueServiceUri', 'value', format('https://{0}.queue.{1}', replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__tableServiceUri', 'value', format('https://{0}.table.{1}', replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), environment().suffixes.storage)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'WEBSITE_LOAD_USER_PROFILE', 'value', '1'), createObject('name', 'BeginPeakTime', 'value', parameters('scalingBeginPeakTime')), createObject('name', 'EndPeakTime', 'value', parameters('scalingEndPeakTime')), createObject('name', 'EnvironmentName', 'value', environment().name), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'HostPoolName', 'value', parameters('hostPoolName')), createObject('name', 'HostPoolResourceGroupName', 'value', parameters('resourceGroupControlPlane')), createObject('name', 'LimitSecondsToForceLogOffUser', 'value', parameters('scalingLimitSecondsToForceLogOffUser')), createObject('name', 'LogOffMessageBody', 'value', 'This session is about to be logged off. Please save your work.'), createObject('name', 'LogOffMessageTitle', 'value', 'Session Log Off'), createObject('name', 'MaintenanceTagName', 'value', 'Maintenance'), createObject('name', 'MinimumNumberOfRDSH', 'value', parameters('scalingMinimumNumberOfRdsh')), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupStorage')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'SessionThresholdPerCPU', 'value', parameters('scalingSessionThresholdPerCPU')), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId), createObject('name', 'TenantId', 'value', subscription().tenantId), createObject('name', 'TimeDifference', 'value', parameters('timeDifference'))), if(parameters('enableApplicationInsights'), createArray(createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', replace(parameters('namingConvention').applicationInsights, parameters('serviceToken'), variables('service'))), '2020-02-02').ConnectionString)), createArray()))]",
                           "cors": {
                             "allowedOrigins": [
-                              "[environment().portal]"
+                              "[format('{0}', environment().portal)]",
+                              "[format('https://functions-next.{0}', variables('cloudSuffix'))]",
+                              "[format('https://functions-staging.{0}', variables('cloudSuffix'))]",
+                              "[format('https://functions.{0}', variables('cloudSuffix'))]"
                             ]
                           },
-                          "ftpsState": "FtpsOnly",
+                          "ftpsState": "Disabled",
                           "netFrameworkVersion": "v6.0",
                           "powerShellVersion": "7.2",
+                          "publicNetworkAccess": "Disabled",
                           "use32BitWorkerProcess": false
                         },
                         "virtualNetworkSubnetId": "[parameters('delegatedSubnetResourceId')]",
-                        "vnetContentShareEnabled": true,
+                        "vnetContentShareEnabled": false,
                         "vnetRouteAllEnabled": true
                       },
                       "dependsOn": [
@@ -8265,20 +8377,18 @@
                       ]
                     },
                     {
+                      "condition": "[parameters('enableApplicationInsights')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-private-link-scope-{0}', parameters('deploymentNameSuffix'))]",
-                      "subscriptionId": "[variables('privateLinkScopeSubscriptionId')]",
-                      "resourceGroup": "[variables('privateLinkScopeResourceGroupName')]",
+                      "subscriptionId": "[split(parameters('privateLinkScopeResourceId'), '/')[2]]",
+                      "resourceGroup": "[split(parameters('privateLinkScopeResourceId'), '/')[4]]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
                         },
                         "mode": "Incremental",
                         "parameters": {
-                          "applicationInsightsName": {
-                            "value": "[replace(parameters('namingConvention').applicationInsights, parameters('serviceToken'), variables('service'))]"
-                          },
                           "applicationInsightsResourceId": {
                             "value": "[resourceId('Microsoft.Insights/components', replace(parameters('namingConvention').applicationInsights, parameters('serviceToken'), variables('service')))]"
                           },
@@ -8293,15 +8403,17 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.29.47.4906",
-                              "templateHash": "9527454008361250279"
+                              "templateHash": "139195957246339591"
                             }
                           },
                           "parameters": {
-                            "applicationInsightsName": {
-                              "type": "string"
-                            },
                             "applicationInsightsResourceId": {
-                              "type": "string"
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "logAnalyticsWorkspaceResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
                             },
                             "privateLinkScopeResourceId": {
                               "type": "string"
@@ -8309,9 +8421,19 @@
                           },
                           "resources": [
                             {
+                              "condition": "[not(empty(parameters('applicationInsightsResourceId')))]",
                               "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
                               "apiVersion": "2021-09-01",
-                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], parameters('applicationInsightsName'))]",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], split(parameters('applicationInsightsResourceId'), '/')[8])]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
+                              }
+                            },
+                            {
+                              "condition": "[not(empty(parameters('logAnalyticsWorkspaceResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])]",
                               "properties": {
                                 "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
                               }
@@ -8326,12 +8448,12 @@
                     {
                       "copy": {
                         "name": "roleAssignments_resourceGroups",
-                        "count": "[length(range(0, length(parameters('roleAssignments'))))]"
+                        "count": "[length(range(0, length(variables('roleAssignments'))))]"
                       },
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('set-role-assignment-{0}-{1}', range(0, length(parameters('roleAssignments')))[copyIndex()], parameters('deploymentNameSuffix'))]",
-                      "resourceGroup": "[parameters('roleAssignments')[range(0, length(parameters('roleAssignments')))[copyIndex()]].scope]",
+                      "name": "[format('set-role-assignment-{0}-{1}', range(0, length(variables('roleAssignments')))[copyIndex()], parameters('deploymentNameSuffix'))]",
+                      "resourceGroup": "[variables('roleAssignments')[range(0, length(variables('roleAssignments')))[copyIndex()]].scope]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -8345,7 +8467,7 @@
                             "value": "ServicePrincipal"
                           },
                           "roleDefinitionId": {
-                            "value": "[parameters('roleAssignments')[range(0, length(parameters('roleAssignments')))[copyIndex()]].roleDefinitionId]"
+                            "value": "[variables('roleAssignments')[range(0, length(variables('roleAssignments')))[copyIndex()]].roleDefinitionId]"
                           }
                         },
                         "template": {
@@ -8386,6 +8508,71 @@
                       "dependsOn": [
                         "[resourceId('Microsoft.Web/sites', replace(parameters('namingConvention').functionApp, parameters('serviceToken'), variables('service')))]"
                       ]
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-scm-a-record-{0}', parameters('deploymentNameSuffix'))]",
+                      "subscriptionId": "[split(variables('functionAppScmPrivateDnsZoneResourceId'), '/')[2]]",
+                      "resourceGroup": "[split(variables('functionAppScmPrivateDnsZoneResourceId'), '/')[4]]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "functionAppName": {
+                            "value": "[replace(parameters('namingConvention').functionApp, parameters('serviceToken'), variables('service'))]"
+                          },
+                          "ipv4Address": {
+                            "value": "[filter(reference(resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('namingConvention').functionAppPrivateEndpoint, parameters('serviceToken'), variables('service')), 'default'), '2021-08-01').privateDnsZoneConfigs[0].properties.recordSets, lambda('record', equals(lambdaVariables('record').recordSetName, replace(parameters('namingConvention').functionApp, parameters('serviceToken'), variables('service')))))[0].ipAddresses[0]]"
+                          },
+                          "privateDnsZoneName": {
+                            "value": "[split(variables('functionAppScmPrivateDnsZoneResourceId'), '/')[8]]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.29.47.4906",
+                              "templateHash": "7030409442479244335"
+                            }
+                          },
+                          "parameters": {
+                            "functionAppName": {
+                              "type": "string"
+                            },
+                            "ipv4Address": {
+                              "type": "string"
+                            },
+                            "privateDnsZoneName": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Network/privateDnsZones/A",
+                              "apiVersion": "2020-06-01",
+                              "name": "[format('{0}/{1}', parameters('privateDnsZoneName'), parameters('functionAppName'))]",
+                              "properties": {
+                                "aRecords": [
+                                  {
+                                    "ipv4Address": "[parameters('ipv4Address')]"
+                                  }
+                                ],
+                                "ttl": 3600
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', replace(parameters('namingConvention').functionApp, parameters('serviceToken'), variables('service')))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('namingConvention').functionAppPrivateEndpoint, parameters('serviceToken'), variables('service')), 'default')]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -8395,7 +8582,10 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]"
+              ]
             },
             {
               "condition": "[and(parameters('recoveryServices'), or(and(and(contains(parameters('activeDirectorySolution'), 'DomainServices'), contains(parameters('hostPoolType'), 'Pooled')), contains(parameters('fslogixStorageService'), 'AzureFiles')), contains(parameters('hostPoolType'), 'Personal')))]",
@@ -8670,7 +8860,7 @@
           "outputs": {
             "dataCollectionRuleResourceId": {
               "type": "string",
-              "value": "[if(parameters('enableMonitoring'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataCollectionRuleResourceId.value, '')]"
+              "value": "[if(parameters('enableAvdInsights'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataCollectionRuleResourceId.value, '')]"
             },
             "deploymentUserAssignedIdentityClientId": {
               "type": "string",
@@ -8690,11 +8880,11 @@
             },
             "logAnalyticsWorkspaceName": {
               "type": "string",
-              "value": "[if(parameters('enableMonitoring'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceName.value, '')]"
+              "value": "[if(or(parameters('enableApplicationInsights'), parameters('enableAvdInsights')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceName.value, '')]"
             },
             "logAnalyticsWorkspaceResourceId": {
               "type": "string",
-              "value": "[if(parameters('enableMonitoring'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value, '')]"
+              "value": "[if(or(parameters('enableApplicationInsights'), parameters('enableAvdInsights')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value, '')]"
             },
             "recoveryServicesVaultName": {
               "type": "string",
@@ -8708,9 +8898,9 @@
         }
       },
       "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -9089,6 +9279,9 @@
           "domainName": {
             "value": "[parameters('domainName')]"
           },
+          "enableAvdInsights": {
+            "value": "[parameters('enableAvdInsights')]"
+          },
           "existingFeedWorkspaceResourceId": {
             "value": "[parameters('existingFeedWorkspaceResourceId')]"
           },
@@ -9116,7 +9309,7 @@
           "locationVirtualMachines": {
             "value": "[parameters('locationVirtualMachines')]"
           },
-          "logAnalyticsWorkspaceResourceId": "[if(parameters('monitoring'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value), createObject('value', ''))]",
+          "logAnalyticsWorkspaceResourceId": "[if(parameters('enableAvdInsights'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value), createObject('value', ''))]",
           "managementVirtualMachineName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]"
           },
@@ -9125,9 +9318,6 @@
           },
           "mlzTags": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
-          },
-          "monitoring": {
-            "value": "[parameters('monitoring')]"
           },
           "namingConvention": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value]"
@@ -9179,7 +9369,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "9902534781621879522"
+              "templateHash": "5645604122775045349"
             }
           },
           "parameters": {
@@ -9209,6 +9399,9 @@
             },
             "domainName": {
               "type": "string"
+            },
+            "enableAvdInsights": {
+              "type": "bool"
             },
             "existingFeedWorkspaceResourceId": {
               "type": "string"
@@ -9248,9 +9441,6 @@
             },
             "mlzTags": {
               "type": "object"
-            },
-            "monitoring": {
-              "type": "bool"
             },
             "namingConvention": {
               "type": "object"
@@ -9333,6 +9523,9 @@
                   "domainName": {
                     "value": "[parameters('domainName')]"
                   },
+                  "enableAvdInsights": {
+                    "value": "[parameters('enableAvdInsights')]"
+                  },
                   "galleryImageOffer": {
                     "value": "[variables('galleryImageOffer')]"
                   },
@@ -9378,9 +9571,6 @@
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
                   },
-                  "monitoring": {
-                    "value": "[parameters('monitoring')]"
-                  },
                   "sessionHostNamePrefix": {
                     "value": "[parameters('sessionHostNamePrefix')]"
                   },
@@ -9404,7 +9594,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "9757992956196370258"
+                      "templateHash": "9393981927838757948"
                     }
                   },
                   "parameters": {
@@ -9425,6 +9615,9 @@
                     },
                     "domainName": {
                       "type": "string"
+                    },
+                    "enableAvdInsights": {
+                      "type": "bool"
                     },
                     "galleryImageOffer": {
                       "type": "string"
@@ -9470,9 +9663,6 @@
                     },
                     "mlzTags": {
                       "type": "object"
-                    },
-                    "monitoring": {
-                      "type": "bool"
                     },
                     "sessionHostNamePrefix": {
                       "type": "string"
@@ -9567,7 +9757,7 @@
                       ]
                     },
                     {
-                      "condition": "[parameters('monitoring')]",
+                      "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostPoolName'))]",
@@ -9884,6 +10074,9 @@
                   "deploymentUserAssignedIdentityClientId": {
                     "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
                   },
+                  "enableAvdInsights": {
+                    "value": "[parameters('enableAvdInsights')]"
+                  },
                   "existingFeedWorkspaceResourceId": {
                     "value": "[parameters('existingFeedWorkspaceResourceId')]"
                   },
@@ -9901,9 +10094,6 @@
                   },
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
-                  },
-                  "monitoring": {
-                    "value": "[parameters('monitoring')]"
                   },
                   "resourceGroupManagement": {
                     "value": "[parameters('resourceGroupManagement')]"
@@ -9941,7 +10131,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "5252626277162942039"
+                      "templateHash": "11177304014110237519"
                     }
                   },
                   "parameters": {
@@ -9956,6 +10146,9 @@
                     },
                     "deploymentUserAssignedIdentityClientId": {
                       "type": "string"
+                    },
+                    "enableAvdInsights": {
+                      "type": "bool"
                     },
                     "existingFeedWorkspaceResourceId": {
                       "type": "string"
@@ -9974,9 +10167,6 @@
                     },
                     "mlzTags": {
                       "type": "object"
-                    },
-                    "monitoring": {
-                      "type": "bool"
                     },
                     "resourceGroupManagement": {
                       "type": "string"
@@ -10076,7 +10266,7 @@
                       ]
                     },
                     {
-                      "condition": "[parameters('monitoring')]",
+                      "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceFeedName'))]",
@@ -11888,6 +12078,9 @@
           "enableAcceleratedNetworking": {
             "value": "[parameters('enableAcceleratedNetworking')]"
           },
+          "enableAvdInsights": {
+            "value": "[parameters('enableAvdInsights')]"
+          },
           "enableRecoveryServices": {
             "value": "[parameters('recoveryServices')]"
           },
@@ -11935,9 +12128,6 @@
           },
           "mlzTags": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
-          },
-          "monitoring": {
-            "value": "[parameters('monitoring')]"
           },
           "namingConvention": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value]"
@@ -12011,7 +12201,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "13781351479184474546"
+              "templateHash": "13763676251201411803"
             }
           },
           "parameters": {
@@ -12066,6 +12256,9 @@
             "enableAcceleratedNetworking": {
               "type": "bool"
             },
+            "enableAvdInsights": {
+              "type": "bool"
+            },
             "environmentAbbreviation": {
               "type": "string"
             },
@@ -12107,9 +12300,6 @@
             },
             "mlzTags": {
               "type": "object"
-            },
-            "monitoring": {
-              "type": "bool"
             },
             "namingConvention": {
               "type": "object"
@@ -12405,6 +12595,9 @@
                   "enableAcceleratedNetworking": {
                     "value": "[parameters('enableAcceleratedNetworking')]"
                   },
+                  "enableAvdInsights": {
+                    "value": "[parameters('enableAvdInsights')]"
+                  },
                   "enableDrainMode": {
                     "value": "[parameters('drainMode')]"
                   },
@@ -12428,9 +12621,6 @@
                   },
                   "managementVirtualMachineName": {
                     "value": "[parameters('managementVirtualMachineName')]"
-                  },
-                  "monitoring": {
-                    "value": "[parameters('monitoring')]"
                   },
                   "netAppFileShares": {
                     "value": "[parameters('netAppFileShares')]"
@@ -12499,7 +12689,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "15430863316480560201"
+                      "templateHash": "8375552801931485144"
                     }
                   },
                   "parameters": {
@@ -12554,6 +12744,9 @@
                     "enableAcceleratedNetworking": {
                       "type": "bool"
                     },
+                    "enableAvdInsights": {
+                      "type": "bool"
+                    },
                     "enableDrainMode": {
                       "type": "bool"
                     },
@@ -12583,9 +12776,6 @@
                     },
                     "managementVirtualMachineName": {
                       "type": "string"
-                    },
-                    "monitoring": {
-                      "type": "bool"
                     },
                     "netAppFileShares": {
                       "type": "array"
@@ -12868,7 +13058,7 @@
                         "name": "extension_AzureMonitorWindowsAgent",
                         "count": "[length(range(0, parameters('sessionHostCount')))]"
                       },
-                      "condition": "[parameters('monitoring')]",
+                      "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2023-03-01",
                       "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AzureMonitorWindowsAgent')]",
@@ -12890,7 +13080,7 @@
                         "name": "dataCollectionRuleAssociation",
                         "count": "[length(range(0, parameters('sessionHostCount')))]"
                       },
-                      "condition": "[parameters('monitoring')]",
+                      "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Insights/dataCollectionRuleAssociations",
                       "apiVersion": "2022-06-01",
                       "scope": "[format('Microsoft.Compute/virtualMachines/{0}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]",
