@@ -128,7 +128,7 @@ module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = {
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
     bastionDiagnosticSettingName: replace(hub.namingConvention.bastionHostPublicIPAddressDiagnosticSetting, serviceToken, '')
-    bastionName: hub.namingConvention.bastionHostPublicIPAddress
+    bastionName: hub.namingConvention.bastionHost
     bastionStorageAccountId: storageAccountResourceIds[0]
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: keyVaultDiagnosticLogs
