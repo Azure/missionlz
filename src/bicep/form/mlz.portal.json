@@ -952,6 +952,24 @@
                   }
                 },
                 {
+                  "name": "sentinelServiceAvailability",
+                  "type": "Microsoft.Common.InfoBox",
+                  "options": {
+                    "style": "Warning",
+                    "text": "Please check the following article to determine what regions support Sentinel",
+                    "uri": "https://learn.microsoft.com/en-us/azure/sentinel/geographical-availability-data-residency"
+                  }
+                },
+                {
+                  "name": "sentinelFeatureAvailability",
+                  "type": "Microsoft.Common.InfoBox",
+                  "options": {
+                    "style": "Warning",
+                    "text": "Please check the following article to see what features are available for Sentinel in different Azure environments.",
+                    "uri": "https://learn.microsoft.com/en-us/azure/sentinel/feature-availability"
+                  }
+                },
+                {
                   "name": "deploySentinel",
                   "type": "Microsoft.Common.CheckBox",
                   "label": "Enable Microsoft Sentinel?",
