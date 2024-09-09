@@ -78,7 +78,7 @@ The VPN Connection module is defined in `modules/vpn-connection.bicep` and is ca
 
 To deploy this Bicep template, use the following Azure CLI command:
 
-```sh
+```
 az deployment sub create \
   --template-file solution.bicep \
   --location <location> \
