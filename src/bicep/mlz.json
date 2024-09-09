@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "14720881266775580164"
+      "templateHash": "9384504764528717188"
     }
   },
   "parameters": {
@@ -548,6 +548,15 @@
       "metadata": {
         "description": "The Storage Account SKU to use for log storage. It defaults to \"Standard_GRS\". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings."
       }
+    },
+    "bastionDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "BastionAuditLogs",
+          "enabled": true
+        }
+      ]
     },
     "deployBastion": {
       "type": "bool",
@@ -7121,6 +7130,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "bastionDiagnosticsLogs": {
+            "value": "[parameters('bastionDiagnosticsLogs')]"
+          },
           "deployBastion": {
             "value": "[parameters('deployBastion')]"
           },
@@ -7171,10 +7183,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "8498879947057178989"
+              "templateHash": "13699796498043220180"
             }
           },
           "parameters": {
+            "bastionDiagnosticsLogs": {
+              "type": "array"
+            },
             "deployBastion": {
               "type": "bool"
             },
@@ -7812,7 +7827,7 @@
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
                   "logs": {
-                    "value": "[parameters('keyVaultDiagnosticLogs')]"
+                    "value": "[parameters('bastionDiagnosticsLogs')]"
                   }
                 },
                 "template": {

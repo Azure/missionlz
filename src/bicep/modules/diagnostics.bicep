@@ -5,6 +5,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+param bastionDiagnosticsLogs array
 param deployBastion bool
 param deploymentNameSuffix string
 param firewallDiagnosticsLogs array
@@ -131,6 +132,6 @@ module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = {
     bastionName: hub.namingConvention.bastionHost
     bastionStorageAccountId: storageAccountResourceIds[0]
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    logs: keyVaultDiagnosticLogs
+    logs: bastionDiagnosticsLogs
   }
 }
