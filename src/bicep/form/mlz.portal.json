@@ -948,16 +948,11 @@
                   "name": "sentinelOptionalDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities."
-                  }
-                },
-                {
-                  "name": "sentinelServiceAvailability",
-                  "type": "Microsoft.Common.InfoBox",
-                  "options": {
-                    "style": "Warning",
-                    "text": "Please check the following article to determine what regions support Sentinel",
-                    "uri": "https://learn.microsoft.com/en-us/azure/sentinel/geographical-availability-data-residency"
+                    "text": "Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities. Please check the following article to determine what regions support Sentinel.",
+                    "link": {
+                      "label": "Learn more about Sentinel regions",
+                      "uri": "https://learn.microsoft.com/en-us/azure/sentinel/geographical-availability-data-residency"
+                    }
                   }
                 },
                 {
