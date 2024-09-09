@@ -122,3 +122,15 @@ module keyvaultDiagnostics '../modules/key-vault-diagnostics.bicep' = {
     logs: keyVaultDiagnosticLogs
   }
 }
+
+module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = {
+  name: 'deploy-bastion-diags-${deploymentNameSuffix}'
+  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  params: {
+    bastionDiagnosticSettingName: replace(hub.namingConvention.bastionHostPublicIPAddressDiagnosticSetting, serviceToken, '')
+    bastionName: hub.namingConvention.bastionHostPublicIPAddress
+    bastionStorageAccountId: storageAccountResourceIds[0]
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logs: keyVaultDiagnosticLogs
+  }
+}
