@@ -1,6 +1,31 @@
 # VPN Gateway Deployment using Bicep
 
-This Bicep template deploys a VPN Gateway, a Local Network Gateway, and a VPN Connection in Azure, into an presumed existing MLZ hub network with a GatewaySubnet already defined. The deployment is scoped at the subscription level and uses three separate modules for the VPN Gateway, Local Network Gateway, and VPN Connection.
+This Bicep template deploys a VPN Gateway, a Local Network Gateway, and a VPN Connection in Azure, into an presumed existing MLZ hub network with a "GatewaySubnet" already defined. 
+
+The VGW will use preshared key or a keyvault certificate uri.   If using a certificate, it should already be generated and uploaded to the keyvault that will be hosting it in the Azure MLZ landing zone.
+
+The VGW will use the following configuration:
+
+1. Route based routing
+2. Generation 2
+3. Connection configuration (found in modules\vpn-connection.bicep):
+    ```
+    saLifeTimeSeconds: 3600
+    saDataSizeKilobytes: 102400000
+    ipsecEncryption: 'AES256'
+    ipsecIntegrity: 'SHA256'
+    ikeEncryption: 'AES256'
+    ikeIntegrity: 'SHA256'
+    dhGroup: 'DHGroup2'
+    pfsGroup: 'PFS2'
+    ```
+4. Routing weight : 10
+5. BGP routing is not currently able to be a choice in this deployment.   It can be configured after deployment if needed.
+6. Current deployment only supports one connection configuration, and one local network gateway.  If multiples are needed, they can be manually added after deployment.
+7. Current deployment only supports a single site to site connection configuration.   Other types of connections can be made after deployment.
+8. Current deployment only supports using a VPN gateway connection.   Express route can be added after deployment if needed.
+
+The deployment is scoped at the subscription level and uses three separate modules for the VPN Gateway, Local Network Gateway, and VPN Connection.
 
 ## Parameters
 
