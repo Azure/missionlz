@@ -1,21 +1,26 @@
 targetScope = 'subscription'
 
 @description('The name of the VPN Gateway.')
-param vgwname string
+param vgwName string
 
-@description('The location of the VPN Gateway.')
-param vgwlocation string
+@description('The Azure region location of the VPN Gateway.')
+param vgwLocation string
 
 @description('The names of the public IP addresses to use for the VPN Gateway.')
-param publicIpAddressNames array
+param vgwPublicIpAddressNames array
 
 @description( 'The SKU of the VPN Gateway.')
-@allowed(['VpnGw1', 'VpnGw2', 'VpnGw3', 'VpnGw4', 'VpnGw5'])
-param vgwsku string
-param vnetName string
+@allowed(['VpnGw2', 'VpnGw3', 'VpnGw4', 'VpnGw5'])
+param vgwSku string = 'VpnGw2'
+
+@description('Local Network Gateway Name')
 param localNetworkGatewayName string
-param gatewayIpAddress string
-param addressPrefixes array
+
+@description('IP Address of the Local Network Gateway, must be a public IP address or be able to be connected to from MLZ network')
+param localGatewayIpAddress string
+
+@description('Address prefixes of the Local Network which will be routable through the VPN Gateway')
+param localAddressPrefixes array
 
 @description('The shared key to use for the VPN connection. If provided, the keyVaultCertificateUri parameter is ignored.')
 @secure()
@@ -30,19 +35,20 @@ param deploymentNameSuffix string = utcNow()
 @description('The resource ID of the hub virtual network.')
 param hubVirtualNetworkResourceId string
 
-@description('The name of the hub virtual network resource group.')
-var hubResourceGroupName = split('/', hubVirtualNetworkResourceId)[4]
+// Extracting the resource group name and virtual network name from the hub virtual network resource ID
+var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
+var hubVnetName = split(hubVirtualNetworkResourceId, '/')[8]
 
 // calling Virtual Network Gateway Module
 module vpnGatewayModule 'modules/vpn-gateway.bicep' = {
   name: 'vpnGatewayModule-${deploymentNameSuffix}'
   scope: resourceGroup(hubResourceGroupName)
   params: {
-    vgwname: vgwname
-    vgwlocation: vgwlocation
-    publicIpAddressNames: publicIpAddressNames
-    vgwsku: vgwsku
-    vnetName: vnetName
+    vgwname: vgwName
+    vgwlocation: vgwLocation
+    publicIpAddressNames: vgwPublicIpAddressNames
+    vgwsku: vgwSku
+    vnetName: hubVnetName
   }
 }
 
@@ -51,10 +57,10 @@ module localNetworkGatewayModule 'modules/local-network-gateway.bicep' = {
   name: 'localNetworkGatewayModule-${deploymentNameSuffix}'
   scope: resourceGroup(hubResourceGroupName)
   params: {
-    vgwlocation: vgwlocation
+    vgwlocation: vgwLocation
     localNetworkGatewayName: localNetworkGatewayName
-    gatewayIpAddress: gatewayIpAddress
-    addressPrefixes: addressPrefixes
+    gatewayIpAddress: localGatewayIpAddress
+    addressPrefixes: localAddressPrefixes
   }
 }
 
@@ -63,12 +69,16 @@ module vpnConnectionModule 'modules/vpn-connection.bicep' = {
   name: 'vpnConnectionModule-${deploymentNameSuffix}'
   scope: resourceGroup(hubResourceGroupName)
   params: {
-    vpnConnectionName: '${vgwname}-to-${localNetworkGatewayName}'
-    vgwlocation: vgwlocation
-    vpnGatewayName: vgwname
+    vpnConnectionName: '${vgwName}-to-${localNetworkGatewayName}'
+    vgwlocation: vgwLocation
+    vpnGatewayName: vgwName
     vpnGatewayResourceGroupName: hubResourceGroupName
     sharedKey: sharedKey
     keyVaultCertificateUri: keyVaultCertificateUri
     localNetworkGatewayName: localNetworkGatewayName
   }
+  dependsOn: [
+    vpnGatewayModule
+    localNetworkGatewayModule
+  ]
 }

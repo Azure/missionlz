@@ -1,41 +1,65 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "12451148908914520438"
+      "templateHash": "16106233265574005377"
     }
   },
   "parameters": {
-    "vgwname": {
-      "type": "string"
-    },
-    "vgwlocation": {
+    "vgwName": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "metadata": {
+        "description": "The name of the VPN Gateway."
+      }
     },
-    "publicIpAddressNames": {
-      "type": "array"
+    "vgwLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "The Azure region location of the VPN Gateway."
+      }
     },
-    "vgwsku": {
-      "type": "string"
+    "vgwPublicIpAddressNames": {
+      "type": "array",
+      "metadata": {
+        "description": "The names of the public IP addresses to use for the VPN Gateway."
+      }
     },
-    "vnetName": {
-      "type": "string"
+    "vgwSku": {
+      "type": "string",
+      "defaultValue": "VpnGw2",
+      "allowedValues": [
+        "VpnGw2",
+        "VpnGw3",
+        "VpnGw4",
+        "VpnGw5"
+      ],
+      "metadata": {
+        "description": "The SKU of the VPN Gateway."
+      }
     },
     "localNetworkGatewayName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Local Network Gateway Name"
+      }
     },
-    "gatewayIpAddress": {
-      "type": "string"
+    "localGatewayIpAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "IP Address of the Local Network Gateway, must be a public IP address or be able to be connected to from MLZ network"
+      }
     },
-    "addressPrefixes": {
-      "type": "array"
+    "localAddressPrefixes": {
+      "type": "array",
+      "metadata": {
+        "description": "Address prefixes of the Local Network which will be routable through the VPN Gateway"
+      }
     },
     "sharedKey": {
-      "type": "string",
+      "type": "securestring",
       "defaultValue": "",
       "metadata": {
         "description": "The shared key to use for the VPN connection. If provided, the keyVaultCertificateUri parameter is ignored."
@@ -54,13 +78,24 @@
       "metadata": {
         "description": "A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the \"utcNow()\" function."
       }
+    },
+    "hubVirtualNetworkResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "The resource ID of the hub virtual network."
+      }
     }
+  },
+  "variables": {
+    "hubResourceGroupName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
+    "hubVnetName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[8]]"
   },
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('vpnGatewayModule-{0}', parameters('deploymentNameSuffix'))]",
+      "resourceGroup": "[variables('hubResourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -68,19 +103,19 @@
         "mode": "Incremental",
         "parameters": {
           "vgwname": {
-            "value": "[parameters('vgwname')]"
+            "value": "[parameters('vgwName')]"
           },
           "vgwlocation": {
-            "value": "[parameters('vgwlocation')]"
+            "value": "[parameters('vgwLocation')]"
           },
           "publicIpAddressNames": {
-            "value": "[parameters('publicIpAddressNames')]"
+            "value": "[parameters('vgwPublicIpAddressNames')]"
           },
           "vgwsku": {
-            "value": "[parameters('vgwsku')]"
+            "value": "[parameters('vgwSku')]"
           },
           "vnetName": {
-            "value": "[parameters('vnetName')]"
+            "value": "[variables('hubVnetName')]"
           }
         },
         "template": {
@@ -90,7 +125,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "13127222668368015709"
+              "templateHash": "18215410207160400567"
             }
           },
           "parameters": {
@@ -175,8 +210,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[0])]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[1])]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[1])]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[0])]"
               ]
             }
           ]
@@ -187,6 +222,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('localNetworkGatewayModule-{0}', parameters('deploymentNameSuffix'))]",
+      "resourceGroup": "[variables('hubResourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -194,16 +230,16 @@
         "mode": "Incremental",
         "parameters": {
           "vgwlocation": {
-            "value": "[parameters('vgwlocation')]"
+            "value": "[parameters('vgwLocation')]"
           },
           "localNetworkGatewayName": {
             "value": "[parameters('localNetworkGatewayName')]"
           },
           "gatewayIpAddress": {
-            "value": "[parameters('gatewayIpAddress')]"
+            "value": "[parameters('localGatewayIpAddress')]"
           },
           "addressPrefixes": {
-            "value": "[parameters('addressPrefixes')]"
+            "value": "[parameters('localAddressPrefixes')]"
           }
         },
         "template": {
@@ -252,6 +288,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('vpnConnectionModule-{0}', parameters('deploymentNameSuffix'))]",
+      "resourceGroup": "[variables('hubResourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -259,16 +296,16 @@
         "mode": "Incremental",
         "parameters": {
           "vpnConnectionName": {
-            "value": "[format('{0}-to-{1}', parameters('vgwname'), parameters('localNetworkGatewayName'))]"
+            "value": "[format('{0}-to-{1}', parameters('vgwName'), parameters('localNetworkGatewayName'))]"
           },
           "vgwlocation": {
-            "value": "[parameters('vgwlocation')]"
+            "value": "[parameters('vgwLocation')]"
           },
           "vpnGatewayName": {
-            "value": "[parameters('vgwname')]"
+            "value": "[parameters('vgwName')]"
           },
           "vpnGatewayResourceGroupName": {
-            "value": "[resourceGroup().name]"
+            "value": "[variables('hubResourceGroupName')]"
           },
           "sharedKey": {
             "value": "[parameters('sharedKey')]"
@@ -344,7 +381,17 @@
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('localNetworkGatewayModule-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnGatewayModule-{0}', parameters('deploymentNameSuffix')))]"
+      ]
     }
-  ]
+  ],
+  "outputs": {
+    "hubVirtualNetworkResourceId": {
+      "type": "string",
+      "value": "[parameters('hubVirtualNetworkResourceId')]"
+    }
+  }
 }

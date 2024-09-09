@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2021-09-09/uiFormDefinition.schema.json",
+  "view": {
+    "kind": "Form",
+    "properties": {
+      "title": "Mission Landing Zone Add-On: Azure Virtual Network Gateway",
+      "steps": [
+        {
+          "name": "basics",
+          "label": "Basics",
+          "elements": [
+            {
+              "name": "description",
+              "type": "Microsoft.Common.TextBlock",
+              "options": {
+                "text": "The Azure Virtual Network Gateway (VGW) add-on reduces the complexity in deploying the VGW. Click on the link below to learn more about the solution.",
+                "link": {
+                  "label": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/virtual-network-gateway/README.md",
+                  "uri": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/virtual-network-gateway/README.md"
+                }
+              }
+            },
+            {
+              "name": "scope",
+              "type": "Microsoft.Common.ResourceScope",
+              "instanceDetailsLabel": "",
+              "location": {
+                "resourceTypes": []
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

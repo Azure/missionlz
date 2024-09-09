@@ -2,26 +2,31 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "vgwname": {
-      "value": ""
+    "vgwName": {
+      "value": "mlz-vgw-hub-dev-va"
     },
-    "publicIpAddressNames": {
-      "value": []
+    "vgwLocation": {
+      "value": "usgovvirginia"
     },
-    "vgwsku": {
-      "value": ""
-    },
-    "vnetName": {
-      "value": ""
+    "vgwPublicIpAddressNames": {
+      "value": [
+        "mlz-pip-vgw-hub-dev-va-1",
+        "mlz-pip-vgw-hub-dev-va-2"
+      ]
     },
     "localNetworkGatewayName": {
-      "value": ""
+      "value": "mlz-lng-hub-dev-va"
     },
-    "gatewayIpAddress": {
-      "value": ""
+    "localGatewayIpAddress": {
+      "value": "62.10.106.167"
     },
-    "addressPrefixes": {
-      "value": []
+    "localAddressPrefixes": {
+      "value": [
+        "192.168.0.0/16"
+      ]
+    },
+    "hubVirtualNetworkResourceId": {
+      "value": "/subscriptions/<subscriptionid>/resourceGroups/mlz-rg-network-hub-dev-va/providers/Microsoft.Network/virtualNetworks/mlz-vnet-hub-dev-va"
     }
   }
 }
