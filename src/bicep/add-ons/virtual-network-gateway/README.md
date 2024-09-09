@@ -1,6 +1,6 @@
 # VPN Gateway Deployment using Bicep
 
-This Bicep template deploys a VPN Gateway, a Local Network Gateway, and a VPN Connection in Azure. The deployment is scoped at the subscription level and uses three separate modules for the VPN Gateway, Local Network Gateway, and VPN Connection.
+This Bicep template deploys a VPN Gateway, a Local Network Gateway, and a VPN Connection in Azure, into an presumed existing MLZ hub network with a GatewaySubnet already defined. The deployment is scoped at the subscription level and uses three separate modules for the VPN Gateway, Local Network Gateway, and VPN Connection.
 
 ## Parameters
 
