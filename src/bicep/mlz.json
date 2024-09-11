@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "14639382000576629473"
+      "templateHash": "15931306768940102159"
     }
   },
   "parameters": {
@@ -548,6 +548,15 @@
       "metadata": {
         "description": "The Storage Account SKU to use for log storage. It defaults to \"Standard_GRS\". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings."
       }
+    },
+    "bastionDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "BastionAuditLogs",
+          "enabled": true
+        }
+      ]
     },
     "deployBastion": {
       "type": "bool",
@@ -7121,6 +7130,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "bastionDiagnosticsLogs": {
+            "value": "[parameters('bastionDiagnosticsLogs')]"
+          },
           "deployBastion": {
             "value": "[parameters('deployBastion')]"
           },
@@ -7171,10 +7183,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "7558548205011970878"
+              "templateHash": "13699796498043220180"
             }
           },
           "parameters": {
+            "bastionDiagnosticsLogs": {
+              "type": "array"
+            },
             "deployBastion": {
               "type": "bool"
             },
@@ -7341,7 +7356,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "17680455217420763544"
+                      "templateHash": "6318152353890797757"
                     }
                   },
                   "parameters": {
@@ -7368,7 +7383,12 @@
                       "properties": {
                         "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
                         "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('diagnosticStorageAccountName'))]",
-                        "logs": "[if(equals(environment().name, 'AzureCloud'), createArray(createObject('category', 'Audit', 'enabled', true())), createArray())]",
+                        "logs": [
+                          {
+                            "category": "Audit",
+                            "enabled": true
+                          }
+                        ],
                         "metrics": [
                           {
                             "category": "AllMetrics",
@@ -7774,6 +7794,77 @@
                       "name": "[parameters('keyVaultDiagnosticSettingName')]",
                       "properties": {
                         "storageAccountId": "[parameters('keyVaultStorageAccountId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
+                        "logs": "[parameters('logs')]"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-bastion-diags-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[variables('hub').subscriptionId]",
+              "resourceGroup": "[variables('hubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "bastionDiagnosticSettingName": {
+                    "value": "[replace(variables('hub').namingConvention.bastionHostPublicIPAddressDiagnosticSetting, parameters('serviceToken'), '')]"
+                  },
+                  "bastionName": {
+                    "value": "[variables('hub').namingConvention.bastionHost]"
+                  },
+                  "bastionStorageAccountId": {
+                    "value": "[parameters('storageAccountResourceIds')[0]]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "logs": {
+                    "value": "[parameters('bastionDiagnosticsLogs')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.29.47.4906",
+                      "templateHash": "1417962456788904727"
+                    }
+                  },
+                  "parameters": {
+                    "bastionDiagnosticSettingName": {
+                      "type": "string"
+                    },
+                    "bastionName": {
+                      "type": "string"
+                    },
+                    "bastionStorageAccountId": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "logs": {
+                      "type": "array"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2017-05-01-preview",
+                      "scope": "[format('Microsoft.Network/bastionHosts/{0}', parameters('bastionName'))]",
+                      "name": "[parameters('bastionDiagnosticSettingName')]",
+                      "properties": {
+                        "storageAccountId": "[parameters('bastionStorageAccountId')]",
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
                         "logs": "[parameters('logs')]"
                       }

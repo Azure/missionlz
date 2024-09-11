@@ -323,6 +323,13 @@ param logStorageSkuName string = 'Standard_GRS'
 
 // REMOTE ACCESS PARAMETERS
 
+param bastionDiagnosticsLogs array = [
+  {
+    category: 'BastionAuditLogs'
+    enabled: true
+  }
+]
+
 @description('When set to "true", provisions Azure Bastion Host only. It defaults to "false".')
 param deployBastion bool = false
 
@@ -732,6 +739,7 @@ module storage 'modules/storage.bicep' = {
 module diagnostics 'modules/diagnostics.bicep' = {
   name: 'deploy-resource-diag-${deploymentNameSuffix}'
   params: {
+    bastionDiagnosticsLogs: bastionDiagnosticsLogs
     deployBastion: deployBastion
     deploymentNameSuffix: deploymentNameSuffix
     firewallDiagnosticsLogs: firewallDiagnosticsLogs

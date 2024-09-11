@@ -5,6 +5,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+param bastionDiagnosticsLogs array
 param deployBastion bool
 param deploymentNameSuffix string
 param firewallDiagnosticsLogs array
@@ -120,5 +121,17 @@ module keyvaultDiagnostics '../modules/key-vault-diagnostics.bicep' = {
     keyVaultStorageAccountId: storageAccountResourceIds[0]
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: keyVaultDiagnosticLogs
+  }
+}
+
+module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = {
+  name: 'deploy-bastion-diags-${deploymentNameSuffix}'
+  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  params: {
+    bastionDiagnosticSettingName: replace(hub.namingConvention.bastionHostPublicIPAddressDiagnosticSetting, serviceToken, '')
+    bastionName: hub.namingConvention.bastionHost
+    bastionStorageAccountId: storageAccountResourceIds[0]
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logs: bastionDiagnosticsLogs
   }
 }

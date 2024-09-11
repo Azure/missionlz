@@ -948,7 +948,20 @@
                   "name": "sentinelOptionalDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities."
+                    "text": "Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities. Please check the following article to determine what regions support Sentinel.",
+                    "link": {
+                      "label": "Learn more about Sentinel regions",
+                      "uri": "https://learn.microsoft.com/en-us/azure/sentinel/geographical-availability-data-residency"
+                    }
+                  }
+                },
+                {
+                  "name": "sentinelFeatureAvailability",
+                  "type": "Microsoft.Common.InfoBox",
+                  "options": {
+                    "style": "Info",
+                    "text": "Please check the following article to see what features are available for Sentinel in different Azure environments.",
+                    "uri": "https://learn.microsoft.com/en-us/azure/sentinel/feature-availability"
                   }
                 },
                 {
