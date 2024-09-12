@@ -35,9 +35,13 @@ param deploymentNameSuffix string = utcNow()
 @description('The resource ID of the hub virtual network.')
 param hubVirtualNetworkResourceId string
 
+@description('List of peered networks that should use the VPN Gateway once configured.')
+param vnetResourceIdList array
+
 // Extracting the resource group name and virtual network name from the hub virtual network resource ID
 var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
 var hubVnetName = split(hubVirtualNetworkResourceId, '/')[8]
+// var hubSubcriptionId = split(hubVirtualNetworkResourceId, '/')[2]
 
 // calling Virtual Network Gateway Module
 module vpnGatewayModule 'modules/vpn-gateway.bicep' = {
@@ -82,3 +86,31 @@ module vpnConnectionModule 'modules/vpn-connection.bicep' = {
     localNetworkGatewayModule
   ]
 }
+
+// Create a new array that includes both the original list and the hub VNet ID
+var extendedVnetResourceIdList = union(vnetResourceIdList, [hubVirtualNetworkResourceId])
+
+// Loop through the vnetResourceIdList and call the fetchVnetPeerings module for each VNet
+module retrieveVnetPeerings 'modules/retrieve-vnet-peerings.bicep' = [for (vnetId, i) in extendedVnetResourceIdList: {
+  name: 'retrieveVnetPeerings-${deploymentNameSuffix}-${i}'
+  scope: resourceGroup(split(vnetId, '/')[2], split(vnetId, '/')[4]) // Resource group is at index 4 in the resource ID
+  params: {
+    vnetResourceId: vnetId
+  }
+}]
+
+// Call the second module to update the peerings using the output from the first module
+module updatePeerings 'modules/update-vnet-peerings.bicep' = [for (vnetId, i) in extendedVnetResourceIdList: {
+  name: 'updatePeerings-${deploymentNameSuffix}-${i}'
+  scope: resourceGroup(split(vnetId, '/')[2], split(vnetId, '/')[4])
+  params: {
+    vnetResourceId: retrieveVnetPeerings[i].outputs.peeringsData.vnetResourceId
+    peeringsList: retrieveVnetPeerings[i].outputs.peeringsData.peeringsList
+  }
+}]
+
+
+
+
+
+

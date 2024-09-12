@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "16106233265574005377"
+      "templateHash": "7935838492689304353"
     }
   },
   "parameters": {
@@ -84,11 +84,18 @@
       "metadata": {
         "description": "The resource ID of the hub virtual network."
       }
+    },
+    "vnetResourceIdList": {
+      "type": "array",
+      "metadata": {
+        "description": "List of peered networks that should use the VPN Gateway once configured."
+      }
     }
   },
   "variables": {
     "hubResourceGroupName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
-    "hubVnetName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[8]]"
+    "hubVnetName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[8]]",
+    "extendedVnetResourceIdList": "[union(parameters('vnetResourceIdList'), createArray(parameters('hubVirtualNetworkResourceId')))]"
   },
   "resources": [
     {
@@ -386,12 +393,140 @@
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('localNetworkGatewayModule-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnGatewayModule-{0}', parameters('deploymentNameSuffix')))]"
       ]
+    },
+    {
+      "copy": {
+        "name": "retrieveVnetPeerings",
+        "count": "[length(variables('extendedVnetResourceIdList'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex())]",
+      "subscriptionId": "[split(variables('extendedVnetResourceIdList')[copyIndex()], '/')[2]]",
+      "resourceGroup": "[split(variables('extendedVnetResourceIdList')[copyIndex()], '/')[4]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vnetResourceId": {
+            "value": "[variables('extendedVnetResourceIdList')[copyIndex()]]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.29.47.4906",
+              "templateHash": "690677898779274539"
+            }
+          },
+          "parameters": {
+            "vnetResourceId": {
+              "type": "string",
+              "metadata": {
+                "description": "The resource ID of the existing hub virtual network"
+              }
+            }
+          },
+          "resources": [],
+          "outputs": {
+            "peeringsData": {
+              "type": "object",
+              "value": {
+                "vnetResourceId": "[parameters('vnetResourceId')]",
+                "peeringsList": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('vnetResourceId'), '/')[2], split(parameters('vnetResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', last(split(parameters('vnetResourceId'), '/'))), '2022-07-01').virtualNetworkPeerings]"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "copy": {
+        "name": "updatePeerings",
+        "count": "[length(variables('extendedVnetResourceIdList'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('updatePeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex())]",
+      "subscriptionId": "[split(variables('extendedVnetResourceIdList')[copyIndex()], '/')[2]]",
+      "resourceGroup": "[split(variables('extendedVnetResourceIdList')[copyIndex()], '/')[4]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vnetResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(variables('extendedVnetResourceIdList')[copyIndex()], '/')[2], split(variables('extendedVnetResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex())), '2022-09-01').outputs.peeringsData.value.vnetResourceId]"
+          },
+          "peeringsList": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(variables('extendedVnetResourceIdList')[copyIndex()], '/')[2], split(variables('extendedVnetResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex())), '2022-09-01').outputs.peeringsData.value.peeringsList]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.29.47.4906",
+              "templateHash": "17309938767845434764"
+            }
+          },
+          "parameters": {
+            "peeringsList": {
+              "type": "array",
+              "metadata": {
+                "description": "The list of peerings to update"
+              }
+            },
+            "vnetResourceId": {
+              "type": "string",
+              "metadata": {
+                "description": "The resource ID of the existing virtual network"
+              }
+            }
+          },
+          "variables": {
+            "copy": [
+              {
+                "name": "updatedPeerings",
+                "count": "[length(parameters('peeringsList'))]",
+                "input": {
+                  "name": "[last(split(parameters('peeringsList')[copyIndex('updatedPeerings')].id, '/'))]",
+                  "properties": {
+                    "allowGatewayTransit": "[if(contains(split(parameters('peeringsList')[copyIndex('updatedPeerings')].id, '/')[8], 'hub'), true(), parameters('peeringsList')[copyIndex('updatedPeerings')].properties.allowGatewayTransit)]",
+                    "useRemoteGateways": "[if(not(contains(split(parameters('peeringsList')[copyIndex('updatedPeerings')].id, '/')[8], 'hub')), true(), parameters('peeringsList')[copyIndex('updatedPeerings')].properties.useRemoteGateways)]",
+                    "remoteVirtualNetwork": "[parameters('peeringsList')[copyIndex('updatedPeerings')].properties.remoteVirtualNetwork]"
+                  }
+                }
+              }
+            ],
+            "vnetName": "[last(split(parameters('vnetResourceId'), '/'))]"
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "peeringUpdates",
+                "count": "[length(variables('updatedPeerings'))]"
+              },
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2021-02-01",
+              "name": "[format('{0}/{1}', variables('vnetName'), variables('updatedPeerings')[copyIndex()].name)]",
+              "properties": "[variables('updatedPeerings')[copyIndex()].properties]"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(variables('extendedVnetResourceIdList')[copyIndex()], '/')[2], split(variables('extendedVnetResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex()))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(variables('extendedVnetResourceIdList')[copyIndex()], '/')[2], split(variables('extendedVnetResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex()))]"
+      ]
     }
-  ],
-  "outputs": {
-    "hubVirtualNetworkResourceId": {
-      "type": "string",
-      "value": "[parameters('hubVirtualNetworkResourceId')]"
-    }
-  }
+  ]
 }
