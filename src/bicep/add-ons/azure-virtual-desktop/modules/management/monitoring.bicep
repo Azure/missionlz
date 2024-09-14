@@ -41,7 +41,7 @@ module privateLinkScope_logAnalyticsWorkspace 'privateLinkScope.bicep' = {
 }
 
 resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' = if (enableAvdInsights) {
-  name: 'microsoft-avdi-${replace(namingConvention.dataCollectionRule, serviceToken, service)}'
+  name: 'microsoft-avdi-${replace(namingConvention.dataCollectionRule, serviceToken, service)}' // The name must start with 'microsoft-avdi-' for proper integration with AVD Insights
   location: location
   tags: union({
     'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
