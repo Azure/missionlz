@@ -208,6 +208,7 @@ module functionApp 'functionApp.bicep' = if (scalingTool || fslogixStorageServic
   scope: resourceGroup(resourceGroupManagement)
   params: {
     delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
+    deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     enableApplicationInsights: enableApplicationInsights
     environmentAbbreviation: environmentAbbreviation
