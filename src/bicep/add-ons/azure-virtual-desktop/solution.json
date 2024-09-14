@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "3407951568237428102"
+      "templateHash": "18424888477321228915"
     }
   },
   "parameters": {
@@ -6525,7 +6525,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "5097589279015323910"
+              "templateHash": "17199418559170633890"
             }
           },
           "parameters": {
@@ -7495,7 +7495,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "5184470383096067438"
+                      "templateHash": "11360827247548600665"
                     }
                   },
                   "parameters": {
@@ -7838,7 +7838,7 @@
                     },
                     "dataCollectionRuleResourceId": {
                       "type": "string",
-                      "value": "[resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', replace(parameters('namingConvention').dataCollectionRule, parameters('serviceToken'), parameters('service'))))]"
+                      "value": "[if(parameters('enableAvdInsights'), resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', replace(parameters('namingConvention').dataCollectionRule, parameters('serviceToken'), parameters('service')))), '')]"
                     }
                   }
                 }

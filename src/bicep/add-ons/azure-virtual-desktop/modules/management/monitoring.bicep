@@ -153,5 +153,5 @@ module privateLinkScope_dataCollectionEndpoint 'privateLinkScope.bicep' = {
 
 output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.name
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.id
-output dataCollectionRuleResourceId string = dataCollectionRule.id
+output dataCollectionRuleResourceId string = enableAvdInsights ? dataCollectionRule.id : ''
 
