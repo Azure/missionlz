@@ -353,9 +353,9 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   location: location
   tags: tags[?'Microsoft.Web/serverfarms'] ?? {}
   sku: {
-    name: 'P1v3'
+    name: 'P0v3'
     tier: 'PremiumV3'
-    size: 'P1v3'
+    size: 'P0v3'
     family: 'Pv3'
     capacity: 1
   }

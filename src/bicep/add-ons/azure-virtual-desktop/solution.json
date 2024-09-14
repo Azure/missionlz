@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "17803836628183123301"
+      "templateHash": "3407951568237428102"
     }
   },
   "parameters": {
@@ -6525,7 +6525,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "13262645766468535864"
+              "templateHash": "5097589279015323910"
             }
           },
           "parameters": {
@@ -7936,7 +7936,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "5142191835657297462"
+                      "templateHash": "1023006908986034804"
                     }
                   },
                   "parameters": {
@@ -8356,9 +8356,9 @@
                       "location": "[parameters('location')]",
                       "tags": "[coalesce(tryGet(parameters('tags'), 'Microsoft.Web/serverfarms'), createObject())]",
                       "sku": {
-                        "name": "P1v3",
+                        "name": "P0v3",
                         "tier": "PremiumV3",
-                        "size": "P1v3",
+                        "size": "P0v3",
                         "family": "Pv3",
                         "capacity": 1
                       },
@@ -9052,9 +9052,9 @@
         }
       },
       "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
