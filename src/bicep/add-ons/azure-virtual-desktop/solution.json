@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "18424888477321228915"
+      "templateHash": "16389030575685051405"
     }
   },
   "parameters": {
@@ -6525,7 +6525,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "17199418559170633890"
+              "templateHash": "12089066070538792196"
             }
           },
           "parameters": {
@@ -7495,7 +7495,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "11360827247548600665"
+                      "templateHash": "17172175101368582439"
                     }
                   },
                   "parameters": {
@@ -7746,6 +7746,7 @@
                       ]
                     },
                     {
+                      "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-private-link-scope-dce-{0}', parameters('deploymentNameSuffix'))]",
@@ -9052,9 +9053,9 @@
         }
       },
       "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },

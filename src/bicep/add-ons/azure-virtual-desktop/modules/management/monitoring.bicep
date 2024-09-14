@@ -142,7 +142,7 @@ resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2021
   }
 }
 
-module privateLinkScope_dataCollectionEndpoint 'privateLinkScope.bicep' = {
+module privateLinkScope_dataCollectionEndpoint 'privateLinkScope.bicep' = if (enableAvdInsights) {
   name: 'deploy-private-link-scope-dce-${deploymentNameSuffix}'
   scope: resourceGroup(split(privateLinkScopeResourceId, '/')[2], split(privateLinkScopeResourceId, '/')[4])
   params: {
