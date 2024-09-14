@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "16389030575685051405"
+      "templateHash": "4675696552725412863"
     }
   },
   "parameters": {
@@ -6525,7 +6525,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "12089066070538792196"
+              "templateHash": "4724436094002729559"
             }
           },
           "parameters": {
@@ -7937,7 +7937,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "1023006908986034804"
+                      "templateHash": "8130609496512997139"
                     }
                   },
                   "parameters": {
@@ -8245,6 +8245,9 @@
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)), 'StorageEncryptionKey')]",
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')))]",
+                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id))), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))))]",
                         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service')))]",
                         "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]"
                       ]
@@ -9053,9 +9056,9 @@
         }
       },
       "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },

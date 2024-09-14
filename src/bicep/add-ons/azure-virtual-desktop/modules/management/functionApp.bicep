@@ -241,6 +241,11 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     publicNetworkAccess: 'Disabled'
     supportsHttpsTrafficOnly: true
   }
+  dependsOn: [
+    privateDnsZoneGroup_vault
+    privateEndpoint_vault
+    roleAssignment_Encryption
+  ]
 }
 
 resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01' = {
