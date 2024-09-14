@@ -1,4 +1,5 @@
 param delegatedSubnetResourceId string
+param deployFslogix bool
 param deploymentNameSuffix string
 param enableApplicationInsights bool
 param environmentAbbreviation string
@@ -29,11 +30,7 @@ var functionAppKeyword = environment().name == 'AzureCloud' || environment().nam
   ? 'azurewebsites'
   : 'appservice'
 var functionAppScmPrivateDnsZoneResourceId = '${privateDnsZoneResourceIdPrefix}scm.${filter(privateDnsZones, name => contains(name, functionAppKeyword))[0]}'
-var roleAssignments = [
-  {
-    roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor
-    scope: resourceGroupStorage
-  }
+var roleAssignments = union([
   {
     roleDefinitionId: '40c5ff49-9181-41f8-ae61-143b0e78555e' // Desktop Virtualization Power On Off Contributor
     scope: resourceGroupControlPlane
@@ -42,7 +39,12 @@ var roleAssignments = [
     roleDefinitionId: '40c5ff49-9181-41f8-ae61-143b0e78555e' // Desktop Virtualization Power On Off Contributor
     scope: resourceGroupHosts
   }
-]
+], deployFslogix ? [
+  {
+    roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor
+    scope: resourceGroupStorage
+  }
+] : [])
 var service = 'mgmt'
 var storagePrivateDnsZoneResourceIds = [
   '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
@@ -64,7 +66,7 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 }
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: replace(namingConvention.keyVault, serviceToken, service)
+  name: '${resourceAbbreviations.keyVaults}${uniqueString(replace(namingConvention.keyVault, service, 'cmk'), resourceGroup().id)}'
   location: location
   tags: tags[?'Microsoft.KeyVault/vaults'] ?? {}
   properties: {
@@ -175,7 +177,7 @@ resource key_storageAccount 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
 }
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: replace(namingConvention.storageAccount, serviceToken, service)
+  name: uniqueString(replace(namingConvention.storageAccount, serviceToken, service), resourceGroup().id)
   location: location
   tags: tags[?'Microsoft.Storage/storageAccounts'] ?? {}
   sku: {
@@ -361,7 +363,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
 }
 
 resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
-  name: replace(namingConvention.functionApp, serviceToken, service)
+  name: uniqueString(replace(namingConvention.functionApp, serviceToken, service), resourceGroup().id)
   location: location
   tags: tags[?'Microsoft.Web/sites'] ?? {}
   kind: 'functionapp'
@@ -554,6 +556,16 @@ module roleAssignments_resourceGroups '../common/roleAssignments/resourceGroup.b
     }
   }
 ]
+
+module roleAssignment_storageAccount '../common/roleAssignments/storageAccount.bicep' = {
+  name: 'set-role-assignment-storage-${deploymentNameSuffix}'
+  params: {
+    principalId: functionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b' // Storage Blob Data Owner
+    storageAccountName: storageAccount.name
+  }
+}
 
 // This module is used to deploy the A record for the SCM site which does not use a dedicated private endpoint
 module scmARecord 'aRecord.bicep' = {
