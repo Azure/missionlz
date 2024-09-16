@@ -6,7 +6,7 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param blobsPrivateDnsZoneResourceId string
-param deployIdentity bool
+//param deployIdentity bool
 param deploymentNameSuffix string
 param keyVaultUri string
 param location string
@@ -39,13 +39,6 @@ module storageAccount 'storage-account.bicep' = [for (tier, i) in tiers: {
   }
 }]
 
-output storageAccountResourceIds array = union([
-  storageAccount[0].outputs.id
-  storageAccount[1].outputs.id
-  storageAccount[2].outputs.id
-], deployIdentity ? [
-  storageAccount[3].outputs.id
-] : []
-)
+output storageAccountResourceIds array = [for (tier, i) in tiers: storageAccount[i].outputs.id]
 
 

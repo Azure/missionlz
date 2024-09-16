@@ -710,7 +710,7 @@ module storage 'modules/storage.bicep' = {
   name: 'deploy-log-storage-${deploymentNameSuffix}'
   params: {
     blobsPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.blob
-    deployIdentity: deployIdentity
+    //deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location

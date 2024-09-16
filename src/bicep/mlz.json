@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "7375975786122619709"
+      "templateHash": "14183701678897139646"
     }
   },
   "parameters": {
@@ -6835,9 +6835,6 @@
           "blobsPrivateDnsZoneResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZoneResourceIds.value.blob]"
           },
-          "deployIdentity": {
-            "value": "[parameters('deployIdentity')]"
-          },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
@@ -6882,15 +6879,12 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "16799161658873554626"
+              "templateHash": "6493471461063777365"
             }
           },
           "parameters": {
             "blobsPrivateDnsZoneResourceId": {
               "type": "string"
-            },
-            "deployIdentity": {
-              "type": "bool"
             },
             "deploymentNameSuffix": {
               "type": "string"
@@ -7170,7 +7164,10 @@
           "outputs": {
             "storageAccountResourceIds": {
               "type": "array",
-              "value": "[union(createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tiers')[0].subscriptionId, parameters('resourceGroupNames')[copyIndex()]), 'Microsoft.Resources/deployments', format('deploy-storage-account-{0}-{1}', parameters('tiers')[0].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.id.value, reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tiers')[1].subscriptionId, parameters('resourceGroupNames')[copyIndex()]), 'Microsoft.Resources/deployments', format('deploy-storage-account-{0}-{1}', parameters('tiers')[1].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.id.value, reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tiers')[2].subscriptionId, parameters('resourceGroupNames')[copyIndex()]), 'Microsoft.Resources/deployments', format('deploy-storage-account-{0}-{1}', parameters('tiers')[2].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.id.value), if(parameters('deployIdentity'), createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tiers')[3].subscriptionId, parameters('resourceGroupNames')[copyIndex()]), 'Microsoft.Resources/deployments', format('deploy-storage-account-{0}-{1}', parameters('tiers')[3].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.id.value), createArray()))]"
+              "copy": {
+                "count": "[length(parameters('tiers'))]",
+                "input": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tiers')[copyIndex()].subscriptionId, parameters('resourceGroupNames')[copyIndex()]), 'Microsoft.Resources/deployments', format('deploy-storage-account-{0}-{1}', parameters('tiers')[copyIndex()].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.id.value]"
+              }
             }
           }
         }
