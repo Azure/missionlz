@@ -40,11 +40,12 @@ module storageAccount 'storage-account.bicep' = [for (tier, i) in tiers: {
 }]
 
 output storageAccountResourceIds array = union([
-  resourceId(tiers[0].subscriptionId, resourceGroupNames[0], 'Microsoft.Storage/storageAccounts', tiers[0].namingConvention.storageAccount)
-  resourceId(tiers[1].subscriptionId, resourceGroupNames[1], 'Microsoft.Storage/storageAccounts', tiers[1].namingConvention.storageAccount)
-  resourceId(tiers[2].subscriptionId, resourceGroupNames[2], 'Microsoft.Storage/storageAccounts', tiers[2].namingConvention.storageAccount)
+  storageAccount[0].outputs.id
+  storageAccount[1].outputs.id
+  storageAccount[2].outputs.id
 ], deployIdentity ? [
-  resourceId(tiers[3].subscriptionId, resourceGroupNames[3], 'Microsoft.Storage/storageAccounts', tiers[3].namingConvention.storageAccount)
+  storageAccount[3].outputs.id
 ] : []
 )
+
 
