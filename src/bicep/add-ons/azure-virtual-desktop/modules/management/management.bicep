@@ -91,10 +91,10 @@ module diskAccess 'diskAccess.bicep' = {
   scope: resourceGroup(resourceGroupManagement)
   name: 'deploy-disk-access-${deploymentNameSuffix}'
   params: {
-    diskAccessName: namingConvention.diskAccess
     hostPoolName: hostPoolName
     location: locationVirtualMachines
     mlzTags: mlzTags
+    namingConvention: namingConvention
     resourceGroupControlPlane: resourceGroupControlPlane
     subnetResourceId: subnetResourceId
     tags: tags
