@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "4675696552725412863"
+      "templateHash": "17921282242779854677"
     }
   },
   "parameters": {
@@ -685,7 +685,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "16285369952304225720"
+              "templateHash": "12578364000123183261"
             }
           },
           "parameters": {
@@ -1175,6 +1175,8 @@
               "dataCollectionRuleAssociation": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRuleAssociations)]",
               "dataCollectionRule": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRules)]",
               "diskAccess": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').diskAccesses)]",
+              "diskAccessNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, variables('resourceAbbreviations').diskAccesses)]",
+              "diskAccessPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').diskAccesses)]",
               "diskEncryptionSet": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').diskEncryptionSets)]",
               "functionApp": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').functionApps)]",
               "functionAppNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', variables('resourceAbbreviations').functionApps, parameters('tokens').service))]",
@@ -1282,7 +1284,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "16285369952304225720"
+              "templateHash": "12578364000123183261"
             }
           },
           "parameters": {
@@ -1772,6 +1774,8 @@
               "dataCollectionRuleAssociation": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRuleAssociations)]",
               "dataCollectionRule": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRules)]",
               "diskAccess": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').diskAccesses)]",
+              "diskAccessNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, variables('resourceAbbreviations').diskAccesses)]",
+              "diskAccessPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').diskAccesses)]",
               "diskEncryptionSet": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').diskEncryptionSets)]",
               "functionApp": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').functionApps)]",
               "functionAppNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', variables('resourceAbbreviations').functionApps, parameters('tokens').service))]",
@@ -1924,7 +1928,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "12893589846430820258"
+              "templateHash": "15298266674452320137"
             }
           },
           "parameters": {
@@ -2201,7 +2205,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "1695002276156960097"
+                      "templateHash": "2892041612004115265"
                     }
                   },
                   "parameters": {
@@ -2281,7 +2285,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.29.47.4906",
-                              "templateHash": "16285369952304225720"
+                              "templateHash": "12578364000123183261"
                             }
                           },
                           "parameters": {
@@ -2771,6 +2775,8 @@
                               "dataCollectionRuleAssociation": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRuleAssociations)]",
                               "dataCollectionRule": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').dataCollectionRules)]",
                               "diskAccess": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').diskAccesses)]",
+                              "diskAccessNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, variables('resourceAbbreviations').diskAccesses)]",
+                              "diskAccessPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').diskAccesses)]",
                               "diskEncryptionSet": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').diskEncryptionSets)]",
                               "functionApp": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').functionApps)]",
                               "functionAppNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', variables('resourceAbbreviations').functionApps, parameters('tokens').service))]",
@@ -6525,7 +6531,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "4724436094002729559"
+              "templateHash": "7380670737527479620"
             }
           },
           "parameters": {
@@ -6696,9 +6702,6 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "diskAccessName": {
-                    "value": "[parameters('namingConvention').diskAccess]"
-                  },
                   "hostPoolName": {
                     "value": "[variables('hostPoolName')]"
                   },
@@ -6707,6 +6710,9 @@
                   },
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
+                  },
+                  "namingConvention": {
+                    "value": "[parameters('namingConvention')]"
                   },
                   "resourceGroupControlPlane": {
                     "value": "[parameters('resourceGroupControlPlane')]"
@@ -6725,13 +6731,10 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "15223859192321286624"
+                      "templateHash": "13477433110989057549"
                     }
                   },
                   "parameters": {
-                    "diskAccessName": {
-                      "type": "string"
-                    },
                     "hostPoolName": {
                       "type": "string"
                     },
@@ -6739,6 +6742,9 @@
                       "type": "string"
                     },
                     "mlzTags": {
+                      "type": "object"
+                    },
+                    "namingConvention": {
                       "type": "object"
                     },
                     "resourceGroupControlPlane": {
@@ -6755,7 +6761,7 @@
                     {
                       "type": "Microsoft.Compute/diskAccesses",
                       "apiVersion": "2021-04-01",
-                      "name": "[parameters('diskAccessName')]",
+                      "name": "[parameters('namingConvention').diskAccess]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Compute/diskAccesses'), parameters('tags')['Microsoft.Compute/diskAccesses'], createObject()), parameters('mlzTags'))]",
                       "properties": {}
@@ -6763,16 +6769,16 @@
                     {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[format('pe-{0}', parameters('diskAccessName'))]",
+                      "name": "[parameters('namingConvention').diskAccessPrivateEndpoint]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "customNetworkInterfaceName": "[format('nic-{0}', parameters('diskAccessName'))]",
+                        "customNetworkInterfaceName": "[parameters('namingConvention').diskAccessNetworkInterface]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('pe-{0}', parameters('diskAccessName'))]",
+                            "name": "[parameters('namingConvention').diskAccessPrivateEndpoint]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.Compute/diskAccesses', parameters('diskAccessName'))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.Compute/diskAccesses', parameters('namingConvention').diskAccess)]",
                               "groupIds": [
                                 "disks"
                               ]
@@ -6784,14 +6790,14 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Compute/diskAccesses', parameters('diskAccessName'))]"
+                        "[resourceId('Microsoft.Compute/diskAccesses', parameters('namingConvention').diskAccess)]"
                       ]
                     }
                   ],
                   "outputs": {
                     "resourceId": {
                       "type": "string",
-                      "value": "[resourceId('Microsoft.Compute/diskAccesses', parameters('diskAccessName'))]"
+                      "value": "[resourceId('Microsoft.Compute/diskAccesses', parameters('namingConvention').diskAccess)]"
                     }
                   }
                 }
@@ -9056,9 +9062,9 @@
         }
       },
       "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
