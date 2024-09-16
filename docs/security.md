@@ -111,6 +111,7 @@ For the MLZ NSG's, the same rules that were added to the Azure Firewall as post-
 
 - **Azure Commercial**
 ![alt text](image-30.png)
+
 - **Azure Government**
  ![alt text](image-31.png)
 
