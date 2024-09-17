@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "8154181731888968418"
+      "templateHash": "916958644568542110"
     }
   },
   "parameters": {
@@ -9062,8 +9062,8 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
@@ -10712,7 +10712,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "7252105528696882088"
+              "templateHash": "8816159236520877197"
             }
           },
           "parameters": {
@@ -10744,7 +10744,7 @@
               "type": "securestring"
             },
             "domainJoinUserPrincipalName": {
-              "type": "string"
+              "type": "securestring"
             },
             "domainName": {
               "type": "string"
@@ -10926,7 +10926,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "7156187878101576258"
+                      "templateHash": "2498309262761225150"
                     }
                   },
                   "parameters": {
@@ -10943,7 +10943,7 @@
                       "type": "securestring"
                     },
                     "domainJoinUserPrincipalName": {
-                      "type": "string"
+                      "type": "securestring"
                     },
                     "domainName": {
                       "type": "string"
@@ -11075,6 +11075,12 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "domainJoinPassword": {
+                            "value": "[parameters('domainJoinPassword')]"
+                          },
+                          "domainJoinUserPrincipalName": {
+                            "value": "[parameters('domainJoinUserPrincipalName')]"
+                          },
                           "location": {
                             "value": "[parameters('location')]"
                           },
@@ -11101,18 +11107,6 @@
                               }
                             ]
                           },
-                          "protectedParameters": {
-                            "value": [
-                              {
-                                "name": "DomainJoinPassword",
-                                "value": "[parameters('domainJoinPassword')]"
-                              },
-                              {
-                                "name": "DomainJoinUserPrincipalName",
-                                "value": "[parameters('domainJoinUserPrincipalName')]"
-                              }
-                            ]
-                          },
                           "script": {
                             "value": "[variables('$fxv#0')]"
                           },
@@ -11130,10 +11124,16 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.29.47.4906",
-                              "templateHash": "3676071028106547982"
+                              "templateHash": "10918323999104397780"
                             }
                           },
                           "parameters": {
+                            "domainJoinPassword": {
+                              "type": "securestring"
+                            },
+                            "domainJoinUserPrincipalName": {
+                              "type": "securestring"
+                            },
                             "location": {
                               "type": "string"
                             },
@@ -11141,10 +11141,6 @@
                               "type": "string"
                             },
                             "parameters": {
-                              "type": "array",
-                              "defaultValue": []
-                            },
-                            "protectedParameters": {
                               "type": "array",
                               "defaultValue": []
                             },
@@ -11168,7 +11164,16 @@
                               "properties": {
                                 "asyncExecution": false,
                                 "parameters": "[parameters('parameters')]",
-                                "protectedParameters": "[parameters('protectedParameters')]",
+                                "protectedParameters": [
+                                  {
+                                    "name": "DomainJoinPassword",
+                                    "value": "[parameters('domainJoinPassword')]"
+                                  },
+                                  {
+                                    "name": "DomainJoinUserPrincipalName",
+                                    "value": "[parameters('domainJoinUserPrincipalName')]"
+                                  }
+                                ],
                                 "source": {
                                   "script": "[parameters('script')]"
                                 },
@@ -11323,7 +11328,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "9158791591736940700"
+                      "templateHash": "4809046530489973289"
                     }
                   },
                   "parameters": {
@@ -11346,7 +11351,7 @@
                       "type": "securestring"
                     },
                     "domainJoinUserPrincipalName": {
-                      "type": "string"
+                      "type": "securestring"
                     },
                     "enableRecoveryServices": {
                       "type": "bool"
@@ -11697,6 +11702,12 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "domainJoinPassword": {
+                            "value": "[parameters('domainJoinPassword')]"
+                          },
+                          "domainJoinUserPrincipalName": {
+                            "value": "[parameters('domainJoinUserPrincipalName')]"
+                          },
                           "location": {
                             "value": "[parameters('location')]"
                           },
@@ -11723,7 +11734,7 @@
                               },
                               {
                                 "name": "SecurityPrincipalNames",
-                                "value": "[parameters('securityPrincipalNames')]"
+                                "value": "[string(parameters('securityPrincipalNames'))]"
                               },
                               {
                                 "name": "StorageAccountPrefix",
@@ -11759,18 +11770,6 @@
                               }
                             ]
                           },
-                          "protectedParameters": {
-                            "value": [
-                              {
-                                "name": "DomainJoinPassword",
-                                "value": "[parameters('domainJoinPassword')]"
-                              },
-                              {
-                                "name": "DomainJoinUserPrincipalName",
-                                "value": "[parameters('domainJoinUserPrincipalName')]"
-                              }
-                            ]
-                          },
                           "script": {
                             "value": "[variables('$fxv#0')]"
                           },
@@ -11788,10 +11787,16 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.29.47.4906",
-                              "templateHash": "3676071028106547982"
+                              "templateHash": "10918323999104397780"
                             }
                           },
                           "parameters": {
+                            "domainJoinPassword": {
+                              "type": "securestring"
+                            },
+                            "domainJoinUserPrincipalName": {
+                              "type": "securestring"
+                            },
                             "location": {
                               "type": "string"
                             },
@@ -11799,10 +11804,6 @@
                               "type": "string"
                             },
                             "parameters": {
-                              "type": "array",
-                              "defaultValue": []
-                            },
-                            "protectedParameters": {
                               "type": "array",
                               "defaultValue": []
                             },
@@ -11826,7 +11827,16 @@
                               "properties": {
                                 "asyncExecution": false,
                                 "parameters": "[parameters('parameters')]",
-                                "protectedParameters": "[parameters('protectedParameters')]",
+                                "protectedParameters": [
+                                  {
+                                    "name": "DomainJoinPassword",
+                                    "value": "[parameters('domainJoinPassword')]"
+                                  },
+                                  {
+                                    "name": "DomainJoinUserPrincipalName",
+                                    "value": "[parameters('domainJoinUserPrincipalName')]"
+                                  }
+                                ],
                                 "source": {
                                   "script": "[parameters('script')]"
                                 },
