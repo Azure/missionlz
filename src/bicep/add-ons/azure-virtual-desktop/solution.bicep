@@ -662,7 +662,6 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
     encryptionUserAssignedIdentityResourceId: tier3_hosts.outputs.userAssignedIdentityResourceId
-    environmentAbbreviation: environmentAbbreviation
     existingSharedActiveDirectoryConnection: existingSharedActiveDirectoryConnection
     fileShares: fileShares
     fslogixContainerType: fslogixContainerType
@@ -670,7 +669,6 @@ module fslogix 'modules/fslogix/fslogix.bicep' = {
     fslogixStorageService: fslogixStorageService
     functionAppName: management.outputs.functionAppName
     hostPoolType: hostPoolType
-    identifier: identifier
     keyVaultUri: tier3_hosts.outputs.keyVaultUri
     location: locationVirtualMachines
     managementVirtualMachineName: management.outputs.virtualMachineName
