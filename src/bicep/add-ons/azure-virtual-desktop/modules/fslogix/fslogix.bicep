@@ -13,14 +13,12 @@ param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
 param encryptionUserAssignedIdentityResourceId string
-param environmentAbbreviation string
 param fileShares array
 param fslogixShareSizeInGB int
 param fslogixContainerType string
 param fslogixStorageService string
 param functionAppName string
 param hostPoolType string
-param identifier string
 param keyVaultUri string
 param location string
 param managementVirtualMachineName string
@@ -92,14 +90,12 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     enableRecoveryServices: recoveryServices
     encryptionUserAssignedIdentityResourceId: encryptionUserAssignedIdentityResourceId
-    environmentAbbreviation: environmentAbbreviation
     fileShares: fileShares
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
     functionAppName: functionAppName
     hostPoolType: hostPoolType
-    identifier: identifier
     keyVaultUri: keyVaultUri
     location: location
     managementVirtualMachineName: managementVirtualMachineName
