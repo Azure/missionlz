@@ -5,6 +5,7 @@ param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 @secure()
 param domainJoinPassword string
+@secure()
 param domainJoinUserPrincipalName string
 param enableRecoveryServices bool
 param encryptionUserAssignedIdentityResourceId string
@@ -205,10 +206,12 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
   ]
 }]
 
-module ntfsPermissions '../../common/runCommand.bicep' = if (contains(activeDirectorySolution, 'DomainServices')) {
+module ntfsPermissions '../runCommand.bicep' = if (contains(activeDirectorySolution, 'DomainServices')) {
   name: 'deploy-fslogix-ntfs-permissions-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
+    domainJoinPassword: domainJoinPassword
+    domainJoinUserPrincipalName: domainJoinUserPrincipalName
     location: location
     name: 'Set-NtfsPermissions.ps1'
     parameters: [
@@ -230,7 +233,7 @@ module ntfsPermissions '../../common/runCommand.bicep' = if (contains(activeDire
       }
       {
         name: 'SecurityPrincipalNames'
-        value: securityPrincipalNames
+        value: string(securityPrincipalNames)
       }
       {
         name: 'StorageAccountPrefix'
@@ -263,16 +266,6 @@ module ntfsPermissions '../../common/runCommand.bicep' = if (contains(activeDire
       {
         name: 'UserAssignedIdentityClientId'
         value: deploymentUserAssignedIdentityClientId
-      }
-    ]
-    protectedParameters: [
-      {
-        name: 'DomainJoinPassword'
-        value: domainJoinPassword
-      }
-      {
-        name: 'DomainJoinUserPrincipalName'
-        value: domainJoinUserPrincipalName
       }
     ]
     script: loadTextContent('../../../artifacts/Set-NtfsPermissions.ps1')

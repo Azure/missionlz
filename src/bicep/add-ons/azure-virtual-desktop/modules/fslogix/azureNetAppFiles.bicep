@@ -3,6 +3,7 @@ param deploymentNameSuffix string
 param dnsServers string
 @secure()
 param domainJoinPassword string
+@secure()
 param domainJoinUserPrincipalName string
 param domainName string
 param existingSharedActiveDirectoryConnection bool
@@ -128,10 +129,12 @@ resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-
   }
 }]
 
-module ntfsPermissions '../common/runCommand.bicep' = {
+module ntfsPermissions 'runCommand.bicep' = {
   name: 'deploy-fslogix-ntfs-permissions-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
+    domainJoinPassword: domainJoinPassword
+    domainJoinUserPrincipalName: domainJoinUserPrincipalName
     location: location
     name: 'Set-NtfsPermissions.ps1'
     parameters: [
@@ -150,16 +153,6 @@ module ntfsPermissions '../common/runCommand.bicep' = {
       {
         name: 'StorageService'
         value: storageService
-      }
-    ]
-    protectedParameters: [
-      {
-        name: 'DomainJoinPassword'
-        value: domainJoinPassword
-      }
-      {
-        name: 'DomainJoinUserPrincipalName'
-        value: domainJoinUserPrincipalName
       }
     ]
     script: loadTextContent('../../artifacts/Set-NtfsPermissions.ps1')
