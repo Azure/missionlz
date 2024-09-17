@@ -141,15 +141,15 @@ module ntfsPermissions '../common/runCommand.bicep' = {
       }
       {
         name: 'SecurityPrincipalNames'
-        value:securityPrincipalNames
+        value: securityPrincipalNames
       }
       {
         name: 'SmbServerLocation'
-        value:smbServerLocation
+        value: smbServerLocation
       }
       {
         name: 'StorageService'
-        value:storageService
+        value: storageService
       }
     ]
     protectedParameters: [
