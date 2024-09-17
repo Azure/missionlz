@@ -129,7 +129,7 @@
                   "name": "privateLinkScope",
                   "type": "Microsoft.Common.DropDown",
                   "visible": true,
-                  "label": "Azure firewall",
+                  "label": "Private link scope",
                   "defaultValue": "[first(map(steps('basics').operations.privateLinkScopesApi.value, (item) => item.name))]",
                   "filter": true,
                   "toolTip": "Select the existing Azure Monitor Private Link Scope in the Operations subscription.",
