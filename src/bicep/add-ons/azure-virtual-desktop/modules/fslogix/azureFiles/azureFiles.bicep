@@ -8,7 +8,6 @@ param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param enableRecoveryServices bool
 param encryptionUserAssignedIdentityResourceId string
-param environmentAbbreviation string
 param fileShares array
 param fslogixShareSizeInGB int
 param fslogixContainerType string
@@ -16,7 +15,6 @@ param fslogixStorageService string
 param functionAppName string
 param hostPoolName string
 param hostPoolType string
-param identifier string
 param keyVaultUri string
 param location string
 param managementVirtualMachineName string
@@ -53,8 +51,6 @@ var smbSettings = {
 }
 var storageAccountNamePrefix = uniqueString(replace(namingConvention.storageAccount, serviceToken, 'file-fslogix'), resourceGroup().id)
 var storageRedundancy = availability == 'availabilityZones' ? '_ZRS' : '_LRS'
-var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
-
 var tagsPrivateEndpoints = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
 var tagsStorageAccounts = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Storage/storageAccounts') ? tags['Microsoft.Storage/storageAccounts'] : {}, mlzTags)
 var tagsRecoveryServicesVault = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.recoveryServices/vaults') ? tags['Microsoft.recoveryServices/vaults'] : {}, mlzTags)
@@ -221,10 +217,6 @@ module ntfsPermissions '../../common/runCommand.bicep' = if (contains(activeDire
         value: activeDirectorySolution
       }
       {
-        name: 'Environment'
-        value: environment().name
-      }
-      {
         name: 'FslogixContainerType'
         value: fslogixContainerType
       }
@@ -267,14 +259,6 @@ module ntfsPermissions '../../common/runCommand.bicep' = if (contains(activeDire
       {
         name: 'SubscriptionId'
         value: subscription().subscriptionId
-      }
-      {
-        name: 'TenantId'
-        value: subscription().tenantId
-      }
-      {
-        name: 'UniqueToken'
-        value: uniqueToken
       }
       {
         name: 'UserAssignedIdentityClientId'
