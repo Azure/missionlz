@@ -10,6 +10,7 @@ param deploymentUserAssignedIdentityClientId string
 param dnsServers string
 @secure()
 param domainJoinPassword string
+@secure()
 param domainJoinUserPrincipalName string
 param domainName string
 param encryptionUserAssignedIdentityResourceId string
