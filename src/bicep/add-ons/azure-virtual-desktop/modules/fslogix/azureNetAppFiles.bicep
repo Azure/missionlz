@@ -143,6 +143,10 @@ module ntfsPermissions 'runCommand.bicep' = {
         value:fslogixContainerType
       }
       {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
         name: 'SecurityPrincipalNames'
         value: securityPrincipalNames
       }

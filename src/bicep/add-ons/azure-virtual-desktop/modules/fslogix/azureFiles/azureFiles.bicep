@@ -232,6 +232,10 @@ module ntfsPermissions '../runCommand.bicep' = if (contains(activeDirectorySolut
         value: organizationalUnitPath
       }
       {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
         name: 'SecurityPrincipalNames'
         value: string(securityPrincipalNames)
       }
