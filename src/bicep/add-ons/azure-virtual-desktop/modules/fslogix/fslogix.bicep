@@ -125,3 +125,4 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
 output netAppShares array = storageService == 'AzureNetAppFiles' ? azureNetAppFiles.outputs.fileShares : [
   'None'
 ]
+output storageAccountNamePrefix string = storageService == 'AzureFiles' ? azureFiles.outputs.storageAccountNamePrefix : ''

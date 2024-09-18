@@ -319,3 +319,5 @@ module autoIncreaseStandardFileShareQuota '../../common/function.bicep' = if (fs
     ntfsPermissions
   ]
 }
+
+output storageAccountNamePrefix string = storageAccountNamePrefix
