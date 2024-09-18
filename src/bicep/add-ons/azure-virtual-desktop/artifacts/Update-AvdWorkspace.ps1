@@ -27,10 +27,8 @@ $ExistingApplicationGroupReferences = (Invoke-RestMethod `
     -Headers $AzureManagementHeader `
     -Method 'GET' `
     -Uri $($ResourceManagerUriFixed + $WorkspaceResourceId + '?api-version=2023-09-05')).properties.applicationGroupReferences
-
-[array]$NewApplicationGroupReference = $ApplicationGroupResourceId.Split(',')
   
-[array]$ApplicationGroupReferences = $ExistingApplicationGroupReferences + $NewApplicationGroupReference | Select-Object -Unique
+[array]$ApplicationGroupReferences = $ExistingApplicationGroupReferences + $ApplicationGroupResourceId | ForEach-Object {$_.toLower()}  | Select-Object -Unique
 
 # Use the access token to update the app group references on the workspace
 Invoke-RestMethod `
