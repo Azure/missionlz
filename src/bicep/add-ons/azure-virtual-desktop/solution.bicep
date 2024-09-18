@@ -753,6 +753,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     serviceToken: tier3_hosts.outputs.tokens.service
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
+    storageAccountNamePrefix: fslogix.outputs.storageAccountNamePrefix
     storageCount: storageCount
     storageIndex: storageIndex
     storageService: storageService
