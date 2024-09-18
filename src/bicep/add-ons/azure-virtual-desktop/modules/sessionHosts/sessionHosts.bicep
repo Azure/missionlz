@@ -48,6 +48,7 @@ param securityPrincipalObjectIds array
 param serviceToken string
 param sessionHostBatchCount int
 param sessionHostIndex int
+param storageAccountNamePrefix string
 param storageCount int
 param storageIndex int
 param storageService string
@@ -142,7 +143,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     serviceToken: serviceToken
     sessionHostCount: i == sessionHostBatchCount && divisionRemainderValue > 0 ? divisionRemainderValue : maxResourcesPerTemplateDeployment
     sessionHostIndex: i == 1 ? sessionHostIndex : ((i - 1) * maxResourcesPerTemplateDeployment) + sessionHostIndex
-    storageAccountPrefix: namingConvention.storageAccount
+    storageAccountPrefix: storageAccountNamePrefix
     storageCount: storageCount
     storageIndex: storageIndex
     storageService: storageService
