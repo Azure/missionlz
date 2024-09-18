@@ -1,54 +1,21 @@
 param 
 (
-    [Parameter(Mandatory=$false)]
     [String]$ActiveDirectorySolution,
-
-    [Parameter(Mandatory)]
     [String]$DomainJoinPassword,
-
-    [Parameter(Mandatory)]
     [String]$DomainJoinUserPrincipalName,
-
-    [Parameter(Mandatory)]
     [String]$FslogixContainerType,
-
-    [Parameter(Mandatory=$false)]
     [String]$Netbios,
-
-    [Parameter(Mandatory=$false)]
     [String]$OrganizationalUnitPath,
-
-    [Parameter(Mandatory)]
     [string]$ResourceManagerUri,
-
-    [Parameter(Mandatory)]
     [String]$SecurityPrincipalNames,
-
-    [Parameter(Mandatory=$false)]
     [String]$SmbServerLocation,
-
-    [Parameter(Mandatory=$false)]
     [String]$StorageAccountPrefix,
-
-    [Parameter(Mandatory=$false)]
     [String]$StorageAccountResourceGroupName,
-
-    [Parameter(Mandatory=$false)]
     [Int]$StorageCount,
-
-    [Parameter(Mandatory=$false)]
     [Int]$StorageIndex,
-
-    [Parameter(Mandatory)]
     [String]$StorageService,
-
-    [Parameter(Mandatory=$false)]
     [String]$StorageSuffix,
-
-    [Parameter(Mandatory=$false)]
     [String]$SubscriptionId,
-
-    [Parameter(Mandatory=$false)]
     [String]$UserAssignedIdentityClientId
 )
 
