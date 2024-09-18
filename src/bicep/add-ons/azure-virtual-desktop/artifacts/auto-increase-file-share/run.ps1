@@ -12,11 +12,6 @@ try
 	$WarningPreference = 'SilentlyContinue'
 
 	#region Functions
-	function Get-LocalDateTime
-    {
-		return (Get-Date).ToUniversalTime().AddHours($TimeDiffHrsMin[0]).AddMinutes($TimeDiffHrsMin[1])
-	}
-
 	function Write-Log 
     {
 		[CmdletBinding()]
@@ -34,7 +29,7 @@ try
 			[switch]$Warn
 		)
 
-		[string]$MessageTimeStamp = (Get-LocalDateTime).ToString('yyyy-MM-dd HH:mm:ss')
+		[string]$MessageTimeStamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
 		$Message = "[$($MyInvocation.ScriptLineNumber)] [$($ResourceName)] $Message"
 		[string]$WriteMessage = "[$($MessageTimeStamp)] $Message"
 
@@ -75,7 +70,7 @@ try
     {
         throw [System.Exception]::new('Failed to authenticate Azure with application ID, tenant ID, subscription ID', $PSItem.Exception)
     }
-    Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Successfully authenticated with Azure using a managed identity"
+    Write-Log -ResourceName "$SubscriptionId" -Message "Successfully authenticated with Azure using a managed identity"
 	#endregion Azure Authentication
 
 	# Get storage accounts
@@ -84,11 +79,11 @@ try
 
 	foreach($StorageAccountName in $StorageAccountNames)
 	{
-		$StorageUri = 'https://' + $StorageAccountName + '.file.' + $StorageSuffix + '/' + $FileShareName + '?restype=share&comp=properties'
+		$ShareUpdateUri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/fileServices/default/shares/' + $FileShareName + '?api-version=2023-05-01'
 
 		# Get file share info
-		$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/fileServices/default/shares/' + $FileShareName + '?api-version=2023-05-01&$expand=stats'
-		$PFS = Invoke-RestMethod -Headers $Header -Method 'GET' -Uri $Uri
+		$ShareGetUri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/fileServices/default/shares/' + $FileShareName + '?api-version=2023-05-01&$expand=stats'
+		$PFS = (Invoke-RestMethod -Headers $Header -Method 'GET' -Uri $ShareGetUri).properties
 
 		# Set variables for provisioned capacity and used capacity
 		$ProvisionedCapacity = $PFS.shareQuota
@@ -96,10 +91,6 @@ try
 		Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Capacity: $($ProvisionedCapacity)GB"
 		Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage: $([math]::Round($UsedCapacity/1GB, 0))GB"
 
-		# Get storage account key
-		$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/listKeys?api-version=2023-05-01'
-		$StorageAccountKey = (Invoke-RestMethod -Headers $Header -Method 'POST' -Uri $Uri).keys[0].value
-		
 		# GB Based Scaling
 		# No scaling if no usage
 		if($UsedCapacity -eq 0)
@@ -114,14 +105,11 @@ try
 			if (($ProvisionedCapacity - ($UsedCapacity / ([Math]::Pow(2,30)))) -lt 50) {
 				Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage has surpassed the Share Quota remaining threshold of 50GB. Increasing the file share quota by 100GB." 
 				$Quota = $ProvisionedCapacity + 100
-				$StorageHeader = @{
-					'Authorization'="SharedKey myaccount: $StorageAccountKey"
-					'x-ms-date'="$((Get-Date).ToUniversalTime())"  
-					'x-ms-root-squash'='RootSquash'
-					'x-ms-share-quota'="$Quota"
-					'x-ms-version'='2020-02-10'
-				}
-				Invoke-RestMethod -Headers $StorageHeader -Method 'PUT' -Uri $StorageUri | Out-Null
+				Invoke-RestMethod `
+					-Body (@{properties = @{shareQuota = $Quota}} | ConvertTo-Json) `
+					-Headers $Header `
+					-Method 'PATCH' `
+					-Uri $ShareUpdateUri | Out-Null
 				Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "New Capacity: $($Quota)GB"
 			}
 			else {
@@ -136,14 +124,11 @@ try
 			if (($ProvisionedCapacity - ($UsedCapacity / ([Math]::Pow(2,30)))) -lt 500) {
 				Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "Share Usage has surpassed the Share Quota remaining threshold of 500GB. Increasing the file share quota by 500GB." 
 				$Quota = $ProvisionedCapacity + 500
-				$StorageHeader = @{
-					'Authorization'="SharedKey myaccount: $StorageAccountKey"
-					'x-ms-date'="$((Get-Date).ToUniversalTime())"  
-					'x-ms-root-squash'='RootSquash'
-					'x-ms-share-quota'="$Quota"
-					'x-ms-version'='2020-02-10'
-				}
-				Invoke-RestMethod -Headers $StorageHeader -Method 'PUT' -Uri $StorageUri | Out-Null
+				Invoke-RestMethod `
+					-Body (@{properties = @{shareQuota = $Quota}} | ConvertTo-Json) `
+					-Headers $Header `
+					-Method 'PATCH' `
+					-Uri $ShareUpdateUri | Out-Null
 				Write-Log -ResourceName "$StorageAccountName/$FileShareName" -Message "New Capacity: $($Quota)GB"
 			}
 			else {
