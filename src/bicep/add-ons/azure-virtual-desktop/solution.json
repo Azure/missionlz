@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "916958644568542110"
+      "templateHash": "15514978330471049783"
     }
   },
   "parameters": {
@@ -9062,8 +9062,8 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
@@ -9533,7 +9533,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "5645604122775045349"
+              "templateHash": "13060284993106445940"
             }
           },
           "parameters": {
@@ -10295,7 +10295,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "11177304014110237519"
+                      "templateHash": "11069078814488380941"
                     }
                   },
                   "parameters": {
@@ -10364,7 +10364,7 @@
                     }
                   },
                   "variables": {
-                    "$fxv#0": "param(\n    [string]$ApplicationGroupResourceId,\n    [string]$ResourceManagerUri,\n    [string]$UserAssignedIdentityClientId,\n    [string]$WorkspaceResourceId\n)\n\n$ErrorActionPreference = 'Stop'\n$WarningPreference = 'SilentlyContinue'\n\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\n\n# Get an access token for Azure resources\n$AzureManagementAccessToken = (Invoke-RestMethod `\n    -Headers @{Metadata=\"true\"} `\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\n\n# Set header for Azure Management API\n$AzureManagementHeader = @{\n    'Content-Type'='application/json'\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\n}\n\n# Use the access token to get the app group references on the workspace\n$ExistingApplicationGroupReferences = (Invoke-RestMethod `\n    -Headers $AzureManagementHeader `\n    -Method 'GET' `\n    -Uri $($ResourceManagerUriFixed + $WorkspaceResourceId + '?api-version=2023-09-05')).properties.applicationGroupReferences\n\n[array]$NewApplicationGroupReference = $ApplicationGroupResourceId.Split(',')\n  \n[array]$ApplicationGroupReferences = $ExistingApplicationGroupReferences + $NewApplicationGroupReference | Select-Object -Unique\n\n# Use the access token to update the app group references on the workspace\nInvoke-RestMethod `\n    -Body (@{properties = @{applicationGroupReferences = $ApplicationGroupReferences}} | ConvertTo-Json) `\n    -Headers $AzureManagementHeader `\n    -Method 'PATCH' `\n    -Uri $($ResourceManagerUriFixed + $WorkspaceResourceId + '?api-version=2023-09-05') | Out-Null"
+                    "$fxv#0": "param(\n    [string]$ApplicationGroupResourceId,\n    [string]$ResourceManagerUri,\n    [string]$UserAssignedIdentityClientId,\n    [string]$WorkspaceResourceId\n)\n\n$ErrorActionPreference = 'Stop'\n$WarningPreference = 'SilentlyContinue'\n\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\n\n# Get an access token for Azure resources\n$AzureManagementAccessToken = (Invoke-RestMethod `\n    -Headers @{Metadata=\"true\"} `\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\n\n# Set header for Azure Management API\n$AzureManagementHeader = @{\n    'Content-Type'='application/json'\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\n}\n\n# Use the access token to get the app group references on the workspace\n$ExistingApplicationGroupReferences = (Invoke-RestMethod `\n    -Headers $AzureManagementHeader `\n    -Method 'GET' `\n    -Uri $($ResourceManagerUriFixed + $WorkspaceResourceId + '?api-version=2023-09-05')).properties.applicationGroupReferences\n  \n[array]$ApplicationGroupReferences = $ExistingApplicationGroupReferences + $ApplicationGroupResourceId | ForEach-Object {$_.toLower()}  | Select-Object -Unique\n\n# Use the access token to update the app group references on the workspace\nInvoke-RestMethod `\n    -Body (@{properties = @{applicationGroupReferences = $ApplicationGroupReferences}} | ConvertTo-Json) `\n    -Headers $AzureManagementHeader `\n    -Method 'PATCH' `\n    -Uri $($ResourceManagerUriFixed + $WorkspaceResourceId + '?api-version=2023-09-05') | Out-Null"
                   },
                   "resources": [
                     {
