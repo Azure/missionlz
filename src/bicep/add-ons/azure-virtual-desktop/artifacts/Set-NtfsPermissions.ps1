@@ -19,6 +19,9 @@ param
     [String]$OrganizationalUnitPath,
 
     [Parameter(Mandatory)]
+    [string]$ResourceManagerUri,
+
+    [Parameter(Mandatory)]
     [String]$SecurityPrincipalNames,
 
     [Parameter(Mandatory=$false)]
@@ -69,8 +72,7 @@ if($StorageService -eq 'AzureNetAppFiles' -or ($StorageService -eq 'AzureFiles' 
 #  Variables
 ##############################################################
 # Convert Security Principal Names from a JSON array to a PowerShell array
-[array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace("'",'"') | ConvertFrom-Json
-$SecurityPrincipalNames | Add-Content -Path 'C:\cse.txt' -Force | Out-Null
+[array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace('\','') | ConvertFrom-Json
 
 # Selects the appropraite share names based on the FslogixContainerType param from the deployment
 $Shares = switch($FslogixContainerType)
@@ -101,8 +103,8 @@ if($StorageService -eq 'AzureFiles')
 
     # Get an access token for Azure resources
     $AzureManagementAccessToken = (Invoke-RestMethod `
-            -Headers @{Metadata = "true" } `
-            -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token
+        -Headers @{Metadata = "true" } `
+        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token
 
     # Set header for Azure Management API
     $AzureManagementHeader = @{
