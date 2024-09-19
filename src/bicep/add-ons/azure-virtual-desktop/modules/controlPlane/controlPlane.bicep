@@ -10,7 +10,6 @@ param desktopFriendlyName string
 param diskSku string
 param domainName string
 param enableAvdInsights bool
-param existingFeedWorkspaceResourceId string
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
 param imageOffer string
@@ -30,13 +29,10 @@ param roleDefinitions object
 param securityPrincipalObjectIds array
 param serviceToken string
 param sessionHostNamePrefix string
-param stampIndex string
 param subnetResourceId string
 param tags object
 param validationEnvironment bool
 param virtualMachineSize string
-param workspaceFriendlyName string
-param workspacePublicNetworkAccess string
 
 var galleryImageOffer = empty(imageVersionResourceId) ? '"${imageOffer}"' : 'null'
 var galleryImagePublisher = empty(imageVersionResourceId) ? '"${imagePublisher}"' : 'null'
@@ -99,32 +95,6 @@ module applicationGroup 'applicationGroup.bicep' = {
   }
 }
 
-module workspace 'workspace.bicep' = {
-  name: 'deploy-vdws-feed-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupControlPlane)
-  params: {
-    applicationGroupResourceId: applicationGroup.outputs.resourceId
-    avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
-    deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    enableAvdInsights: enableAvdInsights
-    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
-    hostPoolName: hostPoolName
-    locationControlPlane: locationControlPlane
-    locationVirtualMachines: locationVirtualMachines
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    mlzTags: mlzTags
-    resourceGroupManagement: resourceGroupManagement
-    subnetResourceId: subnetResourceId
-    tags: tags
-    virtualMachineName: managementVirtualMachineName
-    workspaceFeedDiagnoticSettingName: replace(replace(namingConvention.workspaceFeedDiagnosticSetting, serviceToken, 'feed'), '-${stampIndex}', '')
-    workspaceFeedName: replace(replace(namingConvention.workspaceFeed, serviceToken, 'feed'), '-${stampIndex}', '')
-    workspaceFeedNetworkInterfaceName: replace(replace(namingConvention.workspaceFeedNetworkInterface, serviceToken, 'feed'), '-${stampIndex}', '')
-    workspaceFeedPrivateEndpointName: replace(replace(namingConvention.workspaceFeedPrivateEndpoint, serviceToken, 'feed'), '-${stampIndex}', '')
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(replace(namingConvention.workspaceFeed, '-${serviceToken}', ''), '-${stampIndex}', '') : '${workspaceFriendlyName} (${locationControlPlane})'
-    workspacePublicNetworkAccess: workspacePublicNetworkAccess
-  }
-}
-
+output applicationGroupResourceId string = applicationGroup.outputs.resourceId
 output hostPoolName string = hostPool.outputs.name
+output hostPoolResourceId string = hostPool.outputs.resourceId

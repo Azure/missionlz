@@ -67,11 +67,6 @@ var roleAssignments = union(
       resourceGroup: resourceGroupManagement
       subscription: subscription().subscriptionId
     }
-    {
-      roleDefinitionId: '21efdde3-836f-432b-bf3d-3e8e734d4b2b' // Desktop Virtualization Workspace Contributor (Purpose: update the app group references on an existing feed workspace)
-      resourceGroup: resourceGroupControlPlane
-      subscription: subscription().subscriptionId
-    }
   ],
   deployFslogix
     ? [
