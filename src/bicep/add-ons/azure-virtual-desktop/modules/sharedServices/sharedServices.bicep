@@ -86,7 +86,7 @@ module roleAssignment '../common/roleAssignments/resourceGroup.bicep' = {
 
 module workspace_feed 'workspaceFeed.bicep' = {
   name: 'deploy-vdws-feed-${deploymentNameSuffix}'
-  scope: resourceGroup(workspaceGlobalResourceGroupName)
+  scope: resourceGroup(workspaceFeedResourceGroupName)
   params: {
     applicationGroupResourceId: applicationGroupResourceId
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
