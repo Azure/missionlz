@@ -105,6 +105,18 @@ Application rules allow or deny outbound traffic. You can use an application rul
 - **Azure Government**
 ![alt text](image-26.png)
 
+### NSG Security Rules
+
+<!-- markdownlint-disable MD013 -->
+For the MLZ NSG's, the same rules that were added to the Azure Firewall as post-configuration settings should be added as security rules as part of the defense in depth, layered defensive best practices. When adding these rules to the NSG's, make note that NSG's do not support FQDN's as a rule processing type. Instead of using FQDN rules, the NSG should be configured to allow all traffic for each specified port in the Destination filter. Each NSG rule should be configured to have a source CIDR range, source port number, and the destination filter configured to 'Any'. This allows all of the required FQDN's to pass through the Azure Firewall as the first layer of defense, followed by the NSG's as the second layer of defense.
+<!-- markdownlint-enable MD013 -->
+
+- **Azure Commercial**
+![alt text](image-30.png)
+
+- **Azure Government**
+ ![alt text](image-31.png)
+
 ***References links:***
 
 - [Azure Firewall Policy rule sets](https://learn.microsoft.com/en-us/azure/firewall/policy-rule-sets)
