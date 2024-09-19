@@ -49,7 +49,7 @@ module addApplicationGroups '../common/runCommand.bicep' = if (!empty(existingFe
       {
         'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
       },
-      contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+      tags[?'Microsoft.Compute/virtualMachines'] ?? {},
       mlzTags
     )
     virtualMachineName: virtualMachineName
