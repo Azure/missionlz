@@ -162,9 +162,6 @@ param imageSku string = 'win11-22h2-avd-m365'
 @description('The resource ID for the Compute Gallery Image Version. Do not set this value if using a marketplace image.')
 param imageVersionResourceId string = ''
 
-@description('The deployment location for the AVD management resources.')
-param locationControlPlane string = deployment().location
-
 @description('The deployment location for the AVD sessions hosts. This is necessary when the users are closer to a different location than the control plane location.')
 param locationVirtualMachines string = deployment().location
 
@@ -393,11 +390,17 @@ var subnets = {
     : []
 }
 
+// Gets the hub virtual network for its location and tags
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
+  name: split(hubVirtualNetworkResourceId, '/')[8]
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+}
+
 // This module deploys telemetry for ArcGIS Pro deployments
 #disable-next-line no-deployments-resources
 resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (enableTelemetry && profile == 'ArcGISPro') {
   name: 'pid-4e82be1d-7fcb-4913-a90c-aa84d7ea3a1c'
-  location: locationControlPlane
+  location: locationVirtualMachines
   properties: {
     mode: 'Incremental'
     template: {
@@ -408,18 +411,12 @@ resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
   }
 }
 
-// Gets the hub virtual network for its location and tags
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
-  name: split(hubVirtualNetworkResourceId, '/')[8]
-  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
-}
-
 // This deployment is used to get the naming convention and tokens for the resource groups and resources.
 module naming_controlPlane '../../modules/naming-convention.bicep' = {
   name: 'get-naming-cp-${deploymentNameSuffix}'
   params: {
     environmentAbbreviation: environmentAbbreviation
-    location: locationControlPlane
+    location: virtualNetwork.location
     networkName: 'avd'
     networkShortName: 'avd'
     resourcePrefix: identifier
@@ -472,7 +469,7 @@ module rgs '../../modules/resource-group.bicep' = [
   for service in resourceGroupServices: {
     name: 'deploy-rg-${service}-${deploymentNameSuffix}'
     params: {
-      location: service == 'controlPlane' ? locationControlPlane : locationVirtualMachines
+      location: service == 'controlPlane' ? virtualNetwork.location : locationVirtualMachines
       mlzTags: tier3_hosts.outputs.mlzTags
       name: service == 'controlPlane'
         ? replace(naming_controlPlane.outputs.names.resourceGroup, naming_controlPlane.outputs.tokens.service, service)
@@ -535,72 +532,6 @@ module management 'modules/management/management.bicep' = {
   }
 }
 
-// Global AVD Worksspace
-// This module creates the global AVD workspace to support AVD with Private Link
-module workspace_global 'modules/sharedServices/sharedServices.bicep' = {
-  name: 'deploy-global-workspace-${deploymentNameSuffix}'
-  scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    existingWorkspace: !empty(existingFeedWorkspaceResourceId)
-    globalWorkspacePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
-    sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
-    mlzTags: tier3_hosts.outputs.mlzTags
-    resourceGroupName: replace(
-      replace(
-        replace(
-          naming_controlPlane.outputs.names.resourceGroup,
-          naming_controlPlane.outputs.tokens.service,
-          'globalWorkspace'
-        ),
-        '-${stampIndex}',
-        ''
-      ),
-      identifier,
-      virtualNetwork.tags.resourcePrefix
-    )
-    workspaceGlobalName: replace(
-      replace(
-        replace(
-          naming_controlPlane.outputs.names.workspaceGlobal,
-          naming_controlPlane.outputs.tokens.service,
-          'global'
-        ),
-        '-${stampIndex}',
-        ''
-      ),
-      identifier,
-      virtualNetwork.tags.resourcePrefix
-    )
-    workspaceGlobalNetworkInterfaceName: replace(
-      replace(
-        replace(
-          naming_hub.outputs.names.workspaceGlobalNetworkInterface,
-          naming_hub.outputs.tokens.service,
-          'global'
-        ),
-        '-${stampIndex}',
-        ''
-      ),
-      identifier,
-      virtualNetwork.tags.resourcePrefix
-    )
-    workspaceGlobalPrivateEndpointName: replace(
-      replace(
-        replace(
-          naming_hub.outputs.names.workspaceGlobalPrivateEndpoint,
-          naming_hub.outputs.tokens.service,
-          'global'
-        ),
-        '-${stampIndex}',
-        ''
-      ),
-      identifier,
-      virtualNetwork.tags.resourcePrefix
-    )
-  }
-}
-
 // AVD Control Plane
 // This module deploys the host pool and desktop application group
 module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
@@ -616,14 +547,13 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     diskSku: diskSku
     domainName: domainName
     enableAvdInsights: enableAvdInsights
-    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageOffer: imageOffer
     imagePublisher: imagePublisher
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
-    locationControlPlane: locationControlPlane
+    locationControlPlane: virtualNetwork.location
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: enableAvdInsights ? management.outputs.logAnalyticsWorkspaceResourceId : ''
     managementVirtualMachineName: management.outputs.virtualMachineName
@@ -636,17 +566,52 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: naming_controlPlane.outputs.tokens.service
     sessionHostNamePrefix: replace(tier3_hosts.outputs.namingConvention.virtualMachine, tier3_hosts.outputs.tokens.service, '')
-    stampIndex: string(stampIndex)
     subnetResourceId: tier3_hosts.outputs.subnets[1].id
     tags: tags
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
-    workspaceFriendlyName: workspaceFriendlyName
-    workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
   dependsOn: [
     rgs
   ]
+}
+
+// AVD Workspaces
+// This module creates the global and feed AVD workspace to support AVD with Private Link
+module workspaces 'modules/sharedServices/sharedServices.bicep' = {
+  name: 'deploy-global-workspace-${deploymentNameSuffix}'
+  scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
+  params: {
+    applicationGroupResourceId: controlPlane.outputs.applicationGroupResourceId
+    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
+    deploymentNameSuffix: deploymentNameSuffix
+    deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
+    deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
+    enableAvdInsights: enableAvdInsights
+    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
+    existingWorkspace: !empty(existingFeedWorkspaceResourceId)
+    hostPoolName: controlPlane.outputs.hostPoolName
+    locationControlPlane: virtualNetwork.location
+    locationVirtualMachines: locationVirtualMachines
+    logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
+    managementVirtualMachineName: management.outputs.virtualMachineName
+    mlzTags: tier3_hosts.outputs.mlzTags
+    resourceGroupManagement: rgs[2].outputs.name
+    sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
+    tags: tags
+    workspaceFeedDiagnoticSettingName: replace(replace(naming_hub.outputs.names.workspaceFeedDiagnosticSetting,naming_hub.outputs.tokens.service,'feed'),'-${stampIndex}','')
+    workspaceFeedName: replace(replace(naming_controlPlane.outputs.names.workspaceFeed,naming_controlPlane.outputs.tokens.service,'feed'),'-${stampIndex}','')
+    workspaceFeedNetworkInterfaceName: replace(replace(naming_hub.outputs.names.workspaceFeedNetworkInterface,naming_hub.outputs.tokens.service,'feed'),'-${stampIndex}','')
+    workspaceFeedPrivateEndpointName: replace(replace(naming_hub.outputs.names.workspaceFeedPrivateEndpoint,naming_hub.outputs.tokens.service,'feed'),'-${stampIndex}','')
+    workspaceFeedResourceGroupName: replace(replace(naming_controlPlane.outputs.names.resourceGroup, naming_controlPlane.outputs.tokens.service, 'feedWorkspace'), '-${stampIndex}', '')
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(replace(naming_controlPlane.outputs.names.workspaceFeed,'-${naming_controlPlane.outputs.tokens.service}',''), '-${stampIndex}', '') : '${workspaceFriendlyName} (${virtualNetwork.location})'
+    workspaceGlobalName: replace(replace(replace(naming_controlPlane.outputs.names.workspaceGlobal,naming_controlPlane.outputs.tokens.service,'global'),'-${stampIndex}',''),identifier,virtualNetwork.tags.resourcePrefix)
+    workspaceGlobalNetworkInterfaceName: replace(replace(replace(naming_hub.outputs.names.workspaceGlobalNetworkInterface,naming_hub.outputs.tokens.service,'global'),'-${stampIndex}',''),identifier,virtualNetwork.tags.resourcePrefix)
+    workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
+    workspaceGlobalPrivateEndpointName: replace(replace(replace(naming_hub.outputs.names.workspaceGlobalPrivateEndpoint,naming_hub.outputs.tokens.service,'global'),'-${stampIndex}',''),identifier,virtualNetwork.tags.resourcePrefix)
+    workspaceGlobalResourceGroupName: replace(replace(replace(naming_controlPlane.outputs.names.resourceGroup,naming_controlPlane.outputs.tokens.service,'globalWorkspace'),'-${stampIndex}',''),identifier,virtualNetwork.tags.resourcePrefix)
+    workspacePublicNetworkAccess: workspacePublicNetworkAccess
+  }
 }
 
 module fslogix 'modules/fslogix/fslogix.bicep' = {
