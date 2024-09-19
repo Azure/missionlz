@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.3.12046",
-      "templateHash": "7309221935410594891"
+      "templateHash": "1115389135831775974"
     }
   },
   "parameters": {
@@ -308,13 +308,6 @@
       "defaultValue": "",
       "metadata": {
         "description": "The resource ID for the Compute Gallery Image Version. Do not set this value if using a marketplace image."
-      }
-    },
-    "locationControlPlane": {
-      "type": "string",
-      "defaultValue": "[deployment().location]",
-      "metadata": {
-        "description": "The deployment location for the AVD management resources."
       }
     },
     "locationVirtualMachines": {
@@ -638,7 +631,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "name": "pid-4e82be1d-7fcb-4913-a90c-aa84d7ea3a1c",
-      "location": "[parameters('locationControlPlane')]",
+      "location": "[parameters('locationVirtualMachines')]",
       "properties": {
         "mode": "Incremental",
         "template": {
@@ -663,7 +656,7 @@
             "value": "[parameters('environmentAbbreviation')]"
           },
           "location": {
-            "value": "[parameters('locationControlPlane')]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
           },
           "networkName": {
             "value": "avd"
@@ -6308,7 +6301,7 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "location": "[if(equals(variables('resourceGroupServices')[copyIndex()], 'controlPlane'), createObject('value', parameters('locationControlPlane')), createObject('value', parameters('locationVirtualMachines')))]",
+          "location": "[if(equals(variables('resourceGroupServices')[copyIndex()], 'controlPlane'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location), createObject('value', parameters('locationVirtualMachines')))]",
           "mlzTags": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
@@ -6531,7 +6524,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.3.12046",
-              "templateHash": "18088166420723515107"
+              "templateHash": "15240849957883266346"
             }
           },
           "parameters": {
@@ -6676,7 +6669,7 @@
           },
           "variables": {
             "hostPoolName": "[parameters('namingConvention').hostPool]",
-            "roleAssignments": "[union(createArray(createObject('roleDefinitionId', '86240b0e-9422-4c43-887b-b61143f32ba8', 'resourceGroup', parameters('resourceGroupControlPlane'), 'subscription', subscription().subscriptionId), createObject('roleDefinitionId', '2ad6aaab-ead9-4eaa-8ac5-da422f562408', 'resourceGroup', parameters('resourceGroupControlPlane'), 'subscription', subscription().subscriptionId), createObject('roleDefinitionId', 'a959dbd1-f747-45e3-8ba6-dd80f235f97c', 'resourceGroup', parameters('resourceGroupManagement'), 'subscription', subscription().subscriptionId), createObject('roleDefinitionId', '21efdde3-836f-432b-bf3d-3e8e734d4b2b', 'resourceGroup', parameters('resourceGroupControlPlane'), 'subscription', subscription().subscriptionId)), if(parameters('deployFslogix'), createArray(createObject('roleDefinitionId', '17d1049b-9a84-46fb-8f53-869881c3d3ab', 'resourceGroup', parameters('resourceGroupStorage'), 'subscription', subscription().subscriptionId)), createArray()))]",
+            "roleAssignments": "[union(createArray(createObject('roleDefinitionId', '86240b0e-9422-4c43-887b-b61143f32ba8', 'resourceGroup', parameters('resourceGroupControlPlane'), 'subscription', subscription().subscriptionId), createObject('roleDefinitionId', '2ad6aaab-ead9-4eaa-8ac5-da422f562408', 'resourceGroup', parameters('resourceGroupControlPlane'), 'subscription', subscription().subscriptionId), createObject('roleDefinitionId', 'a959dbd1-f747-45e3-8ba6-dd80f235f97c', 'resourceGroup', parameters('resourceGroupManagement'), 'subscription', subscription().subscriptionId)), if(parameters('deployFslogix'), createArray(createObject('roleDefinitionId', '17d1049b-9a84-46fb-8f53-869881c3d3ab', 'resourceGroup', parameters('resourceGroupStorage'), 'subscription', subscription().subscriptionId)), createArray()))]",
             "userAssignedIdentityNamePrefix": "[parameters('namingConvention').userAssignedIdentity]",
             "virtualNetworkName": "[split(parameters('subnetResourceId'), '/')[8]]",
             "virtualNetworkResourceGroupName": "[split(parameters('subnetResourceId'), '/')[4]]"
@@ -9063,347 +9056,8 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "[format('deploy-global-workspace-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[split(parameters('sharedServicesSubnetResourceId'), '/')[2]]",
-      "location": "[deployment().location]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "deploymentNameSuffix": {
-            "value": "[parameters('deploymentNameSuffix')]"
-          },
-          "existingWorkspace": {
-            "value": "[not(empty(parameters('existingFeedWorkspaceResourceId')))]"
-          },
-          "globalWorkspacePrivateDnsZoneResourceId": {
-            "value": "[format('{0}{1}', variables('privateDnsZoneResourceIdPrefix'), filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value, lambda('name', startsWith(lambdaVariables('name'), 'privatelink-global.wvd')))[0])]"
-          },
-          "sharedServicesSubnetResourceId": {
-            "value": "[parameters('sharedServicesSubnetResourceId')]"
-          },
-          "mlzTags": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
-          },
-          "resourceGroupName": {
-            "value": "[replace(replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'globalWorkspace'), format('-{0}', parameters('stampIndex')), ''), parameters('identifier'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').tags.resourcePrefix)]"
-          },
-          "workspaceGlobalName": {
-            "value": "[replace(replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.workspaceGlobal, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'global'), format('-{0}', parameters('stampIndex')), ''), parameters('identifier'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').tags.resourcePrefix)]"
-          },
-          "workspaceGlobalNetworkInterfaceName": {
-            "value": "[replace(replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.workspaceGlobalNetworkInterface, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'global'), format('-{0}', parameters('stampIndex')), ''), parameters('identifier'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').tags.resourcePrefix)]"
-          },
-          "workspaceGlobalPrivateEndpointName": {
-            "value": "[replace(replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.workspaceGlobalPrivateEndpoint, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'global'), format('-{0}', parameters('stampIndex')), ''), parameters('identifier'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').tags.resourcePrefix)]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.30.3.12046",
-              "templateHash": "8591884985920325663"
-            }
-          },
-          "parameters": {
-            "deploymentNameSuffix": {
-              "type": "string"
-            },
-            "existingWorkspace": {
-              "type": "bool"
-            },
-            "globalWorkspacePrivateDnsZoneResourceId": {
-              "type": "string"
-            },
-            "sharedServicesSubnetResourceId": {
-              "type": "string"
-            },
-            "mlzTags": {
-              "type": "object"
-            },
-            "resourceGroupName": {
-              "type": "string"
-            },
-            "workspaceGlobalName": {
-              "type": "string"
-            },
-            "workspaceGlobalNetworkInterfaceName": {
-              "type": "string"
-            },
-            "workspaceGlobalPrivateEndpointName": {
-              "type": "string"
-            }
-          },
-          "resources": [
-            {
-              "condition": "[not(parameters('existingWorkspace'))]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[format('get-vnet-shared-services-{0}', parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[split(parameters('sharedServicesSubnetResourceId'), '/')[4]]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "name": {
-                    "value": "[split(parameters('sharedServicesSubnetResourceId'), '/')[8]]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.30.3.12046",
-                      "templateHash": "4228199279718868411"
-                    }
-                  },
-                  "parameters": {
-                    "name": {
-                      "type": "string"
-                    }
-                  },
-                  "resources": [],
-                  "outputs": {
-                    "location": {
-                      "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2023-06-01', 'full').location]"
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "condition": "[not(parameters('existingWorkspace'))]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[format('deploy-rg-vdws-global-{0}', parameters('deploymentNameSuffix'))]",
-              "subscriptionId": "[split(parameters('sharedServicesSubnetResourceId'), '/')[2]]",
-              "location": "[deployment().location]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "location": "[if(not(parameters('existingWorkspace')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, split(parameters('sharedServicesSubnetResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('get-vnet-shared-services-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.location.value), createObject('value', ''))]",
-                  "mlzTags": {
-                    "value": "[parameters('mlzTags')]"
-                  },
-                  "name": {
-                    "value": "[parameters('resourceGroupName')]"
-                  },
-                  "tags": {
-                    "value": {}
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.30.3.12046",
-                      "templateHash": "14968354367445743690"
-                    }
-                  },
-                  "parameters": {
-                    "mlzTags": {
-                      "type": "object"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "location": {
-                      "type": "string"
-                    },
-                    "tags": {
-                      "type": "object",
-                      "defaultValue": {}
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Resources/resourceGroups",
-                      "apiVersion": "2019-05-01",
-                      "name": "[parameters('name')]",
-                      "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Resources/resourceGroups'), parameters('tags')['Microsoft.Resources/resourceGroups'], createObject()), parameters('mlzTags'))]"
-                    }
-                  ],
-                  "outputs": {
-                    "id": {
-                      "type": "string",
-                      "value": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name'))]"
-                    },
-                    "name": {
-                      "type": "string",
-                      "value": "[parameters('name')]"
-                    },
-                    "location": {
-                      "type": "string",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').location]"
-                    },
-                    "tags": {
-                      "type": "object",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').tags]"
-                    }
-                  }
-                }
-              },
-              "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, split(parameters('sharedServicesSubnetResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('get-vnet-shared-services-{0}', parameters('deploymentNameSuffix')))]"
-              ]
-            },
-            {
-              "condition": "[not(parameters('existingWorkspace'))]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[format('deploy-vdws-global-{0}', parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[parameters('resourceGroupName')]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "globalWorkspacePrivateDnsZoneResourceId": {
-                    "value": "[parameters('globalWorkspacePrivateDnsZoneResourceId')]"
-                  },
-                  "location": "[if(not(parameters('existingWorkspace')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, split(parameters('sharedServicesSubnetResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('get-vnet-shared-services-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.location.value), createObject('value', ''))]",
-                  "subnetResourceId": {
-                    "value": "[parameters('sharedServicesSubnetResourceId')]"
-                  },
-                  "tags": {
-                    "value": "[parameters('mlzTags')]"
-                  },
-                  "workspaceGlobalName": {
-                    "value": "[parameters('workspaceGlobalName')]"
-                  },
-                  "workspaceGlobalNetworkInterfaceName": {
-                    "value": "[parameters('workspaceGlobalNetworkInterfaceName')]"
-                  },
-                  "workspaceGlobalPrivateEndpointName": {
-                    "value": "[parameters('workspaceGlobalPrivateEndpointName')]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.30.3.12046",
-                      "templateHash": "1362235910530346815"
-                    }
-                  },
-                  "parameters": {
-                    "globalWorkspacePrivateDnsZoneResourceId": {
-                      "type": "string"
-                    },
-                    "location": {
-                      "type": "string"
-                    },
-                    "subnetResourceId": {
-                      "type": "string"
-                    },
-                    "tags": {
-                      "type": "object"
-                    },
-                    "workspaceGlobalName": {
-                      "type": "string"
-                    },
-                    "workspaceGlobalNetworkInterfaceName": {
-                      "type": "string"
-                    },
-                    "workspaceGlobalPrivateEndpointName": {
-                      "type": "string"
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.DesktopVirtualization/workspaces",
-                      "apiVersion": "2023-09-05",
-                      "name": "[parameters('workspaceGlobalName')]",
-                      "location": "[parameters('location')]",
-                      "tags": "[parameters('tags')]",
-                      "properties": {}
-                    },
-                    {
-                      "type": "Microsoft.Network/privateEndpoints",
-                      "apiVersion": "2023-04-01",
-                      "name": "[parameters('workspaceGlobalPrivateEndpointName')]",
-                      "location": "[parameters('location')]",
-                      "tags": "[parameters('tags')]",
-                      "properties": {
-                        "customNetworkInterfaceName": "[parameters('workspaceGlobalNetworkInterfaceName')]",
-                        "privateLinkServiceConnections": [
-                          {
-                            "name": "[parameters('workspaceGlobalPrivateEndpointName')]",
-                            "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceGlobalName'))]",
-                              "groupIds": [
-                                "global"
-                              ]
-                            }
-                          }
-                        ],
-                        "subnet": {
-                          "id": "[parameters('subnetResourceId')]"
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceGlobalName'))]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-                      "apiVersion": "2023-05-01",
-                      "name": "[format('{0}/{1}', parameters('workspaceGlobalPrivateEndpointName'), 'default')]",
-                      "properties": {
-                        "privateDnsZoneConfigs": [
-                          {
-                            "name": "[replace(split(parameters('globalWorkspacePrivateDnsZoneResourceId'), '/')[8], '.', '-')]",
-                            "properties": {
-                              "privateDnsZoneId": "[parameters('globalWorkspacePrivateDnsZoneResourceId')]"
-                            }
-                          }
-                        ]
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('workspaceGlobalPrivateEndpointName'))]"
-                      ]
-                    }
-                  ]
-                }
-              },
-              "dependsOn": [
-                "[subscriptionResourceId(split(parameters('sharedServicesSubnetResourceId'), '/')[2], 'Microsoft.Resources/deployments', format('deploy-rg-vdws-global-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, split(parameters('sharedServicesSubnetResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('get-vnet-shared-services-{0}', parameters('deploymentNameSuffix')))]"
-              ]
-            }
-          ]
-        }
-      },
-      "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -9446,9 +9100,6 @@
           "enableAvdInsights": {
             "value": "[parameters('enableAvdInsights')]"
           },
-          "existingFeedWorkspaceResourceId": {
-            "value": "[parameters('existingFeedWorkspaceResourceId')]"
-          },
           "hostPoolPublicNetworkAccess": {
             "value": "[parameters('hostPoolPublicNetworkAccess')]"
           },
@@ -9468,7 +9119,7 @@
             "value": "[parameters('imageVersionResourceId')]"
           },
           "locationControlPlane": {
-            "value": "[parameters('locationControlPlane')]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
           },
           "locationVirtualMachines": {
             "value": "[parameters('locationVirtualMachines')]"
@@ -9504,9 +9155,6 @@
           "sessionHostNamePrefix": {
             "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.virtualMachine, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, '')]"
           },
-          "stampIndex": {
-            "value": "[string(parameters('stampIndex'))]"
-          },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[1].id]"
           },
@@ -9518,12 +9166,6 @@
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
-          },
-          "workspaceFriendlyName": {
-            "value": "[parameters('workspaceFriendlyName')]"
-          },
-          "workspacePublicNetworkAccess": {
-            "value": "[parameters('workspacePublicNetworkAccess')]"
           }
         },
         "template": {
@@ -9533,7 +9175,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.3.12046",
-              "templateHash": "5471130707245484781"
+              "templateHash": "714891809407686490"
             }
           },
           "parameters": {
@@ -9566,9 +9208,6 @@
             },
             "enableAvdInsights": {
               "type": "bool"
-            },
-            "existingFeedWorkspaceResourceId": {
-              "type": "string"
             },
             "hostPoolPublicNetworkAccess": {
               "type": "string"
@@ -9627,9 +9266,6 @@
             "sessionHostNamePrefix": {
               "type": "string"
             },
-            "stampIndex": {
-              "type": "string"
-            },
             "subnetResourceId": {
               "type": "string"
             },
@@ -9640,12 +9276,6 @@
               "type": "bool"
             },
             "virtualMachineSize": {
-              "type": "string"
-            },
-            "workspaceFriendlyName": {
-              "type": "string"
-            },
-            "workspacePublicNetworkAccess": {
               "type": "string"
             }
           },
@@ -10214,12 +9844,582 @@
               "dependsOn": [
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix')))]"
               ]
+            }
+          ],
+          "outputs": {
+            "applicationGroupResourceId": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.Resources/deployments', format('deploy-vdag-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            },
+            "hostPoolName": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            },
+            "hostPoolResourceId": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix')))]",
+        "rgs",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('deploy-global-workspace-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[split(parameters('sharedServicesSubnetResourceId'), '/')[2]]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "applicationGroupResourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.applicationGroupResourceId.value]"
+          },
+          "avdPrivateDnsZoneResourceId": {
+            "value": "[format('{0}{1}', variables('privateDnsZoneResourceIdPrefix'), filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value, lambda('name', startsWith(lambdaVariables('name'), 'privatelink.wvd')))[0])]"
+          },
+          "deploymentNameSuffix": {
+            "value": "[parameters('deploymentNameSuffix')]"
+          },
+          "deploymentUserAssignedIdentityClientId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.deploymentUserAssignedIdentityClientId.value]"
+          },
+          "deploymentUserAssignedIdentityPrincipalId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.deploymentUserAssignedIdentityPrincipalId.value]"
+          },
+          "enableAvdInsights": {
+            "value": "[parameters('enableAvdInsights')]"
+          },
+          "existingFeedWorkspaceResourceId": {
+            "value": "[parameters('existingFeedWorkspaceResourceId')]"
+          },
+          "existingWorkspace": {
+            "value": "[not(empty(parameters('existingFeedWorkspaceResourceId')))]"
+          },
+          "hostPoolName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hostPoolName.value]"
+          },
+          "locationControlPlane": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
+          },
+          "locationVirtualMachines": {
+            "value": "[parameters('locationVirtualMachines')]"
+          },
+          "logAnalyticsWorkspaceResourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+          },
+          "managementVirtualMachineName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]"
+          },
+          "mlzTags": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+          },
+          "resourceGroupManagement": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+          },
+          "sharedServicesSubnetResourceId": {
+            "value": "[parameters('sharedServicesSubnetResourceId')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "workspaceFeedDiagnoticSettingName": {
+            "value": "[replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.workspaceFeedDiagnosticSetting, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'feed'), format('-{0}', parameters('stampIndex')), '')]"
+          },
+          "workspaceFeedName": {
+            "value": "[replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.workspaceFeed, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'feed'), format('-{0}', parameters('stampIndex')), '')]"
+          },
+          "workspaceFeedNetworkInterfaceName": {
+            "value": "[replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.workspaceFeedNetworkInterface, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'feed'), format('-{0}', parameters('stampIndex')), '')]"
+          },
+          "workspaceFeedPrivateEndpointName": {
+            "value": "[replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.workspaceFeedPrivateEndpoint, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'feed'), format('-{0}', parameters('stampIndex')), '')]"
+          },
+          "workspaceFeedResourceGroupName": {
+            "value": "[replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'feedWorkspace'), format('-{0}', parameters('stampIndex')), '')]"
+          },
+          "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.workspaceFeed, format('-{0}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service), ''), format('-{0}', parameters('stampIndex')), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location)))]",
+          "workspaceGlobalName": {
+            "value": "[replace(replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.workspaceGlobal, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'global'), format('-{0}', parameters('stampIndex')), ''), parameters('identifier'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').tags.resourcePrefix)]"
+          },
+          "workspaceGlobalNetworkInterfaceName": {
+            "value": "[replace(replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.workspaceGlobalNetworkInterface, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'global'), format('-{0}', parameters('stampIndex')), ''), parameters('identifier'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').tags.resourcePrefix)]"
+          },
+          "workspaceGlobalPrivateDnsZoneResourceId": {
+            "value": "[format('{0}{1}', variables('privateDnsZoneResourceIdPrefix'), filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value, lambda('name', startsWith(lambdaVariables('name'), 'privatelink-global.wvd')))[0])]"
+          },
+          "workspaceGlobalPrivateEndpointName": {
+            "value": "[replace(replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.workspaceGlobalPrivateEndpoint, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'global'), format('-{0}', parameters('stampIndex')), ''), parameters('identifier'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').tags.resourcePrefix)]"
+          },
+          "workspaceGlobalResourceGroupName": {
+            "value": "[replace(replace(replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'globalWorkspace'), format('-{0}', parameters('stampIndex')), ''), parameters('identifier'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').tags.resourcePrefix)]"
+          },
+          "workspacePublicNetworkAccess": {
+            "value": "[parameters('workspacePublicNetworkAccess')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.30.3.12046",
+              "templateHash": "2231927316904274747"
+            }
+          },
+          "parameters": {
+            "applicationGroupResourceId": {
+              "type": "string"
+            },
+            "avdPrivateDnsZoneResourceId": {
+              "type": "string"
+            },
+            "deploymentNameSuffix": {
+              "type": "string"
+            },
+            "deploymentUserAssignedIdentityClientId": {
+              "type": "string"
+            },
+            "deploymentUserAssignedIdentityPrincipalId": {
+              "type": "string"
+            },
+            "enableAvdInsights": {
+              "type": "bool"
+            },
+            "existingFeedWorkspaceResourceId": {
+              "type": "string"
+            },
+            "existingWorkspace": {
+              "type": "bool"
+            },
+            "hostPoolName": {
+              "type": "string"
+            },
+            "locationControlPlane": {
+              "type": "string"
+            },
+            "locationVirtualMachines": {
+              "type": "string"
+            },
+            "logAnalyticsWorkspaceResourceId": {
+              "type": "string"
+            },
+            "managementVirtualMachineName": {
+              "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
+            },
+            "resourceGroupManagement": {
+              "type": "string"
+            },
+            "sharedServicesSubnetResourceId": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            },
+            "workspaceFeedDiagnoticSettingName": {
+              "type": "string"
+            },
+            "workspaceFeedName": {
+              "type": "string"
+            },
+            "workspaceFeedNetworkInterfaceName": {
+              "type": "string"
+            },
+            "workspaceFeedPrivateEndpointName": {
+              "type": "string"
+            },
+            "workspaceFeedResourceGroupName": {
+              "type": "string"
+            },
+            "workspaceFriendlyName": {
+              "type": "string"
+            },
+            "workspaceGlobalName": {
+              "type": "string"
+            },
+            "workspaceGlobalNetworkInterfaceName": {
+              "type": "string"
+            },
+            "workspaceGlobalPrivateDnsZoneResourceId": {
+              "type": "string"
+            },
+            "workspaceGlobalPrivateEndpointName": {
+              "type": "string"
+            },
+            "workspaceGlobalResourceGroupName": {
+              "type": "string"
+            },
+            "workspacePublicNetworkAccess": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-rg-vdws-global-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[split(parameters('sharedServicesSubnetResourceId'), '/')[2]]",
+              "location": "[deployment().location]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('locationControlPlane')]"
+                  },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
+                  "name": {
+                    "value": "[parameters('workspaceGlobalResourceGroupName')]"
+                  },
+                  "tags": {
+                    "value": {}
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.30.3.12046",
+                      "templateHash": "14968354367445743690"
+                    }
+                  },
+                  "parameters": {
+                    "mlzTags": {
+                      "type": "object"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {}
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Resources/resourceGroups",
+                      "apiVersion": "2019-05-01",
+                      "name": "[parameters('name')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Resources/resourceGroups'), parameters('tags')['Microsoft.Resources/resourceGroups'], createObject()), parameters('mlzTags'))]"
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name'))]"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "[parameters('name')]"
+                    },
+                    "location": {
+                      "type": "string",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').location]"
+                    },
+                    "tags": {
+                      "type": "object",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').tags]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-vdws-global-{0}', parameters('deploymentNameSuffix'))]",
+              "resourceGroup": "[parameters('workspaceGlobalResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "globalWorkspacePrivateDnsZoneResourceId": {
+                    "value": "[parameters('workspaceGlobalPrivateDnsZoneResourceId')]"
+                  },
+                  "location": {
+                    "value": "[parameters('locationControlPlane')]"
+                  },
+                  "subnetResourceId": {
+                    "value": "[parameters('sharedServicesSubnetResourceId')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
+                  "workspaceGlobalName": {
+                    "value": "[parameters('workspaceGlobalName')]"
+                  },
+                  "workspaceGlobalNetworkInterfaceName": {
+                    "value": "[parameters('workspaceGlobalNetworkInterfaceName')]"
+                  },
+                  "workspaceGlobalPrivateEndpointName": {
+                    "value": "[parameters('workspaceGlobalPrivateEndpointName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.30.3.12046",
+                      "templateHash": "1362235910530346815"
+                    }
+                  },
+                  "parameters": {
+                    "globalWorkspacePrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "subnetResourceId": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    },
+                    "workspaceGlobalName": {
+                      "type": "string"
+                    },
+                    "workspaceGlobalNetworkInterfaceName": {
+                      "type": "string"
+                    },
+                    "workspaceGlobalPrivateEndpointName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.DesktopVirtualization/workspaces",
+                      "apiVersion": "2023-09-05",
+                      "name": "[parameters('workspaceGlobalName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {}
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints",
+                      "apiVersion": "2023-04-01",
+                      "name": "[parameters('workspaceGlobalPrivateEndpointName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "customNetworkInterfaceName": "[parameters('workspaceGlobalNetworkInterfaceName')]",
+                        "privateLinkServiceConnections": [
+                          {
+                            "name": "[parameters('workspaceGlobalPrivateEndpointName')]",
+                            "properties": {
+                              "privateLinkServiceId": "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceGlobalName'))]",
+                              "groupIds": [
+                                "global"
+                              ]
+                            }
+                          }
+                        ],
+                        "subnet": {
+                          "id": "[parameters('subnetResourceId')]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceGlobalName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                      "apiVersion": "2023-05-01",
+                      "name": "[format('{0}/{1}', parameters('workspaceGlobalPrivateEndpointName'), 'default')]",
+                      "properties": {
+                        "privateDnsZoneConfigs": [
+                          {
+                            "name": "[replace(split(parameters('globalWorkspacePrivateDnsZoneResourceId'), '/')[8], '.', '-')]",
+                            "properties": {
+                              "privateDnsZoneId": "[parameters('globalWorkspacePrivateDnsZoneResourceId')]"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('workspaceGlobalPrivateEndpointName'))]"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId(split(parameters('sharedServicesSubnetResourceId'), '/')[2], 'Microsoft.Resources/deployments', format('deploy-rg-vdws-global-{0}', parameters('deploymentNameSuffix')))]"
+              ]
+            },
+            {
+              "condition": "[not(parameters('existingWorkspace'))]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-rg-vdws-feed-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[split(parameters('sharedServicesSubnetResourceId'), '/')[2]]",
+              "location": "[deployment().location]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('locationControlPlane')]"
+                  },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
+                  "name": {
+                    "value": "[parameters('workspaceFeedResourceGroupName')]"
+                  },
+                  "tags": {
+                    "value": {}
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.30.3.12046",
+                      "templateHash": "14968354367445743690"
+                    }
+                  },
+                  "parameters": {
+                    "mlzTags": {
+                      "type": "object"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {}
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Resources/resourceGroups",
+                      "apiVersion": "2019-05-01",
+                      "name": "[parameters('name')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Resources/resourceGroups'), parameters('tags')['Microsoft.Resources/resourceGroups'], createObject()), parameters('mlzTags'))]"
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name'))]"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "[parameters('name')]"
+                    },
+                    "location": {
+                      "type": "string",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').location]"
+                    },
+                    "tags": {
+                      "type": "object",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').tags]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('assign-role-vdws-feed-{0}', parameters('deploymentNameSuffix'))]",
+              "resourceGroup": "[parameters('workspaceFeedResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "principalId": {
+                    "value": "[parameters('deploymentUserAssignedIdentityPrincipalId')]"
+                  },
+                  "principalType": {
+                    "value": "ServicePrincipal"
+                  },
+                  "roleDefinitionId": {
+                    "value": "21efdde3-836f-432b-bf3d-3e8e734d4b2b"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.30.3.12046",
+                      "templateHash": "6719359309633021647"
+                    }
+                  },
+                  "parameters": {
+                    "principalId": {
+                      "type": "string"
+                    },
+                    "principalType": {
+                      "type": "string"
+                    },
+                    "roleDefinitionId": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "name": "[guid(parameters('principalId'), parameters('roleDefinitionId'), resourceGroup().id)]",
+                      "properties": {
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+                        "principalId": "[parameters('principalId')]",
+                        "principalType": "[parameters('principalType')]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId(split(parameters('sharedServicesSubnetResourceId'), '/')[2], 'Microsoft.Resources/deployments', format('deploy-rg-vdws-feed-{0}', parameters('deploymentNameSuffix')))]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-vdws-feed-{0}', parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[parameters('resourceGroupControlPlane')]",
+              "resourceGroup": "[parameters('workspaceGlobalResourceGroupName')]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -10227,7 +10427,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "applicationGroupResourceId": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.Resources/deployments', format('deploy-vdag-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+                    "value": "[parameters('applicationGroupResourceId')]"
                   },
                   "avdPrivateDnsZoneResourceId": {
                     "value": "[parameters('avdPrivateDnsZoneResourceId')]"
@@ -10245,7 +10445,7 @@
                     "value": "[parameters('existingFeedWorkspaceResourceId')]"
                   },
                   "hostPoolName": {
-                    "value": "[variables('hostPoolName')]"
+                    "value": "[parameters('hostPoolName')]"
                   },
                   "locationControlPlane": {
                     "value": "[parameters('locationControlPlane')]"
@@ -10263,7 +10463,7 @@
                     "value": "[parameters('resourceGroupManagement')]"
                   },
                   "subnetResourceId": {
-                    "value": "[parameters('subnetResourceId')]"
+                    "value": "[parameters('sharedServicesSubnetResourceId')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -10272,18 +10472,20 @@
                     "value": "[parameters('managementVirtualMachineName')]"
                   },
                   "workspaceFeedDiagnoticSettingName": {
-                    "value": "[replace(replace(parameters('namingConvention').workspaceFeedDiagnosticSetting, parameters('serviceToken'), 'feed'), format('-{0}', parameters('stampIndex')), '')]"
+                    "value": "[parameters('workspaceFeedDiagnoticSettingName')]"
                   },
                   "workspaceFeedName": {
-                    "value": "[replace(replace(parameters('namingConvention').workspaceFeed, parameters('serviceToken'), 'feed'), format('-{0}', parameters('stampIndex')), '')]"
+                    "value": "[parameters('workspaceFeedName')]"
                   },
                   "workspaceFeedNetworkInterfaceName": {
-                    "value": "[replace(replace(parameters('namingConvention').workspaceFeedNetworkInterface, parameters('serviceToken'), 'feed'), format('-{0}', parameters('stampIndex')), '')]"
+                    "value": "[parameters('workspaceFeedNetworkInterfaceName')]"
                   },
                   "workspaceFeedPrivateEndpointName": {
-                    "value": "[replace(replace(parameters('namingConvention').workspaceFeedPrivateEndpoint, parameters('serviceToken'), 'feed'), format('-{0}', parameters('stampIndex')), '')]"
+                    "value": "[parameters('workspaceFeedPrivateEndpointName')]"
                   },
-                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(replace(parameters('namingConvention').workspaceFeed, format('-{0}', parameters('serviceToken')), ''), format('-{0}', parameters('stampIndex')), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('locationControlPlane'))))]",
+                  "workspaceFriendlyName": {
+                    "value": "[parameters('workspaceFriendlyName')]"
+                  },
                   "workspacePublicNetworkAccess": {
                     "value": "[parameters('workspacePublicNetworkAccess')]"
                   }
@@ -10295,7 +10497,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.3.12046",
-                      "templateHash": "7285551355949653886"
+                      "templateHash": "13766986563656437278"
                     }
                   },
                   "parameters": {
@@ -10490,7 +10692,7 @@
                             "value": "[variables('$fxv#0')]"
                           },
                           "tags": {
-                            "value": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, resourceGroup().name, parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]"
+                            "value": "[union(createObject('cm-resource-parent', format('{0}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, resourceGroup().name, parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]"
                           },
                           "virtualMachineName": {
                             "value": "[parameters('virtualMachineName')]"
@@ -10556,22 +10758,18 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.Resources/deployments', format('deploy-vdag-{0}', parameters('deploymentNameSuffix')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('workspaceFeedResourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-vdws-feed-{0}', parameters('deploymentNameSuffix')))]"
               ]
             }
-          ],
-          "outputs": {
-            "hostPoolName": {
-              "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
-            }
-          }
+          ]
         }
       },
       "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix')))]",
-        "rgs",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
