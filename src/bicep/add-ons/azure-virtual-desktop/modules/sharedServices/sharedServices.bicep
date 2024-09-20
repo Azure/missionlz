@@ -80,7 +80,7 @@ module roleAssignments_appGroupReferences '../common/roleAssignments/resourceGro
   params: {
     principalId: deploymentUserAssignedIdentityPrincipalId
     principalType: 'ServicePrincipal'
-    roleDefinitionId: '21efdde3-836f-432b-bf3d-3e8e734d4b2b' // Desktop Virtualization Workspace Contributor (Purpose: update the app group references on an existing feed workspace)
+    roleDefinitionId: '86240b0e-9422-4c43-887b-b61143f32ba8' // Desktop Virtualization Application Group Contributor (Purpose: update the app group references on an existing feed workspace)
   }
   dependsOn: [
     rg_workspace_feed
