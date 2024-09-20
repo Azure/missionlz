@@ -580,7 +580,7 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
 // AVD Workspaces
 // This module creates the global and feed AVD workspace to support AVD with Private Link
 module workspaces 'modules/sharedServices/sharedServices.bicep' = {
-  name: 'deploy-global-workspace-${deploymentNameSuffix}'
+  name: 'deploy-workspaces-${deploymentNameSuffix}'
   scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
   params: {
     applicationGroupResourceId: controlPlane.outputs.applicationGroupResourceId

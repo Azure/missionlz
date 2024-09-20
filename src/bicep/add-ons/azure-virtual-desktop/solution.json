@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.3.12046",
-      "templateHash": "5393932402338004392"
+      "templateHash": "6795344357267148471"
     }
   },
   "parameters": {
@@ -9873,7 +9873,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('deploy-global-workspace-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('deploy-workspaces-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('sharedServicesSubnetResourceId'), '/')[2]]",
       "location": "[deployment().location]",
       "properties": {
