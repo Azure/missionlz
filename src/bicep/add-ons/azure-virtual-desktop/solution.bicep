@@ -258,6 +258,7 @@ param storageIndex int = 0
 @description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
 param subnetAddressPrefixes array = [
   '10.0.140.0/24'
+  '10.0.141.0/26'
 ]
 
 @description('The Key / value pairs of metadata for the Azure resource groups and resources.')
@@ -286,7 +287,7 @@ param virtualMachineVirtualCpuCount int
 @maxLength(2)
 @description('The address prefix for the new spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
 param virtualNetworkAddressPrefixes array = [
-  '10.0.140.0/24'
+  '10.0.140.0/23'
 ]
 
 @description('The friendly name for the AVD workspace that is displayed in the end-user client.')

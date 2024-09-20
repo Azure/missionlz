@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.3.12046",
-      "templateHash": "6719830304332247787"
+      "templateHash": "5393932402338004392"
     }
   },
   "parameters": {
@@ -488,7 +488,8 @@
     "subnetAddressPrefixes": {
       "type": "array",
       "defaultValue": [
-        "10.0.140.0/24"
+        "10.0.140.0/24",
+        "10.0.141.0/26"
       ],
       "minLength": 1,
       "maxLength": 2,
@@ -545,7 +546,7 @@
     "virtualNetworkAddressPrefixes": {
       "type": "array",
       "defaultValue": [
-        "10.0.140.0/24"
+        "10.0.140.0/23"
       ],
       "minLength": 1,
       "maxLength": 2,
@@ -9055,9 +9056,9 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
