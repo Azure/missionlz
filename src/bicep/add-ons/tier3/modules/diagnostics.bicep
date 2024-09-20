@@ -14,6 +14,7 @@ param networkSecurityGroupDiagnosticsLogs array
 param networkSecurityGroupDiagnosticsMetrics array
 param networkSecurityGroupName string
 param resourceGroupName string
+param serviceToken string
 param storageAccountResourceId string
 param tier object
 param virtualNetworkDiagnosticsLogs array
@@ -33,7 +34,7 @@ module keyvaultDiagnostics '../../../modules/key-vault-diagnostics.bicep' = {
   name: 'deploy-kv-diags-${tier.shortName}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
-    keyVaultDiagnosticSettingName: tier.namingConvention.keyVaultDiagnosticSetting
+    keyVaultDiagnosticSettingName: replace(tier.namingConvention.keyVaultDiagnosticSetting, '${serviceToken}-', '')
     keyVaultName: keyVaultName
     keyVaultStorageAccountId: storageAccountResourceId
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId

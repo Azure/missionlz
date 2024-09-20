@@ -90,13 +90,16 @@ param policy string = 'NISTRev4'
 param stampIndex string = ''
 
 @description('The address prefix for the workload subnet.')
-param subnetAddressPrefix string
+param subnetAddressPrefix string = ''
+
+@description('The custom name for the workload subnet if the naming convention is not desired. Subnets are child resources and do not require a unique name between virtual networks, only within the same virtual network.')
+param subnetName string = ''
 
 @description('The tags to apply to the resources.')
 param tags object = {}
 
 @description('The address prefix for the workload Virtual Network.')
-param virtualNetworkAddressPrefix string
+param virtualNetworkAddressPrefix string = ''
 
 @description('The diagnostic logs to apply to the workload Virtual Network.')
 param virtualNetworkDiagnosticsLogs array = []
@@ -154,7 +157,7 @@ module logic '../../modules/logic.bicep' = {
   }
 }
 
-module rg '../../modules/resource-group.bicep' = {
+module rg '../../modules/resource-group.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
   name: 'deploy-rg-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     location: location
@@ -164,7 +167,7 @@ module rg '../../modules/resource-group.bicep' = {
   }
 }
 
-module networking 'modules/networking.bicep' = {
+module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
   name: 'deploy-network-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     additionalSubnets: additionalSubnets
@@ -180,7 +183,7 @@ module networking 'modules/networking.bicep' = {
     routeTableName: logic.outputs.tiers[0].namingConvention.routeTable
     routeTableRouteNextHopIpAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
     subnetAddressPrefix: subnetAddressPrefix
-    subnetName: logic.outputs.tiers[0].namingConvention.subnet
+    subnetName: empty(subnetName) ? logic.outputs.tiers[0].namingConvention.subnet : subnetName
     subscriptionId: subscriptionId
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
@@ -193,10 +196,26 @@ module networking 'modules/networking.bicep' = {
   ]
 }
 
-module customerManagedKeys '../../modules/customer-managed-keys.bicep' = {
+// This module deploys VNET links when the Azure Firewall SKU is "Basic".
+module virtualNetworkLinks 'modules/virtual-network-links.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
+  name: 'deploy-vnet-links-${workloadShortName}-sub-${deploymentNameSuffix}'
+  scope: resourceGroup(hubResourceGroupName)
+  params: {
+    azureFirewallSku: azureFirewall.properties.sku.tier
+    deploymentNameSuffix: deploymentNameSuffix
+    privateDnsZoneNames: logic.outputs.privateDnsZones
+    virtualNetworkName: networking.outputs.virtualNetworkName
+    virtualNetworkResourceGroupName: rg.outputs.name
+    virtualNetworkSubscriptionId: subscriptionId
+    workloadShortName: workloadShortName
+  }
+}
+
+module customerManagedKeys '../../modules/customer-managed-keys.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
   name: 'deploy-cmk-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
     keyVaultPrivateDnsZoneResourceId: resourceId(
       hubSubscriptionId,
       hubResourceGroupName,
@@ -205,8 +224,9 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = {
     )
     location: location
     mlzTags: logic.outputs.mlzTags
+    resourceAbbreviations: logic.outputs.resourceAbbreviations
     resourceGroupName: rg.outputs.name
-    subnetResourceId: networking.outputs.subnetResourceId
+    subnetResourceId: networking.outputs.subnets[0].id
     tags: tags
     tier: logic.outputs.tiers[0]
     tokens: logic.outputs.tokens
@@ -214,7 +234,7 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = {
   }
 }
 
-module storage 'modules/storage.bicep' = {
+module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
   name: 'deploy-storage-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     blobsPrivateDnsZoneResourceId: resourceId(
@@ -231,7 +251,7 @@ module storage 'modules/storage.bicep' = {
     resourceGroupName: rg.outputs.name
     serviceToken: logic.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
-    subnetResourceId: networking.outputs.subnetResourceId
+    subnetResourceId: networking.outputs.subnets[0].id
     tablesPrivateDnsZoneResourceId: resourceId(
       hubSubscriptionId,
       hubResourceGroupName,
@@ -239,11 +259,12 @@ module storage 'modules/storage.bicep' = {
       'privatelink.table.${environment().suffixes.storage}'
     )
     tags: tags
+    tier: logic.outputs.tiers[0]
     userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
   }
 }
 
-module diagnostics 'modules/diagnostics.bicep' = {
+module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
   name: 'deploy-diag-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
@@ -255,6 +276,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     networkSecurityGroupName: networking.outputs.networkSecurityGroupName
     resourceGroupName: rg.outputs.name
+    serviceToken: logic.outputs.tokens.service
     storageAccountResourceId: storage.outputs.storageAccountResourceId
     tier: logic.outputs.tiers[0]
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
@@ -264,7 +286,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
 }
 
 module policyAssignments '../../modules/policy-assignments.bicep' =
-  if (deployPolicy) {
+  if (deployPolicy && (!(empty(virtualNetworkAddressPrefix)))) {
     name: 'assign-policy-${workloadShortName}-${deploymentNameSuffix}'
     params: {
       deploymentNameSuffix: deploymentNameSuffix
@@ -282,7 +304,7 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
   }
 
 module defenderForCloud '../../modules/defender-for-cloud.bicep' =
-  if (deployDefender) {
+  if (deployDefender && (!(empty(virtualNetworkAddressPrefix)))) {
     name: 'set-defender-${workloadShortName}-${deploymentNameSuffix}'
     params: {
       emailSecurityContact: emailSecurityContact
@@ -290,17 +312,19 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
     }
   }
 
-output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
-output keyVaultUri string = customerManagedKeys.outputs.keyVaultUri
-output keyVaultName string = customerManagedKeys.outputs.keyVaultName
-output locatonProperties object = logic.outputs.locationProperties
+output diskEncryptionSetResourceId string = !(empty(virtualNetworkAddressPrefix)) ? customerManagedKeys.outputs.diskEncryptionSetResourceId : ''
+output dnsServers array = !(empty(virtualNetworkAddressPrefix)) ? virtualNetwork.properties.?dhcpOptions.dnsServers ?? [] : []
+output keyVaultUri string = !(empty(virtualNetworkAddressPrefix)) ? customerManagedKeys.outputs.keyVaultUri : ''
+output locationProperties object = logic.outputs.locationProperties
+output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspaceResourceId
 output mlzTags object = logic.outputs.mlzTags
 output namingConvention object = logic.outputs.tiers[0].namingConvention
 output privateDnsZones array = logic.outputs.privateDnsZones
-output resourceGroupName string = rg.outputs.name
+output resourceAbbreviations object = logic.outputs.resourceAbbreviations
 output resourcePrefix string = azureFirewall.tags.resourcePrefix
-output storageEncryptionKeyName string = customerManagedKeys.outputs.storageKeyName
-output subnetResourceId string = networking.outputs.subnetResourceId
+output storageAccountResourceId string = !(empty(virtualNetworkAddressPrefix)) ? storage.outputs.storageAccountResourceId : ''
+output storageEncryptionKeyName string = !(empty(virtualNetworkAddressPrefix)) ? customerManagedKeys.outputs.storageKeyName: ''
+output subnets array = !(empty(virtualNetworkAddressPrefix)) ? networking.outputs.subnets : []
 output tier object = logic.outputs.tiers[0]
 output tokens object = logic.outputs.tokens
-output userAssignedIdentityResourceId string = customerManagedKeys.outputs.userAssignedIdentityResourceId
+output userAssignedIdentityResourceId string = !(empty(virtualNetworkAddressPrefix)) ? customerManagedKeys.outputs.userAssignedIdentityResourceId : ''

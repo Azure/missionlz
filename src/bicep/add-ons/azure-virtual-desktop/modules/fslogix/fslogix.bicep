@@ -1,26 +1,25 @@
 targetScope = 'subscription'
 
-param artifactsUri string
-param activeDirectoryConnection string
+param existingSharedActiveDirectoryConnection bool
 param activeDirectorySolution string
 param availability string
 param azureFilesPrivateDnsZoneResourceId string
-param delegatedSubnetId string
+param subnets array
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param dnsServers string
 @secure()
 param domainJoinPassword string
+@secure()
 param domainJoinUserPrincipalName string
 param domainName string
 param encryptionUserAssignedIdentityResourceId string
-param environmentAbbreviation string
 param fileShares array
 param fslogixShareSizeInGB int
 param fslogixContainerType string
 param fslogixStorageService string
+param functionAppName string
 param hostPoolType string
-param identifier string
 param keyVaultUri string
 param location string
 param managementVirtualMachineName string
@@ -43,15 +42,10 @@ param storageSku string
 param storageService string
 param subnetResourceId string
 param tags object
-param timeZone string
 
 var hostPoolName = namingConvention.hostPool
 
-var tagsAutomationAccounts = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Automation/automationAccounts') ? tags['Microsoft.Automation/automationAccounts'] : {}, mlzTags)
 var tagsNetAppAccount = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.NetApp/netAppAccounts') ? tags['Microsoft.NetApp/netAppAccounts'] : {}, mlzTags)
-var tagsPrivateEndpoints = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
-var tagsStorageAccounts = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Storage/storageAccounts') ? tags['Microsoft.Storage/storageAccounts'] : {}, mlzTags)
-var tagsRecoveryServicesVault = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.recoveryServices/vaults') ? tags['Microsoft.recoveryServices/vaults'] : {}, mlzTags)
 var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
 
 // Azure NetApp Files for Fslogix
@@ -59,11 +53,9 @@ module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureN
   name: 'deploy-anf-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupStorage)
   params: {
-    activeDirectoryConnection: activeDirectoryConnection
-    artifactsUri: artifactsUri
-    delegatedSubnetId: delegatedSubnetId
+    existingSharedActiveDirectoryConnection: existingSharedActiveDirectoryConnection
+    delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
     deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
     dnsServers: dnsServers
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -91,8 +83,6 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
   scope: resourceGroup(resourceGroupStorage)
   params: {
     activeDirectorySolution: activeDirectorySolution
-    artifactsUri: artifactsUri
-    automationAccountName: namingConvention.automationAccount
     availability: availability
     azureFilesPrivateDnsZoneResourceId: azureFilesPrivateDnsZoneResourceId
     deploymentNameSuffix: deploymentNameSuffix
@@ -101,16 +91,16 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     enableRecoveryServices: recoveryServices
     encryptionUserAssignedIdentityResourceId: encryptionUserAssignedIdentityResourceId
-    environmentAbbreviation: environmentAbbreviation
     fileShares: fileShares
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
+    functionAppName: functionAppName
     hostPoolType: hostPoolType
-    identifier: identifier
     keyVaultUri: keyVaultUri
     location: location
     managementVirtualMachineName: managementVirtualMachineName
+    namingConvention: namingConvention
     netbios: netbios
     organizationalUnitPath: organizationalUnitPath
     recoveryServicesVaultName: namingConvention.recoveryServicesVault
@@ -118,25 +108,21 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     resourceGroupStorage: resourceGroupStorage
     securityPrincipalNames: securityPrincipalNames
     securityPrincipalObjectIds: securityPrincipalObjectIds
-    serviceName: serviceToken
-    storageAccountNamePrefix: namingConvention.storageAccount
-    storageAccountNetworkInterfaceNamePrefix: namingConvention.storageAccountNetworkInterface
-    storageAccountPrivateEndpointNamePrefix: namingConvention.storageAccountPrivateEndpoint
+    serviceToken: serviceToken
     storageCount: storageCount
     storageEncryptionKeyName: storageEncryptionKeyName
     storageIndex: storageIndex
     storageService: storageService
     storageSku: storageSku
     subnetResourceId: subnetResourceId
-    tagsAutomationAccounts: tagsAutomationAccounts
-    tagsPrivateEndpoints: tagsPrivateEndpoints
-    tagsRecoveryServicesVault: tagsRecoveryServicesVault
-    tagsStorageAccounts: tagsStorageAccounts
-    tagsVirtualMachines: tagsVirtualMachines
-    timeZone: timeZone 
+    tags: tags
+    hostPoolName: hostPoolName
+    mlzTags: mlzTags
+    resourceGroupControlPlane: resourceGroupControlPlane
   }
 }
 
 output netAppShares array = storageService == 'AzureNetAppFiles' ? azureNetAppFiles.outputs.fileShares : [
   'None'
 ]
+output storageAccountNamePrefix string = storageService == 'AzureFiles' ? azureFiles.outputs.storageAccountNamePrefix : ''

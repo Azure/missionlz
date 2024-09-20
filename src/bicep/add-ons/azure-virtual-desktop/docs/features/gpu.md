@@ -29,4 +29,4 @@ When an appropriate VM size (Nv, Nvv3, Nvv4, or NCasT4_v3 series) is selected, t
 - Virtual Machines Extensions
   - AmdGpuDriverWindows
   - NvidiaGpuDriverWindows
-  - CustomScriptExtension
+- Run Command

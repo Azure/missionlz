@@ -6,9 +6,11 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param deploymentNameSuffix string
+param environmentAbbreviation string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
 param mlzTags object
+param resourceAbbreviations object
 param resourceGroupName string
 param subnetResourceId string
 param tags object
@@ -20,14 +22,15 @@ module keyVault 'key-vault.bicep' = {
   name: 'deploy-kv-${workloadShortName}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
-    keyVaultName: take(replace(tier.namingConvention.keyVault, tokens.service, ''), 24)
-    keyVaultNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.service, '')
+    environmentAbbreviation: environmentAbbreviation
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    keyVaultPrivateEndpointName: replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.service, '')
     location: location
     mlzTags: mlzTags
+    resourceAbbreviations: resourceAbbreviations
     subnetResourceId: subnetResourceId
     tags: tags
+    tier: tier
+    tokens: tokens
   }
 }
 

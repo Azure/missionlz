@@ -1,17 +1,58 @@
 targetScope = 'subscription'
 
-// Disabling the param below until Enhanced Policies in Recovery Services support managed disks with private link
-//param diskAccessResourceId string
+param diskAccessResourceId string = ''
 param location string
 param resourceGroupName string
+
+var parameters = !empty(diskAccessResourceId) ? {
+  diskAccessId: {
+    type: 'String'
+    metadata: {
+      displayName: 'Disk Access Resource Id'
+      description: 'The resource Id of the Disk Access to associate to the managed disks.'
+    }
+  }
+} : {}
+
+var operations = !empty(diskAccessResourceId)
+  ? [
+      {
+        operation: 'addOrReplace'
+        field: 'Microsoft.Compute/disks/networkAccessPolicy'
+        value: 'AllowPrivate'
+      }
+      {
+        operation: 'addOrReplace'
+        field: 'Microsoft.Compute/disks/publicNetworkAccess'
+        value: 'Disabled'
+      }
+      {
+        operation: 'addOrReplace'
+        field: 'Microsoft.Compute/disks/diskAccessId'
+        value: '[parameters(\'diskAccessId\')]'
+      }
+    ]
+  : [
+      {
+        operation: 'addOrReplace'
+        field: 'Microsoft.Compute/disks/networkAccessPolicy'
+        value: 'DenyAll'
+      }
+      {
+        operation: 'addOrReplace'
+        field: 'Microsoft.Compute/disks/publicNetworkAccess'
+        value: 'Disabled'
+      }
+    ]
+
 
 resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
   name: 'DiskNetworkAccess'
   properties: {
-    description: 'Disable network access to managed disks in the ${resourceGroupName} resource group'
-    displayName: 'Disable Disk Access (${resourceGroupName})'
+    description: 'Disable network access to managed disks.'
+    displayName: 'Disable Disk Access'
     mode: 'All'
-    parameters: {}
+    parameters: parameters
     policyRule: {
       if: {
         field: 'type'
@@ -23,35 +64,7 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01'
           roleDefinitionIds: [
             '/providers/Microsoft.Authorization/roleDefinitions/60fc6e62-5479-42d4-8bf4-67625fcc2840'
           ]
-          operations: [
-            {
-              operation: 'addOrReplace'
-              field: 'Microsoft.Compute/disks/networkAccessPolicy'
-              value: 'DenyAll'
-            }
-            {
-              operation: 'addOrReplace'
-              field: 'Microsoft.Compute/disks/publicNetworkAccess'
-              value: 'Disabled'
-            }
-            // Disabling the configuration below until Enhanced Policies in Recovery Services support managed disks with private link
-            // Once it is supported, these settings would replace the settings / operations above
-            /* {
-              operation: 'addOrReplace'
-              field: 'Microsoft.Compute/disks/networkAccessPolicy'
-              value: 'AllowPrivate'
-            }
-            {
-              operation: 'addOrReplace'
-              field: 'Microsoft.Compute/disks/publicNetworkAccess'
-              value: 'Disabled'
-            }
-            {
-              operation: 'addOrReplace'
-              field: 'Microsoft.Compute/disks/diskAccessId'
-              value: diskAccessResourceId
-            } */
-          ]
+          operations: operations
         }
       }
     }
@@ -60,9 +73,10 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01'
 }
 
 module policyAssignment 'policyAssignment.bicep' = {
-  name: 'DiskNetworkAccess'
+  name: 'assign-policy-disk-network-access'
   scope: resourceGroup(resourceGroupName)
   params: {
+    diskAccessResourceId: diskAccessResourceId
     location: location
     policyDefinitionId: policyDefinition.id
     policyDisplayName: policyDefinition.properties.displayName

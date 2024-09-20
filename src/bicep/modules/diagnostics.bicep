@@ -53,7 +53,7 @@ module logAnalyticsWorkspaceDiagnosticSetting 'log-analytics-diagnostic-setting.
   name: 'deploy-law-diag-${deploymentNameSuffix}'
   scope: resourceGroup(operations.subscriptionId, operationsResourceGroupName)
   params: {
-    diagnosticStorageAccountName: operations.namingConvention.storageAccount
+    diagnosticStorageAccountName: split(storageAccountResourceIds[1], '/')[8]
     logAnalyticsWorkspaceDiagnosticSettingName: operations.namingConvention.logAnalyticsWorkspaceDiagnosticSetting
     logAnalyticsWorkspaceName: split(logAnalyticsWorkspaceResourceId, '/')[8]
     supportedClouds: supportedClouds

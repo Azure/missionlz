@@ -1,4 +1,3 @@
-param artifactsUri string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param desktopApplicationGroupName string
@@ -26,20 +25,46 @@ resource applicationGroup 'Microsoft.DesktopVirtualization/applicationGroups@202
 }
 
 // Adds a friendly name to the SessionDesktop application for the desktop application group
-module applicationFriendlyName '../common/customScriptExtensions.bicep' = if (!empty(desktopFriendlyName)) {
+module applicationFriendlyName '../common/runCommand.bicep' = if (!empty(desktopFriendlyName)) {
   scope: resourceGroup(resourceGroupManagement)
   name: 'deploy-vdapp-friendly-name-${deploymentNameSuffix}'
-  params : {
-    fileUris: [
-      '${artifactsUri}Update-AvdDesktop.ps1'
-    ]
+  params: {
     location: locationVirtualMachines
-    parameters: '-ApplicationGroupName ${applicationGroup.name} -Environment ${environment().name} -FriendlyName "${desktopFriendlyName}" -ResourceGroupName ${resourceGroup().name} -SubscriptionId ${subscription().subscriptionId} -Tenant ${tenant().tenantId} -UserAssignedIdentityClientId ${deploymentUserAssignedIdentityClientId}'
-    scriptFileName: 'Update-AvdDesktop.ps1'
-    tags: union({
-      'cm-resource-parent': hostPoolResourceId
-    }, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
-    userAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
+    name: 'Update-AvdDesktop'
+    parameters: [
+      {
+        name: 'ApplicationGroupName' 
+        value: applicationGroup.name
+      }
+      {
+        name: 'FriendlyName' 
+        value: desktopFriendlyName
+      }
+      {
+        name: 'ResourceGroupName' 
+        value:resourceGroup().name
+      }
+      {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
+        name: 'SubscriptionId'
+        value:subscription().subscriptionId
+      }
+      {
+        name: 'UserAssignedIdentityClientId' 
+        value:deploymentUserAssignedIdentityClientId
+      }
+    ]
+    script: loadTextContent('../../artifacts/Update-AvdDesktop.ps1')
+    tags: union(
+      {
+        'cm-resource-parent': hostPoolResourceId
+      },
+      contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
+      mlzTags
+    )
     virtualMachineName: virtualMachineName
   }
 }
@@ -53,8 +78,4 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
   }
 }]
 
-
-output applicationGroupReference array = [
-  applicationGroup.id
-]
 output resourceId string = applicationGroup.id

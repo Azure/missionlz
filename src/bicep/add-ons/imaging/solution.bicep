@@ -295,7 +295,7 @@ module baseline 'modules/baseline.bicep' = {
     exemptPolicyAssignmentIds: exemptPolicyAssignmentIds
     location: location
     mlzTags: tier3.outputs.mlzTags
-    resourceGroupName: tier3.outputs.resourceGroupName
+    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, workloadShortName)
     storageAccountResourceId: storageAccountResourceId
     subscriptionId: subscriptionId
     tags: tags
@@ -343,7 +343,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     installVirtualDesktopOptimizationTool: installVirtualDesktopOptimizationTool
     installVisio: installVisio
     installWord: installWord
-    keyVaultName: tier3.outputs.keyVaultName
+    keyVaultName: tier3.outputs.namingConvention.keyVault
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     localAdministratorPassword: localAdministratorPassword
     localAdministratorUsername: localAdministratorUsername
@@ -358,14 +358,14 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     officeInstaller: officeInstaller
     oUPath: oUPath
     replicaCount: replicaCount
-    resourceGroupName: tier3.outputs.resourceGroupName
+    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, workloadShortName)
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
-    subnetResourceId: tier3.outputs.subnetResourceId
+    subnetResourceId: tier3.outputs.subnets[0].id
     subscriptionId: subscriptionId
     tags: tags
     teamsInstaller: teamsInstaller
-    timeZone: tier3.outputs.locatonProperties.timeZone
+    timeZone: tier3.outputs.locationProperties.timeZone
     updateService: updateService
     userAssignedIdentityClientId: baseline.outputs.userAssignedIdentityClientId
     userAssignedIdentityPrincipalId: baseline.outputs.userAssignedIdentityPrincipalId
@@ -422,10 +422,10 @@ module imageBuild 'modules/imageBuild.bicep' = {
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     replicaCount: replicaCount
-    resourceGroupName: tier3.outputs.resourceGroupName
+    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, workloadShortName)
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
-    subnetResourceId: tier3.outputs.subnetResourceId
+    subnetResourceId: tier3.outputs.subnets[0].id
     tags: tags
     teamsInstaller: teamsInstaller
     updateService: updateService

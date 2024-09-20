@@ -1,17 +1,10 @@
 targetScope = 'subscription'
 
-param acceleratedNetworking string
 param activeDirectorySolution string
-param artifactsUri string
-param artifactsUserAssignedIdentityClientId string
-param artifactsUserAssignedIdentityResourceId string
-param automationAccountName string
 param availability string
 param availabilitySetsCount int
 param availabilitySetsIndex int
 param availabilityZones array
-param avdAgentBootLoaderMsiName string
-param avdAgentMsiName string
 param dataCollectionRuleResourceId string
 param deployFslogix bool
 param deploymentNameSuffix string
@@ -24,11 +17,13 @@ param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
 param drainMode bool
+param enableAcceleratedNetworking bool
+param enableAvdInsights bool
 param environmentAbbreviation string
 param fslogixContainerType string
+param functionAppName string
 param hostPoolName string
 param hostPoolType string
-param hybridRunbookWorkerGroupName string
 param identifier string
 param imageOffer string
 param imagePublisher string
@@ -38,7 +33,6 @@ param location string
 param managementVirtualMachineName string
 param maxResourcesPerTemplateDeployment int
 param mlzTags object
-param monitoring bool
 param namingConvention object
 param netAppFileShares array
 param organizationalUnitPath string
@@ -50,34 +44,27 @@ param resourceGroupControlPlane string
 param resourceGroupHosts string
 param resourceGroupManagement string
 param roleDefinitions object
-param scalingBeginPeakTime string
-param scalingEndPeakTime string
-param scalingLimitSecondsToForceLogOffUser string
-param scalingMinimumNumberOfRdsh string
-param scalingSessionThresholdPerCPU string
 param securityPrincipalObjectIds array
 param serviceToken string
 param sessionHostBatchCount int
 param sessionHostIndex int
+param storageAccountNamePrefix string
 param storageCount int
 param storageIndex int
 param storageService string
 param storageSuffix string
 param subnetResourceId string
 param tags object
-param timeDifference string
-param timeZone string
 @secure()
 param virtualMachinePassword string
 param virtualMachineSize string
 param virtualMachineUsername string
 
 var availabilitySetNamePrefix = namingConvention.availabilitySet
-var tagsAutomationAccounts = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Automation/automationAccounts') ? tags['Microsoft.Automation/automationAccounts'] : {}, mlzTags)
-var tagsAvailabilitySets = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/availabilitySets') ? tags['Microsoft.Compute/availabilitySets'] : {}, mlzTags)
-var tagsNetworkInterfaces = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}, mlzTags)
-var tagsRecoveryServicesVault = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.recoveryServices/vaults') ? tags['Microsoft.recoveryServices/vaults'] : {}, mlzTags)
-var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+var tagsAvailabilitySets = union({'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/availabilitySets') ? tags['Microsoft.Compute/availabilitySets'] : {}, mlzTags)
+var tagsNetworkInterfaces = union({'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}, mlzTags)
+var tagsRecoveryServicesVault = union({'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.recoveryServices/vaults') ? tags['Microsoft.recoveryServices/vaults'] : {}, mlzTags)
+var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 var virtualMachineNamePrefix = replace(namingConvention.virtualMachine, serviceToken, '')
 
@@ -95,7 +82,7 @@ module availabilitySets 'availabilitySets.bicep' = if (pooledHostPool && availab
 
 // Role Assignment for Virtual Machine Login User
 // This module deploys the role assignments to login to Azure AD joined session hosts
-module roleAssignments '../common/roleAssignment.bicep' = [for i in range(0, length(securityPrincipalObjectIds)): if (!contains(activeDirectorySolution, 'DomainServices')) {
+module roleAssignments '../common/roleAssignments/resourceGroup.bicep' = [for i in range(0, length(securityPrincipalObjectIds)): if (!contains(activeDirectorySolution, 'DomainServices')) {
   name: 'deploy-role-assignments-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupHosts)
   params: {
@@ -105,21 +92,25 @@ module roleAssignments '../common/roleAssignment.bicep' = [for i in range(0, len
   }
 }]
 
+resource gallery 'Microsoft.Compute/galleries@2023-07-03' existing = if (empty(imageVersionResourceId)) {
+  scope: resourceGroup(split(imageVersionResourceId, '/')[2], split(imageVersionResourceId, '/')[4])
+  name: split(imageVersionResourceId, '/')[8]
+}
+
+resource image 'Microsoft.Compute/galleries/images@2023-07-03' existing = if (empty(imageVersionResourceId)) {
+  parent: gallery
+  name: split(imageVersionResourceId, '/')[10]
+}
+
 @batchSize(1)
 module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostBatchCount): {
   name: 'deploy-vms-${i - 1}-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupHosts)
   params: {
-    acceleratedNetworking: acceleratedNetworking
     activeDirectorySolution: activeDirectorySolution
-    artifactsUri: artifactsUri
-    artifactsUserAssignedIdentityClientId: artifactsUserAssignedIdentityClientId
-    artifactsUserAssignedIdentityResourceId: artifactsUserAssignedIdentityResourceId
     availability: availability
     availabilitySetNamePrefix: availabilitySetNamePrefix
     availabilityZones: availabilityZones
-    avdAgentBootLoaderMsiName: avdAgentBootLoaderMsiName
-    avdAgentMsiName: avdAgentMsiName
     batchCount: i
     dataCollectionRuleAssociationName: namingConvention.dataCollectionRuleAssociation
     dataCollectionRuleResourceId: dataCollectionRuleResourceId
@@ -132,17 +123,18 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
+    enableAcceleratedNetworking: enableAcceleratedNetworking
+    enableAvdInsights: enableAvdInsights
     enableDrainMode: drainMode
     fslogixContainerType: fslogixContainerType
     hostPoolName: hostPoolName
     hostPoolType: hostPoolType
     imageVersionResourceId: imageVersionResourceId
-    imageOffer: imageOffer
-    imagePublisher: imagePublisher
-    imageSku: imageSku
+    imageOffer: empty(imageVersionResourceId) ? imageOffer : image.properties.purchasePlan.product
+    imagePublisher: empty(imageVersionResourceId) ? imagePublisher: image.properties.purchasePlan.publisher
+    imageSku: empty(imageVersionResourceId) ? imageSku : image.properties.purchasePlan.name
     location: location
     managementVirtualMachineName: managementVirtualMachineName
-    monitoring: monitoring
     netAppFileShares: netAppFileShares
     networkInterfaceNamePrefix: namingConvention.virtualMachineNetworkInterface
     organizationalUnitPath: organizationalUnitPath
@@ -151,7 +143,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     serviceToken: serviceToken
     sessionHostCount: i == sessionHostBatchCount && divisionRemainderValue > 0 ? divisionRemainderValue : maxResourcesPerTemplateDeployment
     sessionHostIndex: i == 1 ? sessionHostIndex : ((i - 1) * maxResourcesPerTemplateDeployment) + sessionHostIndex
-    storageAccountPrefix: namingConvention.storageAccount
+    storageAccountPrefix: storageAccountNamePrefix
     storageCount: storageCount
     storageIndex: storageIndex
     storageService: storageService
@@ -192,31 +184,17 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
   ]
 }
 
-module scalingTool '../management/scalingTool.bicep' = if (enableScalingTool && pooledHostPool) {
+module scalingTool '../common/function.bicep' = if (enableScalingTool && pooledHostPool) {
   name: 'deploy-scaling-tool-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    artifactsUri: artifactsUri
-    automationAccountName: automationAccountName
-    beginPeakTime: scalingBeginPeakTime
-    deploymentNameSuffix: deploymentNameSuffix
-    endPeakTime: scalingEndPeakTime
-    hostPoolName: hostPoolName
-    hostPoolResourceGroupName: resourceGroupControlPlane
-    hybridRunbookWorkerGroupName: hybridRunbookWorkerGroupName
-    limitSecondsToForceLogOffUser: scalingLimitSecondsToForceLogOffUser
-    location: location
-    managementVirtualMachineName: managementVirtualMachineName
-    minimumNumberOfRdsh: scalingMinimumNumberOfRdsh
-    resourceGroupControlPlane: resourceGroupControlPlane
-    resourceGroupHosts: resourceGroupHosts
-    sessionThresholdPerCPU: scalingSessionThresholdPerCPU
-    tags: tagsAutomationAccounts
-    timeDifference: timeDifference
-    timeZone: timeZone
-    userAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
+    files: {
+      'requirements.psd1': loadTextContent('../../artifacts/scaling-tool/requirements.psd1')
+      'run.ps1': loadTextContent('../../artifacts/scaling-tool/run.ps1')
+      '../profile.ps1': loadTextContent('../../artifacts/scaling-tool/profile.ps1')
+    }
+    functionAppName: functionAppName
+    functionName: 'avd-scaling-tool'
+    schedule: '0 */15 * * * *'
   }
-  dependsOn: [
-    recoveryServices
-  ]
 }
