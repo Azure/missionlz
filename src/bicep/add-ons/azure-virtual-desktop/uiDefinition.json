@@ -443,14 +443,6 @@
               ]
             },
             {
-              "name": "groupsApi",
-              "type": "Microsoft.Solutions.GraphApiControl",
-              "request": {
-                "method": "GET",
-                "path": "/v1.0/groups?$top=999"
-              }
-            },
-            {
               "name": "assignment",
               "type": "Microsoft.Common.Section",
               "label": "Assignment",
@@ -469,25 +461,11 @@
                   }
                 },
                 {
-                  "name": "groupsDropDown",
-                  "type": "Microsoft.Common.DropDown",
-                  "label": "Groups",
-                  "defaultValue": "",
-                  "toolTip": "Select the desired group(s) to give access to this AVD stamp and if applicable, the FSLogix file share.",
-                  "multiselect": true,
-                  "filter": true,
-                  "constraints": {
-                    "allowedValues": "[map(steps('controlPlane').groupsApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\": {\"name\":\"', item.displayName, '\",\"objectId\":\"', item.id, '\"}}')))]",
-                    "required": true
-                  },
-                  "visible": "[not(empty(steps('controlPlane').groupsApi))]"
-                },
-                {
-                  "name": "groupsGrid",
+                  "name": "groups",
                   "type": "Microsoft.Common.EditableGrid",
                   "ariaLabel": "Input the security groups for access to AVD and if applicable, FSLogix. The object ID is a property on the group and can be found in Entra ID.",
                   "label": "Security Groups",
-                  "visible": "[empty(steps('controlPlane').groupsApi)]",
+                  "visible": true,
                   "constraints": {
                     "width": "Full",
                     "rows": {
@@ -1040,8 +1018,8 @@
               "name": "profileSolution",
               "type": "Microsoft.Common.DropDown",
               "label": "Profile Solution",
-              "visible": "[not(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'))]",
-              "defaultValue": "[if(equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), 'Local', 'FSLogix')]",
+              "visible": "[contains(steps('hosts').identity.solution, 'DomainServices')]",
+              "defaultValue": "Local",
               "toolTip": "Select the user profile solution for your end users.",
               "constraints": {
                 "required": true,
@@ -1189,13 +1167,13 @@
               "name": "scalingTool",
               "label": "Scaling Tool",
               "type": "Microsoft.Common.Section",
-              "visible": true,
+              "visible": "[equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')]",
               "elements": [
                 {
                   "name": "deployScalingTool",
                   "type": "Microsoft.Common.CheckBox",
                   "label": "Deploy scaling tool?",
-                  "visible": "[equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')]",
+                  "visible": true,
                   "defaultValue": false,
                   "toolTip": "Choose whether to deploy the required resources to enable the Scaling Tool. This tool should only be used when scaling plans are not available. It has been enhanced for zero-trust compliance and does not rely on AZ modules."
                 },
@@ -1731,12 +1709,12 @@
         "scalingMinimumNumberOfRdsh": "[steps('management').scalingTool.minimumHosts]",
         "scalingSessionThresholdPerCPU": "[steps('management').scalingTool.cpuThreshold]",
         "scalingTool": "[steps('management').scalingTool.deployScalingTool]",
-        "securityPrincipals": "[if(empty(steps('controlPlane').groupsApi), steps('controlPlane').assignment.groupsGrid, steps('controlPlane').assignment.groupsDropDown)]",
+        "securityPrincipals": "[steps('controlPlane').assignment.groups]",
         "sessionHostCount": "[steps('hosts').virtualMachines.count]",
         "sessionHostIndex": 0,
         "sharedServicesSubnetResourceId": "[first(map(steps('basics').sharedServicesSubnetsApi.value, (item) => item.id))]",
         "stampIndex": "[steps('basics').naming.stampIndex]",
-        "storageCount": "[if(equals(steps('profiles').profileSolution, 'local'), 0, if(empty(steps('controlPlane').groupsApi), length(steps('controlPlane').assignment.groupsGrid), length(steps('controlPlane').assignment.groupsDropDown)))]",
+        "storageCount": "[if(equals(steps('profiles').profileSolution, 'local'), 0, length(steps('controlPlane').assignment.groups))]",
         "storageIndex": 0,
         "subnetAddressPrefixes": "[parse(concat('[\"', steps('network').vnet.sessionHostsSubnetAddressCidrRange, '\",\"', steps('network').vnet.controlPlaneSubnetAddressCidrRange, '\"]'))]",
         "tags": "[steps('tags').tags]",
