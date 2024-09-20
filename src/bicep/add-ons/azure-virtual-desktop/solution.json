@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.3.12046",
-      "templateHash": "6795344357267148471"
+      "templateHash": "4781018785689256236"
     }
   },
   "parameters": {
@@ -9056,8 +9056,8 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
@@ -9900,6 +9900,7 @@
           "enableAvdInsights": {
             "value": "[parameters('enableAvdInsights')]"
           },
+          "existingApplicationGroupReferences": "[if(empty(parameters('existingFeedWorkspaceResourceId')), createObject('value', createArray()), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('existingFeedWorkspaceResourceId'), '/')[2], split(parameters('existingFeedWorkspaceResourceId'), '/')[4]), 'Microsoft.DesktopVirtualization/workspaces', split(parameters('existingFeedWorkspaceResourceId'), '/')[8]), '2023-09-05').applicationGroupReferences))]",
           "existingFeedWorkspaceResourceId": {
             "value": "[parameters('existingFeedWorkspaceResourceId')]"
           },
@@ -9975,7 +9976,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.3.12046",
-              "templateHash": "7303217863388098584"
+              "templateHash": "5249728310301679989"
             }
           },
           "parameters": {
@@ -9996,6 +9997,9 @@
             },
             "enableAvdInsights": {
               "type": "bool"
+            },
+            "existingApplicationGroupReferences": {
+              "type": "array"
             },
             "existingFeedWorkspaceResourceId": {
               "type": "string"
@@ -10357,6 +10361,73 @@
               }
             },
             {
+              "copy": {
+                "name": "roleAssignments_appGroupReferences",
+                "count": "[length(parameters('existingApplicationGroupReferences'))]"
+              },
+              "condition": "[not(empty(parameters('existingFeedWorkspaceResourceId')))]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('assign-role-vdws-feed-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[split(parameters('existingApplicationGroupReferences')[copyIndex()], '/')[2]]",
+              "resourceGroup": "[split(parameters('existingApplicationGroupReferences')[copyIndex()], '/')[4]]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "principalId": {
+                    "value": "[parameters('deploymentUserAssignedIdentityPrincipalId')]"
+                  },
+                  "principalType": {
+                    "value": "ServicePrincipal"
+                  },
+                  "roleDefinitionId": {
+                    "value": "21efdde3-836f-432b-bf3d-3e8e734d4b2b"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.30.3.12046",
+                      "templateHash": "6719359309633021647"
+                    }
+                  },
+                  "parameters": {
+                    "principalId": {
+                      "type": "string"
+                    },
+                    "principalType": {
+                      "type": "string"
+                    },
+                    "roleDefinitionId": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "name": "[guid(parameters('principalId'), parameters('roleDefinitionId'), resourceGroup().id)]",
+                      "properties": {
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+                        "principalId": "[parameters('principalId')]",
+                        "principalType": "[parameters('principalType')]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId(split(parameters('sharedServicesSubnetResourceId'), '/')[2], 'Microsoft.Resources/deployments', format('deploy-rg-vdws-feed-{0}', parameters('deploymentNameSuffix')))]"
+              ]
+            },
+            {
+              "condition": "[not(empty(parameters('existingFeedWorkspaceResourceId')))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('assign-role-vdws-feed-{0}', parameters('deploymentNameSuffix'))]",
@@ -10759,7 +10830,8 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('workspaceFeedResourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-vdws-feed-{0}', parameters('deploymentNameSuffix')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('workspaceFeedResourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-vdws-feed-{0}', parameters('deploymentNameSuffix')))]",
+                "roleAssignments_appGroupReferences"
               ]
             }
           ]

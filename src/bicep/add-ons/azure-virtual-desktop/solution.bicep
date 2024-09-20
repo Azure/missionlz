@@ -397,6 +397,12 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing 
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
 }
 
+// Gets the application group references if the feed workspace already exists
+resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' existing = if (!empty(existingFeedWorkspaceResourceId)) {
+  scope: resourceGroup(split(existingFeedWorkspaceResourceId, '/')[2], split(existingFeedWorkspaceResourceId, '/')[4])
+  name: split(existingFeedWorkspaceResourceId, '/')[8]
+}
+
 // This module deploys telemetry for ArcGIS Pro deployments
 #disable-next-line no-deployments-resources
 resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (enableTelemetry && profile == 'ArcGISPro') {
@@ -589,6 +595,7 @@ module workspaces 'modules/sharedServices/sharedServices.bicep' = {
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     enableAvdInsights: enableAvdInsights
+    existingApplicationGroupReferences: empty(existingFeedWorkspaceResourceId) ? [] : workspace.properties.applicationGroupReferences
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     existingWorkspace: !empty(existingFeedWorkspaceResourceId)
     hostPoolName: controlPlane.outputs.hostPoolName

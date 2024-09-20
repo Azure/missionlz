@@ -6,6 +6,7 @@ param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityPrincipalId string
 param enableAvdInsights bool
+param existingApplicationGroupReferences array
 param existingFeedWorkspaceResourceId string
 param existingWorkspace bool
 param hostPoolName string
@@ -30,7 +31,7 @@ param workspaceGlobalPrivateEndpointName string
 param workspaceGlobalResourceGroupName string
 param workspacePublicNetworkAccess string
 
-// Resource rgoup for the global workspace
+// Resource group for the global workspace
 module rg_workspace_global '../../../../modules/resource-group.bicep' = {
   name: 'deploy-rg-vdws-global-${deploymentNameSuffix}'
   scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
@@ -42,6 +43,7 @@ module rg_workspace_global '../../../../modules/resource-group.bicep' = {
   }
 }
 
+// Global workspace
 module workspace_global 'workspaceGlobal.bicep' = {
   name: 'deploy-vdws-global-${deploymentNameSuffix}'
   scope: resourceGroup(workspaceGlobalResourceGroupName)
@@ -71,7 +73,21 @@ module rg_workspace_feed '../../../../modules/resource-group.bicep' = if (!exist
   }
 }
 
-module roleAssignment '../common/roleAssignments/resourceGroup.bicep' = {
+// Role assignments needed to update the application groups on the existing feed workspace
+module roleAssignments_appGroupReferences '../common/roleAssignments/resourceGroup.bicep' = [for (appGroup, i) in existingApplicationGroupReferences: if (!empty(existingFeedWorkspaceResourceId)) {
+  name: 'assign-role-vdws-feed-${i}-${deploymentNameSuffix}'
+  scope: resourceGroup(split(appGroup, '/')[2], split(appGroup, '/')[4])
+  params: {
+    principalId: deploymentUserAssignedIdentityPrincipalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: '21efdde3-836f-432b-bf3d-3e8e734d4b2b' // Desktop Virtualization Workspace Contributor (Purpose: update the app group references on an existing feed workspace)
+  }
+  dependsOn: [
+    rg_workspace_feed
+  ]
+}]
+
+module roleAssignment '../common/roleAssignments/resourceGroup.bicep' = if (!empty(existingFeedWorkspaceResourceId)) {
   name: 'assign-role-vdws-feed-${deploymentNameSuffix}'
   scope: resourceGroup(workspaceFeedResourceGroupName)
   params: {
@@ -112,5 +128,6 @@ module workspace_feed 'workspaceFeed.bicep' = {
   }
   dependsOn: [
     roleAssignment
+    roleAssignments_appGroupReferences
   ]
 }
