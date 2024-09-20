@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.3.12046",
-      "templateHash": "13109105746784042835"
+      "templateHash": "12238515413207434071"
     }
   },
   "parameters": {
@@ -6525,7 +6525,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.3.12046",
-              "templateHash": "15240849957883266346"
+              "templateHash": "13640270334479995401"
             }
           },
           "parameters": {
@@ -7167,7 +7167,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.3.12046",
-                      "templateHash": "17408178515870242038"
+                      "templateHash": "12065758943914827665"
                     }
                   },
                   "parameters": {
@@ -7428,9 +7428,13 @@
                     }
                   ],
                   "outputs": {
-                    "Name": {
+                    "name": {
                       "type": "string",
                       "value": "[parameters('virtualMachineName')]"
+                    },
+                    "resourceId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
                     }
                   }
                 }
@@ -9050,14 +9054,18 @@
             },
             "virtualMachineName": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-mgmt-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.Name.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-mgmt-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            },
+            "virtualMachineResourceId": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-mgmt-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
             }
           }
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
@@ -9176,7 +9184,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.3.12046",
-              "templateHash": "714891809407686490"
+              "templateHash": "13918374040077222137"
             }
           },
           "parameters": {
@@ -9642,7 +9650,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.3.12046",
-                      "templateHash": "2089984602340489474"
+                      "templateHash": "3010573573108958278"
                     }
                   },
                   "parameters": {
@@ -9781,10 +9789,14 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.30.3.12046",
-                              "templateHash": "10787147729724631243"
+                              "templateHash": "553654819057603929"
                             }
                           },
                           "parameters": {
+                            "asyncExecution": {
+                              "type": "bool",
+                              "defaultValue": false
+                            },
                             "location": {
                               "type": "string"
                             },
@@ -9795,15 +9807,15 @@
                               "type": "array",
                               "defaultValue": []
                             },
-                            "protectedParameters": {
-                              "type": "array",
-                              "defaultValue": []
-                            },
                             "script": {
                               "type": "string"
                             },
                             "tags": {
                               "type": "object"
+                            },
+                            "treatFailureAsDeploymentFailure": {
+                              "type": "bool",
+                              "defaultValue": true
                             },
                             "virtualMachineName": {
                               "type": "string"
@@ -9817,13 +9829,12 @@
                               "location": "[parameters('location')]",
                               "tags": "[parameters('tags')]",
                               "properties": {
-                                "asyncExecution": false,
+                                "asyncExecution": "[parameters('asyncExecution')]",
                                 "parameters": "[parameters('parameters')]",
-                                "protectedParameters": "[parameters('protectedParameters')]",
                                 "source": {
                                   "script": "[parameters('script')]"
                                 },
-                                "treatFailureAsDeploymentFailure": true
+                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
                               }
                             }
                           ]
@@ -9976,7 +9987,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.3.12046",
-              "templateHash": "5249728310301679989"
+              "templateHash": "6111656715048057027"
             }
           },
           "parameters": {
@@ -10569,7 +10580,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.3.12046",
-                      "templateHash": "13766986563656437278"
+                      "templateHash": "8162228326729032371"
                     }
                   },
                   "parameters": {
@@ -10777,10 +10788,14 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.30.3.12046",
-                              "templateHash": "10787147729724631243"
+                              "templateHash": "553654819057603929"
                             }
                           },
                           "parameters": {
+                            "asyncExecution": {
+                              "type": "bool",
+                              "defaultValue": false
+                            },
                             "location": {
                               "type": "string"
                             },
@@ -10791,15 +10806,15 @@
                               "type": "array",
                               "defaultValue": []
                             },
-                            "protectedParameters": {
-                              "type": "array",
-                              "defaultValue": []
-                            },
                             "script": {
                               "type": "string"
                             },
                             "tags": {
                               "type": "object"
+                            },
+                            "treatFailureAsDeploymentFailure": {
+                              "type": "bool",
+                              "defaultValue": true
                             },
                             "virtualMachineName": {
                               "type": "string"
@@ -10813,13 +10828,12 @@
                               "location": "[parameters('location')]",
                               "tags": "[parameters('tags')]",
                               "properties": {
-                                "asyncExecution": false,
+                                "asyncExecution": "[parameters('asyncExecution')]",
                                 "parameters": "[parameters('parameters')]",
-                                "protectedParameters": "[parameters('protectedParameters')]",
                                 "source": {
                                   "script": "[parameters('script')]"
                                 },
-                                "treatFailureAsDeploymentFailure": true
+                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
                               }
                             }
                           ]
@@ -12618,7 +12632,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.3.12046",
-              "templateHash": "16060974695167873014"
+              "templateHash": "18109280948907752754"
             }
           },
           "parameters": {
@@ -13109,7 +13123,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.3.12046",
-                      "templateHash": "16964876913073497992"
+                      "templateHash": "9738013457734969210"
                     }
                   },
                   "parameters": {
@@ -13746,10 +13760,14 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.30.3.12046",
-                              "templateHash": "10787147729724631243"
+                              "templateHash": "553654819057603929"
                             }
                           },
                           "parameters": {
+                            "asyncExecution": {
+                              "type": "bool",
+                              "defaultValue": false
+                            },
                             "location": {
                               "type": "string"
                             },
@@ -13760,15 +13778,15 @@
                               "type": "array",
                               "defaultValue": []
                             },
-                            "protectedParameters": {
-                              "type": "array",
-                              "defaultValue": []
-                            },
                             "script": {
                               "type": "string"
                             },
                             "tags": {
                               "type": "object"
+                            },
+                            "treatFailureAsDeploymentFailure": {
+                              "type": "bool",
+                              "defaultValue": true
                             },
                             "virtualMachineName": {
                               "type": "string"
@@ -13782,13 +13800,12 @@
                               "location": "[parameters('location')]",
                               "tags": "[parameters('tags')]",
                               "properties": {
-                                "asyncExecution": false,
+                                "asyncExecution": "[parameters('asyncExecution')]",
                                 "parameters": "[parameters('parameters')]",
-                                "protectedParameters": "[parameters('protectedParameters')]",
                                 "source": {
                                   "script": "[parameters('script')]"
                                 },
-                                "treatFailureAsDeploymentFailure": true
+                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
                               }
                             }
                           ]
@@ -13878,10 +13895,14 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.30.3.12046",
-                              "templateHash": "10787147729724631243"
+                              "templateHash": "553654819057603929"
                             }
                           },
                           "parameters": {
+                            "asyncExecution": {
+                              "type": "bool",
+                              "defaultValue": false
+                            },
                             "location": {
                               "type": "string"
                             },
@@ -13892,15 +13913,15 @@
                               "type": "array",
                               "defaultValue": []
                             },
-                            "protectedParameters": {
-                              "type": "array",
-                              "defaultValue": []
-                            },
                             "script": {
                               "type": "string"
                             },
                             "tags": {
                               "type": "object"
+                            },
+                            "treatFailureAsDeploymentFailure": {
+                              "type": "bool",
+                              "defaultValue": true
                             },
                             "virtualMachineName": {
                               "type": "string"
@@ -13914,13 +13935,12 @@
                               "location": "[parameters('location')]",
                               "tags": "[parameters('tags')]",
                               "properties": {
-                                "asyncExecution": false,
+                                "asyncExecution": "[parameters('asyncExecution')]",
                                 "parameters": "[parameters('parameters')]",
-                                "protectedParameters": "[parameters('protectedParameters')]",
                                 "source": {
                                   "script": "[parameters('script')]"
                                 },
-                                "treatFailureAsDeploymentFailure": true
+                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
                               }
                             }
                           ]
@@ -14242,23 +14262,17 @@
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
-          "fslogixStorageService": {
-            "value": "[parameters('fslogixStorageService')]"
-          },
           "location": {
             "value": "[parameters('locationVirtualMachines')]"
           },
           "resourceGroupManagement": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
-          "scalingTool": {
-            "value": "[parameters('scalingTool')]"
-          },
           "userAssignedIdentityClientId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.deploymentUserAssignedIdentityClientId.value]"
           },
-          "virtualMachineName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]"
+          "virtualMachineResourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineResourceId.value]"
           }
         },
         "template": {
@@ -14268,14 +14282,11 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.3.12046",
-              "templateHash": "14486124185059327944"
+              "templateHash": "17924034191245932481"
             }
           },
           "parameters": {
             "deploymentNameSuffix": {
-              "type": "string"
-            },
-            "fslogixStorageService": {
               "type": "string"
             },
             "location": {
@@ -14284,22 +14295,21 @@
             "resourceGroupManagement": {
               "type": "string"
             },
-            "scalingTool": {
-              "type": "bool"
-            },
             "userAssignedIdentityClientId": {
               "type": "string"
             },
-            "virtualMachineName": {
+            "virtualMachineResourceId": {
               "type": "string"
             }
           },
+          "variables": {
+            "$fxv#0": "param(\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineResourceId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\nStart-Sleep -Seconds 30\r\n\r\n# Use the access token to delete the virtual machine\r\nInvoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'Delete' `\r\n    -Uri $($ResourceManagerUriFixed + $VirtualMachineResourceId + '?forceDeletion=true&api-version=2024-07-01') | Out-Null"
+          },
           "resources": [
             {
-              "condition": "[and(not(parameters('scalingTool')), not(equals(parameters('fslogixStorageService'), 'AzureFiles Premium')))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('remove-mgmt-vm-{0}', parameters('deploymentNameSuffix'))]",
+              "name": "[format('clean-up-{0}', parameters('deploymentNameSuffix'))]",
               "resourceGroup": "[parameters('resourceGroupManagement')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -14307,14 +14317,46 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "Location": {
+                  "asyncExecution": {
+                    "value": true
+                  },
+                  "location": {
                     "value": "[parameters('location')]"
                   },
-                  "UserAssignedIdentityClientId": {
-                    "value": "[parameters('userAssignedIdentityClientId')]"
+                  "name": {
+                    "value": "Remove-VirtualMachine"
                   },
-                  "VirtualMachineName": {
-                    "value": "[parameters('virtualMachineName')]"
+                  "parameters": {
+                    "value": [
+                      {
+                        "name": "ResourceGroupName",
+                        "value": "[parameters('resourceGroupManagement')]"
+                      },
+                      {
+                        "name": "ResourceManagerUri",
+                        "value": "[environment().resourceManager]"
+                      },
+                      {
+                        "name": "UserAssignedIdentityClientId",
+                        "value": "[parameters('userAssignedIdentityClientId')]"
+                      },
+                      {
+                        "name": "VirtualMachineResourceId",
+                        "value": "[parameters('virtualMachineResourceId')]"
+                      }
+                    ]
+                  },
+                  "script": {
+                    "value": "[variables('$fxv#0')]"
+                  },
+                  "tags": {
+                    "value": {}
+                  },
+                  "treatFailureAsDeploymentFailure": {
+                    "value": true
+                  },
+                  "virtualMachineName": {
+                    "value": "[split(parameters('virtualMachineResourceId'), '/')[8]]"
                   }
                 },
                 "template": {
@@ -14324,58 +14366,52 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.3.12046",
-                      "templateHash": "3648092764960925870"
+                      "templateHash": "553654819057603929"
                     }
                   },
                   "parameters": {
-                    "Location": {
+                    "asyncExecution": {
+                      "type": "bool",
+                      "defaultValue": false
+                    },
+                    "location": {
                       "type": "string"
                     },
-                    "UserAssignedIdentityClientId": {
+                    "name": {
                       "type": "string"
                     },
-                    "VirtualMachineName": {
+                    "parameters": {
+                      "type": "array",
+                      "defaultValue": []
+                    },
+                    "script": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    },
+                    "treatFailureAsDeploymentFailure": {
+                      "type": "bool",
+                      "defaultValue": true
+                    },
+                    "virtualMachineName": {
                       "type": "string"
                     }
                   },
                   "resources": [
                     {
                       "type": "Microsoft.Compute/virtualMachines/runCommands",
-                      "apiVersion": "2023-03-01",
-                      "name": "[format('{0}/{1}', parameters('VirtualMachineName'), 'RunCommand')]",
-                      "location": "[parameters('Location')]",
+                      "apiVersion": "2023-09-01",
+                      "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
                       "properties": {
-                        "treatFailureAsDeploymentFailure": true,
-                        "asyncExecution": true,
-                        "parameters": [
-                          {
-                            "name": "Environment",
-                            "value": "[environment().name]"
-                          },
-                          {
-                            "name": "ResourceGroupName",
-                            "value": "[resourceGroup().name]"
-                          },
-                          {
-                            "name": "SubscriptionId",
-                            "value": "[subscription().subscriptionId]"
-                          },
-                          {
-                            "name": "TenantId",
-                            "value": "[tenant().tenantId]"
-                          },
-                          {
-                            "name": "UserAssignedIdentityClientId",
-                            "value": "[parameters('UserAssignedIdentityClientId')]"
-                          },
-                          {
-                            "name": "VirtualMachineName",
-                            "value": "[parameters('VirtualMachineName')]"
-                          }
-                        ],
+                        "asyncExecution": "[parameters('asyncExecution')]",
+                        "parameters": "[parameters('parameters')]",
                         "source": {
-                          "script": "        param(\r\n          [string]$Environment,\r\n          [string]$ResourceGroupName,\r\n          [string]$SubscriptionId,\r\n          [string]$TenantId,\r\n          [string]$UserAssignedIdentityClientId,\r\n          [string]$VirtualMachineName\r\n        )\r\n        Start-Sleep -Seconds 30\r\n        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId\r\n        Remove-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -NoWait -Force\r\n      "
-                        }
+                          "script": "[parameters('script')]"
+                        },
+                        "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
                       }
                     }
                   ]

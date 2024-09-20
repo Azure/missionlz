@@ -200,4 +200,5 @@ resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/exte
   }
 }
 
-output Name string = virtualMachine.name
+output name string = virtualMachine.name
+output resourceId string = virtualMachine.id

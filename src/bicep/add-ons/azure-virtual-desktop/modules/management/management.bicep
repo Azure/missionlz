@@ -269,4 +269,5 @@ output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || ena
 output recoveryServicesVaultName string = recoveryServices && ((contains(activeDirectorySolution, 'DomainServices') && contains(hostPoolType,'Pooled') && contains(fslogixStorageService, 'AzureFiles')) || contains(hostPoolType, 'Personal'))
   ? recoveryServicesVault.outputs.name
   : ''
-output virtualMachineName string = virtualMachine.outputs.Name
+output virtualMachineName string = virtualMachine.outputs.name
+output virtualMachineResourceId string = virtualMachine.outputs.resourceId

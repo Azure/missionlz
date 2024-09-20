@@ -1,19 +1,39 @@
-targetScope = 'subscription' 
+targetScope = 'subscription'
 
 param deploymentNameSuffix string
-param fslogixStorageService string
 param location string
 param resourceGroupManagement string
-param scalingTool bool
 param userAssignedIdentityClientId string
-param virtualMachineName string
+param virtualMachineResourceId string
 
-module removeManagementVirtualMachine 'removeVirtualMachine.bicep' = if (!scalingTool && !(fslogixStorageService == 'AzureFiles Premium')) {
+module cleanUp '../common/runCommand.bicep' = {
   scope: resourceGroup(resourceGroupManagement)
-  name: 'remove-mgmt-vm-${deploymentNameSuffix}'
+  name: 'clean-up-${deploymentNameSuffix}'
   params: {
-    Location: location
-    UserAssignedIdentityClientId: userAssignedIdentityClientId
-    VirtualMachineName: virtualMachineName
+    asyncExecution: true
+    location: location
+    name: 'Remove-VirtualMachine'
+    parameters: [
+      {
+        name: 'ResourceGroupName'
+        value: resourceGroupManagement
+      }
+      {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
+        name: 'UserAssignedIdentityClientId'
+        value: userAssignedIdentityClientId
+      }
+      {
+        name: 'VirtualMachineResourceId'
+        value: virtualMachineResourceId
+      }
+    ]
+    script: loadTextContent('../../artifacts/Remove-VirtualMachine.ps1')
+    tags: {}
+    treatFailureAsDeploymentFailure: true
+    virtualMachineName: split(virtualMachineResourceId, '/')[8]
   }
 }

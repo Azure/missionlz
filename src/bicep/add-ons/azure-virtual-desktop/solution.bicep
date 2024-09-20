@@ -747,12 +747,10 @@ module cleanUp 'modules/cleanUp/cleanUp.bicep' = {
   name: 'deploy-clean-up-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    fslogixStorageService: fslogixStorageService
     location: locationVirtualMachines
     resourceGroupManagement: rgs[2].outputs.name
-    scalingTool: scalingTool
     userAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
-    virtualMachineName: management.outputs.virtualMachineName
+    virtualMachineResourceId: management.outputs.virtualMachineResourceId
   }
   dependsOn: [
     fslogix
