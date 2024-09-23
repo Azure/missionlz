@@ -11,8 +11,11 @@ var vnetName = last(split(vnetResourceId, '/'))
 var updatedPeerings = [for peering in peeringsList: {
   name: last(split(peering.id, '/')) // Extract the peering name from the ID
   properties: {
-    allowGatewayTransit: contains(split(peering.id, '/')[8], '-hub-') ? true : peering.properties.allowGatewayTransit
-    useRemoteGateways: !contains(split(peering.id, '/')[8], '-hub-') ? true : peering.properties.useRemoteGateways
+    allowGatewayTransit: contains(vnetName, '-hub-') ? true : peering.properties.allowGatewayTransit
+    useRemoteGateways: !contains(vnetName, '-hub-') ? true : peering.properties.useRemoteGateways
+    // allowGatewayTransit: contains(split(peering.id, '/')[8], '-hub-') ? true : peering.properties.allowGatewayTransit
+    // useRemoteGateways: !contains(split(peering.id, '/')[8], '-hub-') ? true : peering.properties.useRemoteGateways
+    allowForwardedTraffic: peering.properties.allowForwardedTraffic == null ? true : peering.properties.allowForwardedTraffic // Preserve existing value or set to true
     remoteVirtualNetwork: peering.properties.remoteVirtualNetwork
   }
 }]
