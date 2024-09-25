@@ -124,7 +124,7 @@ module keyvaultDiagnostics '../modules/key-vault-diagnostics.bicep' = {
   }
 }
 
-module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = {
+module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = if (deployBastion) {
   name: 'deploy-bastion-diags-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
