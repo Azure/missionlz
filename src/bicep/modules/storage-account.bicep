@@ -40,7 +40,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     allowBlobPublicAccess: false
     allowCrossTenantReplication: false
     allowedCopyScope: 'PrivateLink'
-    allowSharedKeyAccess: true
+    allowSharedKeyAccess: false
     defaultToOAuthAuthentication: false
     dnsEndpointType: 'Standard'
     encryption: {
