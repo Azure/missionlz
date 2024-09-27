@@ -2,7 +2,8 @@ param (
     [string]$ImageOffer,
     [string]$ImagePublisher,
     [string]$ImageSku,
-    [string]$ResourceManagerUri
+    [string]$ResourceManagerUri,
+    [string]$UserAssignedIdentityClientId
 )
 
 # Fix the resource manager URI since only AzureCloud contains a trailing slash
