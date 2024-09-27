@@ -37,7 +37,7 @@ resource esriStorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' exist
 resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
   name: '${resourcePrefix}-nic-${virtualMachineName}'
   location: location
-  tags: contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}
+  tags: tags[?'Microsoft.Network/networkInterfaces'] ?? {}
   properties: {
     ipConfigurations: [
       {
@@ -60,7 +60,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: virtualMachineName
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -135,7 +135,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 resource modules 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
   name: 'rc-azModules'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true
@@ -221,7 +221,7 @@ resource modules 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
 resource esriArtifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
   name: 'rc-esriScriptArtifacts'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true
@@ -292,7 +292,7 @@ resource esriArtifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01
 resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
   name: 'rc-licenseAndCertificateArtifacts'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true
@@ -445,7 +445,7 @@ resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
 resource esriMarketplaceImageTerms 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
   name: 'rc-esriMarketplaceImageTerms'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true
