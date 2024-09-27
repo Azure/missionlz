@@ -130,8 +130,6 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     }
     licenseType: hybridUseBenefit ? 'Windows_Server' : null
   }
-  dependsOn: [
-  ]
 }
 
 resource modules 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
@@ -454,53 +452,29 @@ resource esriMarketplaceImageTerms 'Microsoft.Compute/virtualMachines/runCommand
     asyncExecution: false
     parameters: [
       {
-        name: 'ContainerName'
-        value: artifactsContainerName
+        name: 'ImageOffer'
+        value: 'arcgis-enterprise'
       }
       {
-        name: 'Environment'
-        value: environment().name
+        name: 'ImagePublisher'
+        value: 'esri'
+      }
+      
+      {
+        name: 'ImageSku'
+        value: 'byol-111'
       }
       {
-        name: 'StorageAccountName'
-        value: esriStorageAccount.name
-      }
-      {
-        name: 'StorageEndpoint'
-        value: environment().suffixes.storage
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
       }
       {
         name: 'UserAssignedIdentityClientId'
         value: userAssignedIdentityClientId
       }
-      {
-        name: 'UserAssignedIdentityObjectId'
-        value: userAssignedIdentityPrincipalId
-      }
-      {
-        name: 'location'
-        value: location
-      }
-      {
-        name: 'subscription'
-        value: subscription().subscriptionId
-      }
     ]
     source: {
-      script: '''
-      param(
-        [string]$Environment,
-        [string]$UserAssignedIdentityObjectId,
-        [string]$UserAssignedIdentityClientId,
-        [string]$subscription
-      )
-      $ErrorActionPreference = 'Stop'
-      Connect-AzAccount -Environment $Environment -Subscription $subscription -Identity -AccountId $UserAssignedIdentityClientId | Out-Null
-      $name = 'byol-111'
-      $product = 'arcgis-enterprise'
-      $publisher = 'esri'
-      Get-AzMarketplaceTerms -Publisher $publisher -Name $name -Product $product -OfferType 'virtualmachine' | Set-AzMarketplaceTerms -Accept
-      '''
+      script: loadTextContent('../artifacts/Set-AzureMarketplaceTerms.ps1')
     }
   }
   dependsOn: [
