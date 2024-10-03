@@ -23,10 +23,7 @@
     "localAddressPrefixes": {
       "value": [
         "192.168.0.0/24",
-        "192.168.1.0/24",
-        "192.168.2.0/24",
-        "192.168.3.0/24",
-        "192.168.4.0/24"
+        "192.168.1.0/24"
       ]
     },
     "useSharedKey": {
@@ -42,12 +39,11 @@
         "/subscriptions/d9cb6670-f9bf-416f-aa7b-2d6936edcaeb/resourceGroups/bws-rg-network-identity-dev-va/providers/Microsoft.Network/virtualNetworks/bws-vnet-identity-dev-va"
       ]
     },
-    "routeTableIds": {
-      "value": [
-        "/subscriptions/d9cb6670-f9bf-416f-aa7b-2d6936edcaeb/resourceGroups/bws-rg-network-identity-dev-va/providers/Microsoft.Network/routeTables/bws-rt-identity-dev-va",
-        "/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/bws-rg-network-operations-dev-va/providers/Microsoft.Network/routeTables/bws-rt-operations-dev-va",
-        "/subscriptions/3a8f043c-c15c-4a67-9410-a585a85f2109/resourceGroups/bws-rg-network-sharedServices-dev-va/providers/Microsoft.Network/routeTables/bws-rt-sharedServices-dev-va"
-      ]
+    "azureFirewallName": {
+      "value": "bws-afw-hub-dev-va"
+    },
+    "vgwRouteTableName": {
+      "value": "bws-rt-vgw-dev-va"
     }
   }
 }

@@ -41,8 +41,11 @@ param hubVirtualNetworkResourceId string
 @description('List of peered networks that should use the VPN Gateway once configured.')
 param vnetResourceIdList array
 
-@description('List of spoke route tables controlling vnets that will use the vpn gateway.')
-param routeTableIds array
+@description('The name of the Azure Firewall to retrieve the internal IP address from.')
+param azureFirewallName string
+
+@description('The name of the vgw route table to create')
+param vgwRouteTableName string
 
 // Parameter validation
 var isValidUri = contains(keyVaultCertificateUri, 'https://') && contains(keyVaultCertificateUri, '/secrets/')
@@ -116,10 +119,6 @@ module vpnConnectionModule 'modules/vpn-connection.bicep' = {
   ]
 }
 
-// Create a new array that includes both the original list and the hub VNet ID
-// var extendedVnetResourceIdList = union(vnetResourceIdList, [hubVirtualNetworkResourceId])
-
-
 // Loop through the vnetResourceIdList and to retrieve the peerings for each VNet
 module retrieveVnetPeerings 'modules/retrieve-vnet-peerings.bicep' = [for (vnetId, i) in vnetResourceIdList: {
   name: 'retrieveVnetPeerings-${deploymentNameSuffix}-${i}'
@@ -172,16 +171,55 @@ module updatePeerings 'modules/update-vnet-peerings.bicep' = [for (vnetId, i) in
   ]
 }]
 
-// Loop through the routeTableIds and call the updateSpokeRt module for each route table
-module updateSpokeRt 'modules/update-spokert.bicep' = [for (routeTableId, i) in routeTableIds: {
-  name: 'updateSpokeRt-${deploymentNameSuffix}-${i}'
-  scope: resourceGroup(split(routeTableId, '/')[2], split(routeTableId, '/')[4])
+module retrieveRouteTableInfo 'modules/retrieve-vgwrtIpinfo.bicep' = {
+  name: 'retrieveRouteTableInfo-${deploymentNameSuffix}'
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
-    routeTableId: routeTableId
-    localAddressPrefixList: localAddressPrefixes
+    vnetResourceId: hubVirtualNetworkResourceId
+    firewallName: azureFirewallName
+    subnetName: 'GatewaySubnet'
   }
   dependsOn: [
-    retrieveVnetPeerings
+    updatePeerings
   ]
-}]
+}
+
+
+module createRouteDef 'modules/create-routedef.bicep' = {
+  name: 'createRouteDef-${deploymentNameSuffix}'
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+  params: {
+    hubVnetAddressSpace: retrieveRouteTableInfo.outputs.vnetAddressPrefixes
+    firewallPrivateIp: retrieveRouteTableInfo.outputs.firewallPrivateIp
+  }
+  dependsOn: [
+    retrieveRouteTableInfo
+  ]
+}
+
+module createRouteTable 'modules/route-table.bicep' = {
+  name: 'createRouteTable-${deploymentNameSuffix}'
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+  params: {
+    routes: createRouteDef.outputs.routes // Pass the variable containing the routes
+    routeTableName: vgwRouteTableName
+  }
+  dependsOn: [
+    createRouteDef
+  ]
+}
+
+module associateRouteTable 'modules/associate-rttosubnet.bicep' = {
+  name: 'associateRouteTable-${deploymentNameSuffix}'
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+  params: {
+    vnetResourceId: hubVirtualNetworkResourceId
+    routeTableResourceId: createRouteTable.outputs.routeTableId
+    subnetName: 'GatewaySubnet'
+    gwSubnetAddressPrefix: retrieveRouteTableInfo.outputs.gwSubnetAddressPrefix
+  }
+  dependsOn: [
+    createRouteTable
+  ]
+}
 

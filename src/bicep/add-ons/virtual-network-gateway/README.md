@@ -4,6 +4,8 @@
 
 This document provides details on a Bicep script that deploys a VPN Gateway, Local Network Gateway, VPN connection, and related resources in Azure, integrating into an existing MLZ network deployment. It includes descriptions of all parameters, required parameters, instructions on building and deploying the ARM template, and steps to create a template specification from the Bicep script.
 
+The deployment is intended to provide an on-prem VPN gateway to connect into the MLZ network through the Hub vNet and route to all spokes.   The route tables in all spoke Azure vNets are updated to route traffic to on-prem CIDR ranges to the internal interface of the Azure firewall in the Hub vNet.   This allows for the firewall to serve as a protection between the on-prem internal network and the Azure MLZ network.
+
 Additionally, it covers the modules used within the script and their roles in the deployment process.
 
 ---
