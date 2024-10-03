@@ -171,12 +171,12 @@ module updatePeerings 'modules/update-vnet-peerings.bicep' = [for (vnetId, i) in
   ]
 }]
 
-module retrieveRouteTableInfo 'modules/retrieve-vgwrtIpinfo.bicep' = {
+module retrieveRouteTableInfo 'modules/retrieve-fwandgwsubnetinfo.bicep' = {
   name: 'retrieveRouteTableInfo-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
-    vnetResourceId: hubVirtualNetworkResourceId
-    firewallName: azureFirewallName
+    hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
+    azureFirewallName: azureFirewallName
     subnetName: 'GatewaySubnet'
   }
   dependsOn: [
@@ -189,7 +189,7 @@ module createRouteDef 'modules/create-routedef.bicep' = {
   name: 'createRouteDef-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
-    hubVnetAddressSpace: retrieveRouteTableInfo.outputs.vnetAddressPrefixes
+    localAddressPrefixes: localAddressPrefixes
     firewallPrivateIp: retrieveRouteTableInfo.outputs.firewallPrivateIp
   }
   dependsOn: [
