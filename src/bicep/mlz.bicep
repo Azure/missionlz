@@ -798,5 +798,6 @@ output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetwork
 output identitySubnetResourceId string = networking.outputs.identitySubnetResourceId
 output locationProperties object = logic.outputs.locationProperties
 output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId
+output privateLinkScopeResourceId string = monitoring.outputs.privateLinkScopeResourceId
 output sharedServicesSubnetResourceId string = networking.outputs.sharedServicesSubnetResourceId
 output tiers array = logic.outputs.tiers
