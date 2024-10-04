@@ -1,6 +1,6 @@
 # Mission Landing Zone Accelerators
 
-[**Home**](./README.md) | [**Design**](./DESIGN.md) | [**Accelerators**](./ACCELERATORS.md) | [**Resources**](./RESOURCES.md)
+[**Home**](../README.md) | [**Design**](./design.md) | [**Accelerators**](./accelerators.md) | [**Resources**](./resources.md)
 
 Azure Landing Zone Accelerators are architectural guidance, reference architecture, reference implementations, and automation packaged to deploy workload platforms on Azure at scale and aligned with industry proven practices. Built on top of Mission Landing Zone,
 each link below redirects to directories on this repository aimed to enable users to rapidly deploy each accelerator.

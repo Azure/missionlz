@@ -1,6 +1,7 @@
 # Mission LZ Design
 
-[**Home**](./README.md) | [**Design**](./DESIGN.md) | [**Accelerators**](./ACCELERATORS.md) | [**Resources**](./RESOURCES.md)
+[**Home**](../README.md) | [**Design**](./design.md) | [**Accelerators**](./accelerators.md) | [**Resources**](./resources.md)
+
 ## Scope
 
 Mission LZ has the following scope:
