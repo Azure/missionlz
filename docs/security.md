@@ -81,7 +81,7 @@ A rule collection group is used to group rule collections. They're the first uni
 Rules are processed based on Rule Collection Group Priority and Rule Collection priority. Priority is any number between 100 (highest priority) to 65,000 (lowest priority). When adding rules for MLZ AVD communication, consider the priority of each rule as they are processed in a priority order. Refer to the ***Rule processing using Firewall Policy*** link under the Reference links section for additional information.
 <!-- markdownlint-enable MD013 -->
 
-![alt text](image-17.png)
+![alt text](./images/security/01.png)
 
 ### Network Rules
 
@@ -90,20 +90,20 @@ Network rules allow or deny inbound and outbound traffic. You can use a network 
 <!-- markdownlint-enable MD013 -->
 
 - **Azure Commercial**
-![alt text](image-22.png)
+![alt text](./images/security/02.png)
 
 - **Azure Government**
-![alt text](image-25.png)
+![alt text](./images/security/03.png)
 
 **Application Rules**
 
 Application rules allow or deny outbound traffic. You can use an application rule when you want to filter traffic based on fully qualified domain names (FQDNs), URLs, and HTTP/HTTPS protocols.The below application rules should be added to the firewall policy to allow AVD communication.
 
 - **Azure Commercial**
-![alt text](image-24.png)
+![alt text](./images/security/04.png)
 
 - **Azure Government**
-![alt text](image-26.png)
+![alt text](./images/security/05.png)
 
 ### NSG Security Rules
 
@@ -112,10 +112,10 @@ For the MLZ NSG's, the same rules that were added to the Azure Firewall as post-
 <!-- markdownlint-enable MD013 -->
 
 - **Azure Commercial**
-![alt text](image-30.png)
+![alt text](./images/security/06.png)
 
 - **Azure Government**
- ![alt text](image-31.png)
+ ![alt text](./images/security/07.png)
 
 ***References links:***
 
