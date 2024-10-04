@@ -25,7 +25,7 @@ Ensure the principal deploying the solution has "Owner" and "Key Vault Administr
 If granular permissions are required the following built-in roles may be assigned to the account running the imaging solution:
 
 Example:
-![image](https://github.com/Azure/missionlz/assets/34066455/a1f54dad-e7c3-4f14-a6d5-4211773fc0a6)
+![image](./images/01.png)
 
 [Creating a custom role](https://learn.microsoft.com/en-us/azure/role-based-access-control/custom-roles)
 
@@ -54,7 +54,7 @@ You can download ArcGIS Pro from My Esri or your ArcGIS Online organization.
 Once the application is downloaded, if your windows OS image requires ArcGIS Pro you will need to create a ZIP file that contains all of the installation bits including the Windows Runtime.
 
 Example:
-![Alt text](images/arcGisProRuntimeExample.png)
+![Alt text](./images/02.png)
 
 | Software | Minimum requirement |
 |----------|---------------------|
@@ -62,7 +62,7 @@ Example:
 
 ### Example Custom Installers
 
-![Alt text](images/image.png)
+![Alt text](./images/03.png)
 
 ### Existing Azure Resources
 
