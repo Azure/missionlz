@@ -1,4 +1,4 @@
-# Mission LZ Resources
+# Mission Landing Zone Resources
 
 [**Home**](../README.md) | [**Design**](./design.md) | [**Accelerators**](./accelerators.md) | [**Resources**](./resources.md)
 
