@@ -1,4 +1,4 @@
-# Using Management Groups with Mission Landing Zone
+# Mission Landing Zone - Using Management Groups
 
 ## Concepts
 

@@ -1,4 +1,4 @@
-# Mission LZ Deployment Guide for Bicep
+# Mission Landing Zone - Deployment Guide for Bicep
 
 ## Table of Contents
 

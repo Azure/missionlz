@@ -1,4 +1,4 @@
-# Mission LZ Deployment Guide using a TemplateSpec File
+# Mission Landing Zone - Deployment Guide using a TemplateSpec
 
 To mimic the Quickstart experience of an Azure Commercial or Azure Government MLZ deployment available at [Quickstart](https://github.com/Azure/missionlz) in Azure Secret or Azure Top Secret.
 

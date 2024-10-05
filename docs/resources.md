@@ -1,4 +1,4 @@
-# Mission Landing Zone Resources
+# Mission Landing Zone - Resources
 
 [**Home**](../README.md) | [**Design**](./design.md) | [**Add-Ons**](../src/bicep/add-ons/README.md) | [**Resources**](./resources.md)
 

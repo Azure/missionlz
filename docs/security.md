@@ -1,4 +1,4 @@
-# Security and Compliance Settings in MLZ
+# Missiong Landing Zone - Security & Compliance Settings
 
 **The following security settings and compliance features are available during the Mission Landing Zone deployment process:**
 

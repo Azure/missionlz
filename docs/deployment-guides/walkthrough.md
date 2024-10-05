@@ -1,4 +1,4 @@
-# Mission LZ Walkthrough Guide
+# Mission Landing Zone - Walkthrough Guide
 
 A walkthrough guide to the Quickstart MLZ deployment available at [Quickstart](https://github.com/Azure/missionlz)
 

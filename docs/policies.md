@@ -1,4 +1,4 @@
-# Mission Landing Zone Regulatory Compliance - NIST Policies
+# Mission Landing Zone - Regulatory Compliance - NIST Policies
 
 A goal of Mission Landing Zone (MLZ) is to ensure deployments have the tools and resources available that allow it to be compliant with most regulations across most industries.
 
