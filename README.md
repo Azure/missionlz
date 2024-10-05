@@ -2,13 +2,11 @@
 
 [**Home**](./README.md) | [**Design**](./docs/design.md) | [**Add-Ons**](./src/bicep/add-ons/README.md) | [**Resources**](./docs/resources.md)
 
-Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template. IT oversight organizations can use the template to create a cloud management system to deploy Azure environments for their workloads and teams.
-
-Mission Landing Zone addresses a narrowly scoped, specific need for a [Secure Cloud Computing Architecture (SCCA)](docs/scca.md) compliant hub and spoke infrastructure.
+Mission Landing Zone is a highly opinionated infrastructure as code (IaC) template. IT oversight organizations can use the template to create a cloud management system to deploy Azure environments for their workloads and teams. The solution addresses a narrowly scoped, specific need for a [Secure Cloud Computing Architecture (SCCA)](docs/scca.md) compliant hub and spoke infrastructure.
 
 - Designed for US Government mission customers
-- Implements SCCA controls following Microsoft's [SACA](https://aka.ms/saca) implementation guidance
-- Deployable in Azure commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret clouds
+- Implements controls following Microsoft's [SACA](https://aka.ms/saca) and [zero trust](https://learn.microsoft.com/security/zero-trust/) guidance
+- Deployable in Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret clouds
 - A simple solution with low configuration and narrow scope
 - Written as [Bicep](./src/bicep/) templates
 
@@ -16,7 +14,7 @@ Mission Landing Zone is the right solution when:
 
 - A simple, secure, and scalable hub and spoke infrastructure is needed.
 - A central IT team is administering cloud resources on behalf of other teams and workloads.
-- There is a need to implement SCCA.
+- There is a need to implement SCCA with zero trust.
 - Hosting any workload requiring a secure environment, for example: data warehousing, AI/ML, and containerized applications.
 
 Design goals include:
@@ -47,13 +45,11 @@ Mission Landing Zone can be deployed from the Azure Portal, or with Azure comman
 - Template Spec
 
 ### Deploy from the Azure Portal
-<!-- markdownlint-disable MD013 -->
-1. Deploy Mission Landing Zone into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
 
-    | Azure Commercial | Azure Government |
-    | :--- | :--- |
-    | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
-<!-- markdownlint-enable MD013 -->
+Deploy Mission Landing Zone into **Azure Commercial** or **Azure Government** from the Azure Portal:
+
+    | Azure Commercial | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
+    | Azure Government |  [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
 
 2. After a successful deployment, see our [add-ons](./src/bicep/add-ons/) directory for how to extend the capabilities of Mission Landing Zone.
 
