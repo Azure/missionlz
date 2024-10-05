@@ -1,6 +1,6 @@
 # Mission Landing Zone
 
-[**Home**](./README.md) | [**Design**](./docs/design.md) | [**Accelerators**](./docs/accelerators.md) | [**Resources**](./docs/resources.md)
+[**Home**](./README.md) | [**Design**](./docs/design.md) | [**Add-Ons**](./src/bicep/add-ons/README.md) | [**Resources**](./docs/resources.md)
 
 Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template. IT oversight organizations can use the template to create a cloud management system to deploy Azure environments for their workloads and teams.
 
