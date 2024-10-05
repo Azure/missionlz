@@ -28,7 +28,7 @@ Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity
 <img src="docs/images/networking.png" alt="A diagram that depicts a hub with four spokes, each spoke pointing at the hub" width="600" />
 <!-- markdownlint-enable MD033 -->
 
-Each virtual network has been given a default address prefix to ensure they fall within the default super network. Refer to the [Networking page](docs/networking.md) for all the default address prefixes.
+Each virtual network has been given a default address prefix to ensure they fall within the default super network. Refer to the [Networking page](./networking.md) for all the default address prefixes.
 
 ## Subscriptions
 
