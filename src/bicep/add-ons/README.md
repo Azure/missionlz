@@ -8,6 +8,11 @@ This directory contains add-ons to extend the functionality of Mission Landing Z
 
 Name   | Description
 ------ | -----------
+[Azure Virtual Desktop](./azure-virtual-desktop/README.md) | Allows for the deployment of Zero Trust, SCCA compliant stamps of Azure Virtual Desktop.
+[ESRI Accelerator](../../../docs/esri.md) | Allows for the deployment of both ArcGIS Pro on Azure Virtual Desktop & ESRI Enterprise.
+[Tier3](./tier3/README.md) | Deploys a spoke network peered to the hub in preparation for the deployment of a workload.
+[Zero Trust Imaging](./imaging/README.md) | Enables users to create customizable, zero trust images.
+
 <!--[AKS](./aks) | Deploys an AKS cluster.
 [App Service Plan](./app-service-plan) | Deploys an App Service Plan (AKA: Web Server Cluster) to support simple web accessible linux docker containers with optional dynamic auto scaling.
 [Automation Account](./automation-account) | Deploys an Azure Automation account that can be used to execute runbooks.
@@ -16,7 +21,3 @@ Name   | Description
 [KeyVault](./key-vault/) | Deploys a premium Azure Key Vault with RBAC enabled to support secret, key, and certificate management.
 [Zero Trust (TIC3.0) Workbook](./zero-trust-workbook) | Deploys an Azure Sentinel Zero Trust (TIC3.0) Workbook
 [IaaS DNS Forwarders](./iaas-dns-forwarders) | Deploys DNS Forwarder Virtual Machines in the HUB, for proper resolution of Private Endpoint and internal domains accross all Virtual Networks-->
-[Azure Virtual Desktop](./azure-virtual-desktop/README.md) | Allows for the deployment of Zero Trust, SCCA compliant stamps of Azure Virtual Desktop.
-[ESRI Accelerator](../../../docs/esri.md) | Allows for the deployment of both ArcGIS Pro on Azure Virtual Desktop & ESRI Enterprise.
-[Tier3](./tier3/README.md) | Deploys a spoke network peered to the hub in preparation for the deployment of a workload.
-[Zero Trust Imaging](./imaging/README.md) | Enables users to create customizable, zero trust images.
