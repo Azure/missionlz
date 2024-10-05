@@ -2,7 +2,7 @@
 
 [**Home**](./README.md) | [**Design**](./docs/design.md) | [**Accelerators**](./docs/accelerators.md) | [**Resources**](./docs/resources.md)
 
-Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their workloads and teams.
+Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template. IT oversight organizations can use the template to create a cloud management system to deploy Azure environments for their workloads and teams.
 
 Mission Landing Zone addresses a narrowly scoped, specific need for a [Secure Cloud Computing Architecture (SCCA)](docs/scca.md) compliant hub and spoke infrastructure.
 
@@ -24,7 +24,6 @@ Design goals include:
 - A simple, minimal set of code that is easy to configure
 - Good defaults that allow experimentation and testing in a single subscription
 - Deployment via command line or with a user interface
-- 100% Azure PaaS products
 
 Our intent is to enable IT Admins to use this software to:
 
@@ -35,9 +34,17 @@ Our intent is to enable IT Admins to use this software to:
 
 ## Quickstart
 
-You can deploy Mission Landing Zone from the Azure Portal, or by executing an Azure CLI command.
+Mission Landing Zone can be deployed from the Azure Portal, or with Azure command line tools.
 
-You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner) to the subscription(s) you deploy Mission Landing Zone into.
+### Prerequistes
+
+- [Owner RBAC permissions](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner) on the target subscription(s).
+- Enable the [Encryption At Host](https://learn.microsoft.com/azure/virtual-machines/disks-enable-host-based-encryption-portal?tabs=azure-powershell#prerequisites) feature on the target subscription(s).
+
+### Deployment Options
+
+- Azure Portal
+- Template Spec
 
 ### Deploy from the Azure Portal
 <!-- markdownlint-disable MD013 -->
@@ -52,11 +59,11 @@ You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/ro
 
 ### Deploy using a TemplateSpec in Azure Secret or Azure Top Secret
 
-Click [here](./docs/deployment-guide-templatespec.md) to learn how to create a templatespec.
+Click [here](./docs/deployment-guides/templatespec.md) to learn how to create a templatespec.
 
 ### Walkthrough of the Azure Quickstart Mission LZ deployment template
 
-Click [here](./docs/deployment-guide-walkthrough.md) to learn about each tab and the components of an MLZ deployment.
+Click [here](./docs/deployment-guides/walkthrough.md) to learn about each tab and the components of an MLZ deployment.
 
 ### Deploy using the Azure CLI
 
@@ -90,4 +97,4 @@ Click [here](./docs/deployment-guide-walkthrough.md) to learn about each tab and
 
 ## Getting Started
 
-For more detailed deployment instructions, see the [Deployment Guide for Bicep](docs/deployment-guide-bicep.md) in the [`docs`](docs) folder.
+For more detailed deployment instructions, see the [Deployment Guide for Bicep](./docs/deployment-guides/bicep.md) in the [`docs`](docs) folder.
