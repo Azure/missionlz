@@ -28,7 +28,10 @@ Our intent is to enable IT Admins to use this software to:
 - Test and evaluate the landing zone using a single Azure subscription
 - Develop a known good configuration that can be used for production with multiple Azure subscriptions
 - Customize the deployment configuration to suit specific needs
-- Deploy multiple customer workloads in production
+- Deploy multiple customer workloads in production.
+
+> [!NOTE]  
+> Be sure to check out our **[add-ons](./src/bicep/add-ons/README.md)** to accelerate workload deployments.
 
 ## Quickstart
 
@@ -36,15 +39,18 @@ Mission Landing Zone can be deployed from the Azure Portal, or with Azure comman
 
 ### Prerequistes
 
-- [Owner RBAC permissions](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner) on the target subscription(s).
-- Enable the [Encryption At Host](https://learn.microsoft.com/azure/virtual-machines/disks-enable-host-based-encryption-portal?tabs=azure-powershell#prerequisites) feature on the target subscription(s).
+The following prerequisites are required on all the target subscriptions:
+
+- [Owner RBAC permissions](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner)
+- [Enable Encryption At Host](https://learn.microsoft.com/azure/virtual-machines/disks-enable-host-based-encryption-portal?tabs=azure-powershell#prerequisites)
 
 ### Deployment Options
 
-- Azure Portal
-- Template Spec
+- [Azure Portal](#deploy-from-the-azure-portal)
+- [Template Spec](#deploy-using-a-templatespec-in-azure-secret-or-azure-top-secret)
+- [Azure CLI](#deploy-using-the-azure-cli)
 
-### Deploy from the Azure Portal
+#### Deploy from the Azure Portal
 
 Deploy Mission Landing Zone into **Azure Commercial** or **Azure Government** from the Azure Portal:
 
@@ -53,17 +59,14 @@ Deploy Mission Landing Zone into **Azure Commercial** or **Azure Government** fr
 | Azure Commercial | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
 | Azure Government |  [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
 
-2. After a successful deployment, see our [add-ons](./src/bicep/add-ons/) directory for how to extend the capabilities of Mission Landing Zone.
+> [!NOTE]
+> [Click here to learn about each step and element in the user interface.](./docs/deployment-guides/walkthrough.md)
 
-### Deploy using a TemplateSpec in Azure Secret or Azure Top Secret
+#### Deploy using a TemplateSpec in Azure Secret or Azure Top Secret
 
-Click [here](./docs/deployment-guides/templatespec.md) to learn how to create a templatespec.
+[Click here to learn how to create a templatespec.](./docs/deployment-guides/templatespec.md)
 
-### Walkthrough of the Azure Quickstart Mission LZ deployment template
-
-Click [here](./docs/deployment-guides/walkthrough.md) to learn about each tab and the components of an MLZ deployment.
-
-### Deploy using the Azure CLI
+#### Deploy using the Azure CLI
 
 1. Clone the repository and change directory to the root of the repository:
 
@@ -89,10 +92,7 @@ Click [here](./docs/deployment-guides/walkthrough.md) to learn about each tab an
     --parameters resourcePrefix="myMlz"
     ```
 
-1. After a successful deployment, see our [add-ons](./src/bicep/add-ons/) directory for how to extend the capabilities of Mission Landing Zone.
+1. Once the MLZ deployment is complete, see our [add-ons](./src/bicep/add-ons/) directory to extend the capabilities of your landing zone.
 
-> Don't have Azure CLI? Here's how to get started with Azure Cloud Shell in your browser: <https://docs.microsoft.com/en-us/azure/cloud-shell/overview>
-
-## Getting Started
-
-For more detailed deployment instructions, see the [Deployment Guide for Bicep](./docs/deployment-guides/bicep.md) in the [`docs`](docs) folder.
+> [!NOTE]
+> For more detailed deployment instructions, see the **[Deployment Guide for Bicep](./docs/deployment-guides/bicep.md)** in the **[docs](docs)** folder.
