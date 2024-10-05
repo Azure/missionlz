@@ -39,7 +39,7 @@ Mission Landing Zone can be deployed from the Azure Portal, or with Azure comman
 
 ### Prerequistes
 
-The following prerequisites are required on all the target subscriptions:
+The following prerequisites are required on the target subscription(s):
 
 - [Owner RBAC permissions](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner)
 - [Enable Encryption At Host](https://learn.microsoft.com/azure/virtual-machines/disks-enable-host-based-encryption-portal?tabs=azure-powershell#prerequisites)
