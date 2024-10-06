@@ -1,5 +1,7 @@
 # Missiong Landing Zone - Security & Compliance Settings
 
+[**Home**](../README.md) | [**Design**](./design.md) | [**Add-Ons**](../src/bicep/add-ons/README.md) | [**Resources**](./resources.md)
+
 **The following security settings and compliance features are available during the Mission Landing Zone deployment process:**
 
 ## Azure Policy
@@ -21,27 +23,16 @@ Defender for Cloud is a Cloud Security Posture Management (CSPM) solution that h
 MLZ can be deployed with the free Foundational Cloud Security Posture Management features. For enhanced protection, there is an option for activating paid features such as Defender for Cloud Security Posture Management and Workload Protection Plans for additional threat protection. Below are the additional features available for enabling:
 
 - Defender for CSPM
-
 - Defender for Servers
-
 - Defender for API
-
 - Defender for App Services
-
 - Defender for Resource Manager
-
 - Defender for Azure Cosmos DB
-
 - Defender for Key Vault
-
 - Defender for open-source relational databases
-
 - Defender for SQL Server on machines
-
 - Defender for Azure SQL
-
 - Defender for Storage
-
 - Defender for Containers
 
 ## Sentinel
@@ -95,7 +86,7 @@ Network rules allow or deny inbound and outbound traffic. You can use a network 
 - **Azure Government**
 ![alt text](./images/security/03.png)
 
-**Application Rules**
+### Application Rules
 
 Application rules allow or deny outbound traffic. You can use an application rule when you want to filter traffic based on fully qualified domain names (FQDNs), URLs, and HTTP/HTTPS protocols.The below application rules should be added to the firewall policy to allow AVD communication.
 
