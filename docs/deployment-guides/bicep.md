@@ -4,20 +4,20 @@
 
 ## Table of Contents
 
-- [Prerequisites](#prerequisites)  
-- [Planning](#planning)  
-- [Deployment](#deployment)  
-- [Cleanup](#cleanup)  
-- [Development Setup](#development-setup)  
-- [See Also](#see-also)  
+- [Prerequisites](#prerequisites)
+- [Planning](#planning)
+- [Deployment](#deployment)
+- [Cleanup](#cleanup)
+- [Development Setup](#development-setup)
+- [See Also](#see-also)
 
-This guide describes how to deploy Mission Landing Zone using the Bicep template at [src/bicep/mlz.bicep](../src/bicep). The template can be deployed using the Azure Portal, the Azure CLI, or PowerShell. Supported clouds include the Azure Cloud (commercial Azure), Azure US Government, Azure Secret, and Azure Top Secret.
+This guide describes how to deploy Mission Landing Zone (MLZ) using the Bicep template at [src/bicep/mlz.bicep](../src/bicep/mlz.bicep). The template can be deployed using the Azure Portal, the Azure CLI, or PowerShell. Supported clouds include the Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret.
 
 MLZ also provides the ARM template compiled from the Bicep file at [src/bicep/mlz.json](../src/bicep/mlz.json).
 
-MLZ has only one required parameter and provides sensible defaults for the rest, allowing for simple deployments that specify only the parameters that need to differ from the defaults. See the [README.md](../src/bicep/README.md) document in the `src/bicep` folder for a complete list of parameters.
+MLZ has only one required parameter and provides sensible defaults for the rest, allowing for simple deployments that specify only the parameters that need to differ from the defaults. See the [README.md](../src/bicep/README.md) document in the **src/bicep** folder for a complete list of parameters.
 
-Below is an example of an Azure CLI deployment that uses all the defaults, and sets the `resourcePrefix` parameter, which is the only required parameter.
+Below is an example of an Azure CLI deployment that uses all the defaults, and sets the **resourcePrefix** parameter, which is the only required parameter.
 
 ```BASH
 az deployment sub create \
@@ -29,8 +29,8 @@ az deployment sub create \
 
 ## Prerequisites
 
-- One or more Azure subscriptions where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
-- Azure Resource Provider Feature for Encryption At Host
+- One or more Azure subscriptions where you or an identity you manage has [Owner RBAC permissions](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner)
+- Enable the Azure Resource Provider Feature for [Encryption At Host](https://learn.microsoft.com/azure/virtual-machines/disks-enable-host-based-encryption-portal?tabs=azure-powershell#prerequisites)
 
 To adhere to zero trust principles, the virtual machine disks deployed in this solution must be encrypted. The encryption at host feature enables disk encryption on virtual machine temp and cache disks. To use this feature, a resource provider feature must enabled on your Azure subscription. Use the following PowerShell script to enable the feature:
 
@@ -42,7 +42,8 @@ Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "M
 - For deployments in BASH or a Windows shell, then a terminal instance with the AZ CLI installed is required. For example, [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview), the MLZ [development container](../.devcontainer/README.md), or a command shell on your local machine with the [AZ CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
 - For PowerShell deployments you need a PowerShell terminal with the [Azure Az PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/what-is-azure-powershell) installed.
 
-> NOTE: The AZ CLI will automatically install the Bicep tools when a command is run that needs them, or you can manually install them following the [instructions here.](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#azure-cli)
+> [!NOTE]
+> The AZ CLI will automatically install the Bicep tools when a command is run that needs them, or you can manually install them following the **[instructions here.](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#azure-cli)**
 
 ## Planning
 
