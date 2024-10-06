@@ -1,5 +1,7 @@
 # Mission Landing Zone - Deployment Guide for Bicep
 
+[**Home**](../../README.md) | [**Design**](../design.md) | [**Add-Ons**](../../src/bicep/add-ons/README.md) | [**Resources**](../resources.md)
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)  

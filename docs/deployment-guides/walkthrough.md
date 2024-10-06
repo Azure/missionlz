@@ -1,5 +1,7 @@
 # Mission Landing Zone - Walkthrough Guide
 
+[**Home**](../../README.md) | [**Design**](../design.md) | [**Add-Ons**](../../src/bicep/add-ons/README.md) | [**Resources**](../resources.md)
+
 A walkthrough guide to the Quickstart MLZ deployment available at [Quickstart](https://github.com/Azure/missionlz)
 
 ## Table of Contents
