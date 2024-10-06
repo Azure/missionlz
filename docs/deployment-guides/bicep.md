@@ -29,18 +29,16 @@ az deployment sub create \
 
 ## Prerequisites
 
-- One or more Azure subscriptions where you or an identity you manage has [Owner RBAC permissions](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner)
-- Enable the Azure Resource Provider Feature for [Encryption At Host](https://learn.microsoft.com/azure/virtual-machines/disks-enable-host-based-encryption-portal?tabs=azure-powershell#prerequisites)
+- **Permissions:** One or more Azure subscriptions where you or an identity you manage has [Owner RBAC permissions](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner)
+- **Encryption At Host:** To adhere to zero trust principles, the virtual machine disks deployed in this solution must be encrypted. The Encryption at Host feature enables disk encryption on virtual machine temp and cache disks. To use this feature, a resource provider feature must enabled on your Azure subscription. Use the following PowerShell script to enable the feature:
 
-To adhere to zero trust principles, the virtual machine disks deployed in this solution must be encrypted. The encryption at host feature enables disk encryption on virtual machine temp and cache disks. To use this feature, a resource provider feature must enabled on your Azure subscription. Use the following PowerShell script to enable the feature:
+    ```powershell
+    Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Microsoft.Compute"
+    ```
 
-```powershell
-Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Microsoft.Compute"
-```
-
-- For deployments in the Azure Portal you need access to the portal in the cloud you want to deploy to, such as [https://portal.azure.com](https://portal.azure.com) or [https://portal.azure.us](https://portal.azure.us).
-- For deployments in BASH or a Windows shell, then a terminal instance with the AZ CLI installed is required. For example, [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview), the MLZ [development container](../.devcontainer/README.md), or a command shell on your local machine with the [AZ CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
-- For PowerShell deployments you need a PowerShell terminal with the [Azure Az PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/what-is-azure-powershell) installed.
+- **Deployment Tools:**
+  - **Azure PowerShell:** For PowerShell deployments you need a PowerShell terminal with the [Azure Az PowerShell module](https://learn.microsoft.com/powershell/azure/what-is-azure-powershell) installed.
+  - **Azure CLI:** For deployments in BASH or a Windows shell, AZ CLI is required. Examples for using Azure CLI are [Azure Cloud Shell](https://learn.microsoft.com/azure/cloud-shell/overview) or a command shell on your local machine with the [AZ CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed.
 
 > [!NOTE]
 > The AZ CLI will automatically install the Bicep tools when a command is run that needs them, or you can manually install them following the **[instructions here.](https://learn.microsoft.com/azure/azure-resource-manager/bicep/install#azure-cli)**
@@ -123,14 +121,14 @@ Parameter name | Default Value | Description
 
 #### Remote access with a Bastion Host
 
-If you want to remotely access the network and the resources you've deployed you can use [Azure Bastion](https://docs.microsoft.com/en-us/azure/bastion/) to remotely access virtual machines within the network without exposing them via Public IP Addresses.
+If you want to remotely access the network and the resources you've deployed you can use [Azure Bastion](https://learn.microsoft.com/azure/bastion/) to remotely access virtual machines within the network without exposing them via Public IP Addresses.
 
 Deploy a Linux and Windows virtual machine as jumpboxes into the network without a Public IP Address using Azure Bastion Host by providing values for these parameters:
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
 `deployRemoteAccess` | 'false' | When set to "true", provisions Azure Bastion Host and virtual machine jumpboxes. It defaults to "false".
-`windowsVmAdminPassword` | new guid | The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See [password requirements for creating a Windows VM](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-).
+`windowsVmAdminPassword` | new guid | The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See [password requirements for creating a Windows VM](https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-).
 `linuxVmAuthenticationType` | 'password' | [sshPublicKey/password] The authentication type for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "password".
 `linuxVmAdminPasswordOrKey` | new guid | The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See [password requirements for creating a Linux VM](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-).
 `windowsVmAdminUsername` | 'azureuser' | The administrator username for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".
@@ -140,17 +138,19 @@ Parameter name | Default Value | Description
 
 By default, MLZ deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If necessary you can set a different firewall SKU or location.
 
-You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Standard` or `Premium` or `Basic`.
+You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Premium`, `Standard`, or `Basic`.
 
-Parameter name | Default Value | Description
--------------- | ------------- | -----------
-`firewallSkuTier` | 'Premium' | [Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium".
+Parameter name    | Default Value | Description
+:---------------- | :------------ | :----------
+`firewallSkuTier` | 'Premium'     | [Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium".
 
 If you'd like to specify a different region to deploy your resources into, change the location of the deployment. For example, when using the AZ CLI set the deployment command's `--location` argument.
 
 ### Naming Conventions
 
-By default, Mission LZ resources are named according to a naming convention that uses the mandatory `resourcePrefix` parameter and the optional `resourceSuffix` parameter (that is defaulted to `mlz`).
+<!-- markdownlint-disable MD013 -->
+Mission Landing Zone resources are named according to the naming convention defined in the **src/bicep/modules/naming-convention.bicep** file. There are two different conventions used, depending on the type of resource. One convention is used to signify the relationship between itself and other resources so the name contains a service token. The other convention is essentially the same, minus the service token.
+<!-- markdownlint-enable MD013 -->
 
 #### Default Naming Convention Example
 
