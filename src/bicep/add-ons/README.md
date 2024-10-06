@@ -2,7 +2,7 @@
 
 [**Home**](../../../README.md) | [**Design**](../../../docs/design.md) | [**Add-Ons**](./README.md) | [**Resources**](../../../docs/resources.md)
 
-This directory contains add-ons to extend the functionality of Mission Landing Zone. These add-ons are reference implementations aligned with industry proven practices, and automation packaged to deploy workload platforms on Azure at scale. Each add-on creates a tier3 spoke virtual network that is peered to the HUB virtual network and was developed to adhere to the SACA and zero-trust guidelines.
+This directory contains add-ons to extend the functionality of Mission Landing Zone. These add-ons are reference implementations aligned with industry proven practices, and automation packaged to deploy workload platforms on Azure at scale. Each add-on creates a tier3 spoke virtual network that is peered to the hub virtual network. These add-ons were developed to adhere to the SCCA and zero-trust guidelines.
 
 ## Add-Ons
 
@@ -10,7 +10,7 @@ Name   | Description
 ------ | -----------
 [Azure Virtual Desktop](./azure-virtual-desktop/README.md) | Allows for the deployment of Zero Trust, SCCA compliant stamps of Azure Virtual Desktop.
 [ESRI Accelerator](../../../docs/esri.md) | Allows for the deployment of both ArcGIS Pro on Azure Virtual Desktop & ESRI Enterprise.
-[Tier3](./tier3/README.md) | Deploys a spoke network peered to the hub in preparation for the deployment of a workload.
+[Tier3](./tier3/README.md) | Deploys a spoke network peered to the hub in preparation for the manual deployment of a workload.
 [Zero Trust Imaging](./imaging/README.md) | Enables users to create customizable, zero trust images.
 
 <!--[AKS](./aks) | Deploys an AKS cluster.
