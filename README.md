@@ -60,11 +60,14 @@ Deploy Mission Landing Zone into **Azure Commercial** or **Azure Government** fr
 | Azure Government |  [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
 
 > [!NOTE]
-> [Click here to learn about each step and element in the user interface.](./docs/deployment-guides/walkthrough.md)
+> For more detailed deployment instructions, see the **[Deployment Guide for Command Line Tools](./docs/deployment-guides/command-line-tools.md)** in the **[docs/deployment-guides](docs/deployment-guides/)** folder.
 
 #### Deploy using a TemplateSpec in Azure Secret or Azure Top Secret
 
-[Click here to learn how to create a templatespec.](./docs/deployment-guides/templatespec.md)
+
+
+> [!NOTE]
+> For more detailed deployment instructions, see the **[Deployment Guide using the Azure Portal](./docs/deployment-guides/portal.md)** in the **[docs/deployment-guides](docs/deployment-guides/)** folder.
 
 #### Deploy using the Azure CLI
 
@@ -95,4 +98,4 @@ Deploy Mission Landing Zone into **Azure Commercial** or **Azure Government** fr
 1. Once the MLZ deployment is complete, see our [add-ons](./src/bicep/add-ons/) directory to extend the capabilities of your landing zone.
 
 > [!NOTE]
-> For more detailed deployment instructions, see the **[Deployment Guide for Bicep](./docs/deployment-guides/bicep.md)** in the **[docs](docs)** folder.
+> For more detailed deployment instructions, see the **[Deployment Guide using Command Line Tools](./docs/deployment-guides/command-line-tools.md)** in the **[docs/deployment-guides](docs/deployment-guides/)** folder.

@@ -1,4 +1,4 @@
-# Mission Landing Zone - Deployment Guide for Bicep
+# Mission Landing Zone - Deployment Guide using Command Line Tools
 
 [**Home**](../../README.md) | [**Design**](../design.md) | [**Add-Ons**](../../src/bicep/add-ons/README.md) | [**Resources**](../resources.md)
 
@@ -11,9 +11,7 @@
 - [Development Setup](#development-setup)
 - [See Also](#see-also)
 
-This guide describes how to deploy Mission Landing Zone (MLZ) using the Bicep template at [src/bicep/mlz.bicep](../src/bicep/mlz.bicep). The template can be deployed using the Azure Portal, the Azure CLI, or PowerShell. Supported clouds include the Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret.
-
-MLZ also provides the ARM template compiled from the Bicep file at [src/bicep/mlz.json](../src/bicep/mlz.json).
+This guide describes how to deploy Mission Landing Zone (MLZ) using the Bicep template at [src/bicep/mlz.bicep](../src/bicep/mlz.bicep) using either Azure CLI or Azure PowerShell. The supported clouds for this guide include the Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret.
 
 MLZ has only one required parameter and provides sensible defaults for the rest, allowing for simple deployments that specify only the parameters that need to differ from the defaults. See the [README.md](../src/bicep/README.md) document in the **src/bicep** folder for a complete list of parameters.
 
@@ -154,14 +152,7 @@ Mission Landing Zone resources are named according to the naming convention defi
 
 #### Default Naming Convention Example
 
-Let's look at an example using `--parameters resourcePrefix=FOO` and `--parameters resourceSuffix=BAR`
-
-In `mlz.bicep` you will find a variable titled `namingConvention`:
-
-```bicep
-var namingConvention = '${toLower(resourcePrefix)}-${resourceToken}-${nameToken}-${toLower(resourceSuffix)}'
-# this generates a value of: foo-${resourceToken}-${nameToken}-bar
-```
+Let's look at an example using `--parameters resourcePrefix=FOO`
 
 This naming convention uses Bicep's `replace()` function to substitute resource abbreviations for `resourceToken` and resource names for `nameToken`.
 
@@ -470,10 +461,7 @@ If you want to develop with Bicep you'll need these:
 
 ## See Also
 
-[Bicep documentation](https://aka.ms/bicep/)
-
-[`az deployment` documentation](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
-
-[JMESPath queries](https://jmespath.org/)
-
-[Azure Az PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/what-is-azure-powershell)
+- [Bicep documentation](https://aka.ms/bicep/)
+- [Azure CLI documentation for az deployment](https://learn.microsoft.com/cli/azure/deployment?view=azure-cli-latest)
+- [JMESPath queries](https://jmespath.org/)
+- [Azure Az PowerShell module](https://learn.microsoft.com/powershell/azure/what-is-azure-powershell)

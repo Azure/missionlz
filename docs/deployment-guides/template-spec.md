@@ -1,17 +1,17 @@
-# Mission Landing Zone - Deployment Guide using a TemplateSpec
+# Mission Landing Zone - Deployment Guide using a Template Spec
 
 [**Home**](../../README.md) | [**Design**](../design.md) | [**Add-Ons**](../../src/bicep/add-ons/README.md) | [**Resources**](../resources.md)
-
-To mimic the Quickstart experience of an Azure Commercial or Azure Government MLZ deployment available at [Quickstart](https://github.com/Azure/missionlz) in Azure Secret or Azure Top Secret.
 
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
-- [Create the TemplateSpecFile](#create-the-templatespecfile)
+- [Create the Template Spec](#create-the-template-spec)
 - [MLZ-Core resources deployed](#mlz-core-resources-deployed)
 - [See Also](#see-also)
 
-This guide describes how to create an Azure TemplateSpecFile. The TemplateSpecFile is used to execute a user-friendly MLZ deployment GUI.  This GUI is the same Quickstart experience available in Azure Commercial and Azure Government. The TemplateSpec File is created via Powershell and requires only 2 files, [src/bicep/mlz.json](../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../src/bicep/form/mlz.json).
+This guide describes how to create a Template Spec to deploy Mission Landing Zone (MLZ). The Template Spec resource is used to store the JSON ARM template with a user-friendly custom graphical user interface (GUI) in the Azure Portal. The resource allows you deploy the code directly in the Portal.
+
+This GUI is the same as the portal experience available in Azure Commercial and Azure Government. The Template Spec is created via Powershell and requires only 2 files, [src/bicep/mlz.json](../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../src/bicep/form/mlz.json)
 
 The TemplateSpecFile is created and deployed using the Azure Portal in Azure Secret and Azure Top Secret environments.
 
@@ -30,7 +30,7 @@ Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "M
 
 - For PowerShell deployments you need a PowerShell terminal with the [Azure Az PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/what-is-azure-powershell) installed. Or simply use CloudShell in the Azure Portal.
 
-## Create the TemplateSpecFile
+## Create the Template Spec
 
 To create the TemplateSpecFile follow the steps below:
 
