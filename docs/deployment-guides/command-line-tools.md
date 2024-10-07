@@ -15,7 +15,16 @@ This guide describes how to deploy Mission Landing Zone (MLZ) using the Bicep te
 
 MLZ has only one required parameter and provides sensible defaults for the rest, allowing for simple deployments that specify only the parameters that need to differ from the defaults. See the [README.md](../src/bicep/README.md) document in the **src/bicep** folder for a complete list of parameters.
 
-Below is an example of an Azure CLI deployment that uses all the defaults, and sets the **resourcePrefix** parameter, which is the only required parameter.
+Below is an example of a PowerShell and Azure CLI deployment that uses all the defaults, and sets the **resourcePrefix** parameter, which is the only required parameter.
+
+```PowerShell
+# PowerShell
+New-AzSubscriptionDeployment `
+  -Name myMlzDeployment `
+  -Location 'eastus' `
+  -TemplateFile .\mlz.bicep `
+  -resourcePrefix 'myMlz' 
+```
 
 ```BASH
 az deployment sub create \
@@ -30,8 +39,12 @@ az deployment sub create \
 - **Permissions:** One or more Azure subscriptions where you or an identity you manage has [Owner RBAC permissions](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner)
 - **Encryption At Host:** To adhere to zero trust principles, the virtual machine disks deployed in this solution must be encrypted. The Encryption at Host feature enables disk encryption on virtual machine temp and cache disks. To use this feature, a resource provider feature must enabled on your Azure subscription. Use the following PowerShell script to enable the feature:
 
-    ```powershell
-    Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Microsoft.Compute"
+    ```PowerShell
+    Register-AzProviderFeature -FeatureName 'EncryptionAtHost' -ProviderNamespace 'Microsoft.Compute'
+    ```
+
+    ```Bash
+    az feature register --name EncryptionAtHost  --namespace Microsoft.Compute
     ```
 
 - **Deployment Tools:**
@@ -54,7 +67,7 @@ MLZ can deploy to a single subscription or multiple subscriptions. A test and ev
 The optional parameters related to subscriptions are below. They default to the subscription used for deployment.
 
 Parameter name | Default Value | Description
--------------- | ------------- | -----------
+:------------- | :------------ | :----------
 `hubSubscriptionId` | Deployment subscription | Subscription containing the firewall and network hub
 `identitySubscriptionId` | Deployment subscription | Tier 0 for identity solutions
 `operationsSubscriptionId` | Deployment subscription | Tier 1 for network operations and security tools
@@ -62,7 +75,7 @@ Parameter name | Default Value | Description
 
 ### Networking
 
-The following parameters affect networking. Each virtual network and subnet has been given a default address prefix to ensure they fall within the default super network. Refer to the [Networking page](docs/networking.md) for all the default address prefixes.
+The following parameters affect networking. Each virtual network and subnet has been given a default address prefix to ensure they fall within the default super network. Refer to the [Networking page](../networking.md) for all the default address prefixes.
 
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
@@ -103,11 +116,10 @@ Microsoft Defender for Cloud offers a standard/defender sku which enables a grea
 Parameter name | Default Value | Description
 -------------- | ------------- | -----------
 `deployDefender` | 'false' | When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".
+`deployDefenderPlans` | '['VirtualMachines']' | Paid Workload Protection plans for Defender for Cloud. It defaults to "VirtualMachines".
 `emailSecurityContact` | '' | Email address of the contact, in the form of <john@doe.com>
 
-The Defender plan by resource type for Microsoft Defender for Cloud is enabled by default in the following [Azure Environments](https://docs.microsoft.com/en-us/powershell/module/servicemanagement/azure.service/get-azureenvironment?view=azuresmps-4.0.0): `AzureCloud` and `AzureUSGovernment`. To enable this for other Azure Cloud environments, this will need to executed manually.
-Documentation on how to do this can be found
-[here](https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security)
+The Defender plan for Microsoft Defender for Cloud is enabled by default in the following [Azure Environments](https://learn.microsoft.com/powershell/module/servicemanagement/azure.service/get-azureenvironment?view=azuresmps-4.0.0): `AzureCloud`. To enable this for other Azure Cloud environments, this will need to executed manually. Documentation on how to do this can be found [here](https://learn.microsoft.com/azure/defender-for-cloud/enable-enhanced-security).
 
 #### Azure Sentinel
 
