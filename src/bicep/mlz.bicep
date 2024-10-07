@@ -42,7 +42,7 @@ param supportedClouds array = [
 ]
 
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
-param deployIdentity bool
+param deployIdentity bool = false
 
 @description('Choose whether to deploy network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription.')
 param deployNetworkWatcher bool = false
@@ -95,7 +95,7 @@ param sharedServicesSubnetAddressPrefix string = '10.0.132.0/24'
   'Basic'
 ])
 @description('[Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.')
-param firewallSkuTier string
+param firewallSkuTier string = 'Premium'
 
 @allowed([
   'Alert'
@@ -366,9 +366,9 @@ param linuxVmAdminUsername string = 'azureuser'
 @description('[sshPublicKey/password] The authentication type for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "password".')
 param linuxVmAuthenticationType string = 'password'
 
-@description('The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
-@secure()
 @minLength(12)
+@secure()
+@description('The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
 param linuxVmAdminPasswordOrKey string = deployLinuxVirtualMachine ? '' : newGuid()
 
 @description('The disk creation option of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".')
@@ -384,6 +384,7 @@ param linuxVmOsDiskType string = 'Standard_LRS'
 ])
 @description('[Canonical for Ubuntu/RedHat/Debian] The available Linux Publishers')
 param linuxVmImagePublisher string = 'Canonical'
+
 @allowed([
   'ubuntuserver'
   '0001-com-ubuntu-server-focal'
@@ -393,7 +394,11 @@ param linuxVmImagePublisher string = 'Canonical'
 ])
 @description('[Ubuntu/RHEL/Debian-12] The available Linux Offers')
 param linuxVmImageOffer string = '0001-com-ubuntu-server-focal'
+
+@description('The SKU of the Linux marketplace image.')
 param linuxVmImageSku string = '20_04-lts-gen2'
+
+@description('The size of the Linux virtual machine.')
 param linuxVmSize string = 'Standard_D2s_v3'
 
 @allowed([
@@ -408,9 +413,9 @@ param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 @description('The administrator username for the Windows Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
 param windowsVmAdminUsername string = 'azureuser'
 
-@description('The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
-@secure()
 @minLength(12)
+@secure()
+@description('The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
 param windowsVmAdminPassword string = deployWindowsVirtualMachine ? '' : newGuid()
 
 @description('The size of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "Standard_DS1_v2".')
@@ -798,5 +803,6 @@ output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetwork
 output identitySubnetResourceId string = networking.outputs.identitySubnetResourceId
 output locationProperties object = logic.outputs.locationProperties
 output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId
+output privateLinkScopeResourceId string = monitoring.outputs.privateLinkScopeResourceId
 output sharedServicesSubnetResourceId string = networking.outputs.sharedServicesSubnetResourceId
 output tiers array = logic.outputs.tiers

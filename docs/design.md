@@ -1,6 +1,7 @@
-# Mission LZ Design
+# Mission Landing Zone - Design
 
-[**Home**](./README.md) | [**Design**](./DESIGN.md) | [**Accelerators**](./ACCELERATORS.md) | [**Resources**](./RESOURCES.md)
+[**Home**](../README.md) | [**Design**](./design.md) | [**Add-Ons**](../src/bicep/add-ons/README.md) | [**Resources**](./resources.md)
+
 ## Scope
 
 Mission LZ has the following scope:
@@ -15,7 +16,7 @@ Mission LZ has the following scope:
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/scope-v2.png" alt="A table of the components Mission LZ provisions in Azure beneath a rectangle labeled DISA Secure Cloud Computing Architecture Controls" width="600" />
+<img src="images/scope-v2.png" alt="A table of the components Mission LZ provisions in Azure beneath a rectangle labeled DISA Secure Cloud Computing Architecture Controls" width="600" />
 <!-- markdownlint-enable MD033 -->
 
 ## Networking
@@ -24,10 +25,10 @@ Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/networking.png" alt="A diagram that depicts a hub with four spokes, each spoke pointing at the hub" width="600" />
+<img src="images/networking.png" alt="A diagram that depicts a hub with four spokes, each spoke pointing at the hub" width="600" />
 <!-- markdownlint-enable MD033 -->
 
-Each virtual network has been given a default address prefix to ensure they fall within the default super network. Refer to the [Networking page](docs/networking.md) for all the default address prefixes.
+Each virtual network has been given a default address prefix to ensure they fall within the default super network. Refer to the [Networking page](./networking.md) for all the default address prefixes.
 
 ## Subscriptions
 
@@ -61,5 +62,5 @@ Here's a summary of what Mission Landing Zone deploys of as of April 2024:
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
-<img src="docs/images/20211220_updated_missionlz_as_of_Apr2024_light.png" alt="A diagram that depicts a hub and spoke network topology built with Azure resources" width="1200" />
+<img src="images/20211220_updated_missionlz_as_of_Apr2024_light.png" alt="A diagram that depicts a hub and spoke network topology built with Azure resources" width="1200" />
 <!-- markdownlint-enable MD033 -->

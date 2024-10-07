@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "1808741392399911804"
+      "templateHash": "1330934597070396447"
     }
   },
   "parameters": {
@@ -76,6 +76,7 @@
     },
     "deployIdentity": {
       "type": "bool",
+      "defaultValue": false,
       "metadata": {
         "description": "Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities."
       }
@@ -173,6 +174,7 @@
     },
     "firewallSkuTier": {
       "type": "string",
+      "defaultValue": "Premium",
       "allowedValues": [
         "Standard",
         "Premium",
@@ -682,11 +684,17 @@
     },
     "linuxVmImageSku": {
       "type": "string",
-      "defaultValue": "20_04-lts-gen2"
+      "defaultValue": "20_04-lts-gen2",
+      "metadata": {
+        "description": "The SKU of the Linux marketplace image."
+      }
     },
     "linuxVmSize": {
       "type": "string",
-      "defaultValue": "Standard_D2s_v3"
+      "defaultValue": "Standard_D2s_v3",
+      "metadata": {
+        "description": "The size of the Linux virtual machine."
+      }
     },
     "linuxNetworkInterfacePrivateIPAddressAllocationMethod": {
       "type": "string",
@@ -5085,7 +5093,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "12909131647419502129"
+              "templateHash": "17664628665088454883"
             }
           },
           "parameters": {
@@ -5545,6 +5553,10 @@
             "logAnalyticsWorkspaceResourceId": {
               "type": "string",
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('ops').subscriptionId, parameters('opsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-law-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            },
+            "privateLinkScopeResourceId": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('ops').subscriptionId, parameters('opsResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-private-link-scope-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
             }
           }
         }
@@ -8647,6 +8659,10 @@
     "logAnalyticsWorkspaceResourceId": {
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+    },
+    "privateLinkScopeResourceId": {
+      "type": "string",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateLinkScopeResourceId.value]"
     },
     "sharedServicesSubnetResourceId": {
       "type": "string",

@@ -99,37 +99,16 @@ Parameter name | Required | Description
 
 ## Outputs
 
-You can use the AZ CLI or PowerShell to retrieve the output values from a deployment, or you can use the Azure Portal to view the output values. See the [Referencing Deployment Output section](../../docs/deployment-guide-bicep.md#reference-deployment-output) in the Deployment Guide for Bicep.
-
-When the output is saved as a json document from the Azure CLI, these are the paths in the document to all the values. (The `[0..2]` notation indicates an array with three elements.)
+You can use Azure CLI, PowerShell, or the Portal to retrieve the output values from a deployment. See the [Referencing Deployment Output section](../../docs/deployment-guide-bicep.md#reference-deployment-output) in the Deployment Guide for Bicep to create a deployment variables file. When the outputs are saved to a file, the following outputs will be provided with their values:
 
 ```plaintext
-firewallPrivateIPAddress.value
-hub.value.networkSecurityGroupName
-hub.value.networkSecurityGroupResourceId
-hub.value.resourceGroupName
-hub.value.resourceGroupResourceId
-hub.value.subnetAddressPrefix
-hub.value.subnetName
-hub.value.subnetResourceId
-hub.value.subscriptionId
-hub.value.virtualNetworkName
-hub.value.virtualNetworkResourceId
-logAnalyticsWorkspaceName.value
-logAnalyticsWorkspaceResourceId.value
-mlzResourcePrefix.value
-spokes.value[0..2].name
-spokes.value[0..2].networkSecurityGroupName
-spokes.value[0..2].networkSecurityGroupResourceId
-spokes.value[0..2].resourceGroupId
-spokes.value[0..2].resourceGroupName
-spokes.value[0..2].subnetAddressPrefix
-spokes.value[0..2].subnetName
-spokes.value[0..2].subnetResourceId
-spokes.value[0..2].subscriptionId
-spokes.value[0..2].virtualNetworkName
-spokes.value[0..2].virtualNetworkResourceId
-deployPolicy.value
-policyName.value
-deployDefender.value
-emailSecurityContact.value
+azureFirewallResourceId
+diskEncryptionSetResourceId
+hubVirtualNetworkResourceId
+identitySubnetResourceId
+locationProperties
+logAnalyticsWorkspaceResourceId
+privateLinkScopeResourceId
+sharedServicesSubnetResourceId
+tiers
+```

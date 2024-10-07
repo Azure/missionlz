@@ -1,4 +1,6 @@
-# Mission LZ Deployment Guide using a TemplateSpec File
+# Mission Landing Zone - Deployment Guide using a TemplateSpec
+
+[**Home**](../../README.md) | [**Design**](../design.md) | [**Add-Ons**](../../src/bicep/add-ons/README.md) | [**Resources**](../resources.md)
 
 To mimic the Quickstart experience of an Azure Commercial or Azure Government MLZ deployment available at [Quickstart](https://github.com/Azure/missionlz) in Azure Secret or Azure Top Secret.
 
@@ -76,6 +78,7 @@ To follow a walkthrough of the MLZ deployment click [Walkthrough](./deployment-g
 ## MLZ-Core resources deployed
 
 Once deployed MLZ will deploy a number of resources into 4 Resource Groups:
+
 1. Hub
 2. Operations
 3. Shared Services
