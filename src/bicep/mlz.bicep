@@ -696,6 +696,7 @@ module remoteAccess 'modules/remote-access.bicep' = {
       windowsVmSku: windowsVmSku
       windowsVmStorageAccountType: windowsVmStorageAccountType
       windowsVmVersion: windowsVmVersion
+      supportedClouds: supportedClouds
     }
     dependsOn: [
       monitoring
