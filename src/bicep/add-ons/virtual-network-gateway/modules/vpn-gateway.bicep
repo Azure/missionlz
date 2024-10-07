@@ -67,7 +67,8 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2023-02-01' = {
     activeActive: true
     vpnType: 'RouteBased'
     vpnGatewayGeneration: 'Generation2'
-    enableBgp: true
+    enableBgp: false
+    enablePrivateIpAddress: false
     sku: {
       name: vgwsku
       tier: vgwsku

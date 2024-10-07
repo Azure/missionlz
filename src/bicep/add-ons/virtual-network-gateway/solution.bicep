@@ -47,6 +47,9 @@ param azureFirewallName string
 @description('The name of the vgw route table to create')
 param vgwRouteTableName string
 
+@description('The name of the gateway subnet')
+param gatewaySubnetName string = 'GatewaySubnet'
+
 // Parameter validation
 var isValidUri = contains(keyVaultCertificateUri, 'https://') && contains(keyVaultCertificateUri, '/secrets/')
 
@@ -120,7 +123,7 @@ module vpnConnectionModule 'modules/vpn-connection.bicep' = {
 }
 
 // Loop through the vnetResourceIdList and to retrieve the peerings for each VNet
-module retrieveVnetPeerings 'modules/retrieve-vnet-peerings.bicep' = [for (vnetId, i) in vnetResourceIdList: {
+module retrieveVnetPeerings 'modules/retrieve-existing.bicep' = [for (vnetId, i) in vnetResourceIdList: {
   name: 'retrieveVnetPeerings-${deploymentNameSuffix}-${i}'
   scope: resourceGroup(split(vnetId, '/')[2], split(vnetId, '/')[4])
   params: {
@@ -132,7 +135,7 @@ module retrieveVnetPeerings 'modules/retrieve-vnet-peerings.bicep' = [for (vnetI
 }]
 
 // Get the hub virtual network peerings
-module retrieveHubVnetPeerings 'modules/retrieve-vnet-peerings.bicep' = {
+module retrieveHubVnetPeerings 'modules/retrieve-existing.bicep' = {
   name: 'retrieveHubVnetPeerings-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -144,7 +147,7 @@ module retrieveHubVnetPeerings 'modules/retrieve-vnet-peerings.bicep' = {
 }
 
 // Call update the Hub peerings first to enable spokes to use the VPN Gateway, if not done first, spokes will fail their update
-module updateHubPeerings 'modules/update-vnet-peerings.bicep' = {
+module updateHubPeerings 'modules/vnet-peerings.bicep' = {
   name: 'updateHubPeerings-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -159,7 +162,7 @@ module updateHubPeerings 'modules/update-vnet-peerings.bicep' = {
 
 
 // Update the peerings for each spoke VNet to use the VPN Gateway
-module updatePeerings 'modules/update-vnet-peerings.bicep' = [for (vnetId, i) in vnetResourceIdList: {
+module updatePeerings 'modules/vnet-peerings.bicep' = [for (vnetId, i) in vnetResourceIdList: {
   name: 'updatePeerings-${deploymentNameSuffix}-${i}'
   scope: resourceGroup(split(vnetId, '/')[2], split(vnetId, '/')[4])
   params: {
@@ -171,13 +174,13 @@ module updatePeerings 'modules/update-vnet-peerings.bicep' = [for (vnetId, i) in
   ]
 }]
 
-module retrieveRouteTableInfo 'modules/retrieve-fwandgwsubnetinfo.bicep' = {
+module retrieveRouteTableInfo 'modules/retrieve-existing.bicep' = {
   name: 'retrieveRouteTableInfo-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     azureFirewallName: azureFirewallName
-    subnetName: 'GatewaySubnet'
+    subnetName: gatewaySubnetName
   }
   dependsOn: [
     updatePeerings
@@ -185,7 +188,7 @@ module retrieveRouteTableInfo 'modules/retrieve-fwandgwsubnetinfo.bicep' = {
 }
 
 
-module createRouteDef 'modules/create-routedef.bicep' = {
+module createRouteDef 'modules/route-definition.bicep' = {
   name: 'createRouteDef-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -209,13 +212,13 @@ module createRouteTable 'modules/route-table.bicep' = {
   ]
 }
 
-module associateRouteTable 'modules/associate-rttosubnet.bicep' = {
+module associateRouteTable 'modules/associate-route-table.bicep' = {
   name: 'associateRouteTable-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
     vnetResourceId: hubVirtualNetworkResourceId
     routeTableResourceId: createRouteTable.outputs.routeTableId
-    subnetName: 'GatewaySubnet'
+    subnetName: gatewaySubnetName
     gwSubnetAddressPrefix: retrieveRouteTableInfo.outputs.gwSubnetAddressPrefix
   }
   dependsOn: [
