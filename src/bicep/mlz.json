@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "11791257184464387763"
+      "templateHash": "12938630250141528569"
     }
   },
   "parameters": {
@@ -5703,7 +5703,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "10273745928953587483"
+              "templateHash": "5548269850951921678"
             }
           },
           "parameters": {
@@ -5793,6 +5793,9 @@
             "serviceToken": {
               "type": "string"
             },
+            "supportedClouds": {
+              "type": "array"
+            },
             "tags": {
               "type": "object"
             },
@@ -5826,9 +5829,6 @@
             },
             "windowsVmVersion": {
               "type": "string"
-            },
-            "supportedClouds": {
-              "type": "array"
             }
           },
           "resources": [
