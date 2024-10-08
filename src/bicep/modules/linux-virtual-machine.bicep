@@ -24,12 +24,12 @@ param osDiskCreateOption string
 param osDiskType string
 param privateIPAddressAllocationMethod string
 param subnetResourceId string
+param supportedClouds array
 param tags object
 param vmImagePublisher string
 param vmImageOffer string
 param vmImageSku string
 param vmSize string
-param supportedClouds array
 
 var linuxConfiguration = {
   disablePasswordAuthentication: true
@@ -59,7 +59,7 @@ module networkInterface '../modules/network-interface.bicep' = {
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   name: name
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   properties: {
     diagnosticsProfile: {
       bootDiagnostics: {
@@ -122,7 +122,7 @@ resource guestAttestationExtension 'Microsoft.Compute/virtualMachines/extensions
   parent: virtualMachine
   name: 'GuestAttestation'
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   properties: {
     publisher: 'Microsoft.Azure.Security.LinuxAttestation'
     type: 'GuestAttestation'
@@ -150,7 +150,7 @@ resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-0
   parent: virtualMachine
   name: 'AzurePolicyforLinux'
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   properties: {
     publisher: 'Microsoft.GuestConfiguration'
     type: 'ConfigurationforLinux'
@@ -164,6 +164,7 @@ resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01
   parent: virtualMachine
   name: 'Microsoft.Azure.NetworkWatcher'
   location: location
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   properties: {
     publisher: 'Microsoft.Azure.NetworkWatcher'
     type: 'NetworkWatcherAgentLinux'
@@ -180,7 +181,7 @@ resource linuxAgent 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = 
   parent: virtualMachine
   name: 'AzureMonitorLinuxAgent'
   location: location
-  tags: tags
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   properties: {
     publisher: 'Microsoft.Azure.Monitor'
     type: 'AzureMonitorLinuxAgent'
@@ -200,6 +201,7 @@ resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' 
   parent: virtualMachine
   name: 'OMSExtension'
   location: location
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   properties: {
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
     type: 'OmsAgentForLinux'
@@ -221,6 +223,7 @@ resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-0
   parent: virtualMachine
   name: 'DependencyAgentLinux'
   location: location
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   properties: {
     publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
     type: 'DependencyAgentLinux'
