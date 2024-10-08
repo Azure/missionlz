@@ -38,6 +38,7 @@ param location string
 param logAnalyticsWorkspaceId string
 param mlzTags object
 param serviceToken string
+param supportedClouds array
 param tags object
 param windowsNetworkInterfacePrivateIPAddressAllocationMethod string
 @secure()
@@ -51,7 +52,6 @@ param windowsVmSize string
 param windowsVmSku string
 param windowsVmStorageAccountType string
 param windowsVmVersion string
-param supportedClouds array
 
 module bastionHost '../modules/bastion-host.bicep' =
   if (deployBastion) {
