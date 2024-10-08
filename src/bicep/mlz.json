@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "2515835678549302245"
+      "templateHash": "11791257184464387763"
     }
   },
   "parameters": {
@@ -5703,7 +5703,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "10003024423688333359"
+              "templateHash": "10273745928953587483"
             }
           },
           "parameters": {
@@ -6040,7 +6040,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.23.60470",
-                      "templateHash": "14634910200279952023"
+                      "templateHash": "15035921308988452197"
                     }
                   },
                   "parameters": {
@@ -6094,6 +6094,9 @@
                     "subnetResourceId": {
                       "type": "string"
                     },
+                    "supportedClouds": {
+                      "type": "array"
+                    },
                     "tags": {
                       "type": "object"
                     },
@@ -6108,9 +6111,6 @@
                     },
                     "vmSize": {
                       "type": "string"
-                    },
-                    "supportedClouds": {
-                      "type": "array"
                     }
                   },
                   "variables": {
@@ -6132,7 +6132,7 @@
                       "apiVersion": "2021-04-01",
                       "name": "[parameters('name')]",
                       "location": "[parameters('location')]",
-                      "tags": "[parameters('tags')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "diagnosticsProfile": {
                           "bootDiagnostics": {
@@ -6198,7 +6198,7 @@
                       "apiVersion": "2021-03-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'GuestAttestation')]",
                       "location": "[parameters('location')]",
-                      "tags": "[parameters('tags')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publisher": "Microsoft.Azure.Security.LinuxAttestation",
                         "type": "GuestAttestation",
@@ -6229,7 +6229,7 @@
                       "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'AzurePolicyforLinux')]",
                       "location": "[parameters('location')]",
-                      "tags": "[parameters('tags')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publisher": "Microsoft.GuestConfiguration",
                         "type": "ConfigurationforLinux",
@@ -6246,6 +6246,7 @@
                       "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'Microsoft.Azure.NetworkWatcher')]",
                       "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publisher": "Microsoft.Azure.NetworkWatcher",
                         "type": "NetworkWatcherAgentLinux",
@@ -6264,7 +6265,7 @@
                       "apiVersion": "2021-11-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'AzureMonitorLinuxAgent')]",
                       "location": "[parameters('location')]",
-                      "tags": "[parameters('tags')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publisher": "Microsoft.Azure.Monitor",
                         "type": "AzureMonitorLinuxAgent",
@@ -6286,6 +6287,7 @@
                       "apiVersion": "2020-06-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'OMSExtension')]",
                       "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publisher": "Microsoft.EnterpriseCloud.Monitoring",
                         "type": "OmsAgentForLinux",
@@ -6309,6 +6311,7 @@
                       "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'DependencyAgentLinux')]",
                       "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
                         "type": "DependencyAgentLinux",
