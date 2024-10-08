@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "1330934597070396447"
+      "templateHash": "12938630250141528569"
     }
   },
   "parameters": {
@@ -5686,6 +5686,9 @@
           "windowsVmSku": {
             "value": "[parameters('windowsVmSku')]"
           },
+          "supportedClouds": {
+            "value": "[parameters('supportedClouds')]"
+          },
           "windowsVmStorageAccountType": {
             "value": "[parameters('windowsVmStorageAccountType')]"
           },
@@ -5700,7 +5703,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "8178168379367480981"
+              "templateHash": "5548269850951921678"
             }
           },
           "parameters": {
@@ -5789,6 +5792,9 @@
             },
             "serviceToken": {
               "type": "string"
+            },
+            "supportedClouds": {
+              "type": "array"
             },
             "tags": {
               "type": "object"
@@ -6011,6 +6017,9 @@
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
+                  "supportedClouds": {
+                    "value": "[parameters('supportedClouds')]"
+                  },
                   "vmImagePublisher": {
                     "value": "[parameters('linuxVmImagePublisher')]"
                   },
@@ -6031,7 +6040,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.23.60470",
-                      "templateHash": "11896528045076554042"
+                      "templateHash": "15035921308988452197"
                     }
                   },
                   "parameters": {
@@ -6084,6 +6093,9 @@
                     },
                     "subnetResourceId": {
                       "type": "string"
+                    },
+                    "supportedClouds": {
+                      "type": "array"
                     },
                     "tags": {
                       "type": "object"
@@ -6186,11 +6198,13 @@
                       "apiVersion": "2021-03-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'GuestAttestation')]",
                       "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publisher": "Microsoft.Azure.Security.LinuxAttestation",
                         "type": "GuestAttestation",
                         "typeHandlerVersion": "1.0",
                         "autoUpgradeMinorVersion": true,
+                        "enableAutomaticUpgrade": true,
                         "settings": {
                           "AttestationConfig": {
                             "MaaSettings": {
@@ -6215,6 +6229,7 @@
                       "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'AzurePolicyforLinux')]",
                       "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publisher": "Microsoft.GuestConfiguration",
                         "type": "ConfigurationforLinux",
@@ -6231,10 +6246,13 @@
                       "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'Microsoft.Azure.NetworkWatcher')]",
                       "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publisher": "Microsoft.Azure.NetworkWatcher",
                         "type": "NetworkWatcherAgentLinux",
-                        "typeHandlerVersion": "1.4"
+                        "typeHandlerVersion": "1.4",
+                        "autoUpgradeMinorVersion": true,
+                        "enableAutomaticUpgrade": true
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('name'), 'AzurePolicyforLinux')]",
@@ -6242,10 +6260,34 @@
                       ]
                     },
                     {
+                      "condition": "[contains(parameters('supportedClouds'), environment().name)]",
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-11-01",
+                      "name": "[format('{0}/{1}', parameters('name'), 'AzureMonitorLinuxAgent')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.Monitor",
+                        "type": "AzureMonitorLinuxAgent",
+                        "typeHandlerVersion": "1.21",
+                        "autoUpgradeMinorVersion": true,
+                        "enableAutomaticUpgrade": true,
+                        "settings": {
+                          "stopOnMultipleConnections": true
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('name'), 'Microsoft.Azure.NetworkWatcher')]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(contains(parameters('supportedClouds'), environment().name))]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2020-06-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'OMSExtension')]",
                       "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publisher": "Microsoft.EnterpriseCloud.Monitoring",
                         "type": "OmsAgentForLinux",
@@ -6264,10 +6306,12 @@
                       ]
                     },
                     {
+                      "condition": "[not(contains(parameters('supportedClouds'), environment().name))]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'DependencyAgentLinux')]",
                       "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
                         "type": "DependencyAgentLinux",
