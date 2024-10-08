@@ -11,7 +11,7 @@
 
 This guide describes how to create a Template Spec to deploy Mission Landing Zone (MLZ). The Template Spec resource is used to store the JSON ARM template with a user-friendly custom graphical user interface (GUI) in the Azure Portal. The resource allows you deploy the code directly in the Portal.
 
-This GUI is the same as the portal experience available in Azure Commercial and Azure Government. The Template Spec is created via Powershell and requires only 2 files, [src/bicep/mlz.json](../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../src/bicep/form/mlz.json)
+This GUI is the same as the portal experience available in Azure Commercial and Azure Government. The Template Spec is created via Powershell and requires only 2 files, [src/bicep/mlz.json](../../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../../src/bicep/form/mlz.portal.json).
 
 The TemplateSpecFile is created and deployed using the Azure Portal in Azure Secret and Azure Top Secret environments.
 
@@ -34,7 +34,7 @@ Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "M
 
 To create the TemplateSpecFile follow the steps below:
 
-1. Download [src/bicep/mlz.json](../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../src/bicep/form/mlz.json) to your local workstation.
+1. Download [src/bicep/mlz.json](../../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../../src/bicep/form/mlz.portal.json) to your local workstation.
 2. Upload the mlz.json and mlz.portal.json files to your Secret or Top Secret environment following any and all required Security regulations and procedures.
 3. Login to your Secret or Top Secret Azure portal environment.
 4. You will need to create or use an available Azure StorageAccount with a File Share to store the mlz.json and mlz.portal.json files.

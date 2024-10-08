@@ -708,6 +708,7 @@ module remoteAccess 'modules/remote-access.bicep' = {
       windowsVmPublisher: windowsVmPublisher
       windowsVmSize: windowsVmSize
       windowsVmSku: windowsVmSku
+      supportedClouds: supportedClouds
       windowsVmStorageAccountType: windowsVmStorageAccountType
       windowsVmVersion: windowsVmVersion
     }
