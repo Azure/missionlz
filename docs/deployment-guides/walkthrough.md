@@ -116,10 +116,10 @@ If you wish to remotely access the network and the resources you've deployed you
 
 You will see check boxes for:
 
-Azure Bastion
-Azure Gateway Subnet
-Windows Virtual Machine
-Linux Virtual Machine
+- Azure Bastion
+- Azure Gateway Subnet
+- Windows Virtual Machine
+- Linux Virtual Machine
 
 Any or all 4 resources may be deployed.  See below for options for each resource.
 
@@ -129,14 +129,20 @@ Any or all 4 resources may be deployed.  See below for options for each resource
 >Note: GatewaySubnet is a reserved name in Azure and is required only if you plan to implement a Site-to-Site or ExpressRoute VPN.
 
 3. Windows VM:
+      1. Windows Server Version
+      1. VM size selector
       1. Username
-      2. Password
-      3. Password confirmation
-      4. Option for Hybrid Use Benefit for Windows [Azure Hybrid Benefit](https://learn.microsoft.com/en-us/windows-server/get-started/azure-hybrid-benefit?tabs=azure)
-4. Linux VM:
+      1. Password
+      1. Password confirmation
+      1. Option for Hybrid Use Benefit for Windows [Azure Hybrid Benefit](https://learn.microsoft.com/en-us/windows-server/get-started/azure-hybrid-benefit?tabs=azure)
+1. Linux VM:
+      1. Linux Image Publisher.  MLZ offers 3 Linux distributions; Ubuntu, RHEL, and Debian
+      1. Linux Image Offer.
+      1. Linux Image SKU.  *Note, some distributions of Linux have additional license fees.*
+      1. VM size selector
       1. Username
-      2. Password
-      3. Password confirmation
+      1. Password
+      1. Password confirmation
 
 Click the 'Next' button.
 

@@ -29,6 +29,7 @@ param vmImagePublisher string
 param vmImageOffer string
 param vmImageSku string
 param vmSize string
+param supportedClouds array
 
 var linuxConfiguration = {
   disablePasswordAuthentication: true
@@ -58,7 +59,7 @@ module networkInterface '../modules/network-interface.bicep' = {
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   name: name
   location: location
-  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+  tags: tags
   properties: {
     diagnosticsProfile: {
       bootDiagnostics: {
@@ -121,11 +122,13 @@ resource guestAttestationExtension 'Microsoft.Compute/virtualMachines/extensions
   parent: virtualMachine
   name: 'GuestAttestation'
   location: location
+  tags: tags
   properties: {
     publisher: 'Microsoft.Azure.Security.LinuxAttestation'
     type: 'GuestAttestation'
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
     settings: {
       AttestationConfig: {
         MaaSettings: {
@@ -147,6 +150,7 @@ resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-0
   parent: virtualMachine
   name: 'AzurePolicyforLinux'
   location: location
+  tags: tags
   properties: {
     publisher: 'Microsoft.GuestConfiguration'
     type: 'ConfigurationforLinux'
@@ -164,13 +168,35 @@ resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01
     publisher: 'Microsoft.Azure.NetworkWatcher'
     type: 'NetworkWatcherAgentLinux'
     typeHandlerVersion: '1.4'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
   }
   dependsOn: [
     policyExtension
   ]
 }
 
-resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+resource linuxAgent 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = if (contains(supportedClouds, environment().name)) {
+  parent: virtualMachine
+  name: 'AzureMonitorLinuxAgent'
+  location: location
+  tags: tags
+  properties: {
+    publisher: 'Microsoft.Azure.Monitor'
+    type: 'AzureMonitorLinuxAgent'
+    typeHandlerVersion: '1.21'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
+    settings: {
+      stopOnMultipleConnections: true
+    }
+  }
+  dependsOn: [
+    networkWatcher
+  ]
+}
+
+resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = if (!contains(supportedClouds, environment().name)) {
   parent: virtualMachine
   name: 'OMSExtension'
   location: location
@@ -191,7 +217,7 @@ resource omsExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' 
   ]
 }
 
-resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = if (!contains(supportedClouds, environment().name)) {
   parent: virtualMachine
   name: 'DependencyAgentLinux'
   location: location

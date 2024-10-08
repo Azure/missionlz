@@ -51,6 +51,7 @@ param windowsVmSize string
 param windowsVmSku string
 param windowsVmStorageAccountType string
 param windowsVmVersion string
+param supportedClouds array
 
 module bastionHost '../modules/bastion-host.bicep' =
   if (deployBastion) {
@@ -90,6 +91,7 @@ module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' =
       privateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
       subnetResourceId: hubSubnetResourceId
       tags: tags
+      supportedClouds: supportedClouds
       vmImagePublisher: linuxVmImagePublisher
       vmImageOffer: linuxVmImageOffer
       vmImageSku: linuxVmImageSku
