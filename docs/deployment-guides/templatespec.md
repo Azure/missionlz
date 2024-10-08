@@ -11,7 +11,7 @@ To mimic the Quickstart experience of an Azure Commercial or Azure Government ML
 - [MLZ-Core resources deployed](#mlz-core-resources-deployed)
 - [See Also](#see-also)
 
-This guide describes how to create an Azure TemplateSpecFile. The TemplateSpecFile is used to execute a user-friendly MLZ deployment GUI.  This GUI is the same Quickstart experience available in Azure Commercial and Azure Government. The TemplateSpec File is created via Powershell and requires only 2 files, [src/bicep/mlz.json](../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../src/bicep/form/mlz.portal.json).
+This guide describes how to create an Azure TemplateSpecFile. The TemplateSpecFile is used to execute a user-friendly MLZ deployment GUI.  This GUI is the same Quickstart experience available in Azure Commercial and Azure Government. The TemplateSpec File is created via Powershell and requires only 2 files, [src/bicep/mlz.json](../../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../../src/bicep/form/mlz.portal.json).
 
 The TemplateSpecFile is created and deployed using the Azure Portal in Azure Secret and Azure Top Secret environments.
 
@@ -34,7 +34,7 @@ Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "M
 
 To create the TemplateSpecFile follow the steps below:
 
-1. Download [src/bicep/mlz.json](../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../src/bicep/form/mlz.json) to your local workstation.
+1. Download [src/bicep/mlz.json](../../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../../src/bicep/form/mlz.json) to your local workstation.
 2. Upload the mlz.json and mlz.portal.json files to your Secret or Top Secret environment following any and all required Security regulations and procedures.
 3. Login to your Secret or Top Secret Azure portal environment.
 4. You will need to create or use an available Azure StorageAccount with a File Share to store the mlz.json and mlz.portal.json files.
