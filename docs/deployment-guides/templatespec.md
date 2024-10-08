@@ -34,7 +34,7 @@ Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "M
 
 To create the TemplateSpecFile follow the steps below:
 
-1. Download [src/bicep/mlz.json](../../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../../src/bicep/form/mlz.json) to your local workstation.
+1. Download [src/bicep/mlz.json](../../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../../src/bicep/form/mlz.portal.json) to your local workstation.
 2. Upload the mlz.json and mlz.portal.json files to your Secret or Top Secret environment following any and all required Security regulations and procedures.
 3. Login to your Secret or Top Secret Azure portal environment.
 4. You will need to create or use an available Azure StorageAccount with a File Share to store the mlz.json and mlz.portal.json files.
