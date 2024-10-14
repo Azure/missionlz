@@ -178,8 +178,8 @@ If necessary, the deployment of a Mission Landing Zone can be deleted with these
 
 ## References
 
+[Azure CLI deployment documentation](https://learn.microsoft.com/cli/azure/deployment?view=azure-cli-latest)
+
+[Azure PowerShell module](https://learn.microsoft.com/powershell/azure/what-is-azure-powershell)
+
 [Bicep documentation](https://aka.ms/bicep/)
-
-[`az deployment` documentation](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
-
-[Azure Az PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/what-is-azure-powershell)
