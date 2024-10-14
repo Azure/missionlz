@@ -175,11 +175,3 @@ If necessary, the deployment of a Mission Landing Zone can be deleted with these
    1. In the tree/grid select the subscription you want to manage.
    1. Click the large box near the top of the page that says "Enhanced security off".
    1. Click the save button.
-
-## References
-
-[Azure CLI deployment documentation](https://learn.microsoft.com/cli/azure/deployment?view=azure-cli-latest)
-
-[Azure PowerShell module](https://learn.microsoft.com/powershell/azure/what-is-azure-powershell)
-
-[Bicep documentation](https://aka.ms/bicep/)
