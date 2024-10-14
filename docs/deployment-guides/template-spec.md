@@ -15,20 +15,15 @@ This GUI is the same as the portal experience available in Azure Commercial and 
 
 The TemplateSpecFile is created and deployed using the Azure Portal in Azure Secret and Azure Top Secret environments.
 
->Note: Microsoft recommends using the CloudShell tool in the Azure Portal with Powershell since it will be populated with the necessary Powershell cmdlets.
+> [!NOTE]
+> Microsoft recommends using the CloudShell tool in the Azure Portal with Powershell since it will be populated with the necessary Powershell cmdlets.
 
 ## Prerequisites
 
-- One or more Azure subscriptions where you or an identity you manage has `Owner` [RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner)
-- Azure Resource Provider Feature 'Encryption At Host' enabled.
+The following prerequisites are required on the target Azure subscription(s):
 
-To adhere to zero trust principles, the virtual machine disks deployed in this solution must be encrypted. The 'Encryption at Host' feature enables disk encryption on virtual machine's temp and cache disks. To use this feature, the resource provider feature must be enabled on your Azure subscription. Use the following PowerShell script to enable the feature:
-
-```powershell
-Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Microsoft.Compute"
-```
-
-- For PowerShell deployments you need a PowerShell terminal with the [Azure Az PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/what-is-azure-powershell) installed. Or simply use CloudShell in the Azure Portal.
+- [Owner RBAC permissions](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner)
+- [Enable Encryption At Host](https://learn.microsoft.com/azure/virtual-machines/disks-enable-host-based-encryption-portal?tabs=azure-powershell#prerequisites)
 
 ## Create the Template Spec
 
@@ -86,10 +81,10 @@ Once deployed MLZ will deploy a number of resources into 4 Resource Groups:
 
 The majority of resources will exist in the Hub resource group, mostly Private DNS Zones.  All resource groups will contain VNETS, Route Tables, and Storage Accounts.  The Operations hub will include additional logging Solutions.  The items listed here are not a complete list of resources.
 
-## See Also
+## References
+
+[Azure CLI deployment documentation](https://learn.microsoft.com/cli/azure/deployment?view=azure-cli-latest)
+
+[Azure PowerShell module](https://learn.microsoft.com/powershell/azure/what-is-azure-powershell)
 
 [Bicep documentation](https://aka.ms/bicep/)
-
-[`az deployment` documentation](https://docs.microsoft.com/en-us/cli/azure/deployment?view=azure-cli-latest)
-
-[Azure Az PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/what-is-azure-powershell)
