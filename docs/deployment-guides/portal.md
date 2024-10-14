@@ -6,7 +6,6 @@
 
 - [Deploy MLZ in the Azure Portal](#deploy-mlz-in-the-azure-portal)
 - [Remove MLZ in the Azure Portal](#remove-mlz-in-the-azure-portal)
-- [References](#references)  
 
 This guide provides the steps to deploy MLZ and remove an MLZ deployment in the Azure Portal. Azure Commercial and Azure Government are the only supported clouds for Azure Portal deployments of MLZ.
 
@@ -67,23 +66,23 @@ The following parameters affect networking. Each virtual network and subnet has 
 - **Hub Virtual Network CIDR Range:** the address space for the default subnet, firewall subnets, bastion subnet (optional), and gateway subnet (optional).
 - **Hub Subnet CIDR Range:** the default subnet for the Hub virtual network. The range must fit in the Hub virtual network.
 - **Firewall Client Subnet CIDR Range:** the address space for the Azure Firewall Client subnet. The range must fit in the Hub Virtual Network CIDR range. The network mask must be a /26. |
-- **Firewall Management Subnet CIDR Range** the address space for the Azure Firewall Management subnet. The range must fit in the Hub Virtual Network CIDR range. The network mask must be a /26.
-- **Firewall SKU** the SKU for the Azure Firewall. For SCCA compliance, Azure Firewall Premium should be deployed for production. If necessary you can set a different firewall SKU, Standard or Basic. Please [validate the SKU availability in your region](https://learn.microsoft.com/azure/firewall/premium-features#supported-regions) before deploying as there can be differences between clouds.
+- **Firewall Management Subnet CIDR Range:** the address space for the Azure Firewall Management subnet. The range must fit in the Hub Virtual Network CIDR range. The network mask must be a /26.
+- **Firewall SKU:** the SKU for the Azure Firewall. For SCCA compliance, Azure Firewall Premium should be deployed for production. If necessary you can set a different firewall SKU, Standard or Basic. Please [validate the SKU availability in your region](https://learn.microsoft.com/azure/firewall/premium-features#supported-regions) before deploying as there can be differences between clouds.
 
 #### Identity Virtual Network (Optional)
 
-- **Identity Virtual Network CIDR Range** the address space for the Identity virtual network.
-- **Identity Subnet CIDR Range** the address space for the default Identity subnet. The range must fit in the Identity virtual network.
+- **Identity Virtual Network CIDR Range:** the address space for the Identity virtual network.
+- **Identity Subnet CIDR Range:** the address space for the default Identity subnet. The range must fit in the Identity virtual network.
 
 #### Operations Virtual Network
 
-- **Operations Virtual Network CIDR Range** the CIDR range for the Operations virtual network.
-- **Operations Subnet CIDR Range** the CIDR range for the default Operations subnet. The range must fit in the Operations virtual network.
+- **Operations Virtual Network CIDR Range:** the CIDR range for the Operations virtual network.
+- **Operations Subnet CIDR Range:** the CIDR range for the default Operations subnet. The range must fit in the Operations virtual network.
 
 #### Shared Services Virtual Network
 
-- **Shared Services Virtual Network CIDR Range** the CIDR range for the Shared Services virtual network.
-- **Shared Services Subnet CIDR Range** the CIDR range for the default Shared Services subnet. The range must fit in the Shared Services virtual network.
+- **Shared Services Virtual Network CIDR Range:** the CIDR range for the Shared Services virtual network.
+- **Shared Services Subnet CIDR Range:** the CIDR range for the default Shared Services subnet. The range must fit in the Shared Services virtual network.
 
 ### STEP 3: Security and Compliance
 
@@ -114,7 +113,7 @@ Azure Policy can be applied to your MLZ deployment. The policies are assigned to
 
 #### Azure Bastion
 
-- **Deploy Bastion** enable [Azure Bastion](https://docs.microsoft.com/en-us/azure/bastion/) in the Hub virtual network to remotely access the network and the resources deployed with and on MLZ.
+- **Deploy Bastion:** enable [Azure Bastion](https://docs.microsoft.com/en-us/azure/bastion/) in the Hub virtual network to remotely access the network and the resources deployed with and on MLZ.
 - **Azure Bastion Subnet CIDR Range:** the address space for the Azure Bastion subnet. The network mask must be a /26 or larger.
 
 #### Azure Gateway Subnet
