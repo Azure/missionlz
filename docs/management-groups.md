@@ -1,4 +1,6 @@
-# Using Management Groups with Mission Landing Zone
+# Mission Landing Zone - Using Management Groups
+
+[**Home**](../README.md) | [**Design**](./design.md) | [**Add-Ons**](../src/bicep/add-ons/README.md) | [**Resources**](./resources.md)
 
 ## Concepts
 
@@ -18,8 +20,8 @@ In an Enterprise setting, Microsoft recommends managing groups of subscriptions 
 
 Management Groups can be created in a hierarchy where the policies, RBAC, and compliance settings of parent management groups are inherited by child management groups.  This provides a way to manage common governance settings at an appropriate level for each subscription.
 
-> For more information on Management Groups please see:  
-[What are Azure Management Groups?](https://docs.microsoft.com/en-us/azure/governance/management-groups/overview)
+> [!NOTE]
+> For more information on Management Groups please see: [What are Azure Management Groups?](https://docs.microsoft.com/en-us/azure/governance/management-groups/overview)
 
 ## Recommendation
 
@@ -33,11 +35,9 @@ If your MLZ management tiers (SACA Hub, Tier 0, Tier 1, and Tier 2) are all mana
 
 The Tier 3 (workload) subscriptions would probably have different management controls. If so, these subscriptions should be in a separate management group/hierarchy from the MLZ management tiers.
 
-### Management group design
+## Step-by-Step
 
-## Step-by-step
-
-### Add a subscription to a management group
+### Add a Subscription to a Management Group
 
 1. Create the Management Group
 
@@ -66,18 +66,18 @@ The Tier 3 (workload) subscriptions would probably have different management con
     <img src="images/management-groups/mg3-select-subscription.png" alt="Select a subscription" width="600" />
     <!-- markdownlint-enable MD033 -->  
   
-    > __Note:__  
-    It may take a while to complete the association of the subscription to the management group.  When you click `Ok`, any controls (RBAC, policies, etc.) configured in the management group will be applied to the subscription and any controls from the subscription's old management group need to be removed.
+> [!NOTE]  
+> It may take a while to complete the association of the subscription to the management group.  When you click **Ok**, any controls (RBAC, policies, etc.) configured in the management group will be applied to the subscription and any controls from the subscription's old management group need to be removed.
 
-1. Once the subscription is added to the management group, you may need to click the `Refresh` button to show the subscription in the management group's list.
+5. Once the subscription is added to the management group, you may need to click the `Refresh` button to show the subscription in the management group's list.
     <!-- markdownlint-disable MD033 -->
     <!-- allow html for images so that they can be sized -->
     <img src="images/management-groups/mg4-subscription-in-management-group.png" alt="Subscription in management group" width="600" />
     <!-- markdownlint-enable MD033 -->
 
-## See also
+## See Also
 
-Azure Docs: [Manage your resources with management groups](https://docs.microsoft.com/en-us/azure/governance/management-groups/manage)  
-Video: [Azure Management Groups Overview 1/10/2019](https://www.youtube.com/watch?v=jOprhCxnEAg)  
-Video: Management groups in [Azure Governance #1 - Overview](https://youtu.be/NxcwCwc_wmM?t=238) at [Azure Academy](https://www.youtube.com/channel/UC-MXgaFhsYU8PkqgKBdnusQ)
-Microsoft Docs: [Azure management groups documentation](https://docs.microsoft.com/en-us/azure/governance/management-groups/)
+- Azure Docs: [Manage your resources with management groups](https://learn.microsoft.com/azure/governance/management-groups/manage)  
+- Video: [Azure Management Groups Overview 1/10/2019](https://www.youtube.com/watch?v=jOprhCxnEAg)  
+- Video: Management groups in [Azure Governance #1 - Overview](https://youtu.be/NxcwCwc_wmM?t=238) at [Azure Academy](https://www.youtube.com/channel/UC-MXgaFhsYU8PkqgKBdnusQ)
+- Microsoft Docs: [Azure management groups documentation](https://learn.microsoft.com/azure/governance/management-groups/)

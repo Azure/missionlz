@@ -38,6 +38,7 @@ param location string
 param logAnalyticsWorkspaceId string
 param mlzTags object
 param serviceToken string
+param supportedClouds array
 param tags object
 param windowsNetworkInterfacePrivateIPAddressAllocationMethod string
 @secure()
@@ -90,6 +91,7 @@ module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' =
       privateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
       subnetResourceId: hubSubnetResourceId
       tags: tags
+      supportedClouds: supportedClouds
       vmImagePublisher: linuxVmImagePublisher
       vmImageOffer: linuxVmImageOffer
       vmImageSku: linuxVmImageSku

@@ -1,4 +1,6 @@
-# Networking
+# Mission Landing Zone - Networking Defaults
+
+[**Home**](../README.md) | [**Design**](./design.md) | [**Add-Ons**](../src/bicep/add-ons/README.md) | [**Resources**](./resources.md)
 
 This repository has carefully planned default address prefixes configured throughout the virtual networks in Mission Landing Zone and the add-ons to prevent deployment conflicts. We exepect most customers to define custom address prefixes. However, if you deploy everything "as-is", there are no overlapping address spaces and the networks will deploy without an error. Here are the default address prefixes:
 
@@ -9,7 +11,7 @@ This repository has carefully planned default address prefixes configured throug
 ## Virtual Networks
 
 | Solution | Network                              | Address Prefix |
-| -------- | ------------------------------------ | -------------- |
+| :------- | :----------------------------------- | :------------- |
 | MLZ      | Hub                                  | 10.0.128.0/23  |
 | MLZ      | Identity                             | 10.0.130.0/24  |
 | MLZ      | Operations                           | 10.0.131.0/24  |
