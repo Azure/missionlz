@@ -4,87 +4,142 @@
 
 ## Table of Contents
 
-- [Prerequisites](#prerequisites)
-- [Create the Template Spec](#create-the-template-spec)
-- [MLZ-Core resources deployed](#mlz-core-resources-deployed)
-- [See Also](#see-also)
+- [Deploy using a Template Spec](#deploy-using-a-template-spec)
+- [References](#references)
 
-This guide describes how to create a Template Spec to deploy Mission Landing Zone (MLZ). The Template Spec resource is used to store the JSON ARM template with a user-friendly custom graphical user interface (GUI) in the Azure Portal. The resource allows you deploy the code directly in the Portal.
+This guide provides the steps to create a template spec to deploy Mission Landing Zone (MLZ). The template spec deployment option may used in Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret. For simplicity, this guide uses Cloud Shell to create the template spec, negating the need to download and install software on your workstation.
 
-This GUI is the same as the portal experience available in Azure Commercial and Azure Government. The Template Spec is created via Powershell and requires only 2 files, [src/bicep/mlz.json](../../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../../src/bicep/form/mlz.portal.json).
+For more information on Template Specs, go to the [References](#references) section.
 
-The TemplateSpecFile is created and deployed using the Azure Portal in Azure Secret and Azure Top Secret environments.
+## Deploy using a Template Spec
 
-> [!NOTE]
-> Microsoft recommends using the CloudShell tool in the Azure Portal with Powershell since it will be populated with the necessary Powershell cmdlets.
-
-## Prerequisites
+### Prerequisites
 
 The following prerequisites are required on the target Azure subscription(s):
 
 - [Owner RBAC permissions](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner)
 - [Enable Encryption At Host](https://learn.microsoft.com/azure/virtual-machines/disks-enable-host-based-encryption-portal?tabs=azure-powershell#prerequisites)
 
-## Create the Template Spec
+### Create the Template Spec
 
-To create the TemplateSpecFile follow the steps below:
+Use the following steps to create the Template Spec resource using CloudShell:
 
-1. Download [src/bicep/mlz.json](../../src/bicep/mlz.json) and [src/bicep/form/mlz.portal.json](../../src/bicep/form/mlz.portal.json) to your local workstation.
-2. Upload the mlz.json and mlz.portal.json files to your Secret or Top Secret environment following any and all required Security regulations and procedures.
-3. Login to your Secret or Top Secret Azure portal environment.
-4. You will need to create or use an available Azure StorageAccount with a File Share to store the mlz.json and mlz.portal.json files.
-   1. Create or designate an available storageaccount.
-   1. Create or designate an available file share in the storageaccount.
-   1. Upload the mlz.json and mlz.portal.json files into the Azure file share.
-   1. Open CloudShell in the Portal (Use CloudShell because it will have all the necessary PS cmdlets).  If your current CloudShell already defaults to the FileShare containing the mlz.json and mlz.portal.json files then skip steps v - xi.
-   1. Click the Gear icon and select 'Reset user settings.'
-   1. Click 'Reset' button.
-   1. Click 'Powershell' when prompted.
-   1. Click 'Subscription' and select the correct subscription for your FileShare.
-   1. Click 'Show advanced settings'
-   1. Select the 'use existing' radio buttons for your Resource Group, Storage account, and FileShare.
-   1. Click 'attach storage' (This will mount the file share with mlz.json and mlz.portal.json files to your CloudShell terminal)  
-   1. CD to ./clouddrive and type 'ls' to verify the mlz.json and mlz.portal.json file are present.
-   1. Run the following PS command to create the TemplateSpec File
+1. Download the following files to your local workstation:
+   1. [src/bicep/mlz.json](../../src/bicep/mlz.json)
+   1. [src/bicep/form/mlz.portal.json](../../src/bicep/form/mlz.portal.json)
+1. If applicable, transfer the files to a workstation in the target network.
+1. Login to the Azure Portal.
+1. Create a storage account for CloudShell using the following settings:
+   1. **Basics**
+      - **Subscription:** select the appropriate subscription. Ideally, select the subscription that will be used for the Hub resources.
+      - **Resource group:** click the "Create new" link and input a name that follows your naming convention and alludes to the purpose of it, e.g. rg-cloudShell-dev-east.
+      - **Storage account name:** input a globally unique name between 3 and 24 characters following your naming convention. The value can contain only lowercase letters and numbers.
+      - **Region:** select the appropriate location. Ideally, select the location that will be used for the MLZ resources.
+      - **Primary service:** select the "Azure Files" option.
+      - **Performance:** select the "Standard: Recommended for general purpose file share and cost sensitive applications, such as HDD file shares" option.
+      - **Redundancy:** leave the "Geo-redundant storage (GRS)" option selected.
+   1. **Advanced**
+      - **Require secure transfer for REST API operations:** leave check box checked.
+      - **Allow enabling anonymous access on individual containers:** leave check box unchecked.
+      - **Enable storage account key access:** uncheck the check box.
+      - **Default to Microsoft Entra authorization in the Azure portal:** check the check box.
+      - **Minimum TLS version:** leave the default option, Version 1.2.
+      - **Permitted scope for copy operations (preview):** select the "From storage accounts that have a private endpoint to the same virtual network" option.
+      - **Enable hierarchical namespace:** leave the check box unchecked.
+      - **Allow cross-tenant replication:** leave the check box unchecked.
+      - **Access tier:** select the "Cool: Optimized for infrequently accessed data and backup scenarios" option.
+   1. **Networking**
+      - **Network access:** select the "Enable public access from all networks" option.
+      - **Routing preference:** leave the "Microsoft network routing" option selected.
+   1. **Data Protection**
+      - **Enable point-in-time restore for containers:** leave the check box unchecked.
+      - **Enable soft delete for blobs:** uncheck the check box.
+      - **Enable soft delete for containers:** uncheck the check box.
+      - **Enable soft delete for file shares:** uncheck the check box.
+      - **Enable versioning for blobs:** leave the check box unchecked.
+      - **Enable blob change feed:** leave the check box unchecked.
+      - **Enable version-level immutability support:** leave the check box unchecked.
+   1. **Encryption**
+      - **Encryption type:** leave the "Microsoft-managed keys (MMK)" option selected.
+      - **Enable support for customer-managed keys:** select the "All service types (blobs, files, tables, and queues)" option.
+      - **Enable infrastructure encryption:** check the check box.
+   1. **Tags:** the key / value pairs that enable you to categorize resources and view consolidated billing by applying the same tag to multiple resources and resource groups. Please refer to [Microsoft's best practices for resource tagging](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging).
+   1. **Review + Create:** review and validate the selected values before creating the deployment.
+1. Setup a file share on the storage account using the following settings:
+   1. **Basics**
+      - **Name:** input a value for the file share name. Ideally, this should be your username.
+      - **Access tier:** select the "Cool" option.
+   1. **Backup**
+      - **Enable backup:** uncheck the check box.
+   1. **Review + create:** review and validate the selected values before creating the deployment.
+1. Click the CloudShell button from the top Portal menu to setup the service:
+   1. **Welcome to Azure Cloud Shell**
+      1. Click on the desired command line tool.
+   1. **Getting started**
+      1. Select the "Mount storage account" option.
+      1. Select the subscription that will be used for the Hub resources.
+      1. Leave the check box uncheck for the "Use an existing private virtual network".
+      1. Click the Apply button
+   1. **Mount storage account**
+      1. Choose the "Select existing storage account" option.
+      1. Click the Next button
+   1. **Select storage account**
+      1. **Subscription:** select the subscription used for the storage account.
+      1. **Resource group:** select the resource group used for the storage account.
+      1. **Storage account name:** select the storage account created in the previous step.
+      1. **File share:** select the file share created in the previous step.
+      1. Click the Select button
+1. Upload the files to your file share.
+   1. Click the "Manage files" menu option.
+   1. Click the "Upload" option.
+   1. Select the JSON files
+   1. Click the Open button
+1. Deploy the template spec using CloudShell.
+   1. Check your directory to ensure the JSON files are present: `ls`
+   1. Copy one of the following commands below and paste it into CloudShell. The command must be updated with the values for your environment before it is executed.
 
-```PowerShell
-# PowerShell
-New-AzTemplateSpec -ResourceGroupName <rg-name> -Name <templatespecfilename> -Version 1.0 -Location <shortnameregion> -TemplateFile /home/<user>/clouddrive/mlz.json -UIFormDefinitionFile /home/<user>/clouddrive/mlz.portal.json
-```
+   ```PowerShell
+   # PowerShell
+   New-AzTemplateSpec `
+      -ResourceGroupName '<resource group name>' `
+      -Name '<template spec name>' `
+      -Version '1.0' `
+      -Location '<location>' `
+      -TemplateFile 'mlz.json' `
+      -UIFormDefinitionFile 'mlz.portal.json' `
+      -Force
+   ```
 
-The parameters explained:
-    ResourceGroupName - any available ResourceGroup to host the TemplateSpecFile
-    Name - An arbitrary name for the TemplateSpecFile using Standard Naming Conventions for Azure, ie mlz-dev-tsf-1
-    Version - Version control of the tsf created.
-    Location - This is the short name of the region where the RG exists. Note, to get your location use the PS command below:
-    File locations - You must use the complete path to the file names.
+   ```Bash
+   # Azure CLI
+   az ts create \
+      --resource-group '<resource group name>' \
+      --name '<template spec name>' \
+      --version '1.0' \
+      --location '<location>' \
+      --template-file 'mlz.json' \
+      --ui-form-definition 'mlz.portal.json' \
+      --yes
+   ```
 
-```PowerShell
-# PowerShell
-    Get-AzLocation | select displayname,location
-```
+#### Parameter Explanations
 
-5. After running the command verify the templatespecfile was created and exists in the ResourceGroup listed in the command.
-6. To execute the MLZ deployment, simply click the templatespecfile.
-7. A custom template deployment is triggered.  Click the 'deploy' icon in the upper left hand corner of the 2nd blade. (This will begin the MLZ template wizard).
+- **ResourceGroupName | resource-group:** the name of the resource group to host the template spec resource.
+- **Name | name:** the name for the template spec resource using your naming convention for Azure, e.g. ts-mlz-dev-east.
+- **Version | version:** the version number of the mlz code that will be stored in the template spec, e.g. 1.0.
+- **Location | location:** the Azure location for the template spec resource.
+- **TemplateFile | template-file:** the file path to the ARM template in the Azure Files share used by CloudShell.
+- **UIFormDefinitionFile | ui-form-definition:** the file path to the ARM template in the Azure Files share used by CloudShell.
+- **Force | yes:** this switch ensures the template spec is forcibly updated without confirmation if the resource and version already exist.
 
-To follow a walkthrough of the MLZ deployment click [Walkthrough](./deployment-guide-walkthrough.md).
+### Deploy MLZ
 
-## MLZ-Core resources deployed
-
-Once deployed MLZ will deploy a number of resources into 4 Resource Groups:
-
-1. Hub
-2. Operations
-3. Shared Services
-4. Identity, if selected.
-
-The majority of resources will exist in the Hub resource group, mostly Private DNS Zones.  All resource groups will contain VNETS, Route Tables, and Storage Accounts.  The Operations hub will include additional logging Solutions.  The items listed here are not a complete list of resources.
+1. Open the template spec resource in the Azure Portal.
+1. Click the Deploy button from the top menu.
+1. Use the deployment guide for the [Azure Portal](./portal.md#step-1-basics) deployment option to complete the MLZ deployment.
 
 ## References
 
-[Azure CLI deployment documentation](https://learn.microsoft.com/cli/azure/deployment?view=azure-cli-latest)
-
-[Azure PowerShell module](https://learn.microsoft.com/powershell/azure/what-is-azure-powershell)
-
-[Bicep documentation](https://aka.ms/bicep/)
+- [Azure CLI - az ts create](https://learn.microsoft.com/cli/azure/ts?view=azure-cli-latest#az-ts-create)
+- [Azure PowerShell - New-AzTemplateSpec](https://learn.microsoft.com/powershell/module/az.resources/new-aztemplatespec?view=azps-12.4.0)
+- [Template Specs documentation](https://learn.microsoft.com/azure/azure-resource-manager/templates/template-specs?tabs=azure-powershell)
