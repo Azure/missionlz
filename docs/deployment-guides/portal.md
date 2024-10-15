@@ -51,7 +51,7 @@ Select subscription(s) for each: Hub, Identity, Operations, and Shared Services.
 
 - **Location:** Select the desired location to deploy your MLZ resources. The drop down menu will be populated with locations that support all the resources in the deployment.
 
-#### Naming Convention
+#### Naming Components
 
 - **Resource Naming Prefix:** Specify a prefix for your MLZ resources. This prefix can help distinguish your MLZ resources and resource groups from other Azure resources. Ideally, the prefix would be an abbreviation for your organization or the department governing these resources.  The value must be between 3 to 6 alphanumeric characters.
 - **Environment Abbreviation:** Select the abbreviation for the target environment: `dev` = development, `test` = test, or `prod` = production.
@@ -144,7 +144,7 @@ Azure Policy can be applied to your MLZ deployment. The policies are assigned to
 
 ### STEP 5: Tags
 
-Tags are name / value pairs that enable you to categorize resources and view consolidated billing by applying the same tag to multiple resources and resource groups. Please refer to [Microsoft's best practices for resource tagging](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging).
+Tags are key / value pairs that enable you to categorize resources and view consolidated billing by applying the same tag to multiple resources and resource groups. Please refer to [Microsoft's best practices for resource tagging](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging).
 
 ### STEP 6: Review + Create
 
