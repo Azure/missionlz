@@ -171,7 +171,7 @@ Before deploying to Azure, you first need to ensure your session is connected to
 
 ```PowerShell
 # PowerShell
-Connect-AzAccount -Environment '<Azure Cloud Name>'
+Connect-AzAccount -Environment '<Azure Cloud Name>' -UseDeviceAuthentication
 ```
 
 ```BASH
