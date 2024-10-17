@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "4939632488731720064"
+      "templateHash": "8342331070449295655"
     }
   },
   "parameters": {
@@ -37,14 +37,7 @@
     },
     "customizations": {
       "type": "array",
-      "defaultValue": [
-        {
-          "name": "InstallBundle",
-          "blobName": "Install-BundleSoftware.ps1",
-          "arguments": "-BundleManifestBlob bundlemanifest.json",
-          "enabled": false
-        }
-      ],
+      "defaultValue": [],
       "metadata": {
         "description": "The array of customizations to apply to the image. Limit of 25 runCommands per virtual machine applies. Depending on other features used, the limit may be lower."
       }
