@@ -13,14 +13,19 @@ param computeGalleryImageResourceId string = ''
 param containerName string
 
 @description('The array of customizations to apply to the image. Limit of 25 runCommands per virtual machine applies. Depending on other features used, the limit may be lower.')
-param customizations array = [
+param customizations array = []
+
+// Example customizations array
+/* 
+[
   {
     name: 'InstallBundle'
     blobName: 'Install-BundleSoftware.ps1'
     arguments: '-BundleManifestBlob bundlemanifest.json'
     enabled: false
   }
-]
+] 
+*/
 
 @description('Choose whether to deploy a diagnostic setting for the Activity Log.')
 param deployActivityLogDiagnosticSetting bool = false
