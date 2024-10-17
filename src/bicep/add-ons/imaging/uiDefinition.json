@@ -358,7 +358,23 @@
                   "subLabel": "Maj. Version",
                   "defaultValue": 1,
                   "showStepMarkers": false,
-                  "toolTip": "Pick the size in MB",
+                  "toolTip": "Input the major version number",
+                  "constraints": {
+                    "required": false
+                  },
+                  "visible": true,
+                  "required": true
+                },
+                {
+                  "name": "minorVersion",
+                  "type": "Microsoft.Common.Slider",
+                  "min": 0,
+                  "max": 12,
+                  "label": "Image version - minor version number",
+                  "subLabel": "Min. Version",
+                  "defaultValue": 0,
+                  "showStepMarkers": false,
+                  "toolTip": "Input the minor version number",
                   "constraints": {
                     "required": false
                   },
@@ -368,13 +384,13 @@
                 {
                   "name": "patchVersion",
                   "type": "Microsoft.Common.Slider",
-                  "min": 1,
+                  "min": 0,
                   "max": 12,
                   "label": "Image version - patch version number",
                   "subLabel": "Patch Version",
-                  "defaultValue": 1,
+                  "defaultValue": 0,
                   "showStepMarkers": false,
-                  "toolTip": "Pick the size in MB",
+                  "toolTip": "Input the patch version number",
                   "constraints": {
                     "required": false
                   },
@@ -1513,6 +1529,7 @@
         "identifier": "[steps('basics').naming.identifier]",
         "imageDefinitionNamePrefix": "[steps('image').destination.imageDefinitionNamePrefix]",
         "imageMajorVersion": "[steps('image').destination.majorVersion]",
+        "imageMinorVersion": "[steps('image').destination.minorVersion]",
         "imagePatchVersion": "[steps('image').destination.patchVersion]",
         "installAccess": "[if(steps('customizations').office.installOffice, steps('customizations').office.installAccess,'false')]",
         "installArcGisPro": "[if(steps('customizations').specialitySoftware.installArcGisPro, steps('customizations').specialitySoftware.installArcGisPro,'false')]",

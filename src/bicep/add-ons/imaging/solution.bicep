@@ -13,14 +13,19 @@ param computeGalleryImageResourceId string = ''
 param containerName string
 
 @description('The array of customizations to apply to the image. Limit of 25 runCommands per virtual machine applies. Depending on other features used, the limit may be lower.')
-param customizations array = [
+param customizations array = []
+
+// Example customizations array
+/* 
+[
   {
     name: 'InstallBundle'
     blobName: 'Install-BundleSoftware.ps1'
     arguments: '-BundleManifestBlob bundlemanifest.json'
     enabled: false
   }
-]
+] 
+*/
 
 @description('Choose whether to deploy a diagnostic setting for the Activity Log.')
 param deployActivityLogDiagnosticSetting bool = false
@@ -252,7 +257,7 @@ param wsusServer string = ''
 var keyVaultPrivateDnsZoneResourceId = resourceId(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4], 'Microsoft.Network/privateDnsZones', replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore'))
 var imageDefinitionName = empty(computeGalleryImageResourceId) ? '${imageDefinitionNamePrefix}-${marketplaceImageSKU}' : '${imageDefinitionNamePrefix}-${split(computeGalleryImageResourceId, '/')[10]}'
 var subscriptionId = subscription().subscriptionId
-var workloadName = 'Imaging'
+var workloadName = 'imaging'
 var workloadShortName = 'img'
 
 module tier3 '../tier3/solution.bicep' = {
@@ -295,7 +300,7 @@ module baseline 'modules/baseline.bicep' = {
     exemptPolicyAssignmentIds: exemptPolicyAssignmentIds
     location: location
     mlzTags: tier3.outputs.mlzTags
-    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, workloadShortName)
+    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, 'network')
     storageAccountResourceId: storageAccountResourceId
     subscriptionId: subscriptionId
     tags: tags
@@ -358,7 +363,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     officeInstaller: officeInstaller
     oUPath: oUPath
     replicaCount: replicaCount
-    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, workloadShortName)
+    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, 'network')
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnets[0].id
@@ -422,7 +427,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     replicaCount: replicaCount
-    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, workloadShortName)
+    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, 'network')
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnets[0].id
