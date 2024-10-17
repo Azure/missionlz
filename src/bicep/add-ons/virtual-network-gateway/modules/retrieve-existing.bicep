@@ -34,13 +34,20 @@ resource vnetForPeerings 'Microsoft.Network/virtualNetworks@2022-07-01' existing
   scope: resourceGroup(split(vnetResourceId, '/')[2], split(vnetResourceId, '/')[4])
 }
 
-// Outputs
-
 // Output the internal IP address of the firewall, if firewall parameters are provided
 output firewallPrivateIp string = (!empty(azureFirewallName) && !empty(hubVirtualNetworkResourceId)) ? azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress : 'N/A'
 
+// Output the firewall policy id attached to the firewall
+output firewallPolicyId string = !empty(azureFirewallName) ? azureFirewall.properties.firewallPolicy.id : 'N/A'
+
 // Output the address prefix of the GatewaySubnet, if the parameters are provided
 output gwSubnetAddressPrefix string = (!empty(subnetName) && !empty(hubVirtualNetworkResourceId)) ? gatewaySubnet.properties.addressPrefix : 'N/A'
+
+// Output the address space of the VNet, if the VNet resource ID is provided
+output vnetAddressSpace array = !empty(vnetResourceId) ? vnetForPeerings.properties.addressSpace.addressPrefixes : []
+
+// output the address space of the hub virtual network
+output hubVnetAddressSpace array = !empty(hubVirtualNetworkResourceId) ? vnetFromFirewall.properties.addressSpace.addressPrefixes : []
 
 // Output the list of peerings from the VNet, if the VNet resource ID is provided
 output peeringsData object = !empty(vnetResourceId) ? {

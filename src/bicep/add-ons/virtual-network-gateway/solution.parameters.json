@@ -20,6 +20,14 @@
     "localGatewayIpAddress": {
       "value": "52.227.136.159"
     },
+    "allowedAzureAddressPrefixes": {
+      "value": [
+        "10.0.130.0/24",
+        "10.0.131.0/24",
+        "10.0.132.0/24",
+        "10.0.128.0/23"
+      ]
+    },
     "localAddressPrefixes": {
       "value": [
         "192.168.0.0/24",
