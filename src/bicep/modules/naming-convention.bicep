@@ -33,8 +33,8 @@ var resourceAbbreviations = loadJsonContent('../data/resourceAbbreviations.json'
 
 */
 
-var namingConvention = '${toLower(resourcePrefix)}-${empty(stampIndex) ? '' : '${stampIndex}-'}${tokens.resource}-${networkName}-${environmentAbbreviation}-${locationAbbreviation}'
-var namingConvention_Service = '${toLower(resourcePrefix)}-${empty(stampIndex) ? '' : '${stampIndex}-'}${tokens.resource}-${tokens.service}-${networkName}-${environmentAbbreviation}-${locationAbbreviation}'
+var namingConvention = '${toLower(resourcePrefix)}-${empty(stampIndex) ? '' : '${stampIndex}-'}${tokens.resource}-${networkName}-${locationAbbreviation}-${environmentAbbreviation}'
+var namingConvention_Service = '${toLower(resourcePrefix)}-${empty(stampIndex) ? '' : '${stampIndex}-'}${tokens.resource}-${networkName}-${tokens.service}-${locationAbbreviation}-${environmentAbbreviation}'
 
 /*
 
