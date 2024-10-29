@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "17609037966828409524"
+      "templateHash": "358785330976479324"
     }
   },
   "parameters": {
@@ -6956,7 +6956,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "11056670538270120470"
+              "templateHash": "8087200222262540206"
             }
           },
           "parameters": {
@@ -7073,10 +7073,16 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.23.60470",
-                      "templateHash": "16627532101136638477"
+                      "templateHash": "13359240625570837130"
                     }
                   },
                   "parameters": {
+                    "blobsPrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
+                    "filesPrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
                     "keyVaultUri": {
                       "type": "string"
                     },
@@ -7085,6 +7091,9 @@
                     },
                     "mlzTags": {
                       "type": "object"
+                    },
+                    "queuesPrivateDnsZoneResourceId": {
+                      "type": "string"
                     },
                     "serviceToken": {
                       "type": "string"
@@ -7098,16 +7107,7 @@
                     "subnetResourceId": {
                       "type": "string"
                     },
-                    "blobsPrivateDnsZoneResourceId": {
-                      "type": "string"
-                    },
                     "tablesPrivateDnsZoneResourceId": {
-                      "type": "string"
-                    },
-                    "queuesPrivateDnsZoneResourceId": {
-                      "type": "string"
-                    },
-                    "filesPrivateDnsZoneResourceId": {
                       "type": "string"
                     },
                     "tags": {
@@ -7128,9 +7128,9 @@
                         "pe": "[parameters('tier').namingConvention.storageAccountBlobPrivateEndpoint]"
                       },
                       {
-                        "id": "[parameters('tablesPrivateDnsZoneResourceId')]",
-                        "nic": "[parameters('tier').namingConvention.storageAccountTableNetworkInterface]",
-                        "pe": "[parameters('tier').namingConvention.storageAccountTablePrivateEndpoint]"
+                        "id": "[parameters('filesPrivateDnsZoneResourceId')]",
+                        "nic": "[parameters('tier').namingConvention.storageAccountFileNetworkInterface]",
+                        "pe": "[parameters('tier').namingConvention.storageAccountFilePrivateEndpoint]"
                       },
                       {
                         "id": "[parameters('queuesPrivateDnsZoneResourceId')]",
@@ -7138,9 +7138,9 @@
                         "pe": "[parameters('tier').namingConvention.storageAccountQueuePrivateEndpoint]"
                       },
                       {
-                        "id": "[parameters('filesPrivateDnsZoneResourceId')]",
-                        "nic": "[parameters('tier').namingConvention.storageAccountFileNetworkInterface]",
-                        "pe": "[parameters('tier').namingConvention.storageAccountFilePrivateEndpoint]"
+                        "id": "[parameters('tablesPrivateDnsZoneResourceId')]",
+                        "nic": "[parameters('tier').namingConvention.storageAccountTableNetworkInterface]",
+                        "pe": "[parameters('tier').namingConvention.storageAccountTablePrivateEndpoint]"
                       }
                     ]
                   },
