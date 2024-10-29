@@ -3,17 +3,17 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+param blobsPrivateDnsZoneResourceId string
+param filesPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
 param mlzTags object
+param queuesPrivateDnsZoneResourceId string
 param serviceToken string
 param skuName string
 param storageEncryptionKeyName string
 param subnetResourceId string
-param blobsPrivateDnsZoneResourceId string
 param tablesPrivateDnsZoneResourceId string
-param queuesPrivateDnsZoneResourceId string
-param filesPrivateDnsZoneResourceId string
 param tags object
 param tier object
 param userAssignedIdentityResourceId string
@@ -25,9 +25,9 @@ var  subResources = [
     pe: tier.namingConvention.storageAccountBlobPrivateEndpoint
   }
   {
-    id: tablesPrivateDnsZoneResourceId
-    nic: tier.namingConvention.storageAccountTableNetworkInterface
-    pe: tier.namingConvention.storageAccountTablePrivateEndpoint
+    id: filesPrivateDnsZoneResourceId
+    nic: tier.namingConvention.storageAccountFileNetworkInterface
+    pe: tier.namingConvention.storageAccountFilePrivateEndpoint
   }
   {
     id: queuesPrivateDnsZoneResourceId
@@ -35,9 +35,9 @@ var  subResources = [
     pe: tier.namingConvention.storageAccountQueuePrivateEndpoint
   }
   {
-    id: filesPrivateDnsZoneResourceId
-    nic: tier.namingConvention.storageAccountFileNetworkInterface
-    pe: tier.namingConvention.storageAccountFilePrivateEndpoint
+    id: tablesPrivateDnsZoneResourceId
+    nic: tier.namingConvention.storageAccountTableNetworkInterface
+    pe: tier.namingConvention.storageAccountTablePrivateEndpoint
   }
 ]
 
