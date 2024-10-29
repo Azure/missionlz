@@ -234,7 +234,7 @@
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^[a-z0-9]{1,5}$",
+                        "regex": "^[a-z0-9]{1,6}$",
                         "message": "The prefix must contain alphanumeric characters, letters must be lowercase, and the length must be between 1 to 6 characters."
                       }
                     ]
