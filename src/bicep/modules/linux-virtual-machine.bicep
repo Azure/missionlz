@@ -118,7 +118,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   }
 }
 
-resource guestAttestationExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
+resource guestAttestationExtension 'Microsoft.Compute/virtualMachines/extensions@2024-03-01' = {
   parent: virtualMachine
   name: 'GuestAttestation'
   location: location
@@ -128,7 +128,6 @@ resource guestAttestationExtension 'Microsoft.Compute/virtualMachines/extensions
     type: 'GuestAttestation'
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
-    enableAutomaticUpgrade: true
     settings: {
       AttestationConfig: {
         MaaSettings: {

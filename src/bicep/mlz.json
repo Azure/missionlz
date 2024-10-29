@@ -5,16 +5,16 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "5412452388405418283"
+      "templateHash": "7931582866382170621"
     }
   },
   "parameters": {
     "resourcePrefix": {
       "type": "string",
-      "minLength": 3,
+      "minLength": 1,
       "maxLength": 6,
       "metadata": {
-        "description": "A prefix, 3-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces"
+        "description": "A prefix, 1-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces"
       }
     },
     "environmentAbbreviation": {
@@ -888,7 +888,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "16461611281755618381"
+              "templateHash": "16220429751656280628"
             }
           },
           "parameters": {
@@ -968,7 +968,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.23.60470",
-                      "templateHash": "5025641416197363392"
+                      "templateHash": "3270228280505109788"
                     }
                   },
                   "parameters": {
@@ -994,6 +994,7 @@
                     "tokens": {
                       "type": "object",
                       "defaultValue": {
+                        "purpose": "purpose_token",
                         "resource": "resource_token",
                         "service": "service_token"
                       }
@@ -1489,8 +1490,14 @@
                       "routeTable": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').routeTables)]",
                       "storageAccount": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName'))]",
                       "storageAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').storageAccounts))]",
-                      "storageAccountNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').storageAccounts))]",
-                      "storageAccountPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-blob', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountFileNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-file', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountQueueNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-queue', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountTableNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-table', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountBlobPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-blob', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountFilePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-file', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountQueuePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-queue', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountTablePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-table', variables('resourceAbbreviations').storageAccounts))]",
                       "subnet": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').subnets)]",
                       "userAssignedIdentity": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').userAssignedIdentities)]",
                       "virtualMachine": "[replace(replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').virtualMachines), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), '-', '')]",
@@ -5703,7 +5710,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "5548269850951921678"
+              "templateHash": "3503875367735395147"
             }
           },
           "parameters": {
@@ -6040,7 +6047,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.23.60470",
-                      "templateHash": "15035921308988452197"
+                      "templateHash": "5686981733462823694"
                     }
                   },
                   "parameters": {
@@ -6195,7 +6202,7 @@
                     },
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2021-03-01",
+                      "apiVersion": "2024-03-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'GuestAttestation')]",
                       "location": "[parameters('location')]",
                       "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
@@ -6204,7 +6211,6 @@
                         "type": "GuestAttestation",
                         "typeHandlerVersion": "1.0",
                         "autoUpgradeMinorVersion": true,
-                        "enableAutomaticUpgrade": true,
                         "settings": {
                           "AttestationConfig": {
                             "MaaSettings": {
@@ -6900,6 +6906,12 @@
           "blobsPrivateDnsZoneResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZoneResourceIds.value.blob]"
           },
+          "queuesPrivateDnsZoneResourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZoneResourceIds.value.queue]"
+          },
+          "filesPrivateDnsZoneResourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZoneResourceIds.value.file]"
+          },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
@@ -6944,7 +6956,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "15851262372533796124"
+              "templateHash": "11056670538270120470"
             }
           },
           "parameters": {
@@ -6978,6 +6990,12 @@
             "tablesPrivateDnsZoneResourceId": {
               "type": "string"
             },
+            "queuesPrivateDnsZoneResourceId": {
+              "type": "string"
+            },
+            "filesPrivateDnsZoneResourceId": {
+              "type": "string"
+            },
             "tags": {
               "type": "object"
             },
@@ -7007,6 +7025,12 @@
                 "parameters": {
                   "blobsPrivateDnsZoneResourceId": {
                     "value": "[parameters('blobsPrivateDnsZoneResourceId')]"
+                  },
+                  "queuesPrivateDnsZoneResourceId": {
+                    "value": "[parameters('queuesPrivateDnsZoneResourceId')]"
+                  },
+                  "filesPrivateDnsZoneResourceId": {
+                    "value": "[parameters('filesPrivateDnsZoneResourceId')]"
                   },
                   "keyVaultUri": {
                     "value": "[parameters('keyVaultUri')]"
@@ -7049,13 +7073,10 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.23.60470",
-                      "templateHash": "10231061264498799420"
+                      "templateHash": "16627532101136638477"
                     }
                   },
                   "parameters": {
-                    "blobsPrivateDnsZoneResourceId": {
-                      "type": "string"
-                    },
                     "keyVaultUri": {
                       "type": "string"
                     },
@@ -7077,7 +7098,16 @@
                     "subnetResourceId": {
                       "type": "string"
                     },
+                    "blobsPrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
                     "tablesPrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
+                    "queuesPrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
+                    "filesPrivateDnsZoneResourceId": {
                       "type": "string"
                     },
                     "tags": {
@@ -7091,9 +7121,27 @@
                     }
                   },
                   "variables": {
-                    "zones": [
-                      "[parameters('blobsPrivateDnsZoneResourceId')]",
-                      "[parameters('tablesPrivateDnsZoneResourceId')]"
+                    "subResources": [
+                      {
+                        "id": "[parameters('blobsPrivateDnsZoneResourceId')]",
+                        "nic": "[parameters('tier').namingConvention.storageAccountBlobNetworkInterface]",
+                        "pe": "[parameters('tier').namingConvention.storageAccountBlobPrivateEndpoint]"
+                      },
+                      {
+                        "id": "[parameters('tablesPrivateDnsZoneResourceId')]",
+                        "nic": "[parameters('tier').namingConvention.storageAccountTableNetworkInterface]",
+                        "pe": "[parameters('tier').namingConvention.storageAccountTablePrivateEndpoint]"
+                      },
+                      {
+                        "id": "[parameters('queuesPrivateDnsZoneResourceId')]",
+                        "nic": "[parameters('tier').namingConvention.storageAccountQueueNetworkInterface]",
+                        "pe": "[parameters('tier').namingConvention.storageAccountQueuePrivateEndpoint]"
+                      },
+                      {
+                        "id": "[parameters('filesPrivateDnsZoneResourceId')]",
+                        "nic": "[parameters('tier').namingConvention.storageAccountFileNetworkInterface]",
+                        "pe": "[parameters('tier').namingConvention.storageAccountFilePrivateEndpoint]"
+                      }
                     ]
                   },
                   "resources": [
@@ -7164,22 +7212,22 @@
                     {
                       "copy": {
                         "name": "privateEndpoints",
-                        "count": "[length(variables('zones'))]"
+                        "count": "[length(variables('subResources'))]"
                       },
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[replace(parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('serviceToken'), format('{0}-log', split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]))]",
+                      "name": "[variables('subResources')[copyIndex()].pe]",
                       "location": "[parameters('location')]",
                       "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "customNetworkInterfaceName": "[replace(parameters('tier').namingConvention.storageAccountNetworkInterface, parameters('serviceToken'), format('{0}-log', split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]))]",
+                        "customNetworkInterfaceName": "[variables('subResources')[copyIndex()].nic]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[replace(parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('serviceToken'), format('{0}-log', split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]))]",
+                            "name": "[variables('subResources')[copyIndex()].pe]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('serviceToken'), 'log'), resourceGroup().id))]",
                               "groupIds": [
-                                "[split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]]"
+                                "[split(split(variables('subResources')[copyIndex()].id, '/')[8], '.')[1]]"
                               ]
                             }
                           }
@@ -7195,23 +7243,23 @@
                     {
                       "copy": {
                         "name": "privateDnsZoneGroups",
-                        "count": "[length(variables('zones'))]"
+                        "count": "[length(variables('subResources'))]"
                       },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', replace(parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('serviceToken'), format('{0}-log', split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])), uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('serviceToken'), 'log'), resourceGroup().id))]",
+                      "name": "[format('{0}/{1}', variables('subResources')[copyIndex()].pe, uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('serviceToken'), 'log'), resourceGroup().id))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
                             "name": "ipconfig1",
                             "properties": {
-                              "privateDnsZoneId": "[variables('zones')[copyIndex()]]"
+                              "privateDnsZoneId": "[variables('subResources')[copyIndex()].id]"
                             }
                           }
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('serviceToken'), format('{0}-log', split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('subResources')[copyIndex()].pe)]",
                         "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('serviceToken'), 'log'), resourceGroup().id))]"
                       ]
                     }

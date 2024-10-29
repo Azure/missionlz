@@ -16,6 +16,8 @@ param resourceGroupNames array
 param serviceToken string
 param storageEncryptionKeyName string
 param tablesPrivateDnsZoneResourceId string
+param queuesPrivateDnsZoneResourceId string
+param filesPrivateDnsZoneResourceId string
 param tags object
 param tiers array
 param userAssignedIdentityResourceId string
@@ -25,6 +27,8 @@ module storageAccount 'storage-account.bicep' = [for (tier, i) in tiers: {
   scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
+    queuesPrivateDnsZoneResourceId: queuesPrivateDnsZoneResourceId
+    filesPrivateDnsZoneResourceId: filesPrivateDnsZoneResourceId
     keyVaultUri: keyVaultUri
     location: location
     mlzTags: mlzTags
