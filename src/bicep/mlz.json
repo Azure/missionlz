@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "358785330976479324"
+      "templateHash": "16541325671879840467"
     }
   },
   "parameters": {
@@ -6956,7 +6956,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "8087200222262540206"
+              "templateHash": "11618493610681415173"
             }
           },
           "parameters": {
@@ -6964,6 +6964,9 @@
               "type": "string"
             },
             "deploymentNameSuffix": {
+              "type": "string"
+            },
+            "filesPrivateDnsZoneResourceId": {
               "type": "string"
             },
             "keyVaultUri": {
@@ -6978,6 +6981,9 @@
             "mlzTags": {
               "type": "object"
             },
+            "queuesPrivateDnsZoneResourceId": {
+              "type": "string"
+            },
             "resourceGroupNames": {
               "type": "array"
             },
@@ -6988,12 +6994,6 @@
               "type": "string"
             },
             "tablesPrivateDnsZoneResourceId": {
-              "type": "string"
-            },
-            "queuesPrivateDnsZoneResourceId": {
-              "type": "string"
-            },
-            "filesPrivateDnsZoneResourceId": {
               "type": "string"
             },
             "tags": {
@@ -7026,9 +7026,6 @@
                   "blobsPrivateDnsZoneResourceId": {
                     "value": "[parameters('blobsPrivateDnsZoneResourceId')]"
                   },
-                  "queuesPrivateDnsZoneResourceId": {
-                    "value": "[parameters('queuesPrivateDnsZoneResourceId')]"
-                  },
                   "filesPrivateDnsZoneResourceId": {
                     "value": "[parameters('filesPrivateDnsZoneResourceId')]"
                   },
@@ -7040,6 +7037,9 @@
                   },
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
+                  },
+                  "queuesPrivateDnsZoneResourceId": {
+                    "value": "[parameters('queuesPrivateDnsZoneResourceId')]"
                   },
                   "serviceToken": {
                     "value": "[parameters('serviceToken')]"
