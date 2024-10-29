@@ -229,13 +229,13 @@
                   "label": "Resource Naming Prefix",
                   "type": "Microsoft.Common.TextBox",
                   "defaultValue": "",
-                  "toolTip": "Specify a prefix (min 3 and max 6 lowercase characters and numbers) to prepend to all resources.",
+                  "toolTip": "Specify a prefix (min 1 and max 6 lowercase characters and numbers) to prepend to all resources.",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^[a-z][a-z0-9]{1,5}$",
-                        "message": "The prefix must contain alphanumeric characters, begin with a letter, letters must be lowercase, and the length must be between 3 to 6 characters."
+                        "regex": "^[a-z0-9]{1,6}$",
+                        "message": "The prefix must contain alphanumeric characters, letters must be lowercase, and the length must be between 1 to 6 characters."
                       }
                     ]
                   }
