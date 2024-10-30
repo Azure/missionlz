@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "16541325671879840467"
+      "templateHash": "11000848548598385857"
     }
   },
   "parameters": {
@@ -5710,7 +5710,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "3503875367735395147"
+              "templateHash": "208914367173865032"
             }
           },
           "parameters": {
@@ -6047,7 +6047,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.23.60470",
-                      "templateHash": "5686981733462823694"
+                      "templateHash": "4932706162089134974"
                     }
                   },
                   "parameters": {
@@ -6211,6 +6211,7 @@
                         "type": "GuestAttestation",
                         "typeHandlerVersion": "1.0",
                         "autoUpgradeMinorVersion": true,
+                        "enableAutomaticUpgrade": true,
                         "settings": {
                           "AttestationConfig": {
                             "MaaSettings": {
