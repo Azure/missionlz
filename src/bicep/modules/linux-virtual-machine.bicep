@@ -128,6 +128,7 @@ resource guestAttestationExtension 'Microsoft.Compute/virtualMachines/extensions
     type: 'GuestAttestation'
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
     settings: {
       AttestationConfig: {
         MaaSettings: {
