@@ -26,7 +26,7 @@ Additionally, it covers the modules used within the script and their roles in th
 
 ### 4. **vgwSku** (string) - Optional (default: `'VpnGw2'`)
 
-- **Description:** The SKU (size) of the VPN Gateway. Allowed values: `VpnGw2`, `VpnGw3`, `VpnGw4`, `VpnGw5`.
+- **Description:** The SKU (size) of the VPN Gateway. Allowed values: `VpnGw2`, `VpnGw3`, `VpnGw4`, `VpnGw5`.  The default can be changed in the "solution.bicep" file.
 
 ### 5. **localNetworkGatewayName** (string) - Required
 
@@ -36,37 +36,42 @@ Additionally, it covers the modules used within the script and their roles in th
 
 - **Description:** The IP address of the Local Network Gateway. This must be a public IP address or a reachable IP from the Azure environment.
 
-### 7. **localAddressPrefixes** (array) - Required
+### 7. **allowedAzureAddressPrefixes** (array) - Required
 
-- **Description:** A list of address prefixes of the local network routable through the VPN Gateway.
+- **Description:** A list of address prefixes of the peered spoke networks that will be allowed to access the networks through the VPN gateway.   This is used in an Azure firewall rule.
 
-### 8. **useSharedKey** (bool) - Required
+### 8. **localAddressPrefixes** (array) - Required
 
-- **Description:** Indicates whether to use a shared key or a Key Vault certificate URI for the VPN connection.
+- **Description:** A list of address prefixes of the local network routable through the VPN Gateway.  This controls what networks can be accessed from Azure through the VPN Gateway.  This is also used in an Azure firewall rule.
 
-### 9. **sharedKey** (string) - Required if `useSharedKey = true`
+### 9. **useSharedKey** (bool) - Required
 
-- **Description:** The shared key for the VPN connection. This parameter is secured.  A "true" value uses shared key which is provided in the portal or command prompt at deployment.  A "false" value requires that a keyVaultCertificateUri is provided. 
+- **Description:** Indicates whether to use a shared key or a Key Vault certificate URI for the VPN connection.  If false, a URL to a pre-existing keyvault stored certificate must be used instead.
 
-### 10. **keyVaultCertificateUri** (string) - Optional (default: `''`)
+### 10. **sharedKey** (string) - Required if `useSharedKey = true`
+
+- **Description:** The shared key for the VPN connection. This parameter is secured.  A "true" value uses shared key which is provided in the portal or command prompt at deployment.  A "false" value requires that a keyVaultCertificateUri is provided. Remove this from the parameters file before deployment to ensure the deployment will prompt for the value to avoid storing the secret in the file.
+
+### 11. **keyVaultCertificateUri** (string) - Optional (default: `''`)
 
 - **Description:** The URI of the Key Vault certificate for the VPN connection. Only used if `useSharedKey = false`. Must be a valid URI starting with `https://` and containing `/secrets/`.
 
-### 11. **deploymentNameSuffix** (string) - Optional (default: current UTC time)
-
-- **Description:** A unique suffix for naming the deployment.
 
 ### 12. **hubVirtualNetworkResourceId** (string) - Required
 
-- **Description:** The resource ID of the hub virtual network.
+- **Description:** The resource ID of the hub virtual network.  Can be found on the "Properties" blade on the vNet in the Azure portal.
 
 ### 13. **vnetResourceIdList** (array) - Required
 
-- **Description:** A list of peered virtual networks that will use the VPN Gateway.  The peerings will be updated to allow gateway transit and use.
+- **Description:** A list of peered virtual networks that will use the VPN Gateway.  The peerings will be updated to allow gateway transit and use.  Can be found on the "Properties" blade on the vNet in the Azure portal.
 
-### 14. **routeTableIds** (array) - Required
+### 14. **azureFirewallName** (array) - Required
 
-- **Description:** A list of route tables used by the spoke virtual networks that will use the VPN Gateway.  The route tables are updated with routes to the local gateway address prefixes.
+- **Description:** The name of the Azure firewall in the hub network used to control all traffic through the VPN gateway and all spoke networks.
+
+### 14. **routeTableName** (array) - Required
+
+- **Description:** The name of the VPN Gateway route table that is used to control the gateway subnet routing overrides necessary to push all traffic through the Azure firewall.
 
 ---
 
@@ -77,7 +82,7 @@ This Bicep script calls several external modules to deploy resources efficiently
 ### 1. **VPN Gateway Module**
 
 - **File:** `modules/vpn-gateway.bicep`
-- **Description:** This module deploys the Virtual Network Gateway (VPN Gateway) in a specified resource group. The VPN Gateway enables secure cross-premises connectivity and remote user VPNs.
+- **Description:** This module deploys the Virtual Network Gateway (VPN Gateway) in a specified resource group. The VPN Gateway enables secure cross-premises connectivity.
 - **Parameters:**
   - `vgwname`: The name of the VPN Gateway.
   - `vgwlocation`: The location where the VPN Gateway will be deployed.
@@ -121,28 +126,46 @@ The VPN connection module contains these most commonly used IPSEC configuration 
   - `localNetworkGatewayName`: The name of the Local Network Gateway.
 
 
-### 4. **Retrieve VNet Peerings Module**
+### 4. **Retrieve Existing Module**
 
-- **File:** `modules/retrieve-vnet-peerings.bicep`
-- **Description:** This module retrieves the list of virtual network peerings associated with a virtual network. The peerings allow networks to communicate securely with each other within the same Azure region or across regions.
+- **File:** `modules/retrieve-existing.bicep`
+- **Description:** This module retrieves the list of virtual network peerings associated with a virtual network. The peerings allow networks to communicate securely with each other within the same Azure region or across regions.   This module is also used to retrieve information from other existing resources depending on the parameters used.
 - **Parameters:**
   - `vnetResourceId`: The resource ID of the virtual network for which peerings are being retrieved.
 
-### 5. **Update VNet Peerings Module**
+### 5. **VNet Peerings Module**
 
-- **File:** `modules/update-vnet-peerings.bicep`
+- **File:** `modules/vnet-peerings.bicep`
 - **Description:** After retrieving the peerings for a virtual network, this module updates the peerings to reflect the new VPN Gateway configuration. This allows peered networks to utilize the VPN Gateway for cross-premises connectivity.
 - **Parameters:**
   - `vnetResourceId`: The resource ID of the virtual network.
   - `peeringsList`: The list of virtual network peerings to be updated.
 
-### 6. **Update Spoke Route Tables Module**
+### 6. **Route Table Module**
 
-- **File:** `modules/update-spokert.bicep`
-- **Description:** This module updates the route tables for spoke virtual networks, ensuring that traffic is routed correctly through the VPN Gateway to the local network (on-premises). It modifies route table entries to include the address prefixes of the local network.
+- **File:** `modules/route-table.bicep`
+- **Description:** This module creates the route table for the VPN gateway.
 - **Parameters:**
-  - `routeTableId`: The resource ID of the route table being updated.
-  - `localAddressPrefixList`: The list of address prefixes from the local (on-premises) network.
+  - `routeTableName`: The route table name.
+
+### 7. **Route Definition**
+
+- **File:** `modules/route-definition.bicep`
+- **Description:** This module builds the route construct to be used when adding the route, as multiple routes need to be added.  Virtual appliance is hard coded as the next hop type.
+- **Parameters:**
+  - `firewallIpAddress`: The IP address of the firewall, used as the next hop IP address.
+  - `addressPrefixes`: The address prefixes used in the route being built.
+
+### 8. **Routes Module**
+
+- **File:** `modules/routes.bicep`
+- **Description:** This module creates the routes in a route table.
+- **Parameters:**
+  - `routeTableName`: The route table name. 
+  - `routeName`: The name of the route.
+  - `addressSpace`: The CIDR address prefix being routed.
+  - `nextHopType`: The type of next hop, defaulted to appliance.
+  - `nextHopIpAddress`: The IP address of the next hop.  In this implementation, the firewall IP address.
 
 ## Removal of VPN Gateway
 
