@@ -13,6 +13,7 @@
               "name": "prerequisites",
               "type": "Microsoft.Common.InfoBox",
               "options": {
+		"style": "Warning",
                 "text": "Prior to deployment, make sure you meet the prerequisites outlined in the resource pre-reqs section in Zero Trust Image solution documentation.",
                 "uri": "https://github.com/mikedzikowski/ZTAImage#prequisites"
               }
