@@ -13,9 +13,9 @@
               "name": "prerequisites",
               "type": "Microsoft.Common.InfoBox",
               "options": {
-                "text": "Prior to deployment, make sure you meet the prerequisites outlined in the resource pre-reqs section in Zero Trust Image solution documentation.",
-                "uri": "https://github.com/mikedzikowski/ZTAImage#prequisites",
-                "icon": "Warning"
+		"style": "Warning",
+                "text": "Prior to deployment, make sure you meet the prerequisites outlined in the Zero Trust Image solution documentation.",
+                "uri": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/imaging/README.md#prequisites"
               }
             },
             {
@@ -546,10 +546,10 @@
                   "constraints": {
                     "required": true,
                     "validations": [
-                      {
-                        "isValid": "[endsWith(steps('customizations').office, '.exe')]",
-                        "message": "The file name must end with '.exe'."
-                      }
+					  {
+						 "regex": ".*\\.exe$", 
+						 "message": "The file name must end with '.exe'."
+					  }
                     ]
                   },
                   "visible": "[steps('customizations').office.installOffice]"
@@ -817,10 +817,10 @@
                   "constraints": {
                     "required": true,
                     "validations": [
-                      {
-                        "isValid": "[endsWith(steps('customizations').office.teamsBlob, '.msi')]",
-                        "message": "The file name must end with '.msi'."
-                      }
+					  {
+						 "regex": ".*\\.msi$", 
+						 "message": "The file name must end with '.msi'."
+					  }
                     ]
                   },
                   "visible": "[steps('customizations').office.installTeams]"
@@ -836,10 +836,10 @@
                   "constraints": {
                     "required": true,
                     "validations": [
-                      {
-                        "isValid": "[endsWith(steps('customizations').office.msrdcwebrtcsvcInstaller, '.msi')]",
-                        "message": "The file name must end with '.msi'."
-                      }
+					  {
+						 "regex": ".*\\.msi$", 
+						 "message": "The file name must end with '.msi'."
+					  }
                     ]
                   },
                   "visible": "[steps('customizations').office.installTeams]"
@@ -854,11 +854,11 @@
                   "multiLine": false,
                   "constraints": {
                     "required": true,
-                    "validations": [
-                      {
-                        "isValid": "[endsWith(steps('customizations').office.vcRedistInstaller, '.exe')]",
-                        "message": "The file name must end with '.exe'."
-                      }
+                   "validations": [
+					  {
+						 "regex": ".*\\.exe$", 
+						 "message": "The file name must end with '.exe'."
+					  }
                     ]
                   },
                   "visible": "[steps('customizations').office.installTeams]"
@@ -969,7 +969,7 @@
                 {
                   "name": "vDotBlob",
                   "type": "Microsoft.Common.TextBox",
-                  "label": "Microsoft Visual C++ Redistributable Installer (.zip)",
+                  "label": "Virtual Desktop Optimization Tool File Name (.zip)",
                   "defaultValue": "Virtual-Desktop-Optimization-Tool-main.zip",
                   "toolTip": "Input the file / blob name for the VDOT installer zip.",
                   "placeholder": "",
@@ -977,10 +977,10 @@
                   "constraints": {
                     "required": true,
                     "validations": [
-                      {
-                        "isValid": "[endsWith(steps('customizations').office.vDotBlob, '.zip')]",
-                        "message": "The file name must end with '.zip'."
-                      }
+					  {
+						 "regex": ".*\\.zip$", 
+						 "message": "The file name must end with '.zip'."
+					  }
                     ]
                   },
                   "visible": "[steps('customizations').specialitySoftware.installVirtualDesktopOptimizationTool]"
@@ -1016,10 +1016,10 @@
                   "constraints": {
                     "required": true,
                     "validations": [
-                      {
-                        "isValid": "[endsWith(steps('customizations').specialitySoftware.arcGisBlob, '.zip')]",
-                        "message": "The file name must end with '.zip'."
-                      }
+					  {
+						 "regex": ".*\\.zip$", 
+						 "message": "The file name must end with '.zip'."
+					  }
                     ]
                   },
                   "visible": "[steps('customizations').specialitySoftware.installArcGisPro]"
@@ -1266,6 +1266,23 @@
           "name": "networking",
           "label": "Networking",
           "elements": [
+	   {
+              "name": "prerequisitesNetworking",
+              "type": "Microsoft.Common.InfoBox",
+              "options": {
+		"style":"Warning",
+                "text": "Prior to deployment, make sure you meet the prerequisites outlined in the Zero Trust Image solution documentation.",
+                "uri": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/imaging/README.md#prequisites"
+              }
+            },
+	    {
+              "name": "prerequisitesNetworking2",
+              "type": "Microsoft.Common.InfoBox",
+              "options": {
+		"style":"Info",
+                "text": "This section applies to the deployment of a new Spoke or Tier 3 environment specifically for imaging which will be created for you. Choose a network and subnet range that doesn't conflict with the Hub or any other VNets in your MLZ."
+              }
+            },
             {
               "name": "networking",
               "label": "Networking",
@@ -1449,26 +1466,13 @@
                 "path": "[concat(steps('basics').hub.virtualNetwork, '?api-version=2023-09-01')]"
               }
             },
-            {
-              "name": "logAnalyticsWorkspacesApi",
-              "type": "Microsoft.Solutions.ArmApiControl",
-              "request": {
-                "method": "GET",
-                "path": "[concat('/subscriptions/', first(skip(split(first(map(filter(steps('compliance').virtualNetworkApi.properties.virtualNetworkPeerings, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 2)), '/resourcegroups/', first(skip(split(first(map(filter(steps('compliance').virtualNetworkApi.properties.virtualNetworkPeerings, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 4)), '/providers/Microsoft.OperationalInsights/workspaces?api-version=2023-09-01')]"
-              }
-            },
-            {
-              "name": "logAnalyticsWorkspace",
-              "type": "Microsoft.Common.DropDown",
-              "visible": true,
-              "label": "Existing Log Analytics Workspace for Central Logging",
-              "defaultValue": "[first(map(steps('compliance').logAnalyticsWorkspacesApi.value, (item) => item.name))]",
-              "filter": true,
-              "toolTip": "Select the existing Hub Azure firewall.",
-              "constraints": {
-                "required": true,
-                "allowedValues": "[map(steps('compliance').logAnalyticsWorkspacesApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
-              }
+			{
+                  "name": "logAnalyticsWorkspace",
+                  "type": "Microsoft.Solutions.ResourceSelector",
+                  "label": "Existing Log Analytics Workspace for Central Logging (Spoke)",
+                  "visible": true,
+                  "resourceType": "Microsoft.OperationalInsights/workspaces",
+                  "toolTip": "Select the log analytics workspace to capture runbook log output."
             },
             {
               "name": "diagnosticSettingsApi",
@@ -1559,7 +1563,7 @@
         "policy": "[if(steps('compliance').policySection.deployPolicy, steps('compliance').policySection.policy, '')]",
         "replicaCount": "[steps('image').destination.replicaCount]",
         "sourceImageType": "[steps('image').source.type]",
-        "spokelogAnalyticsWorkspaceResourceId": "[steps('compliance').logAnalyticsWorkspace]",
+        "spokelogAnalyticsWorkspaceResourceId": "[steps('compliance').logAnalyticsWorkspace.id]",
         "storageAccountResourceId": "[steps('basics').artifacts.storageSelector.id]",
         "subnetAddressPrefix": "[steps('networking').networking.subnetAddressCidrRange]",
         "tags": "[steps('tags').tags]",
