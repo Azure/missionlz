@@ -1279,8 +1279,8 @@
               "name": "prerequisitesNetworking2",
               "type": "Microsoft.Common.InfoBox",
               "options": {
-		"style":"Information",
-                "text": "This section applies to the deployment of a new Spoke or Tier 3 environment specifically for imaging which will be created for you. Choose a network and subnet range that doesn't conflict with the Hub or any other VNets in your MLZ.",
+		"style":"Info",
+                "text": "This section applies to the deployment of a new Spoke or Tier 3 environment specifically for imaging which will be created for you. Choose a network and subnet range that doesn't conflict with the Hub or any other VNets in your MLZ."
               }
             },
             {
