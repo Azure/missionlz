@@ -72,7 +72,7 @@ var imageReference = empty(imageVersionResourceId) ? {
 } : {
   id: imageVersionResourceId
 }
-var intune = contains(activeDirectorySolution, 'intuneEnrollment')
+var intune = contains(activeDirectorySolution, 'IntuneEnrollment')
 var nvidiaVmSize = contains(nvidiaVmSizes, virtualMachineSize)
 var nvidiaVmSizes = [
   'Standard_NV6'
