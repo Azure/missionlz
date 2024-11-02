@@ -32,7 +32,7 @@ The following prerequisites are required on the target Azure subscription(s):
 
 ### Decide on a Resource Prefix
 
-Resource Groups and resource names are derived from the required parameter `resourcePrefix`. Pick a unqiue resource prefix that is 3-6 alphanumeric characters in length without whitespaces.
+Resource Groups and resource names are derived from the required parameter `resourcePrefix`. Pick a unqiue resource prefix that is 1-6 alphanumeric characters in length without whitespaces.
 
 ### One Subscription or Multiple
 
