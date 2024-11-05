@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "2476425605945909280"
+      "templateHash": "5096420656622350164"
     }
   },
   "parameters": {
@@ -29,7 +29,6 @@
     },
     "vgwSku": {
       "type": "string",
-      "defaultValue": "VpnGw2",
       "allowedValues": [
         "VpnGw2",
         "VpnGw3",
@@ -181,7 +180,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "3063802566086399744"
+              "templateHash": "10718283560519363875"
             }
           },
           "parameters": {
@@ -268,8 +267,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[1])]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[0])]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[0])]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[1])]"
               ]
             }
           ]

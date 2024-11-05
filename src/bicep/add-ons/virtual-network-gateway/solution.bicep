@@ -11,7 +11,7 @@ param vgwPublicIpAddressNames array
 
 @description('The SKU of the VPN Gateway.')
 @allowed(['VpnGw2', 'VpnGw3', 'VpnGw4', 'VpnGw5'])
-param vgwSku string = 'VpnGw2'
+param vgwSku string
 
 @description('Local Network Gateway Name')
 param localNetworkGatewayName string

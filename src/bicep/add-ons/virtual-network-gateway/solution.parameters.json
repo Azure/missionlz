@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vgwName": {
+      "value": "mlz-vgw-hub-dev-va"
+    },
+    "vgwLocation": {
+      "value": ""
+    },
+    "vgwPublicIpAddressNames": {
+      "value": []
+    },
+    "vgwSku": {},
+    "localNetworkGatewayName": {
+      "value": "VpnGw2"
+    },
+    "localGatewayIpAddress": {
+      "value": ""
+    },
+    "allowedAzureAddressPrefixes": {
+      "value": []
+    },
+    "localAddressPrefixes": {
+      "value": []
+    },
+    "useSharedKey": {
+      "value": false
+    },
+    "sharedKey": {
+      "value": ""
+    },
+    "hubVirtualNetworkResourceId": {
+      "value": ""
+    },
+    "vnetResourceIdList": {
+      "value": []
+    },
+    "azureFirewallName": {
+      "value": ""
+    },
+    "vgwRouteTableName": {
+      "value": ""
+    }
+  }
+}
