@@ -1020,28 +1020,19 @@
               "visible": "[equals(steps('hosts').identity.solution, 'MicrosoftEntraId')]",
               "options": {
                 "style": "Info",
-                "text": "This solution currently does not support FSLogix with Entra joined session hosts."
+                "text": "Only local profiles may be selected with Entra joined session hosts due to the security risks."
               }
             },
             {
               "name": "profileSolution",
               "type": "Microsoft.Common.DropDown",
               "label": "Profile Solution",
-              "visible": "[contains(steps('hosts').identity.solution, 'DomainServices')]",
-              "defaultValue": "Local",
+              "visible": true,
+              "defaultValue": "Local Profiles",
               "toolTip": "Select the user profile solution for your end users.",
               "constraints": {
                 "required": true,
-                "allowedValues": [
-                  {
-                    "label": "FSLogix",
-                    "value": "fslogix"
-                  },
-                  {
-                    "label": "Local",
-                    "value": "local"
-                  }
-                ]
+                "allowedValues": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), parse('[{\"label\":\"Local Profiles\",\"value\":\"local\"}]'), parse('[{\"label\":\"Local Profiles\",\"value\":\"local\"},{\"label\":\"FSLogix\",\"value\":\"fslogix\"}]'))]"
               }
             },
             {
