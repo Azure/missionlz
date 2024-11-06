@@ -49,7 +49,7 @@ var tagsNetAppAccount = union({'cm-resource-parent': '${subscription().id}}/reso
 var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
 
 // Azure NetApp Files for Fslogix
-module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureNetAppFiles' && contains(activeDirectorySolution, 'DomainServices')) {
+module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureNetAppFiles') {
   name: 'deploy-anf-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupStorage)
   params: {
@@ -78,7 +78,7 @@ module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureN
 }
 
 // Azure Files for FSLogix
-module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFiles' && contains(activeDirectorySolution, 'DomainServices')) {
+module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFiles') {
   name: 'deploy-azure-files-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupStorage)
   params: {
