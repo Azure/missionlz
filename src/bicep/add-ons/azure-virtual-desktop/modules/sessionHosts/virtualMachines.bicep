@@ -72,7 +72,7 @@ var imageReference = empty(imageVersionResourceId) ? {
 } : {
   id: imageVersionResourceId
 }
-var intune = contains(activeDirectorySolution, 'intuneEnrollment')
+var intune = contains(activeDirectorySolution, 'IntuneEnrollment')
 var nvidiaVmSize = contains(nvidiaVmSizes, virtualMachineSize)
 var nvidiaVmSizes = [
   'Standard_NV6'
@@ -94,7 +94,7 @@ var nvidiaVmSizes = [
 ]
 var pooledHostPool = (split(hostPoolType, ' ')[0] == 'Pooled')
 var sessionHostNamePrefix = replace(virtualMachineNamePrefix, serviceToken, '')
-var storageAccountToken = take('${storageAccountPrefix}??${uniqueToken}', 24)
+var storageAccountToken = '${storageAccountPrefix}??' // The token is used for AntiVirus exclusions. The '??' represents the two digits at the end of each storage account name.
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existing = {
   name: hostPoolName

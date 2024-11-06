@@ -6,11 +6,13 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param blobsPrivateDnsZoneResourceId string
+param filesPrivateDnsZoneResourceId string
 param keyVaultUri string
 param logStorageSkuName string
 param location string
 param mlzTags object
 param network object
+param queuesPrivateDnsZoneResourceId string
 param resourceGroupName string
 param serviceToken string
 param storageEncryptionKeyName string
@@ -25,9 +27,11 @@ module storageAccount '../../../modules/storage-account.bicep' = {
   scope: resourceGroup(network.subscriptionId, resourceGroupName)
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
+    filesPrivateDnsZoneResourceId: filesPrivateDnsZoneResourceId
     keyVaultUri: keyVaultUri
     location: location
     mlzTags: mlzTags
+    queuesPrivateDnsZoneResourceId: queuesPrivateDnsZoneResourceId
     serviceToken: serviceToken
     skuName: logStorageSkuName
     storageEncryptionKeyName: storageEncryptionKeyName

@@ -114,7 +114,7 @@ param fslogixContainerType string = 'ProfileContainer'
   'AzureNetAppFiles Standard' // ANF with the Standard SKU, 320,000 IOPS
   'AzureFiles Premium' // Azure Files Premium with a Private Endpoint, 100,000 IOPS
   'AzureFiles Standard' // Azure Files Standard with the Large File Share option and a Private Endpoint, 20,000 IOPS
-  'None'
+  'None' // Local Profiles
 ])
 @description('Enable an Fslogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements')
 param fslogixStorageService string = 'AzureFiles Standard'
@@ -316,9 +316,7 @@ var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - begin
 
 // OTHER LOGIC & COMPUTED VALUES
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
-var deployFslogix = fslogixStorageService == 'None' || !contains(activeDirectorySolution, 'DomainServices')
-  ? false
-  : true
+var deployFslogix = contains(fslogixStorageService, 'Azure') && contains(activeDirectorySolution, 'DomainServices') ? true : false
 var fileShareNames = {
   CloudCacheProfileContainer: [
     'profile-containers'
@@ -622,7 +620,7 @@ module workspaces 'modules/sharedServices/sharedServices.bicep' = {
   }
 }
 
-module fslogix 'modules/fslogix/fslogix.bicep' = {
+module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
   name: 'deploy-fslogix-${deploymentNameSuffix}'
   params: {
     activeDirectorySolution: activeDirectorySolution
@@ -726,7 +724,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     serviceToken: tier3_hosts.outputs.tokens.service
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
-    storageAccountNamePrefix: fslogix.outputs.storageAccountNamePrefix
+    storageAccountNamePrefix: deployFslogix ? fslogix.outputs.storageAccountNamePrefix : ''
     storageCount: storageCount
     storageIndex: storageIndex
     storageService: storageService

@@ -237,27 +237,19 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = if (!(e
 module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
   name: 'deploy-storage-${workloadShortName}-${deploymentNameSuffix}'
   params: {
-    blobsPrivateDnsZoneResourceId: resourceId(
-      hubSubscriptionId,
-      hubResourceGroupName,
-      'Microsoft.Network/privateDnsZones',
-      'privatelink.blob.${environment().suffixes.storage}'
-    )
+    blobsPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.blob.${environment().suffixes.storage}')
+    filesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.file.${environment().suffixes.storage}')
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageSkuName: logStorageSkuName
     mlzTags: logic.outputs.mlzTags
     network: logic.outputs.tiers[0]
+    queuesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.queue.${environment().suffixes.storage}')
     resourceGroupName: rg.outputs.name
     serviceToken: logic.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     subnetResourceId: networking.outputs.subnets[0].id
-    tablesPrivateDnsZoneResourceId: resourceId(
-      hubSubscriptionId,
-      hubResourceGroupName,
-      'Microsoft.Network/privateDnsZones',
-      'privatelink.table.${environment().suffixes.storage}'
-    )
+    tablesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.table.${environment().suffixes.storage}')
     tags: tags
     tier: logic.outputs.tiers[0]
     userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
