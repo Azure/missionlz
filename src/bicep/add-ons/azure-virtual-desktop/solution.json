@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "4910820930469548754"
+      "templateHash": "5169206045336313112"
     }
   },
   "parameters": {
@@ -582,7 +582,7 @@
     "endAvSetRange": "[div(add(parameters('sessionHostCount'), parameters('sessionHostIndex')), variables('maxAvSetMembers'))]",
     "availabilitySetsCount": "[length(range(variables('beginAvSetRange'), add(sub(variables('endAvSetRange'), variables('beginAvSetRange')), 1)))]",
     "customImageId": "[if(empty(parameters('imageVersionResourceId')), 'null', format('\"{0}\"', parameters('imageVersionResourceId')))]",
-    "deployFslogix": "[if(or(equals(parameters('fslogixStorageService'), 'None'), not(contains(parameters('activeDirectorySolution'), 'DomainServices'))), false(), true())]",
+    "deployFslogix": "[if(and(contains(parameters('fslogixStorageService'), 'Azure'), contains(parameters('activeDirectorySolution'), 'DomainServices')), true(), false())]",
     "fileShareNames": {
       "CloudCacheProfileContainer": [
         "profile-containers"
@@ -10924,6 +10924,7 @@
       ]
     },
     {
+      "condition": "[variables('deployFslogix')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-fslogix-{0}', parameters('deploymentNameSuffix'))]",
@@ -11060,7 +11061,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "4149294850802164869"
+              "templateHash": "3321762213194063115"
             }
           },
           "parameters": {
@@ -11192,7 +11193,7 @@
           },
           "resources": [
             {
-              "condition": "[and(equals(parameters('storageService'), 'AzureNetAppFiles'), contains(parameters('activeDirectorySolution'), 'DomainServices'))]",
+              "condition": "[equals(parameters('storageService'), 'AzureNetAppFiles')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-anf-{0}', parameters('deploymentNameSuffix'))]",
@@ -11550,7 +11551,7 @@
               }
             },
             {
-              "condition": "[and(equals(parameters('storageService'), 'AzureFiles'), contains(parameters('activeDirectorySolution'), 'DomainServices'))]",
+              "condition": "[equals(parameters('storageService'), 'AzureFiles')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-azure-files-{0}', parameters('deploymentNameSuffix'))]",
@@ -12657,9 +12658,7 @@
           "sessionHostIndex": {
             "value": "[parameters('sessionHostIndex')]"
           },
-          "storageAccountNamePrefix": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountNamePrefix.value]"
-          },
+          "storageAccountNamePrefix": "[if(variables('deployFslogix'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountNamePrefix.value), createObject('value', ''))]",
           "storageCount": {
             "value": "[parameters('storageCount')]"
           },
@@ -12695,7 +12694,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "15054116968510662395"
+              "templateHash": "14352967056938252569"
             }
           },
           "parameters": {
@@ -13186,7 +13185,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.23.60470",
-                      "templateHash": "10616160910124347908"
+                      "templateHash": "1759351975000742065"
                     }
                   },
                   "parameters": {
@@ -13381,7 +13380,7 @@
                     ],
                     "pooledHostPool": "[equals(split(parameters('hostPoolType'), ' ')[0], 'Pooled')]",
                     "sessionHostNamePrefix": "[replace(parameters('virtualMachineNamePrefix'), parameters('serviceToken'), '')]",
-                    "storageAccountToken": "[take(format('{0}??{1}', parameters('storageAccountPrefix'), parameters('uniqueToken')), 24)]"
+                    "storageAccountToken": "[format('{0}??', parameters('storageAccountPrefix'))]"
                   },
                   "resources": [
                     {
