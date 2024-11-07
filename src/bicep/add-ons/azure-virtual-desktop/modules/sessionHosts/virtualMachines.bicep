@@ -361,7 +361,7 @@ resource installAvdAgents 'Microsoft.Compute/virtualMachines/extensions@2021-03-
             UserName: 'PLACEHOLDER_DO_NOT_USE'
             Password: 'PrivateSettingsRef:RegistrationInfoToken'
           }
-          aadJoin: !contains(activeDirectorySolution, 'DomainServices')
+          aadJoin: contains(activeDirectorySolution, 'EntraId')
           UseAgentDownloadEndpoint: false
           mdmId: intune ? '0000000a-0000-0000-c000-000000000000' : ''
         }
@@ -463,7 +463,7 @@ resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/exte
   ]
 }]
 
-resource extension_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): if (!contains(activeDirectorySolution, 'DomainServices')) {
+resource extension_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): if (contains(activeDirectorySolution, 'EntraId')) {
   parent: virtualMachine[i]
   name: 'AADLoginForWindows'
   location: location
