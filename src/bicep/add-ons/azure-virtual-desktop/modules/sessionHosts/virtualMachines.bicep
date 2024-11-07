@@ -2,6 +2,7 @@ param activeDirectorySolution string
 param availability string
 param availabilitySetNamePrefix string
 param availabilityZones array
+param avdConfigurationZipFileName string
 param batchCount int
 param dataCollectionRuleAssociationName string
 param dataCollectionRuleResourceId string
@@ -128,6 +129,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
   name: '${sessionHostNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
   location: location
   tags: tagsVirtualMachines
+  identity: {
+    type: 'SystemAssigned' // Required for Entra join
+  }
   zones: availability == 'AvailabilityZones' ? [
     availabilityZones[i % length(availabilityZones)]
   ] : null
@@ -352,7 +356,7 @@ resource installAvdAgents 'Microsoft.Compute/virtualMachines/extensions@2021-03-
       typeHandlerVersion: '2.73'
       autoUpgradeMinorVersion: true
       settings: {
-        modulesUrl: 'https://wvdportalstorageblob.blob.${environment().suffixes.storage}/galleryartifacts/Configuration_1.0.02721.349.zip'
+        modulesUrl: 'https://wvdportalstorageblob.blob.${environment().suffixes.storage}/galleryartifacts/${avdConfigurationZipFileName}'
         configurationFunction: 'Configuration.ps1\\AddSessionHost'
         properties: {
           hostPoolName: hostPoolName
@@ -360,7 +364,7 @@ resource installAvdAgents 'Microsoft.Compute/virtualMachines/extensions@2021-03-
             UserName: 'PLACEHOLDER_DO_NOT_USE'
             Password: 'PrivateSettingsRef:RegistrationInfoToken'
           }
-          aadJoin: !contains(activeDirectorySolution, 'DomainServices')
+          aadJoin: contains(activeDirectorySolution, 'EntraId')
           UseAgentDownloadEndpoint: false
           mdmId: intune ? '0000000a-0000-0000-c000-000000000000' : ''
         }
@@ -462,7 +466,7 @@ resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/exte
   ]
 }]
 
-resource extension_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): if (!contains(activeDirectorySolution, 'DomainServices')) {
+resource extension_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): if (contains(activeDirectorySolution, 'EntraId')) {
   parent: virtualMachine[i]
   name: 'AADLoginForWindows'
   location: location
