@@ -20,6 +20,9 @@ param availability string = 'AvailabilityZones'
 @description('The availability zones allowed for the AVD session hosts deployment location.')
 param availabilityZones array
 
+@description('The file name for the ZIP file containing the AVD agents and DSC configuration.')
+param avdConfigurationZipFileName string = 'Configuration_1.0.02790.438.zip'
+
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
 
@@ -678,6 +681,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: beginAvSetRange
     availabilityZones: availabilityZones
+    avdConfigurationZipFileName: avdConfigurationZipFileName
     dataCollectionRuleResourceId: management.outputs.dataCollectionRuleResourceId
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix

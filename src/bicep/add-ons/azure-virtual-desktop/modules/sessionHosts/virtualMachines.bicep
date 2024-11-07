@@ -2,6 +2,7 @@ param activeDirectorySolution string
 param availability string
 param availabilitySetNamePrefix string
 param availabilityZones array
+param avdConfigurationZipFileName string
 param batchCount int
 param dataCollectionRuleAssociationName string
 param dataCollectionRuleResourceId string
@@ -352,7 +353,7 @@ resource installAvdAgents 'Microsoft.Compute/virtualMachines/extensions@2021-03-
       typeHandlerVersion: '2.73'
       autoUpgradeMinorVersion: true
       settings: {
-        modulesUrl: 'https://wvdportalstorageblob.blob.${environment().suffixes.storage}/galleryartifacts/Configuration_1.0.02721.349.zip'
+        modulesUrl: 'https://wvdportalstorageblob.blob.${environment().suffixes.storage}/galleryartifacts/${avdConfigurationZipFileName}'
         configurationFunction: 'Configuration.ps1\\AddSessionHost'
         properties: {
           hostPoolName: hostPoolName

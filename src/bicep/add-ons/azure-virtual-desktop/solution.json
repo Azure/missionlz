@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "5169206045336313112"
+      "templateHash": "10024534447266009787"
     }
   },
   "parameters": {
@@ -37,6 +37,13 @@
       "type": "array",
       "metadata": {
         "description": "The availability zones allowed for the AVD session hosts deployment location."
+      }
+    },
+    "avdConfigurationZipFileName": {
+      "type": "string",
+      "defaultValue": "Configuration_1.0.02790.438.zip",
+      "metadata": {
+        "description": "The file name for the ZIP file containing the AVD agents and DSC configuration."
       }
     },
     "avdObjectId": {
@@ -9128,8 +9135,8 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -12534,6 +12541,9 @@
           "availabilityZones": {
             "value": "[parameters('availabilityZones')]"
           },
+          "avdConfigurationZipFileName": {
+            "value": "[parameters('avdConfigurationZipFileName')]"
+          },
           "dataCollectionRuleResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataCollectionRuleResourceId.value]"
           },
@@ -12694,7 +12704,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "14352967056938252569"
+              "templateHash": "18140782776709410787"
             }
           },
           "parameters": {
@@ -12712,6 +12722,9 @@
             },
             "availabilityZones": {
               "type": "array"
+            },
+            "avdConfigurationZipFileName": {
+              "type": "string"
             },
             "dataCollectionRuleResourceId": {
               "type": "string"
@@ -13052,6 +13065,9 @@
                   "availabilityZones": {
                     "value": "[parameters('availabilityZones')]"
                   },
+                  "avdConfigurationZipFileName": {
+                    "value": "[parameters('avdConfigurationZipFileName')]"
+                  },
                   "batchCount": {
                     "value": "[range(1, parameters('sessionHostBatchCount'))[copyIndex()]]"
                   },
@@ -13185,7 +13201,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.23.60470",
-                      "templateHash": "1759351975000742065"
+                      "templateHash": "801335462799167805"
                     }
                   },
                   "parameters": {
@@ -13200,6 +13216,9 @@
                     },
                     "availabilityZones": {
                       "type": "array"
+                    },
+                    "avdConfigurationZipFileName": {
+                      "type": "string"
                     },
                     "batchCount": {
                       "type": "int"
@@ -13605,7 +13624,7 @@
                         "typeHandlerVersion": "2.73",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                          "modulesUrl": "[format('https://wvdportalstorageblob.blob.{0}/galleryartifacts/Configuration_1.0.02721.349.zip', environment().suffixes.storage)]",
+                          "modulesUrl": "[format('https://wvdportalstorageblob.blob.{0}/galleryartifacts/{1}', environment().suffixes.storage, parameters('avdConfigurationZipFileName'))]",
                           "configurationFunction": "Configuration.ps1\\AddSessionHost",
                           "properties": {
                             "hostPoolName": "[parameters('hostPoolName')]",
