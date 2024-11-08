@@ -107,7 +107,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   }
 }
 
-resource guestAttestationExtension 'Microsoft.Compute/virtualMachines/extensions@2024-03-01' = {
+resource extension_GuestAttestation 'Microsoft.Compute/virtualMachines/extensions@2024-03-01' = {
   parent: virtualMachine
   name: 'GuestAttestation'
   location: location
@@ -134,7 +134,7 @@ resource guestAttestationExtension 'Microsoft.Compute/virtualMachines/extensions
   }
 }
 
-resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+resource extension_GuestConfiguration 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   parent: virtualMachine
   name: 'AzurePolicyforWindows'
   location: location
@@ -148,7 +148,7 @@ resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-0
   }
 }
 
-resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+resource extension_NetworkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   parent: virtualMachine
   name: 'Microsoft.Azure.NetworkWatcher'
   location: location
@@ -159,7 +159,7 @@ resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01
     typeHandlerVersion: '1.4'
   }
   dependsOn: [
-    policyExtension
+    extension_GuestConfiguration
   ]
 }
 
@@ -177,7 +177,7 @@ resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/e
   }
 }
 
-resource mmaExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = if (!contains(supportedClouds, environment().name)) {
+resource extension_MicrosoftMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = if (!contains(supportedClouds, environment().name)) {
   parent: virtualMachine
   name: 'MMAExtension'
   location: location
@@ -195,11 +195,11 @@ resource mmaExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' 
     }
   }
   dependsOn: [
-    networkWatcher
+    extension_NetworkWatcher
   ]
 }
 
-resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = if (!contains(supportedClouds, environment().name)) {
+resource extension_DependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = if (!contains(supportedClouds, environment().name)) {
   parent: virtualMachine
   name: 'DependencyAgentWindows'
   location: location
@@ -211,6 +211,6 @@ resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-0
     autoUpgradeMinorVersion: true
   }
   dependsOn: [
-    mmaExtension
+    extension_MicrosoftMonitoringAgent
   ]
 }
