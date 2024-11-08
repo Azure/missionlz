@@ -22,7 +22,6 @@ param enableAcceleratedNetworking bool
 param enableAvdInsights bool
 param environmentAbbreviation string
 param fslogixContainerType string
-param functionAppName string
 param hostPoolName string
 param hostPoolType string
 param identifier string
@@ -39,7 +38,6 @@ param netAppFileShares array
 param organizationalUnitPath string
 param pooledHostPool bool
 param enableRecoveryServices bool
-param enableScalingTool bool
 param recoveryServicesVaultName string
 param resourceGroupControlPlane string
 param resourceGroupHosts string
@@ -184,19 +182,4 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
   dependsOn: [
     virtualMachines
   ]
-}
-
-module scalingTool '../common/function.bicep' = if (enableScalingTool && pooledHostPool) {
-  name: 'deploy-scaling-tool-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupManagement)
-  params: {
-    files: {
-      'requirements.psd1': loadTextContent('../../artifacts/scaling-tool/requirements.psd1')
-      'run.ps1': loadTextContent('../../artifacts/scaling-tool/run.ps1')
-      '../profile.ps1': loadTextContent('../../artifacts/scaling-tool/profile.ps1')
-    }
-    functionAppName: functionAppName
-    functionName: 'avd-scaling-tool'
-    schedule: '0 */15 * * * *'
-  }
 }
