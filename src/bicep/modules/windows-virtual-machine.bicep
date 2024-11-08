@@ -14,7 +14,7 @@ param diskName string
 param hybridUseBenefit bool
 param location string
 param logAnalyticsWorkspaceId  string
-param mlzTags object = {}
+param mlzTags object
 param name string
 param networkInterfaceName string
 param networkSecurityGroupResourceId string
@@ -25,7 +25,8 @@ param size string
 param sku string
 param storageAccountType string
 param subnetResourceId string
-param tags object = {}
+param supportedClouds array
+param tags object
 param version string
 
 module networkInterface '../modules/network-interface.bicep' = {
@@ -106,7 +107,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   }
 }
 
-resource guestAttestationExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
+resource extension_GuestAttestation 'Microsoft.Compute/virtualMachines/extensions@2024-03-01' = {
   parent: virtualMachine
   name: 'GuestAttestation'
   location: location
@@ -115,6 +116,7 @@ resource guestAttestationExtension 'Microsoft.Compute/virtualMachines/extensions
     type: 'GuestAttestation'
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
     settings: {
       AttestationConfig: {
         MaaSettings: {
@@ -132,22 +134,11 @@ resource guestAttestationExtension 'Microsoft.Compute/virtualMachines/extensions
   }
 }
 
-resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
-  parent: virtualMachine
-  name: 'DependencyAgentWindows'
-  location: location
-  properties: {
-    publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
-    type: 'DependencyAgentWindows'
-    typeHandlerVersion: '9.5'
-    autoUpgradeMinorVersion: true
-  }
-}
-
-resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+resource extension_GuestConfiguration 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
   parent: virtualMachine
   name: 'AzurePolicyforWindows'
   location: location
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   properties: {
     publisher: 'Microsoft.GuestConfiguration'
     type: 'ConfigurationforWindows'
@@ -157,10 +148,40 @@ resource policyExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-0
   }
 }
 
-resource mmaExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+resource extension_NetworkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+  parent: virtualMachine
+  name: 'Microsoft.Azure.NetworkWatcher'
+  location: location
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+  properties: {
+    publisher: 'Microsoft.Azure.NetworkWatcher'
+    type: 'NetworkWatcherAgentWindows'
+    typeHandlerVersion: '1.4'
+  }
+  dependsOn: [
+    extension_GuestConfiguration
+  ]
+}
+
+resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = if (contains(supportedClouds, environment().name)) {
+  parent: virtualMachine
+  name: 'AzureMonitorWindowsAgent'
+  location: location
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+  properties: {
+    publisher: 'Microsoft.Azure.Monitor'
+    type: 'AzureMonitorWindowsAgent'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
+  }
+}
+
+resource extension_MicrosoftMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = if (!contains(supportedClouds, environment().name)) {
   parent: virtualMachine
   name: 'MMAExtension'
   location: location
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   properties: {
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
     type: 'MicrosoftMonitoringAgent'
@@ -173,15 +194,23 @@ resource mmaExtension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' 
       workspaceKey: listKeys(logAnalyticsWorkspaceId , '2015-11-01-preview').primarySharedKey
     }
   }
+  dependsOn: [
+    extension_NetworkWatcher
+  ]
 }
 
-resource networkWatcher 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+resource extension_DependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = if (!contains(supportedClouds, environment().name)) {
   parent: virtualMachine
-  name: 'Microsoft.Azure.NetworkWatcher'
+  name: 'DependencyAgentWindows'
   location: location
+  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
   properties: {
-    publisher: 'Microsoft.Azure.NetworkWatcher'
-    type: 'NetworkWatcherAgentWindows'
-    typeHandlerVersion: '1.4'
+    publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
+    type: 'DependencyAgentWindows'
+    typeHandlerVersion: '9.5'
+    autoUpgradeMinorVersion: true
   }
+  dependsOn: [
+    extension_MicrosoftMonitoringAgent
+  ]
 }
