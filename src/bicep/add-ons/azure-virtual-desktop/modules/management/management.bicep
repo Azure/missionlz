@@ -37,7 +37,6 @@ param scalingEndPeakTime string
 param scalingLimitSecondsToForceLogOffUser string
 param scalingMinimumNumberOfRdsh string
 param scalingSessionThresholdPerCPU string
-param scalingTool bool
 param serviceToken string
 param storageService string
 param subnetResourceId string
@@ -198,7 +197,7 @@ module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAv
   }
 }
 
-module functionApp 'functionApp.bicep' = if (scalingTool || fslogixStorageService == 'AzureFiles Premium') {
+module functionApp 'functionApp.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
   name: 'deploy-function-app-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
@@ -261,7 +260,7 @@ output dataCollectionRuleResourceId string = enableAvdInsights ? monitoring.outp
 output deploymentUserAssignedIdentityClientId string = deploymentUserAssignedIdentity.outputs.clientId
 output deploymentUserAssignedIdentityPrincipalId string = deploymentUserAssignedIdentity.outputs.principalId
 output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedIdentity.outputs.resourceId
-output functionAppName string = scalingTool || fslogixStorageService == 'AzureFiles Premium' ? functionApp.outputs.functionAppName : ''
+output functionAppName string = fslogixStorageService == 'AzureFiles Premium' ? functionApp.outputs.functionAppName : ''
 output logAnalyticsWorkspaceName string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceName : ''
 output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || enableAvdInsights
   ? monitoring.outputs.logAnalyticsWorkspaceResourceId
