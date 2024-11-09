@@ -23,6 +23,7 @@ param enableAvdInsights bool
 param environmentAbbreviation string
 param fslogixContainerType string
 param hostPoolName string
+param hostPoolResourceId string
 param hostPoolType string
 param identifier string
 param imageOffer string
@@ -30,6 +31,7 @@ param imagePublisher string
 param imageSku string
 param imageVersionResourceId string
 param location string
+param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
 param maxResourcesPerTemplateDeployment int
 param mlzTags object
@@ -43,6 +45,9 @@ param resourceGroupControlPlane string
 param resourceGroupHosts string
 param resourceGroupManagement string
 param roleDefinitions object
+param scalingExclusionTag string
+param scalingBeginPeakTime string
+param scalingEndPeakTime string
 param securityPrincipalObjectIds array
 param serviceToken string
 param sessionHostBatchCount int
@@ -54,6 +59,7 @@ param storageService string
 param storageSuffix string
 param subnetResourceId string
 param tags object
+param timeZone string
 @secure()
 param virtualMachinePassword string
 param virtualMachineSize string
@@ -182,4 +188,24 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
   dependsOn: [
     virtualMachines
   ]
+}
+
+module scalingPlan '../controlPlane/scalingPlan.bicep' = {
+  name: 'deploy-scaling-plan-${deploymentNameSuffix}'
+  scope: resourceGroup(resourceGroupControlPlane)
+  params: {
+    enableAvdInsights: enableAvdInsights
+    exclusionTag: scalingExclusionTag
+    hostPoolResourceId: hostPoolResourceId
+    hostPoolType: hostPoolType
+    location: location
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    pooledHostPool: pooledHostPool
+    scalingBeginPeakTime: scalingBeginPeakTime
+    scalingEndPeakTime: scalingEndPeakTime
+    scalingPlanDiagnosticSettingName: namingConvention.scalingPlanDiagnosticSetting
+    scalingPlanName: namingConvention.scalingPlan
+    tags: tags
+    timeZone: timeZone
+  }
 }
