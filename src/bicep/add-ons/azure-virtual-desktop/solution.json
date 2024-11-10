@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.34.60546",
-      "templateHash": "3808555410070579744"
+      "templateHash": "12284937691632750862"
     }
   },
   "parameters": {
@@ -393,45 +393,32 @@
         "description": "Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts."
       }
     },
-    "scalingBeginPeakTime": {
-      "type": "string",
-      "defaultValue": "9:00",
-      "metadata": {
-        "description": "The time when session hosts will scale up and continue to stay on to support peak demand; Format 24 hours e.g. 9:00 for 9am"
-      }
-    },
-    "scalingEndPeakTime": {
+    "scalingWeekdaysOffPeakStartTime": {
       "type": "string",
       "defaultValue": "17:00",
       "metadata": {
-        "description": "The time when session hosts will scale down and stay off to support low demand; Format 24 hours e.g. 17:00 for 5pm"
+        "description": "Off peak start time for weekdays in HH:mm format."
       }
     },
-    "scalingExclusionTag": {
+    "scalingWeekdaysPeakStartTime": {
       "type": "string",
+      "defaultValue": "09:00",
       "metadata": {
-        "description": "The tag used to exlude session hosts from the scaling plan. This is useful for session hosts that need to be maintenanced."
+        "description": "Off peak start time for weekends in HH:mm format."
       }
     },
-    "scalingLimitSecondsToForceLogOffUser": {
+    "scalingWeekendsOffPeakStartTime": {
       "type": "string",
-      "defaultValue": "0",
+      "defaultValue": "17:00",
       "metadata": {
-        "description": "The number of seconds to wait before automatically signing out users. If set to 0 any session host that has user sessions will be left untouched"
+        "description": "Peak start time for weekdays in HH:mm format."
       }
     },
-    "scalingMinimumNumberOfRdsh": {
+    "scalingWeekendsPeakStartTime": {
       "type": "string",
-      "defaultValue": "0",
+      "defaultValue": "09:00",
       "metadata": {
-        "description": "The minimum number of session host VMs to keep running during off-peak hours. The scaling tool will not work if all virtual machines are turned off and the Start VM On Connect solution is not enabled."
-      }
-    },
-    "scalingSessionThresholdPerCPU": {
-      "type": "string",
-      "defaultValue": "1",
-      "metadata": {
-        "description": "The maximum number of sessions per CPU that will be used as a threshold to determine when new session host VMs need to be started during peak hours"
+        "description": "Peak start time for weekends in HH:mm format."
       }
     },
     "securityPrincipals": {
@@ -611,7 +598,7 @@
     "privateDnsZoneResourceIdPrefix": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/privateDnsZones/', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4])]",
     "resourceGroupServices": "[union(createArray('controlPlane', 'hosts', 'management'), if(variables('deployFslogix'), createArray('storage'), createArray()))]",
     "roleDefinitions": {
-      "DesktopVirtualizationPowerOnContributor": "489581de-a3bd-480d-9518-53dea7416b33",
+      "DesktopVirtualizationPowerOnOffContributor": "40c5ff49-9181-41f8-ae61-143b0e78555e",
       "DesktopVirtualizationUser": "1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63",
       "Reader": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
       "VirtualMachineUserLogin": "fb879df8-f326-4884-b1cf-06f3ad86be52"
@@ -6550,21 +6537,6 @@
           "roleDefinitions": {
             "value": "[variables('roleDefinitions')]"
           },
-          "scalingBeginPeakTime": {
-            "value": "[parameters('scalingBeginPeakTime')]"
-          },
-          "scalingEndPeakTime": {
-            "value": "[parameters('scalingEndPeakTime')]"
-          },
-          "scalingLimitSecondsToForceLogOffUser": {
-            "value": "[parameters('scalingLimitSecondsToForceLogOffUser')]"
-          },
-          "scalingMinimumNumberOfRdsh": {
-            "value": "[parameters('scalingMinimumNumberOfRdsh')]"
-          },
-          "scalingSessionThresholdPerCPU": {
-            "value": "[parameters('scalingSessionThresholdPerCPU')]"
-          },
           "serviceToken": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service]"
           },
@@ -6600,7 +6572,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "4962654931431175551"
+              "templateHash": "11201776506860662107"
             }
           },
           "parameters": {
@@ -6697,21 +6669,6 @@
             "roleDefinitions": {
               "type": "object"
             },
-            "scalingBeginPeakTime": {
-              "type": "string"
-            },
-            "scalingEndPeakTime": {
-              "type": "string"
-            },
-            "scalingLimitSecondsToForceLogOffUser": {
-              "type": "string"
-            },
-            "scalingMinimumNumberOfRdsh": {
-              "type": "string"
-            },
-            "scalingSessionThresholdPerCPU": {
-              "type": "string"
-            },
             "serviceToken": {
               "type": "string"
             },
@@ -6753,7 +6710,7 @@
               "apiVersion": "2022-04-01",
               "name": "[guid(parameters('avdObjectId'), parameters('roleDefinitions').DesktopVirtualizationPowerOnContributor, subscription().id)]",
               "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitions').DesktopVirtualizationPowerOnContributor)]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitions').DesktopVirtualizationPowerOnOffContributor)]",
                 "principalId": "[parameters('avdObjectId')]"
               }
             },
@@ -7922,7 +7879,7 @@
               }
             },
             {
-              "condition": "[equals(parameters('fslogixStorageService'), 'AzureFiles Premium')]",
+              "condition": "[and(parameters('deployFslogix'), equals(parameters('fslogixStorageService'), 'AzureFiles Premium'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-function-app-{0}', parameters('deploymentNameSuffix'))]",
@@ -7935,9 +7892,6 @@
                 "parameters": {
                   "delegatedSubnetResourceId": {
                     "value": "[filter(parameters('subnets'), lambda('subnet', contains(lambdaVariables('subnet').name, 'FunctionAppOutbound')))[0].id]"
-                  },
-                  "deployFslogix": {
-                    "value": "[parameters('deployFslogix')]"
                   },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
@@ -7972,26 +7926,8 @@
                   "resourceGroupControlPlane": {
                     "value": "[parameters('resourceGroupControlPlane')]"
                   },
-                  "resourceGroupHosts": {
-                    "value": "[parameters('resourceGroupHosts')]"
-                  },
                   "resourceGroupStorage": {
                     "value": "[parameters('resourceGroupStorage')]"
-                  },
-                  "scalingBeginPeakTime": {
-                    "value": "[parameters('scalingBeginPeakTime')]"
-                  },
-                  "scalingEndPeakTime": {
-                    "value": "[parameters('scalingEndPeakTime')]"
-                  },
-                  "scalingLimitSecondsToForceLogOffUser": {
-                    "value": "[parameters('scalingLimitSecondsToForceLogOffUser')]"
-                  },
-                  "scalingMinimumNumberOfRdsh": {
-                    "value": "[parameters('scalingMinimumNumberOfRdsh')]"
-                  },
-                  "scalingSessionThresholdPerCPU": {
-                    "value": "[parameters('scalingSessionThresholdPerCPU')]"
                   },
                   "serviceToken": {
                     "value": "[parameters('serviceToken')]"
@@ -8013,15 +7949,12 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "13808224309643091125"
+                      "templateHash": "16558372051681245735"
                     }
                   },
                   "parameters": {
                     "delegatedSubnetResourceId": {
                       "type": "string"
-                    },
-                    "deployFslogix": {
-                      "type": "bool"
                     },
                     "deploymentNameSuffix": {
                       "type": "string"
@@ -8064,25 +7997,7 @@
                     "resourceGroupControlPlane": {
                       "type": "string"
                     },
-                    "resourceGroupHosts": {
-                      "type": "string"
-                    },
                     "resourceGroupStorage": {
-                      "type": "string"
-                    },
-                    "scalingBeginPeakTime": {
-                      "type": "string"
-                    },
-                    "scalingEndPeakTime": {
-                      "type": "string"
-                    },
-                    "scalingLimitSecondsToForceLogOffUser": {
-                      "type": "string"
-                    },
-                    "scalingMinimumNumberOfRdsh": {
-                      "type": "string"
-                    },
-                    "scalingSessionThresholdPerCPU": {
                       "type": "string"
                     },
                     "serviceToken": {
@@ -8102,7 +8017,6 @@
                     "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
                     "functionAppKeyword": "[if(or(equals(environment().name, 'AzureCloud'), equals(environment().name, 'AzureUSGovernment')), 'azurewebsites', 'appservice')]",
                     "functionAppScmPrivateDnsZoneResourceId": "[format('{0}scm.{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), variables('functionAppKeyword'))))[0])]",
-                    "roleAssignments": "[union(createArray(createObject('roleDefinitionId', '40c5ff49-9181-41f8-ae61-143b0e78555e', 'scope', parameters('resourceGroupControlPlane')), createObject('roleDefinitionId', '40c5ff49-9181-41f8-ae61-143b0e78555e', 'scope', parameters('resourceGroupHosts'))), if(parameters('deployFslogix'), createArray(createObject('roleDefinitionId', '17d1049b-9a84-46fb-8f53-869881c3d3ab', 'scope', parameters('resourceGroupStorage'))), createArray()))]",
                     "service": "mgmt",
                     "storagePrivateDnsZoneResourceIds": [
                       "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'blob')))[0])]",
@@ -8461,7 +8375,7 @@
                         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', replace(parameters('namingConvention').appServicePlan, parameters('serviceToken'), variables('service')))]",
                         "siteConfig": {
                           "alwaysOn": true,
-                          "appSettings": "[union(createArray(createObject('name', 'AzureWebJobsStorage__blobServiceUri', 'value', format('https://{0}.blob.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__credential', 'value', 'managedidentity'), createObject('name', 'AzureWebJobsStorage__queueServiceUri', 'value', format('https://{0}.queue.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__tableServiceUri', 'value', format('https://{0}.table.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'WEBSITE_LOAD_USER_PROFILE', 'value', '1'), createObject('name', 'BeginPeakTime', 'value', parameters('scalingBeginPeakTime')), createObject('name', 'EndPeakTime', 'value', parameters('scalingEndPeakTime')), createObject('name', 'EnvironmentName', 'value', environment().name), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'HostPoolName', 'value', parameters('hostPoolName')), createObject('name', 'HostPoolResourceGroupName', 'value', parameters('resourceGroupControlPlane')), createObject('name', 'LimitSecondsToForceLogOffUser', 'value', parameters('scalingLimitSecondsToForceLogOffUser')), createObject('name', 'LogOffMessageBody', 'value', 'This session is about to be logged off. Please save your work.'), createObject('name', 'LogOffMessageTitle', 'value', 'Session Log Off'), createObject('name', 'MaintenanceTagName', 'value', 'Maintenance'), createObject('name', 'MinimumNumberOfRDSH', 'value', parameters('scalingMinimumNumberOfRdsh')), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupStorage')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'SessionThresholdPerCPU', 'value', parameters('scalingSessionThresholdPerCPU')), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId), createObject('name', 'TenantId', 'value', subscription().tenantId), createObject('name', 'TimeDifference', 'value', parameters('timeDifference'))), if(parameters('enableApplicationInsights'), createArray(createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', replace(parameters('namingConvention').applicationInsights, parameters('serviceToken'), variables('service'))), '2020-02-02').ConnectionString)), createArray()))]",
+                          "appSettings": "[union(createArray(createObject('name', 'AzureWebJobsStorage__blobServiceUri', 'value', format('https://{0}.blob.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__credential', 'value', 'managedidentity'), createObject('name', 'AzureWebJobsStorage__queueServiceUri', 'value', format('https://{0}.queue.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__tableServiceUri', 'value', format('https://{0}.table.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'WEBSITE_LOAD_USER_PROFILE', 'value', '1'), createObject('name', 'EnvironmentName', 'value', environment().name), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'HostPoolName', 'value', parameters('hostPoolName')), createObject('name', 'HostPoolResourceGroupName', 'value', parameters('resourceGroupControlPlane')), createObject('name', 'LogOffMessageBody', 'value', 'This session is about to be logged off. Please save your work.'), createObject('name', 'LogOffMessageTitle', 'value', 'Session Log Off'), createObject('name', 'MaintenanceTagName', 'value', 'Maintenance'), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupStorage')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId), createObject('name', 'TenantId', 'value', subscription().tenantId), createObject('name', 'TimeDifference', 'value', parameters('timeDifference'))), if(parameters('enableApplicationInsights'), createArray(createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', replace(parameters('namingConvention').applicationInsights, parameters('serviceToken'), variables('service'))), '2020-02-02').ConnectionString)), createArray()))]",
                           "cors": {
                             "allowedOrigins": [
                               "[format('{0}', environment().portal)]",
@@ -8613,14 +8527,10 @@
                       ]
                     },
                     {
-                      "copy": {
-                        "name": "roleAssignments_resourceGroups",
-                        "count": "[length(range(0, length(variables('roleAssignments'))))]"
-                      },
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('set-role-assignment-{0}-{1}', range(0, length(variables('roleAssignments')))[copyIndex()], parameters('deploymentNameSuffix'))]",
-                      "resourceGroup": "[variables('roleAssignments')[range(0, length(variables('roleAssignments')))[copyIndex()]].scope]",
+                      "name": "[format('set-role-assignment-{0}', parameters('deploymentNameSuffix'))]",
+                      "resourceGroup": "[parameters('resourceGroupStorage')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -8634,7 +8544,7 @@
                             "value": "ServicePrincipal"
                           },
                           "roleDefinitionId": {
-                            "value": "[variables('roleAssignments')[range(0, length(variables('roleAssignments')))[copyIndex()]].roleDefinitionId]"
+                            "value": "17d1049b-9a84-46fb-8f53-869881c3d3ab"
                           }
                         },
                         "template": {
@@ -9136,9 +9046,9 @@
         }
       },
       "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -12658,14 +12568,17 @@
           "roleDefinitions": {
             "value": "[variables('roleDefinitions')]"
           },
-          "scalingBeginPeakTime": {
-            "value": "[parameters('scalingBeginPeakTime')]"
+          "scalingWeekdaysOffPeakStartTime": {
+            "value": "[parameters('scalingWeekdaysOffPeakStartTime')]"
           },
-          "scalingEndPeakTime": {
-            "value": "[parameters('scalingEndPeakTime')]"
+          "scalingWeekdaysPeakStartTime": {
+            "value": "[parameters('scalingWeekdaysPeakStartTime')]"
           },
-          "scalingExclusionTag": {
-            "value": "[parameters('scalingExclusionTag')]"
+          "scalingWeekendsOffPeakStartTime": {
+            "value": "[parameters('scalingWeekendsOffPeakStartTime')]"
+          },
+          "scalingWeekendsPeakStartTime": {
+            "value": "[parameters('scalingWeekendsPeakStartTime')]"
           },
           "securityPrincipalObjectIds": {
             "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))]"
@@ -12718,7 +12631,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "16395575947244664238"
+              "templateHash": "1305598958552305489"
             }
           },
           "parameters": {
@@ -12854,13 +12767,16 @@
             "roleDefinitions": {
               "type": "object"
             },
-            "scalingExclusionTag": {
+            "scalingWeekdaysOffPeakStartTime": {
               "type": "string"
             },
-            "scalingBeginPeakTime": {
+            "scalingWeekdaysPeakStartTime": {
               "type": "string"
             },
-            "scalingEndPeakTime": {
+            "scalingWeekendsOffPeakStartTime": {
+              "type": "string"
+            },
+            "scalingWeekendsPeakStartTime": {
               "type": "string"
             },
             "securityPrincipalObjectIds": {
@@ -14271,7 +14187,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-scaling-plan-{0}', parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[parameters('resourceGroupControlPlane')]",
+              "resourceGroup": "[parameters('resourceGroupManagement')]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -14280,9 +14196,6 @@
                 "parameters": {
                   "enableAvdInsights": {
                     "value": "[parameters('enableAvdInsights')]"
-                  },
-                  "exclusionTag": {
-                    "value": "[parameters('scalingExclusionTag')]"
                   },
                   "hostPoolResourceId": {
                     "value": "[parameters('hostPoolResourceId')]"
@@ -14296,15 +14209,6 @@
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
-                  "pooledHostPool": {
-                    "value": "[parameters('pooledHostPool')]"
-                  },
-                  "scalingBeginPeakTime": {
-                    "value": "[parameters('scalingBeginPeakTime')]"
-                  },
-                  "scalingEndPeakTime": {
-                    "value": "[parameters('scalingEndPeakTime')]"
-                  },
                   "scalingPlanDiagnosticSettingName": {
                     "value": "[parameters('namingConvention').scalingPlanDiagnosticSetting]"
                   },
@@ -14316,6 +14220,18 @@
                   },
                   "timeZone": {
                     "value": "[parameters('timeZone')]"
+                  },
+                  "weekdaysOffPeakStartTime": {
+                    "value": "[parameters('scalingWeekdaysOffPeakStartTime')]"
+                  },
+                  "weekdaysPeakStartTime": {
+                    "value": "[parameters('scalingWeekdaysPeakStartTime')]"
+                  },
+                  "weekendsOffPeakStartTime": {
+                    "value": "[parameters('scalingWeekendsOffPeakStartTime')]"
+                  },
+                  "weekendsPeakStartTime": {
+                    "value": "[parameters('scalingWeekendsPeakStartTime')]"
                   }
                 },
                 "template": {
@@ -14325,7 +14241,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "14098881239275725418"
+                      "templateHash": "9076478132358764027"
                     }
                   },
                   "parameters": {
@@ -14334,13 +14250,6 @@
                       "defaultValue": true,
                       "metadata": {
                         "description": "Optional. Enable AVD Insights."
-                      }
-                    },
-                    "exclusionTag": {
-                      "type": "string",
-                      "defaultValue": "",
-                      "metadata": {
-                        "description": "Optional. Exclusion tag to be used for exclusion of VMs from Scaling Plan."
                       }
                     },
                     "hostPoolResourceId": {
@@ -14370,24 +14279,6 @@
                       ],
                       "metadata": {
                         "description": "Required. Host pool type of the Scaling Plan."
-                      }
-                    },
-                    "pooledHostPool": {
-                      "type": "bool",
-                      "metadata": {
-                        "description": "Required. Boolean value indicating whether the host pool is pooled."
-                      }
-                    },
-                    "scalingBeginPeakTime": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Required. Scaling begin peak time in HH:mm format."
-                      }
-                    },
-                    "scalingEndPeakTime": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Required. Scaling end peak time in HH:mm format."
                       }
                     },
                     "scalingPlanDiagnosticSettingName": {
@@ -14425,6 +14316,30 @@
                       "metadata": {
                         "description": "Optional. Time zone of the Scaling Plan. Defaults to UTC."
                       }
+                    },
+                    "weekdaysOffPeakStartTime": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Off peak start time for weekdays in HH:mm format."
+                      }
+                    },
+                    "weekendsOffPeakStartTime": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Off peak start time for weekends in HH:mm format."
+                      }
+                    },
+                    "weekdaysPeakStartTime": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Peak start time for weekdays in HH:mm format."
+                      }
+                    },
+                    "weekendsPeakStartTime": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Peak start time for weekends in HH:mm format."
+                      }
                     }
                   },
                   "resources": [
@@ -14437,8 +14352,8 @@
                       "properties": {
                         "timeZone": "[parameters('timeZone')]",
                         "hostPoolType": "[parameters('hostPoolType')]",
-                        "exclusionTag": "[parameters('exclusionTag')]",
-                        "schedules": "[if(parameters('pooledHostPool'), createArray(createObject('name', 'Weekdays', 'daysOfWeek', createArray('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'), 'offPeakLoadBalancingAlgorithm', 'DepthFirst', 'offPeakStartTime', createObject('hour', split(parameters('scalingEndPeakTime'), ':')[0], 'minute', split(parameters('scalingEndPeakTime'), ':')[1]), 'peakLoadBalancingAlgorithm', 'BreadthFirst', 'peakStartTime', createObject('hour', split(parameters('scalingBeginPeakTime'), ':')[0], 'minute', split(parameters('scalingBeginPeakTime'), ':')[1]), 'rampDownCapacityThresholdPct', 90, 'rampDownForceLogoffUsers', false(), 'rampDownLoadBalancingAlgorithm', 'DepthFirst', 'rampDownMinimumHostsPct', 0, 'rampDownNotificationMessage', 'Ramping down the AVD session hosts to support low demand.', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('scalingEndPeakTime'), ':')[0]), 1), 'minute', split(parameters('scalingEndPeakTime'), ':')[1]), 'rampDownStopHostsWhen', 'string', 'rampDownWaitTimeMinutes', 0, 'rampUpCapacityThresholdPct', 70, 'rampUpLoadBalancingAlgorithm', 'BreadthFirst', 'rampUpMinimumHostsPct', 25, 'rampUpStartTime', createObject('hour', sub(int(split(parameters('scalingBeginPeakTime'), ':')[0]), 1), 'minute', split(parameters('scalingBeginPeakTime'), ':')[1])), createObject('name', 'Weekends', 'daysOfWeek', createArray('Saturday', 'Sunday'), 'offPeakLoadBalancingAlgorithm', 'DepthFirst', 'offPeakStartTime', createObject('hour', split(parameters('scalingEndPeakTime'), ':')[0], 'minute', split(parameters('scalingEndPeakTime'), ':')[1]), 'peakLoadBalancingAlgorithm', 'BreadthFirst', 'peakStartTime', createObject('hour', split(parameters('scalingBeginPeakTime'), ':')[0], 'minute', split(parameters('scalingBeginPeakTime'), ':')[1]), 'rampDownCapacityThresholdPct', 90, 'rampDownForceLogoffUsers', false(), 'rampDownLoadBalancingAlgorithm', 'DepthFirst', 'rampDownMinimumHostsPct', 0, 'rampDownNotificationMessage', 'Ramping down the AVD session hosts to support low demand.', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('scalingEndPeakTime'), ':')[0]), 1), 'minute', split(parameters('scalingEndPeakTime'), ':')[1]), 'rampDownStopHostsWhen', 'string', 'rampDownWaitTimeMinutes', 0, 'rampUpCapacityThresholdPct', 90, 'rampUpLoadBalancingAlgorithm', 'string', 'rampUpMinimumHostsPct', 0, 'rampUpStartTime', createObject('hour', sub(int(split(parameters('scalingBeginPeakTime'), ':')[0]), 1), 'minute', split(parameters('scalingBeginPeakTime'), ':')[1]))), createArray(createObject('name', 'Weekdays', 'daysOfWeek', createArray('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'), 'rampUpStartTime', createObject('hour', sub(int(split(parameters('scalingBeginPeakTime'), ':')[0]), 1), 'minute', split(parameters('scalingBeginPeakTime'), ':')[1]), 'peakStartTime', createObject('hour', split(parameters('scalingBeginPeakTime'), ':')[0], 'minute', split(parameters('scalingBeginPeakTime'), ':')[1]), 'peakMinutesToWaitOnDisconnect', 0, 'peakActionOnDisconnect', 'None', 'peakMinutesToWaitOnLogoff', 0, 'peakActionOnLogoff', 'Deallocate', 'peakStartVMOnConnect', 'Enable', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('scalingEndPeakTime'), ':')[0]), 1), 'minute', split(parameters('scalingEndPeakTime'), ':')[1]), 'rampDownMinutesToWaitOnDisconnect', 0, 'rampDownActionOnDisconnect', 'None', 'rampDownMinutesToWaitOnLogoff', 0, 'rampDownActionOnLogoff', 'Deallocate', 'rampDownStartVMOnConnect', 'Enable', 'rampUpAutoStartHosts', 'WithAssignedUser', 'rampUpStartVMOnConnect', 'Enable', 'rampUpMinutesToWaitOnDisconnect', 0, 'rampUpActionOnDisconnect', 'None', 'rampUpMinutesToWaitOnLogoff', 0, 'rampUpActionOnLogoff', 'None', 'offPeakStartTime', createObject('hour', split(parameters('scalingEndPeakTime'), ':')[0], 'minute', split(parameters('scalingEndPeakTime'), ':')[1]), 'offPeakMinutesToWaitOnDisconnect', 0, 'offPeakActionOnDisconnect', 'None', 'offPeakMinutesToWaitOnLogoff', 0, 'offPeakActionOnLogoff', 'Deallocate', 'offPeakStartVMOnConnect', 'Enable'), createObject('name', 'Weekends', 'daysOfWeek', createArray('Saturday', 'Sunday'), 'rampUpStartTime', createObject('hour', sub(int(split(parameters('scalingBeginPeakTime'), ':')[0]), 1), 'minute', split(parameters('scalingBeginPeakTime'), ':')[1]), 'peakStartTime', createObject('hour', split(parameters('scalingBeginPeakTime'), ':')[0], 'minute', split(parameters('scalingBeginPeakTime'), ':')[1]), 'peakMinutesToWaitOnDisconnect', 0, 'peakActionOnDisconnect', 'None', 'peakMinutesToWaitOnLogoff', 0, 'peakActionOnLogoff', 'Deallocate', 'peakStartVMOnConnect', 'Enable', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('scalingEndPeakTime'), ':')[0]), 1), 'minute', split(parameters('scalingEndPeakTime'), ':')[1]), 'rampDownMinutesToWaitOnDisconnect', 0, 'rampDownActionOnDisconnect', 'None', 'rampDownMinutesToWaitOnLogoff', 0, 'rampDownActionOnLogoff', 'Deallocate', 'rampDownStartVMOnConnect', 'Enable', 'rampUpAutoStartHosts', 'WithAssignedUser', 'rampUpStartVMOnConnect', 'Enable', 'rampUpMinutesToWaitOnDisconnect', 0, 'rampUpActionOnDisconnect', 'None', 'rampUpMinutesToWaitOnLogoff', 0, 'rampUpActionOnLogoff', 'None', 'offPeakStartTime', createObject('hour', split(parameters('scalingEndPeakTime'), ':')[0], 'minute', split(parameters('scalingEndPeakTime'), ':')[1]), 'offPeakMinutesToWaitOnDisconnect', 0, 'offPeakActionOnDisconnect', 'None', 'offPeakMinutesToWaitOnLogoff', 0, 'offPeakActionOnLogoff', 'Deallocate', 'offPeakStartVMOnConnect', 'Enable')))]",
+                        "exclusionTag": "Maintenance",
+                        "schedules": "[if(equals(parameters('hostPoolType'), 'Pooled'), createArray(createObject('name', 'Weekdays', 'daysOfWeek', createArray('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'), 'offPeakLoadBalancingAlgorithm', 'DepthFirst', 'offPeakStartTime', createObject('hour', split(parameters('weekdaysOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'peakLoadBalancingAlgorithm', 'BreadthFirst', 'peakStartTime', createObject('hour', split(parameters('weekdaysPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1]), 'rampDownCapacityThresholdPct', 90, 'rampDownForceLogoffUsers', false(), 'rampDownLoadBalancingAlgorithm', 'DepthFirst', 'rampDownMinimumHostsPct', 0, 'rampDownNotificationMessage', 'Ramping down the AVD session hosts to support low demand.', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekdaysOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'rampDownStopHostsWhen', 'ZeroSessions', 'rampDownWaitTimeMinutes', 0, 'rampUpCapacityThresholdPct', 70, 'rampUpLoadBalancingAlgorithm', 'BreadthFirst', 'rampUpMinimumHostsPct', 25, 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekdaysPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1])), createObject('name', 'Weekends', 'daysOfWeek', createArray('Saturday', 'Sunday'), 'offPeakLoadBalancingAlgorithm', 'DepthFirst', 'offPeakStartTime', createObject('hour', split(parameters('weekendsOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'peakLoadBalancingAlgorithm', 'BreadthFirst', 'peakStartTime', createObject('hour', split(parameters('weekendsPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]), 'rampDownCapacityThresholdPct', 90, 'rampDownForceLogoffUsers', false(), 'rampDownLoadBalancingAlgorithm', 'DepthFirst', 'rampDownMinimumHostsPct', 0, 'rampDownNotificationMessage', 'Ramping down the AVD session hosts to support low demand.', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekendsOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'rampDownStopHostsWhen', 'ZeroSessions', 'rampDownWaitTimeMinutes', 0, 'rampUpCapacityThresholdPct', 90, 'rampUpLoadBalancingAlgorithm', 'BreadthFirst', 'rampUpMinimumHostsPct', 25, 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekendsPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]))), createArray(createObject('name', 'Weekdays', 'daysOfWeek', createArray('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'), 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekdaysPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1]), 'peakStartTime', createObject('hour', split(parameters('weekdaysPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1]), 'peakMinutesToWaitOnDisconnect', 0, 'peakActionOnDisconnect', 'None', 'peakMinutesToWaitOnLogoff', 0, 'peakActionOnLogoff', 'Deallocate', 'peakStartVMOnConnect', 'Enable', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekdaysOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'rampDownMinutesToWaitOnDisconnect', 0, 'rampDownActionOnDisconnect', 'None', 'rampDownMinutesToWaitOnLogoff', 0, 'rampDownActionOnLogoff', 'Deallocate', 'rampDownStartVMOnConnect', 'Enable', 'rampUpAutoStartHosts', 'WithAssignedUser', 'rampUpStartVMOnConnect', 'Enable', 'rampUpMinutesToWaitOnDisconnect', 0, 'rampUpActionOnDisconnect', 'None', 'rampUpMinutesToWaitOnLogoff', 0, 'rampUpActionOnLogoff', 'None', 'offPeakStartTime', createObject('hour', split(parameters('weekdaysOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'offPeakMinutesToWaitOnDisconnect', 0, 'offPeakActionOnDisconnect', 'None', 'offPeakMinutesToWaitOnLogoff', 0, 'offPeakActionOnLogoff', 'Deallocate', 'offPeakStartVMOnConnect', 'Enable'), createObject('name', 'Weekends', 'daysOfWeek', createArray('Saturday', 'Sunday'), 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekendsPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]), 'peakStartTime', createObject('hour', split(parameters('weekendsPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]), 'peakMinutesToWaitOnDisconnect', 0, 'peakActionOnDisconnect', 'None', 'peakMinutesToWaitOnLogoff', 0, 'peakActionOnLogoff', 'Deallocate', 'peakStartVMOnConnect', 'Enable', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekendsOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'rampDownMinutesToWaitOnDisconnect', 0, 'rampDownActionOnDisconnect', 'None', 'rampDownMinutesToWaitOnLogoff', 0, 'rampDownActionOnLogoff', 'Deallocate', 'rampDownStartVMOnConnect', 'Enable', 'rampUpAutoStartHosts', 'WithAssignedUser', 'rampUpStartVMOnConnect', 'Enable', 'rampUpMinutesToWaitOnDisconnect', 0, 'rampUpActionOnDisconnect', 'None', 'rampUpMinutesToWaitOnLogoff', 0, 'rampUpActionOnLogoff', 'None', 'offPeakStartTime', createObject('hour', split(parameters('weekendsOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'offPeakMinutesToWaitOnDisconnect', 0, 'offPeakActionOnDisconnect', 'None', 'offPeakMinutesToWaitOnLogoff', 0, 'offPeakActionOnLogoff', 'Deallocate', 'offPeakStartVMOnConnect', 'Enable')))]",
                         "hostPoolReferences": [
                           {
                             "hostPoolArmPath": "[parameters('hostPoolResourceId')]",
