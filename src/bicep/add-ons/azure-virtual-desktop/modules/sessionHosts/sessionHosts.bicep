@@ -45,9 +45,10 @@ param resourceGroupControlPlane string
 param resourceGroupHosts string
 param resourceGroupManagement string
 param roleDefinitions object
-param scalingExclusionTag string
-param scalingBeginPeakTime string
-param scalingEndPeakTime string
+param scalingWeekdaysOffPeakStartTime string
+param scalingWeekdaysPeakStartTime string
+param scalingWeekendsOffPeakStartTime string
+param scalingWeekendsPeakStartTime string
 param securityPrincipalObjectIds array
 param serviceToken string
 param sessionHostBatchCount int
@@ -190,22 +191,22 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
   ]
 }
 
-module scalingPlan '../controlPlane/scalingPlan.bicep' = {
+module scalingPlan '../management/scalingPlan.bicep' = {
   name: 'deploy-scaling-plan-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupControlPlane)
+  scope: resourceGroup(resourceGroupManagement)
   params: {
     enableAvdInsights: enableAvdInsights
-    exclusionTag: scalingExclusionTag
     hostPoolResourceId: hostPoolResourceId
     hostPoolType: hostPoolType
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    pooledHostPool: pooledHostPool
-    scalingBeginPeakTime: scalingBeginPeakTime
-    scalingEndPeakTime: scalingEndPeakTime
     scalingPlanDiagnosticSettingName: namingConvention.scalingPlanDiagnosticSetting
     scalingPlanName: namingConvention.scalingPlan
     tags: tags
     timeZone: timeZone
+    weekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
+    weekdaysPeakStartTime: scalingWeekdaysPeakStartTime
+    weekendsOffPeakStartTime: scalingWeekendsOffPeakStartTime
+    weekendsPeakStartTime: scalingWeekendsPeakStartTime
   }
 }
