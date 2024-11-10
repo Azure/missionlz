@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.34.60546",
-      "templateHash": "12284937691632750862"
+      "templateHash": "15771138569883813399"
     }
   },
   "parameters": {
@@ -6446,9 +6446,6 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "activeDirectorySolution": {
-            "value": "[parameters('activeDirectorySolution')]"
-          },
           "avdObjectId": {
             "value": "[parameters('avdObjectId')]"
           },
@@ -6484,9 +6481,6 @@
           },
           "fslogixStorageService": {
             "value": "[parameters('fslogixStorageService')]"
-          },
-          "hostPoolType": {
-            "value": "[parameters('hostPoolType')]"
           },
           "locationVirtualMachines": {
             "value": "[parameters('locationVirtualMachines')]"
@@ -6572,13 +6566,10 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "11201776506860662107"
+              "templateHash": "6905098181608438116"
             }
           },
           "parameters": {
-            "activeDirectorySolution": {
-              "type": "string"
-            },
             "avdObjectId": {
               "type": "string"
             },
@@ -6613,9 +6604,6 @@
               "type": "string"
             },
             "fslogixStorageService": {
-              "type": "string"
-            },
-            "hostPoolType": {
               "type": "string"
             },
             "locationVirtualMachines": {
@@ -6708,7 +6696,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "name": "[guid(parameters('avdObjectId'), parameters('roleDefinitions').DesktopVirtualizationPowerOnContributor, subscription().id)]",
+              "name": "[guid(parameters('avdObjectId'), parameters('roleDefinitions').DesktopVirtualizationPowerOnOffContributor, subscription().id)]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitions').DesktopVirtualizationPowerOnOffContributor)]",
                 "principalId": "[parameters('avdObjectId')]"
@@ -8732,7 +8720,7 @@
               ]
             },
             {
-              "condition": "[and(parameters('recoveryServices'), or(and(and(contains(parameters('activeDirectorySolution'), 'DomainServices'), contains(parameters('hostPoolType'), 'Pooled')), contains(parameters('fslogixStorageService'), 'AzureFiles')), contains(parameters('hostPoolType'), 'Personal')))]",
+              "condition": "[parameters('recoveryServices')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-rsv-{0}', parameters('deploymentNameSuffix'))]",
@@ -9032,7 +9020,7 @@
             },
             "recoveryServicesVaultName": {
               "type": "string",
-              "value": "[if(and(parameters('recoveryServices'), or(and(and(contains(parameters('activeDirectorySolution'), 'DomainServices'), contains(parameters('hostPoolType'), 'Pooled')), contains(parameters('fslogixStorageService'), 'AzureFiles')), contains(parameters('hostPoolType'), 'Personal'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-rsv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value, '')]"
+              "value": "[if(parameters('recoveryServices'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-rsv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value, '')]"
             },
             "virtualMachineName": {
               "type": "string",
