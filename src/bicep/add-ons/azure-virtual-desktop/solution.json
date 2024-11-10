@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.34.60546",
-      "templateHash": "11728903793385998775"
+      "templateHash": "17467999606965085162"
     }
   },
   "parameters": {
@@ -258,15 +258,13 @@
     },
     "hostPoolType": {
       "type": "string",
-      "defaultValue": "Pooled DepthFirst",
+      "defaultValue": "Pooled",
       "allowedValues": [
-        "Pooled DepthFirst",
-        "Pooled BreadthFirst",
-        "Personal Automatic",
-        "Personal Direct"
+        "Pooled",
+        "Personal"
       ],
       "metadata": {
-        "description": "These options specify the host pool type and depending on the type provides the load balancing options and assignment types."
+        "description": "The type of AVD host pool."
       }
     },
     "hubAzureFirewallResourceId": {
@@ -594,7 +592,6 @@
     },
     "fileShares": "[variables('fileShareNames')[parameters('fslogixContainerType')]]",
     "netbios": "[split(parameters('domainName'), '.')[0]]",
-    "pooledHostPool": "[if(equals(split(parameters('hostPoolType'), ' ')[0], 'Pooled'), true(), false())]",
     "privateDnsZoneResourceIdPrefix": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/privateDnsZones/', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4])]",
     "resourceGroupServices": "[union(createArray('controlPlane', 'hosts', 'management'), if(variables('deployFslogix'), createArray('storage'), createArray()))]",
     "roleDefinitions": {
@@ -9049,8 +9046,8 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -9168,7 +9165,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "7947199422402016062"
+              "templateHash": "12742697062573784878"
             }
           },
           "parameters": {
@@ -9381,7 +9378,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "1177554211568337094"
+                      "templateHash": "1725348556427040372"
                     }
                   },
                   "parameters": {
@@ -9472,7 +9469,7 @@
                     }
                   },
                   "variables": {
-                    "customRdpProperty_Complete": "[if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), format('{0}targetisaadjoined:i:1;enablerdsaadauth:i:1;', parameters('customRdpProperty')), parameters('customRdpProperty'))]"
+                    "customRdpProperty_Complete": "[if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), format('{0}enablerdsaadauth:i:1;', parameters('customRdpProperty')), parameters('customRdpProperty'))]"
                   },
                   "resources": [
                     {
@@ -9483,10 +9480,10 @@
                       "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, resourceGroup().name, parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.DesktopVirtualization/hostPools'), parameters('tags')['Microsoft.DesktopVirtualization/hostPools'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "customRdpProperty": "[variables('customRdpProperty_Complete')]",
-                        "hostPoolType": "[split(parameters('hostPoolType'), ' ')[0]]",
-                        "loadBalancerType": "[if(contains(parameters('hostPoolType'), 'Pooled'), split(parameters('hostPoolType'), ' ')[1], 'Persistent')]",
+                        "hostPoolType": "[parameters('hostPoolType')]",
+                        "loadBalancerType": "[if(equals(parameters('hostPoolType'), 'Pooled'), 'DepthFirst', 'Persistent')]",
                         "maxSessionLimit": "[parameters('maxSessionLimit')]",
-                        "personalDesktopAssignmentType": "[if(contains(parameters('hostPoolType'), 'Personal'), split(parameters('hostPoolType'), ' ')[1], null())]",
+                        "personalDesktopAssignmentType": "[if(equals(parameters('hostPoolType'), 'Personal'), 'Automatic', null())]",
                         "preferredAppGroupType": "Desktop",
                         "publicNetworkAccess": "[parameters('hostPoolPublicNetworkAccess')]",
                         "registrationInfo": {
@@ -12539,9 +12536,6 @@
           "organizationalUnitPath": {
             "value": "[parameters('organizationalUnitPath')]"
           },
-          "pooledHostPool": {
-            "value": "[variables('pooledHostPool')]"
-          },
           "recoveryServicesVaultName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.recoveryServicesVaultName.value]"
           },
@@ -12620,7 +12614,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "1305598958552305489"
+              "templateHash": "12296467312285127529"
             }
           },
           "parameters": {
@@ -12735,9 +12729,6 @@
             "organizationalUnitPath": {
               "type": "string"
             },
-            "pooledHostPool": {
-              "type": "bool"
-            },
             "enableRecoveryServices": {
               "type": "bool"
             },
@@ -12825,7 +12816,7 @@
           },
           "resources": [
             {
-              "condition": "[and(parameters('pooledHostPool'), equals(parameters('availability'), 'AvailabilitySets'))]",
+              "condition": "[and(equals(parameters('hostPoolType'), 'Pooled'), equals(parameters('availability'), 'AvailabilitySets'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-avail-{0}', parameters('deploymentNameSuffix'))]",
@@ -13047,9 +13038,6 @@
                   "hostPoolName": {
                     "value": "[parameters('hostPoolName')]"
                   },
-                  "hostPoolType": {
-                    "value": "[parameters('hostPoolType')]"
-                  },
                   "imageVersionResourceId": {
                     "value": "[parameters('imageVersionResourceId')]"
                   },
@@ -13129,7 +13117,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "7274055108234907992"
+                      "templateHash": "16117911452479927621"
                     }
                   },
                   "parameters": {
@@ -13197,9 +13185,6 @@
                       "type": "string"
                     },
                     "hostPoolName": {
-                      "type": "string"
-                    },
-                    "hostPoolType": {
                       "type": "string"
                     },
                     "imageOffer": {
@@ -13325,7 +13310,6 @@
                       "Standard_NV36adms_A10_v5",
                       "Standard_NV72ads_A10_v5"
                     ],
-                    "pooledHostPool": "[equals(split(parameters('hostPoolType'), ' ')[0], 'Pooled')]",
                     "sessionHostNamePrefix": "[replace(parameters('virtualMachineNamePrefix'), parameters('serviceToken'), '')]",
                     "storageAccountToken": "[format('{0}??', parameters('storageAccountPrefix'))]"
                   },
@@ -13829,7 +13813,7 @@
                       ]
                     },
                     {
-                      "condition": "[and(parameters('enableDrainMode'), variables('pooledHostPool'))]",
+                      "condition": "[parameters('enableDrainMode')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-drain-mode-{0}-{1}', parameters('batchCount'), parameters('deploymentNameSuffix'))]",
@@ -13970,7 +13954,7 @@
               ]
             },
             {
-              "condition": "[and(parameters('enableRecoveryServices'), contains(parameters('hostPoolType'), 'Personal'))]",
+              "condition": "[and(parameters('enableRecoveryServices'), equals(parameters('hostPoolType'), 'Personal'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-recovery-services-{0}', parameters('deploymentNameSuffix'))]",
