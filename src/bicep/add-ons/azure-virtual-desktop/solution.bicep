@@ -207,23 +207,17 @@ param profile string = 'Generic'
 @description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
 param recoveryServices bool = false
 
-@description('The time when session hosts will scale up and continue to stay on to support peak demand; Format 24 hours e.g. 9:00 for 9am')
-param scalingBeginPeakTime string = '9:00'
+@description('Off peak start time for weekdays in HH:mm format.')
+param scalingWeekdaysOffPeakStartTime string = '17:00'
 
-@description('The time when session hosts will scale down and stay off to support low demand; Format 24 hours e.g. 17:00 for 5pm')
-param scalingEndPeakTime string = '17:00'
+@description('Off peak start time for weekends in HH:mm format.')
+param scalingWeekdaysPeakStartTime string = '09:00'
 
-@description('The tag used to exlude session hosts from the scaling plan. This is useful for session hosts that need to be maintenanced.')
-param scalingExclusionTag string
+@description('Peak start time for weekdays in HH:mm format.')
+param scalingWeekendsOffPeakStartTime string = '17:00'
 
-@description('The number of seconds to wait before automatically signing out users. If set to 0 any session host that has user sessions will be left untouched')
-param scalingLimitSecondsToForceLogOffUser string = '0'
-
-@description('The minimum number of session host VMs to keep running during off-peak hours. The scaling tool will not work if all virtual machines are turned off and the Start VM On Connect solution is not enabled.')
-param scalingMinimumNumberOfRdsh string = '0'
-
-@description('The maximum number of sessions per CPU that will be used as a threshold to determine when new session host VMs need to be started during peak hours')
-param scalingSessionThresholdPerCPU string = '1'
+@description('Peak start time for weekends in HH:mm format.')
+param scalingWeekendsPeakStartTime string = '09:00'
 
 @description('The array of Security Principals with their object IDs and display names to assign to the AVD Application Group and FSLogix Storage.')
 param securityPrincipals array
@@ -355,7 +349,7 @@ var resourceGroupServices = union(
     : []
 )
 var roleDefinitions = {
-  DesktopVirtualizationPowerOnContributor: '489581de-a3bd-480d-9518-53dea7416b33'
+  DesktopVirtualizationPowerOnOffContributor: '40c5ff49-9181-41f8-ae61-143b0e78555e'
   DesktopVirtualizationUser: '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63'
   Reader: 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
   VirtualMachineUserLogin: 'fb879df8-f326-4884-b1cf-06f3ad86be52'
@@ -526,11 +520,6 @@ module management 'modules/management/management.bicep' = {
       ? replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, 'storage')
       : ''
     roleDefinitions: roleDefinitions
-    scalingBeginPeakTime: scalingBeginPeakTime
-    scalingEndPeakTime: scalingEndPeakTime
-    scalingLimitSecondsToForceLogOffUser: scalingLimitSecondsToForceLogOffUser
-    scalingMinimumNumberOfRdsh: scalingMinimumNumberOfRdsh
-    scalingSessionThresholdPerCPU: scalingSessionThresholdPerCPU
     serviceToken: tier3_hosts.outputs.tokens.service
     storageService: storageService
     subnetResourceId: tier3_hosts.outputs.subnets[0].id
@@ -797,9 +786,10 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     resourceGroupHosts: rgs[1].outputs.name
     resourceGroupManagement: rgs[2].outputs.name
     roleDefinitions: roleDefinitions
-    scalingBeginPeakTime: scalingBeginPeakTime
-    scalingEndPeakTime: scalingEndPeakTime
-    scalingExclusionTag: scalingExclusionTag
+    scalingWeekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
+    scalingWeekdaysPeakStartTime: scalingWeekdaysPeakStartTime
+    scalingWeekendsOffPeakStartTime: scalingWeekendsOffPeakStartTime
+    scalingWeekendsPeakStartTime: scalingWeekendsPeakStartTime
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: tier3_hosts.outputs.tokens.service
     sessionHostBatchCount: sessionHostBatchCount
