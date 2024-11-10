@@ -27,7 +27,7 @@ param time string = utcNow('u')
 param validationEnvironment bool
 param virtualMachineSize string
 
-var customRdpProperty_Complete = contains(activeDirectorySolution, 'MicrosoftEntraId') ? '${customRdpProperty}targetisaadjoined:i:1;enablerdsaadauth:i:1;' : customRdpProperty
+var customRdpProperty_Complete = contains(activeDirectorySolution, 'MicrosoftEntraId') ? '${customRdpProperty}enablerdsaadauth:i:1;' : customRdpProperty
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
   name: hostPoolName
@@ -37,10 +37,10 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
   }, contains(tags, 'Microsoft.DesktopVirtualization/hostPools') ? tags['Microsoft.DesktopVirtualization/hostPools'] : {}, mlzTags)
   properties: {
     customRdpProperty: customRdpProperty_Complete
-    hostPoolType: split(hostPoolType, ' ')[0]
-    loadBalancerType: contains(hostPoolType, 'Pooled') ? split(hostPoolType, ' ')[1] : 'Persistent'
+    hostPoolType: hostPoolType
+    loadBalancerType: hostPoolType == 'Pooled' ? 'DepthFirst' : 'Persistent'
     maxSessionLimit: maxSessionLimit
-    personalDesktopAssignmentType: contains(hostPoolType, 'Personal') ? split(hostPoolType, ' ')[1] : null
+    personalDesktopAssignmentType: hostPoolType == 'Personal' ? 'Automatic' : null
     preferredAppGroupType: 'Desktop'
     publicNetworkAccess: hostPoolPublicNetworkAccess
     registrationInfo: {
@@ -50,7 +50,6 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
     startVMOnConnect: true
     validationEnvironment: validationEnvironment
     vmTemplate: '{"domain":"${domainName}","galleryImageOffer":${galleryImageOffer},"galleryImagePublisher":${galleryImagePublisher},"galleryImageSKU":${galleryImageSku},"imageType":${imageType},"customImageId":${customImageId},"namePrefix":"${sessionHostNamePrefix}","osDiskType":"${diskSku}","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":${galleryItemId},"hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
-
   }
 }
 
