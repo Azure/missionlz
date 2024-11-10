@@ -135,13 +135,11 @@ param functionAppSubnetAddressPrefix string = ''
 param hostPoolPublicNetworkAccess string
 
 @allowed([
-  'Pooled DepthFirst'
-  'Pooled BreadthFirst'
-  'Personal Automatic'
-  'Personal Direct'
+  'Pooled'
+  'Personal'
 ])
-@description('These options specify the host pool type and depending on the type provides the load balancing options and assignment types.')
-param hostPoolType string = 'Pooled DepthFirst'
+@description('The type of AVD host pool.')
+param hostPoolType string = 'Pooled'
 
 @description('The resource ID for the Azure Firewall in the HUB subscription')
 param hubAzureFirewallResourceId string
@@ -334,7 +332,6 @@ var fileShareNames = {
 }
 var fileShares = fileShareNames[fslogixContainerType]
 var netbios = split(domainName, '.')[0]
-var pooledHostPool = split(hostPoolType, ' ')[0] == 'Pooled' ? true : false
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
 var resourceGroupServices = union(
   [
@@ -777,7 +774,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
       'None'
     ]
     organizationalUnitPath: organizationalUnitPath
-    pooledHostPool: pooledHostPool
     recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupHosts: rgs[1].outputs.name
