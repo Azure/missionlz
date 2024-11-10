@@ -487,7 +487,6 @@ module rgs '../../modules/resource-group.bicep' = [
 module management 'modules/management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
   params: {
-    activeDirectorySolution: activeDirectorySolution
     avdObjectId: avdObjectId
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
@@ -500,7 +499,6 @@ module management 'modules/management/management.bicep' = {
     enableAvdInsights: enableAvdInsights
     environmentAbbreviation: environmentAbbreviation
     fslogixStorageService: fslogixStorageService
-    hostPoolType: hostPoolType
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
