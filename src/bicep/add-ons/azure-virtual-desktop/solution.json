@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.34.60546",
-      "templateHash": "15771138569883813399"
+      "templateHash": "1222778303169502414"
     }
   },
   "parameters": {
@@ -9034,8 +9034,8 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
@@ -10890,9 +10890,6 @@
           "functionAppName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.functionAppName.value]"
           },
-          "hostPoolType": {
-            "value": "[parameters('hostPoolType')]"
-          },
           "keyVaultUri": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
           },
@@ -10968,7 +10965,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "11179081376326675216"
+              "templateHash": "7757145383897833231"
             }
           },
           "parameters": {
@@ -11021,9 +11018,6 @@
               "type": "string"
             },
             "functionAppName": {
-              "type": "string"
-            },
-            "hostPoolType": {
               "type": "string"
             },
             "keyVaultUri": {
@@ -11511,9 +11505,6 @@
                   "functionAppName": {
                     "value": "[parameters('functionAppName')]"
                   },
-                  "hostPoolType": {
-                    "value": "[parameters('hostPoolType')]"
-                  },
                   "keyVaultUri": {
                     "value": "[parameters('keyVaultUri')]"
                   },
@@ -11588,7 +11579,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "15055411149553856815"
+                      "templateHash": "12993653507970848286"
                     }
                   },
                   "parameters": {
@@ -11635,9 +11626,6 @@
                       "type": "string"
                     },
                     "hostPoolName": {
-                      "type": "string"
-                    },
-                    "hostPoolType": {
                       "type": "string"
                     },
                     "keyVaultUri": {
@@ -11829,14 +11817,14 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[format('{0}-{1}', replace(parameters('namingConvention').storageAccountPrivateEndpoint, parameters('serviceToken'), 'file-fslogix'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
+                      "name": "[format('{0}-{1}', parameters('namingConvention').storageAccountFilePrivateEndpoint, padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
                       "location": "[parameters('location')]",
                       "tags": "[variables('tagsPrivateEndpoints')]",
                       "properties": {
-                        "customNetworkInterfaceName": "[format('{0}-{1}', replace(parameters('namingConvention').storageAccountNetworkInterface, parameters('serviceToken'), 'file-fslogix'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
+                        "customNetworkInterfaceName": "[format('{0}-{1}', parameters('namingConvention').storageAccountFileNetworkInterface, padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('{0}-{1}', replace(parameters('namingConvention').storageAccountPrivateEndpoint, parameters('serviceToken'), 'file-fslogix'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
+                            "name": "[format('{0}-{1}', parameters('namingConvention').storageAccountFilePrivateEndpoint, padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', take(format('{0}{1}', variables('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), 15))]",
                               "groupIds": [
@@ -11860,7 +11848,7 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', format('{0}-{1}', replace(parameters('namingConvention').storageAccountPrivateEndpoint, parameters('serviceToken'), 'file-fslogix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), take(format('{0}{1}', variables('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), 15))]",
+                      "name": "[format('{0}/{1}', format('{0}-{1}', parameters('namingConvention').storageAccountFilePrivateEndpoint, padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), take(format('{0}{1}', variables('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), 15))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -11872,7 +11860,7 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-{1}', replace(parameters('namingConvention').storageAccountPrivateEndpoint, parameters('serviceToken'), 'file-fslogix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-{1}', parameters('namingConvention').storageAccountFilePrivateEndpoint, padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]",
                         "storageAccounts"
                       ]
                     },
@@ -11951,10 +11939,9 @@
                       ]
                     },
                     {
-                      "condition": "[contains(parameters('activeDirectorySolution'), 'DomainServices')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-fslogix-ntfs-permissions-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('set-ntfs-permissions-{0}', parameters('deploymentNameSuffix'))]",
                       "resourceGroup": "[parameters('resourceGroupManagement')]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -12117,10 +12104,10 @@
                       ]
                     },
                     {
-                      "condition": "[and(parameters('enableRecoveryServices'), contains(parameters('hostPoolType'), 'Pooled'))]",
+                      "condition": "[parameters('enableRecoveryServices')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-backup-azure-files-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-backup-{0}', parameters('deploymentNameSuffix'))]",
                       "resourceGroup": "[parameters('resourceGroupManagement')]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -12382,7 +12369,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-fslogix-ntfs-permissions-{0}', parameters('deploymentNameSuffix')))]"
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('set-ntfs-permissions-{0}', parameters('deploymentNameSuffix')))]"
                       ]
                     }
                   ],
