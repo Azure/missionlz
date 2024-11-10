@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.34.60546",
-      "templateHash": "1222778303169502414"
+      "templateHash": "11728903793385998775"
     }
   },
   "parameters": {
@@ -6566,7 +6566,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "6905098181608438116"
+              "templateHash": "3576030188307687063"
             }
           },
           "parameters": {
@@ -7937,7 +7937,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "16558372051681245735"
+                      "templateHash": "13334192291900135747"
                     }
                   },
                   "parameters": {
@@ -8005,18 +8005,32 @@
                     "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
                     "functionAppKeyword": "[if(or(equals(environment().name, 'AzureCloud'), equals(environment().name, 'AzureUSGovernment')), 'azurewebsites', 'appservice')]",
                     "functionAppScmPrivateDnsZoneResourceId": "[format('{0}scm.{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), variables('functionAppKeyword'))))[0])]",
-                    "service": "mgmt",
-                    "storagePrivateDnsZoneResourceIds": [
-                      "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'blob')))[0])]",
-                      "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'file')))[0])]",
-                      "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'queue')))[0])]",
-                      "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'table')))[0])]"
-                    ],
+                    "service": "aipfsq",
                     "storageSubResources": [
-                      "blob",
-                      "file",
-                      "queue",
-                      "table"
+                      {
+                        "name": "blob",
+                        "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'blob')))[0])]",
+                        "nic": "[parameters('namingConvention').storageAccountBlobNetworkInterface]",
+                        "pe": "[parameters('namingConvention').storageAccountBlobPrivateEndpoint]"
+                      },
+                      {
+                        "name": "file",
+                        "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'file')))[0])]",
+                        "nic": "[parameters('namingConvention').storageAccountFileNetworkInterface]",
+                        "pe": "[parameters('namingConvention').storageAccountFilePrivateEndpoint]"
+                      },
+                      {
+                        "name": "queue",
+                        "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'queue')))[0])]",
+                        "nic": "[parameters('namingConvention').storageAccountQueueNetworkInterface]",
+                        "pe": "[parameters('namingConvention').storageAccountQueuePrivateEndpoint]"
+                      },
+                      {
+                        "name": "table",
+                        "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'table')))[0])]",
+                        "nic": "[parameters('namingConvention').storageAccountTableNetworkInterface]",
+                        "pe": "[parameters('namingConvention').storageAccountTablePrivateEndpoint]"
+                      }
                     ]
                   },
                   "resources": [
@@ -8030,7 +8044,7 @@
                     {
                       "type": "Microsoft.KeyVault/vaults",
                       "apiVersion": "2022-07-01",
-                      "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id))]",
+                      "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id))]",
                       "location": "[parameters('location')]",
                       "tags": "[coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject())]",
                       "properties": {
@@ -8058,8 +8072,8 @@
                     {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
-                      "scope": "[format('Microsoft.KeyVault/vaults/{0}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]",
-                      "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id))))]",
+                      "scope": "[format('Microsoft.KeyVault/vaults/{0}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]",
+                      "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id))))]",
                       "properties": {
                         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), '2023-01-31').principalId]",
                         "principalType": "ServicePrincipal",
@@ -8067,7 +8081,7 @@
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service')))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]"
                       ]
                     },
                     {
@@ -8082,7 +8096,7 @@
                           {
                             "name": "[replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service'))]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]",
                               "groupIds": [
                                 "vault"
                               ]
@@ -8094,13 +8108,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]",
+                      "name": "[format('{0}/{1}', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -8113,13 +8127,13 @@
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]"
                       ]
                     },
                     {
                       "type": "Microsoft.KeyVault/vaults/keys",
                       "apiVersion": "2022-07-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)), 'StorageEncryptionKey')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)), 'StorageEncryptionKey')]",
                       "properties": {
                         "attributes": {
                           "enabled": true
@@ -8151,7 +8165,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]"
                       ]
                     },
                     {
@@ -8187,7 +8201,7 @@
                           },
                           "requireInfrastructureEncryption": true,
                           "keyvaultproperties": {
-                            "keyvaulturi": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id))), '2022-07-01').vaultUri]",
+                            "keyvaulturi": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id))), '2022-07-01').vaultUri]",
                             "keyname": "StorageEncryptionKey"
                           },
                           "services": {
@@ -8222,12 +8236,12 @@
                         "supportsHttpsTrafficOnly": true
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)), 'StorageEncryptionKey')]",
-                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]",
+                        "[resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)), 'StorageEncryptionKey')]",
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]",
                         "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')))]",
-                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id))), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))))]",
+                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id))), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))))]",
                         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service')))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]"
                       ]
                     },
                     {
@@ -8245,18 +8259,18 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[replace(parameters('namingConvention').storageAccountPrivateEndpoint, format('{0}-{1}', parameters('serviceToken'), parameters('resourceAbbreviations').storageAccounts), format('{0}-{1}-scale', variables('storageSubResources')[copyIndex()], parameters('resourceAbbreviations').storageAccounts))]",
+                      "name": "[replace(variables('storageSubResources')[copyIndex()].pe, parameters('serviceToken'), variables('service'))]",
                       "location": "[parameters('location')]",
                       "tags": "[coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject())]",
                       "properties": {
-                        "customNetworkInterfaceName": "[replace(parameters('namingConvention').storageAccountNetworkInterface, format('{0}-{1}', parameters('serviceToken'), parameters('resourceAbbreviations').storageAccounts), format('{0}-{1}-scale', variables('storageSubResources')[copyIndex()], parameters('resourceAbbreviations').storageAccounts))]",
+                        "customNetworkInterfaceName": "[replace(variables('storageSubResources')[copyIndex()].nic, parameters('serviceToken'), variables('service'))]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[replace(parameters('namingConvention').storageAccountPrivateEndpoint, format('{0}-{1}', parameters('serviceToken'), parameters('resourceAbbreviations').storageAccounts), format('{0}-{1}-scale', variables('storageSubResources')[copyIndex()], parameters('resourceAbbreviations').storageAccounts))]",
+                            "name": "[replace(variables('storageSubResources')[copyIndex()].pe, parameters('serviceToken'), variables('service'))]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id))]",
                               "groupIds": [
-                                "[variables('storageSubResources')[copyIndex()]]"
+                                "[variables('storageSubResources')[copyIndex()].name]"
                               ]
                             }
                           }
@@ -8276,19 +8290,19 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', replace(parameters('namingConvention').storageAccountPrivateEndpoint, format('{0}-{1}', parameters('serviceToken'), parameters('resourceAbbreviations').storageAccounts), format('{0}-{1}-scale', variables('storageSubResources')[copyIndex()], parameters('resourceAbbreviations').storageAccounts)), uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id))]",
+                      "name": "[format('{0}/{1}', replace(variables('storageSubResources')[copyIndex()].pe, parameters('serviceToken'), variables('service')), uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
                             "name": "ipconfig1",
                             "properties": {
-                              "privateDnsZoneId": "[variables('storagePrivateDnsZoneResourceIds')[copyIndex()]]"
+                              "privateDnsZoneId": "[variables('storageSubResources')[copyIndex()].id]"
                             }
                           }
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('namingConvention').storageAccountPrivateEndpoint, format('{0}-{1}', parameters('serviceToken'), parameters('resourceAbbreviations').storageAccounts), format('{0}-{1}-scale', variables('storageSubResources')[copyIndex()], parameters('resourceAbbreviations').storageAccounts)))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', replace(variables('storageSubResources')[copyIndex()].pe, parameters('serviceToken'), variables('service')))]",
                         "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id))]"
                       ]
                     },
