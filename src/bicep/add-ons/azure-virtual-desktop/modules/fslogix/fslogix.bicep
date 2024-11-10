@@ -19,7 +19,6 @@ param fslogixShareSizeInGB int
 param fslogixContainerType string
 param fslogixStorageService string
 param functionAppName string
-param hostPoolType string
 param keyVaultUri string
 param location string
 param managementVirtualMachineName string
@@ -96,7 +95,6 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
     functionAppName: functionAppName
-    hostPoolType: hostPoolType
     keyVaultUri: keyVaultUri
     location: location
     managementVirtualMachineName: managementVirtualMachineName
