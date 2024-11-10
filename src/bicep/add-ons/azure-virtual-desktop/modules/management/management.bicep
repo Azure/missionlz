@@ -32,11 +32,6 @@ param resourceGroupHosts string
 param resourceGroupManagement string
 param resourceGroupStorage string
 param roleDefinitions object
-param scalingBeginPeakTime string
-param scalingEndPeakTime string
-param scalingLimitSecondsToForceLogOffUser string
-param scalingMinimumNumberOfRdsh string
-param scalingSessionThresholdPerCPU string
 param serviceToken string
 param storageService string
 param subnetResourceId string
@@ -164,13 +159,13 @@ module virtualMachine 'virtualMachine.bicep' = {
   }
 }
 
-// Role Assignment required for Start VM On Connect
+// Role Assignment required for Scaling Plan
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(avdObjectId, roleDefinitions.DesktopVirtualizationPowerOnContributor, subscription().id)
   properties: {
     roleDefinitionId: resourceId(
       'Microsoft.Authorization/roleDefinitions',
-      roleDefinitions.DesktopVirtualizationPowerOnContributor
+      roleDefinitions.DesktopVirtualizationPowerOnOffContributor
     )
     principalId: avdObjectId
   }
@@ -197,12 +192,12 @@ module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAv
   }
 }
 
-module functionApp 'functionApp.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
+// Deploys the Auto Increase Premium File Share Quota solution on an Azure Function App
+module functionApp 'functionApp.bicep' = if (deployFslogix && fslogixStorageService == 'AzureFiles Premium') {
   name: 'deploy-function-app-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
     delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
-    deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     enableApplicationInsights: enableApplicationInsights
     environmentAbbreviation: environmentAbbreviation
@@ -214,13 +209,7 @@ module functionApp 'functionApp.bicep' = if (fslogixStorageService == 'AzureFile
     privateLinkScopeResourceId: privateLinkScopeResourceId
     resourceAbbreviations: resourceAbbreviations
     resourceGroupControlPlane: resourceGroupControlPlane
-    resourceGroupHosts: resourceGroupHosts
     resourceGroupStorage: resourceGroupStorage
-    scalingBeginPeakTime: scalingBeginPeakTime
-    scalingEndPeakTime:scalingEndPeakTime
-    scalingLimitSecondsToForceLogOffUser: scalingLimitSecondsToForceLogOffUser
-    scalingMinimumNumberOfRdsh: scalingMinimumNumberOfRdsh
-    scalingSessionThresholdPerCPU: scalingSessionThresholdPerCPU
     serviceToken: serviceToken
     subnetResourceId: subnetResourceId
     tags: tags
