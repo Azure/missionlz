@@ -38,7 +38,6 @@ param mlzTags object
 param namingConvention object
 param netAppFileShares array
 param organizationalUnitPath string
-param pooledHostPool bool
 param enableRecoveryServices bool
 param recoveryServicesVaultName string
 param resourceGroupControlPlane string
@@ -74,7 +73,7 @@ var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}/res
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 var virtualMachineNamePrefix = replace(namingConvention.virtualMachine, serviceToken, '')
 
-module availabilitySets 'availabilitySets.bicep' = if (pooledHostPool && availability == 'AvailabilitySets') {
+module availabilitySets 'availabilitySets.bicep' = if (hostPoolType == 'Pooled' && availability == 'AvailabilitySets') {
   name: 'deploy-avail-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupHosts)
   params: {
@@ -135,7 +134,6 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     enableDrainMode: drainMode
     fslogixContainerType: fslogixContainerType
     hostPoolName: hostPoolName
-    hostPoolType: hostPoolType
     imageVersionResourceId: imageVersionResourceId
     imageOffer: empty(imageVersionResourceId) ? imageOffer : image.properties.purchasePlan.product
     imagePublisher: empty(imageVersionResourceId) ? imagePublisher: image.properties.purchasePlan.publisher
@@ -169,7 +167,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
   ]
 }]
 
-module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices && contains(hostPoolType, 'Personal')) {
+module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices && hostPoolType == 'Personal') {
   name: 'deploy-recovery-services-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
