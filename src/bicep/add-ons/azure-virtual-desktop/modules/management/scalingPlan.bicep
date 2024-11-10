@@ -1,9 +1,6 @@
 @description('Optional. Enable AVD Insights.')
 param enableAvdInsights bool = true
 
-@description('Optional. Exclusion tag to be used for exclusion of VMs from Scaling Plan.')
-param exclusionTag string = ''
-
 @description('Required. Host pool resource ID for the Scaling Plan.')
 param hostPoolResourceId string
 
@@ -19,15 +16,6 @@ param logAnalyticsWorkspaceResourceId string = ''
 ])
 @description('Required. Host pool type of the Scaling Plan.')
 param hostPoolType string
-
-@description('Required. Boolean value indicating whether the host pool is pooled.')
-param pooledHostPool bool
-
-@description('Required. Scaling begin peak time in HH:mm format.')
-param scalingBeginPeakTime string
-
-@description('Required. Scaling end peak time in HH:mm format.')
-param scalingEndPeakTime string
 
 @description('Required. Name of the diagnostic setting for the Scaling Plan.')
 param scalingPlanDiagnosticSettingName string
@@ -47,6 +35,19 @@ param tags object = {}
 @description('Optional. Time zone of the Scaling Plan. Defaults to UTC.')
 param timeZone string = 'UTC'
 
+@description('Required. Off peak start time for weekdays in HH:mm format.')
+param weekdaysOffPeakStartTime string
+
+@description('Required. Off peak start time for weekends in HH:mm format.')
+param weekendsOffPeakStartTime string
+
+@description('Required. Peak start time for weekdays in HH:mm format.')
+param weekdaysPeakStartTime string
+
+@description('Required. Peak start time for weekends in HH:mm format.')
+param weekendsPeakStartTime string
+
+
 resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' = {
   name: scalingPlanName
   location: location
@@ -54,8 +55,8 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
   properties: {
     timeZone: timeZone
     hostPoolType: hostPoolType
-    exclusionTag: exclusionTag
-    schedules: pooledHostPool ? [
+    exclusionTag: 'Maintenance'
+    schedules: hostPoolType == 'Pooled' ? [
       {
         name: 'Weekdays'
         daysOfWeek: [
@@ -67,13 +68,13 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
         ]
         offPeakLoadBalancingAlgorithm: 'DepthFirst'
         offPeakStartTime: {
-          hour: split(scalingEndPeakTime, ':')[0]
-          minute: split(scalingEndPeakTime, ':')[1]
+          hour: split(weekdaysOffPeakStartTime, ':')[0]
+          minute: split(weekdaysOffPeakStartTime, ':')[1]
         }
         peakLoadBalancingAlgorithm: 'BreadthFirst'
         peakStartTime: {
-          hour: split(scalingBeginPeakTime, ':')[0]
-          minute: split(scalingBeginPeakTime, ':')[1]
+          hour: split(weekdaysPeakStartTime, ':')[0]
+          minute: split(weekdaysPeakStartTime, ':')[1]
         }
         rampDownCapacityThresholdPct: 90
         rampDownForceLogoffUsers: false
@@ -81,17 +82,17 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
         rampDownMinimumHostsPct: 0
         rampDownNotificationMessage: 'Ramping down the AVD session hosts to support low demand.'
         rampDownStartTime: {
-          hour: int(split(scalingEndPeakTime, ':')[0]) - 1
-          minute: split(scalingEndPeakTime, ':')[1]
+          hour: int(split(weekdaysOffPeakStartTime, ':')[0]) - 1
+          minute: split(weekdaysOffPeakStartTime, ':')[1]
         }
-        rampDownStopHostsWhen: 'string'
+        rampDownStopHostsWhen: 'ZeroSessions'
         rampDownWaitTimeMinutes: 0
         rampUpCapacityThresholdPct: 70
         rampUpLoadBalancingAlgorithm: 'BreadthFirst'
         rampUpMinimumHostsPct: 25
         rampUpStartTime: {
-          hour: int(split(scalingBeginPeakTime, ':')[0]) - 1
-          minute: split(scalingBeginPeakTime, ':')[1]
+          hour: int(split(weekdaysPeakStartTime, ':')[0]) - 1
+          minute: split(weekdaysPeakStartTime, ':')[1]
         }
       }
       {
@@ -102,13 +103,13 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
         ]
         offPeakLoadBalancingAlgorithm: 'DepthFirst'
         offPeakStartTime: {
-          hour: split(scalingEndPeakTime, ':')[0]
-          minute: split(scalingEndPeakTime, ':')[1]
+          hour: split(weekendsOffPeakStartTime, ':')[0]
+          minute: split(weekendsOffPeakStartTime, ':')[1]
         }
         peakLoadBalancingAlgorithm: 'BreadthFirst'
         peakStartTime: {
-          hour: split(scalingBeginPeakTime, ':')[0]
-          minute: split(scalingBeginPeakTime, ':')[1]
+          hour: split(weekendsPeakStartTime, ':')[0]
+          minute: split(weekendsPeakStartTime, ':')[1]
         }
         rampDownCapacityThresholdPct: 90
         rampDownForceLogoffUsers: false
@@ -116,17 +117,17 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
         rampDownMinimumHostsPct: 0
         rampDownNotificationMessage: 'Ramping down the AVD session hosts to support low demand.'
         rampDownStartTime: {
-          hour: int(split(scalingEndPeakTime, ':')[0]) - 1
-          minute: split(scalingEndPeakTime, ':')[1]
+          hour: int(split(weekendsOffPeakStartTime, ':')[0]) - 1
+          minute: split(weekendsOffPeakStartTime, ':')[1]
         }
-        rampDownStopHostsWhen: 'string'
+        rampDownStopHostsWhen: 'ZeroSessions'
         rampDownWaitTimeMinutes: 0
         rampUpCapacityThresholdPct: 90
-        rampUpLoadBalancingAlgorithm: 'string'
-        rampUpMinimumHostsPct: 0
+        rampUpLoadBalancingAlgorithm: 'BreadthFirst'
+        rampUpMinimumHostsPct: 25
         rampUpStartTime: {
-          hour: int(split(scalingBeginPeakTime, ':')[0]) - 1
-          minute: split(scalingBeginPeakTime, ':')[1]
+          hour: int(split(weekendsPeakStartTime, ':')[0]) - 1
+          minute: split(weekendsPeakStartTime, ':')[1]
         }
       }
     ] : [
@@ -140,12 +141,12 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
           'Friday'
         ]
         rampUpStartTime: {
-          hour: int(split(scalingBeginPeakTime, ':')[0]) - 1
-          minute: split(scalingBeginPeakTime, ':')[1]
+          hour: int(split(weekdaysPeakStartTime, ':')[0]) - 1
+          minute: split(weekdaysPeakStartTime, ':')[1]
         }
         peakStartTime: {
-          hour: split(scalingBeginPeakTime, ':')[0]
-          minute: split(scalingBeginPeakTime, ':')[1]
+          hour: split(weekdaysPeakStartTime, ':')[0]
+          minute: split(weekdaysPeakStartTime, ':')[1]
         }
         peakMinutesToWaitOnDisconnect: 0
         peakActionOnDisconnect: 'None'
@@ -153,8 +154,8 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
         peakActionOnLogoff: 'Deallocate'
         peakStartVMOnConnect: 'Enable'
         rampDownStartTime: {
-          hour: int(split(scalingEndPeakTime, ':')[0]) - 1
-          minute: split(scalingEndPeakTime, ':')[1]
+          hour: int(split(weekdaysOffPeakStartTime, ':')[0]) - 1
+          minute: split(weekdaysOffPeakStartTime, ':')[1]
         }
         rampDownMinutesToWaitOnDisconnect: 0
         rampDownActionOnDisconnect: 'None'
@@ -168,8 +169,8 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
         rampUpMinutesToWaitOnLogoff: 0
         rampUpActionOnLogoff: 'None'
         offPeakStartTime: {
-          hour: split(scalingEndPeakTime, ':')[0]
-          minute: split(scalingEndPeakTime, ':')[1]
+          hour: split(weekdaysOffPeakStartTime, ':')[0]
+          minute: split(weekdaysOffPeakStartTime, ':')[1]
         }
         offPeakMinutesToWaitOnDisconnect: 0
         offPeakActionOnDisconnect: 'None'
@@ -184,12 +185,12 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
           'Sunday'
         ]
         rampUpStartTime: {
-          hour: int(split(scalingBeginPeakTime, ':')[0]) - 1
-          minute: split(scalingBeginPeakTime, ':')[1]
+          hour: int(split(weekendsPeakStartTime, ':')[0]) - 1
+          minute: split(weekendsPeakStartTime, ':')[1]
         }
         peakStartTime: {
-          hour: split(scalingBeginPeakTime, ':')[0]
-          minute: split(scalingBeginPeakTime, ':')[1]
+          hour: split(weekendsPeakStartTime, ':')[0]
+          minute: split(weekendsPeakStartTime, ':')[1]
         }
         peakMinutesToWaitOnDisconnect: 0
         peakActionOnDisconnect: 'None'
@@ -197,8 +198,8 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
         peakActionOnLogoff: 'Deallocate'
         peakStartVMOnConnect: 'Enable'
         rampDownStartTime: {
-          hour: int(split(scalingEndPeakTime, ':')[0]) - 1
-          minute: split(scalingEndPeakTime, ':')[1]
+          hour: int(split(weekendsOffPeakStartTime, ':')[0]) - 1
+          minute: split(weekendsOffPeakStartTime, ':')[1]
         }
         rampDownMinutesToWaitOnDisconnect: 0
         rampDownActionOnDisconnect: 'None'
@@ -212,8 +213,8 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
         rampUpMinutesToWaitOnLogoff: 0
         rampUpActionOnLogoff: 'None'
         offPeakStartTime: {
-          hour: split(scalingEndPeakTime, ':')[0]
-          minute: split(scalingEndPeakTime, ':')[1]
+          hour: split(weekendsOffPeakStartTime, ':')[0]
+          minute: split(weekendsOffPeakStartTime, ':')[1]
         }
         offPeakMinutesToWaitOnDisconnect: 0
         offPeakActionOnDisconnect: 'None'
