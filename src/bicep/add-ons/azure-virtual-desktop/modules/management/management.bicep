@@ -1,6 +1,5 @@
 targetScope = 'subscription'
 
-param activeDirectorySolution string
 param avdObjectId string
 param deployFslogix bool
 param deploymentNameSuffix string
@@ -14,7 +13,6 @@ param enableApplicationInsights bool
 param enableAvdInsights bool
 param environmentAbbreviation string
 param fslogixStorageService string
-param hostPoolType string
 param locationVirtualMachines string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
@@ -161,12 +159,9 @@ module virtualMachine 'virtualMachine.bicep' = {
 
 // Role Assignment required for Scaling Plan
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(avdObjectId, roleDefinitions.DesktopVirtualizationPowerOnContributor, subscription().id)
+  name: guid(avdObjectId, roleDefinitions.DesktopVirtualizationPowerOnOffContributor, subscription().id)
   properties: {
-    roleDefinitionId: resourceId(
-      'Microsoft.Authorization/roleDefinitions',
-      roleDefinitions.DesktopVirtualizationPowerOnOffContributor
-    )
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions',roleDefinitions.DesktopVirtualizationPowerOnOffContributor)
     principalId: avdObjectId
   }
 }
@@ -217,13 +212,7 @@ module functionApp 'functionApp.bicep' = if (deployFslogix && fslogixStorageServ
   }
 }
 
-module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryServices && ((contains(
-  activeDirectorySolution,
-  'DomainServices'
-) && contains(hostPoolType, 'Pooled') && contains(fslogixStorageService, 'AzureFiles')) || contains(
-  hostPoolType,
-  'Personal'
-))) {
+module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryServices) {
   name: 'deploy-rsv-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
@@ -251,11 +240,7 @@ output deploymentUserAssignedIdentityPrincipalId string = deploymentUserAssigned
 output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedIdentity.outputs.resourceId
 output functionAppName string = fslogixStorageService == 'AzureFiles Premium' ? functionApp.outputs.functionAppName : ''
 output logAnalyticsWorkspaceName string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceName : ''
-output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || enableAvdInsights
-  ? monitoring.outputs.logAnalyticsWorkspaceResourceId
-  : ''
-output recoveryServicesVaultName string = recoveryServices && ((contains(activeDirectorySolution, 'DomainServices') && contains(hostPoolType,'Pooled') && contains(fslogixStorageService, 'AzureFiles')) || contains(hostPoolType, 'Personal'))
-  ? recoveryServicesVault.outputs.name
-  : ''
+output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceResourceId : ''
+output recoveryServicesVaultName string = recoveryServices ? recoveryServicesVault.outputs.name : ''
 output virtualMachineName string = virtualMachine.outputs.name
 output virtualMachineResourceId string = virtualMachine.outputs.resourceId
