@@ -704,7 +704,6 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
     functionAppName: management.outputs.functionAppName
-    hostPoolType: hostPoolType
     keyVaultUri: tier3_hosts.outputs.keyVaultUri
     location: locationVirtualMachines
     managementVirtualMachineName: management.outputs.virtualMachineName
