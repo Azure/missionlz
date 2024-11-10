@@ -1627,7 +1627,7 @@
         "fslogixStorageService": "[if(equals(steps('profiles').profileSolution, 'local'), 'None', steps('profiles').storage.service)]",
         "functionAppSubnetAddressPrefix": "[steps('network').vnet.functionAppSubnetAddressCidrRange]",
         "hostPoolPublicNetworkAccess": "[steps('controlPlane').hostPool.publicNetworkAccess]",
-        "hostPoolType": "[if(equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'), 'Pooled DepthFirst', 'Personal Automatic')]",
+        "hostPoolType": "[steps('controlPlane').hostPool.hostPoolType]",
         "hubAzureFirewallResourceId": "[steps('basics').hub.azureFirewall]",
         "hubVirtualNetworkResourceId": "[steps('basics').hub.virtualNetwork]",
         "identifier": "[steps('basics').naming.identifier]",
