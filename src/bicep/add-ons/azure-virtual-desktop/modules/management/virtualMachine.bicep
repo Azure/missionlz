@@ -24,7 +24,7 @@ param virtualMachineUsername string
 
 var tagsVirtualMachines = union({
   'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags, {excludeFromAutoScale: ''})
+}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = {
   name: networkInterfaceName
