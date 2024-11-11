@@ -47,6 +47,169 @@ param weekdaysPeakStartTime string
 @description('Required. Peak start time for weekends in HH:mm format.')
 param weekendsPeakStartTime string
 
+var schedules = hostPoolType == 'Pooled' ? [
+  {
+    daysOfWeek: [
+      'Monday'
+      'Tuesday'
+      'Wednesday'
+      'Thursday'
+      'Friday'
+    ]
+    offPeakLoadBalancingAlgorithm: 'DepthFirst'
+    offPeakStartTime: {
+      hour: split(weekdaysOffPeakStartTime, ':')[0]
+      minute: split(weekdaysOffPeakStartTime, ':')[1]
+    }
+    peakLoadBalancingAlgorithm: 'BreadthFirst'
+    peakStartTime: {
+      hour: split(weekdaysPeakStartTime, ':')[0]
+      minute: split(weekdaysPeakStartTime, ':')[1]
+    }
+    rampDownCapacityThresholdPct: 90
+    rampDownForceLogoffUsers: false
+    rampDownLoadBalancingAlgorithm: 'DepthFirst'
+    rampDownMinimumHostsPct: 0
+    rampDownNotificationMessage: 'Ramping down the AVD session hosts to support low demand.'
+    rampDownStartTime: {
+      hour: int(split(weekdaysOffPeakStartTime, ':')[0]) - 1
+      minute: split(weekdaysOffPeakStartTime, ':')[1]
+    }
+    rampDownStopHostsWhen: 'ZeroSessions'
+    rampDownWaitTimeMinutes: 0
+    rampUpCapacityThresholdPct: 70
+    rampUpLoadBalancingAlgorithm: 'BreadthFirst'
+    rampUpMinimumHostsPct: 25
+    rampUpStartTime: {
+      hour: int(split(weekdaysPeakStartTime, ':')[0]) - 1
+      minute: split(weekdaysPeakStartTime, ':')[1]
+    }
+  }
+  {
+    daysOfWeek: [
+      'Saturday'
+      'Sunday'
+    ]
+    offPeakLoadBalancingAlgorithm: 'DepthFirst'
+    offPeakStartTime: {
+      hour: split(weekendsOffPeakStartTime, ':')[0]
+      minute: split(weekendsOffPeakStartTime, ':')[1]
+    }
+    peakLoadBalancingAlgorithm: 'BreadthFirst'
+    peakStartTime: {
+      hour: split(weekendsPeakStartTime, ':')[0]
+      minute: split(weekendsPeakStartTime, ':')[1]
+    }
+    rampDownCapacityThresholdPct: 90
+    rampDownForceLogoffUsers: false
+    rampDownLoadBalancingAlgorithm: 'DepthFirst'
+    rampDownMinimumHostsPct: 0
+    rampDownNotificationMessage: 'Ramping down the AVD session hosts to support low demand.'
+    rampDownStartTime: {
+      hour: int(split(weekendsOffPeakStartTime, ':')[0]) - 1
+      minute: split(weekendsOffPeakStartTime, ':')[1]
+    }
+    rampDownStopHostsWhen: 'ZeroSessions'
+    rampDownWaitTimeMinutes: 0
+    rampUpCapacityThresholdPct: 90
+    rampUpLoadBalancingAlgorithm: 'BreadthFirst'
+    rampUpMinimumHostsPct: 25
+    rampUpStartTime: {
+      hour: int(split(weekendsPeakStartTime, ':')[0]) - 1
+      minute: split(weekendsPeakStartTime, ':')[1]
+    }
+  }
+] : [
+  {
+    daysOfWeek: [
+      'Monday'
+      'Tuesday'
+      'Wednesday'
+      'Thursday'
+      'Friday'
+    ]
+    offPeakActionOnDisconnect: 'None'
+    offPeakActionOnLogoff: 'Deallocate'
+    offPeakMinutesToWaitOnDisconnect: 0
+    offPeakMinutesToWaitOnLogoff: 0
+    offPeakStartTime: {
+      hour: split(weekdaysOffPeakStartTime, ':')[0]
+      minute: split(weekdaysOffPeakStartTime, ':')[1]
+    }
+    offPeakStartVMOnConnect: 'Enable'
+    peakActionOnDisconnect: 'None'
+    peakActionOnLogoff: 'Deallocate'
+    peakMinutesToWaitOnDisconnect: 0
+    peakMinutesToWaitOnLogoff: 0
+    peakStartTime: {
+      hour: split(weekdaysPeakStartTime, ':')[0]
+      minute: split(weekdaysPeakStartTime, ':')[1]
+    }
+    peakStartVMOnConnect: 'Enable'
+    rampDownActionOnDisconnect: 'None'
+    rampDownActionOnLogoff: 'Deallocate'
+    rampDownMinutesToWaitOnDisconnect: 0
+    rampDownMinutesToWaitOnLogoff: 0
+    rampDownStartTime: {
+      hour: int(split(weekdaysOffPeakStartTime, ':')[0]) - 1
+      minute: split(weekdaysOffPeakStartTime, ':')[1]
+    }
+    rampDownStartVMOnConnect: 'Enable'
+    rampUpActionOnDisconnect: 'None'
+    rampUpActionOnLogoff: 'None'
+    rampUpAutoStartHosts: 'WithAssignedUser'
+    rampUpMinutesToWaitOnDisconnect: 0
+    rampUpMinutesToWaitOnLogoff: 0
+    rampUpStartTime: {
+      hour: int(split(weekdaysPeakStartTime, ':')[0]) - 1
+      minute: split(weekdaysPeakStartTime, ':')[1]
+    }
+    rampUpStartVMOnConnect: 'Enable'
+  }
+  {
+    daysOfWeek: [
+      'Saturday'
+      'Sunday'
+    ]
+    rampUpStartTime: {
+      hour: int(split(weekendsPeakStartTime, ':')[0]) - 1
+      minute: split(weekendsPeakStartTime, ':')[1]
+    }
+    peakStartTime: {
+      hour: split(weekendsPeakStartTime, ':')[0]
+      minute: split(weekendsPeakStartTime, ':')[1]
+    }
+    peakMinutesToWaitOnDisconnect: 0
+    peakActionOnDisconnect: 'None'
+    peakMinutesToWaitOnLogoff: 0
+    peakActionOnLogoff: 'Deallocate'
+    peakStartVMOnConnect: 'Enable'
+    rampDownStartTime: {
+      hour: int(split(weekendsOffPeakStartTime, ':')[0]) - 1
+      minute: split(weekendsOffPeakStartTime, ':')[1]
+    }
+    rampDownMinutesToWaitOnDisconnect: 0
+    rampDownActionOnDisconnect: 'None'
+    rampDownMinutesToWaitOnLogoff: 0
+    rampDownActionOnLogoff: 'Deallocate'
+    rampDownStartVMOnConnect: 'Enable'
+    rampUpAutoStartHosts: 'WithAssignedUser'
+    rampUpStartVMOnConnect: 'Enable'
+    rampUpMinutesToWaitOnDisconnect: 0
+    rampUpActionOnDisconnect: 'None'
+    rampUpMinutesToWaitOnLogoff: 0
+    rampUpActionOnLogoff: 'None'
+    offPeakStartTime: {
+      hour: split(weekendsOffPeakStartTime, ':')[0]
+      minute: split(weekendsOffPeakStartTime, ':')[1]
+    }
+    offPeakMinutesToWaitOnDisconnect: 0
+    offPeakActionOnDisconnect: 'None'
+    offPeakMinutesToWaitOnLogoff: 0
+    offPeakActionOnLogoff: 'Deallocate'
+    offPeakStartVMOnConnect: 'Enable'
+  }
+]
 
 resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' = {
   name: scalingPlanName
@@ -56,173 +219,7 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
     timeZone: timeZone
     hostPoolType: hostPoolType
     exclusionTag: 'excludeFromAutoScale'
-    schedules: hostPoolType == 'Pooled' ? [
-      {
-        name: 'Weekdays'
-        daysOfWeek: [
-          'Monday'
-          'Tuesday'
-          'Wednesday'
-          'Thursday'
-          'Friday'
-        ]
-        offPeakLoadBalancingAlgorithm: 'DepthFirst'
-        offPeakStartTime: {
-          hour: split(weekdaysOffPeakStartTime, ':')[0]
-          minute: split(weekdaysOffPeakStartTime, ':')[1]
-        }
-        peakLoadBalancingAlgorithm: 'BreadthFirst'
-        peakStartTime: {
-          hour: split(weekdaysPeakStartTime, ':')[0]
-          minute: split(weekdaysPeakStartTime, ':')[1]
-        }
-        rampDownCapacityThresholdPct: 90
-        rampDownForceLogoffUsers: false
-        rampDownLoadBalancingAlgorithm: 'DepthFirst'
-        rampDownMinimumHostsPct: 0
-        rampDownNotificationMessage: 'Ramping down the AVD session hosts to support low demand.'
-        rampDownStartTime: {
-          hour: int(split(weekdaysOffPeakStartTime, ':')[0]) - 1
-          minute: split(weekdaysOffPeakStartTime, ':')[1]
-        }
-        rampDownStopHostsWhen: 'ZeroSessions'
-        rampDownWaitTimeMinutes: 0
-        rampUpCapacityThresholdPct: 70
-        rampUpLoadBalancingAlgorithm: 'BreadthFirst'
-        rampUpMinimumHostsPct: 25
-        rampUpStartTime: {
-          hour: int(split(weekdaysPeakStartTime, ':')[0]) - 1
-          minute: split(weekdaysPeakStartTime, ':')[1]
-        }
-      }
-      {
-        name: 'Weekends'
-        daysOfWeek: [
-          'Saturday'
-          'Sunday'
-        ]
-        offPeakLoadBalancingAlgorithm: 'DepthFirst'
-        offPeakStartTime: {
-          hour: split(weekendsOffPeakStartTime, ':')[0]
-          minute: split(weekendsOffPeakStartTime, ':')[1]
-        }
-        peakLoadBalancingAlgorithm: 'BreadthFirst'
-        peakStartTime: {
-          hour: split(weekendsPeakStartTime, ':')[0]
-          minute: split(weekendsPeakStartTime, ':')[1]
-        }
-        rampDownCapacityThresholdPct: 90
-        rampDownForceLogoffUsers: false
-        rampDownLoadBalancingAlgorithm: 'DepthFirst'
-        rampDownMinimumHostsPct: 0
-        rampDownNotificationMessage: 'Ramping down the AVD session hosts to support low demand.'
-        rampDownStartTime: {
-          hour: int(split(weekendsOffPeakStartTime, ':')[0]) - 1
-          minute: split(weekendsOffPeakStartTime, ':')[1]
-        }
-        rampDownStopHostsWhen: 'ZeroSessions'
-        rampDownWaitTimeMinutes: 0
-        rampUpCapacityThresholdPct: 90
-        rampUpLoadBalancingAlgorithm: 'BreadthFirst'
-        rampUpMinimumHostsPct: 25
-        rampUpStartTime: {
-          hour: int(split(weekendsPeakStartTime, ':')[0]) - 1
-          minute: split(weekendsPeakStartTime, ':')[1]
-        }
-      }
-    ] : [
-      {
-        name: 'Weekdays'
-        daysOfWeek: [
-          'Monday'
-          'Tuesday'
-          'Wednesday'
-          'Thursday'
-          'Friday'
-        ]
-        rampUpStartTime: {
-          hour: int(split(weekdaysPeakStartTime, ':')[0]) - 1
-          minute: split(weekdaysPeakStartTime, ':')[1]
-        }
-        peakStartTime: {
-          hour: split(weekdaysPeakStartTime, ':')[0]
-          minute: split(weekdaysPeakStartTime, ':')[1]
-        }
-        peakMinutesToWaitOnDisconnect: 0
-        peakActionOnDisconnect: 'None'
-        peakMinutesToWaitOnLogoff: 0
-        peakActionOnLogoff: 'Deallocate'
-        peakStartVMOnConnect: 'Enable'
-        rampDownStartTime: {
-          hour: int(split(weekdaysOffPeakStartTime, ':')[0]) - 1
-          minute: split(weekdaysOffPeakStartTime, ':')[1]
-        }
-        rampDownMinutesToWaitOnDisconnect: 0
-        rampDownActionOnDisconnect: 'None'
-        rampDownMinutesToWaitOnLogoff: 0
-        rampDownActionOnLogoff: 'Deallocate'
-        rampDownStartVMOnConnect: 'Enable'
-        rampUpAutoStartHosts: 'WithAssignedUser'
-        rampUpStartVMOnConnect: 'Enable'
-        rampUpMinutesToWaitOnDisconnect: 0
-        rampUpActionOnDisconnect: 'None'
-        rampUpMinutesToWaitOnLogoff: 0
-        rampUpActionOnLogoff: 'None'
-        offPeakStartTime: {
-          hour: split(weekdaysOffPeakStartTime, ':')[0]
-          minute: split(weekdaysOffPeakStartTime, ':')[1]
-        }
-        offPeakMinutesToWaitOnDisconnect: 0
-        offPeakActionOnDisconnect: 'None'
-        offPeakMinutesToWaitOnLogoff: 0
-        offPeakActionOnLogoff: 'Deallocate'
-        offPeakStartVMOnConnect: 'Enable'
-      }
-      {
-        name: 'Weekends'
-        daysOfWeek: [
-          'Saturday'
-          'Sunday'
-        ]
-        rampUpStartTime: {
-          hour: int(split(weekendsPeakStartTime, ':')[0]) - 1
-          minute: split(weekendsPeakStartTime, ':')[1]
-        }
-        peakStartTime: {
-          hour: split(weekendsPeakStartTime, ':')[0]
-          minute: split(weekendsPeakStartTime, ':')[1]
-        }
-        peakMinutesToWaitOnDisconnect: 0
-        peakActionOnDisconnect: 'None'
-        peakMinutesToWaitOnLogoff: 0
-        peakActionOnLogoff: 'Deallocate'
-        peakStartVMOnConnect: 'Enable'
-        rampDownStartTime: {
-          hour: int(split(weekendsOffPeakStartTime, ':')[0]) - 1
-          minute: split(weekendsOffPeakStartTime, ':')[1]
-        }
-        rampDownMinutesToWaitOnDisconnect: 0
-        rampDownActionOnDisconnect: 'None'
-        rampDownMinutesToWaitOnLogoff: 0
-        rampDownActionOnLogoff: 'Deallocate'
-        rampDownStartVMOnConnect: 'Enable'
-        rampUpAutoStartHosts: 'WithAssignedUser'
-        rampUpStartVMOnConnect: 'Enable'
-        rampUpMinutesToWaitOnDisconnect: 0
-        rampUpActionOnDisconnect: 'None'
-        rampUpMinutesToWaitOnLogoff: 0
-        rampUpActionOnLogoff: 'None'
-        offPeakStartTime: {
-          hour: split(weekendsOffPeakStartTime, ':')[0]
-          minute: split(weekendsOffPeakStartTime, ':')[1]
-        }
-        offPeakMinutesToWaitOnDisconnect: 0
-        offPeakActionOnDisconnect: 'None'
-        offPeakMinutesToWaitOnLogoff: 0
-        offPeakActionOnLogoff: 'Deallocate'
-        offPeakStartVMOnConnect: 'Enable'
-      }
-    ]
+    schedules: []
     hostPoolReferences: [
       {
         hostPoolArmPath: hostPoolResourceId
@@ -231,6 +228,18 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
     ]
   }
 }
+
+resource schedules_Pooled 'Microsoft.DesktopVirtualization/scalingPlans/pooledSchedules@2024-04-03' = [for i in range(0, length(schedules)): if (hostPoolType == 'Pooled') {
+  name: i == 0 ? 'Weekdays' : 'Weekends'
+  parent: scalingPlan
+  properties: schedules[i]
+}]
+
+resource schedule_Personal 'Microsoft.DesktopVirtualization/scalingPlans/personalSchedules@2024-04-03' = [for i in range(0, length(schedules)): if (hostPoolType == 'Personal') {
+  name: i == 0 ? 'Weekdays' : 'Weekends'
+  parent: scalingPlan
+  properties: schedules[i]
+}]
 
 resource scalingPlan_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableAvdInsights && contains(supportedClouds, environment().name)) {
   name: scalingPlanDiagnosticSettingName

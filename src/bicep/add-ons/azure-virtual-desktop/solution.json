@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.34.60546",
-      "templateHash": "2216828975730009158"
+      "templateHash": "16210775309914483832"
     }
   },
   "parameters": {
@@ -9045,9 +9045,9 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -12615,7 +12615,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "14083393368846719825"
+              "templateHash": "11161071658068523983"
             }
           },
           "parameters": {
@@ -14215,7 +14215,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "5784991423236927391"
+                      "templateHash": "3766218790590711856"
                     }
                   },
                   "parameters": {
@@ -14316,6 +14316,9 @@
                       }
                     }
                   },
+                  "variables": {
+                    "schedules": "[if(equals(parameters('hostPoolType'), 'Pooled'), createArray(createObject('daysOfWeek', createArray('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'), 'offPeakLoadBalancingAlgorithm', 'DepthFirst', 'offPeakStartTime', createObject('hour', split(parameters('weekdaysOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'peakLoadBalancingAlgorithm', 'BreadthFirst', 'peakStartTime', createObject('hour', split(parameters('weekdaysPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1]), 'rampDownCapacityThresholdPct', 90, 'rampDownForceLogoffUsers', false(), 'rampDownLoadBalancingAlgorithm', 'DepthFirst', 'rampDownMinimumHostsPct', 0, 'rampDownNotificationMessage', 'Ramping down the AVD session hosts to support low demand.', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekdaysOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'rampDownStopHostsWhen', 'ZeroSessions', 'rampDownWaitTimeMinutes', 0, 'rampUpCapacityThresholdPct', 70, 'rampUpLoadBalancingAlgorithm', 'BreadthFirst', 'rampUpMinimumHostsPct', 25, 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekdaysPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1])), createObject('daysOfWeek', createArray('Saturday', 'Sunday'), 'offPeakLoadBalancingAlgorithm', 'DepthFirst', 'offPeakStartTime', createObject('hour', split(parameters('weekendsOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'peakLoadBalancingAlgorithm', 'BreadthFirst', 'peakStartTime', createObject('hour', split(parameters('weekendsPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]), 'rampDownCapacityThresholdPct', 90, 'rampDownForceLogoffUsers', false(), 'rampDownLoadBalancingAlgorithm', 'DepthFirst', 'rampDownMinimumHostsPct', 0, 'rampDownNotificationMessage', 'Ramping down the AVD session hosts to support low demand.', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekendsOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'rampDownStopHostsWhen', 'ZeroSessions', 'rampDownWaitTimeMinutes', 0, 'rampUpCapacityThresholdPct', 90, 'rampUpLoadBalancingAlgorithm', 'BreadthFirst', 'rampUpMinimumHostsPct', 25, 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekendsPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]))), createArray(createObject('daysOfWeek', createArray('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'), 'offPeakActionOnDisconnect', 'None', 'offPeakActionOnLogoff', 'Deallocate', 'offPeakMinutesToWaitOnDisconnect', 0, 'offPeakMinutesToWaitOnLogoff', 0, 'offPeakStartTime', createObject('hour', split(parameters('weekdaysOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'offPeakStartVMOnConnect', 'Enable', 'peakActionOnDisconnect', 'None', 'peakActionOnLogoff', 'Deallocate', 'peakMinutesToWaitOnDisconnect', 0, 'peakMinutesToWaitOnLogoff', 0, 'peakStartTime', createObject('hour', split(parameters('weekdaysPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1]), 'peakStartVMOnConnect', 'Enable', 'rampDownActionOnDisconnect', 'None', 'rampDownActionOnLogoff', 'Deallocate', 'rampDownMinutesToWaitOnDisconnect', 0, 'rampDownMinutesToWaitOnLogoff', 0, 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekdaysOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'rampDownStartVMOnConnect', 'Enable', 'rampUpActionOnDisconnect', 'None', 'rampUpActionOnLogoff', 'None', 'rampUpAutoStartHosts', 'WithAssignedUser', 'rampUpMinutesToWaitOnDisconnect', 0, 'rampUpMinutesToWaitOnLogoff', 0, 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekdaysPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1]), 'rampUpStartVMOnConnect', 'Enable'), createObject('daysOfWeek', createArray('Saturday', 'Sunday'), 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekendsPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]), 'peakStartTime', createObject('hour', split(parameters('weekendsPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]), 'peakMinutesToWaitOnDisconnect', 0, 'peakActionOnDisconnect', 'None', 'peakMinutesToWaitOnLogoff', 0, 'peakActionOnLogoff', 'Deallocate', 'peakStartVMOnConnect', 'Enable', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekendsOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'rampDownMinutesToWaitOnDisconnect', 0, 'rampDownActionOnDisconnect', 'None', 'rampDownMinutesToWaitOnLogoff', 0, 'rampDownActionOnLogoff', 'Deallocate', 'rampDownStartVMOnConnect', 'Enable', 'rampUpAutoStartHosts', 'WithAssignedUser', 'rampUpStartVMOnConnect', 'Enable', 'rampUpMinutesToWaitOnDisconnect', 0, 'rampUpActionOnDisconnect', 'None', 'rampUpMinutesToWaitOnLogoff', 0, 'rampUpActionOnLogoff', 'None', 'offPeakStartTime', createObject('hour', split(parameters('weekendsOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'offPeakMinutesToWaitOnDisconnect', 0, 'offPeakActionOnDisconnect', 'None', 'offPeakMinutesToWaitOnLogoff', 0, 'offPeakActionOnLogoff', 'Deallocate', 'offPeakStartVMOnConnect', 'Enable')))]"
+                  },
                   "resources": [
                     {
                       "type": "Microsoft.DesktopVirtualization/scalingPlans",
@@ -14327,7 +14330,7 @@
                         "timeZone": "[parameters('timeZone')]",
                         "hostPoolType": "[parameters('hostPoolType')]",
                         "exclusionTag": "excludeFromAutoScale",
-                        "schedules": "[if(equals(parameters('hostPoolType'), 'Pooled'), createArray(createObject('name', 'Weekdays', 'daysOfWeek', createArray('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'), 'offPeakLoadBalancingAlgorithm', 'DepthFirst', 'offPeakStartTime', createObject('hour', split(parameters('weekdaysOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'peakLoadBalancingAlgorithm', 'BreadthFirst', 'peakStartTime', createObject('hour', split(parameters('weekdaysPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1]), 'rampDownCapacityThresholdPct', 90, 'rampDownForceLogoffUsers', false(), 'rampDownLoadBalancingAlgorithm', 'DepthFirst', 'rampDownMinimumHostsPct', 0, 'rampDownNotificationMessage', 'Ramping down the AVD session hosts to support low demand.', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekdaysOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'rampDownStopHostsWhen', 'ZeroSessions', 'rampDownWaitTimeMinutes', 0, 'rampUpCapacityThresholdPct', 70, 'rampUpLoadBalancingAlgorithm', 'BreadthFirst', 'rampUpMinimumHostsPct', 25, 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekdaysPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1])), createObject('name', 'Weekends', 'daysOfWeek', createArray('Saturday', 'Sunday'), 'offPeakLoadBalancingAlgorithm', 'DepthFirst', 'offPeakStartTime', createObject('hour', split(parameters('weekendsOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'peakLoadBalancingAlgorithm', 'BreadthFirst', 'peakStartTime', createObject('hour', split(parameters('weekendsPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]), 'rampDownCapacityThresholdPct', 90, 'rampDownForceLogoffUsers', false(), 'rampDownLoadBalancingAlgorithm', 'DepthFirst', 'rampDownMinimumHostsPct', 0, 'rampDownNotificationMessage', 'Ramping down the AVD session hosts to support low demand.', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekendsOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'rampDownStopHostsWhen', 'ZeroSessions', 'rampDownWaitTimeMinutes', 0, 'rampUpCapacityThresholdPct', 90, 'rampUpLoadBalancingAlgorithm', 'BreadthFirst', 'rampUpMinimumHostsPct', 25, 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekendsPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]))), createArray(createObject('name', 'Weekdays', 'daysOfWeek', createArray('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'), 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekdaysPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1]), 'peakStartTime', createObject('hour', split(parameters('weekdaysPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1]), 'peakMinutesToWaitOnDisconnect', 0, 'peakActionOnDisconnect', 'None', 'peakMinutesToWaitOnLogoff', 0, 'peakActionOnLogoff', 'Deallocate', 'peakStartVMOnConnect', 'Enable', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekdaysOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'rampDownMinutesToWaitOnDisconnect', 0, 'rampDownActionOnDisconnect', 'None', 'rampDownMinutesToWaitOnLogoff', 0, 'rampDownActionOnLogoff', 'Deallocate', 'rampDownStartVMOnConnect', 'Enable', 'rampUpAutoStartHosts', 'WithAssignedUser', 'rampUpStartVMOnConnect', 'Enable', 'rampUpMinutesToWaitOnDisconnect', 0, 'rampUpActionOnDisconnect', 'None', 'rampUpMinutesToWaitOnLogoff', 0, 'rampUpActionOnLogoff', 'None', 'offPeakStartTime', createObject('hour', split(parameters('weekdaysOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'offPeakMinutesToWaitOnDisconnect', 0, 'offPeakActionOnDisconnect', 'None', 'offPeakMinutesToWaitOnLogoff', 0, 'offPeakActionOnLogoff', 'Deallocate', 'offPeakStartVMOnConnect', 'Enable'), createObject('name', 'Weekends', 'daysOfWeek', createArray('Saturday', 'Sunday'), 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekendsPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]), 'peakStartTime', createObject('hour', split(parameters('weekendsPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]), 'peakMinutesToWaitOnDisconnect', 0, 'peakActionOnDisconnect', 'None', 'peakMinutesToWaitOnLogoff', 0, 'peakActionOnLogoff', 'Deallocate', 'peakStartVMOnConnect', 'Enable', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekendsOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'rampDownMinutesToWaitOnDisconnect', 0, 'rampDownActionOnDisconnect', 'None', 'rampDownMinutesToWaitOnLogoff', 0, 'rampDownActionOnLogoff', 'Deallocate', 'rampDownStartVMOnConnect', 'Enable', 'rampUpAutoStartHosts', 'WithAssignedUser', 'rampUpStartVMOnConnect', 'Enable', 'rampUpMinutesToWaitOnDisconnect', 0, 'rampUpActionOnDisconnect', 'None', 'rampUpMinutesToWaitOnLogoff', 0, 'rampUpActionOnLogoff', 'None', 'offPeakStartTime', createObject('hour', split(parameters('weekendsOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'offPeakMinutesToWaitOnDisconnect', 0, 'offPeakActionOnDisconnect', 'None', 'offPeakMinutesToWaitOnLogoff', 0, 'offPeakActionOnLogoff', 'Deallocate', 'offPeakStartVMOnConnect', 'Enable')))]",
+                        "schedules": [],
                         "hostPoolReferences": [
                           {
                             "hostPoolArmPath": "[parameters('hostPoolResourceId')]",
@@ -14335,6 +14338,34 @@
                           }
                         ]
                       }
+                    },
+                    {
+                      "copy": {
+                        "name": "schedules_Pooled",
+                        "count": "[length(range(0, length(variables('schedules'))))]"
+                      },
+                      "condition": "[equals(parameters('hostPoolType'), 'Pooled')]",
+                      "type": "Microsoft.DesktopVirtualization/scalingPlans/pooledSchedules",
+                      "apiVersion": "2024-04-03",
+                      "name": "[format('{0}/{1}', parameters('scalingPlanName'), if(equals(range(0, length(variables('schedules')))[copyIndex()], 0), 'Weekdays', 'Weekends'))]",
+                      "properties": "[variables('schedules')[range(0, length(variables('schedules')))[copyIndex()]]]",
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName'))]"
+                      ]
+                    },
+                    {
+                      "copy": {
+                        "name": "schedule_Personal",
+                        "count": "[length(range(0, length(variables('schedules'))))]"
+                      },
+                      "condition": "[equals(parameters('hostPoolType'), 'Personal')]",
+                      "type": "Microsoft.DesktopVirtualization/scalingPlans/personalSchedules",
+                      "apiVersion": "2024-04-03",
+                      "name": "[format('{0}/{1}', parameters('scalingPlanName'), if(equals(range(0, length(variables('schedules')))[copyIndex()], 0), 'Weekdays', 'Weekends'))]",
+                      "properties": "[variables('schedules')[range(0, length(variables('schedules')))[copyIndex()]]]",
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName'))]"
+                      ]
                     },
                     {
                       "condition": "[and(parameters('enableAvdInsights'), contains(parameters('supportedClouds'), environment().name))]",
