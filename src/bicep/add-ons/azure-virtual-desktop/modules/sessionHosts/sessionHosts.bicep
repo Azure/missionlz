@@ -207,4 +207,8 @@ module scalingPlan '../management/scalingPlan.bicep' = {
     weekendsOffPeakStartTime: scalingWeekendsOffPeakStartTime
     weekendsPeakStartTime: scalingWeekendsPeakStartTime
   }
+  dependsOn: [
+    recoveryServices
+    virtualMachines
+  ]
 }
