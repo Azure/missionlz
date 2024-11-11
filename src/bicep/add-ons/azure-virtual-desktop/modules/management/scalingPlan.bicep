@@ -55,7 +55,7 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
   properties: {
     timeZone: timeZone
     hostPoolType: hostPoolType
-    exclusionTag: 'Maintenance'
+    exclusionTag: 'excludeFromAutoScale'
     schedules: hostPoolType == 'Pooled' ? [
       {
         name: 'Weekdays'
