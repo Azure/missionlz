@@ -160,6 +160,7 @@ module shares 'shares.bicep' = [for i in range(0, storageCount): {
     storageSku: storageSku
   }
   dependsOn: [
+    fileServices
     roleAssignment
   ]
 }]
@@ -297,7 +298,7 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices) {
     tagsRecoveryServicesVault: tagsRecoveryServicesVault
   }
   dependsOn: [
-    shares
+    ntfsPermissions
   ]
 }
 
@@ -315,7 +316,7 @@ module autoIncreaseStandardFileShareQuota '../../common/function.bicep' = if (fs
     schedule: '0 */15 * * * *'
   }
   dependsOn: [
-    ntfsPermissions
+    recoveryServices
   ]
 }
 
