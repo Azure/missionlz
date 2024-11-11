@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.34.60546",
-      "templateHash": "1031933239373454417"
+      "templateHash": "2216828975730009158"
     }
   },
   "parameters": {
@@ -9046,8 +9046,8 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -10976,7 +10976,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "7757145383897833231"
+              "templateHash": "17423392577111200184"
             }
           },
           "parameters": {
@@ -11590,7 +11590,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "12993653507970848286"
+                      "templateHash": "10921134071123326707"
                     }
                   },
                   "parameters": {
@@ -11945,6 +11945,7 @@
                         }
                       },
                       "dependsOn": [
+                        "fileServices",
                         "roleAssignment",
                         "[resourceId('Microsoft.Storage/storageAccounts', take(format('{0}{1}', variables('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), 15))]"
                       ]
@@ -12300,7 +12301,7 @@
                         }
                       },
                       "dependsOn": [
-                        "shares"
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('set-ntfs-permissions-{0}', parameters('deploymentNameSuffix')))]"
                       ]
                     },
                     {
@@ -12380,7 +12381,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('set-ntfs-permissions-{0}', parameters('deploymentNameSuffix')))]"
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-backup-{0}', parameters('deploymentNameSuffix')))]"
                       ]
                     }
                   ],
