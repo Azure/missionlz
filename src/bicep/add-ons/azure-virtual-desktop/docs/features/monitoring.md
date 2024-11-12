@@ -22,7 +22,7 @@
 
 This feature deploys the required resources to enable the Insights workbook in the Azure Virtual Desktop blade in the Azure Portal.
 
-**Reference:** [Azure Monitor for AVD - Microsoft Docs](https://docs.microsoft.com/en-us/azure/virtual-desktop/azure-monitor)
+**Reference:** [Azure Monitor for AVD - Microsoft Docs](https://learn.microsoft.com/azure/virtual-desktop/azure-monitor)
 
 **Deployed Resources:**
 

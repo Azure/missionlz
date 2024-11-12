@@ -29,7 +29,7 @@ Azure Files and Azure NetApp Files are the only two SMB storage services availab
 - Profile Container (Recommended)
 - Profile & Office Container
 
-**Reference:** [FSLogix - Microsoft Docs](https://docs.microsoft.com/en-us/fslogix/overview)
+**Reference:** [FSLogix - Microsoft Docs](https://learn.microsoft.com/fslogix/overview)
 
 **Deployed Resources:**
 

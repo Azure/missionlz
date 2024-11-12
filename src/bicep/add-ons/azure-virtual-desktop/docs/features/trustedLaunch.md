@@ -31,7 +31,7 @@ It is a security best practice to enable this feature to protect your virtual ma
 - rootkits
 - kernel-level malware
 
-**Reference:** [Trusted Launch - Microsoft Docs](https://docs.microsoft.com/en-us/azure/virtual-machines/trusted-launch)
+**Reference:** [Trusted Launch - Microsoft Docs](https://learn.microsoft.com/azure/virtual-machines/trusted-launch)
 
 **Deployed Resources:**
 

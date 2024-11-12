@@ -22,4 +22,4 @@
 
 This feature is automatically enabled when Azure Files Premium is selected for FSLogix storage. This feature is only supported with Azure Files Premium and it allows multiple connections to an SMB share from an SMB client.
 
-**Reference:** [SMB Multichannel Performance - Microsoft Docs](https://docs.microsoft.com/en-us/azure/storage/files/storage-files-smb-multichannel-performance)
+**Reference:** [SMB Multichannel Performance - Microsoft Docs](https://learn.microsoft.com/azure/storage/files/storage-files-smb-multichannel-performance)
