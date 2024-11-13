@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.34.60546",
-      "templateHash": "13975135733280601559"
+      "templateHash": "750583991219466643"
     }
   },
   "parameters": {
@@ -9125,8 +9125,8 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -14586,7 +14586,7 @@
                       "properties": {
                         "timeZone": "[parameters('timeZone')]",
                         "hostPoolType": "[parameters('hostPoolType')]",
-                        "exclusionTag": "excludeFromAutoScale",
+                        "exclusionTag": "excludeFromAutoscale",
                         "schedules": [],
                         "hostPoolReferences": [
                           {
