@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.34.60546",
-      "templateHash": "10924865680476016815"
+      "templateHash": "495118660330348734"
     }
   },
   "parameters": {
@@ -9125,8 +9125,8 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -12744,7 +12744,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "5504227562986178346"
+              "templateHash": "1578632995564263199"
             }
           },
           "parameters": {
@@ -14466,7 +14466,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "3601503966114608100"
+                      "templateHash": "665492750417866100"
                     }
                   },
                   "parameters": {
@@ -14644,7 +14644,7 @@
                       "condition": "[and(parameters('enableAvdInsights'), contains(parameters('supportedClouds'), environment().name))]",
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2021-05-01-preview",
-                      "scope": "[extensionResourceId(format('Microsoft.DesktopVirtualization/scalingPlans/{0}', parameters('scalingPlanName')), 'Microsoft.Authorization/roleAssignments', guid(parameters('deploymentUserAssignedIdentityPrincipalId'), '082f0a83-3be5-4ba1-904c-961cca79b387', resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName'))))]",
+                      "scope": "[format('Microsoft.DesktopVirtualization/scalingPlans/{0}', parameters('scalingPlanName'))]",
                       "name": "[parameters('scalingPlanDiagnosticSettingName')]",
                       "properties": {
                         "logs": [
@@ -14656,7 +14656,8 @@
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                       },
                       "dependsOn": [
-                        "[extensionResourceId(resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName')), 'Microsoft.Authorization/roleAssignments', guid(parameters('deploymentUserAssignedIdentityPrincipalId'), '082f0a83-3be5-4ba1-904c-961cca79b387', resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName'))))]"
+                        "[extensionResourceId(resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName')), 'Microsoft.Authorization/roleAssignments', guid(parameters('deploymentUserAssignedIdentityPrincipalId'), '082f0a83-3be5-4ba1-904c-961cca79b387', resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName'))))]",
+                        "[resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName'))]"
                       ]
                     }
                   ]

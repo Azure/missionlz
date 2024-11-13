@@ -258,7 +258,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   ]
 }
 
-resource scalingPlan_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableAvdInsights && contains(supportedClouds, environment().name)) {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableAvdInsights && contains(supportedClouds, environment().name)) {
   name: scalingPlanDiagnosticSettingName
   properties: {
     logs: [
@@ -269,5 +269,8 @@ resource scalingPlan_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@20
     ] 
     workspaceId: logAnalyticsWorkspaceResourceId
   }
-  scope: roleAssignment
+  scope: scalingPlan
+  dependsOn: [
+    roleAssignment
+  ]
 }
