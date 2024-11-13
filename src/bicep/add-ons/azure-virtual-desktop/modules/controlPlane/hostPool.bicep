@@ -1,5 +1,6 @@
 param activeDirectorySolution string
 param avdPrivateDnsZoneResourceId string
+param deploymentUserAssignedIdentityPrincipalId string
 param customImageId string
 param customRdpProperty string
 param diskSku string
@@ -90,6 +91,16 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
         }
       }
     ]
+  }
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(deploymentUserAssignedIdentityPrincipalId, '2ad6aaab-ead9-4eaa-8ac5-da422f562408', hostPool.id)
+  scope: hostPool
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '2ad6aaab-ead9-4eaa-8ac5-da422f562408') // Desktop Virtualization Session Host Operator (Purpose: sets drain mode on the AVD session hosts)
+    principalId: deploymentUserAssignedIdentityPrincipalId
+    principalType: 'ServicePrincipal'
   }
 }
 
