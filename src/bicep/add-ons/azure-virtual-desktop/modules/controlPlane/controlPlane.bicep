@@ -6,6 +6,7 @@ param customImageId string
 param customRdpProperty string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
+param deploymentUserAssignedIdentityPrincipalId string
 param desktopFriendlyName string
 param diskSku string
 param domainName string
@@ -49,6 +50,7 @@ module hostPool 'hostPool.bicep' = {
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
     customImageId: customImageId
     customRdpProperty: customRdpProperty
+    deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentityPrincipalId
     diskSku: diskSku
     domainName: domainName
     enableAvdInsights: enableAvdInsights
@@ -81,6 +83,7 @@ module applicationGroup 'applicationGroup.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
+    deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentityPrincipalId
     desktopApplicationGroupName: replace(namingConvention.applicationGroup, serviceToken, 'desktop')
     hostPoolResourceId: hostPool.outputs.resourceId
     locationControlPlane: locationControlPlane

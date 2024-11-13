@@ -1123,32 +1123,6 @@
               }
             },
             {
-              "name": "startVmOnConnect",
-              "type": "Microsoft.Common.Section",
-              "label": "Start VM On Connect",
-              "visible": "[empty(steps('management').servicePrincipalsApi)]",
-              "elements": [
-                {
-                  "name": "objectId",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "AVD Object ID",
-                  "visible": true,
-                  "defaultValue": "",
-                  "placeholder": "",
-                  "toolTip": "Input the object ID for the Azure Virtual Desktop enterprise application in Entra ID. The application ID for the principal is 9cdead84-a844-4324-93f2-b2e6bb768d07.",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$",
-                        "message": "The value must be a globally unique ID."
-                      }
-                    ]
-                  }
-                }
-              ]
-            },
-            {
               "name": "drainMode",
               "type": "Microsoft.Common.Section",
               "label": "Drain Mode",
@@ -1158,114 +1132,81 @@
                   "name": "enableDrainMode",
                   "type": "Microsoft.Common.CheckBox",
                   "label": "Enable drain mode?",
-                  "defaultValue": false,
+                  "defaultValue": true,
                   "toolTip": "Enables drain mode on the AVD session hosts so the virtual machines cannot be accessed until they have been validated."
                 }
               ]
             },
             {
-              "name": "scalingTool",
-              "label": "Scaling Tool",
+              "name": "scalingPlan",
+              "label": "Scaling Plan",
               "type": "Microsoft.Common.Section",
-              "visible": "[equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')]",
+              "visible": true,
               "elements": [
                 {
-                  "name": "deployScalingTool",
-                  "type": "Microsoft.Common.CheckBox",
-                  "label": "Deploy scaling tool?",
+                  "name": "weekdaysPeakStartTime",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Weekdays - Peak Start Time",
                   "visible": true,
-                  "defaultValue": false,
-                  "toolTip": "Choose whether to deploy the required resources to enable the Scaling Tool. This tool should only be used when scaling plans are not available. It has been enhanced for zero-trust compliance and does not rely on AZ modules."
-                },
-                {
-                  "name": "beginPeakTime",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Begin Peak Time",
-                  "visible": "[steps('management').scalingTool.deployScalingTool]",
-                  "defaultValue": "8:00",
-                  "placeholder": "",
-                  "toolTip": "Input the time when peak hours begin for your end users.",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^[012]?[0-9]:[0-5][0-9]$",
-                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 12am should be input as 00:00."
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "endPeakTime",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "End Peak Time",
-                  "visible": "[steps('management').scalingTool.deployScalingTool]",
-                  "defaultValue": "17:00",
-                  "placeholder": "",
+                  "defaultValue": "09:00",
                   "toolTip": "Input the time when peak hours end for your end users.",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^[012]?[0-9]:[0-5][0-9]$",
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
                         "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 8pm should be input as 20:00."
                       }
                     ]
                   }
                 },
                 {
-                  "name": "forceLogOff",
+                  "name": "weekdaysOffPeakStartTime",
                   "type": "Microsoft.Common.TextBox",
-                  "label": "Force Log Off (Seconds)",
-                  "visible": "[steps('management').scalingTool.deployScalingTool]",
-                  "defaultValue": "0",
-                  "toolTip": "Use this setting to force logoff users if session time limit settings cannot be used.",
-                  "placeholder": "",
-                  "multiLine": false,
+                  "label": "Weekdays - Off Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "17:00",
+                  "toolTip": "Input the time when peak hours begin for your end users during the work week, Monday - Friday.",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^[0-9]{1,3}$",
-                        "message": "The value must be between 1 and 3 digits."
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 12am should be input as 00:00."
                       }
                     ]
                   }
                 },
                 {
-                  "name": "minimumHosts",
+                  "name": "weekendsPeakStartTime",
                   "type": "Microsoft.Common.TextBox",
-                  "label": "Minimum Number of Session Hosts",
-                  "visible": "[steps('management').scalingTool.deployScalingTool]",
-                  "defaultValue": "0",
-                  "toolTip": "Use this setting to determine the minimum number of sessions hosts to keep online.",
-                  "placeholder": "",
-                  "multiLine": false,
+                  "label": "Weekends - Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "09:00",
+                  "toolTip": "Input the time when peak hours end for your end users.",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^[0-9]{1,4}$",
-                        "message": "The value must be between 1 and 4 digits."
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 8pm should be input as 20:00."
                       }
                     ]
                   }
                 },
                 {
-                  "name": "cpuThreshold",
+                  "name": "weekendsOffPeakStartTime",
                   "type": "Microsoft.Common.TextBox",
-                  "label": "Session Threshold Per CPU",
-                  "visible": "[steps('management').scalingTool.deployScalingTool]",
-                  "defaultValue": "1",
-                  "toolTip": "Use this setting to determine the number of sessions per CPU before turning on another host.",
-                  "placeholder": "",
-                  "multiLine": false,
+                  "label": "Weekends - Off Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "17:00",
+                  "toolTip": "Input the time when peak hours begin for your end users during the work week, Monday - Friday.",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^[0-9]{0,1}(?:\\.[0-9]{0,2})?$",
-                        "message": "The value must be a number with 1 whole number and, if desired, a single or two digit decimal number."
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 12am should be input as 00:00."
                       }
                     ]
                   }
@@ -1305,10 +1246,10 @@
                 {
                   "name": "enableApplicationInsights",
                   "type": "Microsoft.Common.CheckBox",
-                  "visible": "[or(steps('management').scalingTool.deployScalingTool, equals(steps('profiles').storage.service, 'AzureFiles Premium'))]",
+                  "visible": "[equals(steps('profiles').storage.service, 'AzureFiles Premium')]",
                   "label": "Enable Application Insights?",
                   "defaultValue": true,
-                  "toolTip": "Deploy the required resources to monitor the Scaling Tool and / or the Auto Increase File Share Solution."
+                  "toolTip": "Deploy the required resources to monitor the Auto Increase File Share Solution."
                 }
               ]
             }
@@ -1442,7 +1383,7 @@
                   "name": "functionAppSubnetAddressCidrRange",
                   "label": "Function App Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
-                  "visible": "[or(steps('management').scalingTool.deployScalingTool, equals(steps('profiles').storage.service, 'AzureFiles Premium'))]",
+                  "visible": "[equals(steps('profiles').storage.service, 'AzureFiles Premium')]",
                   "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.128/26')]",
                   "toolTip": "Specify a CIDR range for the Function App subnet within the AVD spoke virtual network range [24,28] for the Scaling Tool and / or the Auto Increase Premium File Share Qutoa tool.",
                   "constraints": {
@@ -1660,7 +1601,7 @@
         "activeDirectorySolution": "[if(and(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), steps('hosts').identity.intune), 'MicrosoftEntraIdIntuneEnrollment', steps('hosts').identity.solution)]",
         "availability": "[steps('hosts').virtualMachines.availability]",
         "availabilityZones": "[first(map(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.locationInfo)), (item) => item.zones))]",
-        "avdObjectId": "[if(empty(steps('management').servicePrincipalsApi), steps('management').startVmOnConnect.objectId, first(map(steps('management').servicePrincipalsApi.value, (item) => item.id)))]",
+        "avdObjectId": "[first(map(steps('management').servicePrincipalsApi.value, (item) => item.id))]",
         "azureNetAppFilesSubnetAddressPrefix": "[steps('network').vnet.azureNetAppFilesSubnetAddressCidrRange]",
         "customRdpProperty": "[steps('controlPlane').hostPool.customRdpProperties]",
         "deployActivityLogDiagnosticSetting": "[empty(steps('compliance').diagnosticSettingsApi.value)]",
@@ -1686,7 +1627,7 @@
         "fslogixStorageService": "[if(equals(steps('profiles').profileSolution, 'local'), 'None', steps('profiles').storage.service)]",
         "functionAppSubnetAddressPrefix": "[steps('network').vnet.functionAppSubnetAddressCidrRange]",
         "hostPoolPublicNetworkAccess": "[steps('controlPlane').hostPool.publicNetworkAccess]",
-        "hostPoolType": "[if(equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'), 'Pooled DepthFirst', 'Personal Automatic')]",
+        "hostPoolType": "[steps('controlPlane').hostPool.hostPoolType]",
         "hubAzureFirewallResourceId": "[steps('basics').hub.azureFirewall]",
         "hubVirtualNetworkResourceId": "[steps('basics').hub.virtualNetwork]",
         "identifier": "[steps('basics').naming.identifier]",
@@ -1703,12 +1644,10 @@
         "privateLinkScopeResourceId": "[steps('basics').operations.privateLinkScope]",
         "profile": "[steps('basics').scenario.profile]",
         "recoveryServices": "[steps('management').backup.recoveryServices]",
-        "scalingBeginPeakTime": "[steps('management').scalingTool.beginPeakTime]",
-        "scalingEndPeakTime": "[steps('management').scalingTool.endPeakTime]",
-        "scalingLimitSecondsToForceLogOffUser": "[steps('management').scalingTool.forceLogOff]",
-        "scalingMinimumNumberOfRdsh": "[steps('management').scalingTool.minimumHosts]",
-        "scalingSessionThresholdPerCPU": "[steps('management').scalingTool.cpuThreshold]",
-        "scalingTool": "[steps('management').scalingTool.deployScalingTool]",
+        "scalingWeekdaysOffPeakStartTime": "[steps('management').scalingPlan.weekdaysOffPeakStartTime]",
+        "scalingWeekdaysPeakStartTime": "[steps('management').scalingPlan.weekdaysPeakStartTime]",
+        "scalingWeekendsOffPeakStartTime": "[steps('management').scalingPlan.weekendsOffPeakStartTime]",
+        "scalingWeekendsPeakStartTime": "[steps('management').scalingPlan.weekendsPeakStartTime]",
         "securityPrincipals": "[steps('controlPlane').assignment.groups]",
         "sessionHostCount": "[steps('hosts').virtualMachines.count]",
         "sessionHostIndex": 0,

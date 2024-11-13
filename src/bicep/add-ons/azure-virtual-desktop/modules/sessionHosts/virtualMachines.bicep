@@ -21,7 +21,6 @@ param enableAvdInsights bool
 param enableDrainMode bool
 param fslogixContainerType string
 param hostPoolName string
-param hostPoolType string
 param imageOffer string
 param imagePublisher string
 param imageSku string
@@ -93,7 +92,6 @@ var nvidiaVmSizes = [
   'Standard_NV36adms_A10_v5'
   'Standard_NV72ads_A10_v5'
 ]
-var pooledHostPool = (split(hostPoolType, ' ')[0] == 'Pooled')
 var sessionHostNamePrefix = replace(virtualMachineNamePrefix, serviceToken, '')
 var storageAccountToken = '${storageAccountPrefix}??' // The token is used for AntiVirus exclusions. The '??' represents the two digits at the end of each storage account name.
 
@@ -382,7 +380,7 @@ resource installAvdAgents 'Microsoft.Compute/virtualMachines/extensions@2021-03-
 ]
 
 // Enables drain mode on the session hosts so users cannot login to the hosts immediately after the deployment
-module drainMode '../common/runCommand.bicep' = if (enableDrainMode && pooledHostPool) {
+module drainMode '../common/runCommand.bicep' = if (enableDrainMode) {
   name: 'deploy-drain-mode-${batchCount}-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {

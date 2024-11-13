@@ -1,3 +1,4 @@
+param deploymentUserAssignedIdentityPrincipalId string
 param deploymentUserAssignedIdentityResourceId string
 param diskEncryptionSetResourceId string
 param diskName string
@@ -197,6 +198,16 @@ resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/exte
     protectedSettings: {
       Password: domainJoinPassword
     }
+  }
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(deploymentUserAssignedIdentityPrincipalId, 'a959dbd1-f747-45e3-8ba6-dd80f235f97c', virtualMachine.id)
+  scope: virtualMachine
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'a959dbd1-f747-45e3-8ba6-dd80f235f97c') // Desktop Virtualization Virtual Machine Contributor (Purpose: remove the management virtual machine)
+    principalId: deploymentUserAssignedIdentityPrincipalId
+    principalType: 'ServicePrincipal'
   }
 }
 

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.34.60546",
-      "templateHash": "9379117934026664616"
+      "templateHash": "15343776706780459746"
     }
   },
   "parameters": {
@@ -888,7 +888,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "16255426588501076488"
+              "templateHash": "10924801470287352076"
             }
           },
           "parameters": {
@@ -968,7 +968,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "8357935203009683307"
+                      "templateHash": "11992572431768878515"
                     }
                   },
                   "parameters": {
@@ -1420,6 +1420,7 @@
                       "remoteApplicationGroups": "vdag",
                       "resourceGroups": "rg",
                       "routeTables": "rt",
+                      "scalingPlans": "vdscaling",
                       "storageAccounts": "st",
                       "subnets": "snet",
                       "userAssignedIdentities": "id",
@@ -1488,6 +1489,8 @@
                       "recoveryServicesVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').recoveryServicesVaults)]",
                       "resourceGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').resourceGroups)]",
                       "routeTable": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').routeTables)]",
+                      "scalingPlan": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').scalingPlans)]",
+                      "scalingPlanDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').scalingPlans)]",
                       "storageAccount": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName'))]",
                       "storageAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').storageAccounts))]",
                       "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-blob', variables('resourceAbbreviations').storageAccounts))]",

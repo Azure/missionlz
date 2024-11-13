@@ -77,7 +77,7 @@ param emailSecurityContact string
 @description('Determine whether to enable accelerated networking on the AVD session hosts. https://learn.microsoft.com/en-us/azure/virtual-network/accelerated-networking-overview')
 param enableAcceleratedNetworking bool
 
-@description('Deploys the required resources to monitor the function app for the Scaling Tool and Auto Increase Premium File Share solutions.')
+@description('Deploys the required resources to monitor the function app for the Auto Increase Premium File Share solutions.')
 param enableApplicationInsights bool = true
 
 @description('Deploys the required monitoring resources to enable AVD Insights.')
@@ -122,7 +122,7 @@ param fslogixContainerType string = 'ProfileContainer'
 @description('Enable an Fslogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements')
 param fslogixStorageService string = 'AzureFiles Standard'
 
-@description('The subnet address prefix for the delegated subnet for the Azure Function App. This subnet is required for the Scaling Tool and the Auto Increase Premium File Share Quotas tool.')
+@description('The subnet address prefix for the delegated subnet for the Azure Function App. This subnet is required for the Auto Increase Premium File Share Quotas tool.')
 param functionAppSubnetAddressPrefix string = ''
 
 @allowed([
@@ -135,13 +135,11 @@ param functionAppSubnetAddressPrefix string = ''
 param hostPoolPublicNetworkAccess string
 
 @allowed([
-  'Pooled DepthFirst'
-  'Pooled BreadthFirst'
-  'Personal Automatic'
-  'Personal Direct'
+  'Pooled'
+  'Personal'
 ])
-@description('These options specify the host pool type and depending on the type provides the load balancing options and assignment types.')
-param hostPoolType string = 'Pooled DepthFirst'
+@description('The type of AVD host pool.')
+param hostPoolType string = 'Pooled'
 
 @description('The resource ID for the Azure Firewall in the HUB subscription')
 param hubAzureFirewallResourceId string
@@ -207,23 +205,17 @@ param profile string = 'Generic'
 @description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
 param recoveryServices bool = false
 
-@description('The time when session hosts will scale up and continue to stay on to support peak demand; Format 24 hours e.g. 9:00 for 9am')
-param scalingBeginPeakTime string = '9:00'
+@description('Off peak start time for weekdays in HH:mm format.')
+param scalingWeekdaysOffPeakStartTime string = '17:00'
 
-@description('The time when session hosts will scale down and stay off to support low demand; Format 24 hours e.g. 17:00 for 5pm')
-param scalingEndPeakTime string = '17:00'
+@description('Off peak start time for weekends in HH:mm format.')
+param scalingWeekdaysPeakStartTime string = '09:00'
 
-@description('The number of seconds to wait before automatically signing out users. If set to 0 any session host that has user sessions will be left untouched')
-param scalingLimitSecondsToForceLogOffUser string = '0'
+@description('Peak start time for weekdays in HH:mm format.')
+param scalingWeekendsOffPeakStartTime string = '17:00'
 
-@description('The minimum number of session host VMs to keep running during off-peak hours. The scaling tool will not work if all virtual machines are turned off and the Start VM On Connect solution is not enabled.')
-param scalingMinimumNumberOfRdsh string = '0'
-
-@description('The maximum number of sessions per CPU that will be used as a threshold to determine when new session host VMs need to be started during peak hours')
-param scalingSessionThresholdPerCPU string = '1'
-
-@description('Deploys the required resources for the Scaling Tool. https://docs.microsoft.com/en-us/azure/virtual-desktop/scaling-automation-logic-apps')
-param scalingTool bool = false
+@description('Peak start time for weekends in HH:mm format.')
+param scalingWeekendsPeakStartTime string = '09:00'
 
 @description('The array of Security Principals with their object IDs and display names to assign to the AVD Application Group and FSLogix Storage.')
 param securityPrincipals array
@@ -319,7 +311,9 @@ var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - begin
 
 // OTHER LOGIC & COMPUTED VALUES
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
-var deployFslogix = contains(fslogixStorageService, 'Azure') && contains(activeDirectorySolution, 'DomainServices') ? true : false
+var deployFslogix = contains(fslogixStorageService, 'Azure') && contains(activeDirectorySolution, 'DomainServices')
+  ? true
+  : false
 var fileShareNames = {
   CloudCacheProfileContainer: [
     'profile-containers'
@@ -338,7 +332,6 @@ var fileShareNames = {
 }
 var fileShares = fileShareNames[fslogixContainerType]
 var netbios = split(domainName, '.')[0]
-var pooledHostPool = split(hostPoolType, ' ')[0] == 'Pooled' ? true : false
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
 var resourceGroupServices = union(
   [
@@ -353,7 +346,7 @@ var resourceGroupServices = union(
     : []
 )
 var roleDefinitions = {
-  DesktopVirtualizationPowerOnContributor: '489581de-a3bd-480d-9518-53dea7416b33'
+  DesktopVirtualizationPowerOnOffContributor: '40c5ff49-9181-41f8-ae61-143b0e78555e'
   DesktopVirtualizationUser: '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63'
   Reader: 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
   VirtualMachineUserLogin: 'fb879df8-f326-4884-b1cf-06f3ad86be52'
@@ -380,7 +373,7 @@ var subnets = {
         }
       ]
     : []
-  functionApp: scalingTool || fslogixStorageService == 'AzureFiles Premium'
+  functionApp: fslogixStorageService == 'AzureFiles Premium'
     ? [
         {
           name: 'FunctionAppOutbound'
@@ -491,7 +484,6 @@ module rgs '../../modules/resource-group.bicep' = [
 module management 'modules/management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
   params: {
-    activeDirectorySolution: activeDirectorySolution
     avdObjectId: avdObjectId
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
@@ -504,7 +496,6 @@ module management 'modules/management/management.bicep' = {
     enableAvdInsights: enableAvdInsights
     environmentAbbreviation: environmentAbbreviation
     fslogixStorageService: fslogixStorageService
-    hostPoolType: hostPoolType
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
@@ -520,14 +511,10 @@ module management 'modules/management/management.bicep' = {
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupHosts: rgs[1].outputs.name
     resourceGroupManagement: rgs[2].outputs.name
-    resourceGroupStorage: deployFslogix ? replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, 'storage') : ''
+    resourceGroupStorage: deployFslogix
+      ? replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, 'storage')
+      : ''
     roleDefinitions: roleDefinitions
-    scalingBeginPeakTime: scalingBeginPeakTime
-    scalingEndPeakTime: scalingEndPeakTime
-    scalingLimitSecondsToForceLogOffUser: scalingLimitSecondsToForceLogOffUser
-    scalingMinimumNumberOfRdsh: scalingMinimumNumberOfRdsh
-    scalingSessionThresholdPerCPU: scalingSessionThresholdPerCPU
-    scalingTool: scalingTool
     serviceToken: tier3_hosts.outputs.tokens.service
     storageService: storageService
     subnetResourceId: tier3_hosts.outputs.subnets[0].id
@@ -551,6 +538,7 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     customRdpProperty: customRdpProperty
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
+    deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     desktopFriendlyName: empty(desktopFriendlyName) ? string(stampIndex) : desktopFriendlyName
     diskSku: diskSku
     domainName: domainName
@@ -573,7 +561,11 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     roleDefinitions: roleDefinitions
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: naming_controlPlane.outputs.tokens.service
-    sessionHostNamePrefix: replace(tier3_hosts.outputs.namingConvention.virtualMachine, tier3_hosts.outputs.tokens.service, '')
+    sessionHostNamePrefix: replace(
+      tier3_hosts.outputs.namingConvention.virtualMachine,
+      tier3_hosts.outputs.tokens.service,
+      ''
+    )
     subnetResourceId: tier3_hosts.outputs.subnets[1].id
     tags: tags
     validationEnvironment: validationEnvironment
@@ -596,7 +588,9 @@ module workspaces 'modules/sharedServices/sharedServices.bicep' = {
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     enableAvdInsights: enableAvdInsights
-    existingApplicationGroupReferences: empty(existingFeedWorkspaceResourceId) ? [] : workspace.properties.applicationGroupReferences
+    existingApplicationGroupReferences: empty(existingFeedWorkspaceResourceId)
+      ? []
+      : workspace.properties.applicationGroupReferences
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     existingWorkspace: !empty(existingFeedWorkspaceResourceId)
     hostPoolName: controlPlane.outputs.hostPoolName
@@ -608,17 +602,83 @@ module workspaces 'modules/sharedServices/sharedServices.bicep' = {
     resourceGroupManagement: rgs[2].outputs.name
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
     tags: tags
-    workspaceFeedDiagnoticSettingName: replace(replace(naming_hub.outputs.names.workspaceFeedDiagnosticSetting,naming_hub.outputs.tokens.service,'feed'),'-${stampIndex}','')
-    workspaceFeedName: replace(replace(naming_controlPlane.outputs.names.workspaceFeed,naming_controlPlane.outputs.tokens.service,'feed'),'-${stampIndex}','')
-    workspaceFeedNetworkInterfaceName: replace(replace(naming_hub.outputs.names.workspaceFeedNetworkInterface,naming_hub.outputs.tokens.service,'feed'),'-${stampIndex}','')
-    workspaceFeedPrivateEndpointName: replace(replace(naming_hub.outputs.names.workspaceFeedPrivateEndpoint,naming_hub.outputs.tokens.service,'feed'),'-${stampIndex}','')
-    workspaceFeedResourceGroupName: replace(replace(naming_controlPlane.outputs.names.resourceGroup, naming_controlPlane.outputs.tokens.service, 'feedWorkspace'), '-${stampIndex}', '')
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(replace(naming_controlPlane.outputs.names.workspaceFeed,'-${naming_controlPlane.outputs.tokens.service}',''), '-${stampIndex}', '') : '${workspaceFriendlyName} (${virtualNetwork.location})'
-    workspaceGlobalName: replace(replace(replace(naming_controlPlane.outputs.names.workspaceGlobal,naming_controlPlane.outputs.tokens.service,'global'),'-${stampIndex}',''),identifier,virtualNetwork.tags.resourcePrefix)
-    workspaceGlobalNetworkInterfaceName: replace(replace(replace(naming_hub.outputs.names.workspaceGlobalNetworkInterface,naming_hub.outputs.tokens.service,'global'),'-${stampIndex}',''),identifier,virtualNetwork.tags.resourcePrefix)
+    workspaceFeedDiagnoticSettingName: replace(
+      replace(naming_hub.outputs.names.workspaceFeedDiagnosticSetting, naming_hub.outputs.tokens.service, 'feed'),
+      '-${stampIndex}',
+      ''
+    )
+    workspaceFeedName: replace(
+      replace(naming_controlPlane.outputs.names.workspaceFeed, naming_controlPlane.outputs.tokens.service, 'feed'),
+      '-${stampIndex}',
+      ''
+    )
+    workspaceFeedNetworkInterfaceName: replace(
+      replace(naming_hub.outputs.names.workspaceFeedNetworkInterface, naming_hub.outputs.tokens.service, 'feed'),
+      '-${stampIndex}',
+      ''
+    )
+    workspaceFeedPrivateEndpointName: replace(
+      replace(naming_hub.outputs.names.workspaceFeedPrivateEndpoint, naming_hub.outputs.tokens.service, 'feed'),
+      '-${stampIndex}',
+      ''
+    )
+    workspaceFeedResourceGroupName: replace(
+      replace(
+        naming_controlPlane.outputs.names.resourceGroup,
+        naming_controlPlane.outputs.tokens.service,
+        'feedWorkspace'
+      ),
+      '-${stampIndex}',
+      ''
+    )
+    workspaceFriendlyName: empty(workspaceFriendlyName)
+      ? replace(
+          replace(naming_controlPlane.outputs.names.workspaceFeed, '-${naming_controlPlane.outputs.tokens.service}', ''),
+          '-${stampIndex}',
+          ''
+        )
+      : '${workspaceFriendlyName} (${virtualNetwork.location})'
+    workspaceGlobalName: replace(
+      replace(
+        replace(naming_controlPlane.outputs.names.workspaceGlobal, naming_controlPlane.outputs.tokens.service, 'global'),
+        '-${stampIndex}',
+        ''
+      ),
+      identifier,
+      virtualNetwork.tags.resourcePrefix
+    )
+    workspaceGlobalNetworkInterfaceName: replace(
+      replace(
+        replace(naming_hub.outputs.names.workspaceGlobalNetworkInterface, naming_hub.outputs.tokens.service, 'global'),
+        '-${stampIndex}',
+        ''
+      ),
+      identifier,
+      virtualNetwork.tags.resourcePrefix
+    )
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
-    workspaceGlobalPrivateEndpointName: replace(replace(replace(naming_hub.outputs.names.workspaceGlobalPrivateEndpoint,naming_hub.outputs.tokens.service,'global'),'-${stampIndex}',''),identifier,virtualNetwork.tags.resourcePrefix)
-    workspaceGlobalResourceGroupName: replace(replace(replace(naming_controlPlane.outputs.names.resourceGroup,naming_controlPlane.outputs.tokens.service,'globalWorkspace'),'-${stampIndex}',''),identifier,virtualNetwork.tags.resourcePrefix)
+    workspaceGlobalPrivateEndpointName: replace(
+      replace(
+        replace(naming_hub.outputs.names.workspaceGlobalPrivateEndpoint, naming_hub.outputs.tokens.service, 'global'),
+        '-${stampIndex}',
+        ''
+      ),
+      identifier,
+      virtualNetwork.tags.resourcePrefix
+    )
+    workspaceGlobalResourceGroupName: replace(
+      replace(
+        replace(
+          naming_controlPlane.outputs.names.resourceGroup,
+          naming_controlPlane.outputs.tokens.service,
+          'globalWorkspace'
+        ),
+        '-${stampIndex}',
+        ''
+      ),
+      identifier,
+      virtualNetwork.tags.resourcePrefix
+    )
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }
@@ -642,7 +702,6 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
     functionAppName: management.outputs.functionAppName
-    hostPoolType: hostPoolType
     keyVaultUri: tier3_hosts.outputs.keyVaultUri
     location: locationVirtualMachines
     managementVirtualMachineName: management.outputs.virtualMachineName
@@ -686,6 +745,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
+    deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     diskEncryptionSetResourceId: tier3_hosts.outputs.diskEncryptionSetResourceId
     diskSku: diskSku
     divisionRemainderValue: divisionRemainderValue
@@ -696,11 +756,10 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     enableAcceleratedNetworking: enableAcceleratedNetworking
     enableAvdInsights: enableAvdInsights
     enableRecoveryServices: recoveryServices
-    enableScalingTool: scalingTool
     environmentAbbreviation: environmentAbbreviation
     fslogixContainerType: fslogixContainerType
-    functionAppName: management.outputs.functionAppName
     hostPoolName: controlPlane.outputs.hostPoolName
+    hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
     hostPoolType: hostPoolType
     identifier: identifier
     imageOffer: imageOffer
@@ -708,22 +767,24 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
     location: locationVirtualMachines
+    logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
     mlzTags: tier3_hosts.outputs.mlzTags
     namingConvention: tier3_hosts.outputs.namingConvention
-    netAppFileShares: deployFslogix
-      ? fslogix.outputs.netAppShares
-      : [
-          'None'
-        ]
+    netAppFileShares: deployFslogix ? fslogix.outputs.netAppShares : [
+      'None'
+    ]
     organizationalUnitPath: organizationalUnitPath
-    pooledHostPool: pooledHostPool
     recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupHosts: rgs[1].outputs.name
     resourceGroupManagement: rgs[2].outputs.name
     roleDefinitions: roleDefinitions
+    scalingWeekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
+    scalingWeekdaysPeakStartTime: scalingWeekdaysPeakStartTime
+    scalingWeekendsOffPeakStartTime: scalingWeekendsOffPeakStartTime
+    scalingWeekendsPeakStartTime: scalingWeekendsPeakStartTime
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: tier3_hosts.outputs.tokens.service
     sessionHostBatchCount: sessionHostBatchCount
@@ -735,6 +796,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     storageSuffix: storageSuffix
     subnetResourceId: tier3_hosts.outputs.subnets[0].id
     tags: tags
+    timeZone: tier3_hosts.outputs.locationProperties.timeZone
     virtualMachinePassword: virtualMachinePassword
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername

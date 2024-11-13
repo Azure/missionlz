@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.34.60546",
-      "templateHash": "8432968336067453174"
+      "templateHash": "495118660330348734"
     }
   },
   "parameters": {
@@ -160,7 +160,7 @@
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-        "description": "Deploys the required resources to monitor the function app for the Scaling Tool and Auto Increase Premium File Share solutions."
+        "description": "Deploys the required resources to monitor the function app for the Auto Increase Premium File Share solutions."
       }
     },
     "enableAvdInsights": {
@@ -241,7 +241,7 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "The subnet address prefix for the delegated subnet for the Azure Function App. This subnet is required for the Scaling Tool and the Auto Increase Premium File Share Quotas tool."
+        "description": "The subnet address prefix for the delegated subnet for the Azure Function App. This subnet is required for the Auto Increase Premium File Share Quotas tool."
       }
     },
     "hostPoolPublicNetworkAccess": {
@@ -258,15 +258,13 @@
     },
     "hostPoolType": {
       "type": "string",
-      "defaultValue": "Pooled DepthFirst",
+      "defaultValue": "Pooled",
       "allowedValues": [
-        "Pooled DepthFirst",
-        "Pooled BreadthFirst",
-        "Personal Automatic",
-        "Personal Direct"
+        "Pooled",
+        "Personal"
       ],
       "metadata": {
-        "description": "These options specify the host pool type and depending on the type provides the load balancing options and assignment types."
+        "description": "The type of AVD host pool."
       }
     },
     "hubAzureFirewallResourceId": {
@@ -393,46 +391,32 @@
         "description": "Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts."
       }
     },
-    "scalingBeginPeakTime": {
-      "type": "string",
-      "defaultValue": "9:00",
-      "metadata": {
-        "description": "The time when session hosts will scale up and continue to stay on to support peak demand; Format 24 hours e.g. 9:00 for 9am"
-      }
-    },
-    "scalingEndPeakTime": {
+    "scalingWeekdaysOffPeakStartTime": {
       "type": "string",
       "defaultValue": "17:00",
       "metadata": {
-        "description": "The time when session hosts will scale down and stay off to support low demand; Format 24 hours e.g. 17:00 for 5pm"
+        "description": "Off peak start time for weekdays in HH:mm format."
       }
     },
-    "scalingLimitSecondsToForceLogOffUser": {
+    "scalingWeekdaysPeakStartTime": {
       "type": "string",
-      "defaultValue": "0",
+      "defaultValue": "09:00",
       "metadata": {
-        "description": "The number of seconds to wait before automatically signing out users. If set to 0 any session host that has user sessions will be left untouched"
+        "description": "Off peak start time for weekends in HH:mm format."
       }
     },
-    "scalingMinimumNumberOfRdsh": {
+    "scalingWeekendsOffPeakStartTime": {
       "type": "string",
-      "defaultValue": "0",
+      "defaultValue": "17:00",
       "metadata": {
-        "description": "The minimum number of session host VMs to keep running during off-peak hours. The scaling tool will not work if all virtual machines are turned off and the Start VM On Connect solution is not enabled."
+        "description": "Peak start time for weekdays in HH:mm format."
       }
     },
-    "scalingSessionThresholdPerCPU": {
+    "scalingWeekendsPeakStartTime": {
       "type": "string",
-      "defaultValue": "1",
+      "defaultValue": "09:00",
       "metadata": {
-        "description": "The maximum number of sessions per CPU that will be used as a threshold to determine when new session host VMs need to be started during peak hours"
-      }
-    },
-    "scalingTool": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Deploys the required resources for the Scaling Tool. https://docs.microsoft.com/en-us/azure/virtual-desktop/scaling-automation-logic-apps"
+        "description": "Peak start time for weekends in HH:mm format."
       }
     },
     "securityPrincipals": {
@@ -608,11 +592,10 @@
     },
     "fileShares": "[variables('fileShareNames')[parameters('fslogixContainerType')]]",
     "netbios": "[split(parameters('domainName'), '.')[0]]",
-    "pooledHostPool": "[if(equals(split(parameters('hostPoolType'), ' ')[0], 'Pooled'), true(), false())]",
     "privateDnsZoneResourceIdPrefix": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/privateDnsZones/', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4])]",
     "resourceGroupServices": "[union(createArray('controlPlane', 'hosts', 'management'), if(variables('deployFslogix'), createArray('storage'), createArray()))]",
     "roleDefinitions": {
-      "DesktopVirtualizationPowerOnContributor": "489581de-a3bd-480d-9518-53dea7416b33",
+      "DesktopVirtualizationPowerOnOffContributor": "40c5ff49-9181-41f8-ae61-143b0e78555e",
       "DesktopVirtualizationUser": "1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63",
       "Reader": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
       "VirtualMachineUserLogin": "fb879df8-f326-4884-b1cf-06f3ad86be52"
@@ -630,7 +613,7 @@
         }
       ],
       "azureNetAppFiles": "[if(and(contains(parameters('fslogixStorageService'), 'AzureNetAppFiles'), not(empty(parameters('azureNetAppFilesSubnetAddressPrefix')))), createArray(createObject('name', 'AzureNetAppFiles', 'properties', createObject('addressPrefix', parameters('azureNetAppFilesSubnetAddressPrefix')))), createArray())]",
-      "functionApp": "[if(or(parameters('scalingTool'), equals(parameters('fslogixStorageService'), 'AzureFiles Premium')), createArray(createObject('name', 'FunctionAppOutbound', 'properties', createObject('addressPrefix', parameters('functionAppSubnetAddressPrefix')))), createArray())]"
+      "functionApp": "[if(equals(parameters('fslogixStorageService'), 'AzureFiles Premium'), createArray(createObject('name', 'FunctionAppOutbound', 'properties', createObject('addressPrefix', parameters('functionAppSubnetAddressPrefix')))), createArray())]"
     }
   },
   "resources": [
@@ -686,7 +669,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "8357935203009683307"
+              "templateHash": "11992572431768878515"
             }
           },
           "parameters": {
@@ -1138,6 +1121,7 @@
               "remoteApplicationGroups": "vdag",
               "resourceGroups": "rg",
               "routeTables": "rt",
+              "scalingPlans": "vdscaling",
               "storageAccounts": "st",
               "subnets": "snet",
               "userAssignedIdentities": "id",
@@ -1206,6 +1190,8 @@
               "recoveryServicesVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').recoveryServicesVaults)]",
               "resourceGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').resourceGroups)]",
               "routeTable": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').routeTables)]",
+              "scalingPlan": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').scalingPlans)]",
+              "scalingPlanDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').scalingPlans)]",
               "storageAccount": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName'))]",
               "storageAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').storageAccounts))]",
               "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-blob', variables('resourceAbbreviations').storageAccounts))]",
@@ -1292,7 +1278,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "8357935203009683307"
+              "templateHash": "11992572431768878515"
             }
           },
           "parameters": {
@@ -1744,6 +1730,7 @@
               "remoteApplicationGroups": "vdag",
               "resourceGroups": "rg",
               "routeTables": "rt",
+              "scalingPlans": "vdscaling",
               "storageAccounts": "st",
               "subnets": "snet",
               "userAssignedIdentities": "id",
@@ -1812,6 +1799,8 @@
               "recoveryServicesVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').recoveryServicesVaults)]",
               "resourceGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').resourceGroups)]",
               "routeTable": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').routeTables)]",
+              "scalingPlan": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').scalingPlans)]",
+              "scalingPlanDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').scalingPlans)]",
               "storageAccount": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName'))]",
               "storageAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').storageAccounts))]",
               "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-blob', variables('resourceAbbreviations').storageAccounts))]",
@@ -1943,7 +1932,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "3242090622764524003"
+              "templateHash": "9467495710159860030"
             }
           },
           "parameters": {
@@ -2220,7 +2209,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "16255426588501076488"
+                      "templateHash": "10924801470287352076"
                     }
                   },
                   "parameters": {
@@ -2300,7 +2289,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.31.34.60546",
-                              "templateHash": "8357935203009683307"
+                              "templateHash": "11992572431768878515"
                             }
                           },
                           "parameters": {
@@ -2752,6 +2741,7 @@
                               "remoteApplicationGroups": "vdag",
                               "resourceGroups": "rg",
                               "routeTables": "rt",
+                              "scalingPlans": "vdscaling",
                               "storageAccounts": "st",
                               "subnets": "snet",
                               "userAssignedIdentities": "id",
@@ -2820,6 +2810,8 @@
                               "recoveryServicesVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').recoveryServicesVaults)]",
                               "resourceGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').resourceGroups)]",
                               "routeTable": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').routeTables)]",
+                              "scalingPlan": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').scalingPlans)]",
+                              "scalingPlanDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').scalingPlans)]",
                               "storageAccount": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName'))]",
                               "storageAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').storageAccounts))]",
                               "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-blob', variables('resourceAbbreviations').storageAccounts))]",
@@ -6451,9 +6443,6 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "activeDirectorySolution": {
-            "value": "[parameters('activeDirectorySolution')]"
-          },
           "avdObjectId": {
             "value": "[parameters('avdObjectId')]"
           },
@@ -6489,9 +6478,6 @@
           },
           "fslogixStorageService": {
             "value": "[parameters('fslogixStorageService')]"
-          },
-          "hostPoolType": {
-            "value": "[parameters('hostPoolType')]"
           },
           "locationVirtualMachines": {
             "value": "[parameters('locationVirtualMachines')]"
@@ -6542,24 +6528,6 @@
           "roleDefinitions": {
             "value": "[variables('roleDefinitions')]"
           },
-          "scalingBeginPeakTime": {
-            "value": "[parameters('scalingBeginPeakTime')]"
-          },
-          "scalingEndPeakTime": {
-            "value": "[parameters('scalingEndPeakTime')]"
-          },
-          "scalingLimitSecondsToForceLogOffUser": {
-            "value": "[parameters('scalingLimitSecondsToForceLogOffUser')]"
-          },
-          "scalingMinimumNumberOfRdsh": {
-            "value": "[parameters('scalingMinimumNumberOfRdsh')]"
-          },
-          "scalingSessionThresholdPerCPU": {
-            "value": "[parameters('scalingSessionThresholdPerCPU')]"
-          },
-          "scalingTool": {
-            "value": "[parameters('scalingTool')]"
-          },
           "serviceToken": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service]"
           },
@@ -6595,13 +6563,10 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "5374213534709080562"
+              "templateHash": "12558774705370628238"
             }
           },
           "parameters": {
-            "activeDirectorySolution": {
-              "type": "string"
-            },
             "avdObjectId": {
               "type": "string"
             },
@@ -6636,9 +6601,6 @@
               "type": "string"
             },
             "fslogixStorageService": {
-              "type": "string"
-            },
-            "hostPoolType": {
               "type": "string"
             },
             "locationVirtualMachines": {
@@ -6692,24 +6654,6 @@
             "roleDefinitions": {
               "type": "object"
             },
-            "scalingBeginPeakTime": {
-              "type": "string"
-            },
-            "scalingEndPeakTime": {
-              "type": "string"
-            },
-            "scalingLimitSecondsToForceLogOffUser": {
-              "type": "string"
-            },
-            "scalingMinimumNumberOfRdsh": {
-              "type": "string"
-            },
-            "scalingSessionThresholdPerCPU": {
-              "type": "string"
-            },
-            "scalingTool": {
-              "type": "bool"
-            },
             "serviceToken": {
               "type": "string"
             },
@@ -6740,7 +6684,7 @@
           },
           "variables": {
             "hostPoolName": "[parameters('namingConvention').hostPool]",
-            "roleAssignments": "[union(createArray(createObject('roleDefinitionId', '86240b0e-9422-4c43-887b-b61143f32ba8', 'resourceGroup', parameters('resourceGroupControlPlane'), 'subscription', subscription().subscriptionId), createObject('roleDefinitionId', '2ad6aaab-ead9-4eaa-8ac5-da422f562408', 'resourceGroup', parameters('resourceGroupControlPlane'), 'subscription', subscription().subscriptionId), createObject('roleDefinitionId', 'a959dbd1-f747-45e3-8ba6-dd80f235f97c', 'resourceGroup', parameters('resourceGroupManagement'), 'subscription', subscription().subscriptionId)), if(parameters('deployFslogix'), createArray(createObject('roleDefinitionId', '17d1049b-9a84-46fb-8f53-869881c3d3ab', 'resourceGroup', parameters('resourceGroupStorage'), 'subscription', subscription().subscriptionId)), createArray()))]",
+            "resourceGroups": "[union(createArray(parameters('resourceGroupControlPlane'), parameters('resourceGroupHosts'), parameters('resourceGroupManagement')), if(parameters('deployFslogix'), createArray(parameters('resourceGroupStorage')), createArray()))]",
             "userAssignedIdentityNamePrefix": "[parameters('namingConvention').userAssignedIdentity]",
             "virtualNetworkName": "[split(parameters('subnetResourceId'), '/')[8]]",
             "virtualNetworkResourceGroupName": "[split(parameters('subnetResourceId'), '/')[4]]"
@@ -6749,9 +6693,9 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "name": "[guid(parameters('avdObjectId'), parameters('roleDefinitions').DesktopVirtualizationPowerOnContributor, subscription().id)]",
+              "name": "[guid(parameters('avdObjectId'), parameters('roleDefinitions').DesktopVirtualizationPowerOnOffContributor, subscription().id)]",
               "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitions').DesktopVirtualizationPowerOnContributor)]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitions').DesktopVirtualizationPowerOnOffContributor)]",
                 "principalId": "[parameters('avdObjectId')]"
               }
             },
@@ -7096,13 +7040,12 @@
             {
               "copy": {
                 "name": "roleAssignments_deployment",
-                "count": "[length(range(0, length(variables('roleAssignments'))))]"
+                "count": "[length(range(0, length(variables('resourceGroups'))))]"
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('deploy-role-assignment-{0}-{1}', range(0, length(variables('roleAssignments')))[copyIndex()], parameters('deploymentNameSuffix'))]",
-              "subscriptionId": "[variables('roleAssignments')[range(0, length(variables('roleAssignments')))[copyIndex()]].subscription]",
-              "resourceGroup": "[variables('roleAssignments')[range(0, length(variables('roleAssignments')))[copyIndex()]].resourceGroup]",
+              "name": "[format('deploy-role-assignment-{0}-{1}', range(0, length(variables('resourceGroups')))[copyIndex()], parameters('deploymentNameSuffix'))]",
+              "resourceGroup": "[variables('resourceGroups')[range(0, length(variables('resourceGroups')))[copyIndex()]]]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -7116,7 +7059,67 @@
                     "value": "ServicePrincipal"
                   },
                   "roleDefinitionId": {
-                    "value": "[variables('roleAssignments')[range(0, length(variables('roleAssignments')))[copyIndex()]].roleDefinitionId]"
+                    "value": "acdd72a7-3385-48ef-bd42-f606fba81ae7"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.31.34.60546",
+                      "templateHash": "1315528727979495191"
+                    }
+                  },
+                  "parameters": {
+                    "principalId": {
+                      "type": "string"
+                    },
+                    "principalType": {
+                      "type": "string"
+                    },
+                    "roleDefinitionId": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "name": "[guid(parameters('principalId'), parameters('roleDefinitionId'), resourceGroup().id)]",
+                      "properties": {
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+                        "principalId": "[parameters('principalId')]",
+                        "principalType": "[parameters('principalType')]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-role-assignment-{0}', parameters('deploymentNameSuffix'))]",
+              "resourceGroup": "[parameters('resourceGroupStorage')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "principalId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
+                  },
+                  "principalType": {
+                    "value": "ServicePrincipal"
+                  },
+                  "roleDefinitionId": {
+                    "value": "17d1049b-9a84-46fb-8f53-869881c3d3ab"
                   }
                 },
                 "template": {
@@ -7169,6 +7172,9 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "deploymentUserAssignedIdentityPrincipalId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
+                  },
                   "deploymentUserAssignedIdentityResourceId": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                   },
@@ -7237,10 +7243,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "7486697218882140009"
+                      "templateHash": "16276650963509010370"
                     }
                   },
                   "parameters": {
+                    "deploymentUserAssignedIdentityPrincipalId": {
+                      "type": "string"
+                    },
                     "deploymentUserAssignedIdentityResourceId": {
                       "type": "string"
                     },
@@ -7491,6 +7500,20 @@
                         "protectedSettings": {
                           "Password": "[parameters('domainJoinPassword')]"
                         }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('virtualMachineName'))]",
+                      "name": "[guid(parameters('deploymentUserAssignedIdentityPrincipalId'), 'a959dbd1-f747-45e3-8ba6-dd80f235f97c', resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')))]",
+                      "properties": {
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'a959dbd1-f747-45e3-8ba6-dd80f235f97c')]",
+                        "principalId": "[parameters('deploymentUserAssignedIdentityPrincipalId')]",
+                        "principalType": "ServicePrincipal"
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
@@ -7920,7 +7943,7 @@
               }
             },
             {
-              "condition": "[or(parameters('scalingTool'), equals(parameters('fslogixStorageService'), 'AzureFiles Premium'))]",
+              "condition": "[and(parameters('deployFslogix'), equals(parameters('fslogixStorageService'), 'AzureFiles Premium'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-function-app-{0}', parameters('deploymentNameSuffix'))]",
@@ -7933,9 +7956,6 @@
                 "parameters": {
                   "delegatedSubnetResourceId": {
                     "value": "[filter(parameters('subnets'), lambda('subnet', contains(lambdaVariables('subnet').name, 'FunctionAppOutbound')))[0].id]"
-                  },
-                  "deployFslogix": {
-                    "value": "[parameters('deployFslogix')]"
                   },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
@@ -7970,26 +7990,8 @@
                   "resourceGroupControlPlane": {
                     "value": "[parameters('resourceGroupControlPlane')]"
                   },
-                  "resourceGroupHosts": {
-                    "value": "[parameters('resourceGroupHosts')]"
-                  },
                   "resourceGroupStorage": {
                     "value": "[parameters('resourceGroupStorage')]"
-                  },
-                  "scalingBeginPeakTime": {
-                    "value": "[parameters('scalingBeginPeakTime')]"
-                  },
-                  "scalingEndPeakTime": {
-                    "value": "[parameters('scalingEndPeakTime')]"
-                  },
-                  "scalingLimitSecondsToForceLogOffUser": {
-                    "value": "[parameters('scalingLimitSecondsToForceLogOffUser')]"
-                  },
-                  "scalingMinimumNumberOfRdsh": {
-                    "value": "[parameters('scalingMinimumNumberOfRdsh')]"
-                  },
-                  "scalingSessionThresholdPerCPU": {
-                    "value": "[parameters('scalingSessionThresholdPerCPU')]"
                   },
                   "serviceToken": {
                     "value": "[parameters('serviceToken')]"
@@ -8011,15 +8013,12 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "13808224309643091125"
+                      "templateHash": "13334192291900135747"
                     }
                   },
                   "parameters": {
                     "delegatedSubnetResourceId": {
                       "type": "string"
-                    },
-                    "deployFslogix": {
-                      "type": "bool"
                     },
                     "deploymentNameSuffix": {
                       "type": "string"
@@ -8062,25 +8061,7 @@
                     "resourceGroupControlPlane": {
                       "type": "string"
                     },
-                    "resourceGroupHosts": {
-                      "type": "string"
-                    },
                     "resourceGroupStorage": {
-                      "type": "string"
-                    },
-                    "scalingBeginPeakTime": {
-                      "type": "string"
-                    },
-                    "scalingEndPeakTime": {
-                      "type": "string"
-                    },
-                    "scalingLimitSecondsToForceLogOffUser": {
-                      "type": "string"
-                    },
-                    "scalingMinimumNumberOfRdsh": {
-                      "type": "string"
-                    },
-                    "scalingSessionThresholdPerCPU": {
                       "type": "string"
                     },
                     "serviceToken": {
@@ -8100,19 +8081,32 @@
                     "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
                     "functionAppKeyword": "[if(or(equals(environment().name, 'AzureCloud'), equals(environment().name, 'AzureUSGovernment')), 'azurewebsites', 'appservice')]",
                     "functionAppScmPrivateDnsZoneResourceId": "[format('{0}scm.{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), variables('functionAppKeyword'))))[0])]",
-                    "roleAssignments": "[union(createArray(createObject('roleDefinitionId', '40c5ff49-9181-41f8-ae61-143b0e78555e', 'scope', parameters('resourceGroupControlPlane')), createObject('roleDefinitionId', '40c5ff49-9181-41f8-ae61-143b0e78555e', 'scope', parameters('resourceGroupHosts'))), if(parameters('deployFslogix'), createArray(createObject('roleDefinitionId', '17d1049b-9a84-46fb-8f53-869881c3d3ab', 'scope', parameters('resourceGroupStorage'))), createArray()))]",
-                    "service": "mgmt",
-                    "storagePrivateDnsZoneResourceIds": [
-                      "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'blob')))[0])]",
-                      "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'file')))[0])]",
-                      "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'queue')))[0])]",
-                      "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'table')))[0])]"
-                    ],
+                    "service": "aipfsq",
                     "storageSubResources": [
-                      "blob",
-                      "file",
-                      "queue",
-                      "table"
+                      {
+                        "name": "blob",
+                        "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'blob')))[0])]",
+                        "nic": "[parameters('namingConvention').storageAccountBlobNetworkInterface]",
+                        "pe": "[parameters('namingConvention').storageAccountBlobPrivateEndpoint]"
+                      },
+                      {
+                        "name": "file",
+                        "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'file')))[0])]",
+                        "nic": "[parameters('namingConvention').storageAccountFileNetworkInterface]",
+                        "pe": "[parameters('namingConvention').storageAccountFilePrivateEndpoint]"
+                      },
+                      {
+                        "name": "queue",
+                        "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'queue')))[0])]",
+                        "nic": "[parameters('namingConvention').storageAccountQueueNetworkInterface]",
+                        "pe": "[parameters('namingConvention').storageAccountQueuePrivateEndpoint]"
+                      },
+                      {
+                        "name": "table",
+                        "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'table')))[0])]",
+                        "nic": "[parameters('namingConvention').storageAccountTableNetworkInterface]",
+                        "pe": "[parameters('namingConvention').storageAccountTablePrivateEndpoint]"
+                      }
                     ]
                   },
                   "resources": [
@@ -8126,7 +8120,7 @@
                     {
                       "type": "Microsoft.KeyVault/vaults",
                       "apiVersion": "2022-07-01",
-                      "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id))]",
+                      "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id))]",
                       "location": "[parameters('location')]",
                       "tags": "[coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject())]",
                       "properties": {
@@ -8154,8 +8148,8 @@
                     {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
-                      "scope": "[format('Microsoft.KeyVault/vaults/{0}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]",
-                      "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id))))]",
+                      "scope": "[format('Microsoft.KeyVault/vaults/{0}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]",
+                      "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id))))]",
                       "properties": {
                         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), '2023-01-31').principalId]",
                         "principalType": "ServicePrincipal",
@@ -8163,7 +8157,7 @@
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service')))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]"
                       ]
                     },
                     {
@@ -8178,7 +8172,7 @@
                           {
                             "name": "[replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service'))]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]",
                               "groupIds": [
                                 "vault"
                               ]
@@ -8190,13 +8184,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]",
+                      "name": "[format('{0}/{1}', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -8209,13 +8203,13 @@
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]"
                       ]
                     },
                     {
                       "type": "Microsoft.KeyVault/vaults/keys",
                       "apiVersion": "2022-07-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)), 'StorageEncryptionKey')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)), 'StorageEncryptionKey')]",
                       "properties": {
                         "attributes": {
                           "enabled": true
@@ -8247,7 +8241,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]"
                       ]
                     },
                     {
@@ -8283,7 +8277,7 @@
                           },
                           "requireInfrastructureEncryption": true,
                           "keyvaultproperties": {
-                            "keyvaulturi": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id))), '2022-07-01').vaultUri]",
+                            "keyvaulturi": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id))), '2022-07-01').vaultUri]",
                             "keyname": "StorageEncryptionKey"
                           },
                           "services": {
@@ -8318,12 +8312,12 @@
                         "supportsHttpsTrafficOnly": true
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)), 'StorageEncryptionKey')]",
-                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]",
+                        "[resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)), 'StorageEncryptionKey')]",
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]",
                         "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('namingConvention').keyVaultPrivateEndpoint, parameters('serviceToken'), variables('service')))]",
-                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id))), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))))]",
+                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id))), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))))]",
                         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('namingConvention').userAssignedIdentity, parameters('serviceToken'), variables('service')))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, variables('service'), 'cmk'), resourceGroup().id)))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('namingConvention').keyVault, parameters('serviceToken'), variables('service')), resourceGroup().id)))]"
                       ]
                     },
                     {
@@ -8341,18 +8335,18 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[replace(parameters('namingConvention').storageAccountPrivateEndpoint, format('{0}-{1}', parameters('serviceToken'), parameters('resourceAbbreviations').storageAccounts), format('{0}-{1}-scale', variables('storageSubResources')[copyIndex()], parameters('resourceAbbreviations').storageAccounts))]",
+                      "name": "[replace(variables('storageSubResources')[copyIndex()].pe, parameters('serviceToken'), variables('service'))]",
                       "location": "[parameters('location')]",
                       "tags": "[coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject())]",
                       "properties": {
-                        "customNetworkInterfaceName": "[replace(parameters('namingConvention').storageAccountNetworkInterface, format('{0}-{1}', parameters('serviceToken'), parameters('resourceAbbreviations').storageAccounts), format('{0}-{1}-scale', variables('storageSubResources')[copyIndex()], parameters('resourceAbbreviations').storageAccounts))]",
+                        "customNetworkInterfaceName": "[replace(variables('storageSubResources')[copyIndex()].nic, parameters('serviceToken'), variables('service'))]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[replace(parameters('namingConvention').storageAccountPrivateEndpoint, format('{0}-{1}', parameters('serviceToken'), parameters('resourceAbbreviations').storageAccounts), format('{0}-{1}-scale', variables('storageSubResources')[copyIndex()], parameters('resourceAbbreviations').storageAccounts))]",
+                            "name": "[replace(variables('storageSubResources')[copyIndex()].pe, parameters('serviceToken'), variables('service'))]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id))]",
                               "groupIds": [
-                                "[variables('storageSubResources')[copyIndex()]]"
+                                "[variables('storageSubResources')[copyIndex()].name]"
                               ]
                             }
                           }
@@ -8372,19 +8366,19 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', replace(parameters('namingConvention').storageAccountPrivateEndpoint, format('{0}-{1}', parameters('serviceToken'), parameters('resourceAbbreviations').storageAccounts), format('{0}-{1}-scale', variables('storageSubResources')[copyIndex()], parameters('resourceAbbreviations').storageAccounts)), uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id))]",
+                      "name": "[format('{0}/{1}', replace(variables('storageSubResources')[copyIndex()].pe, parameters('serviceToken'), variables('service')), uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
                             "name": "ipconfig1",
                             "properties": {
-                              "privateDnsZoneId": "[variables('storagePrivateDnsZoneResourceIds')[copyIndex()]]"
+                              "privateDnsZoneId": "[variables('storageSubResources')[copyIndex()].id]"
                             }
                           }
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('namingConvention').storageAccountPrivateEndpoint, format('{0}-{1}', parameters('serviceToken'), parameters('resourceAbbreviations').storageAccounts), format('{0}-{1}-scale', variables('storageSubResources')[copyIndex()], parameters('resourceAbbreviations').storageAccounts)))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', replace(variables('storageSubResources')[copyIndex()].pe, parameters('serviceToken'), variables('service')))]",
                         "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id))]"
                       ]
                     },
@@ -8459,7 +8453,7 @@
                         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', replace(parameters('namingConvention').appServicePlan, parameters('serviceToken'), variables('service')))]",
                         "siteConfig": {
                           "alwaysOn": true,
-                          "appSettings": "[union(createArray(createObject('name', 'AzureWebJobsStorage__blobServiceUri', 'value', format('https://{0}.blob.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__credential', 'value', 'managedidentity'), createObject('name', 'AzureWebJobsStorage__queueServiceUri', 'value', format('https://{0}.queue.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__tableServiceUri', 'value', format('https://{0}.table.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'WEBSITE_LOAD_USER_PROFILE', 'value', '1'), createObject('name', 'BeginPeakTime', 'value', parameters('scalingBeginPeakTime')), createObject('name', 'EndPeakTime', 'value', parameters('scalingEndPeakTime')), createObject('name', 'EnvironmentName', 'value', environment().name), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'HostPoolName', 'value', parameters('hostPoolName')), createObject('name', 'HostPoolResourceGroupName', 'value', parameters('resourceGroupControlPlane')), createObject('name', 'LimitSecondsToForceLogOffUser', 'value', parameters('scalingLimitSecondsToForceLogOffUser')), createObject('name', 'LogOffMessageBody', 'value', 'This session is about to be logged off. Please save your work.'), createObject('name', 'LogOffMessageTitle', 'value', 'Session Log Off'), createObject('name', 'MaintenanceTagName', 'value', 'Maintenance'), createObject('name', 'MinimumNumberOfRDSH', 'value', parameters('scalingMinimumNumberOfRdsh')), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupStorage')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'SessionThresholdPerCPU', 'value', parameters('scalingSessionThresholdPerCPU')), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId), createObject('name', 'TenantId', 'value', subscription().tenantId), createObject('name', 'TimeDifference', 'value', parameters('timeDifference'))), if(parameters('enableApplicationInsights'), createArray(createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', replace(parameters('namingConvention').applicationInsights, parameters('serviceToken'), variables('service'))), '2020-02-02').ConnectionString)), createArray()))]",
+                          "appSettings": "[union(createArray(createObject('name', 'AzureWebJobsStorage__blobServiceUri', 'value', format('https://{0}.blob.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__credential', 'value', 'managedidentity'), createObject('name', 'AzureWebJobsStorage__queueServiceUri', 'value', format('https://{0}.queue.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__tableServiceUri', 'value', format('https://{0}.table.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'WEBSITE_LOAD_USER_PROFILE', 'value', '1'), createObject('name', 'EnvironmentName', 'value', environment().name), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'HostPoolName', 'value', parameters('hostPoolName')), createObject('name', 'HostPoolResourceGroupName', 'value', parameters('resourceGroupControlPlane')), createObject('name', 'LogOffMessageBody', 'value', 'This session is about to be logged off. Please save your work.'), createObject('name', 'LogOffMessageTitle', 'value', 'Session Log Off'), createObject('name', 'MaintenanceTagName', 'value', 'Maintenance'), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupStorage')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId), createObject('name', 'TenantId', 'value', subscription().tenantId), createObject('name', 'TimeDifference', 'value', parameters('timeDifference'))), if(parameters('enableApplicationInsights'), createArray(createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', replace(parameters('namingConvention').applicationInsights, parameters('serviceToken'), variables('service'))), '2020-02-02').ConnectionString)), createArray()))]",
                           "cors": {
                             "allowedOrigins": [
                               "[format('{0}', environment().portal)]",
@@ -8611,14 +8605,10 @@
                       ]
                     },
                     {
-                      "copy": {
-                        "name": "roleAssignments_resourceGroups",
-                        "count": "[length(range(0, length(variables('roleAssignments'))))]"
-                      },
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('set-role-assignment-{0}-{1}', range(0, length(variables('roleAssignments')))[copyIndex()], parameters('deploymentNameSuffix'))]",
-                      "resourceGroup": "[variables('roleAssignments')[range(0, length(variables('roleAssignments')))[copyIndex()]].scope]",
+                      "name": "[format('set-role-assignment-{0}', parameters('deploymentNameSuffix'))]",
+                      "resourceGroup": "[parameters('resourceGroupStorage')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -8632,7 +8622,7 @@
                             "value": "ServicePrincipal"
                           },
                           "roleDefinitionId": {
-                            "value": "[variables('roleAssignments')[range(0, length(variables('roleAssignments')))[copyIndex()]].roleDefinitionId]"
+                            "value": "17d1049b-9a84-46fb-8f53-869881c3d3ab"
                           }
                         },
                         "template": {
@@ -8820,7 +8810,7 @@
               ]
             },
             {
-              "condition": "[and(parameters('recoveryServices'), or(and(and(contains(parameters('activeDirectorySolution'), 'DomainServices'), contains(parameters('hostPoolType'), 'Pooled')), contains(parameters('fslogixStorageService'), 'AzureFiles')), contains(parameters('hostPoolType'), 'Personal')))]",
+              "condition": "[parameters('recoveryServices')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-rsv-{0}', parameters('deploymentNameSuffix'))]",
@@ -9108,7 +9098,7 @@
             },
             "functionAppName": {
               "type": "string",
-              "value": "[if(or(parameters('scalingTool'), equals(parameters('fslogixStorageService'), 'AzureFiles Premium')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-function-app-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.functionAppName.value, '')]"
+              "value": "[if(equals(parameters('fslogixStorageService'), 'AzureFiles Premium'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-function-app-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.functionAppName.value, '')]"
             },
             "logAnalyticsWorkspaceName": {
               "type": "string",
@@ -9120,7 +9110,7 @@
             },
             "recoveryServicesVaultName": {
               "type": "string",
-              "value": "[if(and(parameters('recoveryServices'), or(and(and(contains(parameters('activeDirectorySolution'), 'DomainServices'), contains(parameters('hostPoolType'), 'Pooled')), contains(parameters('fslogixStorageService'), 'AzureFiles')), contains(parameters('hostPoolType'), 'Personal'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-rsv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value, '')]"
+              "value": "[if(parameters('recoveryServices'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-rsv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value, '')]"
             },
             "virtualMachineName": {
               "type": "string",
@@ -9134,9 +9124,9 @@
         }
       },
       "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -9168,6 +9158,9 @@
           },
           "deploymentUserAssignedIdentityClientId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.deploymentUserAssignedIdentityClientId.value]"
+          },
+          "deploymentUserAssignedIdentityPrincipalId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.deploymentUserAssignedIdentityPrincipalId.value]"
           },
           "desktopFriendlyName": "[if(empty(parameters('desktopFriendlyName')), createObject('value', string(parameters('stampIndex'))), createObject('value', parameters('desktopFriendlyName')))]",
           "diskSku": {
@@ -9254,7 +9247,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "7947199422402016062"
+              "templateHash": "16583821302504592892"
             }
           },
           "parameters": {
@@ -9274,6 +9267,9 @@
               "type": "string"
             },
             "deploymentUserAssignedIdentityClientId": {
+              "type": "string"
+            },
+            "deploymentUserAssignedIdentityPrincipalId": {
               "type": "string"
             },
             "desktopFriendlyName": {
@@ -9390,6 +9386,9 @@
                   "customRdpProperty": {
                     "value": "[parameters('customRdpProperty')]"
                   },
+                  "deploymentUserAssignedIdentityPrincipalId": {
+                    "value": "[parameters('deploymentUserAssignedIdentityPrincipalId')]"
+                  },
                   "diskSku": {
                     "value": "[parameters('diskSku')]"
                   },
@@ -9467,7 +9466,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "1177554211568337094"
+                      "templateHash": "9719336724197777662"
                     }
                   },
                   "parameters": {
@@ -9475,6 +9474,9 @@
                       "type": "string"
                     },
                     "avdPrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
+                    "deploymentUserAssignedIdentityPrincipalId": {
                       "type": "string"
                     },
                     "customImageId": {
@@ -9558,7 +9560,7 @@
                     }
                   },
                   "variables": {
-                    "customRdpProperty_Complete": "[if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), format('{0}targetisaadjoined:i:1;enablerdsaadauth:i:1;', parameters('customRdpProperty')), parameters('customRdpProperty'))]"
+                    "customRdpProperty_Complete": "[if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), format('{0}enablerdsaadauth:i:1;', parameters('customRdpProperty')), parameters('customRdpProperty'))]"
                   },
                   "resources": [
                     {
@@ -9569,10 +9571,10 @@
                       "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, resourceGroup().name, parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.DesktopVirtualization/hostPools'), parameters('tags')['Microsoft.DesktopVirtualization/hostPools'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "customRdpProperty": "[variables('customRdpProperty_Complete')]",
-                        "hostPoolType": "[split(parameters('hostPoolType'), ' ')[0]]",
-                        "loadBalancerType": "[if(contains(parameters('hostPoolType'), 'Pooled'), split(parameters('hostPoolType'), ' ')[1], 'Persistent')]",
+                        "hostPoolType": "[parameters('hostPoolType')]",
+                        "loadBalancerType": "[if(equals(parameters('hostPoolType'), 'Pooled'), 'DepthFirst', 'Persistent')]",
                         "maxSessionLimit": "[parameters('maxSessionLimit')]",
-                        "personalDesktopAssignmentType": "[if(contains(parameters('hostPoolType'), 'Personal'), split(parameters('hostPoolType'), ' ')[1], null())]",
+                        "personalDesktopAssignmentType": "[if(equals(parameters('hostPoolType'), 'Personal'), 'Automatic', null())]",
                         "preferredAppGroupType": "Desktop",
                         "publicNetworkAccess": "[parameters('hostPoolPublicNetworkAccess')]",
                         "registrationInfo": {
@@ -9630,6 +9632,20 @@
                       ]
                     },
                     {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostPoolName'))]",
+                      "name": "[guid(parameters('deploymentUserAssignedIdentityPrincipalId'), '2ad6aaab-ead9-4eaa-8ac5-da422f562408', resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')))]",
+                      "properties": {
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '2ad6aaab-ead9-4eaa-8ac5-da422f562408')]",
+                        "principalId": "[parameters('deploymentUserAssignedIdentityPrincipalId')]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]"
+                      ]
+                    },
+                    {
                       "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2021-05-01-preview",
@@ -9679,6 +9695,9 @@
                   "deploymentUserAssignedIdentityClientId": {
                     "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
                   },
+                  "deploymentUserAssignedIdentityPrincipalId": {
+                    "value": "[parameters('deploymentUserAssignedIdentityPrincipalId')]"
+                  },
                   "desktopApplicationGroupName": {
                     "value": "[replace(parameters('namingConvention').applicationGroup, parameters('serviceToken'), 'desktop')]"
                   },
@@ -9720,7 +9739,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "17578802300051756694"
+                      "templateHash": "10581081897017236090"
                     }
                   },
                   "parameters": {
@@ -9728,6 +9747,9 @@
                       "type": "string"
                     },
                     "deploymentUserAssignedIdentityClientId": {
+                      "type": "string"
+                    },
+                    "deploymentUserAssignedIdentityPrincipalId": {
                       "type": "string"
                     },
                     "desktopApplicationGroupName": {
@@ -9770,7 +9792,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.DesktopVirtualization/applicationGroups",
-                      "apiVersion": "2021-03-09-preview",
+                      "apiVersion": "2024-04-03",
                       "name": "[parameters('desktopApplicationGroupName')]",
                       "location": "[parameters('locationControlPlane')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), if(contains(parameters('tags'), 'Microsoft.DesktopVirtualization/applicationGroups'), parameters('tags')['Microsoft.DesktopVirtualization/applicationGroups'], createObject()), parameters('mlzTags'))]",
@@ -9780,8 +9802,22 @@
                       }
                     },
                     {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[format('Microsoft.DesktopVirtualization/applicationGroups/{0}', parameters('desktopApplicationGroupName'))]",
+                      "name": "[guid(parameters('deploymentUserAssignedIdentityPrincipalId'), '86240b0e-9422-4c43-887b-b61143f32ba8', resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName')))]",
+                      "properties": {
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '86240b0e-9422-4c43-887b-b61143f32ba8')]",
+                        "principalId": "[parameters('deploymentUserAssignedIdentityPrincipalId')]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))]"
+                      ]
+                    },
+                    {
                       "copy": {
-                        "name": "roleAssignment",
+                        "name": "roleAssignment_Users",
                         "count": "[length(range(0, length(parameters('securityPrincipalObjectIds'))))]"
                       },
                       "type": "Microsoft.Authorization/roleAssignments",
@@ -9911,7 +9947,8 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))]"
+                        "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))]",
+                        "[extensionResourceId(resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName')), 'Microsoft.Authorization/roleAssignments', guid(parameters('deploymentUserAssignedIdentityPrincipalId'), '86240b0e-9422-4c43-887b-b61143f32ba8', resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))))]"
                       ]
                     }
                   ],
@@ -10990,9 +11027,6 @@
           "functionAppName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.functionAppName.value]"
           },
-          "hostPoolType": {
-            "value": "[parameters('hostPoolType')]"
-          },
           "keyVaultUri": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
           },
@@ -11068,7 +11102,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "11179081376326675216"
+              "templateHash": "17423392577111200184"
             }
           },
           "parameters": {
@@ -11121,9 +11155,6 @@
               "type": "string"
             },
             "functionAppName": {
-              "type": "string"
-            },
-            "hostPoolType": {
               "type": "string"
             },
             "keyVaultUri": {
@@ -11611,9 +11642,6 @@
                   "functionAppName": {
                     "value": "[parameters('functionAppName')]"
                   },
-                  "hostPoolType": {
-                    "value": "[parameters('hostPoolType')]"
-                  },
                   "keyVaultUri": {
                     "value": "[parameters('keyVaultUri')]"
                   },
@@ -11688,7 +11716,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "15055411149553856815"
+                      "templateHash": "10921134071123326707"
                     }
                   },
                   "parameters": {
@@ -11735,9 +11763,6 @@
                       "type": "string"
                     },
                     "hostPoolName": {
-                      "type": "string"
-                    },
-                    "hostPoolType": {
                       "type": "string"
                     },
                     "keyVaultUri": {
@@ -11929,14 +11954,14 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[format('{0}-{1}', replace(parameters('namingConvention').storageAccountPrivateEndpoint, parameters('serviceToken'), 'file-fslogix'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
+                      "name": "[format('{0}-{1}', parameters('namingConvention').storageAccountFilePrivateEndpoint, padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
                       "location": "[parameters('location')]",
                       "tags": "[variables('tagsPrivateEndpoints')]",
                       "properties": {
-                        "customNetworkInterfaceName": "[format('{0}-{1}', replace(parameters('namingConvention').storageAccountNetworkInterface, parameters('serviceToken'), 'file-fslogix'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
+                        "customNetworkInterfaceName": "[format('{0}-{1}', parameters('namingConvention').storageAccountFileNetworkInterface, padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('{0}-{1}', replace(parameters('namingConvention').storageAccountPrivateEndpoint, parameters('serviceToken'), 'file-fslogix'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
+                            "name": "[format('{0}-{1}', parameters('namingConvention').storageAccountFilePrivateEndpoint, padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', take(format('{0}{1}', variables('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), 15))]",
                               "groupIds": [
@@ -11960,7 +11985,7 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', format('{0}-{1}', replace(parameters('namingConvention').storageAccountPrivateEndpoint, parameters('serviceToken'), 'file-fslogix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), take(format('{0}{1}', variables('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), 15))]",
+                      "name": "[format('{0}/{1}', format('{0}-{1}', parameters('namingConvention').storageAccountFilePrivateEndpoint, padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), take(format('{0}{1}', variables('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), 15))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -11972,7 +11997,7 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-{1}', replace(parameters('namingConvention').storageAccountPrivateEndpoint, parameters('serviceToken'), 'file-fslogix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-{1}', parameters('namingConvention').storageAccountFilePrivateEndpoint, padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]",
                         "storageAccounts"
                       ]
                     },
@@ -12046,15 +12071,15 @@
                         }
                       },
                       "dependsOn": [
+                        "fileServices",
                         "roleAssignment",
                         "[resourceId('Microsoft.Storage/storageAccounts', take(format('{0}{1}', variables('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), 15))]"
                       ]
                     },
                     {
-                      "condition": "[contains(parameters('activeDirectorySolution'), 'DomainServices')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-fslogix-ntfs-permissions-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('set-ntfs-permissions-{0}', parameters('deploymentNameSuffix'))]",
                       "resourceGroup": "[parameters('resourceGroupManagement')]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -12217,10 +12242,10 @@
                       ]
                     },
                     {
-                      "condition": "[and(parameters('enableRecoveryServices'), contains(parameters('hostPoolType'), 'Pooled'))]",
+                      "condition": "[parameters('enableRecoveryServices')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-backup-azure-files-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-backup-{0}', parameters('deploymentNameSuffix'))]",
                       "resourceGroup": "[parameters('resourceGroupManagement')]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -12402,7 +12427,7 @@
                         }
                       },
                       "dependsOn": [
-                        "shares"
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('set-ntfs-permissions-{0}', parameters('deploymentNameSuffix')))]"
                       ]
                     },
                     {
@@ -12482,7 +12507,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-fslogix-ntfs-permissions-{0}', parameters('deploymentNameSuffix')))]"
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-backup-{0}', parameters('deploymentNameSuffix')))]"
                       ]
                     }
                   ],
@@ -12556,6 +12581,9 @@
           "deploymentUserAssignedIdentityClientId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.deploymentUserAssignedIdentityClientId.value]"
           },
+          "deploymentUserAssignedIdentityPrincipalId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.deploymentUserAssignedIdentityPrincipalId.value]"
+          },
           "diskEncryptionSetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
           },
@@ -12586,20 +12614,17 @@
           "enableRecoveryServices": {
             "value": "[parameters('recoveryServices')]"
           },
-          "enableScalingTool": {
-            "value": "[parameters('scalingTool')]"
-          },
           "environmentAbbreviation": {
             "value": "[parameters('environmentAbbreviation')]"
           },
           "fslogixContainerType": {
             "value": "[parameters('fslogixContainerType')]"
           },
-          "functionAppName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.functionAppName.value]"
-          },
           "hostPoolName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hostPoolName.value]"
+          },
+          "hostPoolResourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hostPoolResourceId.value]"
           },
           "hostPoolType": {
             "value": "[parameters('hostPoolType')]"
@@ -12622,6 +12647,9 @@
           "location": {
             "value": "[parameters('locationVirtualMachines')]"
           },
+          "logAnalyticsWorkspaceResourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+          },
           "managementVirtualMachineName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]"
           },
@@ -12638,9 +12666,6 @@
           "organizationalUnitPath": {
             "value": "[parameters('organizationalUnitPath')]"
           },
-          "pooledHostPool": {
-            "value": "[variables('pooledHostPool')]"
-          },
           "recoveryServicesVaultName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.recoveryServicesVaultName.value]"
           },
@@ -12655,6 +12680,18 @@
           },
           "roleDefinitions": {
             "value": "[variables('roleDefinitions')]"
+          },
+          "scalingWeekdaysOffPeakStartTime": {
+            "value": "[parameters('scalingWeekdaysOffPeakStartTime')]"
+          },
+          "scalingWeekdaysPeakStartTime": {
+            "value": "[parameters('scalingWeekdaysPeakStartTime')]"
+          },
+          "scalingWeekendsOffPeakStartTime": {
+            "value": "[parameters('scalingWeekendsOffPeakStartTime')]"
+          },
+          "scalingWeekendsPeakStartTime": {
+            "value": "[parameters('scalingWeekendsPeakStartTime')]"
           },
           "securityPrincipalObjectIds": {
             "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))]"
@@ -12687,6 +12724,9 @@
           "tags": {
             "value": "[parameters('tags')]"
           },
+          "timeZone": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.timeZone]"
+          },
           "virtualMachinePassword": {
             "value": "[parameters('virtualMachinePassword')]"
           },
@@ -12704,7 +12744,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.34.60546",
-              "templateHash": "15064449949268346552"
+              "templateHash": "1578632995564263199"
             }
           },
           "parameters": {
@@ -12736,6 +12776,9 @@
               "type": "string"
             },
             "deploymentUserAssignedIdentityClientId": {
+              "type": "string"
+            },
+            "deploymentUserAssignedIdentityPrincipalId": {
               "type": "string"
             },
             "diskEncryptionSetResourceId": {
@@ -12771,10 +12814,10 @@
             "fslogixContainerType": {
               "type": "string"
             },
-            "functionAppName": {
+            "hostPoolName": {
               "type": "string"
             },
-            "hostPoolName": {
+            "hostPoolResourceId": {
               "type": "string"
             },
             "hostPoolType": {
@@ -12798,6 +12841,9 @@
             "location": {
               "type": "string"
             },
+            "logAnalyticsWorkspaceResourceId": {
+              "type": "string"
+            },
             "managementVirtualMachineName": {
               "type": "string"
             },
@@ -12816,13 +12862,7 @@
             "organizationalUnitPath": {
               "type": "string"
             },
-            "pooledHostPool": {
-              "type": "bool"
-            },
             "enableRecoveryServices": {
-              "type": "bool"
-            },
-            "enableScalingTool": {
               "type": "bool"
             },
             "recoveryServicesVaultName": {
@@ -12839,6 +12879,18 @@
             },
             "roleDefinitions": {
               "type": "object"
+            },
+            "scalingWeekdaysOffPeakStartTime": {
+              "type": "string"
+            },
+            "scalingWeekdaysPeakStartTime": {
+              "type": "string"
+            },
+            "scalingWeekendsOffPeakStartTime": {
+              "type": "string"
+            },
+            "scalingWeekendsPeakStartTime": {
+              "type": "string"
             },
             "securityPrincipalObjectIds": {
               "type": "array"
@@ -12873,6 +12925,9 @@
             "tags": {
               "type": "object"
             },
+            "timeZone": {
+              "type": "string"
+            },
             "virtualMachinePassword": {
               "type": "securestring"
             },
@@ -12884,9 +12939,7 @@
             }
           },
           "variables": {
-            "$fxv#0": "# This file enables modules to be automatically managed by the Functions service.\r\n# See https://aka.ms/functionsmanageddependency for additional information.\r\n#\r\n@{\r\n    # For latest supported version, go to 'https://www.powershellgallery.com/packages/Az'. \r\n    # To use the Az module in your function app, please uncomment the line below.\r\n    # 'Az' = '7.*'\r\n}",
-            "$fxv#1": "param($Timer)\r\n\r\ntry\r\n{\r\n\t[string]$BeginPeakTime = $env:BeginPeakTime\r\n\t[string]$EndPeakTime = $env:EndPeakTime\r\n\t[string]$EnvironmentName = $env:EnvironmentName\r\n\t[string]$HostPoolName = $env:HostPoolName\r\n\t[string]$HostPoolResourceGroupName = $env:HostPoolResourceGroupName\r\n\t[int]$LimitSecondsToForceLogOffUser = $env:LimitSecondsToForceLogOffUser\r\n\t[string]$LogOffMessageBody = $env:LogOffMessageBody\r\n\t[string]$LogOffMessageTitle = $env:LogOffMessageTitle\r\n\t[string]$MaintenanceTagName = $env:MaintenanceTagName\r\n\t[int]$MinimumNumberOfRDSH = $env:MinimumNumberOfRDSH\r\n\t[string]$ResourceManagerUrl = $env:ResourceManagerUrl\r\n\t[double]$SessionThresholdPerCPU = $env:SessionThresholdPerCPU\r\n\t[string]$SubscriptionId = $env:SubscriptionId\r\n\t[string]$TenantId = $env:TenantId\r\n\t[string]$TimeDifference = $env:TimeDifference\r\n\t[string[]]$DesiredRunningStates = @('Available', 'NeedsAssistance')\r\n\t[string[]]$TimeDiffHrsMin = \"$($TimeDifference):0\".Split(':')\r\n\r\n\r\n\t#region Functions\r\n\tfunction Get-LocalDateTime\r\n    {\r\n\t\treturn (Get-Date).ToUniversalTime().AddHours($TimeDiffHrsMin[0]).AddMinutes($TimeDiffHrsMin[1])\r\n\t}\r\n\r\n\tfunction Write-Log \r\n    {\r\n\t\t[CmdletBinding()]\r\n\t\tparam (\r\n\t\t\t[Parameter(Mandatory = $false)]\r\n\t\t\t[switch]$Err,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$HostPoolName,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$Message,\r\n\r\n\t\t\t[Parameter(Mandatory = $false)]\r\n\t\t\t[switch]$Warn\r\n\t\t)\r\n\r\n\t\t[string]$MessageTimeStamp = (Get-LocalDateTime).ToString('yyyy-MM-dd HH:mm:ss')\r\n\t\t$Message = \"[$($MyInvocation.ScriptLineNumber)] [$($HostPoolName)] $Message\"\r\n\t\t[string]$WriteMessage = \"[$($MessageTimeStamp)] $Message\"\r\n\r\n\t\tif ($Err)\r\n        {\r\n\t\t\tWrite-Error $WriteMessage\r\n\t\t\t$Message = \"ERROR: $Message\"\r\n\t\t}\r\n\t\telseif ($Warn)\r\n        {\r\n\t\t\tWrite-Warning $WriteMessage\r\n\t\t\t$Message = \"WARN: $Message\"\r\n\t\t}\r\n\t\telse \r\n        {\r\n\t\t\tWrite-Output $WriteMessage\r\n\t\t}\r\n\t}\r\n\r\n\tfunction Set-nVMsToStartOrStop \r\n    {\r\n\t\tparam (\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$HostPoolName,\r\n\r\n\t\t\t[Parameter(Mandatory = $false)]\r\n\t\t\t[switch]$InPeakHours,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[int]$MaxUserSessionsPerVM,\r\n\t\t\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[int]$nRunningCores,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[int]$nRunningVMs,\r\n\t\t\t\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[int]$nUserSessions,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[hashtable]$Res\r\n\t\t)\r\n\r\n\t\t# check if need to adjust min num of running session hosts required if the number of user sessions is close to the max allowed by the min num of running session hosts required\r\n\t\t[double]$MaxUserSessionsThreshold = 0.9\r\n\t\t[int]$MaxUserSessionsThresholdCapacity = [math]::Floor($MinimumNumberOfRDSH * $MaxUserSessionsPerVM * $MaxUserSessionsThreshold)\r\n\t\tif ($nUserSessions -gt $MaxUserSessionsThresholdCapacity)\r\n        {\r\n\t\t\t$MinimumNumberOfRDSH = [math]::Ceiling($nUserSessions / ($MaxUserSessionsPerVM * $MaxUserSessionsThreshold))\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Number of user sessions is more than $($MaxUserSessionsThreshold * 100) % of the max number of sessions allowed with minimum number of running session hosts required ($MaxUserSessionsThresholdCapacity). Adjusted minimum number of running session hosts required to $MinimumNumberOfRDSH\"\r\n\t\t}\r\n\r\n\t\t# Check if minimum number of session hosts are running\r\n\t\tif ($nRunningVMs -lt $MinimumNumberOfRDSH)\r\n        {\r\n\t\t\t$res.nVMsToStart = $MinimumNumberOfRDSH - $nRunningVMs\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Number of running session host is less than minimum required. Need to start $($res.nVMsToStart) VMs\"\r\n\t\t}\r\n\t\t\r\n\t\tif ($InPeakHours)\r\n        {\r\n\t\t\t[double]$nUserSessionsPerCore = $nUserSessions / $nRunningCores\r\n\t\t\t# In peak hours: check if current capacity is meeting the user demands\r\n\t\t\tif ($nUserSessionsPerCore -gt $SessionThresholdPerCPU)\r\n            {\r\n\t\t\t\t$res.nCoresToStart = [math]::Ceiling(($nUserSessions / $SessionThresholdPerCPU) - $nRunningCores)\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"[In peak hours] Number of user sessions per Core is more than the threshold. Need to start $($res.nCoresToStart) cores\"\r\n\t\t\t}\r\n\r\n\t\t\treturn\r\n\t\t}\r\n\r\n\t\tif ($nRunningVMs -gt $MinimumNumberOfRDSH)\r\n        {\r\n\t\t\t# Calculate the number of session hosts to stop\r\n\t\t\t$res.nVMsToStop = $nRunningVMs - $MinimumNumberOfRDSH\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"[Off peak hours] Number of running session host is greater than minimum required. Need to stop $($res.nVMsToStop) VMs\"\r\n\t\t}\r\n\t}\r\n\r\n\tfunction TryUpdateSessionHostDrainMode\r\n    {\r\n\t\t[CmdletBinding()]\r\n\t\tparam (\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[bool]$AllowNewSession,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[hashtable]$Header,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$HostPoolName,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$HostPoolResourceGroupName,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$ResourceManagerUrl,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$SessionHostName,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$SubscriptionId\r\n\t\t)\r\n\t\tBegin { }\r\n\t\tProcess \r\n        {\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Update session host '$SessionHostName' to set allow new sessions to $AllowNewSession\"\r\n\t\t\ttry \r\n\t\t\t{\r\n\t\t\t\t$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts/' + $SessionHostName + '?api-version=2022-02-10-preview'\r\n\t\t\t\tInvoke-RestMethod -Headers $Header -Body (@{properties = @{allowNewSession = $AllowNewSession}} | ConvertTo-Json) -Method 'Patch' -Uri $Uri | Out-Null\r\n\t\t\t}\r\n\t\t\tcatch\r\n\t\t\t{\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"Failed to update the session host '$SessionHostName' to set allow new sessions to $($AllowNewSession): $($PSItem | Format-List -Force | Out-String)\"\r\n\t\t\t}\r\n\t\t}\r\n\t\tEnd { }\r\n\t}\r\n\r\n\tfunction TryForceLogOffUser\r\n    {\r\n\t\t[CmdletBinding()]\r\n\t\tparam (\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[hashtable]$Header,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$HostPoolName,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$HostPoolResourceGroupName,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$ResourceManagerUrl,\r\n\r\n\t\t\t[Parameter(Mandatory = $true, ValueFromPipeline = $true)]\r\n\t\t\t$Session,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$SubscriptionId\r\n\t\t)\r\n\t\tBegin { }\r\n\t\tProcess\r\n        {\r\n            [string[]]$Toks = $Session.Name.Split('/')\r\n            [string]$SessionHostName = $Toks[1]\r\n            [string]$SessionID = $Toks[-1]\r\n            [string]$User = $Session.ActiveDirectoryUserName\r\n\r\n\t\t\ttry \r\n\t\t\t{\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Force log off user: '$User', session ID: $SessionID\"\r\n\r\n\t\t\t\t$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts/' + $SessionHostName + '/userSessions/' + $SessionID + '?api-version=2022-02-10-preview&force=True'\r\n\t\t\t\tInvoke-RestMethod -Headers $Header -Method 'Delete' -Uri $Uri | Out-Null\r\n\t\t\t}\r\n\t\t\tcatch \r\n\t\t\t{\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"Failed to force log off user: '$User', session ID: $SessionID $($PSItem | Format-List -Force | Out-String)\"\r\n\t\t\t}\r\n\t\t}\r\n\t\tEnd { }\r\n\t}\r\n\r\n\tfunction TryResetSessionHostDrainModeAndUserSessions\r\n    {\r\n\t\t[CmdletBinding()]\r\n\t\tparam (\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[hashtable]$Header,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$HostPoolName,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$HostPoolResourceGroupName,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$ResourceManagerUrl,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$SessionHostName,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[int]$SessionHostSessions,\r\n\r\n\t\t\t[Parameter(Mandatory = $true)]\r\n\t\t\t[string]$SubscriptionId\r\n\t\t)\r\n\t\tBegin { }\r\n\t\tProcess \r\n        {\r\n\t\t\tTryUpdateSessionHostDrainMode -AllowNewSession $true -Header $Header -HostPoolName $HostPoolName -HostPoolResourceGroupName $HostPoolResourceGroupName -ResourceManagerUrl $ResourceManagerUrl -SessionHostName $SessionHostName -SubscriptionId $SubscriptionId\r\n\r\n\t\t\tif ($SessionHostSessions -eq 0)\r\n            {\r\n\t\t\t\treturn\r\n\t\t\t}\r\n\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"Session host '$SessionHostName' still has $SessionHostSessions) sessions left behind in broker DB\"\r\n\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Get all user sessions from session host '$SessionHostName'\"\r\n\t\t\ttry \r\n\t\t\t{\r\n\t\t\t\t$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts/' + $SessionHostName + '/userSessions?api-version=2022-02-10-preview'\r\n\t\t\t\t$UserSessions = Invoke-RestMethod -Headers $Header -Method 'Get' -Uri $Uri\r\n\t\t\t}\r\n\t\t\tcatch \r\n\t\t\t{\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"Failed to retrieve user sessions of session host '$SessionHostName': $($PSItem | Format-List -Force | Out-String)\"\r\n\t\t\t\treturn\r\n\t\t\t}\r\n\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Force log off $($UserSessions.Count) users on session host: '$SessionHostName'\"\r\n\t\t\t$UserSessions | TryForceLogOffUser -Header $Header -HostPoolName $HostPoolName -HostPoolResourceGroupName $HostPoolResourceGroupName -ResourceManagerUrl $ResourceManagerUrl -SubscriptionId $SubscriptionId\r\n\t\t}\r\n\t\tEnd { }\r\n\t}\r\n\t#endregion Functions\r\n\r\n\r\n\t# Note: https://stackoverflow.com/questions/41674518/powershell-setting-security-protocol-to-tls-1-2\r\n\t[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12\r\n\r\n\r\n\t#region Azure Authentication\r\n    $AccessToken = $null\r\n    try\r\n    {\r\n\t\t$TokenAuthURI = $env:IDENTITY_ENDPOINT + '?resource=' + $ResourceManagerUrl + '&api-version=2019-08-01'\r\n\t\t$TokenResponse = Invoke-RestMethod -Method Get -Headers @{\"X-IDENTITY-HEADER\"=\"$env:IDENTITY_HEADER\"} -Uri $TokenAuthURI\r\n\t\t$AccessToken = $TokenResponse.access_token\r\n\t\t$Header = @{\r\n\t\t\t'Content-Type'='application/json'\r\n\t\t\t'Authorization'='Bearer ' + $AccessToken\r\n\t\t}\r\n    }\r\n    catch\r\n    {\r\n        throw [System.Exception]::new('Failed to authenticate Azure with application ID, tenant ID, subscription ID', $PSItem.Exception)\r\n    }\r\n    Write-Log -HostPoolName $HostPoolName -Message \"Successfully authenticated with Azure using a managed identity\"\r\n\t#endregion Azure Authentication\r\n\r\n\r\n\t#region validate host pool, validate / update HostPool load balancer type, ensure there is at least 1 session host, get num of user sessions\r\n\t# Validate and get host pool info\r\n\t$HostPool = $null\r\n\ttry \r\n\t{\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Get host pool information\"\r\n\t\t$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '?api-version=2022-02-10-preview'\r\n\t\t$HostPool = Invoke-RestMethod -Headers $Header -Method 'Get' -Uri $Uri\r\n\r\n\t\tif (!$HostPool) \r\n\t\t{\r\n\t\t\tthrow $HostPool\r\n\t\t}\r\n\t}\r\n\tcatch \r\n\t{\r\n\t\tthrow [System.Exception]::new(\"Failed to get host pool info of '$HostPoolName' in resource group '$HostPoolResourceGroupName'. Ensure that you have entered the correct values\", $PSItem.Exception)\r\n\t}\r\n\r\n\t# Ensure HostPool load balancer type is not persistent\r\n\tif ($HostPool.properties.loadBalancerType -ieq 'Persistent')\r\n    {\r\n\t\tthrow \"HostPool '$HostPoolName' is configured with 'Persistent' load balancer type. Scaling tool only supports these load balancer types: BreadthFirst, DepthFirst\"\r\n\t}\r\n\r\n\tWrite-Log -HostPoolName $HostPoolName -Message 'Get session hosts'\r\n\t$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts?api-version=2022-02-10-preview'\r\n\t$SessionHosts = (Invoke-RestMethod -Headers $Header -Method 'Get' -Uri $Uri).value\r\n\r\n\tif (!$SessionHosts)\r\n    {\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message \"There are no session hosts in the host pool '$HostPoolName'. Ensure that hostpool has session hosts\"\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message 'End'\r\n\t\treturn\r\n\t}\r\n\r\n\tWrite-Log -HostPoolName $HostPoolName -Message 'Get number of user sessions in host pool'\r\n\t$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/userSessions?api-version=2022-02-10-preview'\r\n\t[int]$nUserSessions = (Invoke-RestMethod -Headers $Header -Method 'Get' -Uri $Uri).value.Count\r\n\r\n\t# Set up breadth 1st load balacing type\r\n\t# Note: breadth 1st is enforced on AND off peak hours to simplify the things with scaling in the start/end of peak hours\r\n\tif (!$SkipUpdateLoadBalancerType -and $HostPool.properties.loadBalancerType -ine 'BreadthFirst')\r\n    {\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Update HostPool with 'BreadthFirst' load balancer type (current: '$($HostPool.properties.loadBalancerType)')\"\r\n\r\n\t\t$Body = @{\r\n\t\t\tproperties = @{\r\n\t\t\t\tloadBalancerType = 'BreadthFirst'\r\n\t\t\t}\r\n\t\t}\r\n\t\t$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '?api-version=2022-02-10-preview'\r\n\t\t$HostPool = Invoke-RestMethod -Headers $Header -Body $($Body | ConvertTo-Json) -Method 'Patch' -Uri $Uri\r\n\t}\r\n\tWrite-Log -HostPoolName $HostPoolName -Message \"Number of session hosts in the HostPool: $($SessionHosts.Count)\"\r\n\t#endregion\r\n\t\r\n\r\n\t# region Peak Hours #\r\n\t# Convert local time, begin peak time & end peak time from UTC to local time\r\n\t$CurrentDateTime = Get-LocalDateTime\r\n\t$BeginPeakDateTime = [datetime]::Parse($CurrentDateTime.ToShortDateString() + ' ' + $BeginPeakTime)\r\n\t$EndPeakDateTime = [datetime]::Parse($CurrentDateTime.ToShortDateString() + ' ' + $EndPeakTime)\r\n\r\n\t# Adjust peak times to make sure begin peak time is always before end peak time\r\n\tif ($EndPeakDateTime -lt $BeginPeakDateTime)\r\n    {\r\n\t\tif ($CurrentDateTime -lt $EndPeakDateTime)\r\n        {\r\n\t\t\t$BeginPeakDateTime = $BeginPeakDateTime.AddDays(-1)\r\n\t\t}\r\n\t\telse\r\n        {\r\n\t\t\t$EndPeakDateTime = $EndPeakDateTime.AddDays(1)\r\n\t\t}\r\n\t}\r\n\r\n\tWrite-Log -HostPoolName $HostPoolName -Message \"Using current time: $($CurrentDateTime.ToString('yyyy-MM-dd HH:mm:ss')), begin peak time: $($BeginPeakDateTime.ToString('yyyy-MM-dd HH:mm:ss')), end peak time: $($EndPeakDateTime.ToString('yyyy-MM-dd HH:mm:ss'))\"\r\n\r\n\t[bool]$InPeakHours = ($BeginPeakDateTime -le $CurrentDateTime -and $CurrentDateTime -le $EndPeakDateTime)\r\n\tif ($InPeakHours)\r\n    {\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message 'In peak hours'\r\n\t}\r\n\telse\r\n    {\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message 'Off peak hours'\r\n\t}\r\n\t# endregion Peak Hours #\r\n\r\n\r\n\t#region get session hosts, VMs & user sessions info and compute workload\r\n\t# Note: session host is considered \"running\" if its running AND is in desired states AND allowing new sessions\r\n\t# Number of session hosts that are running, are in desired states and allowing new sessions\r\n\t[int]$nRunningVMs = 0\r\n\t# Number of cores that are running, are in desired states and allowing new sessions\r\n\t[int]$nRunningCores = 0\r\n\t# Array that contains all the virtual machine objects that are session hosts except the ones that are tagged for maintenance\r\n\t$VMs = @()\r\n\t# Object that contains the number of cores for each VM size SKU\r\n\t$VMSizeCores = @{}\r\n\t# Number of user sessions reported by each session host that is running, is in desired state and allowing new sessions\r\n\t[int]$nUserSessionsFromAllRunningVMs = 0\r\n\r\n\t# Populate all session hosts objects\r\n\tforeach ($SessionHost in $SessionHosts)\r\n    {\r\n\t\t[string]$VirtualMachineResourceId = $SessionHost.properties.resourceId\r\n\t\t[string]$VirtualMachineName = $VirtualMachineResourceId.Split('/')[8]\r\n\t\t[string]$VirtualMachineResourceGroupName = $VirtualMachineResourceId.Split('/')[4]\r\n\t\t$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $VirtualMachineResourceGroupName + '/providers/Microsoft.Compute/virtualMachines/' + $VirtualMachineName + '?api-version=2024-03-01&$expand=instanceView'\r\n\t\t$VirtualMachine = Invoke-RestMethod -Headers $Header -Method 'Get' -Uri $Uri\r\n\r\n\t\t# Throw an error if the virtual machine for the session host does not exist\r\n\t\tif ($VirtualMachine.error)\r\n\t\t{\r\n\t\t\tthrow \"The virtual machine for session host '$VirtualMachineName' does not exist\"\r\n\t\t}\r\n\t\t# Ignore session hosts tagged for maintenance or missing virtual machine\r\n\t\telseif($VirtualMachine.tags.Keys -contains $MaintenanceTagName)\r\n        {\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"VM '$VirtualMachineName' is in maintenance and will be ignored\"\r\n\t\t\tcontinue\r\n\t\t}\r\n\t\telse \r\n\t\t{\r\n\t\t\t$VMs += $VirtualMachine\r\n\t\t}\r\n\r\n\t\t$PowerState = $VirtualMachine.properties.instanceView.statuses[1].displayStatus\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Session host: '$($VirtualMachineName)', power state: '$PowerState', status: '$($SessionHost.properties.status)', update state: '$($SessionHost.properties.updateState)', sessions: $($SessionHost.properties.sessions), allow new session: $($SessionHost.properties.allowNewSession)\"\r\n\t\t\r\n\t\t# Get the number of cores for VM size SKU\r\n\t\tif (!$VMSizeCores.ContainsKey($VirtualMachine.properties.hardwareProfile.vmSize))\r\n        {\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Get VM sizes in $($VirtualMachine.location)\"\r\n\r\n\t\t\t$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId + '/providers/Microsoft.Compute/locations/' + $VirtualMachine.location + '/vmSizes?api-version=2024-03-01'\r\n\t\t\t$VMSizes = (Invoke-RestMethod -Headers $Header -Method 'Get' -Uri $Uri).value\r\n\r\n\t\t\tforeach ($VMSize in $VMSizes)\r\n            {\r\n\t\t\t\tif (!$VMSizeCores.ContainsKey($VMSize.name))\r\n                {\r\n\t\t\t\t\t$VMSizeCores.Add($VMSize.name, $VMSize.numberOfCores)\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\r\n\t\tif ($PowerState -ieq 'VM running')\r\n        {\r\n\t\t\tif ($SessionHost.properties.status -notin $DesiredRunningStates)\r\n            {\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message 'VM is in running state but session host is not and so it will be ignored (this could be because the VM was just started and has not connected to broker yet)'\r\n\t\t\t}\r\n\t\t\tif (!$SessionHost.properties.allowNewSession)\r\n            {\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message 'VM is in running state but session host is not allowing new sessions and so it will be ignored'\r\n\t\t\t}\r\n\r\n\t\t\tif ($SessionHost.properties.status -in $DesiredRunningStates -and $SessionHost.properties.allowNewSession)\r\n            {\r\n\t\t\t\t++$nRunningVMs\r\n\t\t\t\t$nRunningCores += $VMSizeCores[$VirtualMachine.properties.hardwareProfile.vmSize]\r\n\t\t\t\t$nUserSessionsFromAllRunningVMs += $SessionHost.properties.sessions\r\n\t\t\t}\r\n\t\t}\r\n\t\telse \r\n        {\r\n\t\t\tif ($SessionHost.properties.status -in $DesiredRunningStates)\r\n            {\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"VM is not in running state but session host is (this could be because the VM was just stopped and broker doesn't know that yet)\"\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n\r\n\tif ($nUserSessionsFromAllRunningVMs -ne $nUserSessions)\r\n    {\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"Sum of user sessions reported by every running session host ($nUserSessionsFromAllRunningVMs) is not equal to the total number of user sessions reported by the host pool ($nUserSessions)\"\r\n\t}\r\n\r\n\r\n\tif (!$nRunningCores)\r\n    {\r\n\t\t$nRunningCores = 1\r\n\t}\r\n\r\n\tWrite-Log -HostPoolName $HostPoolName -Message \"Number of running session hosts: $nRunningVMs of total $($VMs.Count)\"\r\n\tWrite-Log -HostPoolName $HostPoolName -Message \"Number of user sessions: $nUserSessions of total allowed $($nRunningVMs * $HostPool.properties.maxSessionLimit)\"\r\n\tWrite-Log -HostPoolName $HostPoolName -Message \"Number of user sessions per Core: $($nUserSessions / $nRunningCores), threshold: $SessionThresholdPerCPU\"\r\n\tWrite-Log -HostPoolName $HostPoolName -Message \"Minimum number of running session hosts required: $MinimumNumberOfRDSH\"\r\n\r\n\t# Check if minimum num of running session hosts required is higher than max allowed\r\n\tif ($VMs.Count -le $MinimumNumberOfRDSH)\r\n    {\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message 'Minimum number of RDSH is set higher than or equal to total number of session hosts'\r\n\t}\r\n\t#endregion\r\n\r\n\r\n\t#region determine number of session hosts to start/stop if any\r\n\t# Now that we have all the info about the session hosts & their usage, figure how many session hosts to start/stop depending on in/off peak hours and the demand [Ops = operations to perform]\r\n\t$Ops = @{\r\n\t\tnVMsToStart   = 0\r\n\t\tnCoresToStart = 0\r\n\t\tnVMsToStop    = 0\r\n\t}\r\n\r\n\tSet-nVMsToStartOrStop -HostPoolName $HostPoolName -nRunningVMs $nRunningVMs -nRunningCores $nRunningCores -nUserSessions $nUserSessions -MaxUserSessionsPerVM $HostPool.properties.maxSessionLimit -InPeakHours:$InPeakHours -Res $Ops\r\n\t#endregion\r\n\r\n\r\n\t#region start any session hosts if need to\r\n\t# Check if we have any session hosts to start\r\n\tif ($Ops.nVMsToStart -or $Ops.nCoresToStart)\r\n    {\r\n\t\tif ($nRunningVMs -eq $VMs.Count)\r\n        {\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Message 'All session hosts are running'\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Message 'End'\r\n\t\t\treturn\r\n\t\t}\r\n\r\n\t\t# Object that contains names of session hosts that will be started\r\n\t\t# $StartSessionHostFullNames = @{ }\r\n\t\t# Array that contains jobs of starting the session hosts\r\n\t\t[array]$StartedVMs = @()\r\n\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message 'Find session hosts that are stopped and allowing new sessions'\r\n\t\tforeach ($SessionHost in $SessionHosts)\r\n        {\r\n\t\t\t$VM = $VMs | Where-Object { $_.id -ieq $SessionHost.properties.resourceId }\r\n\t\t\tif (!$Ops.nVMsToStart -and !$Ops.nCoresToStart)\r\n            {\r\n\t\t\t\t# Done with starting session hosts that needed to be\r\n\t\t\t\tbreak\r\n\t\t\t}\r\n\t\t\tif ($VM.properties.instanceView.statuses[1].displayStatus -ieq 'VM running')\r\n            {\r\n\t\t\t\tcontinue\r\n\t\t\t}\r\n\t\t\tif ($SessionHost.properties.updateState -ine 'Succeeded')\r\n            {\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"Session host '$($VM.name)' may not be healthy\"\r\n\t\t\t}\r\n\r\n\t\t\tif (!$SessionHost.properties.allowNewSession)\r\n            {\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"Session host '$($VM.name)' is not allowing new sessions and so it will not be started\"\r\n\t\t\t\tcontinue\r\n\t\t\t}\r\n\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Start session host '$($VM.name)'\"\r\n\r\n\t\t\t$Uri = $ResourceManagerUrl + $VM.id.TrimStart('/') + '/start?api-version=2023-09-01'\r\n\t\t\tInvoke-RestMethod -Headers $Header -Method 'Post' -Uri $Uri | Out-Null\r\n\t\t\t$StartedVMs += $VM\r\n\t\t\t\t\r\n\t\t\t--$Ops.nVMsToStart\r\n\t\t\tif ($Ops.nVMsToStart -lt 0)\r\n            {\r\n\t\t\t\t$Ops.nVMsToStart = 0\r\n\t\t\t}\r\n\r\n\t\t\t$Ops.nCoresToStart -= $VMSizeCores[$VM.properties.hardwareProfile.vmSize]\r\n\t\t\tif ($Ops.nCoresToStart -lt 0)\r\n            {\r\n\t\t\t\t$Ops.nCoresToStart = 0\r\n\t\t\t}\r\n\t\t}\r\n\r\n\t\t# Check if there were enough number of session hosts to start\r\n\t\tif ($Ops.nVMsToStart -or $Ops.nCoresToStart)\r\n        {\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"Not enough session hosts to start. Still need to start maximum of either $($Ops.nVMsToStart) VMs or $($Ops.nCoresToStart) cores\"\r\n\t\t}\r\n\r\n\t\t# Wait for session hosts to start\r\n\t\twhile($StartedVMs.Count -gt 0)\r\n\t\t{\r\n\t\t\tforeach($StartedVM in $StartedVMs)\r\n\t\t\t{\r\n\t\t\t\t$Uri = $ResourceManagerUrl + $StartedVM.id.TrimStart('/') + '?api-version=2024-03-01'\r\n\t\t\t\t$VMAgentStatus = (Invoke-RestMethod -Headers $Header -Method 'Get' -Uri $Uri).properties.instanceView.vmAgent\r\n\t\t\t\tif ($VMAgentStatus)\r\n\t\t\t\t{\r\n\t\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Session host '$($StartedVM.name)' is running\"\r\n\t\t\t\t\t$StartedVMs = $StartedVMs -ne $StartedVM\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t\tStart-Sleep -Seconds 30\r\n\t\t}\r\n\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message 'All session hosts have started'\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message 'End'\r\n\t\treturn\r\n\t}\r\n\t#endregion\r\n\r\n\r\n\t#region stop any session hosts if need to\r\n\tif (!$Ops.nVMsToStop)\r\n    {\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message 'No need to start/stop any session hosts'\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message 'End'\r\n\t\treturn\r\n\t}\r\n\r\n\t# Object that contains names of session hosts that will be stopped\r\n\t$VMsToStop = @()\r\n\t[array]$VMsToStopAfterLogOffTimeOut = @()\r\n\r\n\tWrite-Log -HostPoolName $HostPoolName -Message 'Find session hosts that are running and allowing new sessions, sort them by number of user sessions'\r\n\tforeach ($SessionHost in ($SessionHosts | Where-Object { $_.properties.allowNewSession } | Sort-Object { $_.properties.sessions }))\r\n    {\r\n\t\t$VM = $VMs | Where-Object { $_.id -ieq $SessionHost.properties.resourceId }\r\n\t\tif ($VM.properties.instanceView.statuses[1].displayStatus -ieq 'VM running')\r\n\t\t{\r\n\t\t\tif (!$Ops.nVMsToStop)\r\n\t\t\t{\r\n\t\t\t\t# Done with stopping session hosts that needed to be\r\n\t\t\t\tbreak\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\tif ($SessionHost.properties.sessions -gt 0 -and !$LimitSecondsToForceLogOffUser)\r\n\t\t\t{\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"Session host '$($VM.name)' has $($SessionHost.properties.sessions) sessions but limit seconds to force log off user is set to 0, so will not stop any more session hosts (https://aka.ms/wvdscale#how-the-scaling-tool-works)\"\r\n\t\t\t\t# Note: why break ? Because the list this loop iterates through is sorted by number of sessions, if it hits this, the rest of items in the loop will also hit this\r\n\t\t\t\tbreak\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\tTryUpdateSessionHostDrainMode -AllowNewSession $false -Header $Header -HostPoolName $HostPoolName -HostPoolResourceGroupName $HostPoolResourceGroupName -ResourceManagerUrl $ResourceManagerUrl -SessionHostName $VM.name -SubscriptionId $SubscriptionId\r\n\r\n\t\t\t# Note: check if there were new user sessions since session host info was 1st fetched\r\n\t\t\tif ($SessionHost.properties.sessions -gt 0 -and !$LimitSecondsToForceLogOffUser)\r\n\t\t\t{\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"Session host '$($VM.name)' has $($SessionHost.properties.sessions) sessions but limit seconds to force log off user is set to 0, so will not stop any more session hosts (https://aka.ms/wvdscale#how-the-scaling-tool-works)\"\r\n\t\t\t\tTryUpdateSessionHostDrainMode -AllowNewSession $true -Header $Header -HostPoolName $HostPoolName -HostPoolResourceGroupName $HostPoolResourceGroupName -ResourceManagerUrl $ResourceManagerUrl -SessionHostName $VM.name -SubscriptionId $SubscriptionId \r\n\t\t\t\tcontinue\r\n\t\t\t}\r\n\r\n\t\t\tif ($SessionHost.properties.sessions -gt 0)\r\n\t\t\t{\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Get all user sessions from session host '$($VM.name)'\"\r\n\t\t\t\ttry \r\n\t\t\t\t{\r\n\t\t\t\t\t$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts/' + $VM.name + '/userSessions?api-version=2022-02-10-preview'\r\n\t\t\t\t\t$UserSessions = Invoke-RestMethod -Headers $Header -Method 'Get' -Uri $Uri\r\n\t\t\t\t}\r\n\t\t\t\tcatch\r\n\t\t\t\t{\r\n\t\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"Failed to retrieve user sessions of session host '$($VM.name)': $($PSItem | Format-List -Force | Out-String)\"\r\n\t\t\t\t}\r\n\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Send log off message to active user sessions on session host: '$($VM.name)'\"\r\n\t\t\t\tforeach ($UserSession in $UserSessions)\r\n\t\t\t\t{\r\n\t\t\t\t\tif($UserSession.properties.sessionState -ine 'Active')\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tcontinue\r\n\t\t\t\t\t}\r\n\r\n\t\t\t\t\t[string]$SessionID = $UserSession.name.Split('/')[-1]\r\n\t\t\t\t\t[string]$User = $UserSession.properties.activeDirectoryUserName\r\n\t\t\t\t\t\r\n\t\t\t\t\ttry \r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Send a log off message to user: '$User', session ID: $SessionID\"\r\n\r\n\t\t\t\t\t\t$Uri = $ResourceManagerUrl + 'subscriptions/' + $SubscriptionId  + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts/' + $VM.name + '/userSessions/' + $SessionID + '/sendMessage?api-version=2022-02-10-preview'\r\n\t\t\t\t\t\tInvoke-RestMethod -Headers $Header -Method 'Post' -Uri $Uri -Body (@{ 'messageTitle' = $LogOffMessageTitle; 'messageBody' = \"$LogOffMessageBody You will be logged off in $LimitSecondsToForceLogOffUser seconds\" } | ConvertTo-Json) | Out-Null\r\n\t\t\t\t\t}\r\n\t\t\t\t\tcatch \r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"Failed to send a log off message to user: '$User', session ID: $SessionID $($PSItem | Format-List -Force | Out-String)\"\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t\t$VMsToStopAfterLogOffTimeOut += $VM\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Stop session host '$($VM.name)'\"\r\n\t\t\t\t$Uri = $ResourceManagerUrl + $VM.id.TrimStart('/') + '/deallocate?api-version=2023-09-01'\r\n\t\t\t\tInvoke-RestMethod -Headers $Header -Method 'Post' -Uri $Uri | Out-Null\r\n\t\t\t\t$VMsToStop += $VM\r\n\t\t\t}\r\n\r\n\t\t\t--$Ops.nVMsToStop\r\n\t\t\tif ($Ops.nVMsToStop -lt 0) {\r\n\t\t\t\t$Ops.nVMsToStop = 0\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n\r\n\tif ($VMsToStopAfterLogOffTimeOut)\r\n    {\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Wait $LimitSecondsToForceLogOffUser seconds for users to log off\"\r\n\r\n\t\tStart-Sleep -Seconds $LimitSecondsToForceLogOffUser\r\n\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Force log off users and stop remaining $($VMsToStopAfterLogOffTimeOut.Count) session hosts\"\r\n\t\tforeach ($VM in $VMsToStopAfterLogOffTimeOut)\r\n        {\r\n\t\t\t$SessionHost = $SessionHosts | Where-Object { $_.properties.resourceId -ieq $VM.id }\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Force log off $($SessionHost.sessions) users on session host: '$($VM.name)'\"\r\n\t\t\t$VM.UserSessions | TryForceLogOffUser -Header $Header -HostPoolName $HostPoolName -HostPoolResourceGroupName $HostPoolResourceGroupName -ResourceManagerUrl $ResourceManagerUrl -SubscriptionId $SubscriptionId\r\n\t\t\t\r\n\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Stop session host '$($VM.name)'\"\r\n\t\t\t$Uri = $ResourceManagerUrl + $VM.id.TrimStart('/') + '/deallocate?api-version=2023-09-01'\r\n\t\t\tInvoke-RestMethod -Headers $Header -Method 'Post' -Uri $Uri | Out-Null\r\n\t\t\t$VMsToStop += $VM\r\n\t\t}\r\n\t}\r\n\r\n\t# Check if there were enough number of session hosts to stop\r\n\tif ($Ops.nVMsToStop)\r\n    {\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Warn -Message \"Not enough session hosts to stop. Still need to stop $($Ops.nVMsToStop) VMs\"\r\n\t}\r\n\r\n\t# Wait for the session hosts to stop / deallocate\r\n\tWrite-Log -HostPoolName $HostPoolName -Message \"Wait for session hosts to stop / deallocate\"\r\n\twhile($VMsToStop.Count -gt 0)\r\n\t{\r\n\t\tforeach($VMToStop in $VMsToStop)\r\n\t\t{\r\n\t\t\t$Uri = $ResourceManagerUrl + $VMToStop.id.TrimStart('/') + '?$expand=instanceView&api-version=2024-03-01'\r\n\t\t\t$VMPowerState = (Invoke-RestMethod -Headers $Header -Method 'Get' -Uri $Uri).properties.instanceView.statuses[1].displayStatus\r\n\t\t\tif ($VMPowerState -eq 'VM deallocated')\r\n\t\t\t{\r\n\t\t\t\tWrite-Log -HostPoolName $HostPoolName -Message \"Session host '$($VMToStop.name)' is stopping\"\r\n\t\t\t\t$SessionHost = $SessionHosts | Where-Object { $_.properties.resourceId -ieq $VMToStop.id }\r\n\t\t\t\tTryResetSessionHostDrainModeAndUserSessions -Header $Header -HostPoolName $HostPoolName -HostPoolResourceGroupName $HostPoolResourceGroupName -ResourceManagerUrl $ResourceManagerUrl -SessionHostName $VMToStop.name -SessionHostSessions $SessionHost.properties.sessions -SubscriptionId $SubscriptionId\r\n\t\t\t\t$VMsToStop = $VMsToStop -ne $VMToStop\r\n\t\t\t}\r\n\t\t}\r\n\t\tStart-Sleep -Seconds 30\r\n\t}\r\n\r\n\tWrite-Log -HostPoolName $HostPoolName -Message 'All required session hosts have stopped.'\r\n\tWrite-Log -HostPoolName $HostPoolName -Message 'End'\r\n\treturn\r\n\t#endregion\r\n}\r\ncatch \r\n{\r\n\t$ErrContainer = $PSItem\r\n\t# $ErrContainer = $_\r\n\r\n\t[string]$ErrMsg = $ErrContainer | Format-List -Force | Out-String\r\n\t$ErrMsg += \"Version: $Version`n\"\r\n\r\n\tif (Get-Command 'Write-Log' -ErrorAction:SilentlyContinue)\r\n    {\r\n\t\tWrite-Log -HostPoolName $HostPoolName -Err -Message $ErrMsg -ErrorAction:Continue\r\n\t}\r\n\telse\r\n    {\r\n\t\tWrite-Error $ErrMsg -ErrorAction:Continue\r\n\t}\r\n\r\n\tthrow [System.Exception]::new($ErrMsg, $ErrContainer.Exception)\r\n}",
-            "$fxv#2": "# Authentication is provided in the script",
+            "$fxv#0": "Param(\r\n    [string]$HostPoolResourceId,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$ScalingPlanName,\r\n    [string]$SubscriptionId,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Check if the scaling plan exists: https://learn.microsoft.com/rest/api/desktopvirtualization/scaling-plans/list-by-resource-group\r\n$ScalingPlanExists = (Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/scalingPlans?api-version=2024-04-03')).value | Where-Object {$_.name -eq $ScalingPlanName}\r\n\r\n# Disable autoscale for the host pool: https://learn.microsoft.com/rest/api/desktopvirtualization/scaling-plans/update\r\nif ($ScalingPlanExists)\r\n{\r\n    Invoke-RestMethod `\r\n        -Body (@{properties = @{hostPoolReferences = @(@{hostPoolArmPath = $HostPoolResourceId; scalingPlanEnabled = $false})}} | ConvertTo-Json) `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'PATCH' `\r\n        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/scalingPlans/' + $ScalingPlanName + '?api-version=2024-04-03') | Out-Null\r\n}",
             "availabilitySetNamePrefix": "[parameters('namingConvention').availabilitySet]",
             "tagsAvailabilitySets": "[union(createObject('cm-resource-parent', format('{0}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupManagement'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Compute/availabilitySets'), parameters('tags')['Microsoft.Compute/availabilitySets'], createObject()), parameters('mlzTags'))]",
             "tagsNetworkInterfaces": "[union(createObject('cm-resource-parent', format('{0}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupManagement'), parameters('hostPoolName'))), if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
@@ -12897,7 +12950,7 @@
           },
           "resources": [
             {
-              "condition": "[and(parameters('pooledHostPool'), equals(parameters('availability'), 'AvailabilitySets'))]",
+              "condition": "[and(equals(parameters('hostPoolType'), 'Pooled'), equals(parameters('availability'), 'AvailabilitySets'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-avail-{0}', parameters('deploymentNameSuffix'))]",
@@ -13037,6 +13090,120 @@
               }
             },
             {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-disable-autoscale-{0}', parameters('deploymentNameSuffix'))]",
+              "resourceGroup": "[parameters('resourceGroupManagement')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "name": {
+                    "value": "Disable-Autoscale"
+                  },
+                  "parameters": {
+                    "value": [
+                      {
+                        "name": "HostPoolResourceId",
+                        "value": "[parameters('hostPoolResourceId')]"
+                      },
+                      {
+                        "name": "ResourceGroupName",
+                        "value": "[parameters('resourceGroupManagement')]"
+                      },
+                      {
+                        "name": "ResourceManagerUri",
+                        "value": "[environment().resourceManager]"
+                      },
+                      {
+                        "name": "ScalingPlanName",
+                        "value": "[parameters('namingConvention').scalingPlan]"
+                      },
+                      {
+                        "name": "SubscriptionId",
+                        "value": "[subscription().subscriptionId]"
+                      },
+                      {
+                        "name": "UserAssignedidentityClientId",
+                        "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
+                      }
+                    ]
+                  },
+                  "script": {
+                    "value": "[variables('$fxv#0')]"
+                  },
+                  "tags": {
+                    "value": "[variables('tagsVirtualMachines')]"
+                  },
+                  "virtualMachineName": {
+                    "value": "[parameters('managementVirtualMachineName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.31.34.60546",
+                      "templateHash": "5317974790875443937"
+                    }
+                  },
+                  "parameters": {
+                    "asyncExecution": {
+                      "type": "bool",
+                      "defaultValue": false
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "parameters": {
+                      "type": "array",
+                      "defaultValue": []
+                    },
+                    "script": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    },
+                    "treatFailureAsDeploymentFailure": {
+                      "type": "bool",
+                      "defaultValue": true
+                    },
+                    "virtualMachineName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/runCommands",
+                      "apiVersion": "2023-09-01",
+                      "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "asyncExecution": "[parameters('asyncExecution')]",
+                        "parameters": "[parameters('parameters')]",
+                        "source": {
+                          "script": "[parameters('script')]"
+                        },
+                        "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
               "copy": {
                 "name": "virtualMachines",
                 "count": "[length(range(1, parameters('sessionHostBatchCount')))]",
@@ -13119,9 +13286,6 @@
                   "hostPoolName": {
                     "value": "[parameters('hostPoolName')]"
                   },
-                  "hostPoolType": {
-                    "value": "[parameters('hostPoolType')]"
-                  },
                   "imageVersionResourceId": {
                     "value": "[parameters('imageVersionResourceId')]"
                   },
@@ -13201,7 +13365,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "7274055108234907992"
+                      "templateHash": "16117911452479927621"
                     }
                   },
                   "parameters": {
@@ -13269,9 +13433,6 @@
                       "type": "string"
                     },
                     "hostPoolName": {
-                      "type": "string"
-                    },
-                    "hostPoolType": {
                       "type": "string"
                     },
                     "imageOffer": {
@@ -13397,7 +13558,6 @@
                       "Standard_NV36adms_A10_v5",
                       "Standard_NV72ads_A10_v5"
                     ],
-                    "pooledHostPool": "[equals(split(parameters('hostPoolType'), ' ')[0], 'Pooled')]",
                     "sessionHostNamePrefix": "[replace(parameters('virtualMachineNamePrefix'), parameters('serviceToken'), '')]",
                     "storageAccountToken": "[format('{0}??', parameters('storageAccountPrefix'))]"
                   },
@@ -13901,7 +14061,7 @@
                       ]
                     },
                     {
-                      "condition": "[and(parameters('enableDrainMode'), variables('pooledHostPool'))]",
+                      "condition": "[parameters('enableDrainMode')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-drain-mode-{0}-{1}', parameters('batchCount'), parameters('deploymentNameSuffix'))]",
@@ -14038,11 +14198,12 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupHosts')), 'Microsoft.Resources/deployments', format('deploy-avail-{0}', parameters('deploymentNameSuffix')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupHosts')), 'Microsoft.Resources/deployments', format('deploy-avail-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-disable-autoscale-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
             {
-              "condition": "[and(parameters('enableRecoveryServices'), contains(parameters('hostPoolType'), 'Personal'))]",
+              "condition": "[and(parameters('enableRecoveryServices'), equals(parameters('hostPoolType'), 'Personal'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-recovery-services-{0}', parameters('deploymentNameSuffix'))]",
@@ -14245,10 +14406,9 @@
               ]
             },
             {
-              "condition": "[and(parameters('enableScalingTool'), parameters('pooledHostPool'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('deploy-scaling-tool-{0}', parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-scaling-plan-{0}', parameters('deploymentNameSuffix'))]",
               "resourceGroup": "[parameters('resourceGroupManagement')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -14256,21 +14416,47 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "files": {
-                    "value": {
-                      "requirements.psd1": "[variables('$fxv#0')]",
-                      "run.ps1": "[variables('$fxv#1')]",
-                      "../profile.ps1": "[variables('$fxv#2')]"
-                    }
+                  "deploymentUserAssignedIdentityPrincipalId": {
+                    "value": "[parameters('deploymentUserAssignedIdentityPrincipalId')]"
                   },
-                  "functionAppName": {
-                    "value": "[parameters('functionAppName')]"
+                  "enableAvdInsights": {
+                    "value": "[parameters('enableAvdInsights')]"
                   },
-                  "functionName": {
-                    "value": "avd-scaling-tool"
+                  "hostPoolResourceId": {
+                    "value": "[parameters('hostPoolResourceId')]"
                   },
-                  "schedule": {
-                    "value": "0 */15 * * * *"
+                  "hostPoolType": {
+                    "value": "[parameters('hostPoolType')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "scalingPlanDiagnosticSettingName": {
+                    "value": "[parameters('namingConvention').scalingPlanDiagnosticSetting]"
+                  },
+                  "scalingPlanName": {
+                    "value": "[parameters('namingConvention').scalingPlan]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "timeZone": {
+                    "value": "[parameters('timeZone')]"
+                  },
+                  "weekdaysOffPeakStartTime": {
+                    "value": "[parameters('scalingWeekdaysOffPeakStartTime')]"
+                  },
+                  "weekdaysPeakStartTime": {
+                    "value": "[parameters('scalingWeekdaysPeakStartTime')]"
+                  },
+                  "weekendsOffPeakStartTime": {
+                    "value": "[parameters('scalingWeekendsOffPeakStartTime')]"
+                  },
+                  "weekendsPeakStartTime": {
+                    "value": "[parameters('scalingWeekendsPeakStartTime')]"
                   }
                 },
                 "template": {
@@ -14280,46 +14466,207 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.34.60546",
-                      "templateHash": "15160754302365390942"
+                      "templateHash": "665492750417866100"
                     }
                   },
                   "parameters": {
-                    "files": {
-                      "type": "object"
+                    "deploymentUserAssignedIdentityPrincipalId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Principal ID of the user assigned identity."
+                      }
                     },
-                    "functionAppName": {
-                      "type": "string"
+                    "enableAvdInsights": {
+                      "type": "bool",
+                      "defaultValue": true,
+                      "metadata": {
+                        "description": "Optional. Enable AVD Insights."
+                      }
                     },
-                    "functionName": {
-                      "type": "string"
+                    "hostPoolResourceId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Host pool resource ID for the Scaling Plan."
+                      }
                     },
-                    "schedule": {
-                      "type": "string"
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Location of the Scaling Plan. The location must match the location of the host pool."
+                      }
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string",
+                      "defaultValue": "",
+                      "metadata": {
+                        "description": "Optional. Resource ID of the Log Analytics workspace for the Scaling Plan."
+                      }
+                    },
+                    "hostPoolType": {
+                      "type": "string",
+                      "allowedValues": [
+                        "Personal",
+                        "Pooled"
+                      ],
+                      "metadata": {
+                        "description": "Required. Host pool type of the Scaling Plan."
+                      }
+                    },
+                    "scalingPlanDiagnosticSettingName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Name of the diagnostic setting for the Scaling Plan."
+                      }
+                    },
+                    "scalingPlanName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Name of the Scaling Plan."
+                      }
+                    },
+                    "supportedClouds": {
+                      "type": "array",
+                      "defaultValue": [
+                        "AzureCloud",
+                        "AzureUSGovernment"
+                      ],
+                      "metadata": {
+                        "description": "Optional. Supported clouds."
+                      }
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {},
+                      "metadata": {
+                        "description": "Optional. Tags of the resource."
+                      }
+                    },
+                    "timeZone": {
+                      "type": "string",
+                      "defaultValue": "UTC",
+                      "metadata": {
+                        "description": "Optional. Time zone of the Scaling Plan. Defaults to UTC."
+                      }
+                    },
+                    "weekdaysOffPeakStartTime": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Off peak start time for weekdays in HH:mm format."
+                      }
+                    },
+                    "weekendsOffPeakStartTime": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Off peak start time for weekends in HH:mm format."
+                      }
+                    },
+                    "weekdaysPeakStartTime": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Peak start time for weekdays in HH:mm format."
+                      }
+                    },
+                    "weekendsPeakStartTime": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Peak start time for weekends in HH:mm format."
+                      }
                     }
+                  },
+                  "variables": {
+                    "schedules": "[if(equals(parameters('hostPoolType'), 'Pooled'), createArray(createObject('daysOfWeek', createArray('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'), 'offPeakLoadBalancingAlgorithm', 'DepthFirst', 'offPeakStartTime', createObject('hour', split(parameters('weekdaysOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'peakLoadBalancingAlgorithm', 'BreadthFirst', 'peakStartTime', createObject('hour', split(parameters('weekdaysPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1]), 'rampDownCapacityThresholdPct', 90, 'rampDownForceLogoffUsers', false(), 'rampDownLoadBalancingAlgorithm', 'DepthFirst', 'rampDownMinimumHostsPct', 0, 'rampDownNotificationMessage', 'Ramping down the AVD session hosts to support low demand.', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekdaysOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'rampDownStopHostsWhen', 'ZeroSessions', 'rampDownWaitTimeMinutes', 0, 'rampUpCapacityThresholdPct', 70, 'rampUpLoadBalancingAlgorithm', 'BreadthFirst', 'rampUpMinimumHostsPct', 25, 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekdaysPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1])), createObject('daysOfWeek', createArray('Saturday', 'Sunday'), 'offPeakLoadBalancingAlgorithm', 'DepthFirst', 'offPeakStartTime', createObject('hour', split(parameters('weekendsOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'peakLoadBalancingAlgorithm', 'BreadthFirst', 'peakStartTime', createObject('hour', split(parameters('weekendsPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]), 'rampDownCapacityThresholdPct', 90, 'rampDownForceLogoffUsers', false(), 'rampDownLoadBalancingAlgorithm', 'DepthFirst', 'rampDownMinimumHostsPct', 0, 'rampDownNotificationMessage', 'Ramping down the AVD session hosts to support low demand.', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekendsOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'rampDownStopHostsWhen', 'ZeroSessions', 'rampDownWaitTimeMinutes', 0, 'rampUpCapacityThresholdPct', 90, 'rampUpLoadBalancingAlgorithm', 'BreadthFirst', 'rampUpMinimumHostsPct', 25, 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekendsPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]))), createArray(createObject('daysOfWeek', createArray('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'), 'offPeakActionOnDisconnect', 'None', 'offPeakActionOnLogoff', 'Deallocate', 'offPeakMinutesToWaitOnDisconnect', 0, 'offPeakMinutesToWaitOnLogoff', 0, 'offPeakStartTime', createObject('hour', split(parameters('weekdaysOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'offPeakStartVMOnConnect', 'Enable', 'peakActionOnDisconnect', 'None', 'peakActionOnLogoff', 'Deallocate', 'peakMinutesToWaitOnDisconnect', 0, 'peakMinutesToWaitOnLogoff', 0, 'peakStartTime', createObject('hour', split(parameters('weekdaysPeakStartTime'), ':')[0], 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1]), 'peakStartVMOnConnect', 'Enable', 'rampDownActionOnDisconnect', 'None', 'rampDownActionOnLogoff', 'Deallocate', 'rampDownMinutesToWaitOnDisconnect', 0, 'rampDownMinutesToWaitOnLogoff', 0, 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekdaysOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysOffPeakStartTime'), ':')[1]), 'rampDownStartVMOnConnect', 'Enable', 'rampUpActionOnDisconnect', 'None', 'rampUpActionOnLogoff', 'None', 'rampUpAutoStartHosts', 'WithAssignedUser', 'rampUpMinutesToWaitOnDisconnect', 0, 'rampUpMinutesToWaitOnLogoff', 0, 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekdaysPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekdaysPeakStartTime'), ':')[1]), 'rampUpStartVMOnConnect', 'Enable'), createObject('daysOfWeek', createArray('Saturday', 'Sunday'), 'rampUpStartTime', createObject('hour', sub(int(split(parameters('weekendsPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]), 'peakStartTime', createObject('hour', split(parameters('weekendsPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsPeakStartTime'), ':')[1]), 'peakMinutesToWaitOnDisconnect', 0, 'peakActionOnDisconnect', 'None', 'peakMinutesToWaitOnLogoff', 0, 'peakActionOnLogoff', 'Deallocate', 'peakStartVMOnConnect', 'Enable', 'rampDownStartTime', createObject('hour', sub(int(split(parameters('weekendsOffPeakStartTime'), ':')[0]), 1), 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'rampDownMinutesToWaitOnDisconnect', 0, 'rampDownActionOnDisconnect', 'None', 'rampDownMinutesToWaitOnLogoff', 0, 'rampDownActionOnLogoff', 'Deallocate', 'rampDownStartVMOnConnect', 'Enable', 'rampUpAutoStartHosts', 'WithAssignedUser', 'rampUpStartVMOnConnect', 'Enable', 'rampUpMinutesToWaitOnDisconnect', 0, 'rampUpActionOnDisconnect', 'None', 'rampUpMinutesToWaitOnLogoff', 0, 'rampUpActionOnLogoff', 'None', 'offPeakStartTime', createObject('hour', split(parameters('weekendsOffPeakStartTime'), ':')[0], 'minute', split(parameters('weekendsOffPeakStartTime'), ':')[1]), 'offPeakMinutesToWaitOnDisconnect', 0, 'offPeakActionOnDisconnect', 'None', 'offPeakMinutesToWaitOnLogoff', 0, 'offPeakActionOnLogoff', 'Deallocate', 'offPeakStartVMOnConnect', 'Enable')))]"
                   },
                   "resources": [
                     {
-                      "type": "Microsoft.Web/sites/functions",
-                      "apiVersion": "2020-12-01",
-                      "name": "[format('{0}/{1}', parameters('functionAppName'), parameters('functionName'))]",
+                      "type": "Microsoft.DesktopVirtualization/scalingPlans",
+                      "apiVersion": "2023-09-05",
+                      "name": "[parameters('scalingPlanName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
                       "properties": {
-                        "config": {
-                          "disabled": false,
-                          "bindings": [
-                            {
-                              "name": "Timer",
-                              "type": "timerTrigger",
-                              "direction": "in",
-                              "schedule": "[parameters('schedule')]"
-                            }
-                          ]
-                        },
-                        "files": "[parameters('files')]"
+                        "timeZone": "[parameters('timeZone')]",
+                        "hostPoolType": "[parameters('hostPoolType')]",
+                        "exclusionTag": "excludeFromAutoscale",
+                        "schedules": [],
+                        "hostPoolReferences": [
+                          {
+                            "hostPoolArmPath": "[parameters('hostPoolResourceId')]",
+                            "scalingPlanEnabled": true
+                          }
+                        ]
                       }
+                    },
+                    {
+                      "copy": {
+                        "name": "schedules_Pooled",
+                        "count": "[length(range(0, length(variables('schedules'))))]"
+                      },
+                      "condition": "[equals(parameters('hostPoolType'), 'Pooled')]",
+                      "type": "Microsoft.DesktopVirtualization/scalingPlans/pooledSchedules",
+                      "apiVersion": "2024-04-03",
+                      "name": "[format('{0}/{1}', parameters('scalingPlanName'), if(equals(range(0, length(variables('schedules')))[copyIndex()], 0), 'Weekdays', 'Weekends'))]",
+                      "properties": "[variables('schedules')[range(0, length(variables('schedules')))[copyIndex()]]]",
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName'))]"
+                      ]
+                    },
+                    {
+                      "copy": {
+                        "name": "schedule_Personal",
+                        "count": "[length(range(0, length(variables('schedules'))))]"
+                      },
+                      "condition": "[equals(parameters('hostPoolType'), 'Personal')]",
+                      "type": "Microsoft.DesktopVirtualization/scalingPlans/personalSchedules",
+                      "apiVersion": "2024-04-03",
+                      "name": "[format('{0}/{1}', parameters('scalingPlanName'), if(equals(range(0, length(variables('schedules')))[copyIndex()], 0), 'Weekdays', 'Weekends'))]",
+                      "properties": "[variables('schedules')[range(0, length(variables('schedules')))[copyIndex()]]]",
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[format('Microsoft.DesktopVirtualization/scalingPlans/{0}', parameters('scalingPlanName'))]",
+                      "name": "[guid(parameters('deploymentUserAssignedIdentityPrincipalId'), '082f0a83-3be5-4ba1-904c-961cca79b387', resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName')))]",
+                      "properties": {
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '082f0a83-3be5-4ba1-904c-961cca79b387')]",
+                        "principalId": "[parameters('deploymentUserAssignedIdentityPrincipalId')]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName'))]",
+                        "schedule_Personal",
+                        "schedules_Pooled"
+                      ]
+                    },
+                    {
+                      "condition": "[and(parameters('enableAvdInsights'), contains(parameters('supportedClouds'), environment().name))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.DesktopVirtualization/scalingPlans/{0}', parameters('scalingPlanName'))]",
+                      "name": "[parameters('scalingPlanDiagnosticSettingName')]",
+                      "properties": {
+                        "logs": [
+                          {
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ],
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                      },
+                      "dependsOn": [
+                        "[extensionResourceId(resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName')), 'Microsoft.Authorization/roleAssignments', guid(parameters('deploymentUserAssignedIdentityPrincipalId'), '082f0a83-3be5-4ba1-904c-961cca79b387', resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName'))))]",
+                        "[resourceId('Microsoft.DesktopVirtualization/scalingPlans', parameters('scalingPlanName'))]"
+                      ]
                     }
                   ]
                 }
-              }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-recovery-services-{0}', parameters('deploymentNameSuffix')))]",
+                "virtualMachines"
+              ]
             }
           ]
         }

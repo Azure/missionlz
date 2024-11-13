@@ -15,7 +15,6 @@ param fslogixContainerType string
 param fslogixStorageService string
 param functionAppName string
 param hostPoolName string
-param hostPoolType string
 param keyVaultUri string
 param location string
 param managementVirtualMachineName string
@@ -161,19 +160,20 @@ module shares 'shares.bicep' = [for i in range(0, storageCount): {
     storageSku: storageSku
   }
   dependsOn: [
+    fileServices
     roleAssignment
   ]
 }]
 
 resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for i in range(0, storageCount): {
-  name: '${replace(namingConvention.storageAccountPrivateEndpoint, serviceToken, 'file-fslogix')}-${padLeft(i + storageIndex, 2, '0')}'
+  name: '${namingConvention.storageAccountFilePrivateEndpoint}-${padLeft(i + storageIndex, 2, '0')}'
   location: location
   tags: tagsPrivateEndpoints
   properties: {
-    customNetworkInterfaceName: '${replace(namingConvention.storageAccountNetworkInterface, serviceToken, 'file-fslogix')}-${padLeft(i + storageIndex, 2, '0')}'
+    customNetworkInterfaceName: '${namingConvention.storageAccountFileNetworkInterface}-${padLeft(i + storageIndex, 2, '0')}'
     privateLinkServiceConnections: [
       {
-        name: '${replace(namingConvention.storageAccountPrivateEndpoint, serviceToken, 'file-fslogix')}-${padLeft(i + storageIndex, 2, '0')}'
+        name: '${namingConvention.storageAccountFilePrivateEndpoint}-${padLeft(i + storageIndex, 2, '0')}'
         properties: {
           privateLinkServiceId: storageAccounts[i].id
           groupIds: [
@@ -206,8 +206,8 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
   ]
 }]
 
-module ntfsPermissions '../runCommand.bicep' = if (contains(activeDirectorySolution, 'DomainServices')) {
-  name: 'deploy-fslogix-ntfs-permissions-${deploymentNameSuffix}'
+module ntfsPermissions '../runCommand.bicep' = {
+  name: 'set-ntfs-permissions-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
     domainJoinPassword: domainJoinPassword
@@ -283,8 +283,8 @@ module ntfsPermissions '../runCommand.bicep' = if (contains(activeDirectorySolut
   ]
 }
 
-module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices && contains(hostPoolType, 'Pooled')) {
-  name: 'deploy-backup-azure-files-${deploymentNameSuffix}'
+module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices) {
+  name: 'deploy-backup-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
@@ -298,7 +298,7 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
     tagsRecoveryServicesVault: tagsRecoveryServicesVault
   }
   dependsOn: [
-    shares
+    ntfsPermissions
   ]
 }
 
@@ -316,7 +316,7 @@ module autoIncreaseStandardFileShareQuota '../../common/function.bicep' = if (fs
     schedule: '0 */15 * * * *'
   }
   dependsOn: [
-    ntfsPermissions
+    recoveryServices
   ]
 }
 

@@ -1,6 +1,5 @@
 targetScope = 'subscription'
 
-param activeDirectorySolution string
 param avdObjectId string
 param deployFslogix bool
 param deploymentNameSuffix string
@@ -14,7 +13,6 @@ param enableApplicationInsights bool
 param enableAvdInsights bool
 param environmentAbbreviation string
 param fslogixStorageService string
-param hostPoolType string
 param locationVirtualMachines string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
@@ -32,12 +30,6 @@ param resourceGroupHosts string
 param resourceGroupManagement string
 param resourceGroupStorage string
 param roleDefinitions object
-param scalingBeginPeakTime string
-param scalingEndPeakTime string
-param scalingLimitSecondsToForceLogOffUser string
-param scalingMinimumNumberOfRdsh string
-param scalingSessionThresholdPerCPU string
-param scalingTool bool
 param serviceToken string
 param storageService string
 param subnetResourceId string
@@ -50,33 +42,15 @@ param virtualMachinePassword string
 param virtualMachineUsername string
 
 var hostPoolName = namingConvention.hostPool
-var roleAssignments = union(
+var resourceGroups = union(
   [
-    {
-      roleDefinitionId: '86240b0e-9422-4c43-887b-b61143f32ba8' // Desktop Virtualization Application Group Contributor (Purpose: updates the friendly name for the desktop)
-      resourceGroup: resourceGroupControlPlane
-      subscription: subscription().subscriptionId
-    }
-    {
-      roleDefinitionId: '2ad6aaab-ead9-4eaa-8ac5-da422f562408' // Desktop Virtualization Session Host Operator (Purpose: sets drain mode on the AVD session hosts)
-      resourceGroup: resourceGroupControlPlane
-      subscription: subscription().subscriptionId
-    }
-    {
-      roleDefinitionId: 'a959dbd1-f747-45e3-8ba6-dd80f235f97c' // Desktop Virtualization Virtual Machine Contributor (Purpose: remove the management virtual machine)
-      resourceGroup: resourceGroupManagement
-      subscription: subscription().subscriptionId
-    }
+    resourceGroupControlPlane
+    resourceGroupHosts
+    resourceGroupManagement
   ],
-  deployFslogix
-    ? [
-        {
-          roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor (Purpose: domain join storage account & set NTFS permissions on the file share)
-          resourceGroup: resourceGroupStorage
-          subscription: subscription().subscriptionId
-        }
-      ]
-    : []
+  deployFslogix ? [
+    resourceGroupStorage
+  ] : []
 )
 var userAssignedIdentityNamePrefix = namingConvention.userAssignedIdentity
 var virtualNetworkName = split(subnetResourceId, '/')[8]
@@ -124,17 +98,32 @@ module deploymentUserAssignedIdentity 'userAssignedIdentity.bicep' = {
   }
 }
 
+
+// Role Assignments: Reader on the resource groups
+//Purpose: domain join storage account(s) & set NTFS permissions on the file share(s)
 module roleAssignments_deployment '../common/roleAssignments/resourceGroup.bicep' = [
-  for i in range(0, length(roleAssignments)): {
-    scope: resourceGroup(roleAssignments[i].subscription, roleAssignments[i].resourceGroup)
+  for i in range(0, length(resourceGroups)): {
+    scope: resourceGroup(resourceGroups[i])
     name: 'deploy-role-assignment-${i}-${deploymentNameSuffix}'
     params: {
       principalId: deploymentUserAssignedIdentity.outputs.principalId
       principalType: 'ServicePrincipal'
-      roleDefinitionId: roleAssignments[i].roleDefinitionId
+      roleDefinitionId: 'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader
     }
   }
 ]
+
+// Role Assignment: Storage Account Contributor on the storage resource group
+// Purpose: domain join storage account(s) & set NTFS permissions on the file share(s)
+module roleAssignment_StorageAccountContributor '../common/roleAssignments/resourceGroup.bicep' = {
+  scope: resourceGroup(resourceGroupStorage)
+  name: 'deploy-role-assignment-${deploymentNameSuffix}'
+  params: {
+    principalId: deploymentUserAssignedIdentity.outputs.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor
+  }
+}
 
 // Management VM
 // The management VM is required to execute PowerShell scripts.
@@ -142,6 +131,7 @@ module virtualMachine 'virtualMachine.bicep' = {
   name: 'deploy-mgmt-vm-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
+    deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentity.outputs.principalId
     deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentity.outputs.resourceId
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     diskName: replace(namingConvention.virtualMachineDisk, serviceToken, 'mgt')
@@ -165,14 +155,11 @@ module virtualMachine 'virtualMachine.bicep' = {
   }
 }
 
-// Role Assignment required for Start VM On Connect
+// Role Assignment required for Scaling Plan
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(avdObjectId, roleDefinitions.DesktopVirtualizationPowerOnContributor, subscription().id)
+  name: guid(avdObjectId, roleDefinitions.DesktopVirtualizationPowerOnOffContributor, subscription().id)
   properties: {
-    roleDefinitionId: resourceId(
-      'Microsoft.Authorization/roleDefinitions',
-      roleDefinitions.DesktopVirtualizationPowerOnContributor
-    )
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions',roleDefinitions.DesktopVirtualizationPowerOnOffContributor)
     principalId: avdObjectId
   }
 }
@@ -198,12 +185,12 @@ module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAv
   }
 }
 
-module functionApp 'functionApp.bicep' = if (scalingTool || fslogixStorageService == 'AzureFiles Premium') {
+// Deploys the Auto Increase Premium File Share Quota solution on an Azure Function App
+module functionApp 'functionApp.bicep' = if (deployFslogix && fslogixStorageService == 'AzureFiles Premium') {
   name: 'deploy-function-app-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
     delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
-    deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     enableApplicationInsights: enableApplicationInsights
     environmentAbbreviation: environmentAbbreviation
@@ -215,13 +202,7 @@ module functionApp 'functionApp.bicep' = if (scalingTool || fslogixStorageServic
     privateLinkScopeResourceId: privateLinkScopeResourceId
     resourceAbbreviations: resourceAbbreviations
     resourceGroupControlPlane: resourceGroupControlPlane
-    resourceGroupHosts: resourceGroupHosts
     resourceGroupStorage: resourceGroupStorage
-    scalingBeginPeakTime: scalingBeginPeakTime
-    scalingEndPeakTime:scalingEndPeakTime
-    scalingLimitSecondsToForceLogOffUser: scalingLimitSecondsToForceLogOffUser
-    scalingMinimumNumberOfRdsh: scalingMinimumNumberOfRdsh
-    scalingSessionThresholdPerCPU: scalingSessionThresholdPerCPU
     serviceToken: serviceToken
     subnetResourceId: subnetResourceId
     tags: tags
@@ -229,13 +210,7 @@ module functionApp 'functionApp.bicep' = if (scalingTool || fslogixStorageServic
   }
 }
 
-module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryServices && ((contains(
-  activeDirectorySolution,
-  'DomainServices'
-) && contains(hostPoolType, 'Pooled') && contains(fslogixStorageService, 'AzureFiles')) || contains(
-  hostPoolType,
-  'Personal'
-))) {
+module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryServices) {
   name: 'deploy-rsv-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
@@ -261,13 +236,9 @@ output dataCollectionRuleResourceId string = enableAvdInsights ? monitoring.outp
 output deploymentUserAssignedIdentityClientId string = deploymentUserAssignedIdentity.outputs.clientId
 output deploymentUserAssignedIdentityPrincipalId string = deploymentUserAssignedIdentity.outputs.principalId
 output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedIdentity.outputs.resourceId
-output functionAppName string = scalingTool || fslogixStorageService == 'AzureFiles Premium' ? functionApp.outputs.functionAppName : ''
+output functionAppName string = fslogixStorageService == 'AzureFiles Premium' ? functionApp.outputs.functionAppName : ''
 output logAnalyticsWorkspaceName string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceName : ''
-output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || enableAvdInsights
-  ? monitoring.outputs.logAnalyticsWorkspaceResourceId
-  : ''
-output recoveryServicesVaultName string = recoveryServices && ((contains(activeDirectorySolution, 'DomainServices') && contains(hostPoolType,'Pooled') && contains(fslogixStorageService, 'AzureFiles')) || contains(hostPoolType, 'Personal'))
-  ? recoveryServicesVault.outputs.name
-  : ''
+output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceResourceId : ''
+output recoveryServicesVaultName string = recoveryServices ? recoveryServicesVault.outputs.name : ''
 output virtualMachineName string = virtualMachine.outputs.name
 output virtualMachineResourceId string = virtualMachine.outputs.resourceId

@@ -10,6 +10,7 @@ param dataCollectionRuleResourceId string
 param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
+param deploymentUserAssignedIdentityPrincipalId string
 param diskEncryptionSetResourceId string
 param diskSku string
 param divisionRemainderValue int
@@ -22,8 +23,8 @@ param enableAcceleratedNetworking bool
 param enableAvdInsights bool
 param environmentAbbreviation string
 param fslogixContainerType string
-param functionAppName string
 param hostPoolName string
+param hostPoolResourceId string
 param hostPoolType string
 param identifier string
 param imageOffer string
@@ -31,20 +32,23 @@ param imagePublisher string
 param imageSku string
 param imageVersionResourceId string
 param location string
+param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
 param maxResourcesPerTemplateDeployment int
 param mlzTags object
 param namingConvention object
 param netAppFileShares array
 param organizationalUnitPath string
-param pooledHostPool bool
 param enableRecoveryServices bool
-param enableScalingTool bool
 param recoveryServicesVaultName string
 param resourceGroupControlPlane string
 param resourceGroupHosts string
 param resourceGroupManagement string
 param roleDefinitions object
+param scalingWeekdaysOffPeakStartTime string
+param scalingWeekdaysPeakStartTime string
+param scalingWeekendsOffPeakStartTime string
+param scalingWeekendsPeakStartTime string
 param securityPrincipalObjectIds array
 param serviceToken string
 param sessionHostBatchCount int
@@ -56,6 +60,7 @@ param storageService string
 param storageSuffix string
 param subnetResourceId string
 param tags object
+param timeZone string
 @secure()
 param virtualMachinePassword string
 param virtualMachineSize string
@@ -69,7 +74,7 @@ var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}/res
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 var virtualMachineNamePrefix = replace(namingConvention.virtualMachine, serviceToken, '')
 
-module availabilitySets 'availabilitySets.bicep' = if (pooledHostPool && availability == 'AvailabilitySets') {
+module availabilitySets 'availabilitySets.bicep' = if (hostPoolType == 'Pooled' && availability == 'AvailabilitySets') {
   name: 'deploy-avail-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupHosts)
   params: {
@@ -103,6 +108,45 @@ resource image 'Microsoft.Compute/galleries/images@2023-07-03' existing = if (em
   name: split(imageVersionResourceId, '/')[10]
 }
 
+// Disable Autoscale if adding new session hosts to an existing host pool
+module disableAutoscale '../common/runCommand.bicep' = {
+  name: 'deploy-disable-autoscale-${deploymentNameSuffix}'
+  scope: resourceGroup(resourceGroupManagement)
+  params: {
+    location: location
+    name: 'Disable-Autoscale'
+    parameters: [
+      {
+        name: 'HostPoolResourceId'
+        value: hostPoolResourceId
+      }
+      { 
+        name: 'ResourceGroupName' 
+        value: resourceGroupManagement
+      }
+      {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
+        name: 'ScalingPlanName' 
+        value: namingConvention.scalingPlan
+      }
+      {
+        name: 'SubscriptionId' 
+        value: subscription().subscriptionId
+      }
+      {
+        name: 'UserAssignedidentityClientId' 
+        value: deploymentUserAssignedIdentityClientId
+      }
+    ]
+    script: loadTextContent('../../artifacts/Disable-Autoscale.ps1')
+    tags: tagsVirtualMachines
+    virtualMachineName: managementVirtualMachineName
+  }
+}
+
 @batchSize(1)
 module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostBatchCount): {
   name: 'deploy-vms-${i - 1}-${deploymentNameSuffix}'
@@ -130,7 +174,6 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     enableDrainMode: drainMode
     fslogixContainerType: fslogixContainerType
     hostPoolName: hostPoolName
-    hostPoolType: hostPoolType
     imageVersionResourceId: imageVersionResourceId
     imageOffer: empty(imageVersionResourceId) ? imageOffer : image.properties.purchasePlan.product
     imagePublisher: empty(imageVersionResourceId) ? imagePublisher: image.properties.purchasePlan.publisher
@@ -161,10 +204,11 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
   }
   dependsOn: [
     availabilitySets
+    disableAutoscale
   ]
 }]
 
-module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices && contains(hostPoolType, 'Personal')) {
+module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices && hostPoolType == 'Personal') {
   name: 'deploy-recovery-services-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
@@ -186,17 +230,27 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
   ]
 }
 
-module scalingTool '../common/function.bicep' = if (enableScalingTool && pooledHostPool) {
-  name: 'deploy-scaling-tool-${deploymentNameSuffix}'
+module scalingPlan '../management/scalingPlan.bicep' = {
+  name: 'deploy-scaling-plan-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
-    files: {
-      'requirements.psd1': loadTextContent('../../artifacts/scaling-tool/requirements.psd1')
-      'run.ps1': loadTextContent('../../artifacts/scaling-tool/run.ps1')
-      '../profile.ps1': loadTextContent('../../artifacts/scaling-tool/profile.ps1')
-    }
-    functionAppName: functionAppName
-    functionName: 'avd-scaling-tool'
-    schedule: '0 */15 * * * *'
+    deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentityPrincipalId
+    enableAvdInsights: enableAvdInsights
+    hostPoolResourceId: hostPoolResourceId
+    hostPoolType: hostPoolType
+    location: location
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    scalingPlanDiagnosticSettingName: namingConvention.scalingPlanDiagnosticSetting
+    scalingPlanName: namingConvention.scalingPlan
+    tags: tags
+    timeZone: timeZone
+    weekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
+    weekdaysPeakStartTime: scalingWeekdaysPeakStartTime
+    weekendsOffPeakStartTime: scalingWeekendsOffPeakStartTime
+    weekendsPeakStartTime: scalingWeekendsPeakStartTime
   }
+  dependsOn: [
+    recoveryServices
+    virtualMachines
+  ]
 }

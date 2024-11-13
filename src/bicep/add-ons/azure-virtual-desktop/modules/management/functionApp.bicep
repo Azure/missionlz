@@ -1,5 +1,4 @@
 param delegatedSubnetResourceId string
-param deployFslogix bool
 param deploymentNameSuffix string
 param enableApplicationInsights bool
 param environmentAbbreviation string
@@ -13,50 +12,41 @@ param privateDnsZones array
 param privateLinkScopeResourceId string
 param resourceAbbreviations object
 param resourceGroupControlPlane string
-param resourceGroupHosts string
 param resourceGroupStorage string
-param scalingBeginPeakTime string
-param scalingEndPeakTime string
-param scalingLimitSecondsToForceLogOffUser string
-param scalingMinimumNumberOfRdsh string
-param scalingSessionThresholdPerCPU string
 param serviceToken string
 param subnetResourceId string
 param tags object
 param timeDifference string
 
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
-var functionAppKeyword = environment().name == 'AzureCloud' || environment().name == 'AzureUSGovernment'
-  ? 'azurewebsites'
-  : 'appservice'
+var functionAppKeyword = environment().name == 'AzureCloud' || environment().name == 'AzureUSGovernment' ? 'azurewebsites' : 'appservice'
 var functionAppScmPrivateDnsZoneResourceId = '${privateDnsZoneResourceIdPrefix}scm.${filter(privateDnsZones, name => contains(name, functionAppKeyword))[0]}'
-var roleAssignments = union([
-  {
-    roleDefinitionId: '40c5ff49-9181-41f8-ae61-143b0e78555e' // Desktop Virtualization Power On Off Contributor
-    scope: resourceGroupControlPlane
-  }
-  {
-    roleDefinitionId: '40c5ff49-9181-41f8-ae61-143b0e78555e' // Desktop Virtualization Power On Off Contributor
-    scope: resourceGroupHosts
-  }
-], deployFslogix ? [
-  {
-    roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor
-    scope: resourceGroupStorage
-  }
-] : [])
-var service = 'mgmt'
-var storagePrivateDnsZoneResourceIds = [
-  '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
-  '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'file'))[0]}'
-  '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'queue'))[0]}'
-  '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'table'))[0]}'
-]
+var service = 'aipfsq'
 var storageSubResources = [
-  'blob'
-  'file'
-  'queue'
-  'table'
+  {
+    name: 'blob'
+    id: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
+    nic: namingConvention.storageAccountBlobNetworkInterface
+    pe: namingConvention.storageAccountBlobPrivateEndpoint
+  }
+  {
+    name: 'file'
+    id: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'file'))[0]}'
+    nic: namingConvention.storageAccountFileNetworkInterface
+    pe: namingConvention.storageAccountFilePrivateEndpoint
+  }
+  {
+    name: 'queue'
+    id: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'queue'))[0]}'
+    nic: namingConvention.storageAccountQueueNetworkInterface
+    pe: namingConvention.storageAccountQueuePrivateEndpoint
+  }
+  {
+    name: 'table'
+    id: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'table'))[0]}'
+    nic: namingConvention.storageAccountTableNetworkInterface
+    pe: namingConvention.storageAccountTablePrivateEndpoint
+  }
 ]
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
@@ -66,7 +56,7 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 }
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: '${resourceAbbreviations.keyVaults}${uniqueString(replace(namingConvention.keyVault, service, 'cmk'), resourceGroup().id)}'
+  name: '${resourceAbbreviations.keyVaults}${uniqueString(replace(namingConvention.keyVault, serviceToken, service), resourceGroup().id)}'
   location: location
   tags: tags[?'Microsoft.KeyVault/vaults'] ?? {}
   properties: {
@@ -255,30 +245,18 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01'
 
 resource privateEndpoints_storage 'Microsoft.Network/privateEndpoints@2023-04-01' = [
   for resource in storageSubResources: {
-    name: replace(
-      namingConvention.storageAccountPrivateEndpoint,
-      '${serviceToken}-${resourceAbbreviations.storageAccounts}',
-      '${resource}-${resourceAbbreviations.storageAccounts}-scale'
-    )
+    name: replace(resource.pe, serviceToken, service)
     location: location
     tags: tags[?'Microsoft.Network/privateEndpoints'] ?? {}
     properties: {
-      customNetworkInterfaceName: replace(
-        namingConvention.storageAccountNetworkInterface,
-        '${serviceToken}-${resourceAbbreviations.storageAccounts}',
-        '${resource}-${resourceAbbreviations.storageAccounts}-scale'
-      )
+      customNetworkInterfaceName: replace(resource.nic, serviceToken, service)
       privateLinkServiceConnections: [
         {
-          name: replace(
-            namingConvention.storageAccountPrivateEndpoint,
-            '${serviceToken}-${resourceAbbreviations.storageAccounts}',
-            '${resource}-${resourceAbbreviations.storageAccounts}-scale'
-          )
+          name: replace(resource.pe, serviceToken, service)
           properties: {
             privateLinkServiceId: storageAccount.id
             groupIds: [
-              resource
+              resource.name
             ]
           }
         }
@@ -300,7 +278,7 @@ resource privateDnsZoneGroups_storage 'Microsoft.Network/privateEndpoints/privat
           name: 'ipconfig1'
           properties: {
             #disable-next-line use-resource-id-functions
-            privateDnsZoneId: storagePrivateDnsZoneResourceIds[i]
+            privateDnsZoneId: resource.id
           }
         }
       ]
@@ -412,14 +390,6 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
           value: '1'
         }
         {
-          name: 'BeginPeakTime'
-          value: scalingBeginPeakTime
-        }
-        {
-          name: 'EndPeakTime'
-          value: scalingEndPeakTime
-        }
-        {
           name: 'EnvironmentName'
           value: environment().name
         }
@@ -436,10 +406,6 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
           value: resourceGroupControlPlane
         }
         {
-          name: 'LimitSecondsToForceLogOffUser'
-          value: scalingLimitSecondsToForceLogOffUser
-        }
-        {
           name: 'LogOffMessageBody'
           value: 'This session is about to be logged off. Please save your work.'
         }
@@ -452,10 +418,6 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
           value: 'Maintenance'
         }
         {
-          name: 'MinimumNumberOfRDSH'
-          value: scalingMinimumNumberOfRdsh
-        }
-        {
           name: 'ResourceGroupName'
           value: resourceGroupStorage
         }
@@ -465,10 +427,6 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
           value: endsWith(environment().resourceManager, '/')
             ? environment().resourceManager
             : '${environment().resourceManager}/'
-        }
-        {
-          name: 'SessionThresholdPerCPU'
-          value: scalingSessionThresholdPerCPU
         }
         {
           name: 'StorageSuffix'
@@ -550,18 +508,18 @@ resource privateDnsZoneGroup_functionApp 'Microsoft.Network/privateEndpoints/pri
   }
 }
 
-module roleAssignments_resourceGroups '../common/roleAssignments/resourceGroup.bicep' = [
-  for i in range(0, length(roleAssignments)): {
-    name: 'set-role-assignment-${i}-${deploymentNameSuffix}'
-    scope: resourceGroup(roleAssignments[i].scope)
-    params: {
-      principalId: functionApp.identity.principalId
-      principalType: 'ServicePrincipal'
-      roleDefinitionId: roleAssignments[i].roleDefinitionId
-    }
+// Required role assignment for the funciton to manage the quota on Azure Files Premium
+module roleAssignments_resourceGroups '../common/roleAssignments/resourceGroup.bicep' = {
+  name: 'set-role-assignment-${deploymentNameSuffix}'
+  scope: resourceGroup(resourceGroupStorage)
+  params: {
+    principalId: functionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor
   }
-]
+}
 
+// Required role assignment to support the zero trust deployment of a function app
 module roleAssignment_storageAccount '../common/roleAssignments/storageAccount.bicep' = {
   name: 'set-role-assignment-storage-${deploymentNameSuffix}'
   params: {
