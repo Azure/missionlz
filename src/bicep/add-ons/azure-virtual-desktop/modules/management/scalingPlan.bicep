@@ -252,6 +252,10 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     principalId: deploymentUserAssignedIdentityPrincipalId
     principalType: 'ServicePrincipal'
   }
+  dependsOn: [
+    schedule_Personal
+    schedules_Pooled
+  ]
 }
 
 resource scalingPlan_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableAvdInsights && contains(supportedClouds, environment().name)) {
@@ -265,5 +269,5 @@ resource scalingPlan_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@20
     ] 
     workspaceId: logAnalyticsWorkspaceResourceId
   }
-  scope: scalingPlan
+  scope: roleAssignment
 }
