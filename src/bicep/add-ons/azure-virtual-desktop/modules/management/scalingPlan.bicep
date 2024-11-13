@@ -1,3 +1,6 @@
+@description('Required. Principal ID of the user assigned identity.')
+param deploymentUserAssignedIdentityPrincipalId string
+
 @description('Optional. Enable AVD Insights.')
 param enableAvdInsights bool = true
 
@@ -240,6 +243,16 @@ resource schedule_Personal 'Microsoft.DesktopVirtualization/scalingPlans/persona
   parent: scalingPlan
   properties: schedules[i]
 }]
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(deploymentUserAssignedIdentityPrincipalId, '082f0a83-3be5-4ba1-904c-961cca79b387', scalingPlan.id)
+  scope: scalingPlan
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '082f0a83-3be5-4ba1-904c-961cca79b387') // Desktop Virtualization Contributor (Purpose: disable scaling plan when adding new hosts)
+    principalId: deploymentUserAssignedIdentityPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
 
 resource scalingPlan_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableAvdInsights && contains(supportedClouds, environment().name)) {
   name: scalingPlanDiagnosticSettingName
