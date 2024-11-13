@@ -10,6 +10,7 @@ param dataCollectionRuleResourceId string
 param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
+param deploymentUserAssignedIdentityPrincipalId string
 param diskEncryptionSetResourceId string
 param diskSku string
 param divisionRemainderValue int
@@ -233,6 +234,7 @@ module scalingPlan '../management/scalingPlan.bicep' = {
   name: 'deploy-scaling-plan-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
+    deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentityPrincipalId
     enableAvdInsights: enableAvdInsights
     hostPoolResourceId: hostPoolResourceId
     hostPoolType: hostPoolType
