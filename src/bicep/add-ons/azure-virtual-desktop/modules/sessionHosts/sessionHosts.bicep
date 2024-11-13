@@ -107,6 +107,45 @@ resource image 'Microsoft.Compute/galleries/images@2023-07-03' existing = if (em
   name: split(imageVersionResourceId, '/')[10]
 }
 
+// Disable Autoscale if adding new session hosts to an existing host pool
+module disableAutoscale '../common/runCommand.bicep' = {
+  name: 'deploy-disable-autoscale-${deploymentNameSuffix}'
+  scope: resourceGroup(resourceGroupManagement)
+  params: {
+    location: location
+    name: 'Disable-Autoscale'
+    parameters: [
+      {
+        name: 'HostPoolResourceId'
+        value: hostPoolResourceId
+      }
+      { 
+        name: 'ResourceGroupName' 
+        value: resourceGroupManagement
+      }
+      {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
+        name: 'ScalingPlanName' 
+        value: namingConvention.scalingPlan
+      }
+      {
+        name: 'SubscriptionId' 
+        value: subscription().subscriptionId
+      }
+      {
+        name: 'UserAssignedidentityClientId' 
+        value: deploymentUserAssignedIdentityClientId
+      }
+    ]
+    script: loadTextContent('../../artifacts/Disable-Autoscale.ps1')
+    tags: tagsVirtualMachines
+    virtualMachineName: managementVirtualMachineName
+  }
+}
+
 @batchSize(1)
 module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostBatchCount): {
   name: 'deploy-vms-${i - 1}-${deploymentNameSuffix}'
@@ -164,6 +203,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
   }
   dependsOn: [
     availabilitySets
+    disableAutoscale
   ]
 }]
 
