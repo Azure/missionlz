@@ -42,33 +42,15 @@ param virtualMachinePassword string
 param virtualMachineUsername string
 
 var hostPoolName = namingConvention.hostPool
-var roleAssignments = union(
+var resourceGroups = union(
   [
-    {
-      roleDefinitionId: '86240b0e-9422-4c43-887b-b61143f32ba8' // Desktop Virtualization Application Group Contributor (Purpose: updates the friendly name for the desktop)
-      resourceGroup: resourceGroupControlPlane
-      subscription: subscription().subscriptionId
-    }
-    {
-      roleDefinitionId: '2ad6aaab-ead9-4eaa-8ac5-da422f562408' // Desktop Virtualization Session Host Operator (Purpose: sets drain mode on the AVD session hosts)
-      resourceGroup: resourceGroupControlPlane
-      subscription: subscription().subscriptionId
-    }
-    {
-      roleDefinitionId: 'a959dbd1-f747-45e3-8ba6-dd80f235f97c' // Desktop Virtualization Virtual Machine Contributor (Purpose: remove the management virtual machine)
-      resourceGroup: resourceGroupManagement
-      subscription: subscription().subscriptionId
-    }
+    resourceGroupControlPlane
+    resourceGroupHosts
+    resourceGroupManagement
   ],
-  deployFslogix
-    ? [
-        {
-          roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor (Purpose: domain join storage account & set NTFS permissions on the file share)
-          resourceGroup: resourceGroupStorage
-          subscription: subscription().subscriptionId
-        }
-      ]
-    : []
+  deployFslogix ? [
+    resourceGroupStorage
+  ] : []
 )
 var userAssignedIdentityNamePrefix = namingConvention.userAssignedIdentity
 var virtualNetworkName = split(subnetResourceId, '/')[8]
@@ -116,17 +98,32 @@ module deploymentUserAssignedIdentity 'userAssignedIdentity.bicep' = {
   }
 }
 
+
+// Role Assignments: Reader on the resource groups
+//Purpose: domain join storage account(s) & set NTFS permissions on the file share(s)
 module roleAssignments_deployment '../common/roleAssignments/resourceGroup.bicep' = [
-  for i in range(0, length(roleAssignments)): {
-    scope: resourceGroup(roleAssignments[i].subscription, roleAssignments[i].resourceGroup)
+  for i in range(0, length(resourceGroups)): {
+    scope: resourceGroup(resourceGroups[i])
     name: 'deploy-role-assignment-${i}-${deploymentNameSuffix}'
     params: {
       principalId: deploymentUserAssignedIdentity.outputs.principalId
       principalType: 'ServicePrincipal'
-      roleDefinitionId: roleAssignments[i].roleDefinitionId
+      roleDefinitionId: 'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader
     }
   }
 ]
+
+// Role Assignment: Storage Account Contributor on the storage resource group
+// Purpose: domain join storage account(s) & set NTFS permissions on the file share(s)
+module roleAssignment_StorageAccountContributor '../common/roleAssignments/resourceGroup.bicep' = {
+  scope: resourceGroup(resourceGroupStorage)
+  name: 'deploy-role-assignment-${deploymentNameSuffix}'
+  params: {
+    principalId: deploymentUserAssignedIdentity.outputs.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor
+  }
+}
 
 // Management VM
 // The management VM is required to execute PowerShell scripts.
@@ -134,6 +131,7 @@ module virtualMachine 'virtualMachine.bicep' = {
   name: 'deploy-mgmt-vm-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
+    deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentity.outputs.principalId
     deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentity.outputs.resourceId
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     diskName: replace(namingConvention.virtualMachineDisk, serviceToken, 'mgt')
