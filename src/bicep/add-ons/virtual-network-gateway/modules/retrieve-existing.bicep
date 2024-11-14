@@ -1,6 +1,3 @@
-@description('Hub virtual network resource ID (optional)')
-param hubVirtualNetworkResourceId string = ''
-
 @description('Name of the Azure Firewall (optional)')
 param azureFirewallName string = ''
 
@@ -10,49 +7,51 @@ param subnetName string = ''
 @description('The resource ID of the existing spoke virtual network (optional)')
 param vnetResourceId string = ''
 
+@description('The name of the route table associated with the hub virtual network (optional)')
+param routeTableName string = ''
+
+resource vnetRouteTable 'Microsoft.Network/routeTables@2020-11-01' existing = if (!empty(routeTableName) && !empty(vnetResourceId)) {
+  scope: resourceGroup()
+  name: routeTableName
+}
+
 // Retrieve internal address of the firewall, conditionally
-resource azureFirewall 'Microsoft.Network/azureFirewalls@2020-11-01' existing = if (!empty(azureFirewallName) && !empty(hubVirtualNetworkResourceId)) {
-  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+resource azureFirewall 'Microsoft.Network/azureFirewalls@2020-11-01' existing = if (!empty(azureFirewallName) && !empty(vnetResourceId)) {
+  scope: resourceGroup(split(vnetResourceId, '/')[2], split(vnetResourceId, '/')[4])
   name: azureFirewallName
 }
 
 // Reference the existing Virtual Network using its resource ID, conditionally
-resource vnetFromFirewall 'Microsoft.Network/virtualNetworks@2020-11-01' existing = if (!empty(hubVirtualNetworkResourceId)) {
+resource vnetInfo 'Microsoft.Network/virtualNetworks@2020-11-01' existing = if (!empty(vnetResourceId)) {
   scope: resourceGroup()
-  name: last(split(hubVirtualNetworkResourceId, '/')) // Extract the VNet name from the resource ID
+  name: last(split(vnetResourceId, '/')) // Extract the VNet name from the resource ID
 }
 
 // Loop through the subnets to find the specified subnet, conditionally
-resource gatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing = if (!empty(subnetName) && !empty(hubVirtualNetworkResourceId)) {
-  parent: vnetFromFirewall
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing = if (!empty(subnetName) && !empty(vnetResourceId)) {
+  parent: vnetInfo
   name: subnetName
 }
 
-// Define the existing VNet resource for peerings, conditionally
-resource vnetForPeerings 'Microsoft.Network/virtualNetworks@2022-07-01' existing = if (!empty(vnetResourceId)) {
-  name: last(split(vnetResourceId, '/'))
-  scope: resourceGroup(split(vnetResourceId, '/')[2], split(vnetResourceId, '/')[4])
-}
+// Output the route table ID of the hub virtual network, if the route table name is provided
+output routeTableId string = !empty(routeTableName) ? vnetRouteTable.id : 'N/A'
 
 // Output the internal IP address of the firewall, if firewall parameters are provided
-output firewallPrivateIp string = (!empty(azureFirewallName) && !empty(hubVirtualNetworkResourceId)) ? azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress : 'N/A'
+output firewallPrivateIp string = (!empty(azureFirewallName) && !empty(vnetResourceId)) ? azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress : 'N/A'
 
 // Output the firewall policy id attached to the firewall
 output firewallPolicyId string = !empty(azureFirewallName) ? azureFirewall.properties.firewallPolicy.id : 'N/A'
 
 // Output the address prefix of the GatewaySubnet, if the parameters are provided
-output gwSubnetAddressPrefix string = (!empty(subnetName) && !empty(hubVirtualNetworkResourceId)) ? gatewaySubnet.properties.addressPrefix : 'N/A'
+output subnetAddressPrefix string = (!empty(subnetName) && !empty(vnetResourceId)) ? subnet.properties.addressPrefix : 'N/A'
 
 // Output the address space of the VNet, if the VNet resource ID is provided
-output vnetAddressSpace array = !empty(vnetResourceId) ? vnetForPeerings.properties.addressSpace.addressPrefixes : []
-
-// output the address space of the hub virtual network
-output hubVnetAddressSpace array = !empty(hubVirtualNetworkResourceId) ? vnetFromFirewall.properties.addressSpace.addressPrefixes : []
+output vnetAddressSpace array = !empty(vnetResourceId) ? vnetInfo.properties.addressSpace.addressPrefixes : []
 
 // Output the list of peerings from the VNet, if the VNet resource ID is provided
 output peeringsData object = !empty(vnetResourceId) ? {
   vnetResourceId: vnetResourceId
-  peeringsList: vnetForPeerings.properties.virtualNetworkPeerings
+  peeringsList: vnetInfo.properties.virtualNetworkPeerings
 } : {
   vnetResourceId: 'N/A'
   peeringsList: []

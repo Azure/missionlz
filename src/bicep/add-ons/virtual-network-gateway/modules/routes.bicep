@@ -19,11 +19,11 @@ resource routeTable 'Microsoft.Network/routeTables@2021-02-01' existing = {
 }
 
 // Loop over the address spaces and create routes
-resource routes 'Microsoft.Network/routeTables/routes@2023-04-01' = [for i in range(0, 1): {
+resource routes 'Microsoft.Network/routeTables/routes@2023-04-01' = [for (cidr, i) in addressSpace: {
   parent: routeTable
   name: '${routeName}-${i}'
   properties: {
-    addressPrefix: addressSpace[i]
+    addressPrefix: cidr
     nextHopType: nextHopType
     nextHopIpAddress: nextHopIpAddress != '' ? nextHopIpAddress : null
   }

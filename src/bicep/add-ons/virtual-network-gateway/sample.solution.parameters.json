@@ -48,10 +48,13 @@
       ]
     },
     "azureFirewallName": {
-      "value": ""
+      "value": "<example: mlz-afw-hub-dev-va>"
     },
     "vgwRouteTableName": {
-      "value": ""
+      "value": "<example: mlz-vgw-rt-hub-dev-va>"
+    },
+    "hubVnetRouteTableName": {
+      "value": "<example: mlz-rt-hub-dev-va>"
     }
   }
 }

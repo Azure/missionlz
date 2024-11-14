@@ -9,7 +9,7 @@ param routeTableResourceId string
 param subnetName string
 
 @description('address prefix of the gateway subnet')
-param gwSubnetAddressPrefix string
+param subnetAddressPrefix string
 
 // Reference the existing Virtual Network
 resource existingVnet 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
@@ -21,7 +21,7 @@ resource gatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' = 
   parent: existingVnet
   name: subnetName
   properties: {
-    addressPrefix: gwSubnetAddressPrefix
+    addressPrefix: subnetAddressPrefix
     routeTable: {
       id: resourceId('Microsoft.Network/routeTables', last(split(routeTableResourceId, '/')))
     }
