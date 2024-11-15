@@ -7,7 +7,6 @@ param domainName string
 param fileShareNames object
 param fslogixContainerType string
 param fslogixStorageService string
-param hostPoolType string
 param imageOffer string
 param imagePublisher string
 param imageSku string
@@ -52,7 +51,6 @@ var galleryImageSku = empty(imageVersionResourceId) ? '"${imageSku}"' : 'null'
 var galleryItemId = empty(imageVersionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : 'null'
 var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
 var netbios = split(domainName, '.')[0]
-var pooledHostPool = split(hostPoolType, ' ')[0] == 'Pooled' ? true : false
 var resourceGroups = union(resourceGroupsCommon, resourceGroupsNetworking, resourceGroupsStorage)
 var resourceGroupsCommon = [
   resourceGroupControlPlane
@@ -89,7 +87,6 @@ output fileShares array = fileShares
 output fslogix bool = fslogix
 output maxResourcesPerTemplateDeployment int = maxResourcesPerTemplateDeployment
 output netbios string = netbios
-output pooledHostPool bool = pooledHostPool
 output resourceGroups array = resourceGroups
 output roleDefinitions object = roleDefinitions
 output sessionHostBatchCount int = sessionHostBatchCount

@@ -6,12 +6,14 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param blobsPrivateDnsZoneResourceId string
-param deployIdentity bool
+//param deployIdentity bool
 param deploymentNameSuffix string
+param filesPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
 param logStorageSkuName string
 param mlzTags object
+param queuesPrivateDnsZoneResourceId string
 param resourceGroupNames array
 param serviceToken string
 param storageEncryptionKeyName string
@@ -25,28 +27,20 @@ module storageAccount 'storage-account.bicep' = [for (tier, i) in tiers: {
   scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
+    filesPrivateDnsZoneResourceId: filesPrivateDnsZoneResourceId
     keyVaultUri: keyVaultUri
     location: location
     mlzTags: mlzTags
+    queuesPrivateDnsZoneResourceId: queuesPrivateDnsZoneResourceId
     serviceToken: serviceToken
     skuName: logStorageSkuName
-    storageAccountName: tier.namingConvention.storageAccount
-    storageAccountNetworkInterfaceNamePrefix: tier.namingConvention.storageAccountNetworkInterface
-    storageAccountPrivateEndpointNamePrefix: tier.namingConvention.storageAccountPrivateEndpoint
     storageEncryptionKeyName: storageEncryptionKeyName
     subnetResourceId: resourceId(tier.subscriptionId, resourceGroupNames[i], 'Microsoft.Network/virtualNetworks/subnets', tier.namingConvention.virtualNetwork, tier.namingConvention.subnet)
     tablesPrivateDnsZoneResourceId: tablesPrivateDnsZoneResourceId
     tags: tags
+    tier: tier
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
   }
 }]
 
-output storageAccountResourceIds array = union([
-  resourceId(tiers[0].subscriptionId, resourceGroupNames[0], 'Microsoft.Storage/storageAccounts', tiers[0].namingConvention.storageAccount)
-  resourceId(tiers[1].subscriptionId, resourceGroupNames[1], 'Microsoft.Storage/storageAccounts', tiers[1].namingConvention.storageAccount)
-  resourceId(tiers[2].subscriptionId, resourceGroupNames[2], 'Microsoft.Storage/storageAccounts', tiers[2].namingConvention.storageAccount)
-], deployIdentity ? [
-  resourceId(tiers[3].subscriptionId, resourceGroupNames[3], 'Microsoft.Storage/storageAccounts', tiers[3].namingConvention.storageAccount)
-] : []
-)
-
+output storageAccountResourceIds array = [for (tier, i) in tiers: storageAccount[i].outputs.id]

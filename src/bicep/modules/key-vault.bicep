@@ -4,22 +4,25 @@ Licensed under the MIT License.
 */
 
 param diskEncryptionKeyExpirationInDays int = 30
-param keyVaultName string
-param keyVaultNetworkInterfaceName string
+param environmentAbbreviation string
 param keyVaultPrivateDnsZoneResourceId string
-param keyVaultPrivateEndpointName string
 param location string
 param mlzTags object
+param resourceAbbreviations object
 param subnetResourceId string
 param tags object
+param tier object
+param tokens object
+
+var keyVaultPrivateEndpointName = replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.service, 'cmk')
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: keyVaultName
+  name: '${resourceAbbreviations.keyVaults}${uniqueString(replace(tier.namingConvention.keyVault, tokens.service, 'cmk'), resourceGroup().id)}'
   location: location
   tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
   properties: {
     enabledForDeployment: false
-    enabledForDiskEncryption: true
+    enabledForDiskEncryption: false
     enabledForTemplateDeployment: false
     enablePurgeProtection: true
     enableRbacAuthorization: true
@@ -33,9 +36,9 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     publicNetworkAccess: 'Disabled'
     sku: {
       family: 'A'
-      name: 'standard'
+      name: 'premium'
     }
-    softDeleteRetentionInDays: 7 
+    softDeleteRetentionInDays: environmentAbbreviation == 'dev' || environmentAbbreviation == 'test' ? 7 : 90
     tenantId: subscription().tenantId
   }
 }
@@ -45,7 +48,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   location: location
   tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
   properties: {
-    customNetworkInterfaceName: keyVaultNetworkInterfaceName
+    customNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.service, 'cmk')
     privateLinkServiceConnections: [
       {
         name: keyVaultPrivateEndpointName
@@ -65,7 +68,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
 
 resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
   parent: privateEndpoint
-  name: keyVaultName
+  name: vault.name
   properties: {
     privateDnsZoneConfigs: [
       {

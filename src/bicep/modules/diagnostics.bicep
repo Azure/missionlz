@@ -5,6 +5,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+param bastionDiagnosticsLogs array
 param deployBastion bool
 param deploymentNameSuffix string
 param firewallDiagnosticsLogs array
@@ -52,7 +53,7 @@ module logAnalyticsWorkspaceDiagnosticSetting 'log-analytics-diagnostic-setting.
   name: 'deploy-law-diag-${deploymentNameSuffix}'
   scope: resourceGroup(operations.subscriptionId, operationsResourceGroupName)
   params: {
-    diagnosticStorageAccountName: operations.namingConvention.storageAccount
+    diagnosticStorageAccountName: split(storageAccountResourceIds[1], '/')[8]
     logAnalyticsWorkspaceDiagnosticSettingName: operations.namingConvention.logAnalyticsWorkspaceDiagnosticSetting
     logAnalyticsWorkspaceName: split(logAnalyticsWorkspaceResourceId, '/')[8]
     supportedClouds: supportedClouds
@@ -120,5 +121,17 @@ module keyvaultDiagnostics '../modules/key-vault-diagnostics.bicep' = {
     keyVaultStorageAccountId: storageAccountResourceIds[0]
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: keyVaultDiagnosticLogs
+  }
+}
+
+module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = if (deployBastion) {
+  name: 'deploy-bastion-diags-${deploymentNameSuffix}'
+  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  params: {
+    bastionDiagnosticSettingName: replace(hub.namingConvention.bastionHostPublicIPAddressDiagnosticSetting, serviceToken, '')
+    bastionName: hub.namingConvention.bastionHost
+    bastionStorageAccountId: storageAccountResourceIds[0]
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logs: bastionDiagnosticsLogs
   }
 }

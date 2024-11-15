@@ -4,27 +4,45 @@ Licensed under the MIT License.
 */
 
 param blobsPrivateDnsZoneResourceId string
+param filesPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
 param mlzTags object
+param queuesPrivateDnsZoneResourceId string
 param serviceToken string
 param skuName string
-param storageAccountName string
-param storageAccountNetworkInterfaceNamePrefix string
-param storageAccountPrivateEndpointNamePrefix string
 param storageEncryptionKeyName string
 param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
 param tags object
+param tier object
 param userAssignedIdentityResourceId string
 
-var zones = [
-  blobsPrivateDnsZoneResourceId
-  tablesPrivateDnsZoneResourceId
+var  subResources = [
+  {
+    id: blobsPrivateDnsZoneResourceId
+    nic: tier.namingConvention.storageAccountBlobNetworkInterface
+    pe: tier.namingConvention.storageAccountBlobPrivateEndpoint
+  }
+  {
+    id: filesPrivateDnsZoneResourceId
+    nic: tier.namingConvention.storageAccountFileNetworkInterface
+    pe: tier.namingConvention.storageAccountFilePrivateEndpoint
+  }
+  {
+    id: queuesPrivateDnsZoneResourceId
+    nic: tier.namingConvention.storageAccountQueueNetworkInterface
+    pe: tier.namingConvention.storageAccountQueuePrivateEndpoint
+  }
+  {
+    id: tablesPrivateDnsZoneResourceId
+    nic: tier.namingConvention.storageAccountTableNetworkInterface
+    pe: tier.namingConvention.storageAccountTablePrivateEndpoint
+  }
 ]
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: storageAccountName
+  name: uniqueString(replace(tier.namingConvention.storageAccount, serviceToken, 'log'), resourceGroup().id)
   location: location
   tags: union(contains(tags, 'Microsoft.Storage/storageAccounts') ? tags['Microsoft.Storage/storageAccounts'] : {}, mlzTags)
   identity: {
@@ -42,7 +60,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     allowBlobPublicAccess: false
     allowCrossTenantReplication: false
     allowedCopyScope: 'PrivateLink'
-    allowSharedKeyAccess: true
+    allowSharedKeyAccess: false
     defaultToOAuthAuthentication: false
     dnsEndpointType: 'Standard'
     encryption: {
@@ -86,19 +104,19 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for (zone, i) in zones: {
-  name: replace(storageAccountPrivateEndpointNamePrefix, serviceToken, split(split(zone, '/')[8], '.')[1])
+resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for (resource, i) in subResources: {
+  name: resource.pe
   location: location
   tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
   properties: {
-    customNetworkInterfaceName: replace(storageAccountNetworkInterfaceNamePrefix, serviceToken, split(split(zone, '/')[8], '.')[1])
+    customNetworkInterfaceName: resource.nic
     privateLinkServiceConnections: [
       {
-        name: replace(storageAccountPrivateEndpointNamePrefix, serviceToken, split(split(zone, '/')[8], '.')[1])
+        name: resource.pe
         properties: {
           privateLinkServiceId: storageAccount.id
           groupIds: [
-            split(split(zone, '/')[8], '.')[1]
+            split(split(resource.id, '/')[8], '.')[1]
           ]
         }
       }
@@ -109,16 +127,16 @@ resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for
   }
 }]
 
-resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = [for (zone, i) in zones: {
+resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = [for (resource, i) in subResources: {
   parent: privateEndpoints[i]
-  name: storageAccountName
+  name: storageAccount.name
   properties: {
     privateDnsZoneConfigs: [
       {
         name: 'ipconfig1'
         properties: {
           #disable-next-line use-resource-id-functions
-          privateDnsZoneId: zone
+          privateDnsZoneId: resource.id
         }
       }
     ]

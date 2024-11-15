@@ -1,6 +1,4 @@
-param artifactsUri string
-param azurePowerShellModuleMsiName string
-param deploymentUserAssignedIdentityClientId string
+param deploymentUserAssignedIdentityPrincipalId string
 param deploymentUserAssignedIdentityResourceId string
 param diskEncryptionSetResourceId string
 param diskName string
@@ -179,25 +177,6 @@ resource extension_GuestAttestation 'Microsoft.Compute/virtualMachines/extension
   }
 }
 
-module extension_CustomScriptExtension '../common/customScriptExtensions.bicep' = {
-  name: 'CSE_InstallAzurePowerShellAzModule_${timestamp}'
-  params: {
-    fileUris: [
-      '${artifactsUri}${azurePowerShellModuleMsiName}'
-      '${artifactsUri}Install-AzurePowerShellAzModule.ps1'
-    ]
-    location: location
-    parameters: '-Installer ${azurePowerShellModuleMsiName}'
-    scriptFileName: 'Install-AzurePowerShellAzModule.ps1'
-    tags: tagsVirtualMachines
-    virtualMachineName: virtualMachine.name
-    userAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-  }
-  dependsOn: [
-    extension_IaasAntimalware
-  ]
-}
-
 resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {
   parent: virtualMachine
   name: 'JsonADDomainExtension'
@@ -220,9 +199,17 @@ resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/exte
       Password: domainJoinPassword
     }
   }
-  dependsOn: [
-    extension_CustomScriptExtension
-  ]
 }
 
-output Name string = virtualMachine.name
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(deploymentUserAssignedIdentityPrincipalId, 'a959dbd1-f747-45e3-8ba6-dd80f235f97c', virtualMachine.id)
+  scope: virtualMachine
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'a959dbd1-f747-45e3-8ba6-dd80f235f97c') // Desktop Virtualization Virtual Machine Contributor (Purpose: remove the management virtual machine)
+    principalId: deploymentUserAssignedIdentityPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+output name string = virtualMachine.name
+output resourceId string = virtualMachine.id

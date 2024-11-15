@@ -229,13 +229,13 @@
                   "label": "Resource Naming Prefix",
                   "type": "Microsoft.Common.TextBox",
                   "defaultValue": "",
-                  "toolTip": "Specify a prefix (min 3 and max 6 lowercase characters and numbers) to prepend to all resources.",
+                  "toolTip": "Specify a prefix (min 1 and max 6 lowercase characters and numbers) to prepend to all resources.",
                   "constraints": {
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^[a-z][a-z0-9]{1,5}$",
-                        "message": "The prefix must contain alphanumeric characters, begin with a letter, letters must be lowercase, and the length must be between 3 to 6 characters."
+                        "regex": "^[a-z0-9]{1,6}$",
+                        "message": "The prefix must contain alphanumeric characters, letters must be lowercase, and the length must be between 1 to 6 characters."
                       }
                     ]
                   }
@@ -948,7 +948,20 @@
                   "name": "sentinelOptionalDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities."
+                    "text": "Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities. Please check the following article to determine what regions support Sentinel.",
+                    "link": {
+                      "label": "Learn more about Sentinel regions",
+                      "uri": "https://learn.microsoft.com/en-us/azure/sentinel/geographical-availability-data-residency"
+                    }
+                  }
+                },
+                {
+                  "name": "sentinelFeatureAvailability",
+                  "type": "Microsoft.Common.InfoBox",
+                  "options": {
+                    "style": "Info",
+                    "text": "Please check the following article to see what features are available for Sentinel in different Azure environments.",
+                    "uri": "https://learn.microsoft.com/en-us/azure/sentinel/feature-availability"
                   }
                 },
                 {

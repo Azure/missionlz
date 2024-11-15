@@ -7,9 +7,9 @@ targetScope = 'subscription'
 
 // REQUIRED PARAMETERS
 
-@minLength(3)
+@minLength(1)
 @maxLength(6)
-@description('A prefix, 3-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
+@description('A prefix, 1-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
 param resourcePrefix string
 
 @allowed([
@@ -42,7 +42,7 @@ param supportedClouds array = [
 ]
 
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
-param deployIdentity bool
+param deployIdentity bool = false
 
 @description('Choose whether to deploy network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription.')
 param deployNetworkWatcher bool = false
@@ -95,7 +95,7 @@ param sharedServicesSubnetAddressPrefix string = '10.0.132.0/24'
   'Basic'
 ])
 @description('[Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.')
-param firewallSkuTier string
+param firewallSkuTier string = 'Premium'
 
 @allowed([
   'Alert'
@@ -323,6 +323,13 @@ param logStorageSkuName string = 'Standard_GRS'
 
 // REMOTE ACCESS PARAMETERS
 
+param bastionDiagnosticsLogs array = [
+  {
+    category: 'BastionAuditLogs'
+    enabled: true
+  }
+]
+
 @description('When set to "true", provisions Azure Bastion Host only. It defaults to "false".')
 param deployBastion bool = false
 
@@ -359,9 +366,9 @@ param linuxVmAdminUsername string = 'azureuser'
 @description('[sshPublicKey/password] The authentication type for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "password".')
 param linuxVmAuthenticationType string = 'password'
 
-@description('The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
-@secure()
 @minLength(12)
+@secure()
+@description('The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
 param linuxVmAdminPasswordOrKey string = deployLinuxVirtualMachine ? '' : newGuid()
 
 @description('The disk creation option of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".')
@@ -377,6 +384,7 @@ param linuxVmOsDiskType string = 'Standard_LRS'
 ])
 @description('[Canonical for Ubuntu/RedHat/Debian] The available Linux Publishers')
 param linuxVmImagePublisher string = 'Canonical'
+
 @allowed([
   'ubuntuserver'
   '0001-com-ubuntu-server-focal'
@@ -386,7 +394,11 @@ param linuxVmImagePublisher string = 'Canonical'
 ])
 @description('[Ubuntu/RHEL/Debian-12] The available Linux Offers')
 param linuxVmImageOffer string = '0001-com-ubuntu-server-focal'
+
+@description('The SKU of the Linux marketplace image.')
 param linuxVmImageSku string = '20_04-lts-gen2'
+
+@description('The size of the Linux virtual machine.')
 param linuxVmSize string = 'Standard_D2s_v3'
 
 @allowed([
@@ -401,9 +413,9 @@ param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 @description('The administrator username for the Windows Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
 param windowsVmAdminUsername string = 'azureuser'
 
-@description('The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
-@secure()
 @minLength(12)
+@secure()
+@description('The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements.')
 param windowsVmAdminPassword string = deployWindowsVirtualMachine ? '' : newGuid()
 
 @description('The size of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "Standard_DS1_v2".')
@@ -621,13 +633,15 @@ module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-hub-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    tier: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
-    resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
+    environmentAbbreviation: environmentAbbreviation
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     location: location
     mlzTags: logic.outputs.mlzTags
+    resourceAbbreviations: logic.outputs.resourceAbbreviations
+    resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
     subnetResourceId: networking.outputs.hubSubnetResourceId
     tags: tags
+    tier: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
     tokens: logic.outputs.tokens
     workloadShortName: 'ops'
   }
@@ -694,6 +708,7 @@ module remoteAccess 'modules/remote-access.bicep' = {
       windowsVmPublisher: windowsVmPublisher
       windowsVmSize: windowsVmSize
       windowsVmSku: windowsVmSku
+      supportedClouds: supportedClouds
       windowsVmStorageAccountType: windowsVmStorageAccountType
       windowsVmVersion: windowsVmVersion
     }
@@ -708,12 +723,14 @@ module storage 'modules/storage.bicep' = {
   name: 'deploy-log-storage-${deploymentNameSuffix}'
   params: {
     blobsPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.blob
-    deployIdentity: deployIdentity
+    //deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
+    filesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.file
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageSkuName: logStorageSkuName
     mlzTags: logic.outputs.mlzTags
+    queuesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.queue
     resourceGroupNames: resourceGroups.outputs.names
     serviceToken: logic.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
@@ -732,6 +749,7 @@ module storage 'modules/storage.bicep' = {
 module diagnostics 'modules/diagnostics.bicep' = {
   name: 'deploy-resource-diag-${deploymentNameSuffix}'
   params: {
+    bastionDiagnosticsLogs: bastionDiagnosticsLogs
     deployBastion: deployBastion
     deploymentNameSuffix: deploymentNameSuffix
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
@@ -788,5 +806,6 @@ output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetwork
 output identitySubnetResourceId string = networking.outputs.identitySubnetResourceId
 output locationProperties object = logic.outputs.locationProperties
 output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId
+output privateLinkScopeResourceId string = monitoring.outputs.privateLinkScopeResourceId
 output sharedServicesSubnetResourceId string = networking.outputs.sharedServicesSubnetResourceId
 output tiers array = logic.outputs.tiers

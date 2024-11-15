@@ -1,15 +1,19 @@
-param dataCollectionRuleName string
+param deploymentNameSuffix string
+param enableAvdInsights bool
 param hostPoolName string
 param location string
-param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
 param mlzTags object
+param namingConvention object
+param privateLinkScopeResourceId string
 param resourceGroupControlPlane string
+param service string = 'mgmt'
+param serviceToken string
 param tags object
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
-  name: logAnalyticsWorkspaceName
+  name: replace(namingConvention.logAnalyticsWorkspace, serviceToken, service)
   location: location
   tags: union({
     'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
@@ -22,13 +26,22 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
     workspaceCapping: {
       dailyQuotaGb: -1
     }
-    publicNetworkAccessForIngestion: 'Enabled'
+    publicNetworkAccessForIngestion: 'Disabled'
     publicNetworkAccessForQuery: 'Enabled'
   }
 }
 
-resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
-  name: 'microsoft-avdi-${dataCollectionRuleName}'
+module privateLinkScope_logAnalyticsWorkspace 'privateLinkScope.bicep' = {
+  name: 'deploy-private-link-scope-law-${deploymentNameSuffix}'
+  scope: resourceGroup(split(privateLinkScopeResourceId, '/')[2], split(privateLinkScopeResourceId, '/')[4])
+  params: {
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.id
+    privateLinkScopeResourceId: privateLinkScopeResourceId
+  }
+}
+
+resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' = if (enableAvdInsights) {
+  name: 'microsoft-avdi-${replace(namingConvention.dataCollectionRule, serviceToken, service)}' // The name must start with 'microsoft-avdi-' for proper integration with AVD Insights
   location: location
   tags: union({
     'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
@@ -115,7 +128,30 @@ resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' 
   }
 }
 
+resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2021-04-01' = if (enableAvdInsights) {
+  name: replace(namingConvention.dataCollectionEndpoint, serviceToken, service)
+  location: location
+  tags: union({
+    'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
+  }, contains(tags, 'Microsoft.Insights/dataCollectionEndpoints') ? tags['Microsoft.Insights/dataCollectionEndpoints'] : {}, mlzTags)
+  kind: 'Windows'
+  properties: {
+    networkAcls: {
+      publicNetworkAccess: 'Disabled'
+    }
+  }
+}
+
+module privateLinkScope_dataCollectionEndpoint 'privateLinkScope.bicep' = if (enableAvdInsights) {
+  name: 'deploy-private-link-scope-dce-${deploymentNameSuffix}'
+  scope: resourceGroup(split(privateLinkScopeResourceId, '/')[2], split(privateLinkScopeResourceId, '/')[4])
+  params: {
+    dataCollectionEndpointResourceId: dataCollectionEndpoint.id
+    privateLinkScopeResourceId: privateLinkScopeResourceId
+  }
+}
+
 output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.name
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.id
-output dataCollectionRuleResourceId string = dataCollectionRule.id
+output dataCollectionRuleResourceId string = enableAvdInsights ? dataCollectionRule.id : ''
 

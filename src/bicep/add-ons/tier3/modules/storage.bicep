@@ -6,17 +6,20 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param blobsPrivateDnsZoneResourceId string
+param filesPrivateDnsZoneResourceId string
 param keyVaultUri string
 param logStorageSkuName string
 param location string
 param mlzTags object
 param network object
+param queuesPrivateDnsZoneResourceId string
 param resourceGroupName string
 param serviceToken string
 param storageEncryptionKeyName string
 param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
 param tags object
+param tier object
 param userAssignedIdentityResourceId string
 
 module storageAccount '../../../modules/storage-account.bicep' = {
@@ -24,18 +27,18 @@ module storageAccount '../../../modules/storage-account.bicep' = {
   scope: resourceGroup(network.subscriptionId, resourceGroupName)
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
+    filesPrivateDnsZoneResourceId: filesPrivateDnsZoneResourceId
     keyVaultUri: keyVaultUri
     location: location
     mlzTags: mlzTags
+    queuesPrivateDnsZoneResourceId: queuesPrivateDnsZoneResourceId
     serviceToken: serviceToken
     skuName: logStorageSkuName
-    storageAccountName: network.namingConvention.storageAccount
-    storageAccountNetworkInterfaceNamePrefix: network.namingConvention.storageAccountNetworkInterface
-    storageAccountPrivateEndpointNamePrefix: network.namingConvention.storageAccountPrivateEndpoint
     storageEncryptionKeyName: storageEncryptionKeyName
     subnetResourceId: subnetResourceId
     tablesPrivateDnsZoneResourceId: tablesPrivateDnsZoneResourceId
     tags: tags
+    tier: tier
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
   }
 }

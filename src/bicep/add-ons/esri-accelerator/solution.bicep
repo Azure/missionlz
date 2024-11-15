@@ -7,17 +7,8 @@ param arcgisServiceAccountPassword string
 @description('The username for the ArcGIS service account.')
 param arcgisServiceAccountUserName string
 
-@description('The blob name of the MSI file for the AVD Agent Boot Loader installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
-param avdAgentBootLoaderMsiName string
-
-@description('The blob name of the MSI file for the AVD Agent installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
-param avdAgentMsiName string
-
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
-
-@description('The blob name of the MSI file for the  Azure PowerShell Module installer. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
-param azurePowerShellModuleMsiName string
 
 @description('The file name for the certificate that will secure the ESRI portal. The file must be hosted in an Azure Blobs container with the other deployment artifacts.')
 param certificateFileName string
@@ -141,14 +132,9 @@ module azureVirtualDesktop '../azure-virtual-desktop/solution.bicep' = {
   name: 'deploy-azure-virtual-desktop-${deploymentNameSuffix}'
   params: {
     activeDirectorySolution: 'MicrosoftEntraDomainServices'
-    artifactsContainerName: containerName
-    artifactsStorageAccountResourceId: storageAccountResourceId
     availability: 'None'
-    avdAgentBootLoaderMsiName: avdAgentBootLoaderMsiName
-    avdAgentMsiName: avdAgentMsiName
     avdObjectId: avdObjectId
     azureNetAppFilesSubnetAddressPrefix: '10.0.140.128/25'
-    azurePowerShellModuleMsiName: azurePowerShellModuleMsiName
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deployNetworkWatcher: deployNetworkWatcher
@@ -163,7 +149,6 @@ module azureVirtualDesktop '../azure-virtual-desktop/solution.bicep' = {
     hubAzureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
     hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
     identifier: identifier
-    locationControlPlane: location
     locationVirtualMachines: location
     operationsLogAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     organizationalUnitPath: 'OU=AADDC Computers,DC=${replace(domainName, '.', ',DC=')}'
