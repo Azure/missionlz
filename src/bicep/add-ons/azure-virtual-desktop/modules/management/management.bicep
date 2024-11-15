@@ -115,7 +115,7 @@ module roleAssignments_deployment '../common/roleAssignments/resourceGroup.bicep
 
 // Role Assignment: Storage Account Contributor on the storage resource group
 // Purpose: domain join storage account(s) & set NTFS permissions on the file share(s)
-module roleAssignment_StorageAccountContributor '../common/roleAssignments/resourceGroup.bicep' = {
+module roleAssignment_StorageAccountContributor '../common/roleAssignments/resourceGroup.bicep' = if (deployFslogix) {
   scope: resourceGroup(resourceGroupStorage)
   name: 'deploy-role-assignment-${deploymentNameSuffix}'
   params: {
