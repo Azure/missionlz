@@ -13,7 +13,7 @@ param securityPrincipalObjectIds array
 param tags object
 param virtualMachineName string
 
-resource applicationGroup 'Microsoft.DesktopVirtualization/applicationGroups@2024-04-03' = {
+resource applicationGroup 'Microsoft.DesktopVirtualization/applicationGroups@2023-09-05' = {
   name: desktopApplicationGroupName
   location: locationControlPlane
   tags: union({
