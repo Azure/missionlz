@@ -345,12 +345,6 @@ var resourceGroupServices = union(
       ]
     : []
 )
-var roleDefinitions = {
-  DesktopVirtualizationPowerOnOffContributor: '40c5ff49-9181-41f8-ae61-143b0e78555e'
-  DesktopVirtualizationUser: '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63'
-  Reader: 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
-  VirtualMachineUserLogin: 'fb879df8-f326-4884-b1cf-06f3ad86be52'
-}
 var storageSku = fslogixStorageService == 'None' ? 'None' : split(fslogixStorageService, ' ')[1]
 var storageService = split(fslogixStorageService, ' ')[0]
 var storageSuffix = environment().suffixes.storage
@@ -514,7 +508,6 @@ module management 'modules/management/management.bicep' = {
     resourceGroupStorage: deployFslogix
       ? replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, 'storage')
       : ''
-    roleDefinitions: roleDefinitions
     serviceToken: tier3_hosts.outputs.tokens.service
     storageService: storageService
     subnetResourceId: tier3_hosts.outputs.subnets[0].id
@@ -558,7 +551,6 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     namingConvention: naming_controlPlane.outputs.names
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupManagement: rgs[2].outputs.name
-    roleDefinitions: roleDefinitions
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: naming_controlPlane.outputs.tokens.service
     sessionHostNamePrefix: replace(
@@ -602,26 +594,10 @@ module workspaces 'modules/sharedServices/sharedServices.bicep' = {
     resourceGroupManagement: rgs[2].outputs.name
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
     tags: tags
-    workspaceFeedDiagnoticSettingName: replace(
-      replace(naming_hub.outputs.names.workspaceFeedDiagnosticSetting, naming_hub.outputs.tokens.service, 'feed'),
-      '-${stampIndex}',
-      ''
-    )
-    workspaceFeedName: replace(
-      replace(naming_controlPlane.outputs.names.workspaceFeed, naming_controlPlane.outputs.tokens.service, 'feed'),
-      '-${stampIndex}',
-      ''
-    )
-    workspaceFeedNetworkInterfaceName: replace(
-      replace(naming_hub.outputs.names.workspaceFeedNetworkInterface, naming_hub.outputs.tokens.service, 'feed'),
-      '-${stampIndex}',
-      ''
-    )
-    workspaceFeedPrivateEndpointName: replace(
-      replace(naming_hub.outputs.names.workspaceFeedPrivateEndpoint, naming_hub.outputs.tokens.service, 'feed'),
-      '-${stampIndex}',
-      ''
-    )
+    workspaceFeedDiagnoticSettingName: naming_controlPlane.outputs.names.workspaceFeedDiagnosticSetting
+    workspaceFeedName: naming_controlPlane.outputs.names.workspaceFeed
+    workspaceFeedNetworkInterfaceName: naming_controlPlane.outputs.names.workspaceFeedNetworkInterface
+    workspaceFeedPrivateEndpointName: naming_controlPlane.outputs.names.workspaceFeedPrivateEndpoint
     workspaceFeedResourceGroupName: replace(
       replace(
         naming_controlPlane.outputs.names.resourceGroup,
@@ -632,40 +608,12 @@ module workspaces 'modules/sharedServices/sharedServices.bicep' = {
       ''
     )
     workspaceFriendlyName: empty(workspaceFriendlyName)
-      ? replace(
-          replace(naming_controlPlane.outputs.names.workspaceFeed, '-${naming_controlPlane.outputs.tokens.service}', ''),
-          '-${stampIndex}',
-          ''
-        )
+      ? replace(naming_controlPlane.outputs.names.workspaceFeed, '-${naming_controlPlane.outputs.tokens.service}', '')
       : '${workspaceFriendlyName} (${virtualNetwork.location})'
-    workspaceGlobalName: replace(
-      replace(
-        replace(naming_controlPlane.outputs.names.workspaceGlobal, naming_controlPlane.outputs.tokens.service, 'global'),
-        '-${stampIndex}',
-        ''
-      ),
-      identifier,
-      virtualNetwork.tags.resourcePrefix
-    )
-    workspaceGlobalNetworkInterfaceName: replace(
-      replace(
-        replace(naming_hub.outputs.names.workspaceGlobalNetworkInterface, naming_hub.outputs.tokens.service, 'global'),
-        '-${stampIndex}',
-        ''
-      ),
-      identifier,
-      virtualNetwork.tags.resourcePrefix
-    )
+    workspaceGlobalName: replace(naming_controlPlane.outputs.names.workspaceGlobal, identifier, virtualNetwork.tags.resourcePrefix)
+    workspaceGlobalNetworkInterfaceName: replace(naming_hub.outputs.names.workspaceGlobalNetworkInterface, identifier, virtualNetwork.tags.resourcePrefix)
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
-    workspaceGlobalPrivateEndpointName: replace(
-      replace(
-        replace(naming_hub.outputs.names.workspaceGlobalPrivateEndpoint, naming_hub.outputs.tokens.service, 'global'),
-        '-${stampIndex}',
-        ''
-      ),
-      identifier,
-      virtualNetwork.tags.resourcePrefix
-    )
+    workspaceGlobalPrivateEndpointName: replace(naming_hub.outputs.names.workspaceGlobalPrivateEndpoint, identifier, virtualNetwork.tags.resourcePrefix)
     workspaceGlobalResourceGroupName: replace(
       replace(
         replace(
@@ -702,6 +650,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
     functionAppName: management.outputs.functionAppName
+    hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
     keyVaultUri: tier3_hosts.outputs.keyVaultUri
     location: locationVirtualMachines
     managementVirtualMachineName: management.outputs.virtualMachineName
@@ -710,7 +659,6 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     netbios: netbios
     organizationalUnitPath: organizationalUnitPath
     recoveryServices: recoveryServices
-    resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupManagement: rgs[2].outputs.name
     resourceGroupStorage: deployFslogix ? rgs[3].outputs.name : ''
     securityPrincipalNames: map(securityPrincipals, item => item.name)
@@ -780,7 +728,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupHosts: rgs[1].outputs.name
     resourceGroupManagement: rgs[2].outputs.name
-    roleDefinitions: roleDefinitions
     scalingWeekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
     scalingWeekdaysPeakStartTime: scalingWeekdaysPeakStartTime
     scalingWeekendsOffPeakStartTime: scalingWeekendsOffPeakStartTime
