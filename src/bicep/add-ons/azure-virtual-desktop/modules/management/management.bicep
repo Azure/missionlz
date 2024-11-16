@@ -29,7 +29,6 @@ param resourceGroupControlPlane string
 param resourceGroupHosts string
 param resourceGroupManagement string
 param resourceGroupStorage string
-param roleDefinitions object
 param serviceToken string
 param storageService string
 param subnetResourceId string
@@ -86,24 +85,16 @@ module deploymentUserAssignedIdentity 'userAssignedIdentity.bicep' = {
   params: {
     location: locationVirtualMachines
     name: replace(userAssignedIdentityNamePrefix, serviceToken, 'deployment')
-    tags: union(
-      {
-        'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-      },
-      contains(tags, 'Microsoft.ManagedIdentity/userAssignedIdentities')
-        ? tags['Microsoft.ManagedIdentity/userAssignedIdentities']
-        : {},
-      mlzTags
-    )
+    tags: union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
   }
 }
 
 
 // Role Assignments: Reader on the resource groups
-//Purpose: domain join storage account(s) & set NTFS permissions on the file share(s)
+// Purpose: read permissions are needed to find the resources in the resource groups
 module roleAssignments_deployment '../common/roleAssignments/resourceGroup.bicep' = [
   for i in range(0, length(resourceGroups)): {
-    scope: resourceGroup(resourceGroups[i])
+    scope: resourceGroup(subscription().id, resourceGroups[i])
     name: 'deploy-role-assignment-${i}-${deploymentNameSuffix}'
     params: {
       principalId: deploymentUserAssignedIdentity.outputs.principalId
@@ -113,10 +104,11 @@ module roleAssignments_deployment '../common/roleAssignments/resourceGroup.bicep
   }
 ]
 
-// Role Assignment: Storage Account Contributor on the storage resource group
-// Purpose: domain join storage account(s) & set NTFS permissions on the file share(s)
+// Role Assignment for FSLogix
+// Purpose: assigns the Storage Account Contributor role on the storage resource group
+// to domain join storage account(s) & set NTFS permissions on the file share(s)
 module roleAssignment_StorageAccountContributor '../common/roleAssignments/resourceGroup.bicep' = if (deployFslogix) {
-  scope: resourceGroup(resourceGroupStorage)
+  scope: resourceGroup(subscription().id, resourceGroupStorage)
   name: 'deploy-role-assignment-${deploymentNameSuffix}'
   params: {
     principalId: deploymentUserAssignedIdentity.outputs.principalId
@@ -125,8 +117,8 @@ module roleAssignment_StorageAccountContributor '../common/roleAssignments/resou
   }
 }
 
-// Management VM
-// The management VM is required to execute PowerShell scripts.
+// Management Virtual Machine
+// Purpose: deploys the management VM is required to execute PowerShell scripts.
 module virtualMachine 'virtualMachine.bicep' = {
   name: 'deploy-mgmt-vm-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
@@ -155,11 +147,13 @@ module virtualMachine 'virtualMachine.bicep' = {
   }
 }
 
-// Role Assignment required for Scaling Plan
+// Role Assignment for Autoscale
+// Purpose: assigns the Desktop Virtualization Power On Off Contributor role to the 
+// Azure Virtual Desktop service to scale the host pool
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(avdObjectId, roleDefinitions.DesktopVirtualizationPowerOnOffContributor, subscription().id)
+  name: guid(avdObjectId, '40c5ff49-9181-41f8-ae61-143b0e78555e', subscription().id)
   properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions',roleDefinitions.DesktopVirtualizationPowerOnOffContributor)
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '40c5ff49-9181-41f8-ae61-143b0e78555e')
     principalId: avdObjectId
   }
 }
