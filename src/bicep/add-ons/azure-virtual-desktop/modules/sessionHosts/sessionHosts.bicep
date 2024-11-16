@@ -44,7 +44,6 @@ param recoveryServicesVaultName string
 param resourceGroupControlPlane string
 param resourceGroupHosts string
 param resourceGroupManagement string
-param roleDefinitions object
 param scalingWeekdaysOffPeakStartTime string
 param scalingWeekdaysPeakStartTime string
 param scalingWeekendsOffPeakStartTime string
@@ -67,10 +66,10 @@ param virtualMachineSize string
 param virtualMachineUsername string
 
 var availabilitySetNamePrefix = namingConvention.availabilitySet
-var tagsAvailabilitySets = union({'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/availabilitySets') ? tags['Microsoft.Compute/availabilitySets'] : {}, mlzTags)
-var tagsNetworkInterfaces = union({'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}, mlzTags)
-var tagsRecoveryServicesVault = union({'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.recoveryServices/vaults') ? tags['Microsoft.recoveryServices/vaults'] : {}, mlzTags)
-var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+var tagsAvailabilitySets = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/availabilitySets'] ?? {}, mlzTags)
+var tagsNetworkInterfaces = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
+var tagsRecoveryServicesVault = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.recoveryServices/vaults'] ?? {}, mlzTags)
+var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 var virtualMachineNamePrefix = replace(namingConvention.virtualMachine, serviceToken, '')
 
@@ -86,15 +85,16 @@ module availabilitySets 'availabilitySets.bicep' = if (hostPoolType == 'Pooled' 
   }
 }
 
-// Role Assignment for Virtual Machine Login User
-// This module deploys the role assignments to login to Azure AD joined session hosts
-module roleAssignments '../common/roleAssignments/resourceGroup.bicep' = [for i in range(0, length(securityPrincipalObjectIds)): if (!contains(activeDirectorySolution, 'DomainServices')) {
+// Role Assignment for Entra Joined Virtual Machines
+// Purpose: assigns the Virtual Machine Login User role on the hosts resource group
+// to enable the login to Entra joined virtual machines
+module roleAssignments '../common/roleAssignments/resourceGroup.bicep' = [for i in range(0, length(securityPrincipalObjectIds)): if (contains(activeDirectorySolution, 'EntraId')) {
   name: 'deploy-role-assignments-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupHosts)
   params: {
     principalId: securityPrincipalObjectIds[i]
     principalType: 'Group'
-    roleDefinitionId: roleDefinitions.VirtualMachineUserLogin
+    roleDefinitionId: 'fb879df8-f326-4884-b1cf-06f3ad86be52'
   }
 }]
 
