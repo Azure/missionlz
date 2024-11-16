@@ -724,6 +724,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
       'None'
     ]
     organizationalUnitPath: organizationalUnitPath
+    profile: profile
     recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupHosts: rgs[1].outputs.name
