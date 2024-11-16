@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "17978867553898242944"
+      "templateHash": "176259638889098364"
     }
   },
   "parameters": {
@@ -12638,6 +12638,9 @@
           "organizationalUnitPath": {
             "value": "[parameters('organizationalUnitPath')]"
           },
+          "profile": {
+            "value": "[parameters('profile')]"
+          },
           "recoveryServicesVaultName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.recoveryServicesVaultName.value]"
           },
@@ -12713,7 +12716,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "3167221549277300856"
+              "templateHash": "2438170094187436288"
             }
           },
           "parameters": {
@@ -12777,6 +12780,9 @@
             "enableAvdInsights": {
               "type": "bool"
             },
+            "enableRecoveryServices": {
+              "type": "bool"
+            },
             "environmentAbbreviation": {
               "type": "string"
             },
@@ -12831,8 +12837,8 @@
             "organizationalUnitPath": {
               "type": "string"
             },
-            "enableRecoveryServices": {
-              "type": "bool"
+            "profile": {
+              "type": "string"
             },
             "recoveryServicesVaultName": {
               "type": "string"
@@ -12906,6 +12912,7 @@
           },
           "variables": {
             "$fxv#0": "Param(\r\n    [string]$HostPoolResourceId,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$ScalingPlanName,\r\n    [string]$SubscriptionId,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Check if the scaling plan exists: https://learn.microsoft.com/rest/api/desktopvirtualization/scaling-plans/list-by-resource-group\r\n$ScalingPlanExists = (Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/scalingPlans?api-version=2023-09-05')).value | Where-Object {$_.name -eq $ScalingPlanName}\r\n\r\n# Disable autoscale for the host pool: https://learn.microsoft.com/rest/api/desktopvirtualization/scaling-plans/update\r\nif ($ScalingPlanExists)\r\n{\r\n    Invoke-RestMethod `\r\n        -Body (@{properties = @{hostPoolReferences = @(@{hostPoolArmPath = $HostPoolResourceId; scalingPlanEnabled = $false})}} | ConvertTo-Json) `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'PATCH' `\r\n        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/scalingPlans/' + $ScalingPlanName + '?api-version=2023-09-05') | Out-Null\r\n}",
+            "$fxv#1": "param (\r\n    [string]$ImageOffer,\r\n    [string]$ImagePublisher,\r\n    [string]$ImageSku,\r\n    [string]$ResourceManagerUri,\r\n    [string]$SubscriptionId,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Use the access token to get the marketplace agreement\r\n$Terms = Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/providers/Microsoft.MarketplaceOrdering/agreements/' + $ImagePublisher + '/offers/' + $ImageOffer + '/plans/' + $ImageSku + '?api-version=2021-01-01')\r\n\r\n# Use the access token to set the marketplace agreement\r\nif($Terms.error)\r\n{\r\n    Invoke-RestMethod `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'POST' `\r\n        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/providers/Microsoft.MarketplaceOrdering/agreements/' + $ImagePublisher + '/offers/' + $ImageOffer + '/plans/' + $ImageSku + '/sign?api-version=2021-01-01') | Out-Null\r\n}",
             "availabilitySetNamePrefix": "[parameters('namingConvention').availabilitySet]",
             "tagsAvailabilitySets": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/availabilitySets'), createObject()), parameters('mlzTags'))]",
             "tagsNetworkInterfaces": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]",
@@ -13168,6 +13175,124 @@
                   ]
                 }
               }
+            },
+            {
+              "condition": "[equals(parameters('profile'), 'ArcGISPro')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('set-marketplace-terms-{0}', parameters('deploymentNameSuffix'))]",
+              "resourceGroup": "[parameters('resourceGroupManagement')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "name": {
+                    "value": "Set-AzureMarketplaceTerms"
+                  },
+                  "parameters": {
+                    "value": [
+                      {
+                        "name": "ImageOffer",
+                        "value": "[parameters('imageOffer')]"
+                      },
+                      {
+                        "name": "ImagePublisher",
+                        "value": "[parameters('imagePublisher')]"
+                      },
+                      {
+                        "name": "ImageSku",
+                        "value": "[parameters('imageSku')]"
+                      },
+                      {
+                        "name": "ResourceManagerUri",
+                        "value": "[environment().resourceManager]"
+                      },
+                      {
+                        "name": "SubscriptionId",
+                        "value": "[subscription().subscriptionId]"
+                      },
+                      {
+                        "name": "UserAssignedidentityClientId",
+                        "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
+                      }
+                    ]
+                  },
+                  "script": {
+                    "value": "[variables('$fxv#1')]"
+                  },
+                  "tags": {
+                    "value": "[variables('tagsVirtualMachines')]"
+                  },
+                  "virtualMachineName": {
+                    "value": "[parameters('managementVirtualMachineName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.31.92.45157",
+                      "templateHash": "6896852651895359166"
+                    }
+                  },
+                  "parameters": {
+                    "asyncExecution": {
+                      "type": "bool",
+                      "defaultValue": false
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "parameters": {
+                      "type": "array",
+                      "defaultValue": []
+                    },
+                    "script": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    },
+                    "treatFailureAsDeploymentFailure": {
+                      "type": "bool",
+                      "defaultValue": true
+                    },
+                    "virtualMachineName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/runCommands",
+                      "apiVersion": "2023-09-01",
+                      "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "asyncExecution": "[parameters('asyncExecution')]",
+                        "parameters": "[parameters('parameters')]",
+                        "source": {
+                          "script": "[parameters('script')]"
+                        },
+                        "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-disable-autoscale-{0}', parameters('deploymentNameSuffix')))]"
+              ]
             },
             {
               "copy": {
@@ -14165,7 +14290,8 @@
               },
               "dependsOn": [
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupHosts')), 'Microsoft.Resources/deployments', format('deploy-avail-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-disable-autoscale-{0}', parameters('deploymentNameSuffix')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-disable-autoscale-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('set-marketplace-terms-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
             {
