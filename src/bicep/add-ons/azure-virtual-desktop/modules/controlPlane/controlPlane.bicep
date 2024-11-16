@@ -26,7 +26,6 @@ param mlzTags object
 param namingConvention object
 param resourceGroupControlPlane string
 param resourceGroupManagement string
-param roleDefinitions object
 param securityPrincipalObjectIds array
 param serviceToken string
 param sessionHostNamePrefix string
@@ -90,7 +89,6 @@ module applicationGroup 'applicationGroup.bicep' = {
     locationVirtualMachines: locationVirtualMachines
     mlzTags: mlzTags
     resourceGroupManagement: resourceGroupManagement
-    roleDefinitions: roleDefinitions
     securityPrincipalObjectIds: securityPrincipalObjectIds
     desktopFriendlyName: desktopFriendlyName
     tags: tags
