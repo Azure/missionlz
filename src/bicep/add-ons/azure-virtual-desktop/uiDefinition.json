@@ -470,48 +470,55 @@
                   }
                 },
                 {
-                  "name": "groups",
-                  "type": "Microsoft.Common.EditableGrid",
-                  "ariaLabel": "Input the security groups for access to AVD and if applicable, FSLogix. The object ID is a property on the group and can be found in Entra ID.",
-                  "label": "Security Groups",
-                  "visible": true,
-                  "constraints": {
-                    "width": "Full",
-                    "rows": {
-                      "count": {
-                        "min": 1,
-                        "max": 100
-                      }
-                    },
-                    "columns": [
-                      {
-                        "id": "name",
-                        "header": "Name",
-                        "width": "1fr",
-                        "element": {
-                          "type": "Microsoft.Common.TextBox",
-                          "placeholder": "Security Group Name",
-                          "constraints": {
-                            "required": true,
-                            "validations": []
-                          }
-                        }
+                  "name": "groupPickerBlade",
+                  "type": "Microsoft.Solutions.BladeInvokeControl",
+                  "openBladeStatus": "[steps('controlPlane').assignment.groupSelector.changing]",
+                  "bladeReference": {
+                    "name": "ObjectPickerBlade",
+                    "extension": "Microsoft_AAD_IAM",
+                    "parameters": {
+                      "queries": 32,
+                      "disablers": 4,
+                      "bladeSubtitle": "Pick the groups to assign",
+                      "additionalQueriesOnSearch": 0,
+                      "advancedQueryOptions": {
+                        "suggestedObjectsOptions": {}
                       },
-                      {
-                        "id": "objectId",
-                        "header": "Object ID",
-                        "width": "1fr",
-                        "element": {
-                          "type": "Microsoft.Common.TextBox",
-                          "placeholder": "Security Group Object ID",
-                          "constraints": {
-                            "required": true,
-                            "validations": []
-                          }
-                        }
-                      }
-                    ]
+                      "selectionMaximum": 100,
+                      "selectionMinimum": 1,
+                      "bladeTitle": "Select Groups",
+                      "informationHeader": {
+                        "informationText": "Select the groups that require access to the AVD stamp",
+                        "informationLink": ""
+                      },
+                      "inviteEnabled": true,
+                      "searchBoxLabel": "Search for a group",
+                      "searchBoxPlaceHolderText": "Enter a string in the group name",
+                      "searchBoxTooltip": "This is the tooltip",
+                      "searchGridNoRowsMessage": "No groups found",
+                      "selectButtonText": "Select Groups",
+                      "selectedGridLabel": "Selected Groups",
+                      "selectedGridNoRowsMessage": "You must select at least one group"
+                    },
+                    "inFullScreen": false
+                  },
+                  "transforms": {
+                    "selection": "selectedObjects|[*].{displayName:displayName, objectId:id}"
                   }
+                },
+                {
+                  "name": "groupSelector",
+                  "type": "Microsoft.Common.Selector",
+                  "label": "Select Groups",
+                  "keyPath": "displayName",
+                  "descriptionKeyPath": "id",
+                  "value": "[steps('controlPlane').assignment.groupPickerBlade.transformed.selection]",
+                  "visible": true,
+                  "barColor": "[if(empty(steps('controlPlane').assignment.groupPickerBlade), '#FF0000', '#7fba00')]",
+                  "constraints": {
+                    "required": true
+                  },
+                  "link": "[if(empty(steps('controlPlane').assignment.groupPickerBlade), 'Select groups', 'Re-select groups')]"
                 }
               ]
             },
@@ -1648,12 +1655,12 @@
         "scalingWeekdaysPeakStartTime": "[steps('management').scalingPlan.weekdaysPeakStartTime]",
         "scalingWeekendsOffPeakStartTime": "[steps('management').scalingPlan.weekendsOffPeakStartTime]",
         "scalingWeekendsPeakStartTime": "[steps('management').scalingPlan.weekendsPeakStartTime]",
-        "securityPrincipals": "[steps('controlPlane').assignment.groups]",
+        "securityPrincipals": "[steps('controlPlane').assignment.groupPickerBlade.transformed.selection]",
         "sessionHostCount": "[steps('hosts').virtualMachines.count]",
         "sessionHostIndex": 0,
         "sharedServicesSubnetResourceId": "[first(map(steps('basics').sharedServicesSubnetsApi.value, (item) => item.id))]",
         "stampIndex": "[steps('basics').naming.stampIndex]",
-        "storageCount": "[if(equals(steps('profiles').profileSolution, 'local'), 0, length(steps('controlPlane').assignment.groups))]",
+        "storageCount": "[if(equals(steps('profiles').profileSolution, 'local'), 0, length(steps('controlPlane').assignment.groupPickerBlade.transformed.selection))]",
         "storageIndex": 0,
         "subnetAddressPrefixes": "[parse(concat('[\"', steps('network').vnet.sessionHostsSubnetAddressCidrRange, '\",\"', steps('network').vnet.controlPlaneSubnetAddressCidrRange, '\"]'))]",
         "tags": "[steps('tags').tags]",
