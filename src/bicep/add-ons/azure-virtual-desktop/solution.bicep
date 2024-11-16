@@ -220,6 +220,15 @@ param scalingWeekendsPeakStartTime string = '09:00'
 @description('The array of Security Principals with their object IDs and display names to assign to the AVD Application Group and FSLogix Storage.')
 param securityPrincipals array
 
+/* Example of a security principal
+[
+  {
+    displayName: 'AVD'
+    objectId: '00000000-0000-0000-0000-000000000000'
+  }
+]
+*/
+
 @maxValue(5000)
 @minValue(0)
 @description('The number of session hosts to deploy in the host pool. Ensure you have the approved quota to deploy the desired count.')
@@ -661,7 +670,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     recoveryServices: recoveryServices
     resourceGroupManagement: rgs[2].outputs.name
     resourceGroupStorage: deployFslogix ? rgs[3].outputs.name : ''
-    securityPrincipalNames: map(securityPrincipals, item => item.name)
+    securityPrincipalNames: map(securityPrincipals, item => item.displayName)
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: tier3_hosts.outputs.tokens.service
     smbServerLocation: tier3_hosts.outputs.locationProperties.timeZone
