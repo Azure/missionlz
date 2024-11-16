@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "176259638889098364"
+      "templateHash": "15283643511813948573"
     }
   },
   "parameters": {
@@ -11038,7 +11038,7 @@
           },
           "resourceGroupStorage": "[if(variables('deployFslogix'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[3], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', ''))]",
           "securityPrincipalNames": {
-            "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').name))]"
+            "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').displayName))]"
           },
           "securityPrincipalObjectIds": {
             "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))]"
