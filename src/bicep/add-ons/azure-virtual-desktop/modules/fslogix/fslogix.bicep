@@ -19,6 +19,7 @@ param fslogixShareSizeInGB int
 param fslogixContainerType string
 param fslogixStorageService string
 param functionAppName string
+param hostPoolResourceId string
 param keyVaultUri string
 param location string
 param managementVirtualMachineName string
@@ -27,7 +28,6 @@ param namingConvention object
 param netbios string
 param organizationalUnitPath string
 param recoveryServices bool
-param resourceGroupControlPlane string
 param resourceGroupManagement string
 param resourceGroupStorage string
 param securityPrincipalObjectIds array
@@ -42,10 +42,8 @@ param storageService string
 param subnetResourceId string
 param tags object
 
-var hostPoolName = namingConvention.hostPool
-
-var tagsNetAppAccount = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.NetApp/netAppAccounts') ? tags['Microsoft.NetApp/netAppAccounts'] : {}, mlzTags)
-var tagsVirtualMachines = union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+var tagsNetAppAccount = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.NetApp/netAppAccounts'] ?? {}, mlzTags)
+var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags['Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 
 // Azure NetApp Files for Fslogix
 module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureNetAppFiles') {
@@ -95,6 +93,7 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
     functionAppName: functionAppName
+    hostPoolResourceId: hostPoolResourceId
     keyVaultUri: keyVaultUri
     location: location
     managementVirtualMachineName: managementVirtualMachineName
@@ -114,9 +113,7 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     storageSku: storageSku
     subnetResourceId: subnetResourceId
     tags: tags
-    hostPoolName: hostPoolName
     mlzTags: mlzTags
-    resourceGroupControlPlane: resourceGroupControlPlane
   }
 }
 

@@ -17,7 +17,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
   location: location
   tags: union({
     'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-  }, contains(tags, 'Microsoft.OperationalInsights/workspaces') ? tags['Microsoft.OperationalInsights/workspaces'] : {}, mlzTags)
+  }, tags[?'Microsoft.OperationalInsights/workspaces'] ?? {}, mlzTags)
   properties: {
     sku: {
       name: logAnalyticsWorkspaceSku
@@ -45,7 +45,7 @@ resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' 
   location: location
   tags: union({
     'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-  }, contains(tags, 'Microsoft.Insights/dataCollectionRules') ? tags['Microsoft.Insights/dataCollectionRules'] : {}, mlzTags)
+  }, tags[?'Microsoft.Insights/dataCollectionRules'] ?? {}, mlzTags)
   kind: 'Windows'
   properties: {
     dataSources: {
@@ -133,7 +133,7 @@ resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2021
   location: location
   tags: union({
     'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-  }, contains(tags, 'Microsoft.Insights/dataCollectionEndpoints') ? tags['Microsoft.Insights/dataCollectionEndpoints'] : {}, mlzTags)
+  }, tags[?'Microsoft.Insights/dataCollectionEndpoints'] ?? {}, mlzTags)
   kind: 'Windows'
   properties: {
     networkAcls: {
