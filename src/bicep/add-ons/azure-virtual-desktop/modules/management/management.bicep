@@ -94,7 +94,7 @@ module deploymentUserAssignedIdentity 'userAssignedIdentity.bicep' = {
 // Purpose: read permissions are needed to find the resources in the resource groups
 module roleAssignments_deployment '../common/roleAssignments/resourceGroup.bicep' = [
   for i in range(0, length(resourceGroups)): {
-    scope: resourceGroup(subscription().id, resourceGroups[i])
+    scope: resourceGroup(subscription().subscriptionId, resourceGroups[i])
     name: 'deploy-role-assignment-${i}-${deploymentNameSuffix}'
     params: {
       principalId: deploymentUserAssignedIdentity.outputs.principalId
@@ -108,7 +108,7 @@ module roleAssignments_deployment '../common/roleAssignments/resourceGroup.bicep
 // Purpose: assigns the Storage Account Contributor role on the storage resource group
 // to domain join storage account(s) & set NTFS permissions on the file share(s)
 module roleAssignment_StorageAccountContributor '../common/roleAssignments/resourceGroup.bicep' = if (deployFslogix) {
-  scope: resourceGroup(subscription().id, resourceGroupStorage)
+  scope: resourceGroup(subscription().subscriptionId, resourceGroupStorage)
   name: 'deploy-role-assignment-${deploymentNameSuffix}'
   params: {
     principalId: deploymentUserAssignedIdentity.outputs.principalId
