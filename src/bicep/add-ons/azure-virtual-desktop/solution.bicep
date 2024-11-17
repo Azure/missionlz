@@ -561,7 +561,6 @@ module controlPlane 'modules/controlPlane/controlPlane.bicep' = {
     resourceGroupControlPlane: rgs[0].outputs.name
     resourceGroupManagement: rgs[2].outputs.name
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    serviceToken: naming_controlPlane.outputs.tokens.service
     sessionHostNamePrefix: replace(
       tier3_hosts.outputs.namingConvention.virtualMachine,
       tier3_hosts.outputs.tokens.service,
