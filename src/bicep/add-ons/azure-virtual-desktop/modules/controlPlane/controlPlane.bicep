@@ -27,7 +27,6 @@ param namingConvention object
 param resourceGroupControlPlane string
 param resourceGroupManagement string
 param securityPrincipalObjectIds array
-param serviceToken string
 param sessionHostNamePrefix string
 param subnetResourceId string
 param tags object
@@ -83,7 +82,7 @@ module applicationGroup 'applicationGroup.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentityPrincipalId
-    desktopApplicationGroupName: replace(namingConvention.applicationGroup, serviceToken, 'desktop')
+    desktopApplicationGroupName: namingConvention.applicationGroup
     hostPoolResourceId: hostPool.outputs.resourceId
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
