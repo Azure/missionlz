@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "1518004877211348562"
+      "templateHash": "18209766944441485630"
     }
   },
   "parameters": {
@@ -663,7 +663,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "10208763265288633645"
+              "templateHash": "11125044402666498605"
             }
           },
           "parameters": {
@@ -1130,7 +1130,7 @@
             "namingConvention_Service": "[format('{0}-{1}{2}-{3}-{4}-{5}-{6}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('networkName'), parameters('tokens').service, variables('locationAbbreviation'), parameters('environmentAbbreviation'))]",
             "names": {
               "actionGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
-              "applicationGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
+              "applicationGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-desktop', variables('resourceAbbreviations').applicationGroups))]",
               "applicationInsights": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').applicationInsights)]",
               "appServicePlan": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').appServicePlans)]",
               "automationAccount": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').automationAccounts)]",
@@ -1272,7 +1272,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "10208763265288633645"
+              "templateHash": "11125044402666498605"
             }
           },
           "parameters": {
@@ -1739,7 +1739,7 @@
             "namingConvention_Service": "[format('{0}-{1}{2}-{3}-{4}-{5}-{6}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('networkName'), parameters('tokens').service, variables('locationAbbreviation'), parameters('environmentAbbreviation'))]",
             "names": {
               "actionGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
-              "applicationGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
+              "applicationGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-desktop', variables('resourceAbbreviations').applicationGroups))]",
               "applicationInsights": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').applicationInsights)]",
               "appServicePlan": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').appServicePlans)]",
               "automationAccount": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').automationAccounts)]",
@@ -1926,7 +1926,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "2194770143815975673"
+              "templateHash": "14266827690996546891"
             }
           },
           "parameters": {
@@ -2203,7 +2203,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.92.45157",
-                      "templateHash": "10448410072553470743"
+                      "templateHash": "15810721730485220824"
                     }
                   },
                   "parameters": {
@@ -2283,7 +2283,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.31.92.45157",
-                              "templateHash": "10208763265288633645"
+                              "templateHash": "11125044402666498605"
                             }
                           },
                           "parameters": {
@@ -2750,7 +2750,7 @@
                             "namingConvention_Service": "[format('{0}-{1}{2}-{3}-{4}-{5}-{6}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('networkName'), parameters('tokens').service, variables('locationAbbreviation'), parameters('environmentAbbreviation'))]",
                             "names": {
                               "actionGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
-                              "applicationGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
+                              "applicationGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-desktop', variables('resourceAbbreviations').applicationGroups))]",
                               "applicationInsights": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').applicationInsights)]",
                               "appServicePlan": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').appServicePlans)]",
                               "automationAccount": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').automationAccounts)]",

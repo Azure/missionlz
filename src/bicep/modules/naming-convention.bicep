@@ -51,7 +51,7 @@ var namingConvention_Service = '${toLower(resourcePrefix)}-${empty(stampIndex) ?
 
 var names = {
   actionGroup: replace(namingConvention, tokens.resource, resourceAbbreviations.actionGroups)
-  applicationGroup: replace(namingConvention, tokens.resource, resourceAbbreviations.applicationGroups)
+  applicationGroup: replace(namingConvention, tokens.resource, '${resourceAbbreviations.applicationGroups}-desktop')
   applicationInsights: replace(namingConvention_Service, tokens.resource, resourceAbbreviations.applicationInsights)
   appServicePlan: replace(namingConvention_Service, tokens.resource, resourceAbbreviations.appServicePlans)
   automationAccount: replace(namingConvention, tokens.resource, resourceAbbreviations.automationAccounts)
