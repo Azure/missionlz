@@ -13,11 +13,9 @@ param mlzTags object
 param networkInterfaceName string
 param organizationalUnitPath string
 param resourceGroupControlPlane string
-param subnet string
+param subnetResourceId string
 param tags object
 param timestamp string = utcNow('yyyyMMddhhmmss')
-param virtualNetwork string
-param virtualNetworkResourceGroup string
 param virtualMachineName string
 @secure()
 param virtualMachinePassword string
@@ -25,7 +23,7 @@ param virtualMachineUsername string
 
 var tagsVirtualMachines = union({
   'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-}, tags['Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
+}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = {
   name: networkInterfaceName
@@ -40,7 +38,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = {
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: resourceId(virtualNetworkResourceGroup, 'Microsoft.Network/virtualNetworks/subnets', virtualNetwork, subnet)
+            id: subnetResourceId
           }
           primary: true
           privateIPAddressVersion: 'IPv4'

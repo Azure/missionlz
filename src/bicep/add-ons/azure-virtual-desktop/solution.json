@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "12683130555690412686"
+      "templateHash": "15271968861296971432"
     }
   },
   "parameters": {
@@ -6554,7 +6554,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "4091148080483207733"
+              "templateHash": "12191716419055708345"
             }
           },
           "parameters": {
@@ -6673,9 +6673,7 @@
           "variables": {
             "hostPoolName": "[parameters('namingConvention').hostPool]",
             "resourceGroups": "[union(createArray(parameters('resourceGroupControlPlane'), parameters('resourceGroupHosts'), parameters('resourceGroupManagement')), if(parameters('deployFslogix'), createArray(parameters('resourceGroupStorage')), createArray()))]",
-            "userAssignedIdentityNamePrefix": "[parameters('namingConvention').userAssignedIdentity]",
-            "virtualNetworkName": "[split(parameters('subnetResourceId'), '/')[8]]",
-            "virtualNetworkResourceGroupName": "[split(parameters('subnetResourceId'), '/')[4]]"
+            "userAssignedIdentityNamePrefix": "[parameters('namingConvention').userAssignedIdentity]"
           },
           "resources": [
             {
@@ -7205,8 +7203,8 @@
                   "resourceGroupControlPlane": {
                     "value": "[parameters('resourceGroupControlPlane')]"
                   },
-                  "subnet": {
-                    "value": "[split(parameters('subnetResourceId'), '/')[10]]"
+                  "subnetResourceId": {
+                    "value": "[parameters('subnetResourceId')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -7219,12 +7217,6 @@
                   },
                   "virtualMachineUsername": {
                     "value": "[parameters('virtualMachineUsername')]"
-                  },
-                  "virtualNetwork": {
-                    "value": "[variables('virtualNetworkName')]"
-                  },
-                  "virtualNetworkResourceGroup": {
-                    "value": "[variables('virtualNetworkResourceGroupName')]"
                   }
                 },
                 "template": {
@@ -7234,7 +7226,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.92.45157",
-                      "templateHash": "13378405258275222412"
+                      "templateHash": "1286468497340763747"
                     }
                   },
                   "parameters": {
@@ -7280,7 +7272,7 @@
                     "resourceGroupControlPlane": {
                       "type": "string"
                     },
-                    "subnet": {
+                    "subnetResourceId": {
                       "type": "string"
                     },
                     "tags": {
@@ -7289,12 +7281,6 @@
                     "timestamp": {
                       "type": "string",
                       "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
-                    },
-                    "virtualNetwork": {
-                      "type": "string"
-                    },
-                    "virtualNetworkResourceGroup": {
-                      "type": "string"
                     },
                     "virtualMachineName": {
                       "type": "string"
@@ -7307,7 +7293,7 @@
                     }
                   },
                   "variables": {
-                    "tagsVirtualMachines": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), coalesce(parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]"
+                    "tagsVirtualMachines": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]"
                   },
                   "resources": [
                     {
@@ -7323,7 +7309,7 @@
                             "properties": {
                               "privateIPAllocationMethod": "Dynamic",
                               "subnet": {
-                                "id": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetwork'), parameters('subnet'))]"
+                                "id": "[parameters('subnetResourceId')]"
                               },
                               "primary": true,
                               "privateIPAddressVersion": "IPv4"
@@ -9115,9 +9101,9 @@
         }
       },
       "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },

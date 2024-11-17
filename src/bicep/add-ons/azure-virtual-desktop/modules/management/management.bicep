@@ -52,8 +52,6 @@ var resourceGroups = union(
   ] : []
 )
 var userAssignedIdentityNamePrefix = namingConvention.userAssignedIdentity
-var virtualNetworkName = split(subnetResourceId, '/')[8]
-var virtualNetworkResourceGroupName = split(subnetResourceId, '/')[4]
 
 module diskAccess 'diskAccess.bicep' = {
   scope: resourceGroup(resourceGroupManagement)
@@ -137,13 +135,11 @@ module virtualMachine 'virtualMachine.bicep' = {
     networkInterfaceName: replace(namingConvention.virtualMachineNetworkInterface, serviceToken, 'mgt')
     organizationalUnitPath: organizationalUnitPath
     resourceGroupControlPlane: resourceGroupControlPlane
-    subnet: split(subnetResourceId, '/')[10]
+    subnetResourceId: subnetResourceId
     tags: tags
     virtualMachineName: replace(namingConvention.virtualMachine, serviceToken, 'mgt')
     virtualMachinePassword: virtualMachinePassword
     virtualMachineUsername: virtualMachineUsername
-    virtualNetwork: virtualNetworkName
-    virtualNetworkResourceGroup: virtualNetworkResourceGroupName
   }
 }
 
