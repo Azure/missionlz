@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "15271968861296971432"
+      "templateHash": "1518004877211348562"
     }
   },
   "parameters": {
@@ -663,7 +663,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "1048043667323951884"
+              "templateHash": "10208763265288633645"
             }
           },
           "parameters": {
@@ -1130,7 +1130,7 @@
             "namingConvention_Service": "[format('{0}-{1}{2}-{3}-{4}-{5}-{6}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('networkName'), parameters('tokens').service, variables('locationAbbreviation'), parameters('environmentAbbreviation'))]",
             "names": {
               "actionGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
-              "applicationGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
+              "applicationGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
               "applicationInsights": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').applicationInsights)]",
               "appServicePlan": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').appServicePlans)]",
               "automationAccount": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').automationAccounts)]",
@@ -1203,14 +1203,14 @@
               "virtualMachineNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').virtualMachines))]",
               "virtualNetwork": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').virtualNetworks)]",
               "virtualNetworkDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').virtualNetworks)]",
-              "workspaceFeed": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, format('feed-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceFeedDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('feed-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceFeedNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('feed-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceFeedPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('feed-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceGlobal": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, format('global-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceGlobalDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('global-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceGlobalNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('global-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceGlobalPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('global-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]"
+              "workspaceFeed": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceFeedDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceFeedNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceFeedPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceGlobal": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceGlobalDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceGlobalNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceGlobalPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]"
             }
           },
           "resources": [],
@@ -1272,7 +1272,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "1048043667323951884"
+              "templateHash": "10208763265288633645"
             }
           },
           "parameters": {
@@ -1739,7 +1739,7 @@
             "namingConvention_Service": "[format('{0}-{1}{2}-{3}-{4}-{5}-{6}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('networkName'), parameters('tokens').service, variables('locationAbbreviation'), parameters('environmentAbbreviation'))]",
             "names": {
               "actionGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
-              "applicationGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
+              "applicationGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
               "applicationInsights": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').applicationInsights)]",
               "appServicePlan": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').appServicePlans)]",
               "automationAccount": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').automationAccounts)]",
@@ -1812,14 +1812,14 @@
               "virtualMachineNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').virtualMachines))]",
               "virtualNetwork": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').virtualNetworks)]",
               "virtualNetworkDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').virtualNetworks)]",
-              "workspaceFeed": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, format('feed-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceFeedDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('feed-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceFeedNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('feed-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceFeedPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('feed-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceGlobal": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, format('global-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceGlobalDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('global-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceGlobalNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('global-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-              "workspaceGlobalPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('global-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]"
+              "workspaceFeed": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceFeedDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceFeedNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceFeedPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceGlobal": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceGlobalDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceGlobalNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+              "workspaceGlobalPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]"
             }
           },
           "resources": [],
@@ -1926,7 +1926,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "13578999409276281023"
+              "templateHash": "2194770143815975673"
             }
           },
           "parameters": {
@@ -2203,7 +2203,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.92.45157",
-                      "templateHash": "16743356925406743738"
+                      "templateHash": "10448410072553470743"
                     }
                   },
                   "parameters": {
@@ -2283,7 +2283,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.31.92.45157",
-                              "templateHash": "1048043667323951884"
+                              "templateHash": "10208763265288633645"
                             }
                           },
                           "parameters": {
@@ -2750,7 +2750,7 @@
                             "namingConvention_Service": "[format('{0}-{1}{2}-{3}-{4}-{5}-{6}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('networkName'), parameters('tokens').service, variables('locationAbbreviation'), parameters('environmentAbbreviation'))]",
                             "names": {
                               "actionGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
-                              "applicationGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
+                              "applicationGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
                               "applicationInsights": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').applicationInsights)]",
                               "appServicePlan": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').appServicePlans)]",
                               "automationAccount": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').automationAccounts)]",
@@ -2823,14 +2823,14 @@
                               "virtualMachineNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').virtualMachines))]",
                               "virtualNetwork": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').virtualNetworks)]",
                               "virtualNetworkDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').virtualNetworks)]",
-                              "workspaceFeed": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, format('feed-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-                              "workspaceFeedDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('feed-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-                              "workspaceFeedNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('feed-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-                              "workspaceFeedPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('feed-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-                              "workspaceGlobal": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, format('global-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-                              "workspaceGlobalDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('global-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-                              "workspaceGlobalNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('global-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-                              "workspaceGlobalPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('global-{0}', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]"
+                              "workspaceFeed": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                              "workspaceFeedDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                              "workspaceFeedNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                              "workspaceFeedPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                              "workspaceGlobal": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                              "workspaceGlobalDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                              "workspaceGlobalNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                              "workspaceGlobalPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]"
                             }
                           },
                           "resources": [],
@@ -9195,9 +9195,6 @@
           "securityPrincipalObjectIds": {
             "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))]"
           },
-          "serviceToken": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service]"
-          },
           "sessionHostNamePrefix": {
             "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.virtualMachine, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, '')]"
           },
@@ -9221,7 +9218,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "9093125041491086492"
+              "templateHash": "9966867557025446557"
             }
           },
           "parameters": {
@@ -9305,9 +9302,6 @@
             },
             "securityPrincipalObjectIds": {
               "type": "array"
-            },
-            "serviceToken": {
-              "type": "string"
             },
             "sessionHostNamePrefix": {
               "type": "string"
@@ -9670,7 +9664,7 @@
                     "value": "[parameters('deploymentUserAssignedIdentityPrincipalId')]"
                   },
                   "desktopApplicationGroupName": {
-                    "value": "[replace(parameters('namingConvention').applicationGroup, parameters('serviceToken'), 'desktop')]"
+                    "value": "[parameters('namingConvention').applicationGroup]"
                   },
                   "hostPoolResourceId": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
@@ -12702,7 +12696,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "2438170094187436288"
+              "templateHash": "14522389119188695356"
             }
           },
           "parameters": {
@@ -12900,9 +12894,6 @@
             "$fxv#0": "Param(\r\n    [string]$HostPoolResourceId,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$ScalingPlanName,\r\n    [string]$SubscriptionId,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Check if the scaling plan exists: https://learn.microsoft.com/rest/api/desktopvirtualization/scaling-plans/list-by-resource-group\r\n$ScalingPlanExists = (Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/scalingPlans?api-version=2023-09-05')).value | Where-Object {$_.name -eq $ScalingPlanName}\r\n\r\n# Disable autoscale for the host pool: https://learn.microsoft.com/rest/api/desktopvirtualization/scaling-plans/update\r\nif ($ScalingPlanExists)\r\n{\r\n    Invoke-RestMethod `\r\n        -Body (@{properties = @{hostPoolReferences = @(@{hostPoolArmPath = $HostPoolResourceId; scalingPlanEnabled = $false})}} | ConvertTo-Json) `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'PATCH' `\r\n        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/scalingPlans/' + $ScalingPlanName + '?api-version=2023-09-05') | Out-Null\r\n}",
             "$fxv#1": "param (\r\n    [string]$ImageOffer,\r\n    [string]$ImagePublisher,\r\n    [string]$ImageSku,\r\n    [string]$ResourceManagerUri,\r\n    [string]$SubscriptionId,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Use the access token to get the marketplace agreement\r\n$Terms = Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/providers/Microsoft.MarketplaceOrdering/agreements/' + $ImagePublisher + '/offers/' + $ImageOffer + '/plans/' + $ImageSku + '?api-version=2021-01-01')\r\n\r\n# Use the access token to set the marketplace agreement\r\nif($Terms.error)\r\n{\r\n    Invoke-RestMethod `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'POST' `\r\n        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/providers/Microsoft.MarketplaceOrdering/agreements/' + $ImagePublisher + '/offers/' + $ImageOffer + '/plans/' + $ImageSku + '/sign?api-version=2021-01-01') | Out-Null\r\n}",
             "availabilitySetNamePrefix": "[parameters('namingConvention').availabilitySet]",
-            "tagsAvailabilitySets": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/availabilitySets'), createObject()), parameters('mlzTags'))]",
-            "tagsNetworkInterfaces": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]",
-            "tagsRecoveryServicesVault": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.recoveryServices/vaults'), createObject()), parameters('mlzTags'))]",
             "tagsVirtualMachines": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
             "uniqueToken": "[uniqueString(parameters('identifier'), parameters('environmentAbbreviation'), subscription().subscriptionId)]",
             "virtualMachineNamePrefix": "[replace(parameters('namingConvention').virtualMachine, parameters('serviceToken'), '')]"
@@ -12933,7 +12924,7 @@
                     "value": "[parameters('location')]"
                   },
                   "tagsAvailabilitySets": {
-                    "value": "[variables('tagsAvailabilitySets')]"
+                    "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/availabilitySets'), createObject()), parameters('mlzTags'))]"
                   }
                 },
                 "template": {
@@ -13414,7 +13405,7 @@
                     "value": "[parameters('subnetResourceId')]"
                   },
                   "tagsNetworkInterfaces": {
-                    "value": "[variables('tagsNetworkInterfaces')]"
+                    "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]"
                   },
                   "tagsVirtualMachines": {
                     "value": "[variables('tagsVirtualMachines')]"
@@ -14323,7 +14314,7 @@
                     "value": "[parameters('sessionHostIndex')]"
                   },
                   "tagsRecoveryServicesVault": {
-                    "value": "[variables('tagsRecoveryServicesVault')]"
+                    "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.recoveryServices/vaults'), createObject()), parameters('mlzTags'))]"
                   },
                   "virtualMachineNamePrefix": {
                     "value": "[variables('virtualMachineNamePrefix')]"
@@ -14519,7 +14510,7 @@
                     "value": "[parameters('namingConvention').scalingPlan]"
                   },
                   "tags": {
-                    "value": "[parameters('tags')]"
+                    "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.DesktopVirtualization/scalingPlans'), createObject()), parameters('mlzTags'))]"
                   },
                   "timeZone": {
                     "value": "[parameters('timeZone')]"
