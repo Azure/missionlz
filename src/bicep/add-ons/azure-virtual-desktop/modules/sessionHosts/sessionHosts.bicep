@@ -67,9 +67,6 @@ param virtualMachineSize string
 param virtualMachineUsername string
 
 var availabilitySetNamePrefix = namingConvention.availabilitySet
-var tagsAvailabilitySets = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/availabilitySets'] ?? {}, mlzTags)
-var tagsNetworkInterfaces = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
-var tagsRecoveryServicesVault = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.recoveryServices/vaults'] ?? {}, mlzTags)
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 var virtualMachineNamePrefix = replace(namingConvention.virtualMachine, serviceToken, '')
@@ -82,7 +79,7 @@ module availabilitySets 'availabilitySets.bicep' = if (hostPoolType == 'Pooled' 
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: availabilitySetsIndex
     location: location
-    tagsAvailabilitySets: tagsAvailabilitySets
+    tagsAvailabilitySets: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/availabilitySets'] ?? {}, mlzTags)
   }
 }
 
@@ -237,7 +234,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     storageService: storageService
     storageSuffix: storageSuffix
     subnetResourceId: subnetResourceId
-    tagsNetworkInterfaces: tagsNetworkInterfaces
+    tagsNetworkInterfaces: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
     tagsVirtualMachines: tagsVirtualMachines
     uniqueToken: uniqueToken
     virtualMachineNamePrefix: virtualMachineNamePrefix
@@ -266,7 +263,7 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
     resourceGroupManagement: resourceGroupManagement
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
-    tagsRecoveryServicesVault: tagsRecoveryServicesVault
+    tagsRecoveryServicesVault: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.recoveryServices/vaults'] ?? {}, mlzTags)
     virtualMachineNamePrefix: virtualMachineNamePrefix
   }
   dependsOn: [
@@ -286,7 +283,7 @@ module scalingPlan '../management/scalingPlan.bicep' = {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     scalingPlanDiagnosticSettingName: namingConvention.scalingPlanDiagnosticSetting
     scalingPlanName: namingConvention.scalingPlan
-    tags: tags
+    tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.DesktopVirtualization/scalingPlans'] ?? {}, mlzTags)
     timeZone: timeZone
     weekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
     weekdaysPeakStartTime: scalingWeekdaysPeakStartTime
