@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "18209766944441485630"
+      "templateHash": "57594789071728863"
     }
   },
   "parameters": {
@@ -9102,8 +9102,8 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -12696,7 +12696,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "14522389119188695356"
+              "templateHash": "12948580797916533797"
             }
           },
           "parameters": {
@@ -13375,6 +13375,9 @@
                   "organizationalUnitPath": {
                     "value": "[parameters('organizationalUnitPath')]"
                   },
+                  "profile": {
+                    "value": "[parameters('profile')]"
+                  },
                   "resourceGroupControlPlane": {
                     "value": "[parameters('resourceGroupControlPlane')]"
                   },
@@ -13433,7 +13436,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.92.45157",
-                      "templateHash": "13965457067869152438"
+                      "templateHash": "4856771644604606418"
                     }
                   },
                   "parameters": {
@@ -13528,6 +13531,9 @@
                       "type": "string"
                     },
                     "organizationalUnitPath": {
+                      "type": "string"
+                    },
+                    "profile": {
                       "type": "string"
                     },
                     "resourceGroupControlPlane": {
@@ -13671,6 +13677,7 @@
                       "identity": {
                         "type": "SystemAssigned"
                       },
+                      "plan": "[if(equals(parameters('profile'), 'ArcGISPro'), createObject('name', parameters('imageSku'), 'publisher', parameters('imagePublisher'), 'product', parameters('imageOffer')), null())]",
                       "zones": "[if(equals(parameters('availability'), 'AvailabilityZones'), createArray(parameters('availabilityZones')[mod(range(0, parameters('sessionHostCount'))[copyIndex()], length(parameters('availabilityZones')))]), null())]",
                       "properties": {
                         "availabilitySet": "[if(equals(parameters('availability'), 'AvailabilitySets'), createObject('id', resourceId('Microsoft.Compute/availabilitySets', format('{0}-{1}', parameters('availabilitySetNamePrefix'), padLeft(div(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 200), 2, '0')))), null())]",

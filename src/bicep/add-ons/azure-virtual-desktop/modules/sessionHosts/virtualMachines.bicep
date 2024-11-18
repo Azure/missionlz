@@ -30,6 +30,7 @@ param managementVirtualMachineName string
 param netAppFileShares array
 param networkInterfaceNamePrefix string
 param organizationalUnitPath string
+param profile string
 param resourceGroupControlPlane string
 param resourceGroupManagement string
 param serviceToken string
@@ -130,6 +131,11 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
   identity: {
     type: 'SystemAssigned' // Required for Entra join
   }
+  plan: profile == 'ArcGISPro' ? {
+    name: imageSku
+    publisher: imagePublisher
+    product: imageOffer
+  } : null
   zones: availability == 'AvailabilityZones' ? [
     availabilityZones[i % length(availabilityZones)]
   ] : null

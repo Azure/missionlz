@@ -223,6 +223,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     netAppFileShares: netAppFileShares
     networkInterfaceNamePrefix: namingConvention.virtualMachineNetworkInterface
     organizationalUnitPath: organizationalUnitPath
+    profile: profile
     resourceGroupControlPlane: resourceGroupControlPlane
     resourceGroupManagement: resourceGroupManagement
     serviceToken: serviceToken
