@@ -34,7 +34,7 @@ $ScalingPlanExists = (Invoke-RestMethod `
 if ($ScalingPlanExists)
 {
     Invoke-RestMethod `
-        -Body (@{properties = @{hostPoolReferences = @(@{hostPoolArmPath = $HostPoolResourceId; scalingPlanEnabled = $false})}} | ConvertTo-Json) `
+        -Body (@{properties = @{hostPoolReferences = @(@{hostPoolArmPath = $HostPoolResourceId; scalingPlanEnabled = $false})}} | ConvertTo-Json -Depth 3) `
         -Headers $AzureManagementHeader `
         -Method 'PATCH' `
         -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/scalingPlans/' + $ScalingPlanName + '?api-version=2023-09-05') | Out-Null
