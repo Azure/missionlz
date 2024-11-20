@@ -7,12 +7,11 @@ param diskSku string
 param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
-param hostPoolName string
+param hostPoolResourceId string
 param location string
 param mlzTags object
 param networkInterfaceName string
 param organizationalUnitPath string
-param resourceGroupControlPlane string
 param subnetResourceId string
 param tags object
 param timestamp string = utcNow('yyyyMMddhhmmss')
@@ -21,15 +20,13 @@ param virtualMachineName string
 param virtualMachinePassword string
 param virtualMachineUsername string
 
-var tagsVirtualMachines = union({
-  'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
+var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = {
   name: networkInterfaceName
   location: location
   tags: union({
-    'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
+    'cm-resource-parent': hostPoolResourceId
   }, tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
   properties: {
     ipConfigurations: [

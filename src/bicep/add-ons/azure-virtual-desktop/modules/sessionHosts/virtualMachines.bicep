@@ -31,7 +31,6 @@ param netAppFileShares array
 param networkInterfaceNamePrefix string
 param organizationalUnitPath string
 param profile string
-param resourceGroupControlPlane string
 param resourceGroupManagement string
 param serviceToken string
 param sessionHostCount int
@@ -98,7 +97,7 @@ var storageAccountToken = '${storageAccountPrefix}??' // The token is used for A
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existing = {
   name: hostPoolName
-  scope: resourceGroup(subscription().subscriptionId, resourceGroupControlPlane)
+  scope: resourceGroup(subscription().subscriptionId, resourceGroupManagement)
 }
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, sessionHostCount): {
@@ -403,7 +402,7 @@ module drainMode '../common/runCommand.bicep' = if (enableDrainMode) {
       }
       {
         name: 'HostPoolResourceGroupName' 
-        value: resourceGroupControlPlane
+        value: resourceGroupManagement
       }
       {
         name: 'ResourceManagerUri'

@@ -42,7 +42,6 @@ param netAppFileShares array
 param organizationalUnitPath string
 param profile string
 param recoveryServicesVaultName string
-param resourceGroupControlPlane string
 param resourceGroupHosts string
 param resourceGroupManagement string
 param scalingWeekdaysOffPeakStartTime string
@@ -224,7 +223,6 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     networkInterfaceNamePrefix: namingConvention.virtualMachineNetworkInterface
     organizationalUnitPath: organizationalUnitPath
     profile: profile
-    resourceGroupControlPlane: resourceGroupControlPlane
     resourceGroupManagement: resourceGroupManagement
     serviceToken: serviceToken
     sessionHostCount: i == sessionHostBatchCount && divisionRemainderValue > 0 ? divisionRemainderValue : maxResourcesPerTemplateDeployment

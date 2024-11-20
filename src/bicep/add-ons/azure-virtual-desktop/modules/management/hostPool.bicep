@@ -1,6 +1,5 @@
 param activeDirectorySolution string
 param avdPrivateDnsZoneResourceId string
-param deploymentUserAssignedIdentityPrincipalId string
 param customImageId string
 param customRdpProperty string
 param diskSku string
@@ -87,19 +86,6 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
         }
       }
     ]
-  }
-}
-
-// Role Assignment for the AVD host pool
-// Purpose: assigns the Desktop Virtualization Host Pool Contributor role to managed identity on the 
-// management virtual machine to set the drain mode on the AVD session hosts and manage the scaling plan
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(deploymentUserAssignedIdentityPrincipalId, 'e307426c-f9b6-4e81-87de-d99efb3c32bc', hostPool.id)
-  scope: hostPool
-  properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'e307426c-f9b6-4e81-87de-d99efb3c32bc')
-    principalId: deploymentUserAssignedIdentityPrincipalId
-    principalType: 'ServicePrincipal'
   }
 }
 

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "10261199785765455475"
+      "templateHash": "13882633515163113624"
     }
   },
   "parameters": {
@@ -593,7 +593,7 @@
     "fileShares": "[variables('fileShareNames')[parameters('fslogixContainerType')]]",
     "netbios": "[split(parameters('domainName'), '.')[0]]",
     "privateDnsZoneResourceIdPrefix": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/privateDnsZones/', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4])]",
-    "resourceGroupServices": "[union(createArray('controlPlane', 'hosts', 'management'), if(variables('deployFslogix'), createArray('storage'), createArray()))]",
+    "resourceGroupServices": "[union(createArray('hosts', 'management'), if(variables('deployFslogix'), createArray('storage'), createArray()))]",
     "storageSku": "[if(equals(parameters('fslogixStorageService'), 'None'), 'None', split(parameters('fslogixStorageService'), ' ')[1])]",
     "storageService": "[split(parameters('fslogixStorageService'), ' ')[0]]",
     "storageSuffix": "[environment().suffixes.storage]",
@@ -6437,8 +6437,20 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "activeDirectorySolution": {
+            "value": "[parameters('activeDirectorySolution')]"
+          },
           "avdObjectId": {
             "value": "[parameters('avdObjectId')]"
+          },
+          "avdPrivateDnsZoneResourceId": {
+            "value": "[format('{0}{1}', variables('privateDnsZoneResourceIdPrefix'), filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value, lambda('name', startsWith(lambdaVariables('name'), 'privatelink.wvd')))[0])]"
+          },
+          "customImageId": {
+            "value": "[variables('customImageId')]"
+          },
+          "customRdpProperty": {
+            "value": "[parameters('customRdpProperty')]"
           },
           "deployFslogix": {
             "value": "[variables('deployFslogix')]"
@@ -6446,6 +6458,7 @@
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
+          "desktopFriendlyName": "[if(empty(parameters('desktopFriendlyName')), createObject('value', string(parameters('stampIndex'))), createObject('value', parameters('desktopFriendlyName')))]",
           "diskEncryptionSetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
           },
@@ -6473,6 +6486,27 @@
           "fslogixStorageService": {
             "value": "[parameters('fslogixStorageService')]"
           },
+          "hostPoolPublicNetworkAccess": {
+            "value": "[parameters('hostPoolPublicNetworkAccess')]"
+          },
+          "hostPoolType": {
+            "value": "[parameters('hostPoolType')]"
+          },
+          "imageOffer": {
+            "value": "[parameters('imageOffer')]"
+          },
+          "imagePublisher": {
+            "value": "[parameters('imagePublisher')]"
+          },
+          "imageSku": {
+            "value": "[parameters('imageSku')]"
+          },
+          "imageVersionResourceId": {
+            "value": "[parameters('imageVersionResourceId')]"
+          },
+          "locationControlPlane": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
+          },
           "locationVirtualMachines": {
             "value": "[parameters('locationVirtualMachines')]"
           },
@@ -6481,6 +6515,9 @@
           },
           "logAnalyticsWorkspaceSku": {
             "value": "[parameters('logAnalyticsWorkspaceSku')]"
+          },
+          "maxSessionLimit": {
+            "value": "[mul(parameters('usersPerCore'), parameters('virtualMachineVirtualCpuCount'))]"
           },
           "mlzTags": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
@@ -6509,18 +6546,21 @@
           "resourceAbbreviations": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceAbbreviations.value]"
           },
-          "resourceGroupControlPlane": {
+          "resourceGroupHosts": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
-          "resourceGroupHosts": {
+          "resourceGroupManagement": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
-          "resourceGroupManagement": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
-          },
           "resourceGroupStorage": "[if(variables('deployFslogix'), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, 'storage')), createObject('value', ''))]",
+          "securityPrincipalObjectIds": {
+            "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))]"
+          },
           "serviceToken": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service]"
+          },
+          "sessionHostNamePrefix": {
+            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.virtualMachine, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, '')]"
           },
           "storageService": {
             "value": "[variables('storageService')]"
@@ -6540,8 +6580,14 @@
           "timeZone": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value.timeZone]"
           },
+          "validationEnvironment": {
+            "value": "[parameters('validationEnvironment')]"
+          },
           "virtualMachinePassword": {
             "value": "[parameters('virtualMachinePassword')]"
+          },
+          "virtualMachineSize": {
+            "value": "[parameters('virtualMachineSize')]"
           },
           "virtualMachineUsername": {
             "value": "[parameters('virtualMachineUsername')]"
@@ -6554,17 +6600,32 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "12191716419055708345"
+              "templateHash": "15167353528957759121"
             }
           },
           "parameters": {
+            "activeDirectorySolution": {
+              "type": "string"
+            },
             "avdObjectId": {
+              "type": "string"
+            },
+            "avdPrivateDnsZoneResourceId": {
+              "type": "string"
+            },
+            "customImageId": {
+              "type": "string"
+            },
+            "customRdpProperty": {
               "type": "string"
             },
             "deployFslogix": {
               "type": "bool"
             },
             "deploymentNameSuffix": {
+              "type": "string"
+            },
+            "desktopFriendlyName": {
               "type": "string"
             },
             "diskEncryptionSetResourceId": {
@@ -6594,6 +6655,27 @@
             "fslogixStorageService": {
               "type": "string"
             },
+            "hostPoolPublicNetworkAccess": {
+              "type": "string"
+            },
+            "hostPoolType": {
+              "type": "string"
+            },
+            "imageOffer": {
+              "type": "string"
+            },
+            "imagePublisher": {
+              "type": "string"
+            },
+            "imageSku": {
+              "type": "string"
+            },
+            "imageVersionResourceId": {
+              "type": "string"
+            },
+            "locationControlPlane": {
+              "type": "string"
+            },
             "locationVirtualMachines": {
               "type": "string"
             },
@@ -6602,6 +6684,9 @@
             },
             "logAnalyticsWorkspaceSku": {
               "type": "string"
+            },
+            "maxSessionLimit": {
+              "type": "int"
             },
             "mlzTags": {
               "type": "object"
@@ -6630,9 +6715,6 @@
             "resourceAbbreviations": {
               "type": "object"
             },
-            "resourceGroupControlPlane": {
-              "type": "string"
-            },
             "resourceGroupHosts": {
               "type": "string"
             },
@@ -6642,7 +6724,13 @@
             "resourceGroupStorage": {
               "type": "string"
             },
+            "securityPrincipalObjectIds": {
+              "type": "array"
+            },
             "serviceToken": {
+              "type": "string"
+            },
+            "sessionHostNamePrefix": {
               "type": "string"
             },
             "storageService": {
@@ -6663,16 +6751,26 @@
             "timeZone": {
               "type": "string"
             },
+            "validationEnvironment": {
+              "type": "bool"
+            },
             "virtualMachinePassword": {
               "type": "securestring"
+            },
+            "virtualMachineSize": {
+              "type": "string"
             },
             "virtualMachineUsername": {
               "type": "string"
             }
           },
           "variables": {
+            "galleryImageOffer": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}\"', parameters('imageOffer')), 'null')]",
+            "galleryImagePublisher": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}\"', parameters('imagePublisher')), 'null')]",
+            "galleryImageSku": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}\"', parameters('imageSku')), 'null')]",
+            "galleryItemId": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}.{1}{2}\"', parameters('imagePublisher'), parameters('imageOffer'), parameters('imageSku')), 'null')]",
             "hostPoolName": "[parameters('namingConvention').hostPool]",
-            "resourceGroups": "[union(createArray(parameters('resourceGroupControlPlane'), parameters('resourceGroupHosts'), parameters('resourceGroupManagement')), if(parameters('deployFslogix'), createArray(parameters('resourceGroupStorage')), createArray()))]",
+            "imageType": "[if(empty(parameters('imageVersionResourceId')), '\"Gallery\"', '\"CustomImage\"')]",
             "userAssignedIdentityNamePrefix": "[parameters('namingConvention').userAssignedIdentity]"
           },
           "resources": [
@@ -6686,6 +6784,704 @@
               }
             },
             {
+              "condition": "[or(parameters('enableApplicationInsights'), parameters('enableAvdInsights'))]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))]",
+              "resourceGroup": "[parameters('resourceGroupManagement')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "enableAvdInsights": {
+                    "value": "[parameters('enableAvdInsights')]"
+                  },
+                  "hostPoolResourceId": {
+                    "value": "[format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupManagement'), variables('hostPoolName'))]"
+                  },
+                  "location": {
+                    "value": "[parameters('locationVirtualMachines')]"
+                  },
+                  "logAnalyticsWorkspaceRetention": {
+                    "value": "[parameters('logAnalyticsWorkspaceRetention')]"
+                  },
+                  "logAnalyticsWorkspaceSku": {
+                    "value": "[parameters('logAnalyticsWorkspaceSku')]"
+                  },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
+                  "namingConvention": {
+                    "value": "[parameters('namingConvention')]"
+                  },
+                  "privateLinkScopeResourceId": {
+                    "value": "[parameters('privateLinkScopeResourceId')]"
+                  },
+                  "serviceToken": {
+                    "value": "[parameters('serviceToken')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.31.92.45157",
+                      "templateHash": "14902820815719387395"
+                    }
+                  },
+                  "parameters": {
+                    "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "enableAvdInsights": {
+                      "type": "bool"
+                    },
+                    "hostPoolResourceId": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceRetention": {
+                      "type": "int"
+                    },
+                    "logAnalyticsWorkspaceSku": {
+                      "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
+                    },
+                    "namingConvention": {
+                      "type": "object"
+                    },
+                    "privateLinkScopeResourceId": {
+                      "type": "string"
+                    },
+                    "service": {
+                      "type": "string",
+                      "defaultValue": "mgmt"
+                    },
+                    "serviceToken": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.OperationalInsights/workspaces",
+                      "apiVersion": "2021-06-01",
+                      "name": "[replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service'))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.OperationalInsights/workspaces'), createObject()), parameters('mlzTags'))]",
+                      "properties": {
+                        "sku": {
+                          "name": "[parameters('logAnalyticsWorkspaceSku')]"
+                        },
+                        "retentionInDays": "[parameters('logAnalyticsWorkspaceRetention')]",
+                        "workspaceCapping": {
+                          "dailyQuotaGb": -1
+                        },
+                        "publicNetworkAccessForIngestion": "Disabled",
+                        "publicNetworkAccessForQuery": "Enabled"
+                      }
+                    },
+                    {
+                      "condition": "[parameters('enableAvdInsights')]",
+                      "type": "Microsoft.Insights/dataCollectionRules",
+                      "apiVersion": "2022-06-01",
+                      "name": "[format('microsoft-avdi-{0}', replace(parameters('namingConvention').dataCollectionRule, parameters('serviceToken'), parameters('service')))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/dataCollectionRules'), createObject()), parameters('mlzTags'))]",
+                      "kind": "Windows",
+                      "properties": {
+                        "dataSources": {
+                          "performanceCounters": [
+                            {
+                              "streams": [
+                                "Microsoft-Perf"
+                              ],
+                              "samplingFrequencyInSeconds": 30,
+                              "counterSpecifiers": [
+                                "\\LogicalDisk(C:)\\Avg. Disk Queue Length",
+                                "\\LogicalDisk(C:)\\Current Disk Queue Length",
+                                "\\Memory\\Available Mbytes",
+                                "\\Memory\\Page Faults/sec",
+                                "\\Memory\\Pages/sec",
+                                "\\Memory\\% Committed Bytes In Use",
+                                "\\PhysicalDisk(*)\\Avg. Disk Queue Length",
+                                "\\PhysicalDisk(*)\\Avg. Disk sec/Read",
+                                "\\PhysicalDisk(*)\\Avg. Disk sec/Transfer",
+                                "\\PhysicalDisk(*)\\Avg. Disk sec/Write",
+                                "\\Processor Information(_Total)\\% Processor Time",
+                                "\\User Input Delay per Process(*)\\Max Input Delay",
+                                "\\User Input Delay per Session(*)\\Max Input Delay",
+                                "\\RemoteFX Network(*)\\Current TCP RTT",
+                                "\\RemoteFX Network(*)\\Current UDP Bandwidth"
+                              ],
+                              "name": "perfCounterDataSource10"
+                            },
+                            {
+                              "streams": [
+                                "Microsoft-Perf"
+                              ],
+                              "samplingFrequencyInSeconds": 60,
+                              "counterSpecifiers": [
+                                "\\LogicalDisk(C:)\\% Free Space",
+                                "\\LogicalDisk(C:)\\Avg. Disk sec/Transfer",
+                                "\\Terminal Services(*)\\Active Sessions",
+                                "\\Terminal Services(*)\\Inactive Sessions",
+                                "\\Terminal Services(*)\\Total Sessions"
+                              ],
+                              "name": "perfCounterDataSource30"
+                            }
+                          ],
+                          "windowsEventLogs": [
+                            {
+                              "streams": [
+                                "Microsoft-Event"
+                              ],
+                              "xPathQueries": [
+                                "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Admin!*[System[(Level=2 or Level=3 or Level=4 or Level=0)]]",
+                                "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational!*[System[(Level=2 or Level=3 or Level=4 or Level=0)]]",
+                                "System!*",
+                                "Microsoft-FSLogix-Apps/Operational!*[System[(Level=2 or Level=3 or Level=4 or Level=0)]]",
+                                "Application!*[System[(Level=2 or Level=3)]]",
+                                "Microsoft-FSLogix-Apps/Admin!*[System[(Level=2 or Level=3 or Level=4 or Level=0)]]"
+                              ],
+                              "name": "eventLogsDataSource"
+                            }
+                          ]
+                        },
+                        "destinations": {
+                          "logAnalytics": [
+                            {
+                              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]",
+                              "name": "la-workspace"
+                            }
+                          ]
+                        },
+                        "dataFlows": [
+                          {
+                            "streams": [
+                              "Microsoft-Perf",
+                              "Microsoft-Event"
+                            ],
+                            "destinations": [
+                              "la-workspace"
+                            ]
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
+                      ]
+                    },
+                    {
+                      "condition": "[parameters('enableAvdInsights')]",
+                      "type": "Microsoft.Insights/dataCollectionEndpoints",
+                      "apiVersion": "2021-04-01",
+                      "name": "[replace(parameters('namingConvention').dataCollectionEndpoint, parameters('serviceToken'), parameters('service'))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/dataCollectionEndpoints'), createObject()), parameters('mlzTags'))]",
+                      "kind": "Windows",
+                      "properties": {
+                        "networkAcls": {
+                          "publicNetworkAccess": "Disabled"
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-private-link-scope-law-{0}', parameters('deploymentNameSuffix'))]",
+                      "subscriptionId": "[split(parameters('privateLinkScopeResourceId'), '/')[2]]",
+                      "resourceGroup": "[split(parameters('privateLinkScopeResourceId'), '/')[4]]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "logAnalyticsWorkspaceResourceId": {
+                            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
+                          },
+                          "privateLinkScopeResourceId": {
+                            "value": "[parameters('privateLinkScopeResourceId')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.31.92.45157",
+                              "templateHash": "6666075809401495349"
+                            }
+                          },
+                          "parameters": {
+                            "applicationInsightsResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "dataCollectionEndpointResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "logAnalyticsWorkspaceResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "privateLinkScopeResourceId": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "condition": "[not(empty(parameters('applicationInsightsResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('applicationInsightsResourceId')), 'applicationInsights', split(parameters('applicationInsightsResourceId'), '/')[8]))]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
+                              }
+                            },
+                            {
+                              "condition": "[not(empty(parameters('dataCollectionEndpointResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('dataCollectionEndpointResourceId')), 'dataCollectionEndpoint', split(parameters('dataCollectionEndpointResourceId'), '/')[8]))]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('dataCollectionEndpointResourceId')]"
+                              }
+                            },
+                            {
+                              "condition": "[not(empty(parameters('logAnalyticsWorkspaceResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('logAnalyticsWorkspaceResourceId')), 'logAnalyticsWorkspace', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]))]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
+                      ]
+                    },
+                    {
+                      "condition": "[parameters('enableAvdInsights')]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-private-link-scope-dce-{0}', parameters('deploymentNameSuffix'))]",
+                      "subscriptionId": "[split(parameters('privateLinkScopeResourceId'), '/')[2]]",
+                      "resourceGroup": "[split(parameters('privateLinkScopeResourceId'), '/')[4]]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "dataCollectionEndpointResourceId": {
+                            "value": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(parameters('namingConvention').dataCollectionEndpoint, parameters('serviceToken'), parameters('service')))]"
+                          },
+                          "privateLinkScopeResourceId": {
+                            "value": "[parameters('privateLinkScopeResourceId')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.31.92.45157",
+                              "templateHash": "6666075809401495349"
+                            }
+                          },
+                          "parameters": {
+                            "applicationInsightsResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "dataCollectionEndpointResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "logAnalyticsWorkspaceResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "privateLinkScopeResourceId": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "condition": "[not(empty(parameters('applicationInsightsResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('applicationInsightsResourceId')), 'applicationInsights', split(parameters('applicationInsightsResourceId'), '/')[8]))]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
+                              }
+                            },
+                            {
+                              "condition": "[not(empty(parameters('dataCollectionEndpointResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('dataCollectionEndpointResourceId')), 'dataCollectionEndpoint', split(parameters('dataCollectionEndpointResourceId'), '/')[8]))]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('dataCollectionEndpointResourceId')]"
+                              }
+                            },
+                            {
+                              "condition": "[not(empty(parameters('logAnalyticsWorkspaceResourceId')))]",
+                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
+                              "apiVersion": "2021-09-01",
+                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('logAnalyticsWorkspaceResourceId')), 'logAnalyticsWorkspace', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]))]",
+                              "properties": {
+                                "linkedResourceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(parameters('namingConvention').dataCollectionEndpoint, parameters('serviceToken'), parameters('service')))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "logAnalyticsWorkspaceName": {
+                      "type": "string",
+                      "value": "[replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service'))]"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
+                    },
+                    "dataCollectionRuleResourceId": {
+                      "type": "string",
+                      "value": "[if(parameters('enableAvdInsights'), resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', replace(parameters('namingConvention').dataCollectionRule, parameters('serviceToken'), parameters('service')))), '')]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))]",
+              "resourceGroup": "[parameters('resourceGroupManagement')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "activeDirectorySolution": {
+                    "value": "[parameters('activeDirectorySolution')]"
+                  },
+                  "avdPrivateDnsZoneResourceId": {
+                    "value": "[parameters('avdPrivateDnsZoneResourceId')]"
+                  },
+                  "customImageId": {
+                    "value": "[parameters('customImageId')]"
+                  },
+                  "customRdpProperty": {
+                    "value": "[parameters('customRdpProperty')]"
+                  },
+                  "diskSku": {
+                    "value": "[parameters('diskSku')]"
+                  },
+                  "domainName": {
+                    "value": "[parameters('domainName')]"
+                  },
+                  "enableAvdInsights": {
+                    "value": "[parameters('enableAvdInsights')]"
+                  },
+                  "galleryImageOffer": {
+                    "value": "[variables('galleryImageOffer')]"
+                  },
+                  "galleryImagePublisher": {
+                    "value": "[variables('galleryImagePublisher')]"
+                  },
+                  "galleryImageSku": {
+                    "value": "[variables('galleryImageSku')]"
+                  },
+                  "galleryItemId": {
+                    "value": "[variables('galleryItemId')]"
+                  },
+                  "hostPoolDiagnosticSettingName": {
+                    "value": "[parameters('namingConvention').hostPoolDiagnosticSetting]"
+                  },
+                  "hostPoolName": {
+                    "value": "[variables('hostPoolName')]"
+                  },
+                  "hostPoolNetworkInterfaceName": {
+                    "value": "[parameters('namingConvention').hostPoolNetworkInterface]"
+                  },
+                  "hostPoolPrivateEndpointName": {
+                    "value": "[parameters('namingConvention').hostPoolPrivateEndpoint]"
+                  },
+                  "hostPoolPublicNetworkAccess": {
+                    "value": "[parameters('hostPoolPublicNetworkAccess')]"
+                  },
+                  "hostPoolType": {
+                    "value": "[parameters('hostPoolType')]"
+                  },
+                  "imageType": {
+                    "value": "[variables('imageType')]"
+                  },
+                  "location": {
+                    "value": "[parameters('locationControlPlane')]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+                  },
+                  "maxSessionLimit": {
+                    "value": "[parameters('maxSessionLimit')]"
+                  },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
+                  "sessionHostNamePrefix": {
+                    "value": "[parameters('sessionHostNamePrefix')]"
+                  },
+                  "subnetResourceId": {
+                    "value": "[parameters('subnetResourceId')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "validationEnvironment": {
+                    "value": "[parameters('validationEnvironment')]"
+                  },
+                  "virtualMachineSize": {
+                    "value": "[parameters('virtualMachineSize')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.31.92.45157",
+                      "templateHash": "17657921580737492350"
+                    }
+                  },
+                  "parameters": {
+                    "activeDirectorySolution": {
+                      "type": "string"
+                    },
+                    "avdPrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
+                    "customImageId": {
+                      "type": "string"
+                    },
+                    "customRdpProperty": {
+                      "type": "string"
+                    },
+                    "diskSku": {
+                      "type": "string"
+                    },
+                    "domainName": {
+                      "type": "string"
+                    },
+                    "enableAvdInsights": {
+                      "type": "bool"
+                    },
+                    "galleryImageOffer": {
+                      "type": "string"
+                    },
+                    "galleryImagePublisher": {
+                      "type": "string"
+                    },
+                    "galleryImageSku": {
+                      "type": "string"
+                    },
+                    "galleryItemId": {
+                      "type": "string"
+                    },
+                    "hostPoolDiagnosticSettingName": {
+                      "type": "string"
+                    },
+                    "hostPoolName": {
+                      "type": "string"
+                    },
+                    "hostPoolNetworkInterfaceName": {
+                      "type": "string"
+                    },
+                    "hostPoolPrivateEndpointName": {
+                      "type": "string"
+                    },
+                    "hostPoolPublicNetworkAccess": {
+                      "type": "string"
+                    },
+                    "hostPoolType": {
+                      "type": "string"
+                    },
+                    "imageType": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "maxSessionLimit": {
+                      "type": "int"
+                    },
+                    "mlzTags": {
+                      "type": "object"
+                    },
+                    "sessionHostNamePrefix": {
+                      "type": "string"
+                    },
+                    "subnetResourceId": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    },
+                    "time": {
+                      "type": "string",
+                      "defaultValue": "[utcNow('u')]"
+                    },
+                    "validationEnvironment": {
+                      "type": "bool"
+                    },
+                    "virtualMachineSize": {
+                      "type": "string"
+                    }
+                  },
+                  "variables": {
+                    "customRdpProperty_Complete": "[if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), format('{0}enablerdsaadauth:i:1;', parameters('customRdpProperty')), parameters('customRdpProperty'))]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.DesktopVirtualization/hostPools",
+                      "apiVersion": "2023-09-05",
+                      "name": "[parameters('hostPoolName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, resourceGroup().name, parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.DesktopVirtualization/hostPools'), createObject()), parameters('mlzTags'))]",
+                      "properties": {
+                        "customRdpProperty": "[variables('customRdpProperty_Complete')]",
+                        "hostPoolType": "[parameters('hostPoolType')]",
+                        "loadBalancerType": "[if(equals(parameters('hostPoolType'), 'Pooled'), 'DepthFirst', 'Persistent')]",
+                        "maxSessionLimit": "[parameters('maxSessionLimit')]",
+                        "personalDesktopAssignmentType": "[if(equals(parameters('hostPoolType'), 'Personal'), 'Automatic', null())]",
+                        "preferredAppGroupType": "Desktop",
+                        "publicNetworkAccess": "[parameters('hostPoolPublicNetworkAccess')]",
+                        "registrationInfo": {
+                          "expirationTime": "[dateTimeAdd(parameters('time'), 'PT2H')]",
+                          "registrationTokenOperation": "Update"
+                        },
+                        "startVMOnConnect": true,
+                        "validationEnvironment": "[parameters('validationEnvironment')]",
+                        "vmTemplate": "[format('{{\"domain\":\"{0}\",\"galleryImageOffer\":{1},\"galleryImagePublisher\":{2},\"galleryImageSKU\":{3},\"imageType\":{4},\"customImageId\":{5},\"namePrefix\":\"{6}\",\"osDiskType\":\"{7}\",\"vmSize\":{{\"id\":\"{8}\",\"cores\":null,\"ram\":null,\"rdmaEnabled\": false,\"supportsMemoryPreservingMaintenance\": true}},\"galleryItemId\":{9},\"hibernate\":false,\"diskSizeGB\":0,\"securityType\":\"TrustedLaunch\",\"secureBoot\":true,\"vTPM\":true,\"vmInfrastructureType\":\"Cloud\",\"virtualProcessorCount\":null,\"memoryGB\":null,\"maximumMemoryGB\":null,\"minimumMemoryGB\":null,\"dynamicMemoryConfig\":false}}', parameters('domainName'), parameters('galleryImageOffer'), parameters('galleryImagePublisher'), parameters('galleryImageSku'), parameters('imageType'), parameters('customImageId'), parameters('sessionHostNamePrefix'), parameters('diskSku'), parameters('virtualMachineSize'), parameters('galleryItemId'))]"
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints",
+                      "apiVersion": "2023-04-01",
+                      "name": "[parameters('hostPoolPrivateEndpointName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[union(createObject('cm-resource-parent', resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
+                      "properties": {
+                        "customNetworkInterfaceName": "[parameters('hostPoolNetworkInterfaceName')]",
+                        "privateLinkServiceConnections": [
+                          {
+                            "name": "[parameters('hostPoolPrivateEndpointName')]",
+                            "properties": {
+                              "privateLinkServiceId": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]",
+                              "groupIds": [
+                                "connection"
+                              ]
+                            }
+                          }
+                        ],
+                        "subnet": {
+                          "id": "[parameters('subnetResourceId')]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                      "apiVersion": "2023-05-01",
+                      "name": "[format('{0}/{1}', parameters('hostPoolPrivateEndpointName'), 'default')]",
+                      "properties": {
+                        "privateDnsZoneConfigs": [
+                          {
+                            "name": "[replace(split(parameters('avdPrivateDnsZoneResourceId'), '/')[8], '.', '-')]",
+                            "properties": {
+                              "privateDnsZoneId": "[parameters('avdPrivateDnsZoneResourceId')]"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('hostPoolPrivateEndpointName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[parameters('enableAvdInsights')]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostPoolName'))]",
+                      "name": "[parameters('hostPoolDiagnosticSettingName')]",
+                      "properties": {
+                        "logs": [
+                          {
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ],
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "name": {
+                      "type": "string",
+                      "value": "[parameters('hostPoolName')]"
+                    },
+                    "resourceId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]"
+              ]
+            },
+            {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-disk-access-{0}', parameters('deploymentNameSuffix'))]",
@@ -6696,8 +7492,8 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "hostPoolName": {
-                    "value": "[variables('hostPoolName')]"
+                  "hostPoolResourceId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                   },
                   "location": {
                     "value": "[parameters('locationVirtualMachines')]"
@@ -6707,9 +7503,6 @@
                   },
                   "namingConvention": {
                     "value": "[parameters('namingConvention')]"
-                  },
-                  "resourceGroupControlPlane": {
-                    "value": "[parameters('resourceGroupControlPlane')]"
                   },
                   "subnetResourceId": {
                     "value": "[parameters('subnetResourceId')]"
@@ -6725,11 +7518,11 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.92.45157",
-                      "templateHash": "5138234091914926786"
+                      "templateHash": "3145769776971011079"
                     }
                   },
                   "parameters": {
-                    "hostPoolName": {
+                    "hostPoolResourceId": {
                       "type": "string"
                     },
                     "location": {
@@ -6740,9 +7533,6 @@
                     },
                     "namingConvention": {
                       "type": "object"
-                    },
-                    "resourceGroupControlPlane": {
-                      "type": "string"
                     },
                     "subnetResourceId": {
                       "type": "string"
@@ -6757,7 +7547,7 @@
                       "apiVersion": "2021-04-01",
                       "name": "[parameters('namingConvention').diskAccess]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/diskAccesses'), createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/diskAccesses'), createObject()), parameters('mlzTags'))]",
                       "properties": {}
                     },
                     {
@@ -6765,7 +7555,7 @@
                       "apiVersion": "2023-04-01",
                       "name": "[parameters('namingConvention').diskAccessPrivateEndpoint]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "customNetworkInterfaceName": "[parameters('namingConvention').diskAccessNetworkInterface]",
                         "privateLinkServiceConnections": [
@@ -6795,7 +7585,10 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix')))]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -6973,7 +7766,7 @@
                     "value": "[replace(variables('userAssignedIdentityNamePrefix'), parameters('serviceToken'), 'deployment')]"
                   },
                   "tags": {
-                    "value": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), variables('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"
+                    "value": "[union(createObject('cm-resource-parent', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value), coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"
                   }
                 },
                 "template": {
@@ -7021,18 +7814,17 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix')))]"
+              ]
             },
             {
-              "copy": {
-                "name": "roleAssignments_deployment",
-                "count": "[length(range(0, length(variables('resourceGroups'))))]"
-              },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('deploy-role-assignment-{0}-{1}', range(0, length(variables('resourceGroups')))[copyIndex()], parameters('deploymentNameSuffix'))]",
+              "name": "[format('assign-role-mgmt-{0}', parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[subscription().subscriptionId]",
-              "resourceGroup": "[variables('resourceGroups')[range(0, length(variables('resourceGroups')))[copyIndex()]]]",
+              "resourceGroup": "[parameters('resourceGroupManagement')]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -7046,7 +7838,7 @@
                     "value": "ServicePrincipal"
                   },
                   "roleDefinitionId": {
-                    "value": "acdd72a7-3385-48ef-bd42-f606fba81ae7"
+                    "value": "082f0a83-3be5-4ba1-904c-961cca79b387"
                   }
                 },
                 "template": {
@@ -7092,7 +7884,7 @@
               "condition": "[parameters('deployFslogix')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('deploy-role-assignment-{0}', parameters('deploymentNameSuffix'))]",
+              "name": "[format('assign-role-storage-{0}', parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[subscription().subscriptionId]",
               "resourceGroup": "[parameters('resourceGroupStorage')]",
               "properties": {
@@ -7185,8 +7977,8 @@
                   "domainName": {
                     "value": "[parameters('domainName')]"
                   },
-                  "hostPoolName": {
-                    "value": "[variables('hostPoolName')]"
+                  "hostPoolResourceId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                   },
                   "location": {
                     "value": "[parameters('locationVirtualMachines')]"
@@ -7199,9 +7991,6 @@
                   },
                   "organizationalUnitPath": {
                     "value": "[parameters('organizationalUnitPath')]"
-                  },
-                  "resourceGroupControlPlane": {
-                    "value": "[parameters('resourceGroupControlPlane')]"
                   },
                   "subnetResourceId": {
                     "value": "[parameters('subnetResourceId')]"
@@ -7226,7 +8015,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.92.45157",
-                      "templateHash": "1286468497340763747"
+                      "templateHash": "3320903441430575822"
                     }
                   },
                   "parameters": {
@@ -7254,7 +8043,7 @@
                     "domainName": {
                       "type": "string"
                     },
-                    "hostPoolName": {
+                    "hostPoolResourceId": {
                       "type": "string"
                     },
                     "location": {
@@ -7267,9 +8056,6 @@
                       "type": "string"
                     },
                     "organizationalUnitPath": {
-                      "type": "string"
-                    },
-                    "resourceGroupControlPlane": {
                       "type": "string"
                     },
                     "subnetResourceId": {
@@ -7293,7 +8079,7 @@
                     }
                   },
                   "variables": {
-                    "tagsVirtualMachines": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]"
+                    "tagsVirtualMachines": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]"
                   },
                   "resources": [
                     {
@@ -7301,7 +8087,7 @@
                       "apiVersion": "2020-05-01",
                       "name": "[parameters('networkInterfaceName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "ipConfigurations": [
                           {
@@ -7510,14 +8296,14 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
             {
-              "condition": "[or(parameters('enableApplicationInsights'), parameters('enableAvdInsights'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-vdag-{0}', parameters('deploymentNameSuffix'))]",
               "resourceGroup": "[parameters('resourceGroupManagement')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -7528,38 +8314,41 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
-                  "enableAvdInsights": {
-                    "value": "[parameters('enableAvdInsights')]"
+                  "deploymentUserAssignedIdentityClientId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.clientId.value]"
                   },
-                  "hostPoolName": {
-                    "value": "[variables('hostPoolName')]"
+                  "deploymentUserAssignedIdentityPrincipalId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
                   },
-                  "location": {
+                  "desktopApplicationGroupName": {
+                    "value": "[parameters('namingConvention').applicationGroup]"
+                  },
+                  "hostPoolResourceId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+                  },
+                  "locationControlPlane": {
+                    "value": "[parameters('locationControlPlane')]"
+                  },
+                  "locationVirtualMachines": {
                     "value": "[parameters('locationVirtualMachines')]"
-                  },
-                  "logAnalyticsWorkspaceRetention": {
-                    "value": "[parameters('logAnalyticsWorkspaceRetention')]"
-                  },
-                  "logAnalyticsWorkspaceSku": {
-                    "value": "[parameters('logAnalyticsWorkspaceSku')]"
                   },
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
                   },
-                  "namingConvention": {
-                    "value": "[parameters('namingConvention')]"
+                  "resourceGroupManagement": {
+                    "value": "[parameters('resourceGroupManagement')]"
                   },
-                  "privateLinkScopeResourceId": {
-                    "value": "[parameters('privateLinkScopeResourceId')]"
+                  "securityPrincipalObjectIds": {
+                    "value": "[parameters('securityPrincipalObjectIds')]"
                   },
-                  "resourceGroupControlPlane": {
-                    "value": "[parameters('resourceGroupControlPlane')]"
-                  },
-                  "serviceToken": {
-                    "value": "[parameters('serviceToken')]"
+                  "desktopFriendlyName": {
+                    "value": "[parameters('desktopFriendlyName')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
+                  },
+                  "virtualMachineName": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-mgmt-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
                   }
                 },
                 "template": {
@@ -7569,192 +8358,150 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.92.45157",
-                      "templateHash": "13416414447409844964"
+                      "templateHash": "13090348133759185320"
                     }
                   },
                   "parameters": {
                     "deploymentNameSuffix": {
                       "type": "string"
                     },
-                    "enableAvdInsights": {
-                      "type": "bool"
-                    },
-                    "hostPoolName": {
+                    "deploymentUserAssignedIdentityClientId": {
                       "type": "string"
                     },
-                    "location": {
+                    "deploymentUserAssignedIdentityPrincipalId": {
                       "type": "string"
                     },
-                    "logAnalyticsWorkspaceRetention": {
-                      "type": "int"
+                    "desktopApplicationGroupName": {
+                      "type": "string"
                     },
-                    "logAnalyticsWorkspaceSku": {
+                    "desktopFriendlyName": {
+                      "type": "string"
+                    },
+                    "hostPoolResourceId": {
+                      "type": "string"
+                    },
+                    "locationControlPlane": {
+                      "type": "string"
+                    },
+                    "locationVirtualMachines": {
                       "type": "string"
                     },
                     "mlzTags": {
                       "type": "object"
                     },
-                    "namingConvention": {
-                      "type": "object"
-                    },
-                    "privateLinkScopeResourceId": {
+                    "resourceGroupManagement": {
                       "type": "string"
                     },
-                    "resourceGroupControlPlane": {
-                      "type": "string"
-                    },
-                    "service": {
-                      "type": "string",
-                      "defaultValue": "mgmt"
-                    },
-                    "serviceToken": {
-                      "type": "string"
+                    "securityPrincipalObjectIds": {
+                      "type": "array"
                     },
                     "tags": {
                       "type": "object"
+                    },
+                    "virtualMachineName": {
+                      "type": "string"
                     }
+                  },
+                  "variables": {
+                    "$fxv#0": "Param(\r\n    [string]$ApplicationGroupName,\r\n    [string]$FriendlyName,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$SubscriptionId,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Wait for role assignment propagation\r\nStart-Sleep -Seconds 30\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if ($ResourceManagerUri[-1] -eq '/') {$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Update the friendly name on the session desktop\r\nInvoke-RestMethod `\r\n    -Body (@{properties = @{friendlyName = $FriendlyName.Replace('\"', '')}} | ConvertTo-Json) `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'PATCH' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/applicationGroups/' + $ApplicationGroupName + '/desktops/SessionDesktop?api-version=2022-02-10-preview') | Out-Null"
                   },
                   "resources": [
                     {
-                      "type": "Microsoft.OperationalInsights/workspaces",
-                      "apiVersion": "2021-06-01",
-                      "name": "[replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service'))]",
-                      "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.OperationalInsights/workspaces'), createObject()), parameters('mlzTags'))]",
+                      "type": "Microsoft.DesktopVirtualization/applicationGroups",
+                      "apiVersion": "2023-09-05",
+                      "name": "[parameters('desktopApplicationGroupName')]",
+                      "location": "[parameters('locationControlPlane')]",
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.DesktopVirtualization/applicationGroups'), createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "sku": {
-                          "name": "[parameters('logAnalyticsWorkspaceSku')]"
-                        },
-                        "retentionInDays": "[parameters('logAnalyticsWorkspaceRetention')]",
-                        "workspaceCapping": {
-                          "dailyQuotaGb": -1
-                        },
-                        "publicNetworkAccessForIngestion": "Disabled",
-                        "publicNetworkAccessForQuery": "Enabled"
+                        "hostPoolArmPath": "[parameters('hostPoolResourceId')]",
+                        "applicationGroupType": "Desktop"
                       }
                     },
                     {
-                      "condition": "[parameters('enableAvdInsights')]",
-                      "type": "Microsoft.Insights/dataCollectionRules",
-                      "apiVersion": "2022-06-01",
-                      "name": "[format('microsoft-avdi-{0}', replace(parameters('namingConvention').dataCollectionRule, parameters('serviceToken'), parameters('service')))]",
-                      "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/dataCollectionRules'), createObject()), parameters('mlzTags'))]",
-                      "kind": "Windows",
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[format('Microsoft.DesktopVirtualization/applicationGroups/{0}', parameters('desktopApplicationGroupName'))]",
+                      "name": "[guid(parameters('deploymentUserAssignedIdentityPrincipalId'), '86240b0e-9422-4c43-887b-b61143f32ba8', resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName')))]",
                       "properties": {
-                        "dataSources": {
-                          "performanceCounters": [
-                            {
-                              "streams": [
-                                "Microsoft-Perf"
-                              ],
-                              "samplingFrequencyInSeconds": 30,
-                              "counterSpecifiers": [
-                                "\\LogicalDisk(C:)\\Avg. Disk Queue Length",
-                                "\\LogicalDisk(C:)\\Current Disk Queue Length",
-                                "\\Memory\\Available Mbytes",
-                                "\\Memory\\Page Faults/sec",
-                                "\\Memory\\Pages/sec",
-                                "\\Memory\\% Committed Bytes In Use",
-                                "\\PhysicalDisk(*)\\Avg. Disk Queue Length",
-                                "\\PhysicalDisk(*)\\Avg. Disk sec/Read",
-                                "\\PhysicalDisk(*)\\Avg. Disk sec/Transfer",
-                                "\\PhysicalDisk(*)\\Avg. Disk sec/Write",
-                                "\\Processor Information(_Total)\\% Processor Time",
-                                "\\User Input Delay per Process(*)\\Max Input Delay",
-                                "\\User Input Delay per Session(*)\\Max Input Delay",
-                                "\\RemoteFX Network(*)\\Current TCP RTT",
-                                "\\RemoteFX Network(*)\\Current UDP Bandwidth"
-                              ],
-                              "name": "perfCounterDataSource10"
-                            },
-                            {
-                              "streams": [
-                                "Microsoft-Perf"
-                              ],
-                              "samplingFrequencyInSeconds": 60,
-                              "counterSpecifiers": [
-                                "\\LogicalDisk(C:)\\% Free Space",
-                                "\\LogicalDisk(C:)\\Avg. Disk sec/Transfer",
-                                "\\Terminal Services(*)\\Active Sessions",
-                                "\\Terminal Services(*)\\Inactive Sessions",
-                                "\\Terminal Services(*)\\Total Sessions"
-                              ],
-                              "name": "perfCounterDataSource30"
-                            }
-                          ],
-                          "windowsEventLogs": [
-                            {
-                              "streams": [
-                                "Microsoft-Event"
-                              ],
-                              "xPathQueries": [
-                                "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Admin!*[System[(Level=2 or Level=3 or Level=4 or Level=0)]]",
-                                "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational!*[System[(Level=2 or Level=3 or Level=4 or Level=0)]]",
-                                "System!*",
-                                "Microsoft-FSLogix-Apps/Operational!*[System[(Level=2 or Level=3 or Level=4 or Level=0)]]",
-                                "Application!*[System[(Level=2 or Level=3)]]",
-                                "Microsoft-FSLogix-Apps/Admin!*[System[(Level=2 or Level=3 or Level=4 or Level=0)]]"
-                              ],
-                              "name": "eventLogsDataSource"
-                            }
-                          ]
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '86240b0e-9422-4c43-887b-b61143f32ba8')]",
+                        "principalId": "[parameters('deploymentUserAssignedIdentityPrincipalId')]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))]"
+                      ]
+                    },
+                    {
+                      "copy": {
+                        "name": "roleAssignment_ApplicationGroup",
+                        "count": "[length(range(0, length(parameters('securityPrincipalObjectIds'))))]"
+                      },
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[format('Microsoft.DesktopVirtualization/applicationGroups/{0}', parameters('desktopApplicationGroupName'))]",
+                      "name": "[guid(parameters('securityPrincipalObjectIds')[range(0, length(parameters('securityPrincipalObjectIds')))[copyIndex()]], '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63', resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName')))]",
+                      "properties": {
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63')]",
+                        "principalId": "[parameters('securityPrincipalObjectIds')[range(0, length(parameters('securityPrincipalObjectIds')))[copyIndex()]]]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('desktopFriendlyName')))]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-vdapp-friendly-name-{0}', parameters('deploymentNameSuffix'))]",
+                      "resourceGroup": "[parameters('resourceGroupManagement')]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
                         },
-                        "destinations": {
-                          "logAnalytics": [
-                            {
-                              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]",
-                              "name": "la-workspace"
-                            }
-                          ]
-                        },
-                        "dataFlows": [
-                          {
-                            "streams": [
-                              "Microsoft-Perf",
-                              "Microsoft-Event"
-                            ],
-                            "destinations": [
-                              "la-workspace"
+                        "mode": "Incremental",
+                        "parameters": {
+                          "location": {
+                            "value": "[parameters('locationVirtualMachines')]"
+                          },
+                          "name": {
+                            "value": "Update-AvdDesktop"
+                          },
+                          "parameters": {
+                            "value": [
+                              {
+                                "name": "ApplicationGroupName",
+                                "value": "[parameters('desktopApplicationGroupName')]"
+                              },
+                              {
+                                "name": "FriendlyName",
+                                "value": "[parameters('desktopFriendlyName')]"
+                              },
+                              {
+                                "name": "ResourceGroupName",
+                                "value": "[resourceGroup().name]"
+                              },
+                              {
+                                "name": "ResourceManagerUri",
+                                "value": "[environment().resourceManager]"
+                              },
+                              {
+                                "name": "SubscriptionId",
+                                "value": "[subscription().subscriptionId]"
+                              },
+                              {
+                                "name": "UserAssignedIdentityClientId",
+                                "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
+                              }
                             ]
-                          }
-                        ]
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
-                      ]
-                    },
-                    {
-                      "condition": "[parameters('enableAvdInsights')]",
-                      "type": "Microsoft.Insights/dataCollectionEndpoints",
-                      "apiVersion": "2021-04-01",
-                      "name": "[replace(parameters('namingConvention').dataCollectionEndpoint, parameters('serviceToken'), parameters('service'))]",
-                      "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/dataCollectionEndpoints'), createObject()), parameters('mlzTags'))]",
-                      "kind": "Windows",
-                      "properties": {
-                        "networkAcls": {
-                          "publicNetworkAccess": "Disabled"
-                        }
-                      }
-                    },
-                    {
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-private-link-scope-law-{0}', parameters('deploymentNameSuffix'))]",
-                      "subscriptionId": "[split(parameters('privateLinkScopeResourceId'), '/')[2]]",
-                      "resourceGroup": "[split(parameters('privateLinkScopeResourceId'), '/')[4]]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "logAnalyticsWorkspaceResourceId": {
-                            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
                           },
-                          "privateLinkScopeResourceId": {
-                            "value": "[parameters('privateLinkScopeResourceId')]"
+                          "script": {
+                            "value": "[variables('$fxv#0')]"
+                          },
+                          "tags": {
+                            "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]"
+                          },
+                          "virtualMachineName": {
+                            "value": "[parameters('virtualMachineName')]"
                           }
                         },
                         "template": {
@@ -7764,160 +8511,76 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.31.92.45157",
-                              "templateHash": "6666075809401495349"
+                              "templateHash": "6896852651895359166"
                             }
                           },
                           "parameters": {
-                            "applicationInsightsResourceId": {
-                              "type": "string",
-                              "defaultValue": ""
+                            "asyncExecution": {
+                              "type": "bool",
+                              "defaultValue": false
                             },
-                            "dataCollectionEndpointResourceId": {
-                              "type": "string",
-                              "defaultValue": ""
+                            "location": {
+                              "type": "string"
                             },
-                            "logAnalyticsWorkspaceResourceId": {
-                              "type": "string",
-                              "defaultValue": ""
+                            "name": {
+                              "type": "string"
                             },
-                            "privateLinkScopeResourceId": {
+                            "parameters": {
+                              "type": "array",
+                              "defaultValue": []
+                            },
+                            "script": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "type": "object"
+                            },
+                            "treatFailureAsDeploymentFailure": {
+                              "type": "bool",
+                              "defaultValue": true
+                            },
+                            "virtualMachineName": {
                               "type": "string"
                             }
                           },
                           "resources": [
                             {
-                              "condition": "[not(empty(parameters('applicationInsightsResourceId')))]",
-                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
-                              "apiVersion": "2021-09-01",
-                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('applicationInsightsResourceId')), 'applicationInsights', split(parameters('applicationInsightsResourceId'), '/')[8]))]",
+                              "type": "Microsoft.Compute/virtualMachines/runCommands",
+                              "apiVersion": "2023-09-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[parameters('tags')]",
                               "properties": {
-                                "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
-                              }
-                            },
-                            {
-                              "condition": "[not(empty(parameters('dataCollectionEndpointResourceId')))]",
-                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
-                              "apiVersion": "2021-09-01",
-                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('dataCollectionEndpointResourceId')), 'dataCollectionEndpoint', split(parameters('dataCollectionEndpointResourceId'), '/')[8]))]",
-                              "properties": {
-                                "linkedResourceId": "[parameters('dataCollectionEndpointResourceId')]"
-                              }
-                            },
-                            {
-                              "condition": "[not(empty(parameters('logAnalyticsWorkspaceResourceId')))]",
-                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
-                              "apiVersion": "2021-09-01",
-                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('logAnalyticsWorkspaceResourceId')), 'logAnalyticsWorkspace', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]))]",
-                              "properties": {
-                                "linkedResourceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                                "asyncExecution": "[parameters('asyncExecution')]",
+                                "parameters": "[parameters('parameters')]",
+                                "source": {
+                                  "script": "[parameters('script')]"
+                                },
+                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
                               }
                             }
                           ]
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
-                      ]
-                    },
-                    {
-                      "condition": "[parameters('enableAvdInsights')]",
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-private-link-scope-dce-{0}', parameters('deploymentNameSuffix'))]",
-                      "subscriptionId": "[split(parameters('privateLinkScopeResourceId'), '/')[2]]",
-                      "resourceGroup": "[split(parameters('privateLinkScopeResourceId'), '/')[4]]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "dataCollectionEndpointResourceId": {
-                            "value": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(parameters('namingConvention').dataCollectionEndpoint, parameters('serviceToken'), parameters('service')))]"
-                          },
-                          "privateLinkScopeResourceId": {
-                            "value": "[parameters('privateLinkScopeResourceId')]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "6666075809401495349"
-                            }
-                          },
-                          "parameters": {
-                            "applicationInsightsResourceId": {
-                              "type": "string",
-                              "defaultValue": ""
-                            },
-                            "dataCollectionEndpointResourceId": {
-                              "type": "string",
-                              "defaultValue": ""
-                            },
-                            "logAnalyticsWorkspaceResourceId": {
-                              "type": "string",
-                              "defaultValue": ""
-                            },
-                            "privateLinkScopeResourceId": {
-                              "type": "string"
-                            }
-                          },
-                          "resources": [
-                            {
-                              "condition": "[not(empty(parameters('applicationInsightsResourceId')))]",
-                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
-                              "apiVersion": "2021-09-01",
-                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('applicationInsightsResourceId')), 'applicationInsights', split(parameters('applicationInsightsResourceId'), '/')[8]))]",
-                              "properties": {
-                                "linkedResourceId": "[parameters('applicationInsightsResourceId')]"
-                              }
-                            },
-                            {
-                              "condition": "[not(empty(parameters('dataCollectionEndpointResourceId')))]",
-                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
-                              "apiVersion": "2021-09-01",
-                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('dataCollectionEndpointResourceId')), 'dataCollectionEndpoint', split(parameters('dataCollectionEndpointResourceId'), '/')[8]))]",
-                              "properties": {
-                                "linkedResourceId": "[parameters('dataCollectionEndpointResourceId')]"
-                              }
-                            },
-                            {
-                              "condition": "[not(empty(parameters('logAnalyticsWorkspaceResourceId')))]",
-                              "type": "Microsoft.Insights/privateLinkScopes/scopedResources",
-                              "apiVersion": "2021-09-01",
-                              "name": "[format('{0}/{1}', split(parameters('privateLinkScopeResourceId'), '/')[8], if(empty(parameters('logAnalyticsWorkspaceResourceId')), 'logAnalyticsWorkspace', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]))]",
-                              "properties": {
-                                "linkedResourceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(parameters('namingConvention').dataCollectionEndpoint, parameters('serviceToken'), parameters('service')))]"
+                        "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))]",
+                        "[extensionResourceId(resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName')), 'Microsoft.Authorization/roleAssignments', guid(parameters('deploymentUserAssignedIdentityPrincipalId'), '86240b0e-9422-4c43-887b-b61143f32ba8', resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))))]"
                       ]
                     }
                   ],
                   "outputs": {
-                    "logAnalyticsWorkspaceName": {
+                    "resourceId": {
                       "type": "string",
-                      "value": "[replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service'))]"
-                    },
-                    "logAnalyticsWorkspaceResourceId": {
-                      "type": "string",
-                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('namingConvention').logAnalyticsWorkspace, parameters('serviceToken'), parameters('service')))]"
-                    },
-                    "dataCollectionRuleResourceId": {
-                      "type": "string",
-                      "value": "[if(parameters('enableAvdInsights'), resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', replace(parameters('namingConvention').dataCollectionRule, parameters('serviceToken'), parameters('service')))), '')]"
+                      "value": "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))]"
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-mgmt-vm-{0}', parameters('deploymentNameSuffix')))]"
+              ]
             },
             {
               "condition": "[and(parameters('deployFslogix'), equals(parameters('fslogixStorageService'), 'AzureFiles Premium'))]",
@@ -7943,8 +8606,8 @@
                   "environmentAbbreviation": {
                     "value": "[parameters('environmentAbbreviation')]"
                   },
-                  "hostPoolName": {
-                    "value": "[variables('hostPoolName')]"
+                  "hostPoolResourceId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                   },
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
@@ -7964,8 +8627,8 @@
                   "resourceAbbreviations": {
                     "value": "[parameters('resourceAbbreviations')]"
                   },
-                  "resourceGroupControlPlane": {
-                    "value": "[parameters('resourceGroupControlPlane')]"
+                  "resourceGroupManagement": {
+                    "value": "[parameters('resourceGroupManagement')]"
                   },
                   "resourceGroupStorage": {
                     "value": "[parameters('resourceGroupStorage')]"
@@ -7990,7 +8653,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.92.45157",
-                      "templateHash": "5331880508338375567"
+                      "templateHash": "12229858139924589024"
                     }
                   },
                   "parameters": {
@@ -8006,7 +8669,7 @@
                     "environmentAbbreviation": {
                       "type": "string"
                     },
-                    "hostPoolName": {
+                    "hostPoolResourceId": {
                       "type": "string"
                     },
                     "keyExpirationInDays": {
@@ -8035,7 +8698,7 @@
                     "resourceAbbreviations": {
                       "type": "object"
                     },
-                    "resourceGroupControlPlane": {
+                    "resourceGroupManagement": {
                       "type": "string"
                     },
                     "resourceGroupStorage": {
@@ -8430,7 +9093,7 @@
                         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', replace(parameters('namingConvention').appServicePlan, parameters('serviceToken'), variables('service')))]",
                         "siteConfig": {
                           "alwaysOn": true,
-                          "appSettings": "[union(createArray(createObject('name', 'AzureWebJobsStorage__blobServiceUri', 'value', format('https://{0}.blob.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__credential', 'value', 'managedidentity'), createObject('name', 'AzureWebJobsStorage__queueServiceUri', 'value', format('https://{0}.queue.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__tableServiceUri', 'value', format('https://{0}.table.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'WEBSITE_LOAD_USER_PROFILE', 'value', '1'), createObject('name', 'EnvironmentName', 'value', environment().name), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'HostPoolName', 'value', parameters('hostPoolName')), createObject('name', 'HostPoolResourceGroupName', 'value', parameters('resourceGroupControlPlane')), createObject('name', 'LogOffMessageBody', 'value', 'This session is about to be logged off. Please save your work.'), createObject('name', 'LogOffMessageTitle', 'value', 'Session Log Off'), createObject('name', 'MaintenanceTagName', 'value', 'Maintenance'), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupStorage')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId), createObject('name', 'TenantId', 'value', subscription().tenantId), createObject('name', 'TimeDifference', 'value', parameters('timeDifference'))), if(parameters('enableApplicationInsights'), createArray(createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', replace(parameters('namingConvention').applicationInsights, parameters('serviceToken'), variables('service'))), '2020-02-02').ConnectionString)), createArray()))]",
+                          "appSettings": "[union(createArray(createObject('name', 'AzureWebJobsStorage__blobServiceUri', 'value', format('https://{0}.blob.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__credential', 'value', 'managedidentity'), createObject('name', 'AzureWebJobsStorage__queueServiceUri', 'value', format('https://{0}.queue.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__tableServiceUri', 'value', format('https://{0}.table.{1}', uniqueString(replace(parameters('namingConvention').storageAccount, parameters('serviceToken'), variables('service')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'WEBSITE_LOAD_USER_PROFILE', 'value', '1'), createObject('name', 'EnvironmentName', 'value', environment().name), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'HostPoolName', 'value', split(parameters('hostPoolResourceId'), '/')[8]), createObject('name', 'HostPoolResourceGroupName', 'value', parameters('resourceGroupManagement')), createObject('name', 'LogOffMessageBody', 'value', 'This session is about to be logged off. Please save your work.'), createObject('name', 'LogOffMessageTitle', 'value', 'Session Log Off'), createObject('name', 'MaintenanceTagName', 'value', 'Maintenance'), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupStorage')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId), createObject('name', 'TenantId', 'value', subscription().tenantId), createObject('name', 'TimeDifference', 'value', parameters('timeDifference'))), if(parameters('enableApplicationInsights'), createArray(createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', replace(parameters('namingConvention').applicationInsights, parameters('serviceToken'), variables('service'))), '2020-02-02').ConnectionString)), createArray()))]",
                           "cors": {
                             "allowedOrigins": [
                               "[format('{0}', environment().portal)]",
@@ -8783,6 +9446,7 @@
                 }
               },
               "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
@@ -8807,8 +9471,8 @@
                   "deployFslogix": {
                     "value": "[parameters('deployFslogix')]"
                   },
-                  "hostPoolName": {
-                    "value": "[variables('hostPoolName')]"
+                  "hostPoolResourceId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                   },
                   "location": {
                     "value": "[parameters('locationVirtualMachines')]"
@@ -8827,9 +9491,6 @@
                   },
                   "recoveryServicesVaultPrivateEndpointName": {
                     "value": "[parameters('namingConvention').recoveryServicesVaultPrivateEndpoint]"
-                  },
-                  "resourceGroupControlPlane": {
-                    "value": "[parameters('resourceGroupControlPlane')]"
                   },
                   "storageService": {
                     "value": "[parameters('storageService')]"
@@ -8851,7 +9512,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.92.45157",
-                      "templateHash": "4489607784372752553"
+                      "templateHash": "16739854086593657673"
                     }
                   },
                   "parameters": {
@@ -8864,7 +9525,7 @@
                     "deployFslogix": {
                       "type": "bool"
                     },
-                    "hostPoolName": {
+                    "hostPoolResourceId": {
                       "type": "string"
                     },
                     "location": {
@@ -8883,9 +9544,6 @@
                       "type": "string"
                     },
                     "recoveryServicesVaultPrivateEndpointName": {
-                      "type": "string"
-                    },
-                    "resourceGroupControlPlane": {
                       "type": "string"
                     },
                     "storageService": {
@@ -8907,7 +9565,7 @@
                       "apiVersion": "2022-03-01",
                       "name": "[parameters('recoveryServicesVaultName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.RecoveryServices/vaults'), createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.RecoveryServices/vaults'), createObject()), parameters('mlzTags'))]",
                       "sku": {
                         "name": "RS0",
                         "tier": "Standard"
@@ -8920,7 +9578,7 @@
                       "apiVersion": "2022-03-01",
                       "name": "[format('{0}/{1}', parameters('recoveryServicesVaultName'), 'AvdPolicyStorage')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.RecoveryServices/vaults'), createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.RecoveryServices/vaults'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "backupManagementType": "AzureStorage",
                         "schedulePolicy": {
@@ -8955,7 +9613,7 @@
                       "apiVersion": "2022-03-01",
                       "name": "[format('{0}/{1}', parameters('recoveryServicesVaultName'), 'AvdPolicyVm')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), coalesce(parameters('tags')['Microsoft.RecoveryServices/vaults'], createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(parameters('tags')['Microsoft.RecoveryServices/vaults'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "backupManagementType": "AzureIaasVM",
                         "instantRpRetentionRangeInDays": 2,
@@ -8992,7 +9650,7 @@
                       "apiVersion": "2023-04-01",
                       "name": "[parameters('recoveryServicesVaultPrivateEndpointName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupControlPlane'), parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "customNetworkInterfaceName": "[parameters('recoveryServicesVaultNetworkInterfaceName')]",
                         "privateLinkServiceConnections": [
@@ -9053,10 +9711,17 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix')))]"
+              ]
             }
           ],
           "outputs": {
+            "applicationGroupResourceId": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdag-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            },
             "dataCollectionRuleResourceId": {
               "type": "string",
               "value": "[if(parameters('enableAvdInsights'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataCollectionRuleResourceId.value, '')]"
@@ -9076,6 +9741,14 @@
             "functionAppName": {
               "type": "string",
               "value": "[if(equals(parameters('fslogixStorageService'), 'AzureFiles Premium'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-function-app-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.functionAppName.value, '')]"
+            },
+            "hostPoolName": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            },
+            "hostPoolResourceId": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
             },
             "logAnalyticsWorkspaceName": {
               "type": "string",
@@ -9101,849 +9774,8 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "[format('deploy-control-plane-{0}', parameters('deploymentNameSuffix'))]",
-      "location": "[deployment().location]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "activeDirectorySolution": {
-            "value": "[parameters('activeDirectorySolution')]"
-          },
-          "avdPrivateDnsZoneResourceId": {
-            "value": "[format('{0}{1}', variables('privateDnsZoneResourceIdPrefix'), filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value, lambda('name', startsWith(lambdaVariables('name'), 'privatelink.wvd')))[0])]"
-          },
-          "customImageId": {
-            "value": "[variables('customImageId')]"
-          },
-          "customRdpProperty": {
-            "value": "[parameters('customRdpProperty')]"
-          },
-          "deploymentNameSuffix": {
-            "value": "[parameters('deploymentNameSuffix')]"
-          },
-          "deploymentUserAssignedIdentityClientId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.deploymentUserAssignedIdentityClientId.value]"
-          },
-          "deploymentUserAssignedIdentityPrincipalId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.deploymentUserAssignedIdentityPrincipalId.value]"
-          },
-          "desktopFriendlyName": "[if(empty(parameters('desktopFriendlyName')), createObject('value', string(parameters('stampIndex'))), createObject('value', parameters('desktopFriendlyName')))]",
-          "diskSku": {
-            "value": "[parameters('diskSku')]"
-          },
-          "domainName": {
-            "value": "[parameters('domainName')]"
-          },
-          "enableAvdInsights": {
-            "value": "[parameters('enableAvdInsights')]"
-          },
-          "hostPoolPublicNetworkAccess": {
-            "value": "[parameters('hostPoolPublicNetworkAccess')]"
-          },
-          "hostPoolType": {
-            "value": "[parameters('hostPoolType')]"
-          },
-          "imageOffer": {
-            "value": "[parameters('imageOffer')]"
-          },
-          "imagePublisher": {
-            "value": "[parameters('imagePublisher')]"
-          },
-          "imageSku": {
-            "value": "[parameters('imageSku')]"
-          },
-          "imageVersionResourceId": {
-            "value": "[parameters('imageVersionResourceId')]"
-          },
-          "locationControlPlane": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
-          },
-          "locationVirtualMachines": {
-            "value": "[parameters('locationVirtualMachines')]"
-          },
-          "logAnalyticsWorkspaceResourceId": "[if(parameters('enableAvdInsights'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value), createObject('value', ''))]",
-          "managementVirtualMachineName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]"
-          },
-          "maxSessionLimit": {
-            "value": "[mul(parameters('usersPerCore'), parameters('virtualMachineVirtualCpuCount'))]"
-          },
-          "mlzTags": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
-          },
-          "namingConvention": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value]"
-          },
-          "resourceGroupControlPlane": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
-          },
-          "resourceGroupManagement": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
-          },
-          "securityPrincipalObjectIds": {
-            "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))]"
-          },
-          "sessionHostNamePrefix": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.virtualMachine, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service, '')]"
-          },
-          "subnetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[1].id]"
-          },
-          "tags": {
-            "value": "[parameters('tags')]"
-          },
-          "validationEnvironment": {
-            "value": "[parameters('validationEnvironment')]"
-          },
-          "virtualMachineSize": {
-            "value": "[parameters('virtualMachineSize')]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "2907557826627496398"
-            }
-          },
-          "parameters": {
-            "activeDirectorySolution": {
-              "type": "string"
-            },
-            "avdPrivateDnsZoneResourceId": {
-              "type": "string"
-            },
-            "customImageId": {
-              "type": "string"
-            },
-            "customRdpProperty": {
-              "type": "string"
-            },
-            "deploymentNameSuffix": {
-              "type": "string"
-            },
-            "deploymentUserAssignedIdentityClientId": {
-              "type": "string"
-            },
-            "deploymentUserAssignedIdentityPrincipalId": {
-              "type": "string"
-            },
-            "desktopFriendlyName": {
-              "type": "string"
-            },
-            "diskSku": {
-              "type": "string"
-            },
-            "domainName": {
-              "type": "string"
-            },
-            "enableAvdInsights": {
-              "type": "bool"
-            },
-            "hostPoolPublicNetworkAccess": {
-              "type": "string"
-            },
-            "hostPoolType": {
-              "type": "string"
-            },
-            "imageOffer": {
-              "type": "string"
-            },
-            "imagePublisher": {
-              "type": "string"
-            },
-            "imageSku": {
-              "type": "string"
-            },
-            "imageVersionResourceId": {
-              "type": "string"
-            },
-            "locationControlPlane": {
-              "type": "string"
-            },
-            "locationVirtualMachines": {
-              "type": "string"
-            },
-            "logAnalyticsWorkspaceResourceId": {
-              "type": "string"
-            },
-            "managementVirtualMachineName": {
-              "type": "string"
-            },
-            "maxSessionLimit": {
-              "type": "int"
-            },
-            "mlzTags": {
-              "type": "object"
-            },
-            "namingConvention": {
-              "type": "object"
-            },
-            "resourceGroupControlPlane": {
-              "type": "string"
-            },
-            "resourceGroupManagement": {
-              "type": "string"
-            },
-            "securityPrincipalObjectIds": {
-              "type": "array"
-            },
-            "sessionHostNamePrefix": {
-              "type": "string"
-            },
-            "subnetResourceId": {
-              "type": "string"
-            },
-            "tags": {
-              "type": "object"
-            },
-            "validationEnvironment": {
-              "type": "bool"
-            },
-            "virtualMachineSize": {
-              "type": "string"
-            }
-          },
-          "variables": {
-            "galleryImageOffer": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}\"', parameters('imageOffer')), 'null')]",
-            "galleryImagePublisher": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}\"', parameters('imagePublisher')), 'null')]",
-            "galleryImageSku": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}\"', parameters('imageSku')), 'null')]",
-            "galleryItemId": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}.{1}{2}\"', parameters('imagePublisher'), parameters('imageOffer'), parameters('imageSku')), 'null')]",
-            "hostPoolName": "[parameters('namingConvention').hostPool]",
-            "imageType": "[if(empty(parameters('imageVersionResourceId')), '\"Gallery\"', '\"CustomImage\"')]"
-          },
-          "resources": [
-            {
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[parameters('resourceGroupControlPlane')]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "activeDirectorySolution": {
-                    "value": "[parameters('activeDirectorySolution')]"
-                  },
-                  "avdPrivateDnsZoneResourceId": {
-                    "value": "[parameters('avdPrivateDnsZoneResourceId')]"
-                  },
-                  "customImageId": {
-                    "value": "[parameters('customImageId')]"
-                  },
-                  "customRdpProperty": {
-                    "value": "[parameters('customRdpProperty')]"
-                  },
-                  "deploymentUserAssignedIdentityPrincipalId": {
-                    "value": "[parameters('deploymentUserAssignedIdentityPrincipalId')]"
-                  },
-                  "diskSku": {
-                    "value": "[parameters('diskSku')]"
-                  },
-                  "domainName": {
-                    "value": "[parameters('domainName')]"
-                  },
-                  "enableAvdInsights": {
-                    "value": "[parameters('enableAvdInsights')]"
-                  },
-                  "galleryImageOffer": {
-                    "value": "[variables('galleryImageOffer')]"
-                  },
-                  "galleryImagePublisher": {
-                    "value": "[variables('galleryImagePublisher')]"
-                  },
-                  "galleryImageSku": {
-                    "value": "[variables('galleryImageSku')]"
-                  },
-                  "galleryItemId": {
-                    "value": "[variables('galleryItemId')]"
-                  },
-                  "hostPoolDiagnosticSettingName": {
-                    "value": "[parameters('namingConvention').hostPoolDiagnosticSetting]"
-                  },
-                  "hostPoolName": {
-                    "value": "[variables('hostPoolName')]"
-                  },
-                  "hostPoolNetworkInterfaceName": {
-                    "value": "[parameters('namingConvention').hostPoolNetworkInterface]"
-                  },
-                  "hostPoolPrivateEndpointName": {
-                    "value": "[parameters('namingConvention').hostPoolPrivateEndpoint]"
-                  },
-                  "hostPoolPublicNetworkAccess": {
-                    "value": "[parameters('hostPoolPublicNetworkAccess')]"
-                  },
-                  "hostPoolType": {
-                    "value": "[parameters('hostPoolType')]"
-                  },
-                  "imageType": {
-                    "value": "[variables('imageType')]"
-                  },
-                  "location": {
-                    "value": "[parameters('locationControlPlane')]"
-                  },
-                  "logAnalyticsWorkspaceResourceId": {
-                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
-                  },
-                  "maxSessionLimit": {
-                    "value": "[parameters('maxSessionLimit')]"
-                  },
-                  "mlzTags": {
-                    "value": "[parameters('mlzTags')]"
-                  },
-                  "sessionHostNamePrefix": {
-                    "value": "[parameters('sessionHostNamePrefix')]"
-                  },
-                  "subnetResourceId": {
-                    "value": "[parameters('subnetResourceId')]"
-                  },
-                  "tags": {
-                    "value": "[parameters('tags')]"
-                  },
-                  "validationEnvironment": {
-                    "value": "[parameters('validationEnvironment')]"
-                  },
-                  "virtualMachineSize": {
-                    "value": "[parameters('virtualMachineSize')]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "8316911055051805022"
-                    }
-                  },
-                  "parameters": {
-                    "activeDirectorySolution": {
-                      "type": "string"
-                    },
-                    "avdPrivateDnsZoneResourceId": {
-                      "type": "string"
-                    },
-                    "deploymentUserAssignedIdentityPrincipalId": {
-                      "type": "string"
-                    },
-                    "customImageId": {
-                      "type": "string"
-                    },
-                    "customRdpProperty": {
-                      "type": "string"
-                    },
-                    "diskSku": {
-                      "type": "string"
-                    },
-                    "domainName": {
-                      "type": "string"
-                    },
-                    "enableAvdInsights": {
-                      "type": "bool"
-                    },
-                    "galleryImageOffer": {
-                      "type": "string"
-                    },
-                    "galleryImagePublisher": {
-                      "type": "string"
-                    },
-                    "galleryImageSku": {
-                      "type": "string"
-                    },
-                    "galleryItemId": {
-                      "type": "string"
-                    },
-                    "hostPoolDiagnosticSettingName": {
-                      "type": "string"
-                    },
-                    "hostPoolName": {
-                      "type": "string"
-                    },
-                    "hostPoolNetworkInterfaceName": {
-                      "type": "string"
-                    },
-                    "hostPoolPrivateEndpointName": {
-                      "type": "string"
-                    },
-                    "hostPoolPublicNetworkAccess": {
-                      "type": "string"
-                    },
-                    "hostPoolType": {
-                      "type": "string"
-                    },
-                    "imageType": {
-                      "type": "string"
-                    },
-                    "location": {
-                      "type": "string"
-                    },
-                    "logAnalyticsWorkspaceResourceId": {
-                      "type": "string"
-                    },
-                    "maxSessionLimit": {
-                      "type": "int"
-                    },
-                    "mlzTags": {
-                      "type": "object"
-                    },
-                    "sessionHostNamePrefix": {
-                      "type": "string"
-                    },
-                    "subnetResourceId": {
-                      "type": "string"
-                    },
-                    "tags": {
-                      "type": "object"
-                    },
-                    "time": {
-                      "type": "string",
-                      "defaultValue": "[utcNow('u')]"
-                    },
-                    "validationEnvironment": {
-                      "type": "bool"
-                    },
-                    "virtualMachineSize": {
-                      "type": "string"
-                    }
-                  },
-                  "variables": {
-                    "customRdpProperty_Complete": "[if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), format('{0}enablerdsaadauth:i:1;', parameters('customRdpProperty')), parameters('customRdpProperty'))]"
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.DesktopVirtualization/hostPools",
-                      "apiVersion": "2023-09-05",
-                      "name": "[parameters('hostPoolName')]",
-                      "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, resourceGroup().name, parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.DesktopVirtualization/hostPools'), createObject()), parameters('mlzTags'))]",
-                      "properties": {
-                        "customRdpProperty": "[variables('customRdpProperty_Complete')]",
-                        "hostPoolType": "[parameters('hostPoolType')]",
-                        "loadBalancerType": "[if(equals(parameters('hostPoolType'), 'Pooled'), 'DepthFirst', 'Persistent')]",
-                        "maxSessionLimit": "[parameters('maxSessionLimit')]",
-                        "personalDesktopAssignmentType": "[if(equals(parameters('hostPoolType'), 'Personal'), 'Automatic', null())]",
-                        "preferredAppGroupType": "Desktop",
-                        "publicNetworkAccess": "[parameters('hostPoolPublicNetworkAccess')]",
-                        "registrationInfo": {
-                          "expirationTime": "[dateTimeAdd(parameters('time'), 'PT2H')]",
-                          "registrationTokenOperation": "Update"
-                        },
-                        "startVMOnConnect": true,
-                        "validationEnvironment": "[parameters('validationEnvironment')]",
-                        "vmTemplate": "[format('{{\"domain\":\"{0}\",\"galleryImageOffer\":{1},\"galleryImagePublisher\":{2},\"galleryImageSKU\":{3},\"imageType\":{4},\"customImageId\":{5},\"namePrefix\":\"{6}\",\"osDiskType\":\"{7}\",\"vmSize\":{{\"id\":\"{8}\",\"cores\":null,\"ram\":null,\"rdmaEnabled\": false,\"supportsMemoryPreservingMaintenance\": true}},\"galleryItemId\":{9},\"hibernate\":false,\"diskSizeGB\":0,\"securityType\":\"TrustedLaunch\",\"secureBoot\":true,\"vTPM\":true,\"vmInfrastructureType\":\"Cloud\",\"virtualProcessorCount\":null,\"memoryGB\":null,\"maximumMemoryGB\":null,\"minimumMemoryGB\":null,\"dynamicMemoryConfig\":false}}', parameters('domainName'), parameters('galleryImageOffer'), parameters('galleryImagePublisher'), parameters('galleryImageSku'), parameters('imageType'), parameters('customImageId'), parameters('sessionHostNamePrefix'), parameters('diskSku'), parameters('virtualMachineSize'), parameters('galleryItemId'))]"
-                      }
-                    },
-                    {
-                      "type": "Microsoft.Network/privateEndpoints",
-                      "apiVersion": "2023-04-01",
-                      "name": "[parameters('hostPoolPrivateEndpointName')]",
-                      "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
-                      "properties": {
-                        "customNetworkInterfaceName": "[parameters('hostPoolNetworkInterfaceName')]",
-                        "privateLinkServiceConnections": [
-                          {
-                            "name": "[parameters('hostPoolPrivateEndpointName')]",
-                            "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]",
-                              "groupIds": [
-                                "connection"
-                              ]
-                            }
-                          }
-                        ],
-                        "subnet": {
-                          "id": "[parameters('subnetResourceId')]"
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-                      "apiVersion": "2023-05-01",
-                      "name": "[format('{0}/{1}', parameters('hostPoolPrivateEndpointName'), 'default')]",
-                      "properties": {
-                        "privateDnsZoneConfigs": [
-                          {
-                            "name": "[replace(split(parameters('avdPrivateDnsZoneResourceId'), '/')[8], '.', '-')]",
-                            "properties": {
-                              "privateDnsZoneId": "[parameters('avdPrivateDnsZoneResourceId')]"
-                            }
-                          }
-                        ]
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('hostPoolPrivateEndpointName'))]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2022-04-01",
-                      "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostPoolName'))]",
-                      "name": "[guid(parameters('deploymentUserAssignedIdentityPrincipalId'), 'e307426c-f9b6-4e81-87de-d99efb3c32bc', resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')))]",
-                      "properties": {
-                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e307426c-f9b6-4e81-87de-d99efb3c32bc')]",
-                        "principalId": "[parameters('deploymentUserAssignedIdentityPrincipalId')]",
-                        "principalType": "ServicePrincipal"
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]"
-                      ]
-                    },
-                    {
-                      "condition": "[parameters('enableAvdInsights')]",
-                      "type": "Microsoft.Insights/diagnosticSettings",
-                      "apiVersion": "2021-05-01-preview",
-                      "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostPoolName'))]",
-                      "name": "[parameters('hostPoolDiagnosticSettingName')]",
-                      "properties": {
-                        "logs": [
-                          {
-                            "categoryGroup": "allLogs",
-                            "enabled": true
-                          }
-                        ],
-                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]"
-                      ]
-                    }
-                  ],
-                  "outputs": {
-                    "name": {
-                      "type": "string",
-                      "value": "[parameters('hostPoolName')]"
-                    },
-                    "resourceId": {
-                      "type": "string",
-                      "value": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]"
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[format('deploy-vdag-{0}', parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[parameters('resourceGroupControlPlane')]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "deploymentNameSuffix": {
-                    "value": "[parameters('deploymentNameSuffix')]"
-                  },
-                  "deploymentUserAssignedIdentityClientId": {
-                    "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
-                  },
-                  "deploymentUserAssignedIdentityPrincipalId": {
-                    "value": "[parameters('deploymentUserAssignedIdentityPrincipalId')]"
-                  },
-                  "desktopApplicationGroupName": {
-                    "value": "[parameters('namingConvention').applicationGroup]"
-                  },
-                  "hostPoolResourceId": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
-                  },
-                  "locationControlPlane": {
-                    "value": "[parameters('locationControlPlane')]"
-                  },
-                  "locationVirtualMachines": {
-                    "value": "[parameters('locationVirtualMachines')]"
-                  },
-                  "mlzTags": {
-                    "value": "[parameters('mlzTags')]"
-                  },
-                  "resourceGroupManagement": {
-                    "value": "[parameters('resourceGroupManagement')]"
-                  },
-                  "securityPrincipalObjectIds": {
-                    "value": "[parameters('securityPrincipalObjectIds')]"
-                  },
-                  "desktopFriendlyName": {
-                    "value": "[parameters('desktopFriendlyName')]"
-                  },
-                  "tags": {
-                    "value": "[parameters('tags')]"
-                  },
-                  "virtualMachineName": {
-                    "value": "[parameters('managementVirtualMachineName')]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "13090348133759185320"
-                    }
-                  },
-                  "parameters": {
-                    "deploymentNameSuffix": {
-                      "type": "string"
-                    },
-                    "deploymentUserAssignedIdentityClientId": {
-                      "type": "string"
-                    },
-                    "deploymentUserAssignedIdentityPrincipalId": {
-                      "type": "string"
-                    },
-                    "desktopApplicationGroupName": {
-                      "type": "string"
-                    },
-                    "desktopFriendlyName": {
-                      "type": "string"
-                    },
-                    "hostPoolResourceId": {
-                      "type": "string"
-                    },
-                    "locationControlPlane": {
-                      "type": "string"
-                    },
-                    "locationVirtualMachines": {
-                      "type": "string"
-                    },
-                    "mlzTags": {
-                      "type": "object"
-                    },
-                    "resourceGroupManagement": {
-                      "type": "string"
-                    },
-                    "securityPrincipalObjectIds": {
-                      "type": "array"
-                    },
-                    "tags": {
-                      "type": "object"
-                    },
-                    "virtualMachineName": {
-                      "type": "string"
-                    }
-                  },
-                  "variables": {
-                    "$fxv#0": "Param(\r\n    [string]$ApplicationGroupName,\r\n    [string]$FriendlyName,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$SubscriptionId,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Wait for role assignment propagation\r\nStart-Sleep -Seconds 30\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if ($ResourceManagerUri[-1] -eq '/') {$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Update the friendly name on the session desktop\r\nInvoke-RestMethod `\r\n    -Body (@{properties = @{friendlyName = $FriendlyName.Replace('\"', '')}} | ConvertTo-Json) `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'PATCH' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/applicationGroups/' + $ApplicationGroupName + '/desktops/SessionDesktop?api-version=2022-02-10-preview') | Out-Null"
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.DesktopVirtualization/applicationGroups",
-                      "apiVersion": "2023-09-05",
-                      "name": "[parameters('desktopApplicationGroupName')]",
-                      "location": "[parameters('locationControlPlane')]",
-                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.DesktopVirtualization/applicationGroups'), createObject()), parameters('mlzTags'))]",
-                      "properties": {
-                        "hostPoolArmPath": "[parameters('hostPoolResourceId')]",
-                        "applicationGroupType": "Desktop"
-                      }
-                    },
-                    {
-                      "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2022-04-01",
-                      "scope": "[format('Microsoft.DesktopVirtualization/applicationGroups/{0}', parameters('desktopApplicationGroupName'))]",
-                      "name": "[guid(parameters('deploymentUserAssignedIdentityPrincipalId'), '86240b0e-9422-4c43-887b-b61143f32ba8', resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName')))]",
-                      "properties": {
-                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '86240b0e-9422-4c43-887b-b61143f32ba8')]",
-                        "principalId": "[parameters('deploymentUserAssignedIdentityPrincipalId')]",
-                        "principalType": "ServicePrincipal"
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))]"
-                      ]
-                    },
-                    {
-                      "copy": {
-                        "name": "roleAssignment_ApplicationGroup",
-                        "count": "[length(range(0, length(parameters('securityPrincipalObjectIds'))))]"
-                      },
-                      "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2022-04-01",
-                      "scope": "[format('Microsoft.DesktopVirtualization/applicationGroups/{0}', parameters('desktopApplicationGroupName'))]",
-                      "name": "[guid(parameters('securityPrincipalObjectIds')[range(0, length(parameters('securityPrincipalObjectIds')))[copyIndex()]], '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63', resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName')))]",
-                      "properties": {
-                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63')]",
-                        "principalId": "[parameters('securityPrincipalObjectIds')[range(0, length(parameters('securityPrincipalObjectIds')))[copyIndex()]]]"
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))]"
-                      ]
-                    },
-                    {
-                      "condition": "[not(empty(parameters('desktopFriendlyName')))]",
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-vdapp-friendly-name-{0}', parameters('deploymentNameSuffix'))]",
-                      "resourceGroup": "[parameters('resourceGroupManagement')]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "location": {
-                            "value": "[parameters('locationVirtualMachines')]"
-                          },
-                          "name": {
-                            "value": "Update-AvdDesktop"
-                          },
-                          "parameters": {
-                            "value": [
-                              {
-                                "name": "ApplicationGroupName",
-                                "value": "[parameters('desktopApplicationGroupName')]"
-                              },
-                              {
-                                "name": "FriendlyName",
-                                "value": "[parameters('desktopFriendlyName')]"
-                              },
-                              {
-                                "name": "ResourceGroupName",
-                                "value": "[resourceGroup().name]"
-                              },
-                              {
-                                "name": "ResourceManagerUri",
-                                "value": "[environment().resourceManager]"
-                              },
-                              {
-                                "name": "SubscriptionId",
-                                "value": "[subscription().subscriptionId]"
-                              },
-                              {
-                                "name": "UserAssignedIdentityClientId",
-                                "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
-                              }
-                            ]
-                          },
-                          "script": {
-                            "value": "[variables('$fxv#0')]"
-                          },
-                          "tags": {
-                            "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]"
-                          },
-                          "virtualMachineName": {
-                            "value": "[parameters('virtualMachineName')]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "6896852651895359166"
-                            }
-                          },
-                          "parameters": {
-                            "asyncExecution": {
-                              "type": "bool",
-                              "defaultValue": false
-                            },
-                            "location": {
-                              "type": "string"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "parameters": {
-                              "type": "array",
-                              "defaultValue": []
-                            },
-                            "script": {
-                              "type": "string"
-                            },
-                            "tags": {
-                              "type": "object"
-                            },
-                            "treatFailureAsDeploymentFailure": {
-                              "type": "bool",
-                              "defaultValue": true
-                            },
-                            "virtualMachineName": {
-                              "type": "string"
-                            }
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.Compute/virtualMachines/runCommands",
-                              "apiVersion": "2023-09-01",
-                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
-                              "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
-                              "properties": {
-                                "asyncExecution": "[parameters('asyncExecution')]",
-                                "parameters": "[parameters('parameters')]",
-                                "source": {
-                                  "script": "[parameters('script')]"
-                                },
-                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))]",
-                        "[extensionResourceId(resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName')), 'Microsoft.Authorization/roleAssignments', guid(parameters('deploymentUserAssignedIdentityPrincipalId'), '86240b0e-9422-4c43-887b-b61143f32ba8', resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))))]"
-                      ]
-                    }
-                  ],
-                  "outputs": {
-                    "resourceId": {
-                      "type": "string",
-                      "value": "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('desktopApplicationGroupName'))]"
-                    }
-                  }
-                }
-              },
-              "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix')))]"
-              ]
-            }
-          ],
-          "outputs": {
-            "applicationGroupResourceId": {
-              "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.Resources/deployments', format('deploy-vdag-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
-            },
-            "hostPoolName": {
-              "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
-            },
-            "hostPoolResourceId": {
-              "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
-            }
-          }
-        }
-      },
-      "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix')))]",
-        "rgs",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -9960,7 +9792,7 @@
         "mode": "Incremental",
         "parameters": {
           "applicationGroupResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.applicationGroupResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.applicationGroupResourceId.value]"
           },
           "avdPrivateDnsZoneResourceId": {
             "value": "[format('{0}{1}', variables('privateDnsZoneResourceIdPrefix'), filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value, lambda('name', startsWith(lambdaVariables('name'), 'privatelink.wvd')))[0])]"
@@ -9985,7 +9817,7 @@
             "value": "[not(empty(parameters('existingFeedWorkspaceResourceId')))]"
           },
           "hostPoolName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hostPoolName.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hostPoolName.value]"
           },
           "locationControlPlane": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
@@ -10003,7 +9835,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "resourceGroupManagement": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
           "sharedServicesSubnetResourceId": {
             "value": "[parameters('sharedServicesSubnetResourceId')]"
@@ -10918,11 +10750,10 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-cp-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-hub-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -10987,7 +10818,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.functionAppName.value]"
           },
           "hostPoolResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hostPoolResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hostPoolResourceId.value]"
           },
           "keyVaultUri": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
@@ -11014,7 +10845,7 @@
             "value": "[parameters('recoveryServices')]"
           },
           "resourceGroupManagement": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
           "resourceGroupStorage": "[if(variables('deployFslogix'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[3], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', ''))]",
           "securityPrincipalNames": {
@@ -12486,7 +12317,6 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix')))]",
         "rgs",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
@@ -12573,10 +12403,10 @@
             "value": "[parameters('fslogixContainerType')]"
           },
           "hostPoolName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hostPoolName.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hostPoolName.value]"
           },
           "hostPoolResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hostPoolResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hostPoolResourceId.value]"
           },
           "hostPoolType": {
             "value": "[parameters('hostPoolType')]"
@@ -12624,14 +12454,11 @@
           "recoveryServicesVaultName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.recoveryServicesVaultName.value]"
           },
-          "resourceGroupControlPlane": {
+          "resourceGroupHosts": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
-          "resourceGroupHosts": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
-          },
           "resourceGroupManagement": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
           "scalingWeekdaysOffPeakStartTime": {
             "value": "[parameters('scalingWeekdaysOffPeakStartTime')]"
@@ -12696,7 +12523,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "11948629880197456532"
+              "templateHash": "4036330452812299016"
             }
           },
           "parameters": {
@@ -12821,9 +12648,6 @@
               "type": "string"
             },
             "recoveryServicesVaultName": {
-              "type": "string"
-            },
-            "resourceGroupControlPlane": {
               "type": "string"
             },
             "resourceGroupHosts": {
@@ -13378,9 +13202,6 @@
                   "profile": {
                     "value": "[parameters('profile')]"
                   },
-                  "resourceGroupControlPlane": {
-                    "value": "[parameters('resourceGroupControlPlane')]"
-                  },
                   "resourceGroupManagement": {
                     "value": "[parameters('resourceGroupManagement')]"
                   },
@@ -13436,7 +13257,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.92.45157",
-                      "templateHash": "4856771644604606418"
+                      "templateHash": "10645307132280074356"
                     }
                   },
                   "parameters": {
@@ -13534,9 +13355,6 @@
                       "type": "string"
                     },
                     "profile": {
-                      "type": "string"
-                    },
-                    "resourceGroupControlPlane": {
                       "type": "string"
                     },
                     "resourceGroupManagement": {
@@ -13877,7 +13695,7 @@
                         },
                         "protectedSettings": {
                           "Items": {
-                            "RegistrationInfoToken": "[listRegistrationTokens(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupControlPlane')), 'Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')), '2023-09-05').value[0].token]"
+                            "RegistrationInfoToken": "[listRegistrationTokens(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')), '2023-09-05').value[0].token]"
                           }
                         }
                       },
@@ -14165,7 +13983,7 @@
                               },
                               {
                                 "name": "HostPoolResourceGroupName",
-                                "value": "[parameters('resourceGroupControlPlane')]"
+                                "value": "[parameters('resourceGroupManagement')]"
                               },
                               {
                                 "name": "ResourceManagerUri",
@@ -14748,7 +14566,6 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix')))]",
         "rgs",
@@ -14773,7 +14590,7 @@
             "value": "[parameters('locationVirtualMachines')]"
           },
           "resourceGroupManagement": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
           "userAssignedIdentityClientId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.deploymentUserAssignedIdentityClientId.value]"
@@ -14931,7 +14748,7 @@
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-session-hosts-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }

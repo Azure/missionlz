@@ -2,7 +2,7 @@ param delegatedSubnetResourceId string
 param deploymentNameSuffix string
 param enableApplicationInsights bool
 param environmentAbbreviation string
-param hostPoolName string
+param hostPoolResourceId string
 param keyExpirationInDays int = 30
 param location string = resourceGroup().location
 param logAnalyticsWorkspaceResourceId string
@@ -11,7 +11,7 @@ param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
 param privateLinkScopeResourceId string
 param resourceAbbreviations object
-param resourceGroupControlPlane string
+param resourceGroupManagement string
 param resourceGroupStorage string
 param serviceToken string
 param subnetResourceId string
@@ -399,11 +399,11 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
         }
         {
           name: 'HostPoolName'
-          value: hostPoolName
+          value: split(hostPoolResourceId, '/')[8]
         }
         {
           name: 'HostPoolResourceGroupName'
-          value: resourceGroupControlPlane
+          value: resourceGroupManagement
         }
         {
           name: 'LogOffMessageBody'
