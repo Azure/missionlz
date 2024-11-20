@@ -315,8 +315,8 @@
           ]
         },
         {
-          "name": "controlPlane",
-          "label": "Control Plane",
+          "name": "management",
+          "label": "Management",
           "elements": [
             {
               "name": "hostPool",
@@ -360,7 +360,7 @@
                   "name": "workloadType",
                   "type": "Microsoft.Common.DropDown",
                   "label": "Workload Type",
-                  "visible": "[or(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('basics').scenario.profile, 'generic'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')))]",
+                  "visible": "[or(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('basics').scenario.profile, 'generic'), equals(steps('management').hostPool.hostPoolType, 'Pooled')))]",
                   "filter": true,
                   "defaultValue": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Medium', 'Heavy (2 users per core)')]",
                   "toolTip": "Select the type of image to deploy on the session hosts.",
@@ -424,7 +424,7 @@
             {
               "name": "workspace",
               "type": "Microsoft.Common.Section",
-              "visible": "[empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location)))))]",
+              "visible": "[empty(first(filter(steps('management').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location)))))]",
               "label": "Workspace",
               "elements": [
                 {
@@ -472,7 +472,7 @@
                 {
                   "name": "groupPickerBlade",
                   "type": "Microsoft.Solutions.BladeInvokeControl",
-                  "openBladeStatus": "[steps('controlPlane').assignment.groupSelector.changing]",
+                  "openBladeStatus": "[steps('management').assignment.groupSelector.changing]",
                   "bladeReference": {
                     "name": "ObjectPickerBlade",
                     "extension": "Microsoft_AAD_IAM",
@@ -512,13 +512,13 @@
                   "label": "Select Groups",
                   "keyPath": "displayName",
                   "descriptionKeyPath": "id",
-                  "value": "[steps('controlPlane').assignment.groupPickerBlade.transformed.selection]",
+                  "value": "[steps('management').assignment.groupPickerBlade.transformed.selection]",
                   "visible": true,
-                  "barColor": "[if(empty(steps('controlPlane').assignment.groupPickerBlade), '#FF0000', '#7fba00')]",
+                  "barColor": "[if(empty(steps('management').assignment.groupPickerBlade), '#FF0000', '#7fba00')]",
                   "constraints": {
                     "required": true
                   },
-                  "link": "[if(empty(steps('controlPlane').assignment.groupPickerBlade), 'Select groups', 'Re-select groups')]"
+                  "link": "[if(empty(steps('management').assignment.groupPickerBlade), 'Select groups', 'Re-select groups')]"
                 }
               ]
             },
@@ -543,7 +543,7 @@
                   "defaultValue": "",
                   "placeholder": "Example: Information Technology",
                   "toolTip": "Input the friendly name for the AVD workspace that will be displayed in the end user's client. This value should apply to all the stamp indexes within the same identifier and would mostly likely represent your business unit or project.",
-                  "visible": "[and(steps('controlPlane').friendlyNames.custom, empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))))))]",
+                  "visible": "[and(steps('management').friendlyNames.custom, empty(first(filter(steps('management').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))))))]",
                   "constraints": {
                     "required": false,
                     "regex": "^.{1,64}$",
@@ -557,12 +557,151 @@
                   "defaultValue": "",
                   "placeholder": "Example: Help Desk",
                   "toolTip": "Input the friendly name for the AVD Session Desktop application that will be displayed in the end user's client. This value should represent the workload (eg., Help Desk, Development, or Administration) that will be supported on the host pool.",
-                  "visible": "[steps('controlPlane').friendlyNames.custom]",
+                  "visible": "[steps('management').friendlyNames.custom]",
                   "constraints": {
                     "required": false,
                     "regex": "^.{1,64}$",
                     "validationMessage": "The value must be between 1 and 64 characters in length."
                   }
+                }
+              ]
+            },
+            {
+              "name": "servicePrincipalsApi",
+              "type": "Microsoft.Solutions.GraphApiControl",
+              "request": {
+                "method": "GET",
+                "path": "/v1.0/serviceprincipals?$filter=appId eq '9cdead84-a844-4324-93f2-b2e6bb768d07'"
+              }
+            },
+            {
+              "name": "drainMode",
+              "type": "Microsoft.Common.Section",
+              "label": "Drain Mode",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "enableDrainMode",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable drain mode?",
+                  "defaultValue": true,
+                  "toolTip": "Enables drain mode on the AVD session hosts so the virtual machines cannot be accessed until they have been validated."
+                }
+              ]
+            },
+            {
+              "name": "scalingPlan",
+              "label": "Scaling Plan",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "weekdaysPeakStartTime",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Weekdays - Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "09:00",
+                  "toolTip": "Input the time when peak hours end for your end users.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 8pm should be input as 20:00."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "weekdaysOffPeakStartTime",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Weekdays - Off Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "17:00",
+                  "toolTip": "Input the time when peak hours begin for your end users during the work week, Monday - Friday.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 12am should be input as 00:00."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "weekendsPeakStartTime",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Weekends - Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "09:00",
+                  "toolTip": "Input the time when peak hours end for your end users.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 8pm should be input as 20:00."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "weekendsOffPeakStartTime",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Weekends - Off Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "17:00",
+                  "toolTip": "Input the time when peak hours begin for your end users during the work week, Monday - Friday.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 12am should be input as 00:00."
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "backup",
+              "type": "Microsoft.Common.Section",
+              "label": "Backup",
+              "visible": "[and(not(contains(steps('profiles').storage.service, 'AzureNetAppFiles')), not(equals(steps('hosts').identity.solution, 'MicrosoftEntraId')))]",
+              "elements": [
+                {
+                  "name": "recoveryServices",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": true,
+                  "label": "Enable recovery services?",
+                  "defaultValue": false,
+                  "toolTip": "Choose to deploy backups for your solution. For a personal host pool, this will enable backups on the virtual machines. For a pooled host pool, this will enable backups on the FSLogix file share when using Azure Files."
+                }
+              ]
+            },
+            {
+              "name": "monitoring",
+              "type": "Microsoft.Common.Section",
+              "label": "Monitoring",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "enableAvdInsights",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": true,
+                  "label": "Enable AVD Insights?",
+                  "defaultValue": true,
+                  "toolTip": "Deploy the required resources to enable AVD Insights."
+                },
+                {
+                  "name": "enableApplicationInsights",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": "[equals(steps('profiles').storage.service, 'AzureFiles Premium')]",
+                  "label": "Enable Application Insights?",
+                  "defaultValue": true,
+                  "toolTip": "Deploy the required resources to monitor the Auto Increase File Share Solution."
                 }
               ]
             }
@@ -778,7 +917,7 @@
                   },
                   "osPlatform": "Windows",
                   "count": "[steps('hosts').virtualMachines.count]",
-                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)))]"
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 6)))]"
                 },
                 {
                   "name": "sizeArcGisProSingleMedium",
@@ -805,7 +944,7 @@
                   },
                   "osPlatform": "Windows",
                   "count": "[steps('hosts').virtualMachines.count]",
-                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4))]"
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 4))]"
                 },
                 {
                   "name": "sizeArcGisProSingleHeavy",
@@ -830,7 +969,7 @@
                   },
                   "osPlatform": "Windows",
                   "count": "[steps('hosts').virtualMachines.count]",
-                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3))]"
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 3))]"
                 },
                 {
                   "name": "sizeArcGisProMulti",
@@ -853,7 +992,7 @@
                   },
                   "osPlatform": "Windows",
                   "count": "[steps('hosts').virtualMachines.count]",
-                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'))]"
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Pooled'))]"
                 },
                 {
                   "name": "resourceSkusApi",
@@ -1118,151 +1257,6 @@
           ]
         },
         {
-          "name": "management",
-          "label": "Management",
-          "elements": [
-            {
-              "name": "servicePrincipalsApi",
-              "type": "Microsoft.Solutions.GraphApiControl",
-              "request": {
-                "method": "GET",
-                "path": "/v1.0/serviceprincipals?$filter=appId eq '9cdead84-a844-4324-93f2-b2e6bb768d07'"
-              }
-            },
-            {
-              "name": "drainMode",
-              "type": "Microsoft.Common.Section",
-              "label": "Drain Mode",
-              "visible": true,
-              "elements": [
-                {
-                  "name": "enableDrainMode",
-                  "type": "Microsoft.Common.CheckBox",
-                  "label": "Enable drain mode?",
-                  "defaultValue": true,
-                  "toolTip": "Enables drain mode on the AVD session hosts so the virtual machines cannot be accessed until they have been validated."
-                }
-              ]
-            },
-            {
-              "name": "scalingPlan",
-              "label": "Scaling Plan",
-              "type": "Microsoft.Common.Section",
-              "visible": true,
-              "elements": [
-                {
-                  "name": "weekdaysPeakStartTime",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Weekdays - Peak Start Time",
-                  "visible": true,
-                  "defaultValue": "09:00",
-                  "toolTip": "Input the time when peak hours end for your end users.",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^[012][0-9]:[0-5][0-9]$",
-                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 8pm should be input as 20:00."
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "weekdaysOffPeakStartTime",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Weekdays - Off Peak Start Time",
-                  "visible": true,
-                  "defaultValue": "17:00",
-                  "toolTip": "Input the time when peak hours begin for your end users during the work week, Monday - Friday.",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^[012][0-9]:[0-5][0-9]$",
-                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 12am should be input as 00:00."
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "weekendsPeakStartTime",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Weekends - Peak Start Time",
-                  "visible": true,
-                  "defaultValue": "09:00",
-                  "toolTip": "Input the time when peak hours end for your end users.",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^[012][0-9]:[0-5][0-9]$",
-                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 8pm should be input as 20:00."
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "weekendsOffPeakStartTime",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Weekends - Off Peak Start Time",
-                  "visible": true,
-                  "defaultValue": "17:00",
-                  "toolTip": "Input the time when peak hours begin for your end users during the work week, Monday - Friday.",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^[012][0-9]:[0-5][0-9]$",
-                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 12am should be input as 00:00."
-                      }
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              "name": "backup",
-              "type": "Microsoft.Common.Section",
-              "label": "Backup",
-              "visible": "[and(not(contains(steps('profiles').storage.service, 'AzureNetAppFiles')), not(equals(steps('hosts').identity.solution, 'MicrosoftEntraId')))]",
-              "elements": [
-                {
-                  "name": "recoveryServices",
-                  "type": "Microsoft.Common.CheckBox",
-                  "visible": true,
-                  "label": "Enable recovery services?",
-                  "defaultValue": false,
-                  "toolTip": "Choose to deploy backups for your solution. For a personal host pool, this will enable backups on the virtual machines. For a pooled host pool, this will enable backups on the FSLogix file share when using Azure Files."
-                }
-              ]
-            },
-            {
-              "name": "monitoring",
-              "type": "Microsoft.Common.Section",
-              "label": "Monitoring",
-              "visible": true,
-              "elements": [
-                {
-                  "name": "enableAvdInsights",
-                  "type": "Microsoft.Common.CheckBox",
-                  "visible": true,
-                  "label": "Enable AVD Insights?",
-                  "defaultValue": true,
-                  "toolTip": "Deploy the required resources to enable AVD Insights."
-                },
-                {
-                  "name": "enableApplicationInsights",
-                  "type": "Microsoft.Common.CheckBox",
-                  "visible": "[equals(steps('profiles').storage.service, 'AzureFiles Premium')]",
-                  "label": "Enable Application Insights?",
-                  "defaultValue": true,
-                  "toolTip": "Deploy the required resources to monitor the Auto Increase File Share Solution."
-                }
-              ]
-            }
-          ]
-        },
-        {
           "name": "network",
           "label": "Networking",
           "elements": [
@@ -1322,7 +1316,7 @@
                   }
                 },
                 {
-                  "name": "controlPlaneSubnetAddressCidrRange",
+                  "name": "managementSubnetAddressCidrRange",
                   "label": "Control Plane Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
                   "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.0/26')]",
@@ -1335,19 +1329,19 @@
                         "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').vnet.controlPlaneSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').vnet.managementSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (first octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').vnet.controlPlaneSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').vnet.managementSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (second octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').vnet.controlPlaneSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').vnet.managementSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (third octet)."
                       },
                       {
-                        "isValid": "[lessOrEquals(last(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').vnet.controlPlaneSubnetAddressCidrRange, '/')))]",
+                        "isValid": "[lessOrEquals(last(split(steps('network').vnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').vnet.managementSubnetAddressCidrRange, '/')))]",
                         "message": "CIDR range not within virtual network CIDR range (subnet mask)."
                       }
                     ]
@@ -1609,34 +1603,34 @@
       "parameters": {
         "activeDirectorySolution": "[if(and(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), steps('hosts').identity.intune), 'MicrosoftEntraIdIntuneEnrollment', steps('hosts').identity.solution)]",
         "availability": "[steps('hosts').virtualMachines.availability]",
-        "availabilityZones": "[first(map(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.locationInfo)), (item) => item.zones))]",
+        "availabilityZones": "[first(map(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.locationInfo)), (item) => item.zones))]",
         "avdObjectId": "[first(map(steps('management').servicePrincipalsApi.value, (item) => item.id))]",
         "azureNetAppFilesSubnetAddressPrefix": "[steps('network').vnet.azureNetAppFilesSubnetAddressCidrRange]",
-        "customRdpProperty": "[steps('controlPlane').hostPool.customRdpProperties]",
+        "customRdpProperty": "[steps('management').hostPool.customRdpProperties]",
         "deployActivityLogDiagnosticSetting": "[empty(steps('compliance').diagnosticSettingsApi.value)]",
         "deployDefender": "[and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value))]",
         "deployNetworkWatcher": "[empty(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)))]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
-        "desktopFriendlyName": "[steps('controlPlane').friendlyNames.sessionDesktop]",
+        "desktopFriendlyName": "[steps('management').friendlyNames.sessionDesktop]",
         "diskSku": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Premium_LRS', steps('hosts').virtualMachines.diskSku)]",
         "domainJoinPassword": "[steps('hosts').domainJoinCredentials.domainPassword]",
         "domainJoinUserPrincipalName": "[steps('hosts').domainJoinCredentials.domainUserPrincipalName]",
         "domainName": "[steps('hosts').identity.domainName]",
         "drainMode": "[steps('management').drainMode.enableDrainMode]",
         "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '')]",
-        "enableAcceleratedNetworking": "[bool(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'AcceleratedNetworkingEnabled')), (item) => item.value)))]",
+        "enableAcceleratedNetworking": "[bool(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'AcceleratedNetworkingEnabled')), (item) => item.value)))]",
         "enableApplicationInsights": "[steps('management').monitoring.enableApplicationInsights]",
         "enableAvdInsights": "[steps('management').monitoring.enableAvdInsights]",
         "enableTelemetry": "[steps('basics').scenario.enablePartnerTelemetry]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
         "existingSharedActiveDirectoryConnection": "[steps('profiles').storage.existingSharedActiveDirectoryConnection]",
-        "existingFeedWorkspaceResourceId": "[if(empty(steps('controlPlane').workspacesApi.value), '', first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id)))]",
+        "existingFeedWorkspaceResourceId": "[if(empty(steps('management').workspacesApi.value), '', first(map(filter(steps('management').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id)))]",
         "fslogixShareSizeInGB": "[if(equals(steps('profiles').profileSolution, 'local'), 100, steps('profiles').storage.fileShareSize)]",
         "fslogixContainerType": "[steps('profiles').storage.fslogixContainerType]",
         "fslogixStorageService": "[if(equals(steps('profiles').profileSolution, 'local'), 'None', steps('profiles').storage.service)]",
         "functionAppSubnetAddressPrefix": "[steps('network').vnet.functionAppSubnetAddressCidrRange]",
-        "hostPoolPublicNetworkAccess": "[steps('controlPlane').hostPool.publicNetworkAccess]",
-        "hostPoolType": "[steps('controlPlane').hostPool.hostPoolType]",
+        "hostPoolPublicNetworkAccess": "[steps('management').hostPool.publicNetworkAccess]",
+        "hostPoolType": "[steps('management').hostPool.hostPoolType]",
         "hubAzureFirewallResourceId": "[steps('basics').hub.azureFirewall]",
         "hubVirtualNetworkResourceId": "[steps('basics').hub.virtualNetwork]",
         "identifier": "[steps('basics').naming.identifier]",
@@ -1657,24 +1651,24 @@
         "scalingWeekdaysPeakStartTime": "[steps('management').scalingPlan.weekdaysPeakStartTime]",
         "scalingWeekendsOffPeakStartTime": "[steps('management').scalingPlan.weekendsOffPeakStartTime]",
         "scalingWeekendsPeakStartTime": "[steps('management').scalingPlan.weekendsPeakStartTime]",
-        "securityPrincipals": "[steps('controlPlane').assignment.groupPickerBlade.transformed.selection]",
+        "securityPrincipals": "[steps('management').assignment.groupPickerBlade.transformed.selection]",
         "sessionHostCount": "[steps('hosts').virtualMachines.count]",
         "sessionHostIndex": 0,
         "sharedServicesSubnetResourceId": "[first(map(steps('basics').sharedServicesSubnetsApi.value, (item) => item.id))]",
         "stampIndex": "[steps('basics').naming.stampIndex]",
-        "storageCount": "[if(equals(steps('profiles').profileSolution, 'local'), 0, length(steps('controlPlane').assignment.groupPickerBlade.transformed.selection))]",
+        "storageCount": "[if(equals(steps('profiles').profileSolution, 'local'), 0, length(steps('management').assignment.groupPickerBlade.transformed.selection))]",
         "storageIndex": 0,
-        "subnetAddressPrefixes": "[parse(concat('[\"', steps('network').vnet.sessionHostsSubnetAddressCidrRange, '\",\"', steps('network').vnet.controlPlaneSubnetAddressCidrRange, '\"]'))]",
+        "subnetAddressPrefixes": "[parse(concat('[\"', steps('network').vnet.sessionHostsSubnetAddressCidrRange, '\",\"', steps('network').vnet.managementSubnetAddressCidrRange, '\"]'))]",
         "tags": "[steps('tags').tags]",
-        "usersPerCore": "[if(equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'), steps('controlPlane').hostPool.workloadType, 1)]",
-        "validationEnvironment": "[steps('controlPlane').hostPool.validation]",
+        "usersPerCore": "[if(equals(steps('management').hostPool.hostPoolType, 'Pooled'), steps('management').hostPool.workloadType, 1)]",
+        "validationEnvironment": "[steps('management').hostPool.validation]",
         "virtualMachinePassword": "[steps('hosts').localAdminCredentials.localAdminPassword]",
-        "virtualMachineSize": "[if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric))))]",
+        "virtualMachineSize": "[if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric))))]",
         "virtualMachineUsername": "[steps('hosts').localAdminCredentials.localAdminUsername]",
-        "virtualMachineVirtualCpuCount": "[first(map(filter(first(map(filter(steps('basics').scenario.virtualMachineSkusApi.value, (item) => equals(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))]",
+        "virtualMachineVirtualCpuCount": "[first(map(filter(first(map(filter(steps('basics').scenario.virtualMachineSkusApi.value, (item) => equals(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('management').hostPool.hostPoolType, 'Personal'), equals(steps('management').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))]",
         "virtualNetworkAddressPrefixes": "[parse(concat('[\"', steps('network').vnet.virtualNetworkAddressCidrRange, '\"]'))]",
-        "workspaceFriendlyName": "[if(empty(first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id))), steps('controlPlane').friendlyNames.feedWorkspace, first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.properties.friendlyName)))]",
-        "workspacePublicNetworkAccess": "[if(empty(first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id))), steps('controlPlane').workspace.publicNetworkAccess, first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.properties.publicNetworkAccess)))]"
+        "workspaceFriendlyName": "[if(empty(first(map(filter(steps('management').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id))), steps('management').friendlyNames.feedWorkspace, first(map(filter(steps('management').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.properties.friendlyName)))]",
+        "workspacePublicNetworkAccess": "[if(empty(first(map(filter(steps('management').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id))), steps('management').workspace.publicNetworkAccess, first(map(filter(steps('management').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.properties.publicNetworkAccess)))]"
       },
       "kind": "Subscription",
       "location": "[steps('basics').scope.location.name]",
