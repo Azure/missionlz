@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "12893496667059064562"
+      "templateHash": "10261199785765455475"
     }
   },
   "parameters": {
@@ -9101,8 +9101,8 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[1], parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[2], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', variables('resourceGroupServices')[0], parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix')))]"
       ]
@@ -9218,7 +9218,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "9966867557025446557"
+              "templateHash": "2907557826627496398"
             }
           },
           "parameters": {
@@ -9431,7 +9431,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.92.45157",
-                      "templateHash": "17220407081552879851"
+                      "templateHash": "8316911055051805022"
                     }
                   },
                   "parameters": {
@@ -9600,9 +9600,9 @@
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2022-04-01",
                       "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostPoolName'))]",
-                      "name": "[guid(parameters('deploymentUserAssignedIdentityPrincipalId'), '2ad6aaab-ead9-4eaa-8ac5-da422f562408', resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')))]",
+                      "name": "[guid(parameters('deploymentUserAssignedIdentityPrincipalId'), 'e307426c-f9b6-4e81-87de-d99efb3c32bc', resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')))]",
                       "properties": {
-                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '2ad6aaab-ead9-4eaa-8ac5-da422f562408')]",
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e307426c-f9b6-4e81-87de-d99efb3c32bc')]",
                         "principalId": "[parameters('deploymentUserAssignedIdentityPrincipalId')]",
                         "principalType": "ServicePrincipal"
                       },
