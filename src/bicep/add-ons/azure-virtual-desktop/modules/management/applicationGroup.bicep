@@ -1,13 +1,11 @@
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
-param deploymentUserAssignedIdentityPrincipalId string
 param desktopApplicationGroupName string
 param desktopFriendlyName string
 param hostPoolResourceId string
 param locationControlPlane string
 param locationVirtualMachines string
 param mlzTags object
-param resourceGroupManagement string
 param securityPrincipalObjectIds array
 param tags object
 param virtualMachineName string
@@ -22,23 +20,9 @@ resource applicationGroup 'Microsoft.DesktopVirtualization/applicationGroups@202
   }
 }
 
-// Role Assignment to update the Application
-// Purpose: assigns the Desktop Virtualization Application Group Contributor role to the
-// managed identity so the run command can update the friendly name for the application
-resource roleAssignment_ManagedIdentity 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(deploymentUserAssignedIdentityPrincipalId, '86240b0e-9422-4c43-887b-b61143f32ba8', applicationGroup.id)
-  scope: applicationGroup
-  properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '86240b0e-9422-4c43-887b-b61143f32ba8')
-    principalId: deploymentUserAssignedIdentityPrincipalId
-    principalType: 'ServicePrincipal'
-  }
-}
-
 // Run Command to update the Application
 // Purpose: executes a script to update the friendly name on the application
 module applicationFriendlyName '../common/runCommand.bicep' = if (!empty(desktopFriendlyName)) {
-  scope: resourceGroup(resourceGroupManagement)
   name: 'deploy-vdapp-friendly-name-${deploymentNameSuffix}'
   params: {
     location: locationVirtualMachines
@@ -73,9 +57,6 @@ module applicationFriendlyName '../common/runCommand.bicep' = if (!empty(desktop
     tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
     virtualMachineName: virtualMachineName
   }
-  dependsOn: [
-    roleAssignment_ManagedIdentity
-  ]
 }
 
 // Role Assignment for AVD access

@@ -83,3 +83,6 @@ module policyAssignment 'policyAssignment.bicep' = {
     policyName: policyDefinition.properties.displayName
   }
 }
+
+output policyDefinitionId string = policyDefinition.id
+output policyDisplayName string = policyDefinition.properties.displayName

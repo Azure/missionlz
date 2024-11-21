@@ -11,6 +11,9 @@ param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityPrincipalId string
+param diskAccessPolicyDefinitionId string
+param diskAccessPolicyDisplayName string
+param diskAccessResourceId string
 param diskEncryptionSetResourceId string
 param diskSku string
 param divisionRemainderValue int
@@ -42,8 +45,8 @@ param netAppFileShares array
 param organizationalUnitPath string
 param profile string
 param recoveryServicesVaultName string
-param resourceGroupHosts string
 param resourceGroupManagement string
+param resourceGroupName string
 param scalingWeekdaysOffPeakStartTime string
 param scalingWeekdaysPeakStartTime string
 param scalingWeekendsOffPeakStartTime string
@@ -70,9 +73,28 @@ var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 var virtualMachineNamePrefix = replace(namingConvention.virtualMachine, serviceToken, '')
 
+resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+  name: resourceGroupName
+  location: location
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
+}
+
+// Sets an Azure policy to disable public network access to managed disks
+module policyAssignment '../management/policyAssignment.bicep' = {
+  name: 'assign-policy-diskAccess-${deploymentNameSuffix}'
+  scope: rg
+  params: {
+    diskAccessResourceId: diskAccessResourceId
+    location: location
+    policyDefinitionId: diskAccessPolicyDefinitionId
+    policyDisplayName: diskAccessPolicyDisplayName
+    policyName: diskAccessPolicyDisplayName
+  }
+}
+
 module availabilitySets 'availabilitySets.bicep' = if (hostPoolType == 'Pooled' && availability == 'AvailabilitySets') {
-  name: 'deploy-avail-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupHosts)
+  name: 'deploy-avSets-${deploymentNameSuffix}'
+  scope: rg
   params: {
     availabilitySetNamePrefix: availabilitySetNamePrefix
     availabilitySetsCount: availabilitySetsCount
@@ -86,8 +108,8 @@ module availabilitySets 'availabilitySets.bicep' = if (hostPoolType == 'Pooled' 
 // Purpose: assigns the Virtual Machine Login User role on the hosts resource group
 // to enable the login to Entra joined virtual machines
 module roleAssignments '../common/roleAssignments/resourceGroup.bicep' = [for i in range(0, length(securityPrincipalObjectIds)): if (contains(activeDirectorySolution, 'EntraId')) {
-  name: 'deploy-role-assignments-${i}-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupHosts)
+  name: 'assign-role-${i}-${deploymentNameSuffix}'
+  scope: rg
   params: {
     principalId: securityPrincipalObjectIds[i]
     principalType: 'Group'
@@ -107,7 +129,7 @@ resource image 'Microsoft.Compute/galleries/images@2023-07-03' existing = if (em
 
 // Disable Autoscale if adding new session hosts to an existing host pool
 module disableAutoscale '../common/runCommand.bicep' = {
-  name: 'deploy-disable-autoscale-${deploymentNameSuffix}'
+  name: 'deploy-disableAutoscale-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
     location: location
@@ -146,7 +168,7 @@ module disableAutoscale '../common/runCommand.bicep' = {
 
 // Set MarketPlace Terms for ESRI's ArcGIS Pro image
 module setMarketplaceTerms '../common/runCommand.bicep' = if (profile == 'ArcGISPro') {
-  name: 'set-marketplace-terms-${deploymentNameSuffix}'
+  name: 'set-marketplaceTerms-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
     location: location
@@ -189,7 +211,7 @@ module setMarketplaceTerms '../common/runCommand.bicep' = if (profile == 'ArcGIS
 @batchSize(1)
 module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostBatchCount): {
   name: 'deploy-vms-${i - 1}-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupHosts)
+  scope: rg
   params: {
     activeDirectorySolution: activeDirectorySolution
     availability: availability
@@ -249,7 +271,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
 }]
 
 module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices && hostPoolType == 'Personal') {
-  name: 'deploy-recovery-services-${deploymentNameSuffix}'
+  name: 'deploy-recoveryServices-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
     deployFslogix: deployFslogix
@@ -258,7 +280,7 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
     location: location
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
     recoveryServicesVaultName: recoveryServicesVaultName
-    resourceGroupHosts: resourceGroupHosts
+    resourceGroupHosts: rg.name
     resourceGroupManagement: resourceGroupManagement
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
@@ -271,7 +293,7 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
 }
 
 module scalingPlan '../management/scalingPlan.bicep' = {
-  name: 'deploy-scaling-plan-${deploymentNameSuffix}'
+  name: 'deploy-scalingPlan-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
     deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentityPrincipalId

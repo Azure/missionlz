@@ -6,17 +6,15 @@ param hostPoolResourceId string
 param keyExpirationInDays int = 30
 param location string = resourceGroup().location
 param logAnalyticsWorkspaceResourceId string
+param mlzTags object
 param namingConvention object
 param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
 param privateLinkScopeResourceId string
 param resourceAbbreviations object
-param resourceGroupManagement string
-param resourceGroupStorage string
 param serviceToken string
 param subnetResourceId string
 param tags object
-param timeDifference string
 
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var functionAppKeyword = environment().name == 'AzureCloud' || environment().name == 'AzureUSGovernment' ? 'azurewebsites' : 'appservice'
@@ -52,13 +50,13 @@ var storageSubResources = [
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: replace(namingConvention.userAssignedIdentity, serviceToken, service)
   location: location
-  tags: tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
 }
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: '${resourceAbbreviations.keyVaults}${uniqueString(replace(namingConvention.keyVault, serviceToken, service), resourceGroup().id)}'
   location: location
-  tags: tags[?'Microsoft.KeyVault/vaults'] ?? {}
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
   properties: {
     enabledForDeployment: false
     enabledForDiskEncryption: false
@@ -95,7 +93,7 @@ resource roleAssignment_Encryption 'Microsoft.Authorization/roleAssignments@2020
 resource privateEndpoint_vault 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: replace(namingConvention.keyVaultPrivateEndpoint, serviceToken, service)
   location: location
-  tags: tags[?'Microsoft.Network/privateEndpoints'] ?? {}
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
     customNetworkInterfaceName: replace(namingConvention.keyVaultNetworkInterface, serviceToken, service)
     privateLinkServiceConnections: [
@@ -169,7 +167,7 @@ resource key_storageAccount 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: uniqueString(replace(namingConvention.storageAccount, serviceToken, service), resourceGroup().id)
   location: location
-  tags: tags[?'Microsoft.Storage/storageAccounts'] ?? {}
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)
   sku: {
     name: 'Standard_LRS'
   }
@@ -247,7 +245,7 @@ resource privateEndpoints_storage 'Microsoft.Network/privateEndpoints@2023-04-01
   for resource in storageSubResources: {
     name: replace(resource.pe, serviceToken, service)
     location: location
-    tags: tags[?'Microsoft.Network/privateEndpoints'] ?? {}
+    tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
     properties: {
       customNetworkInterfaceName: replace(resource.nic, serviceToken, service)
       privateLinkServiceConnections: [
@@ -313,7 +311,7 @@ resource diagnosticSetting_storage_blob 'Microsoft.Insights/diagnosticsettings@2
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = if (enableApplicationInsights) {
   name: replace(namingConvention.applicationInsights, serviceToken, service)
   location: location
-  tags: tags[?'Microsoft.Insights/components'] ?? {}
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Insights/components'] ?? {}, mlzTags)
   properties: {
     Application_Type: 'web'
     publicNetworkAccessForIngestion: 'Disabled'
@@ -334,7 +332,7 @@ module privateLinkScope 'privateLinkScope.bicep' = if (enableApplicationInsights
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   name: replace(namingConvention.appServicePlan, serviceToken, service)
   location: location
-  tags: tags[?'Microsoft.Web/serverfarms'] ?? {}
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Web/serverfarms'] ?? {}, mlzTags)
   sku: {
     name: 'P0v3'
     tier: 'PremiumV3'
@@ -348,7 +346,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
 resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
   name: uniqueString(replace(namingConvention.functionApp, serviceToken, service), resourceGroup().id)
   location: location
-  tags: tags[?'Microsoft.Web/sites'] ?? {}
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Web/sites'] ?? {}, mlzTags)
   kind: 'functionapp'
   identity: {
     type: 'SystemAssigned'
@@ -390,36 +388,12 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
           value: '1'
         }
         {
-          name: 'EnvironmentName'
-          value: environment().name
-        }
-        {
           name: 'FileShareName'
           value: 'profile-containers'
         }
         {
-          name: 'HostPoolName'
-          value: split(hostPoolResourceId, '/')[8]
-        }
-        {
-          name: 'HostPoolResourceGroupName'
-          value: resourceGroupManagement
-        }
-        {
-          name: 'LogOffMessageBody'
-          value: 'This session is about to be logged off. Please save your work.'
-        }
-        {
-          name: 'LogOffMessageTitle'
-          value: 'Session Log Off'
-        }
-        {
-          name: 'MaintenanceTagName'
-          value: 'Maintenance'
-        }
-        {
           name: 'ResourceGroupName'
-          value: resourceGroupStorage
+          value: resourceGroup().name
         }
         {
           name: 'ResourceManagerUrl'
@@ -435,14 +409,6 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
         {
           name: 'SubscriptionId'
           value: subscription().subscriptionId
-        }
-        {
-          name: 'TenantId'
-          value: subscription().tenantId
-        }
-        {
-          name: 'TimeDifference'
-          value: timeDifference
         }
       ], enableApplicationInsights ? [
         {
@@ -473,6 +439,7 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
 resource privateEndpoint_functionApp 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: replace(namingConvention.functionAppPrivateEndpoint, serviceToken, service)
   location: location
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
     customNetworkInterfaceName: replace(namingConvention.functionAppNetworkInterface, serviceToken, service)
     privateLinkServiceConnections: [
@@ -509,9 +476,8 @@ resource privateDnsZoneGroup_functionApp 'Microsoft.Network/privateEndpoints/pri
 }
 
 // Required role assignment for the funciton to manage the quota on Azure Files Premium
-module roleAssignments_resourceGroups '../common/roleAssignments/resourceGroup.bicep' = {
+module roleAssignments_resourceGroup '../common/roleAssignments/resourceGroup.bicep' = {
   name: 'set-role-assignment-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupStorage)
   params: {
     principalId: functionApp.identity.principalId
     principalType: 'ServicePrincipal'

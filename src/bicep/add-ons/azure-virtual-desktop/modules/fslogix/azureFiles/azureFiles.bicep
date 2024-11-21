@@ -24,7 +24,6 @@ param netbios string
 param organizationalUnitPath string
 param recoveryServicesVaultName string
 param resourceGroupManagement string
-param resourceGroupStorage string
 param securityPrincipalObjectIds array
 param securityPrincipalNames array
 param serviceToken string
@@ -205,6 +204,7 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
   ]
 }]
 
+// Sets NTFS permissions on the file shares
 module ntfsPermissions '../runCommand.bicep' = {
   name: 'set-ntfs-permissions-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
@@ -244,7 +244,7 @@ module ntfsPermissions '../runCommand.bicep' = {
       }
       {
         name: 'StorageAccountResourceGroupName'
-        value: resourceGroupStorage
+        value: resourceGroup().name
       }
       {
         name: 'StorageCount'
@@ -282,6 +282,7 @@ module ntfsPermissions '../runCommand.bicep' = {
   ]
 }
 
+// Deploys backup items for Azure Files
 module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices) {
   name: 'deploy-backup-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
@@ -290,7 +291,7 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices) {
     fileShares: fileShares
     location: location
     recoveryServicesVaultName: recoveryServicesVaultName
-    resourceGroupStorage: resourceGroupStorage
+    resourceGroupStorage: resourceGroup().name
     storageAccountNamePrefix: storageAccountNamePrefix
     storageCount: storageCount
     storageIndex: storageIndex
@@ -303,7 +304,6 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices) {
 
 module autoIncreaseStandardFileShareQuota '../../common/function.bicep' = if (fslogixStorageService == 'AzureFiles Premium' && storageCount > 0) {
   name: 'deploy-file-share-scaling-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupManagement)
   params: {
     files: {
       'requirements.psd1': loadTextContent('../../../artifacts/auto-increase-file-share/requirements.psd1')
