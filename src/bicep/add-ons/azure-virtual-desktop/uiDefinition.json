@@ -315,399 +315,6 @@
           ]
         },
         {
-          "name": "management",
-          "label": "Management",
-          "elements": [
-            {
-              "name": "hostPool",
-              "type": "Microsoft.Common.Section",
-              "visible": true,
-              "label": "Host Pool",
-              "elements": [
-                {
-                  "name": "validation",
-                  "type": "Microsoft.Common.CheckBox",
-                  "label": "Validation environment",
-                  "visible": "[not(equals(steps('basics').scenario.profile, 'arcGisPro'))]",
-                  "toolTip": "Choose whether to deploy the host pool as a validation environment. This allows you test preview features for AVD before they are released to production.",
-                  "constraints": {
-                    "required": false
-                  }
-                },
-                {
-                  "name": "hostPoolType",
-                  "type": "Microsoft.Common.DropDown",
-                  "visible": true,
-                  "label": "Host Pool Type",
-                  "defaultValue": "Pooled",
-                  "multiLine": true,
-                  "toolTip": "",
-                  "constraints": {
-                    "required": true,
-                    "allowedValues": [
-                      {
-                        "label": "Pooled",
-                        "value": "Pooled"
-                      },
-                      {
-                        "label": "Personal",
-                        "value": "Personal"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "workloadType",
-                  "type": "Microsoft.Common.DropDown",
-                  "label": "Workload Type",
-                  "visible": "[or(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('basics').scenario.profile, 'generic'), equals(steps('management').hostPool.hostPoolType, 'Pooled')))]",
-                  "filter": true,
-                  "defaultValue": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Medium', 'Heavy (2 users per core)')]",
-                  "toolTip": "Select the type of image to deploy on the session hosts.",
-                  "multiLine": true,
-                  "constraints": {
-                    "required": true,
-                    "allowedValues": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), parse('[{\"label\": \"Light\",\"description\": \"Simple 2-D map visualizations, basic analyses, and reporting.\",\"value\": 6},{\"label\": \"Medium\",\"description\": \"Advanced 2-D or 3-D map visualizations, multi-source data analyses leveraging geoprocessing tools, reporting, and editing.\",\"value\": 4},{\"label\": \"Heavy\",\"description\": \"Complex 2-D or 3-D map visualizations including advanced symbology, analyses with visability and line of site, reporting, and editing.\",\"value\": 3}]'), parse('[{\"label\": \"Light (6 users per core)\",\"description\": \"Basic data entry tasks\",\"value\": \"6.0\"},{\"label\": \"Medium (4 users per core)\",\"description\": \"Consultants and market researchers\",\"value\": \"4.0\"},{\"label\": \"Heavy (2 users per core)\",\"description\": \"Software engineers and content creators\",\"value\": \"2.0\"},{\"label\": \"Power (1 user per core)\",\"description\": \"Graphic designers, 3D model makers, and machine learning researchers\",\"value\": \"1.0\"}]'))]"
-                  }
-                },
-                {
-                  "name": "customRdpProperties",
-                  "type": "Microsoft.Common.TextBox",
-                  "visible": true,
-                  "label": "Custom RDP properties",
-                  "defaultValue": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'use multimon:i:1;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:2;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;', 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;')]",
-                  "toolTip": "Specify the configuration for the RDP properties on the AVD host pool.",
-                  "constraints": {
-                    "required": true
-                  }
-                },
-                {
-                  "name": "publicNetworkAccess",
-                  "type": "Microsoft.Common.DropDown",
-                  "visible": true,
-                  "label": "Public network access",
-                  "defaultValue": "Enabled",
-                  "multiLine": true,
-                  "toolTip": "Enabled: allows the host pool to be accessed from both public and private networks. Disabled: allows the host pool to only be accessed via private endpoints.",
-                  "constraints": {
-                    "required": true,
-                    "allowedValues": [
-                      {
-                        "label": "Disabled",
-                        "value": "Disabled"
-                      },
-                      {
-                        "label": "Enabled",
-                        "value": "Enabled"
-                      },
-                      {
-                        "label": "Enabled For Clients Only",
-                        "value": "EnabledForClientsOnly"
-                      },
-                      {
-                        "label": "Enabled For Session Hosts Only",
-                        "value": "EnabledForSessionHostsOnly"
-                      }
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              "name": "workspacesApi",
-              "type": "Microsoft.Solutions.ArmApiControl",
-              "request": {
-                "method": "GET",
-                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.DesktopVirtualization/workspaces?api-version=2022-02-10-preview')]"
-              }
-            },
-            {
-              "name": "workspace",
-              "type": "Microsoft.Common.Section",
-              "visible": "[empty(first(filter(steps('management').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location)))))]",
-              "label": "Workspace",
-              "elements": [
-                {
-                  "name": "publicNetworkAccess",
-                  "type": "Microsoft.Common.DropDown",
-                  "visible": true,
-                  "label": "Public network access (feed)",
-                  "defaultValue": "Enabled",
-                  "multiLine": true,
-                  "toolTip": "Enabled: allows the host pool to be accessed from both public and private networks. Disabled: allows the host pool to only be accessed via private endpoints.",
-                  "constraints": {
-                    "required": true,
-                    "allowedValues": [
-                      {
-                        "label": "Disabled",
-                        "value": "Disabled"
-                      },
-                      {
-                        "label": "Enabled",
-                        "value": "Enabled"
-                      }
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              "name": "assignment",
-              "type": "Microsoft.Common.Section",
-              "label": "Assignment",
-              "visible": true,
-              "elements": [
-                {
-                  "name": "description",
-                  "type": "Microsoft.Common.TextBlock",
-                  "visible": true,
-                  "options": {
-                    "text": "To access Azure Virtual Desktop, your end users will need to be assigned to the Desktop Applicaiton Group and if applicable, be given permissions on the storage service for FSLogix. Select the desired security groups below to give access to this AVD stamp. If deploying FSLogix, storage will be deployed for each group to support sharding. Be sure your groups are sized appropriately for each shard.",
-                    "link": {
-                      "label": "Learn more about FSLogix storage options for sizing your groups.",
-                      "uri": "https://learn.microsoft.com/azure/virtual-desktop/store-fslogix-profile"
-                    }
-                  }
-                },
-                {
-                  "name": "groupPickerBlade",
-                  "type": "Microsoft.Solutions.BladeInvokeControl",
-                  "openBladeStatus": "[steps('management').assignment.groupSelector.changing]",
-                  "bladeReference": {
-                    "name": "ObjectPickerBlade",
-                    "extension": "Microsoft_AAD_IAM",
-                    "parameters": {
-                      "queries": 32,
-                      "disablers": 4,
-                      "bladeSubtitle": "Pick the groups to assign",
-                      "additionalQueriesOnSearch": 0,
-                      "advancedQueryOptions": {
-                        "suggestedObjectsOptions": {}
-                      },
-                      "selectionMaximum": 100,
-                      "selectionMinimum": 1,
-                      "bladeTitle": "Select Groups",
-                      "informationHeader": {
-                        "informationText": "Select the groups that require access to the AVD stamp",
-                        "informationLink": ""
-                      },
-                      "inviteEnabled": true,
-                      "searchBoxLabel": "Search for a group",
-                      "searchBoxPlaceHolderText": "Enter a string in the group name",
-                      "searchBoxTooltip": "This is the tooltip",
-                      "searchGridNoRowsMessage": "No groups found",
-                      "selectButtonText": "Select Groups",
-                      "selectedGridLabel": "Selected Groups",
-                      "selectedGridNoRowsMessage": "You must select at least one group"
-                    },
-                    "inFullScreen": false
-                  },
-                  "transforms": {
-                    "selection": "selectedObjects|[*].{displayName:displayName, objectId:id}"
-                  }
-                },
-                {
-                  "name": "groupSelector",
-                  "type": "Microsoft.Common.Selector",
-                  "label": "Select Groups",
-                  "keyPath": "displayName",
-                  "descriptionKeyPath": "id",
-                  "value": "[steps('management').assignment.groupPickerBlade.transformed.selection]",
-                  "visible": true,
-                  "barColor": "[if(empty(steps('management').assignment.groupPickerBlade), '#FF0000', '#7fba00')]",
-                  "constraints": {
-                    "required": true
-                  },
-                  "link": "[if(empty(steps('management').assignment.groupPickerBlade), 'Select groups', 'Re-select groups')]"
-                }
-              ]
-            },
-            {
-              "name": "friendlyNames",
-              "type": "Microsoft.Common.Section",
-              "label": "Friendly Names for AVD Client",
-              "visible": true,
-              "elements": [
-                {
-                  "name": "custom",
-                  "type": "Microsoft.Common.CheckBox",
-                  "visible": true,
-                  "label": "Custom friendly names?",
-                  "defaultValue": false,
-                  "toolTip": "Choose whether to add custom names to the AVD feed workspace and the desktop for the AVD client."
-                },
-                {
-                  "name": "feedWorkspace",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Feed Workspace",
-                  "defaultValue": "",
-                  "placeholder": "Example: Information Technology",
-                  "toolTip": "Input the friendly name for the AVD workspace that will be displayed in the end user's client. This value should apply to all the stamp indexes within the same identifier and would mostly likely represent your business unit or project.",
-                  "visible": "[and(steps('management').friendlyNames.custom, empty(first(filter(steps('management').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))))))]",
-                  "constraints": {
-                    "required": false,
-                    "regex": "^.{1,64}$",
-                    "validationMessage": "The value must be between 1 and 64 characters in length."
-                  }
-                },
-                {
-                  "name": "sessionDesktop",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Desktop",
-                  "defaultValue": "",
-                  "placeholder": "Example: Help Desk",
-                  "toolTip": "Input the friendly name for the AVD Session Desktop application that will be displayed in the end user's client. This value should represent the workload (eg., Help Desk, Development, or Administration) that will be supported on the host pool.",
-                  "visible": "[steps('management').friendlyNames.custom]",
-                  "constraints": {
-                    "required": false,
-                    "regex": "^.{1,64}$",
-                    "validationMessage": "The value must be between 1 and 64 characters in length."
-                  }
-                }
-              ]
-            },
-            {
-              "name": "servicePrincipalsApi",
-              "type": "Microsoft.Solutions.GraphApiControl",
-              "request": {
-                "method": "GET",
-                "path": "/v1.0/serviceprincipals?$filter=appId eq '9cdead84-a844-4324-93f2-b2e6bb768d07'"
-              }
-            },
-            {
-              "name": "drainMode",
-              "type": "Microsoft.Common.Section",
-              "label": "Drain Mode",
-              "visible": true,
-              "elements": [
-                {
-                  "name": "enableDrainMode",
-                  "type": "Microsoft.Common.CheckBox",
-                  "label": "Enable drain mode?",
-                  "defaultValue": true,
-                  "toolTip": "Enables drain mode on the AVD session hosts so the virtual machines cannot be accessed until they have been validated."
-                }
-              ]
-            },
-            {
-              "name": "scalingPlan",
-              "label": "Scaling Plan",
-              "type": "Microsoft.Common.Section",
-              "visible": true,
-              "elements": [
-                {
-                  "name": "weekdaysPeakStartTime",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Weekdays - Peak Start Time",
-                  "visible": true,
-                  "defaultValue": "09:00",
-                  "toolTip": "Input the time when peak hours end for your end users.",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^[012][0-9]:[0-5][0-9]$",
-                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 8pm should be input as 20:00."
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "weekdaysOffPeakStartTime",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Weekdays - Off Peak Start Time",
-                  "visible": true,
-                  "defaultValue": "17:00",
-                  "toolTip": "Input the time when peak hours begin for your end users during the work week, Monday - Friday.",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^[012][0-9]:[0-5][0-9]$",
-                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 12am should be input as 00:00."
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "weekendsPeakStartTime",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Weekends - Peak Start Time",
-                  "visible": true,
-                  "defaultValue": "09:00",
-                  "toolTip": "Input the time when peak hours end for your end users.",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^[012][0-9]:[0-5][0-9]$",
-                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 8pm should be input as 20:00."
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "weekendsOffPeakStartTime",
-                  "type": "Microsoft.Common.TextBox",
-                  "label": "Weekends - Off Peak Start Time",
-                  "visible": true,
-                  "defaultValue": "17:00",
-                  "toolTip": "Input the time when peak hours begin for your end users during the work week, Monday - Friday.",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^[012][0-9]:[0-5][0-9]$",
-                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 12am should be input as 00:00."
-                      }
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              "name": "backup",
-              "type": "Microsoft.Common.Section",
-              "label": "Backup",
-              "visible": "[and(not(contains(steps('profiles').storage.service, 'AzureNetAppFiles')), not(equals(steps('hosts').identity.solution, 'MicrosoftEntraId')))]",
-              "elements": [
-                {
-                  "name": "recoveryServices",
-                  "type": "Microsoft.Common.CheckBox",
-                  "visible": true,
-                  "label": "Enable recovery services?",
-                  "defaultValue": false,
-                  "toolTip": "Choose to deploy backups for your solution. For a personal host pool, this will enable backups on the virtual machines. For a pooled host pool, this will enable backups on the FSLogix file share when using Azure Files."
-                }
-              ]
-            },
-            {
-              "name": "monitoring",
-              "type": "Microsoft.Common.Section",
-              "label": "Monitoring",
-              "visible": true,
-              "elements": [
-                {
-                  "name": "enableAvdInsights",
-                  "type": "Microsoft.Common.CheckBox",
-                  "visible": true,
-                  "label": "Enable AVD Insights?",
-                  "defaultValue": true,
-                  "toolTip": "Deploy the required resources to enable AVD Insights."
-                },
-                {
-                  "name": "enableApplicationInsights",
-                  "type": "Microsoft.Common.CheckBox",
-                  "visible": "[equals(steps('profiles').storage.service, 'AzureFiles Premium')]",
-                  "label": "Enable Application Insights?",
-                  "defaultValue": true,
-                  "toolTip": "Deploy the required resources to monitor the Auto Increase File Share Solution."
-                }
-              ]
-            }
-          ]
-        },
-        {
           "name": "hosts",
           "label": "Session Hosts",
           "elements": [
@@ -1251,6 +858,399 @@
                       }
                     ]
                   }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "management",
+          "label": "Management",
+          "elements": [
+            {
+              "name": "hostPool",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "label": "Host Pool",
+              "elements": [
+                {
+                  "name": "validation",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Validation environment",
+                  "visible": "[not(equals(steps('basics').scenario.profile, 'arcGisPro'))]",
+                  "toolTip": "Choose whether to deploy the host pool as a validation environment. This allows you test preview features for AVD before they are released to production.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "hostPoolType",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Host Pool Type",
+                  "defaultValue": "Pooled",
+                  "multiLine": true,
+                  "toolTip": "",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Pooled",
+                        "value": "Pooled"
+                      },
+                      {
+                        "label": "Personal",
+                        "value": "Personal"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "workloadType",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Workload Type",
+                  "visible": "[or(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('basics').scenario.profile, 'generic'), equals(steps('management').hostPool.hostPoolType, 'Pooled')))]",
+                  "filter": true,
+                  "defaultValue": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Medium', 'Heavy (2 users per core)')]",
+                  "toolTip": "Select the type of image to deploy on the session hosts.",
+                  "multiLine": true,
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), parse('[{\"label\": \"Light\",\"description\": \"Simple 2-D map visualizations, basic analyses, and reporting.\",\"value\": 6},{\"label\": \"Medium\",\"description\": \"Advanced 2-D or 3-D map visualizations, multi-source data analyses leveraging geoprocessing tools, reporting, and editing.\",\"value\": 4},{\"label\": \"Heavy\",\"description\": \"Complex 2-D or 3-D map visualizations including advanced symbology, analyses with visability and line of site, reporting, and editing.\",\"value\": 3}]'), parse('[{\"label\": \"Light (6 users per core)\",\"description\": \"Basic data entry tasks\",\"value\": \"6.0\"},{\"label\": \"Medium (4 users per core)\",\"description\": \"Consultants and market researchers\",\"value\": \"4.0\"},{\"label\": \"Heavy (2 users per core)\",\"description\": \"Software engineers and content creators\",\"value\": \"2.0\"},{\"label\": \"Power (1 user per core)\",\"description\": \"Graphic designers, 3D model makers, and machine learning researchers\",\"value\": \"1.0\"}]'))]"
+                  }
+                },
+                {
+                  "name": "customRdpProperties",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": true,
+                  "label": "Custom RDP properties",
+                  "defaultValue": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'use multimon:i:1;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:2;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;', 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;')]",
+                  "toolTip": "Specify the configuration for the RDP properties on the AVD host pool.",
+                  "constraints": {
+                    "required": true
+                  }
+                },
+                {
+                  "name": "publicNetworkAccess",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Public network access",
+                  "defaultValue": "Enabled",
+                  "multiLine": true,
+                  "toolTip": "Enabled: allows the host pool to be accessed from both public and private networks. Disabled: allows the host pool to only be accessed via private endpoints.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Disabled",
+                        "value": "Disabled"
+                      },
+                      {
+                        "label": "Enabled",
+                        "value": "Enabled"
+                      },
+                      {
+                        "label": "Enabled For Clients Only",
+                        "value": "EnabledForClientsOnly"
+                      },
+                      {
+                        "label": "Enabled For Session Hosts Only",
+                        "value": "EnabledForSessionHostsOnly"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "workspacesApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.DesktopVirtualization/workspaces?api-version=2022-02-10-preview')]"
+              }
+            },
+            {
+              "name": "workspace",
+              "type": "Microsoft.Common.Section",
+              "visible": "[empty(first(filter(steps('management').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location)))))]",
+              "label": "Workspace",
+              "elements": [
+                {
+                  "name": "publicNetworkAccess",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Public network access (feed)",
+                  "defaultValue": "Enabled",
+                  "multiLine": true,
+                  "toolTip": "Enabled: allows the host pool to be accessed from both public and private networks. Disabled: allows the host pool to only be accessed via private endpoints.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Disabled",
+                        "value": "Disabled"
+                      },
+                      {
+                        "label": "Enabled",
+                        "value": "Enabled"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "assignment",
+              "type": "Microsoft.Common.Section",
+              "label": "Assignment",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "description",
+                  "type": "Microsoft.Common.TextBlock",
+                  "visible": true,
+                  "options": {
+                    "text": "To access Azure Virtual Desktop, your end users will need to be assigned to the Desktop Applicaiton Group and if applicable, be given permissions on the storage service for FSLogix. Select the desired security groups below to give access to this AVD stamp. If deploying FSLogix, storage will be deployed for each group to support sharding. Be sure your groups are sized appropriately for each shard.",
+                    "link": {
+                      "label": "Learn more about FSLogix storage options for sizing your groups.",
+                      "uri": "https://learn.microsoft.com/azure/virtual-desktop/store-fslogix-profile"
+                    }
+                  }
+                },
+                {
+                  "name": "groupPickerBlade",
+                  "type": "Microsoft.Solutions.BladeInvokeControl",
+                  "openBladeStatus": "[steps('management').assignment.groupSelector.changing]",
+                  "bladeReference": {
+                    "name": "ObjectPickerBlade",
+                    "extension": "Microsoft_AAD_IAM",
+                    "parameters": {
+                      "queries": 32,
+                      "disablers": 4,
+                      "bladeSubtitle": "Pick the groups to assign",
+                      "additionalQueriesOnSearch": 0,
+                      "advancedQueryOptions": {
+                        "suggestedObjectsOptions": {}
+                      },
+                      "selectionMaximum": 100,
+                      "selectionMinimum": 1,
+                      "bladeTitle": "Select Groups",
+                      "informationHeader": {
+                        "informationText": "Select the groups that require access to the AVD stamp",
+                        "informationLink": ""
+                      },
+                      "inviteEnabled": true,
+                      "searchBoxLabel": "Search for a group",
+                      "searchBoxPlaceHolderText": "Enter a string in the group name",
+                      "searchBoxTooltip": "This is the tooltip",
+                      "searchGridNoRowsMessage": "No groups found",
+                      "selectButtonText": "Select Groups",
+                      "selectedGridLabel": "Selected Groups",
+                      "selectedGridNoRowsMessage": "You must select at least one group"
+                    },
+                    "inFullScreen": false
+                  },
+                  "transforms": {
+                    "selection": "selectedObjects|[*].{displayName:displayName, objectId:id}"
+                  }
+                },
+                {
+                  "name": "groupSelector",
+                  "type": "Microsoft.Common.Selector",
+                  "label": "Select Groups",
+                  "keyPath": "displayName",
+                  "descriptionKeyPath": "id",
+                  "value": "[steps('management').assignment.groupPickerBlade.transformed.selection]",
+                  "visible": true,
+                  "barColor": "[if(empty(steps('management').assignment.groupPickerBlade), '#FF0000', '#7fba00')]",
+                  "constraints": {
+                    "required": true
+                  },
+                  "link": "[if(empty(steps('management').assignment.groupPickerBlade), 'Select groups', 'Re-select groups')]"
+                }
+              ]
+            },
+            {
+              "name": "friendlyNames",
+              "type": "Microsoft.Common.Section",
+              "label": "Friendly Names for AVD Client",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "custom",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": true,
+                  "label": "Custom friendly names?",
+                  "defaultValue": false,
+                  "toolTip": "Choose whether to add custom names to the AVD feed workspace and the desktop for the AVD client."
+                },
+                {
+                  "name": "feedWorkspace",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Feed Workspace",
+                  "defaultValue": "",
+                  "placeholder": "Example: Information Technology",
+                  "toolTip": "Input the friendly name for the AVD workspace that will be displayed in the end user's client. This value should apply to all the stamp indexes within the same identifier and would mostly likely represent your business unit or project.",
+                  "visible": "[and(steps('management').friendlyNames.custom, empty(first(filter(steps('management').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))))))]",
+                  "constraints": {
+                    "required": false,
+                    "regex": "^.{1,64}$",
+                    "validationMessage": "The value must be between 1 and 64 characters in length."
+                  }
+                },
+                {
+                  "name": "sessionDesktop",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Desktop",
+                  "defaultValue": "",
+                  "placeholder": "Example: Help Desk",
+                  "toolTip": "Input the friendly name for the AVD Session Desktop application that will be displayed in the end user's client. This value should represent the workload (eg., Help Desk, Development, or Administration) that will be supported on the host pool.",
+                  "visible": "[steps('management').friendlyNames.custom]",
+                  "constraints": {
+                    "required": false,
+                    "regex": "^.{1,64}$",
+                    "validationMessage": "The value must be between 1 and 64 characters in length."
+                  }
+                }
+              ]
+            },
+            {
+              "name": "servicePrincipalsApi",
+              "type": "Microsoft.Solutions.GraphApiControl",
+              "request": {
+                "method": "GET",
+                "path": "/v1.0/serviceprincipals?$filter=appId eq '9cdead84-a844-4324-93f2-b2e6bb768d07'"
+              }
+            },
+            {
+              "name": "drainMode",
+              "type": "Microsoft.Common.Section",
+              "label": "Drain Mode",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "enableDrainMode",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable drain mode?",
+                  "defaultValue": true,
+                  "toolTip": "Enables drain mode on the AVD session hosts so the virtual machines cannot be accessed until they have been validated."
+                }
+              ]
+            },
+            {
+              "name": "scalingPlan",
+              "label": "Scaling Plan",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "weekdaysPeakStartTime",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Weekdays - Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "09:00",
+                  "toolTip": "Input the time when peak hours end for your end users.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 8pm should be input as 20:00."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "weekdaysOffPeakStartTime",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Weekdays - Off Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "17:00",
+                  "toolTip": "Input the time when peak hours begin for your end users during the work week, Monday - Friday.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 12am should be input as 00:00."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "weekendsPeakStartTime",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Weekends - Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "09:00",
+                  "toolTip": "Input the time when peak hours end for your end users.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 8pm should be input as 20:00."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "weekendsOffPeakStartTime",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Weekends - Off Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "17:00",
+                  "toolTip": "Input the time when peak hours begin for your end users during the work week, Monday - Friday.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 12am should be input as 00:00."
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "backup",
+              "type": "Microsoft.Common.Section",
+              "label": "Backup",
+              "visible": "[and(not(contains(steps('profiles').storage.service, 'AzureNetAppFiles')), not(equals(steps('hosts').identity.solution, 'MicrosoftEntraId')))]",
+              "elements": [
+                {
+                  "name": "recoveryServices",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": true,
+                  "label": "Enable recovery services?",
+                  "defaultValue": false,
+                  "toolTip": "Choose to deploy backups for your solution. For a personal host pool, this will enable backups on the virtual machines. For a pooled host pool, this will enable backups on the FSLogix file share when using Azure Files."
+                }
+              ]
+            },
+            {
+              "name": "monitoring",
+              "type": "Microsoft.Common.Section",
+              "label": "Monitoring",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "enableAvdInsights",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": true,
+                  "label": "Enable AVD Insights?",
+                  "defaultValue": true,
+                  "toolTip": "Deploy the required resources to enable AVD Insights."
+                },
+                {
+                  "name": "enableApplicationInsights",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": "[equals(steps('profiles').storage.service, 'AzureFiles Premium')]",
+                  "label": "Enable Application Insights?",
+                  "defaultValue": true,
+                  "toolTip": "Deploy the required resources to monitor the Auto Increase File Share Solution."
                 }
               ]
             }
