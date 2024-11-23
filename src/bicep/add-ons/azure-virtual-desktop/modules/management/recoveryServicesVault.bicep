@@ -59,7 +59,7 @@ resource backupPolicy_Vm 'Microsoft.RecoveryServices/vaults/backupPolicies@2022-
   parent: vault
   name: 'AvdPolicyVm'
   location: location
-  tags: union({'cm-resource-parent': hostPoolResourceId}, tags['Microsoft.RecoveryServices/vaults'] ?? {}, mlzTags)
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.RecoveryServices/vaults'] ?? {}, mlzTags)
   properties: {
     backupManagementType: 'AzureIaasVM'
     instantRpRetentionRangeInDays: 2

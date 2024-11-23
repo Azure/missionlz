@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "1526537659200491336"
+      "templateHash": "17593022160684209768"
     }
   },
   "parameters": {
@@ -5888,7 +5888,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "13557679044221725792"
+              "templateHash": "1282723885295001595"
             }
           },
           "parameters": {
@@ -7847,7 +7847,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.92.45157",
-                      "templateHash": "16739854086593657673"
+                      "templateHash": "15719775133926232352"
                     }
                   },
                   "parameters": {
@@ -7948,7 +7948,7 @@
                       "apiVersion": "2022-03-01",
                       "name": "[format('{0}/{1}', parameters('recoveryServicesVaultName'), 'AvdPolicyVm')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(parameters('tags')['Microsoft.RecoveryServices/vaults'], createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.RecoveryServices/vaults'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "backupManagementType": "AzureIaasVM",
                         "instantRpRetentionRangeInDays": 2,
