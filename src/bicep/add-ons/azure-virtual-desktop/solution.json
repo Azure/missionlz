@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "17593022160684209768"
+      "templateHash": "15445316444351471371"
     }
   },
   "parameters": {
@@ -9260,7 +9260,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "7808722886946434665"
+              "templateHash": "13515284574984291636"
             }
           },
           "parameters": {
@@ -9405,7 +9405,7 @@
           },
           "variables": {
             "tagsNetAppAccount": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.NetApp/netAppAccounts'), createObject()), parameters('mlzTags'))]",
-            "tagsVirtualMachines": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]"
+            "tagsVirtualMachines": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]"
           },
           "resources": [
             {

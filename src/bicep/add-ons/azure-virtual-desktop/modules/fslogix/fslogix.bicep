@@ -50,7 +50,7 @@ param subnetResourceId string
 param tags object
 
 var tagsNetAppAccount = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.NetApp/netAppAccounts'] ?? {}, mlzTags)
-var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags['Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
+var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupName
