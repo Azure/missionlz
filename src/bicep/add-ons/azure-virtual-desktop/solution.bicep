@@ -485,6 +485,7 @@ module management 'modules/management/management.bicep' = {
     recoveryServicesGeo: tier3_hosts.outputs.locationProperties.recoveryServicesGeo
     resourceAbbreviations: tier3_hosts.outputs.resourceAbbreviations
     resourceGroupName: replace(naming_management.outputs.names.resourceGroup, naming_management.outputs.tokens.service, 'management')
+    resourceGroupProfiles: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, 'profiles')
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: tier3_hosts.outputs.tokens.service
     sessionHostNamePrefix: replace(
@@ -585,6 +586,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     fileShares: fileShares
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
+    functionAppPrincipalId: management.outputs.functionAppPrincipalId
     hostPoolResourceId: management.outputs.hostPoolResourceId
     keyVaultUri: tier3_hosts.outputs.keyVaultUri
     location: locationVirtualMachines

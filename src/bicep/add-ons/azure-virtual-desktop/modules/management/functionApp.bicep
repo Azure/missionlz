@@ -12,6 +12,7 @@ param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
 param privateLinkScopeResourceId string
 param resourceAbbreviations object
+param resourceGroupProfiles string
 param serviceToken string
 param subnetResourceId string
 param tags object
@@ -393,7 +394,7 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
         }
         {
           name: 'ResourceGroupName'
-          value: resourceGroup().name
+          value: resourceGroupProfiles
         }
         {
           name: 'ResourceManagerUrl'
@@ -475,16 +476,6 @@ resource privateDnsZoneGroup_functionApp 'Microsoft.Network/privateEndpoints/pri
   }
 }
 
-// Required role assignment for the funciton to manage the quota on Azure Files Premium
-module roleAssignments_resourceGroup '../common/roleAssignments/resourceGroup.bicep' = {
-  name: 'set-role-assignment-${deploymentNameSuffix}'
-  params: {
-    principalId: functionApp.identity.principalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor
-  }
-}
-
 // Required role assignment to support the zero trust deployment of a function app
 module roleAssignment_storageAccount '../common/roleAssignments/storageAccount.bicep' = {
   name: 'set-role-assignment-storage-${deploymentNameSuffix}'
@@ -530,5 +521,5 @@ resource function 'Microsoft.Web/sites/functions@2020-12-01' = {
   }
 }
 
-
 output functionAppName string = functionApp.name
+output functionAppPrincipalId string = functionApp.identity.principalId

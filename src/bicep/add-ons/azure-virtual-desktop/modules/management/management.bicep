@@ -39,6 +39,7 @@ param recoveryServices bool
 param recoveryServicesGeo string
 param resourceAbbreviations object
 param resourceGroupName string
+param resourceGroupProfiles string
 param securityPrincipalObjectIds array
 param serviceToken string
 param sessionHostNamePrefix string
@@ -261,6 +262,7 @@ module functionApp '../management/functionApp.bicep' = if (fslogixStorageService
     privateDnsZones: privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
     resourceAbbreviations: resourceAbbreviations
+    resourceGroupProfiles: resourceGroupProfiles
     serviceToken: serviceToken
     subnetResourceId: subnetResourceId
     tags: tags
@@ -275,6 +277,7 @@ output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedI
 output diskAccessPolicyDefinitionId string = policy.outputs.policyDefinitionId
 output diskAccessPolicyDisplayName string = policy.outputs.policyDisplayName
 output diskAccessResourceId string = diskAccess.outputs.resourceId
+output functionAppPrincipalId string = fslogixStorageService == 'AzureFiles Premium' ? functionApp.outputs.functionAppPrincipalId : ''
 output hostPoolName string = hostPool.outputs.name
 output hostPoolResourceId string = hostPool.outputs.resourceId
 output logAnalyticsWorkspaceName string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceName : ''

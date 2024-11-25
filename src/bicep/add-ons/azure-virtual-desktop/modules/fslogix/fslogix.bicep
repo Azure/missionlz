@@ -18,6 +18,7 @@ param encryptionUserAssignedIdentityResourceId string
 param fileShares array
 param fslogixShareSizeInGB int
 param fslogixContainerType string
+param functionAppPrincipalId string
 param hostPoolResourceId string
 param keyVaultUri string
 param location string
@@ -60,6 +61,17 @@ module roleAssignment_Storage '../common/roleAssignments/resourceGroup.bicep' = 
     principalId: deploymentUserAssignedIdentityPrincipalId
     principalType: 'ServicePrincipal'
     roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab'
+  }
+}
+
+// Required role assignment for the funciton to manage the quota on Azure Files Premium
+module roleAssignments_resourceGroup '../common/roleAssignments/resourceGroup.bicep' = {
+  name: 'set-role-assignment-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    principalId: functionAppPrincipalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor
   }
 }
 
