@@ -14,27 +14,19 @@ param domainJoinPassword string
 @secure()
 param domainJoinUserPrincipalName string
 param domainName string
-param enableApplicationInsights bool
 param encryptionUserAssignedIdentityResourceId string
-param environmentAbbreviation string
 param fileShares array
 param fslogixShareSizeInGB int
 param fslogixContainerType string
-param fslogixStorageService string
 param hostPoolResourceId string
 param keyVaultUri string
 param location string
-param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
 param mlzTags object
 param namingConvention object
 param netbios string
 param organizationalUnitPath string
-param privateDnsZoneResourceIdPrefix string
-param privateDnsZones array
-param privateLinkScopeResourceId string
 param recoveryServices bool
-param resourceAbbreviations object
 param resourceGroupManagement string
 param resourceGroupName string
 param securityPrincipalObjectIds array
@@ -68,29 +60,6 @@ module roleAssignment_Storage '../common/roleAssignments/resourceGroup.bicep' = 
     principalId: deploymentUserAssignedIdentityPrincipalId
     principalType: 'ServicePrincipal'
     roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab'
-  }
-}
-
-// Deploys the Auto Increase Premium File Share Quota solution on an Azure Function App
-module functionApp '../management/functionApp.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
-  name: 'deploy-function-app-${deploymentNameSuffix}'
-  scope: resourceGroup
-  params: {
-    delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
-    deploymentNameSuffix: deploymentNameSuffix
-    enableApplicationInsights: enableApplicationInsights
-    environmentAbbreviation: environmentAbbreviation
-    hostPoolResourceId: hostPoolResourceId
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    mlzTags: mlzTags
-    namingConvention: namingConvention
-    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: privateDnsZones
-    privateLinkScopeResourceId: privateLinkScopeResourceId
-    resourceAbbreviations: resourceAbbreviations
-    serviceToken: serviceToken
-    subnetResourceId: subnetResourceId
-    tags: tags
   }
 }
 
@@ -140,8 +109,6 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     fileShares: fileShares
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
-    fslogixStorageService: fslogixStorageService
-    functionAppName: functionApp.outputs.functionAppName
     hostPoolResourceId: hostPoolResourceId
     keyVaultUri: keyVaultUri
     location: location

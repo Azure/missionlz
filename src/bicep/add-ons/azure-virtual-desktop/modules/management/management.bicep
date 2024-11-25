@@ -16,6 +16,8 @@ param domainJoinUserPrincipalName string
 param domainName string
 param enableApplicationInsights bool
 param enableAvdInsights bool
+param environmentAbbreviation string
+param fslogixStorageService string
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
 param imageOffer string
@@ -35,12 +37,14 @@ param privateDnsZones array
 param privateLinkScopeResourceId string
 param recoveryServices bool
 param recoveryServicesGeo string
+param resourceAbbreviations object
 param resourceGroupName string
 param securityPrincipalObjectIds array
 param serviceToken string
 param sessionHostNamePrefix string
 param storageService string
 param subnetResourceId string
+param subnets array
 param tags object
 param timeZone string
 param validationEnvironment bool
@@ -237,6 +241,29 @@ module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryService
     subnetId: subnetResourceId
     tags: tags
     timeZone: timeZone
+  }
+}
+
+// Deploys the Auto Increase Premium File Share Quota solution on an Azure Function App
+module functionApp '../management/functionApp.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
+  name: 'deploy-function-app-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
+    deploymentNameSuffix: deploymentNameSuffix
+    enableApplicationInsights: enableApplicationInsights
+    environmentAbbreviation: environmentAbbreviation
+    hostPoolResourceId: hostPool.outputs.resourceId
+    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    mlzTags: mlzTags
+    namingConvention: namingConvention
+    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: privateDnsZones
+    privateLinkScopeResourceId: privateLinkScopeResourceId
+    resourceAbbreviations: resourceAbbreviations
+    serviceToken: serviceToken
+    subnetResourceId: subnetResourceId
+    tags: tags
   }
 }
 

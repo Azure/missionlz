@@ -12,8 +12,6 @@ param encryptionUserAssignedIdentityResourceId string
 param fileShares array
 param fslogixShareSizeInGB int
 param fslogixContainerType string
-param fslogixStorageService string
-param functionAppName string
 param hostPoolResourceId string
 param keyVaultUri string
 param location string
@@ -299,23 +297,6 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices) {
   }
   dependsOn: [
     ntfsPermissions
-  ]
-}
-
-module autoIncreaseStandardFileShareQuota '../../common/function.bicep' = if (fslogixStorageService == 'AzureFiles Premium' && storageCount > 0) {
-  name: 'deploy-file-share-scaling-${deploymentNameSuffix}'
-  params: {
-    files: {
-      'requirements.psd1': loadTextContent('../../../artifacts/auto-increase-file-share/requirements.psd1')
-      'run.ps1': loadTextContent('../../../artifacts/auto-increase-file-share/run.ps1')
-      '../profile.ps1': loadTextContent('../../../artifacts/auto-increase-file-share/profile.ps1')
-    }
-    functionAppName: functionAppName
-    functionName: 'auto-increase-file-share-quota'
-    schedule: '0 */15 * * * *'
-  }
-  dependsOn: [
-    recoveryServices
   ]
 }
 

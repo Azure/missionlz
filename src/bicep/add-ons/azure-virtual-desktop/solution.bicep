@@ -462,6 +462,8 @@ module management 'modules/management/management.bicep' = {
     domainName: domainName
     enableApplicationInsights: enableApplicationInsights
     enableAvdInsights: enableAvdInsights
+    environmentAbbreviation: environmentAbbreviation
+    fslogixStorageService: fslogixStorageService
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageOffer: imageOffer
@@ -481,6 +483,7 @@ module management 'modules/management/management.bicep' = {
     privateLinkScopeResourceId: privateLinkScopeResourceId
     recoveryServices: recoveryServices
     recoveryServicesGeo: tier3_hosts.outputs.locationProperties.recoveryServicesGeo
+    resourceAbbreviations: tier3_hosts.outputs.resourceAbbreviations
     resourceGroupName: replace(naming_management.outputs.names.resourceGroup, naming_management.outputs.tokens.service, 'management')
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: tier3_hosts.outputs.tokens.service
@@ -491,6 +494,7 @@ module management 'modules/management/management.bicep' = {
     )
     storageService: storageService
     subnetResourceId: tier3_hosts.outputs.subnets[0].id
+    subnets: tier3_hosts.outputs.subnets
     tags: tags
     timeZone: tier3_hosts.outputs.locationProperties.timeZone
     validationEnvironment: validationEnvironment
@@ -576,28 +580,20 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
-    enableApplicationInsights: enableApplicationInsights
     encryptionUserAssignedIdentityResourceId: tier3_hosts.outputs.userAssignedIdentityResourceId
-    environmentAbbreviation: environmentAbbreviation
     existingSharedActiveDirectoryConnection: existingSharedActiveDirectoryConnection
     fileShares: fileShares
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
-    fslogixStorageService: fslogixStorageService
     hostPoolResourceId: management.outputs.hostPoolResourceId
     keyVaultUri: tier3_hosts.outputs.keyVaultUri
     location: locationVirtualMachines
-    logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     mlzTags: tier3_hosts.outputs.mlzTags
     namingConvention: tier3_hosts.outputs.namingConvention
     netbios: netbios
     organizationalUnitPath: organizationalUnitPath
-    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: tier3_hosts.outputs.privateDnsZones
-    privateLinkScopeResourceId: privateLinkScopeResourceId
     recoveryServices: recoveryServices
-    resourceAbbreviations: tier3_hosts.outputs.resourceAbbreviations
     resourceGroupManagement: management.outputs.resourceGroupName
     resourceGroupName: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, 'profiles')
     securityPrincipalNames: map(securityPrincipals, item => item.displayName)
