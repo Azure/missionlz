@@ -334,9 +334,9 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Web/serverfarms'] ?? {}, mlzTags)
   sku: {
-    name: 'P0v3'
+    name: 'P1v3'
     tier: 'PremiumV3'
-    size: 'P0v3'
+    size: 'P1v3'
     family: 'Pv3'
     capacity: 1
   }
@@ -426,7 +426,7 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
       }
       ftpsState: 'Disabled'
       netFrameworkVersion: 'v6.0'
-      powerShellVersion: '7.2'
+      powerShellVersion: '7.4'
       publicNetworkAccess: 'Disabled'
       use32BitWorkerProcess: false
     }

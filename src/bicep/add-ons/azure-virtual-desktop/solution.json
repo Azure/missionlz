@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "15445316444351471371"
+      "templateHash": "9471410398912429389"
     }
   },
   "parameters": {
@@ -9260,7 +9260,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "13515284574984291636"
+              "templateHash": "3068960675279690006"
             }
           },
           "parameters": {
@@ -9540,7 +9540,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.31.92.45157",
-                      "templateHash": "4578258670201845957"
+                      "templateHash": "3017077360535136929"
                     }
                   },
                   "parameters": {
@@ -9949,9 +9949,9 @@
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Web/serverfarms'), createObject()), parameters('mlzTags'))]",
                       "sku": {
-                        "name": "P0v3",
+                        "name": "P1v3",
                         "tier": "PremiumV3",
-                        "size": "P0v3",
+                        "size": "P1v3",
                         "family": "Pv3",
                         "capacity": 1
                       },
@@ -9985,7 +9985,7 @@
                           },
                           "ftpsState": "Disabled",
                           "netFrameworkVersion": "v6.0",
-                          "powerShellVersion": "7.2",
+                          "powerShellVersion": "7.4",
                           "publicNetworkAccess": "Disabled",
                           "use32BitWorkerProcess": false
                         },
