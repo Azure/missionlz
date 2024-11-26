@@ -1,6 +1,5 @@
 targetScope = 'subscription'
 
-param existingSharedActiveDirectoryConnection bool
 param activeDirectorySolution string
 param availability string
 param azureFilesPrivateDnsZoneResourceId string
@@ -15,9 +14,11 @@ param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
 param encryptionUserAssignedIdentityResourceId string
+param existingSharedActiveDirectoryConnection bool
 param fileShares array
-param fslogixShareSizeInGB int
 param fslogixContainerType string
+param fslogixShareSizeInGB int
+param fslogixStorageService string
 param functionAppPrincipalId string
 param hostPoolResourceId string
 param keyVaultUri string
@@ -65,7 +66,7 @@ module roleAssignment_Storage '../common/roleAssignments/resourceGroup.bicep' = 
 }
 
 // Required role assignment for the funciton to manage the quota on Azure Files Premium
-module roleAssignments_resourceGroup '../common/roleAssignments/resourceGroup.bicep' = {
+module roleAssignments_resourceGroup '../common/roleAssignments/resourceGroup.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
   name: 'set-role-assignment-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {

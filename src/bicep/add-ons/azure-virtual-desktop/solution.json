@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "9464451878617286852"
+      "templateHash": "8358069094561879230"
     }
   },
   "parameters": {
@@ -10030,6 +10030,9 @@
           "fslogixShareSizeInGB": {
             "value": "[parameters('fslogixShareSizeInGB')]"
           },
+          "fslogixStorageService": {
+            "value": "[parameters('fslogixStorageService')]"
+          },
           "functionAppPrincipalId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.functionAppPrincipalId.value]"
           },
@@ -10110,13 +10113,10 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "9908343531757407345"
+              "templateHash": "14643897230641833486"
             }
           },
           "parameters": {
-            "existingSharedActiveDirectoryConnection": {
-              "type": "bool"
-            },
             "activeDirectorySolution": {
               "type": "string"
             },
@@ -10153,13 +10153,19 @@
             "encryptionUserAssignedIdentityResourceId": {
               "type": "string"
             },
+            "existingSharedActiveDirectoryConnection": {
+              "type": "bool"
+            },
             "fileShares": {
               "type": "array"
+            },
+            "fslogixContainerType": {
+              "type": "string"
             },
             "fslogixShareSizeInGB": {
               "type": "int"
             },
-            "fslogixContainerType": {
+            "fslogixStorageService": {
               "type": "string"
             },
             "functionAppPrincipalId": {
@@ -10305,6 +10311,7 @@
               ]
             },
             {
+              "condition": "[equals(parameters('fslogixStorageService'), 'AzureFiles Premium')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('set-role-assignment-{0}', parameters('deploymentNameSuffix'))]",

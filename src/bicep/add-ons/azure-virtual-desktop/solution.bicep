@@ -586,6 +586,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     fileShares: fileShares
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
+    fslogixStorageService: fslogixStorageService
     functionAppPrincipalId: management.outputs.functionAppPrincipalId
     hostPoolResourceId: management.outputs.hostPoolResourceId
     keyVaultUri: tier3_hosts.outputs.keyVaultUri
