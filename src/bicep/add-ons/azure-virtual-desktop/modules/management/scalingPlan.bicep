@@ -232,13 +232,13 @@ resource scalingPlan 'Microsoft.DesktopVirtualization/scalingPlans@2023-09-05' =
   }
 }
 
-resource schedules_Pooled 'Microsoft.DesktopVirtualization/scalingPlans/pooledSchedules@2024-04-03' = [for i in range(0, length(schedules)): if (hostPoolType == 'Pooled') {
+resource schedules_Pooled 'Microsoft.DesktopVirtualization/scalingPlans/pooledSchedules@2023-09-05' = [for i in range(0, length(schedules)): if (hostPoolType == 'Pooled') {
   name: i == 0 ? 'Weekdays' : 'Weekends'
   parent: scalingPlan
   properties: schedules[i]
 }]
 
-resource schedule_Personal 'Microsoft.DesktopVirtualization/scalingPlans/personalSchedules@2024-04-03' = [for i in range(0, length(schedules)): if (hostPoolType == 'Personal') {
+resource schedule_Personal 'Microsoft.DesktopVirtualization/scalingPlans/personalSchedules@2023-09-05' = [for i in range(0, length(schedules)): if (hostPoolType == 'Personal') {
   name: i == 0 ? 'Weekdays' : 'Weekends'
   parent: scalingPlan
   properties: schedules[i]

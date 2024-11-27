@@ -30,7 +30,7 @@ param managementVirtualMachineName string
 param netAppFileShares array
 param networkInterfaceNamePrefix string
 param organizationalUnitPath string
-param resourceGroupControlPlane string
+param profile string
 param resourceGroupManagement string
 param serviceToken string
 param sessionHostCount int
@@ -97,7 +97,7 @@ var storageAccountToken = '${storageAccountPrefix}??' // The token is used for A
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existing = {
   name: hostPoolName
-  scope: resourceGroup(subscription().subscriptionId, resourceGroupControlPlane)
+  scope: resourceGroup(subscription().subscriptionId, resourceGroupManagement)
 }
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, sessionHostCount): {
@@ -130,6 +130,11 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
   identity: {
     type: 'SystemAssigned' // Required for Entra join
   }
+  plan: profile == 'ArcGISPro' ? {
+    name: imageSku
+    publisher: imagePublisher
+    product: imageOffer
+  } : null
   zones: availability == 'AvailabilityZones' ? [
     availabilityZones[i % length(availabilityZones)]
   ] : null
@@ -397,7 +402,7 @@ module drainMode '../common/runCommand.bicep' = if (enableDrainMode) {
       }
       {
         name: 'HostPoolResourceGroupName' 
-        value: resourceGroupControlPlane
+        value: resourceGroupManagement
       }
       {
         name: 'ResourceManagerUri'

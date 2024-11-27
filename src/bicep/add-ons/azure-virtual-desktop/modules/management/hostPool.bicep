@@ -1,6 +1,5 @@
 param activeDirectorySolution string
 param avdPrivateDnsZoneResourceId string
-param deploymentUserAssignedIdentityPrincipalId string
 param customImageId string
 param customRdpProperty string
 param diskSku string
@@ -33,9 +32,7 @@ var customRdpProperty_Complete = contains(activeDirectorySolution, 'MicrosoftEnt
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
   name: hostPoolName
   location: location
-  tags: union({
-    'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-  }, contains(tags, 'Microsoft.DesktopVirtualization/hostPools') ? tags['Microsoft.DesktopVirtualization/hostPools'] : {}, mlzTags)
+  tags: union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, tags[?'Microsoft.DesktopVirtualization/hostPools'] ?? {}, mlzTags)
   properties: {
     customRdpProperty: customRdpProperty_Complete
     hostPoolType: hostPoolType
@@ -57,9 +54,7 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: hostPoolPrivateEndpointName
   location: location
-  tags: union({
-    'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-  }, contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
+  tags: union({'cm-resource-parent': hostPool.id}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
     customNetworkInterfaceName: hostPoolNetworkInterfaceName
     privateLinkServiceConnections: [
@@ -91,16 +86,6 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
         }
       }
     ]
-  }
-}
-
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(deploymentUserAssignedIdentityPrincipalId, '2ad6aaab-ead9-4eaa-8ac5-da422f562408', hostPool.id)
-  scope: hostPool
-  properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '2ad6aaab-ead9-4eaa-8ac5-da422f562408') // Desktop Virtualization Session Host Operator (Purpose: sets drain mode on the AVD session hosts)
-    principalId: deploymentUserAssignedIdentityPrincipalId
-    principalType: 'ServicePrincipal'
   }
 }
 

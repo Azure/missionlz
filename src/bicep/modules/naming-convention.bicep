@@ -51,7 +51,7 @@ var namingConvention_Service = '${toLower(resourcePrefix)}-${empty(stampIndex) ?
 
 var names = {
   actionGroup: replace(namingConvention, tokens.resource, resourceAbbreviations.actionGroups)
-  applicationGroup: replace(namingConvention_Service, tokens.resource, resourceAbbreviations.applicationGroups)
+  applicationGroup: replace(namingConvention, tokens.resource, '${resourceAbbreviations.applicationGroups}-desktop')
   applicationInsights: replace(namingConvention_Service, tokens.resource, resourceAbbreviations.applicationInsights)
   appServicePlan: replace(namingConvention_Service, tokens.resource, resourceAbbreviations.appServicePlans)
   automationAccount: replace(namingConvention, tokens.resource, resourceAbbreviations.automationAccounts)
@@ -124,14 +124,14 @@ var names = {
   virtualMachineNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, '${tokens.service}-${resourceAbbreviations.virtualMachines}')
   virtualNetwork: replace(namingConvention, tokens.resource, resourceAbbreviations.virtualNetworks)
   virtualNetworkDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.virtualNetworks)
-  workspaceFeed: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.workspaces), '-${stampIndex}', '')
-  workspaceFeedDiagnosticSetting: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${tokens.service}-${resourceAbbreviations.workspaces}'), '-${stampIndex}', '')
-  workspaceFeedNetworkInterface: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, '${tokens.service}-${resourceAbbreviations.workspaces}'), '-${stampIndex}', '')
-  workspaceFeedPrivateEndpoint: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, '${tokens.service}-${resourceAbbreviations.workspaces}'), '-${stampIndex}', '')
-  workspaceGlobal: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.workspaces), '-${stampIndex}', '')
-  workspaceGlobalDiagnosticSetting: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${tokens.service}-${resourceAbbreviations.workspaces}'), '-${stampIndex}', '')
-  workspaceGlobalNetworkInterface: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, '${tokens.service}-${resourceAbbreviations.workspaces}'), '-${stampIndex}', '')
-  workspaceGlobalPrivateEndpoint: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, '${tokens.service}-${resourceAbbreviations.workspaces}'), '-${stampIndex}', '')
+  workspaceFeed: replace(replace(namingConvention, tokens.resource, '${resourceAbbreviations.workspaces}-feed'), '-${stampIndex}', '')
+  workspaceFeedDiagnosticSetting: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.workspaces}-feed'), '-${stampIndex}', '')
+  workspaceFeedNetworkInterface: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, '${resourceAbbreviations.workspaces}-feed'), '-${stampIndex}', '')
+  workspaceFeedPrivateEndpoint: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, '${resourceAbbreviations.workspaces}-feed'), '-${stampIndex}', '')
+  workspaceGlobal: replace(replace(namingConvention, tokens.resource, '${resourceAbbreviations.workspaces}-global'), '-${stampIndex}', '')
+  workspaceGlobalDiagnosticSetting: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.workspaces}-global'), '-${stampIndex}', '')
+  workspaceGlobalNetworkInterface: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, '${resourceAbbreviations.workspaces}-global'), '-${stampIndex}', '')
+  workspaceGlobalPrivateEndpoint: replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, '${resourceAbbreviations.workspaces}-global'), '-${stampIndex}', '')
 }
 
 output locations object = locations
