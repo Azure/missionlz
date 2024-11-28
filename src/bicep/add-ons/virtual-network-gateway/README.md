@@ -170,7 +170,7 @@ Change these in the module file directly to modify connection settings for deplo
 
 ### 8. **Firewall Rules Module**  
 
-- **File:** `modules/firewall-rules.bicep  `
+- **File:** `modules/firewall-rules.bicep`
 - **Description:** This module creates the firewall rules to allow spoke and vpn address prefixes access to eachother.  
 - **Parameters:**  
   - `allowVnetAddressSpaces`: The CIDR address prefixes of peered Azure spoke vnets.  Provided as an input parameter to the solution when deployed.  
