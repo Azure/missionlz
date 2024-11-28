@@ -1,3 +1,4 @@
+param deploymentUserAssignedIdentityPrincipalId string
 param deploymentUserAssignedIdentityResourceId string
 param diskEncryptionSetResourceId string
 param diskName string
@@ -6,32 +7,27 @@ param diskSku string
 param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
-param hostPoolName string
+param hostPoolResourceId string
 param location string
 param mlzTags object
 param networkInterfaceName string
 param organizationalUnitPath string
-param resourceGroupControlPlane string
-param subnet string
+param subnetResourceId string
 param tags object
 param timestamp string = utcNow('yyyyMMddhhmmss')
-param virtualNetwork string
-param virtualNetworkResourceGroup string
 param virtualMachineName string
 @secure()
 param virtualMachinePassword string
 param virtualMachineUsername string
 
-var tagsVirtualMachines = union({
-  'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-}, contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = {
   name: networkInterfaceName
   location: location
   tags: union({
-    'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-  }, contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}, mlzTags)
+    'cm-resource-parent': hostPoolResourceId
+  }, tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
   properties: {
     ipConfigurations: [
       {
@@ -39,7 +35,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = {
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: resourceId(virtualNetworkResourceGroup, 'Microsoft.Network/virtualNetworks/subnets', virtualNetwork, subnet)
+            id: subnetResourceId
           }
           primary: true
           privateIPAddressVersion: 'IPv4'
@@ -197,6 +193,16 @@ resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/exte
     protectedSettings: {
       Password: domainJoinPassword
     }
+  }
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(deploymentUserAssignedIdentityPrincipalId, 'a959dbd1-f747-45e3-8ba6-dd80f235f97c', virtualMachine.id)
+  scope: virtualMachine
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'a959dbd1-f747-45e3-8ba6-dd80f235f97c') // Desktop Virtualization Virtual Machine Contributor (Purpose: remove the management virtual machine)
+    principalId: deploymentUserAssignedIdentityPrincipalId
+    principalType: 'ServicePrincipal'
   }
 }
 

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vgwName": {
+      "value": "<example: mlz-vgw-hub-dev-va>"
+    },
+    "vgwLocation": {
+      "value": "usgovvirginia"
+    },
+    "vgwPublicIpAddressNames": {
+      "value": [
+        "<example: mlz-pip-vgw-hub-dev-va-1>",
+        "<example: mlz-pip-vgw-hub-dev-va-2"
+      ]
+    },
+    "localNetworkGatewayName": {
+      "value": "<example: mlz-lng-hub-dev-va>"
+    },
+    "localGatewayIpAddress": {
+      "value": "<publicipaddressforonpremvpntermination>"
+    },
+    "allowedAzureAddressPrefixes": {
+      "value": [
+        "10.0.130.0/24",
+        "10.0.131.0/24",
+        "10.0.132.0/24",
+        "10.0.128.0/23"
+      ]
+    },
+    "localAddressPrefixes": {
+      "value": [
+        "192.168.0.0/24",
+        "192.168.1.0/24"
+      ]
+    },
+    "useSharedKey": {
+      "value": true
+    },
+    "hubVirtualNetworkResourceId": {
+      "value": "/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.Network/virtualNetworks/<virtualnetworkname>"
+    },
+    "vnetResourceIdList": {
+      "value": [
+        "/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.Network/virtualNetworks/<virtualnetworkname",
+        "/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.Network/virtualNetworks/<virtualnetworkname",
+        "/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.Network/virtualNetworks/<virtualnetworkname"
+      ]
+    },
+    "azureFirewallName": {
+      "value": "<example: mlz-afw-hub-dev-va>"
+    },
+    "vgwRouteTableName": {
+      "value": "<example: mlz-vgw-rt-hub-dev-va>"
+    },
+    "hubVnetRouteTableName": {
+      "value": "<example: mlz-rt-hub-dev-va>"
+    }
+  }
+}

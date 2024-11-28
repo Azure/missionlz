@@ -8,10 +8,12 @@ targetScope = 'subscription'
 param blobsPrivateDnsZoneResourceId string
 //param deployIdentity bool
 param deploymentNameSuffix string
+param filesPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
 param logStorageSkuName string
 param mlzTags object
+param queuesPrivateDnsZoneResourceId string
 param resourceGroupNames array
 param serviceToken string
 param storageEncryptionKeyName string
@@ -25,9 +27,11 @@ module storageAccount 'storage-account.bicep' = [for (tier, i) in tiers: {
   scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
+    filesPrivateDnsZoneResourceId: filesPrivateDnsZoneResourceId
     keyVaultUri: keyVaultUri
     location: location
     mlzTags: mlzTags
+    queuesPrivateDnsZoneResourceId: queuesPrivateDnsZoneResourceId
     serviceToken: serviceToken
     skuName: logStorageSkuName
     storageEncryptionKeyName: storageEncryptionKeyName
@@ -40,5 +44,3 @@ module storageAccount 'storage-account.bicep' = [for (tier, i) in tiers: {
 }]
 
 output storageAccountResourceIds array = [for (tier, i) in tiers: storageAccount[i].outputs.id]
-
-

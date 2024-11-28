@@ -2,8 +2,12 @@ targetScope = 'subscription'
 
 param activeDirectorySolution string
 param avdObjectId string
+param avdPrivateDnsZoneResourceId string
+param customImageId string
+param customRdpProperty string
 param deployFslogix bool
 param deploymentNameSuffix string
+param desktopFriendlyName string
 param diskEncryptionSetResourceId string
 param diskSku string
 @secure()
@@ -14,10 +18,17 @@ param enableApplicationInsights bool
 param enableAvdInsights bool
 param environmentAbbreviation string
 param fslogixStorageService string
+param hostPoolPublicNetworkAccess string
 param hostPoolType string
+param imageOffer string
+param imagePublisher string
+param imageSku string
+param imageVersionResourceId string
+param locationControlPlane string
 param locationVirtualMachines string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
+param maxSessionLimit int
 param mlzTags object
 param namingConvention object
 param organizationalUnitPath string
@@ -27,152 +38,43 @@ param privateLinkScopeResourceId string
 param recoveryServices bool
 param recoveryServicesGeo string
 param resourceAbbreviations object
-param resourceGroupControlPlane string
-param resourceGroupHosts string
-param resourceGroupManagement string
-param resourceGroupStorage string
-param roleDefinitions object
-param scalingBeginPeakTime string
-param scalingEndPeakTime string
-param scalingLimitSecondsToForceLogOffUser string
-param scalingMinimumNumberOfRdsh string
-param scalingSessionThresholdPerCPU string
-param scalingTool bool
+param resourceGroupName string
+param resourceGroupProfiles string
+param securityPrincipalObjectIds array
 param serviceToken string
+param sessionHostNamePrefix string
 param storageService string
 param subnetResourceId string
 param subnets array
 param tags object
-param timeDifference string
 param timeZone string
+param validationEnvironment bool
 @secure()
 param virtualMachinePassword string
+param virtualMachineSize string
 param virtualMachineUsername string
 
+var galleryImageOffer = empty(imageVersionResourceId) ? '"${imageOffer}"' : 'null'
+var galleryImagePublisher = empty(imageVersionResourceId) ? '"${imagePublisher}"' : 'null'
+var galleryImageSku = empty(imageVersionResourceId) ? '"${imageSku}"' : 'null'
+var galleryItemId = empty(imageVersionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : 'null'
 var hostPoolName = namingConvention.hostPool
-var roleAssignments = union(
-  [
-    {
-      roleDefinitionId: '86240b0e-9422-4c43-887b-b61143f32ba8' // Desktop Virtualization Application Group Contributor (Purpose: updates the friendly name for the desktop)
-      resourceGroup: resourceGroupControlPlane
-      subscription: subscription().subscriptionId
-    }
-    {
-      roleDefinitionId: '2ad6aaab-ead9-4eaa-8ac5-da422f562408' // Desktop Virtualization Session Host Operator (Purpose: sets drain mode on the AVD session hosts)
-      resourceGroup: resourceGroupControlPlane
-      subscription: subscription().subscriptionId
-    }
-    {
-      roleDefinitionId: 'a959dbd1-f747-45e3-8ba6-dd80f235f97c' // Desktop Virtualization Virtual Machine Contributor (Purpose: remove the management virtual machine)
-      resourceGroup: resourceGroupManagement
-      subscription: subscription().subscriptionId
-    }
-  ],
-  deployFslogix
-    ? [
-        {
-          roleDefinitionId: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor (Purpose: domain join storage account & set NTFS permissions on the file share)
-          resourceGroup: resourceGroupStorage
-          subscription: subscription().subscriptionId
-        }
-      ]
-    : []
-)
+var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
 var userAssignedIdentityNamePrefix = namingConvention.userAssignedIdentity
-var virtualNetworkName = split(subnetResourceId, '/')[8]
-var virtualNetworkResourceGroupName = split(subnetResourceId, '/')[4]
 
-module diskAccess 'diskAccess.bicep' = {
-  scope: resourceGroup(resourceGroupManagement)
-  name: 'deploy-disk-access-${deploymentNameSuffix}'
-  params: {
-    hostPoolName: hostPoolName
-    location: locationVirtualMachines
-    mlzTags: mlzTags
-    namingConvention: namingConvention
-    resourceGroupControlPlane: resourceGroupControlPlane
-    subnetResourceId: subnetResourceId
-    tags: tags
-  }
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+  name: resourceGroupName
+  location: locationControlPlane
+  tags: union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupName}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
-// Sets an Azure policy to disable public network access to managed disks
-module policy 'policy.bicep' = {
-  name: 'deploy-policy-disks-${deploymentNameSuffix}'
-  params: {
-    diskAccessResourceId: diskAccess.outputs.resourceId
-    location: locationVirtualMachines
-    resourceGroupName: resourceGroupHosts
-  }
-}
-
-module deploymentUserAssignedIdentity 'userAssignedIdentity.bicep' = {
-  scope: resourceGroup(resourceGroupManagement)
-  name: 'deploy-id-deployment-${deploymentNameSuffix}'
-  params: {
-    location: locationVirtualMachines
-    name: replace(userAssignedIdentityNamePrefix, serviceToken, 'deployment')
-    tags: union(
-      {
-        'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-      },
-      contains(tags, 'Microsoft.ManagedIdentity/userAssignedIdentities')
-        ? tags['Microsoft.ManagedIdentity/userAssignedIdentities']
-        : {},
-      mlzTags
-    )
-  }
-}
-
-module roleAssignments_deployment '../common/roleAssignments/resourceGroup.bicep' = [
-  for i in range(0, length(roleAssignments)): {
-    scope: resourceGroup(roleAssignments[i].subscription, roleAssignments[i].resourceGroup)
-    name: 'deploy-role-assignment-${i}-${deploymentNameSuffix}'
-    params: {
-      principalId: deploymentUserAssignedIdentity.outputs.principalId
-      principalType: 'ServicePrincipal'
-      roleDefinitionId: roleAssignments[i].roleDefinitionId
-    }
-  }
-]
-
-// Management VM
-// The management VM is required to execute PowerShell scripts.
-module virtualMachine 'virtualMachine.bicep' = {
-  name: 'deploy-mgmt-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupManagement)
-  params: {
-    deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentity.outputs.resourceId
-    diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskName: replace(namingConvention.virtualMachineDisk, serviceToken, 'mgt')
-    diskSku: diskSku
-    domainJoinPassword: domainJoinPassword
-    domainJoinUserPrincipalName: domainJoinUserPrincipalName
-    domainName: domainName
-    hostPoolName: hostPoolName
-    location: locationVirtualMachines
-    mlzTags: mlzTags
-    networkInterfaceName: replace(namingConvention.virtualMachineNetworkInterface, serviceToken, 'mgt')
-    organizationalUnitPath: organizationalUnitPath
-    resourceGroupControlPlane: resourceGroupControlPlane
-    subnet: split(subnetResourceId, '/')[10]
-    tags: tags
-    virtualMachineName: replace(namingConvention.virtualMachine, serviceToken, 'mgt')
-    virtualMachinePassword: virtualMachinePassword
-    virtualMachineUsername: virtualMachineUsername
-    virtualNetwork: virtualNetworkName
-    virtualNetworkResourceGroup: virtualNetworkResourceGroupName
-  }
-}
-
-// Role Assignment required for Start VM On Connect
+// Role Assignment for Autoscale
+// Purpose: assigns the Desktop Virtualization Power On Off Contributor role to the 
+// Azure Virtual Desktop service to scale the host pool
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(avdObjectId, roleDefinitions.DesktopVirtualizationPowerOnContributor, subscription().id)
+  name: guid(avdObjectId, '40c5ff49-9181-41f8-ae61-143b0e78555e', subscription().id)
   properties: {
-    roleDefinitionId: resourceId(
-      'Microsoft.Authorization/roleDefinitions',
-      roleDefinitions.DesktopVirtualizationPowerOnContributor
-    )
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '40c5ff49-9181-41f8-ae61-143b0e78555e')
     principalId: avdObjectId
   }
 }
@@ -181,75 +83,161 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 // This module deploys a Log Analytics Workspace with a Data Collection Rule 
 module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAvdInsights) {
   name: 'deploy-monitoring-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupManagement)
+  scope: resourceGroup
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     enableAvdInsights: enableAvdInsights
-    hostPoolName: hostPoolName
+    hostPoolResourceId: '${subscription().id}}/resourceGroups/${resourceGroup.name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
     location: locationVirtualMachines
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     mlzTags: mlzTags
     namingConvention: namingConvention
     privateLinkScopeResourceId: privateLinkScopeResourceId
-    resourceGroupControlPlane: resourceGroupControlPlane
     serviceToken: serviceToken
     tags: tags
   }
 }
 
-module functionApp 'functionApp.bicep' = if (scalingTool || fslogixStorageService == 'AzureFiles Premium') {
-  name: 'deploy-function-app-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupManagement)
+module hostPool 'hostPool.bicep' = {
+  name: 'deploy-vdpool-${deploymentNameSuffix}'
+  scope: resourceGroup
   params: {
-    delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
-    deployFslogix: deployFslogix
-    deploymentNameSuffix: deploymentNameSuffix
-    enableApplicationInsights: enableApplicationInsights
-    environmentAbbreviation: environmentAbbreviation
+    activeDirectorySolution: activeDirectorySolution
+    avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
+    customImageId: customImageId
+    customRdpProperty: customRdpProperty
+    diskSku: diskSku
+    domainName: domainName
+    enableAvdInsights: enableAvdInsights
+    galleryImageOffer: galleryImageOffer
+    galleryImagePublisher: galleryImagePublisher
+    galleryImageSku: galleryImageSku
+    galleryItemId: galleryItemId
+    hostPoolDiagnosticSettingName: namingConvention.hostPoolDiagnosticSetting
     hostPoolName: hostPoolName
+    hostPoolNetworkInterfaceName: namingConvention.hostPoolNetworkInterface
+    hostPoolPrivateEndpointName: namingConvention.hostPoolPrivateEndpoint
+    hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
+    hostPoolType: hostPoolType
+    imageType: imageType
+    location: locationControlPlane
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-    namingConvention: namingConvention
-    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: privateDnsZones
-    privateLinkScopeResourceId: privateLinkScopeResourceId
-    resourceAbbreviations: resourceAbbreviations
-    resourceGroupControlPlane: resourceGroupControlPlane
-    resourceGroupHosts: resourceGroupHosts
-    resourceGroupStorage: resourceGroupStorage
-    scalingBeginPeakTime: scalingBeginPeakTime
-    scalingEndPeakTime:scalingEndPeakTime
-    scalingLimitSecondsToForceLogOffUser: scalingLimitSecondsToForceLogOffUser
-    scalingMinimumNumberOfRdsh: scalingMinimumNumberOfRdsh
-    scalingSessionThresholdPerCPU: scalingSessionThresholdPerCPU
-    serviceToken: serviceToken
+    maxSessionLimit: maxSessionLimit
+    mlzTags: mlzTags
+    sessionHostNamePrefix: sessionHostNamePrefix
     subnetResourceId: subnetResourceId
     tags: tags
-    timeDifference: timeDifference
+    validationEnvironment: validationEnvironment
+    virtualMachineSize: virtualMachineSize
   }
 }
 
-module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryServices && ((contains(
-  activeDirectorySolution,
-  'DomainServices'
-) && contains(hostPoolType, 'Pooled') && contains(fslogixStorageService, 'AzureFiles')) || contains(
-  hostPoolType,
-  'Personal'
-))) {
+module diskAccess 'diskAccess.bicep' = {
+  scope: resourceGroup
+  name: 'deploy-disk-access-${deploymentNameSuffix}'
+  params: {
+    hostPoolResourceId: hostPool.outputs.resourceId
+    location: locationVirtualMachines
+    mlzTags: mlzTags
+    namingConvention: namingConvention
+    subnetResourceId: subnetResourceId
+    tags: tags
+  }
+}
+
+// Sets an Azure policy to disable public network access to managed disks
+module policy '../management/policy.bicep' = {
+  name: 'deploy-policy-disks-${deploymentNameSuffix}'
+  params: {
+    diskAccessResourceId: diskAccess.outputs.resourceId
+    location: locationControlPlane
+    resourceGroupName: resourceGroup.name
+  }
+}
+
+module deploymentUserAssignedIdentity 'userAssignedIdentity.bicep' = {
+  scope: resourceGroup
+  name: 'deploy-id-deployment-${deploymentNameSuffix}'
+  params: {
+    location: locationVirtualMachines
+    name: replace(userAssignedIdentityNamePrefix, serviceToken, 'deployment')
+    tags: union({'cm-resource-parent': hostPool.outputs.resourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
+  }
+}
+
+// Role Assignment for the AVD host pool
+// Purpose: assigns the Desktop Virtualization Contributor role to the managed identity on the 
+// management virtual machine to set the drain mode on the AVD session hosts and manage the scaling plan
+module roleAssignment_Management '../common/roleAssignments/resourceGroup.bicep' = {
+  name: 'assign-role-mgmt-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    principalId: deploymentUserAssignedIdentity.outputs.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: '082f0a83-3be5-4ba1-904c-961cca79b387'
+  }
+}
+
+// Management Virtual Machine
+// Purpose: deploys the management VM is required to execute PowerShell scripts.
+module virtualMachine 'virtualMachine.bicep' = {
+  name: 'deploy-mgmt-vm-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentity.outputs.principalId
+    deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentity.outputs.resourceId
+    diskEncryptionSetResourceId: diskEncryptionSetResourceId
+    diskName: replace(namingConvention.virtualMachineDisk, serviceToken, 'mgt')
+    diskSku: diskSku
+    domainJoinPassword: domainJoinPassword
+    domainJoinUserPrincipalName: domainJoinUserPrincipalName
+    domainName: domainName
+    hostPoolResourceId: hostPool.outputs.resourceId
+    location: locationVirtualMachines
+    mlzTags: mlzTags
+    networkInterfaceName: replace(namingConvention.virtualMachineNetworkInterface, serviceToken, 'mgt')
+    organizationalUnitPath: organizationalUnitPath
+    subnetResourceId: subnetResourceId
+    tags: tags
+    virtualMachineName: replace(namingConvention.virtualMachine, serviceToken, 'mgt')
+    virtualMachinePassword: virtualMachinePassword
+    virtualMachineUsername: virtualMachineUsername
+  }
+}
+
+module applicationGroup 'applicationGroup.bicep' = {
+  name: 'deploy-vdag-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentity.outputs.clientId
+    desktopApplicationGroupName: namingConvention.applicationGroup
+    hostPoolResourceId: hostPool.outputs.resourceId
+    locationControlPlane: locationControlPlane
+    locationVirtualMachines: locationVirtualMachines
+    mlzTags: mlzTags
+    securityPrincipalObjectIds: securityPrincipalObjectIds
+    desktopFriendlyName: desktopFriendlyName
+    tags: tags
+    virtualMachineName: virtualMachine.outputs.name
+  }
+}
+
+module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryServices) {
   name: 'deploy-rsv-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupManagement)
+  scope: resourceGroup
   params: {
     azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
     azureQueueStoragePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'queue'))[0]}'
     deployFslogix: deployFslogix
-    hostPoolName: hostPoolName
+    hostPoolResourceId: hostPool.outputs.resourceId
     location: locationVirtualMachines
     mlzTags: mlzTags
     recoveryServicesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => startsWith(name, 'privatelink.${recoveryServicesGeo}.backup.windowsazure'))[0]}'
     recoveryServicesVaultName: namingConvention.recoveryServicesVault
     recoveryServicesVaultNetworkInterfaceName: namingConvention.recoveryServicesVaultNetworkInterface
     recoveryServicesVaultPrivateEndpointName: namingConvention.recoveryServicesVaultPrivateEndpoint
-    resourceGroupControlPlane: resourceGroupControlPlane
     storageService: storageService
     subnetId: subnetResourceId
     tags: tags
@@ -257,17 +245,44 @@ module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryService
   }
 }
 
+// Deploys the Auto Increase Premium File Share Quota solution on an Azure Function App
+module functionApp '../management/functionApp.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
+  name: 'deploy-function-app-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
+    deploymentNameSuffix: deploymentNameSuffix
+    enableApplicationInsights: enableApplicationInsights
+    environmentAbbreviation: environmentAbbreviation
+    hostPoolResourceId: hostPool.outputs.resourceId
+    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    mlzTags: mlzTags
+    namingConvention: namingConvention
+    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: privateDnsZones
+    privateLinkScopeResourceId: privateLinkScopeResourceId
+    resourceAbbreviations: resourceAbbreviations
+    resourceGroupProfiles: resourceGroupProfiles
+    serviceToken: serviceToken
+    subnetResourceId: subnetResourceId
+    tags: tags
+  }
+}
+
+output applicationGroupResourceId string = applicationGroup.outputs.resourceId
 output dataCollectionRuleResourceId string = enableAvdInsights ? monitoring.outputs.dataCollectionRuleResourceId : ''
 output deploymentUserAssignedIdentityClientId string = deploymentUserAssignedIdentity.outputs.clientId
 output deploymentUserAssignedIdentityPrincipalId string = deploymentUserAssignedIdentity.outputs.principalId
 output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedIdentity.outputs.resourceId
-output functionAppName string = scalingTool || fslogixStorageService == 'AzureFiles Premium' ? functionApp.outputs.functionAppName : ''
+output diskAccessPolicyDefinitionId string = policy.outputs.policyDefinitionId
+output diskAccessPolicyDisplayName string = policy.outputs.policyDisplayName
+output diskAccessResourceId string = diskAccess.outputs.resourceId
+output functionAppPrincipalId string = fslogixStorageService == 'AzureFiles Premium' ? functionApp.outputs.functionAppPrincipalId : ''
+output hostPoolName string = hostPool.outputs.name
+output hostPoolResourceId string = hostPool.outputs.resourceId
 output logAnalyticsWorkspaceName string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceName : ''
-output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || enableAvdInsights
-  ? monitoring.outputs.logAnalyticsWorkspaceResourceId
-  : ''
-output recoveryServicesVaultName string = recoveryServices && ((contains(activeDirectorySolution, 'DomainServices') && contains(hostPoolType,'Pooled') && contains(fslogixStorageService, 'AzureFiles')) || contains(hostPoolType, 'Personal'))
-  ? recoveryServicesVault.outputs.name
-  : ''
+output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceResourceId : ''
+output recoveryServicesVaultName string = recoveryServices ? recoveryServicesVault.outputs.name : ''
+output resourceGroupName string = resourceGroup.name
 output virtualMachineName string = virtualMachine.outputs.name
 output virtualMachineResourceId string = virtualMachine.outputs.resourceId

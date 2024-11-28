@@ -3,6 +3,7 @@ param (
     [string]$ImagePublisher,
     [string]$ImageSku,
     [string]$ResourceManagerUri,
+    [string]$SubscriptionId,
     [string]$UserAssignedIdentityClientId
 )
 

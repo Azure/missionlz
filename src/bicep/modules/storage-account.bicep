@@ -4,9 +4,11 @@ Licensed under the MIT License.
 */
 
 param blobsPrivateDnsZoneResourceId string
+param filesPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
 param mlzTags object
+param queuesPrivateDnsZoneResourceId string
 param serviceToken string
 param skuName string
 param storageEncryptionKeyName string
@@ -16,9 +18,27 @@ param tags object
 param tier object
 param userAssignedIdentityResourceId string
 
-var zones = [
-  blobsPrivateDnsZoneResourceId
-  tablesPrivateDnsZoneResourceId
+var  subResources = [
+  {
+    id: blobsPrivateDnsZoneResourceId
+    nic: tier.namingConvention.storageAccountBlobNetworkInterface
+    pe: tier.namingConvention.storageAccountBlobPrivateEndpoint
+  }
+  {
+    id: filesPrivateDnsZoneResourceId
+    nic: tier.namingConvention.storageAccountFileNetworkInterface
+    pe: tier.namingConvention.storageAccountFilePrivateEndpoint
+  }
+  {
+    id: queuesPrivateDnsZoneResourceId
+    nic: tier.namingConvention.storageAccountQueueNetworkInterface
+    pe: tier.namingConvention.storageAccountQueuePrivateEndpoint
+  }
+  {
+    id: tablesPrivateDnsZoneResourceId
+    nic: tier.namingConvention.storageAccountTableNetworkInterface
+    pe: tier.namingConvention.storageAccountTablePrivateEndpoint
+  }
 ]
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
@@ -84,19 +104,19 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for (zone, i) in zones: {
-  name: replace(tier.namingConvention.storageAccountPrivateEndpoint, serviceToken, '${split(split(zone, '/')[8], '.')[1]}-log')
+resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for (resource, i) in subResources: {
+  name: resource.pe
   location: location
   tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
   properties: {
-    customNetworkInterfaceName: replace(tier.namingConvention.storageAccountNetworkInterface, serviceToken, '${split(split(zone, '/')[8], '.')[1]}-log')
+    customNetworkInterfaceName: resource.nic
     privateLinkServiceConnections: [
       {
-        name: replace(tier.namingConvention.storageAccountPrivateEndpoint, serviceToken, '${split(split(zone, '/')[8], '.')[1]}-log')
+        name: resource.pe
         properties: {
           privateLinkServiceId: storageAccount.id
           groupIds: [
-            split(split(zone, '/')[8], '.')[1]
+            split(split(resource.id, '/')[8], '.')[1]
           ]
         }
       }
@@ -107,7 +127,7 @@ resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for
   }
 }]
 
-resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = [for (zone, i) in zones: {
+resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = [for (resource, i) in subResources: {
   parent: privateEndpoints[i]
   name: storageAccount.name
   properties: {
@@ -116,7 +136,7 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
         name: 'ipconfig1'
         properties: {
           #disable-next-line use-resource-id-functions
-          privateDnsZoneId: zone
+          privateDnsZoneId: resource.id
         }
       }
     ]

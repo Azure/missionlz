@@ -6,27 +6,23 @@ param hostPoolResourceId string
 param locationControlPlane string
 param locationVirtualMachines string
 param mlzTags object
-param resourceGroupManagement string
-param roleDefinitions object
 param securityPrincipalObjectIds array
 param tags object
 param virtualMachineName string
 
-resource applicationGroup 'Microsoft.DesktopVirtualization/applicationGroups@2021-03-09-preview' = {
+resource applicationGroup 'Microsoft.DesktopVirtualization/applicationGroups@2023-09-05' = {
   name: desktopApplicationGroupName
   location: locationControlPlane
-  tags: union({
-    'cm-resource-parent': hostPoolResourceId
-  }, contains(tags, 'Microsoft.DesktopVirtualization/applicationGroups') ? tags['Microsoft.DesktopVirtualization/applicationGroups'] : {}, mlzTags)
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.DesktopVirtualization/applicationGroups'] ?? {}, mlzTags)
   properties: {
     hostPoolArmPath: hostPoolResourceId
     applicationGroupType: 'Desktop'
   }
 }
 
-// Adds a friendly name to the SessionDesktop application for the desktop application group
+// Run Command to update the Application
+// Purpose: executes a script to update the friendly name on the application
 module applicationFriendlyName '../common/runCommand.bicep' = if (!empty(desktopFriendlyName)) {
-  scope: resourceGroup(resourceGroupManagement)
   name: 'deploy-vdapp-friendly-name-${deploymentNameSuffix}'
   params: {
     location: locationVirtualMachines
@@ -54,26 +50,22 @@ module applicationFriendlyName '../common/runCommand.bicep' = if (!empty(desktop
       }
       {
         name: 'UserAssignedIdentityClientId' 
-        value:deploymentUserAssignedIdentityClientId
+        value: deploymentUserAssignedIdentityClientId
       }
     ]
     script: loadTextContent('../../artifacts/Update-AvdDesktop.ps1')
-    tags: union(
-      {
-        'cm-resource-parent': hostPoolResourceId
-      },
-      contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
-      mlzTags
-    )
+    tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
     virtualMachineName: virtualMachineName
   }
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for i in range(0, length(securityPrincipalObjectIds)): {
+// Role Assignment for AVD access
+// Purpose: assigns the Desktop Virtualization User role to the application group for the specified security principals
+resource roleAssignment_ApplicationGroup 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for i in range(0, length(securityPrincipalObjectIds)): {
+  name: guid(securityPrincipalObjectIds[i], '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63', applicationGroup.id)
   scope: applicationGroup
-  name: guid(securityPrincipalObjectIds[i], roleDefinitions.DesktopVirtualizationUser, desktopApplicationGroupName)
   properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitions.DesktopVirtualizationUser)
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63')
     principalId: securityPrincipalObjectIds[i]
   }
 }]

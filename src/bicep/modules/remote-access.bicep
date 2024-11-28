@@ -123,6 +123,7 @@ module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' =
       sku: windowsVmSku
       storageAccountType: windowsVmStorageAccountType
       subnetResourceId: hubSubnetResourceId
+      supportedClouds: supportedClouds
       tags: tags
       version: windowsVmVersion
     }

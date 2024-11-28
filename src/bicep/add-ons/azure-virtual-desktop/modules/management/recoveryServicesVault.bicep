@@ -1,14 +1,13 @@
 param azureBlobsPrivateDnsZoneResourceId string
 param azureQueueStoragePrivateDnsZoneResourceId string
 param deployFslogix bool
-param hostPoolName string
+param hostPoolResourceId string
 param location string
 param mlzTags object
 param recoveryServicesPrivateDnsZoneResourceId string
 param recoveryServicesVaultName string
 param recoveryServicesVaultNetworkInterfaceName string
 param recoveryServicesVaultPrivateEndpointName string
-param resourceGroupControlPlane string
 param storageService string
 param subnetId string
 param tags object
@@ -17,9 +16,7 @@ param timeZone string
 resource vault 'Microsoft.RecoveryServices/vaults@2022-03-01' = {
   name: recoveryServicesVaultName
   location: location
-  tags: union({
-    'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-  }, contains(tags, 'Microsoft.RecoveryServices/vaults') ? tags['Microsoft.RecoveryServices/vaults'] : {}, mlzTags)
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.RecoveryServices/vaults'] ?? {}, mlzTags)
   sku: {
     name: 'RS0'
     tier: 'Standard'
@@ -31,9 +28,7 @@ resource backupPolicy_Storage 'Microsoft.RecoveryServices/vaults/backupPolicies@
   parent: vault
   name: 'AvdPolicyStorage'
   location: location
-  tags: union({
-    'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-  }, contains(tags, 'Microsoft.RecoveryServices/vaults') ? tags['Microsoft.RecoveryServices/vaults'] : {}, mlzTags)
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.RecoveryServices/vaults'] ?? {}, mlzTags)
   properties: {
     backupManagementType: 'AzureStorage'
     schedulePolicy: {
@@ -64,9 +59,7 @@ resource backupPolicy_Vm 'Microsoft.RecoveryServices/vaults/backupPolicies@2022-
   parent: vault
   name: 'AvdPolicyVm'
   location: location
-  tags: union({
-    'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-  }, contains(tags, 'Microsoft.RecoveryServices/vaults') ? tags['Microsoft.RecoveryServices/vaults'] : {}, mlzTags)
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.RecoveryServices/vaults'] ?? {}, mlzTags)
   properties: {
     backupManagementType: 'AzureIaasVM'
     instantRpRetentionRangeInDays: 2
@@ -99,9 +92,7 @@ resource backupPolicy_Vm 'Microsoft.RecoveryServices/vaults/backupPolicies@2022-
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: recoveryServicesVaultPrivateEndpointName
   location: location
-  tags: union({
-    'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupControlPlane}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-  }, contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
     customNetworkInterfaceName: recoveryServicesVaultNetworkInterfaceName
     privateLinkServiceConnections: [

@@ -4,17 +4,17 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.30.23.60470",
-      "templateHash": "12938630250141528569"
+      "version": "0.31.92.45157",
+      "templateHash": "4662751976093611386"
     }
   },
   "parameters": {
     "resourcePrefix": {
       "type": "string",
-      "minLength": 3,
+      "minLength": 1,
       "maxLength": 6,
       "metadata": {
-        "description": "A prefix, 3-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces"
+        "description": "A prefix, 1-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces"
       }
     },
     "environmentAbbreviation": {
@@ -887,8 +887,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.30.23.60470",
-              "templateHash": "11424932506966599764"
+              "version": "0.31.92.45157",
+              "templateHash": "15810721730485220824"
             }
           },
           "parameters": {
@@ -967,8 +967,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "7616623366375139473"
+                      "version": "0.31.92.45157",
+                      "templateHash": "11125044402666498605"
                     }
                   },
                   "parameters": {
@@ -994,6 +994,7 @@
                     "tokens": {
                       "type": "object",
                       "defaultValue": {
+                        "purpose": "purpose_token",
                         "resource": "resource_token",
                         "service": "service_token"
                       }
@@ -1419,6 +1420,7 @@
                       "remoteApplicationGroups": "vdag",
                       "resourceGroups": "rg",
                       "routeTables": "rt",
+                      "scalingPlans": "vdscaling",
                       "storageAccounts": "st",
                       "subnets": "snet",
                       "userAssignedIdentities": "id",
@@ -1429,11 +1431,11 @@
                     "locations": "[variables('$fxv#0')[environment().name]]",
                     "locationAbbreviation": "[variables('locations')[parameters('location')].abbreviation]",
                     "resourceAbbreviations": "[variables('$fxv#1')]",
-                    "namingConvention": "[format('{0}-{1}{2}-{3}-{4}-{5}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('networkName'), parameters('environmentAbbreviation'), variables('locationAbbreviation'))]",
-                    "namingConvention_Service": "[format('{0}-{1}{2}-{3}-{4}-{5}-{6}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('tokens').service, parameters('networkName'), parameters('environmentAbbreviation'), variables('locationAbbreviation'))]",
+                    "namingConvention": "[format('{0}-{1}{2}-{3}-{4}-{5}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('networkName'), variables('locationAbbreviation'), parameters('environmentAbbreviation'))]",
+                    "namingConvention_Service": "[format('{0}-{1}{2}-{3}-{4}-{5}-{6}', toLower(parameters('resourcePrefix')), if(empty(parameters('stampIndex')), '', format('{0}-', parameters('stampIndex'))), parameters('tokens').resource, parameters('networkName'), parameters('tokens').service, variables('locationAbbreviation'), parameters('environmentAbbreviation'))]",
                     "names": {
                       "actionGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
-                      "applicationGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
+                      "applicationGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-desktop', variables('resourceAbbreviations').applicationGroups))]",
                       "applicationInsights": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').applicationInsights)]",
                       "appServicePlan": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').appServicePlans)]",
                       "automationAccount": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').automationAccounts)]",
@@ -1487,10 +1489,18 @@
                       "recoveryServicesVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').recoveryServicesVaults)]",
                       "resourceGroup": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').resourceGroups)]",
                       "routeTable": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').routeTables)]",
+                      "scalingPlan": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').scalingPlans)]",
+                      "scalingPlanDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').scalingPlans)]",
                       "storageAccount": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').storageAccounts), parameters('networkName'), parameters('networkShortName'))]",
                       "storageAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').storageAccounts))]",
-                      "storageAccountNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').storageAccounts))]",
-                      "storageAccountPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-blob', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountFileNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-file', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountQueueNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-queue', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountTableNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-table', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountBlobPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-blob', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountFilePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-file', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountQueuePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-queue', variables('resourceAbbreviations').storageAccounts))]",
+                      "storageAccountTablePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-table', variables('resourceAbbreviations').storageAccounts))]",
                       "subnet": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').subnets)]",
                       "userAssignedIdentity": "[replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').userAssignedIdentities)]",
                       "virtualMachine": "[replace(replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').virtualMachines), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), '-', '')]",
@@ -1498,14 +1508,14 @@
                       "virtualMachineNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').virtualMachines))]",
                       "virtualNetwork": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').virtualNetworks)]",
                       "virtualNetworkDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').virtualNetworks)]",
-                      "workspaceFeed": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').workspaces), format('-{0}', parameters('stampIndex')), '')]",
-                      "workspaceFeedDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-                      "workspaceFeedNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-                      "workspaceFeedPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-                      "workspaceGlobal": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').workspaces), format('-{0}', parameters('stampIndex')), '')]",
-                      "workspaceGlobalDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-                      "workspaceGlobalNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
-                      "workspaceGlobalPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-{1}', parameters('tokens').service, variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]"
+                      "workspaceFeed": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                      "workspaceFeedDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                      "workspaceFeedNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                      "workspaceFeedPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-feed', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                      "workspaceGlobal": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                      "workspaceGlobalDiagnosticSetting": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                      "workspaceGlobalNetworkInterface": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]",
+                      "workspaceGlobalPrivateEndpoint": "[replace(replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-global', variables('resourceAbbreviations').workspaces)), format('-{0}', parameters('stampIndex')), '')]"
                     }
                   },
                   "resources": [],
@@ -1551,8 +1561,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "4151572700986885014"
+                      "version": "0.31.92.45157",
+                      "templateHash": "17619606927129129347"
                     }
                   },
                   "parameters": {
@@ -1696,8 +1706,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.30.23.60470",
-              "templateHash": "11616529434755756375"
+              "version": "0.31.92.45157",
+              "templateHash": "5311912111839888762"
             }
           },
           "parameters": {
@@ -1756,8 +1766,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "10109660736443081073"
+                      "version": "0.31.92.45157",
+                      "templateHash": "9371138343009436350"
                     }
                   },
                   "parameters": {
@@ -1897,8 +1907,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.30.23.60470",
-              "templateHash": "11238215245345532485"
+              "version": "0.31.92.45157",
+              "templateHash": "6531207997218247037"
             }
           },
           "parameters": {
@@ -2074,8 +2084,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "246030726359755329"
+                      "version": "0.31.92.45157",
+                      "templateHash": "17606032368841347839"
                     }
                   },
                   "parameters": {
@@ -2342,8 +2352,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "6722359274420487391"
+                              "version": "0.31.92.45157",
+                              "templateHash": "3681943409502537301"
                             }
                           },
                           "parameters": {
@@ -2421,8 +2431,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "6722359274420487391"
+                              "version": "0.31.92.45157",
+                              "templateHash": "3681943409502537301"
                             }
                           },
                           "parameters": {
@@ -2502,8 +2512,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "12652296496577802490"
+                              "version": "0.31.92.45157",
+                              "templateHash": "18425321023142226965"
                             }
                           },
                           "parameters": {
@@ -2603,8 +2613,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "17592952825859536181"
+                              "version": "0.31.92.45157",
+                              "templateHash": "15002544166394392504"
                             }
                           },
                           "parameters": {
@@ -2672,8 +2682,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "7007835755326231171"
+                              "version": "0.31.92.45157",
+                              "templateHash": "16817025486402215719"
                             }
                           },
                           "parameters": {
@@ -2786,8 +2796,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "13031612584115851814"
+                              "version": "0.31.92.45157",
+                              "templateHash": "782319697243698272"
                             }
                           },
                           "parameters": {
@@ -2876,8 +2886,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "13031612584115851814"
+                              "version": "0.31.92.45157",
+                              "templateHash": "782319697243698272"
                             }
                           },
                           "parameters": {
@@ -2990,8 +3000,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "16308694041027148637"
+                              "version": "0.31.92.45157",
+                              "templateHash": "4750034338253477937"
                             }
                           },
                           "parameters": {
@@ -3391,8 +3401,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "3535186238457701125"
+                      "version": "0.31.92.45157",
+                      "templateHash": "11818136489056939588"
                     }
                   },
                   "parameters": {
@@ -3509,8 +3519,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "6722359274420487391"
+                              "version": "0.31.92.45157",
+                              "templateHash": "3681943409502537301"
                             }
                           },
                           "parameters": {
@@ -3592,8 +3602,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "12652296496577802490"
+                              "version": "0.31.92.45157",
+                              "templateHash": "18425321023142226965"
                             }
                           },
                           "parameters": {
@@ -3695,8 +3705,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "17592952825859536181"
+                              "version": "0.31.92.45157",
+                              "templateHash": "15002544166394392504"
                             }
                           },
                           "parameters": {
@@ -3772,8 +3782,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "7007835755326231171"
+                              "version": "0.31.92.45157",
+                              "templateHash": "16817025486402215719"
                             }
                           },
                           "parameters": {
@@ -3920,8 +3930,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "9502319494004310539"
+                      "version": "0.31.92.45157",
+                      "templateHash": "11553909803736438916"
                     }
                   },
                   "parameters": {
@@ -3973,8 +3983,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "2015499370398293300"
+                              "version": "0.31.92.45157",
+                              "templateHash": "5574526676512163672"
                             }
                           },
                           "parameters": {
@@ -4052,8 +4062,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "3832300165614083813"
+                      "version": "0.31.92.45157",
+                      "templateHash": "10267893616110384815"
                     }
                   },
                   "parameters": {
@@ -4105,8 +4115,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "2015499370398293300"
+                              "version": "0.31.92.45157",
+                              "templateHash": "5574526676512163672"
                             }
                           },
                           "parameters": {
@@ -4182,8 +4192,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "1136616241283939780"
+                      "version": "0.31.92.45157",
+                      "templateHash": "17171440191267536743"
                     }
                   },
                   "parameters": {
@@ -4259,8 +4269,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "2757774880390840506"
+                              "version": "0.31.92.45157",
+                              "templateHash": "16077950968688123011"
                             }
                           },
                           "parameters": {
@@ -4425,8 +4435,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.30.23.60470",
-              "templateHash": "11152278840466293351"
+              "version": "0.31.92.45157",
+              "templateHash": "12787329163785242553"
             }
           },
           "parameters": {
@@ -4514,8 +4524,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "1874197755006172394"
+                      "version": "0.31.92.45157",
+                      "templateHash": "11761568940379970751"
                     }
                   },
                   "parameters": {
@@ -4772,8 +4782,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "17613382135787640077"
+                      "version": "0.31.92.45157",
+                      "templateHash": "4207798980384159491"
                     }
                   },
                   "parameters": {
@@ -4852,8 +4862,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "8372265102618018066"
+                              "version": "0.31.92.45157",
+                              "templateHash": "1966035938992047983"
                             }
                           },
                           "parameters": {
@@ -4947,8 +4957,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "6675708379514380442"
+                      "version": "0.31.92.45157",
+                      "templateHash": "7930493629995578222"
                     }
                   },
                   "parameters": {
@@ -5092,8 +5102,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.30.23.60470",
-              "templateHash": "17664628665088454883"
+              "version": "0.31.92.45157",
+              "templateHash": "17900321188332105834"
             }
           },
           "parameters": {
@@ -5178,8 +5188,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "15985115749591574535"
+                      "version": "0.31.92.45157",
+                      "templateHash": "17298378299072098272"
                     }
                   },
                   "parameters": {
@@ -5346,8 +5356,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "4040791601769189381"
+                      "version": "0.31.92.45157",
+                      "templateHash": "12087616562036012055"
                     }
                   },
                   "parameters": {
@@ -5474,8 +5484,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "9321128177359823831"
+                      "version": "0.31.92.45157",
+                      "templateHash": "2081045465267717136"
                     }
                   },
                   "parameters": {
@@ -5702,8 +5712,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.30.23.60470",
-              "templateHash": "5548269850951921678"
+              "version": "0.31.92.45157",
+              "templateHash": "15042212833055960396"
             }
           },
           "parameters": {
@@ -5879,8 +5889,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "3093428281213661074"
+                      "version": "0.31.92.45157",
+                      "templateHash": "2760766953842709390"
                     }
                   },
                   "parameters": {
@@ -6039,8 +6049,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "15035921308988452197"
+                      "version": "0.31.92.45157",
+                      "templateHash": "10850741356290813493"
                     }
                   },
                   "parameters": {
@@ -6195,7 +6205,7 @@
                     },
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2021-03-01",
+                      "apiVersion": "2024-03-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'GuestAttestation')]",
                       "location": "[parameters('location')]",
                       "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
@@ -6361,8 +6371,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "6795024125500853154"
+                              "version": "0.31.92.45157",
+                              "templateHash": "2785700700806650182"
                             }
                           },
                           "parameters": {
@@ -6512,6 +6522,9 @@
                   "subnetResourceId": {
                     "value": "[parameters('hubSubnetResourceId')]"
                   },
+                  "supportedClouds": {
+                    "value": "[parameters('supportedClouds')]"
+                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
@@ -6525,8 +6538,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "8382745830446158671"
+                      "version": "0.31.92.45157",
+                      "templateHash": "10838080267928735788"
                     }
                   },
                   "parameters": {
@@ -6560,8 +6573,7 @@
                       "type": "string"
                     },
                     "mlzTags": {
-                      "type": "object",
-                      "defaultValue": {}
+                      "type": "object"
                     },
                     "name": {
                       "type": "string"
@@ -6593,9 +6605,11 @@
                     "subnetResourceId": {
                       "type": "string"
                     },
+                    "supportedClouds": {
+                      "type": "array"
+                    },
                     "tags": {
-                      "type": "object",
-                      "defaultValue": {}
+                      "type": "object"
                     },
                     "version": {
                       "type": "string"
@@ -6673,7 +6687,7 @@
                     },
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2021-03-01",
+                      "apiVersion": "2024-03-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'GuestAttestation')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -6681,6 +6695,7 @@
                         "type": "GuestAttestation",
                         "typeHandlerVersion": "1.0",
                         "autoUpgradeMinorVersion": true,
+                        "enableAutomaticUpgrade": true,
                         "settings": {
                           "AttestationConfig": {
                             "MaaSettings": {
@@ -6703,23 +6718,9 @@
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-04-01",
-                      "name": "[format('{0}/{1}', parameters('name'), 'DependencyAgentWindows')]",
-                      "location": "[parameters('location')]",
-                      "properties": {
-                        "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
-                        "type": "DependencyAgentWindows",
-                        "typeHandlerVersion": "9.5",
-                        "autoUpgradeMinorVersion": true
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'AzurePolicyforWindows')]",
                       "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publisher": "Microsoft.GuestConfiguration",
                         "type": "ConfigurationforWindows",
@@ -6734,8 +6735,44 @@
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-04-01",
+                      "name": "[format('{0}/{1}', parameters('name'), 'Microsoft.Azure.NetworkWatcher')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.NetworkWatcher",
+                        "type": "NetworkWatcherAgentWindows",
+                        "typeHandlerVersion": "1.4"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('name'), 'AzurePolicyforWindows')]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[contains(parameters('supportedClouds'), environment().name)]",
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2023-03-01",
+                      "name": "[format('{0}/{1}', parameters('name'), 'AzureMonitorWindowsAgent')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.Monitor",
+                        "type": "AzureMonitorWindowsAgent",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "enableAutomaticUpgrade": true
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(contains(parameters('supportedClouds'), environment().name))]",
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-04-01",
                       "name": "[format('{0}/{1}', parameters('name'), 'MMAExtension')]",
                       "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publisher": "Microsoft.EnterpriseCloud.Monitoring",
                         "type": "MicrosoftMonitoringAgent",
@@ -6749,20 +6786,25 @@
                         }
                       },
                       "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('name'), 'Microsoft.Azure.NetworkWatcher')]",
                         "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
                       ]
                     },
                     {
+                      "condition": "[not(contains(parameters('supportedClouds'), environment().name))]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-04-01",
-                      "name": "[format('{0}/{1}', parameters('name'), 'Microsoft.Azure.NetworkWatcher')]",
+                      "name": "[format('{0}/{1}', parameters('name'), 'DependencyAgentWindows')]",
                       "location": "[parameters('location')]",
+                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "publisher": "Microsoft.Azure.NetworkWatcher",
-                        "type": "NetworkWatcherAgentWindows",
-                        "typeHandlerVersion": "1.4"
+                        "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+                        "type": "DependencyAgentWindows",
+                        "typeHandlerVersion": "9.5",
+                        "autoUpgradeMinorVersion": true
                       },
                       "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('name'), 'MMAExtension')]",
                         "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
                       ]
                     },
@@ -6804,8 +6846,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "6795024125500853154"
+                              "version": "0.31.92.45157",
+                              "templateHash": "2785700700806650182"
                             }
                           },
                           "parameters": {
@@ -6903,6 +6945,9 @@
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
+          "filesPrivateDnsZoneResourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZoneResourceIds.value.file]"
+          },
           "keyVaultUri": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
           },
@@ -6914,6 +6959,9 @@
           },
           "mlzTags": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+          },
+          "queuesPrivateDnsZoneResourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZoneResourceIds.value.queue]"
           },
           "resourceGroupNames": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-resource-groups-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value]"
@@ -6943,8 +6991,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.30.23.60470",
-              "templateHash": "15851262372533796124"
+              "version": "0.31.92.45157",
+              "templateHash": "15042903713059976655"
             }
           },
           "parameters": {
@@ -6952,6 +7000,9 @@
               "type": "string"
             },
             "deploymentNameSuffix": {
+              "type": "string"
+            },
+            "filesPrivateDnsZoneResourceId": {
               "type": "string"
             },
             "keyVaultUri": {
@@ -6965,6 +7016,9 @@
             },
             "mlzTags": {
               "type": "object"
+            },
+            "queuesPrivateDnsZoneResourceId": {
+              "type": "string"
             },
             "resourceGroupNames": {
               "type": "array"
@@ -7008,6 +7062,9 @@
                   "blobsPrivateDnsZoneResourceId": {
                     "value": "[parameters('blobsPrivateDnsZoneResourceId')]"
                   },
+                  "filesPrivateDnsZoneResourceId": {
+                    "value": "[parameters('filesPrivateDnsZoneResourceId')]"
+                  },
                   "keyVaultUri": {
                     "value": "[parameters('keyVaultUri')]"
                   },
@@ -7016,6 +7073,9 @@
                   },
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
+                  },
+                  "queuesPrivateDnsZoneResourceId": {
+                    "value": "[parameters('queuesPrivateDnsZoneResourceId')]"
                   },
                   "serviceToken": {
                     "value": "[parameters('serviceToken')]"
@@ -7048,12 +7108,15 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "10231061264498799420"
+                      "version": "0.31.92.45157",
+                      "templateHash": "1625826941635729014"
                     }
                   },
                   "parameters": {
                     "blobsPrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
+                    "filesPrivateDnsZoneResourceId": {
                       "type": "string"
                     },
                     "keyVaultUri": {
@@ -7064,6 +7127,9 @@
                     },
                     "mlzTags": {
                       "type": "object"
+                    },
+                    "queuesPrivateDnsZoneResourceId": {
+                      "type": "string"
                     },
                     "serviceToken": {
                       "type": "string"
@@ -7091,9 +7157,27 @@
                     }
                   },
                   "variables": {
-                    "zones": [
-                      "[parameters('blobsPrivateDnsZoneResourceId')]",
-                      "[parameters('tablesPrivateDnsZoneResourceId')]"
+                    "subResources": [
+                      {
+                        "id": "[parameters('blobsPrivateDnsZoneResourceId')]",
+                        "nic": "[parameters('tier').namingConvention.storageAccountBlobNetworkInterface]",
+                        "pe": "[parameters('tier').namingConvention.storageAccountBlobPrivateEndpoint]"
+                      },
+                      {
+                        "id": "[parameters('filesPrivateDnsZoneResourceId')]",
+                        "nic": "[parameters('tier').namingConvention.storageAccountFileNetworkInterface]",
+                        "pe": "[parameters('tier').namingConvention.storageAccountFilePrivateEndpoint]"
+                      },
+                      {
+                        "id": "[parameters('queuesPrivateDnsZoneResourceId')]",
+                        "nic": "[parameters('tier').namingConvention.storageAccountQueueNetworkInterface]",
+                        "pe": "[parameters('tier').namingConvention.storageAccountQueuePrivateEndpoint]"
+                      },
+                      {
+                        "id": "[parameters('tablesPrivateDnsZoneResourceId')]",
+                        "nic": "[parameters('tier').namingConvention.storageAccountTableNetworkInterface]",
+                        "pe": "[parameters('tier').namingConvention.storageAccountTablePrivateEndpoint]"
+                      }
                     ]
                   },
                   "resources": [
@@ -7164,22 +7248,22 @@
                     {
                       "copy": {
                         "name": "privateEndpoints",
-                        "count": "[length(variables('zones'))]"
+                        "count": "[length(variables('subResources'))]"
                       },
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[replace(parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('serviceToken'), format('{0}-log', split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]))]",
+                      "name": "[variables('subResources')[copyIndex()].pe]",
                       "location": "[parameters('location')]",
                       "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "customNetworkInterfaceName": "[replace(parameters('tier').namingConvention.storageAccountNetworkInterface, parameters('serviceToken'), format('{0}-log', split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]))]",
+                        "customNetworkInterfaceName": "[variables('subResources')[copyIndex()].nic]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[replace(parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('serviceToken'), format('{0}-log', split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]))]",
+                            "name": "[variables('subResources')[copyIndex()].pe]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('serviceToken'), 'log'), resourceGroup().id))]",
                               "groupIds": [
-                                "[split(split(variables('zones')[copyIndex()], '/')[8], '.')[1]]"
+                                "[split(split(variables('subResources')[copyIndex()].id, '/')[8], '.')[1]]"
                               ]
                             }
                           }
@@ -7195,23 +7279,23 @@
                     {
                       "copy": {
                         "name": "privateDnsZoneGroups",
-                        "count": "[length(variables('zones'))]"
+                        "count": "[length(variables('subResources'))]"
                       },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', replace(parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('serviceToken'), format('{0}-log', split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])), uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('serviceToken'), 'log'), resourceGroup().id))]",
+                      "name": "[format('{0}/{1}', variables('subResources')[copyIndex()].pe, uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('serviceToken'), 'log'), resourceGroup().id))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
                             "name": "ipconfig1",
                             "properties": {
-                              "privateDnsZoneId": "[variables('zones')[copyIndex()]]"
+                              "privateDnsZoneId": "[variables('subResources')[copyIndex()].id]"
                             }
                           }
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('serviceToken'), format('{0}-log', split(split(variables('zones')[copyIndex()], '/')[8], '.')[1])))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('subResources')[copyIndex()].pe)]",
                         "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('serviceToken'), 'log'), resourceGroup().id))]"
                       ]
                     }
@@ -7308,8 +7392,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.30.23.60470",
-              "templateHash": "5804308759558531770"
+              "version": "0.31.92.45157",
+              "templateHash": "11341470403202647858"
             }
           },
           "parameters": {
@@ -7394,8 +7478,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "8389358797157027271"
+                      "version": "0.31.92.45157",
+                      "templateHash": "4687229436121899773"
                     }
                   },
                   "parameters": {
@@ -7481,8 +7565,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "8734968617443229139"
+                      "version": "0.31.92.45157",
+                      "templateHash": "6315472047633861096"
                     }
                   },
                   "parameters": {
@@ -7568,8 +7652,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "9851134383266019486"
+                      "version": "0.31.92.45157",
+                      "templateHash": "2073766618455932098"
                     }
                   },
                   "parameters": {
@@ -7650,8 +7734,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "7358671180047253284"
+                      "version": "0.31.92.45157",
+                      "templateHash": "9546260853018527046"
                     }
                   },
                   "parameters": {
@@ -7732,8 +7816,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "17520636026466541947"
+                      "version": "0.31.92.45157",
+                      "templateHash": "16372121177996394493"
                     }
                   },
                   "parameters": {
@@ -7810,8 +7894,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "16750249074235971016"
+                      "version": "0.31.92.45157",
+                      "templateHash": "3821176451773778831"
                     }
                   },
                   "parameters": {
@@ -7891,8 +7975,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "3320497816733398371"
+                      "version": "0.31.92.45157",
+                      "templateHash": "1721966359516622278"
                     }
                   },
                   "parameters": {
@@ -7963,8 +8047,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "12248054724275593988"
+                      "version": "0.31.92.45157",
+                      "templateHash": "8510408576984746573"
                     }
                   },
                   "parameters": {
@@ -8049,8 +8133,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.30.23.60470",
-              "templateHash": "11524143102332195763"
+              "version": "0.31.92.45157",
+              "templateHash": "3495057416767671634"
             }
           },
           "parameters": {
@@ -8106,8 +8190,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "10349924076266160595"
+                      "version": "0.31.92.45157",
+                      "templateHash": "14528983897386416653"
                     }
                   },
                   "parameters": {
@@ -8282,8 +8366,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.30.23.60470",
-                              "templateHash": "8372265102618018066"
+                              "version": "0.31.92.45157",
+                              "templateHash": "1966035938992047983"
                             }
                           },
                           "parameters": {
@@ -8380,8 +8464,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.30.23.60470",
-              "templateHash": "3268860743787686"
+              "version": "0.31.92.45157",
+              "templateHash": "17309660590425732791"
             }
           },
           "parameters": {
@@ -8444,8 +8528,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.30.23.60470",
-                      "templateHash": "3588347827815061814"
+                      "version": "0.31.92.45157",
+                      "templateHash": "17047820191891552534"
                     }
                   },
                   "parameters": {

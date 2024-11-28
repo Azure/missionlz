@@ -7,9 +7,9 @@ targetScope = 'subscription'
 
 // REQUIRED PARAMETERS
 
-@minLength(3)
+@minLength(1)
 @maxLength(6)
-@description('A prefix, 3-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
+@description('A prefix, 1-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
 param resourcePrefix string
 
 @allowed([
@@ -725,10 +725,12 @@ module storage 'modules/storage.bicep' = {
     blobsPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.blob
     //deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
+    filesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.file
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageSkuName: logStorageSkuName
     mlzTags: logic.outputs.mlzTags
+    queuesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.queue
     resourceGroupNames: resourceGroups.outputs.names
     serviceToken: logic.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName

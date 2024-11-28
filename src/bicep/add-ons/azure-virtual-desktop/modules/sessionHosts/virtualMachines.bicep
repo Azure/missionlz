@@ -2,6 +2,7 @@ param activeDirectorySolution string
 param availability string
 param availabilitySetNamePrefix string
 param availabilityZones array
+param avdConfigurationZipFileName string
 param batchCount int
 param dataCollectionRuleAssociationName string
 param dataCollectionRuleResourceId string
@@ -20,7 +21,6 @@ param enableAvdInsights bool
 param enableDrainMode bool
 param fslogixContainerType string
 param hostPoolName string
-param hostPoolType string
 param imageOffer string
 param imagePublisher string
 param imageSku string
@@ -30,7 +30,7 @@ param managementVirtualMachineName string
 param netAppFileShares array
 param networkInterfaceNamePrefix string
 param organizationalUnitPath string
-param resourceGroupControlPlane string
+param profile string
 param resourceGroupManagement string
 param serviceToken string
 param sessionHostCount int
@@ -72,7 +72,7 @@ var imageReference = empty(imageVersionResourceId) ? {
 } : {
   id: imageVersionResourceId
 }
-var intune = contains(activeDirectorySolution, 'intuneEnrollment')
+var intune = contains(activeDirectorySolution, 'IntuneEnrollment')
 var nvidiaVmSize = contains(nvidiaVmSizes, virtualMachineSize)
 var nvidiaVmSizes = [
   'Standard_NV6'
@@ -92,13 +92,12 @@ var nvidiaVmSizes = [
   'Standard_NV36adms_A10_v5'
   'Standard_NV72ads_A10_v5'
 ]
-var pooledHostPool = (split(hostPoolType, ' ')[0] == 'Pooled')
 var sessionHostNamePrefix = replace(virtualMachineNamePrefix, serviceToken, '')
-var storageAccountToken = take('${storageAccountPrefix}??${uniqueToken}', 24)
+var storageAccountToken = '${storageAccountPrefix}??' // The token is used for AntiVirus exclusions. The '??' represents the two digits at the end of each storage account name.
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existing = {
   name: hostPoolName
-  scope: resourceGroup(subscription().subscriptionId, resourceGroupControlPlane)
+  scope: resourceGroup(subscription().subscriptionId, resourceGroupManagement)
 }
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, sessionHostCount): {
@@ -128,6 +127,14 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
   name: '${sessionHostNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
   location: location
   tags: tagsVirtualMachines
+  identity: {
+    type: 'SystemAssigned' // Required for Entra join
+  }
+  plan: profile == 'ArcGISPro' ? {
+    name: imageSku
+    publisher: imagePublisher
+    product: imageOffer
+  } : null
   zones: availability == 'AvailabilityZones' ? [
     availabilityZones[i % length(availabilityZones)]
   ] : null
@@ -352,7 +359,7 @@ resource installAvdAgents 'Microsoft.Compute/virtualMachines/extensions@2021-03-
       typeHandlerVersion: '2.73'
       autoUpgradeMinorVersion: true
       settings: {
-        modulesUrl: 'https://wvdportalstorageblob.blob.${environment().suffixes.storage}/galleryartifacts/Configuration_1.0.02721.349.zip'
+        modulesUrl: 'https://wvdportalstorageblob.blob.${environment().suffixes.storage}/galleryartifacts/${avdConfigurationZipFileName}'
         configurationFunction: 'Configuration.ps1\\AddSessionHost'
         properties: {
           hostPoolName: hostPoolName
@@ -360,7 +367,7 @@ resource installAvdAgents 'Microsoft.Compute/virtualMachines/extensions@2021-03-
             UserName: 'PLACEHOLDER_DO_NOT_USE'
             Password: 'PrivateSettingsRef:RegistrationInfoToken'
           }
-          aadJoin: !contains(activeDirectorySolution, 'DomainServices')
+          aadJoin: contains(activeDirectorySolution, 'EntraId')
           UseAgentDownloadEndpoint: false
           mdmId: intune ? '0000000a-0000-0000-c000-000000000000' : ''
         }
@@ -378,7 +385,7 @@ resource installAvdAgents 'Microsoft.Compute/virtualMachines/extensions@2021-03-
 ]
 
 // Enables drain mode on the session hosts so users cannot login to the hosts immediately after the deployment
-module drainMode '../common/runCommand.bicep' = if (enableDrainMode && pooledHostPool) {
+module drainMode '../common/runCommand.bicep' = if (enableDrainMode) {
   name: 'deploy-drain-mode-${batchCount}-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
@@ -395,7 +402,7 @@ module drainMode '../common/runCommand.bicep' = if (enableDrainMode && pooledHos
       }
       {
         name: 'HostPoolResourceGroupName' 
-        value: resourceGroupControlPlane
+        value: resourceGroupManagement
       }
       {
         name: 'ResourceManagerUri'
@@ -462,7 +469,7 @@ resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/exte
   ]
 }]
 
-resource extension_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): if (!contains(activeDirectorySolution, 'DomainServices')) {
+resource extension_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): if (contains(activeDirectorySolution, 'EntraId')) {
   parent: virtualMachine[i]
   name: 'AADLoginForWindows'
   location: location
