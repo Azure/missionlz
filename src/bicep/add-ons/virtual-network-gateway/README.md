@@ -1,6 +1,6 @@
-# VPN Gateway MLZ Add-On  
+# VPN Gateway Add-On
 
-## Introduction  
+## Introduction
 
 This document provides details on a Bicep script that deploys a VPN Gateway, Local Network Gateway, VPN connection, and related resources in Azure, integrating into an existing MLZ network deployment. It includes descriptions of all parameters, required parameters, instructions on building and deploying the ARM template, and steps to create a template specification from the Bicep script.  
 
@@ -50,7 +50,7 @@ Additionally, it covers the modules used within the script and their roles in th
 
 - **Description:** Indicates whether to use a shared key or a Key Vault certificate URI for the VPN connection.  If false, a URL to a pre-existing keyvault stored certificate must be used instead. Provided as an input parameter to the solution when deployed.  
 
-### 10. **sharedKey** (string) - Required if `useSharedKey = true`  
+### 10. **sharedKey** (string) - Required if `useSharedKey = true`
 
 - **Description:** The shared key for the VPN connection. This parameter is secured.  A "true" value uses shared key which is provided in the portal or command prompt at deployment.  A "false" value requires that a keyVaultCertificateUri is provided. Remove this from the parameters file before deployment to ensure the deployment will prompt for the value to avoid storing the secret in the file.  
 
@@ -82,7 +82,7 @@ This Bicep script calls several external modules to deploy resources efficiently
 
 ### 1. **VPN Gateway Module**  
 
-- **File:** `modules/vpn-gateway.bicep`  
+- **File:** `modules/vpn-gateway.bicep`
 - **Description:** This module deploys the Virtual Network Gateway (VPN Gateway) in a specified resource group. The VPN Gateway enables secure cross-premises connectivity.  
 - **Parameters:**  
   - `vgwName`: The name of the VPN Gateway. Provided as an input parameter to the solution when deployed.  
@@ -107,16 +107,16 @@ The VPN connection module contains these most commonly used IPSEC configuration 
 ``
     saLifeTimeSeconds: 3600  
     saDataSizeKilobytes: 102400000  
-    ipsecEncryption: 'AES256'  
-    ipsecIntegrity: 'SHA256'  
-    ikeEncryption: 'AES256'  
-    ikeIntegrity: 'SHA256'  
-    dhGroup: 'DHGroup2'  
-    pfsGroup: 'PFS2'  
+    ipsecEncryption: 'AES256'
+    ipsecIntegrity: 'SHA256'
+    ikeEncryption: 'AES256'
+    ikeIntegrity: 'SHA256'
+    dhGroup: 'DHGroup2'
+    pfsGroup: 'PFS2'
 ``
 Change these in the module file directly to modify connection settings for deployment.  
 
-- **File:** `modules/vpn-connection.bicep`  
+- **File:** `modules/vpn-connection.bicep`
 - **Description:** This module creates the VPN connection between the VPN Gateway in Azure and the Local Network Gateway (on-premises network). It can use either a shared key or a Key Vault certificate for secure authentication.  
 - **Parameters:**  
   - `vpnConnectionName`: The name of the VPN connection. Provided as an input parameter to the solution when deployed.  
@@ -129,7 +129,7 @@ Change these in the module file directly to modify connection settings for deplo
 
 ### 4. **Retrieve Existing Module**  
 
-- **File:** `modules/retrieve-existing.bicep`  
+- **File:** `modules/retrieve-existing.bicep`
 - **Description:** This module retrieves the list of virtual network peerings associated with a virtual network. The peerings allow networks to communicate securely with each other within the same Azure region or across regions.   This module is also used to retrieve information from other existing resources depending on the parameters used.  
 - **Parameters:**  
   - `vnetResourceId`: The resource ID of the virtual network for which peerings are being retrieved.  Provided as an input parameter to the solution when deployed.  
@@ -151,7 +151,7 @@ Change these in the module file directly to modify connection settings for deplo
 
 ### 7. **Route Definition**  
 
-- **File:** `modules/route-definition.bicep`  
+- **File:** `modules/route-definition.bicep`
 - **Description:** This module builds the route construct to be used when adding the route, as multiple routes need to be added.  Virtual appliance is hard coded as the next hop type.  
 - **Parameters:**  
   - `firewallIpAddress`: The IP address of the firewall, used as the next hop IP address.  Returned value from the retrieve-existing.bicep module.  
@@ -159,7 +159,7 @@ Change these in the module file directly to modify connection settings for deplo
 
 ### 8. **Routes Module**  
 
-- **File:** `modules/routes.bicep`  
+- **File:** `modules/routes.bicep`
 - **Description:** This module creates the routes in a route table.  
 - **Parameters:**  
   - `routeTableName`: The route table name. Provided as an input parameter to the solution when deployed.  
@@ -170,7 +170,7 @@ Change these in the module file directly to modify connection settings for deplo
 
 ### 8. **Firewall Rules Module**  
 
-- **File:** `modules/firewall-rules.bicep  `
+- **File:** `modules/firewall-rules.bicep`
 - **Description:** This module creates the firewall rules to allow spoke and vpn address prefixes access to eachother.  
 - **Parameters:**  
   - `allowVnetAddressSpaces`: The CIDR address prefixes of peered Azure spoke vnets.  Provided as an input parameter to the solution when deployed.  

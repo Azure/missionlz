@@ -20,17 +20,11 @@ param arcgisServiceAccountPassword string
 @description('The username for the ArcGIS service account.')
 param arcgisServiceAccountUserName string
 
-@description('The name of the storage account for the deployment artifacts.')
-param artifactsStorageAccountName string
+@description('The resource ID of the storage account for the deployment artifacts.')
+param artifactsStorageAccountResourceId string
 
 @description('The name of the Azure Blobs container for the deployment artifacts.')
 param artifactsContainerName string
-
-@description('The resource group for the artifacts storage account.')
-param artifactsStorageAccountResourceGroupName string
-
-@description('The subscription ID for the artifacts storage account.')
-param artifactsStorageAccountSubscriptionId string
 
 @allowed([
   'singletier'
@@ -38,9 +32,6 @@ param artifactsStorageAccountSubscriptionId string
 ])
 @description('The architecture for ESRI, either Single Tier or Multi Tier.')
 param architecture string
-
-@description('The name of the Azure Firewall in the Hub.')
-param azureFirewallName string
 
 @secure()
 @description('The password for the certificate.')
@@ -67,19 +58,20 @@ param dataStoreVirtualMachineOSDiskSize int = 128
 @description('Determine whether debug mode is enabled for ESRI Enterprise.')
 param debugMode bool = false
 
-@description('The address prefix for the subnet containing the ESRI Enterpise servers.')
-param defaultSubnetAddressPrefix string = '10.0.137.0/24'
+@description('Choose whether to deploy a diagnostic setting for the Activity Log.')
+param deployActivityLogDiagnosticSetting bool
 
 @description('Determine whether to deploy Defender for Cloud. This is only necessary if the target description does not have Defender for Cloud already enabled.')
 param deployDefender bool
 
+@description('Choose whether to deploy a policy assignment.')
+param deployPolicy bool
+
 @description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
 param deploymentNameSuffix string = utcNow()
 
-// @description('Deploy Policy')
-// param deployPolicy bool
-
-param diskEncryptionSetResourceId string
+@description('Choose whether to deploy Network Watcher for the AVD session hosts location. This is necessary when the control plane and session hosts are in different locations.')
+param deployNetworkWatcher bool
 
 @description('The email address or distribution list to receive security alerts.')
 param emailSecurityContact string = ''
@@ -120,6 +112,14 @@ param enableTileCacheDataStoreVirtualMachineDataDisk bool = false
 @description('Determine whether to enable the virtual machine data disk.')
 param enableVirtualMachineDataDisk bool = false
 
+@allowed([
+  'dev' // Development
+  'prod' // Production
+  'test' // Test
+])
+@description('The abbreviation for the target environment.')
+param environmentAbbreviation string = 'dev'
+
 @description('External DNS Hostname')
 param externalDnsHostname string
 
@@ -138,14 +138,15 @@ param externalDnsHostname string
 ])
 param graphDataStoreVirtualMachineOSDiskSize int = 128
 
-@description('The name of the resource group for the Hub.')
-param hubResourceGroupName string
+@description('The resource ID for the Azure Firewall in the HUB subscription')
+param hubAzureFirewallResourceId string
 
-@description('The subscription ID for the Hub.')
-param hubSubscriptionId string
+@description('The resource ID for the Azure Virtual Network in the HUB subscription.')
+param hubVirtualNetworkResourceId string
 
-@description('The name of the virtual network in the Hub.')
-param hubVirtualNetworkName string
+@maxLength(3)
+@description('The unique identifier between each business unit or project in your tenant. The identifier is used in the naming convention for your resource groups and resources.')
+param identifier string
 
 @description('Updating Certificates')
 param isUpdatingCertificates bool = false
@@ -202,8 +203,14 @@ param numberOfTileCacheDataStoreVirtualMachineNames int = 1
 @description('The OS disk size for the Object Data Store Virtual Machine.')
 param objectDataStoreVirtualMachineOSDiskSize int = 128
 
+@description('The resource ID of the Log Analytics Workspace to use for log storage.')
+param operationsLogAnalyticsWorkspaceResourceId string
+
 @description('The distinguished name for the OU path when domain joining the virtual machines.')
 param ouPath string = ''
+
+@description('The policy to assign to the workload.')
+param policy string = 'NISTRev4'
 
 @description('The base 64 encoded string containing the license file for the ESRI portal.')
 param portalLicenseFile string
@@ -271,10 +278,10 @@ param serverLicenseFile string
 ])
 param spatiotemporalBigDataStoreVirtualMachineOSDiskSize int = 128
 
-@description('The resource ID for the log analytics workspace in the Operations spoke.')
-param spokelogAnalyticsWorkspaceResourceId string
+@description('The address prefix for the new subnet that will be created in the spoke virtual network for the ESRI servers.')
+param subnetAddressPrefix string = '10.0.137.0/24'
 
-@description('The metadata of key / vaule pairs for the Azure resources.')
+@description('The key / value pairs of metadata for the Azure resource groups and resources.')
 param tags object = {}
 
 @allowed([
@@ -329,8 +336,7 @@ param windowsDomainAdministratorUserName string = ''
 @description('The name of the Windows domain.')
 param windowsDomainName string = ''
 
-@description('The GUID of the workload subscription.')
-param workloadSubscriptionId string = ''
+var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
 
 // Resource Naming
 var resourceSuffix = resourcePrefix
@@ -355,9 +361,6 @@ var keyVaultSecretsOfficer = resourceId(
 var networkInterfaceName = '${resourcePrefix}-nic-esri'
 var portalContext = 'portal'
 var portalLicenseFileName = 'portalLicense.json'
-var privatelink_blob_name = 'privatelink.blob.${environment().suffixes.storage}'
-var privatelink_file_name = 'privatelink.file.${environment().suffixes.storage}'
-var privatelink_keyvaultDns_name = replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
 var publicIpAddressName = '${resourcePrefix}-pip-esri'
 var resourceGroupName = '${resourcePrefix}-rg-esri-enterprise'
 var serverContext = 'server'
@@ -404,36 +407,6 @@ var isObjectDataStoreClustered = numberOfObjectDataStoreVirtualMachines >= 3 ? t
 var isTileCacheDataStoreClustered = numberOfTileCacheDataStoreVirtualMachineNames >= 1 ? true : false
 var isMultiMachineTileCacheDataStore = numberOfTileCacheDataStoreVirtualMachineNames >= 1 ? true : false
 
-resource privateDnsZone_blob 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  name: privatelink_blob_name
-}
-
-resource privateDnsZone_file 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  name: privatelink_file_name
-}
-
-resource privateDnsZone_keyvaultDns 'Microsoft.Network/privateDnsZones@2018-09-01' existing = {
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  name: privatelink_keyvaultDns_name
-}
-
-resource hubVirtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' existing = {
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  name: hubVirtualNetworkName
-}
-
-resource azureFirewall 'Microsoft.Network/azureFirewalls@2023-05-01' existing = {
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  name: azureFirewallName
-}
-
-resource artifactsStorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
-  scope: resourceGroup(hubSubscriptionId, artifactsStorageAccountResourceGroupName)
-  name: artifactsStorageAccountName
-}
-
 resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = {
   name: resourceGroupName
   location: location
@@ -453,34 +426,29 @@ module singleTierDataStoreTypes 'modules/singleTierDatastoreTypes.bicep' =
     ]
   }
 
-module tier3 'modules/tier3.bicep' = {
+module tier3 '../tier3/solution.bicep' = {
   name: 'deploy-tier3-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, rg.name)
   params: {
-    applicationGatewayName: applicationGatewayName
-    applicationGatewayPrivateIpAddress: applicationGatewayPrivateIpAddress
-    applicationGatewaySubnetAddressPrefix: applicationGatewaySubnetAddressPrefix
-    defaultSubnetAddressPrefix: defaultSubnetAddressPrefix
+    deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
+    deploymentNameSuffix: deploymentNameSuffix
+    deployNetworkWatcher: deployNetworkWatcher
+    deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
-    externalDnsHostname: externalDnsHostname
-    firewallPrivateIPAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
-    hubResourceGroupName: hubResourceGroupName
-    hubSubscriptionId: hubSubscriptionId
-    hubVirtualNetworkId: hubVirtualNetwork.id
-    hubVirtualNetworkName: hubVirtualNetwork.name
-    hubVirtualNetworkResourceId: hubVirtualNetwork.id
+    environmentAbbreviation: environmentAbbreviation
+    firewallResourceId: hubAzureFirewallResourceId
+    hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
+    identifier: identifier
     location: location
-    // logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
-    logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
-    privatelink_keyvaultDns_name: split(privateDnsZone_keyvaultDns.id, '/')[8]
-    resourceGroupName: rg.name
-    resourcePrefix: resourcePrefix
+    logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
+    policy: policy
+    subnetName: 'EsriEnterpise'
+    subnetAddressPrefix: subnetAddressPrefix
+    tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
-    workloadSubscriptionId: workloadSubscriptionId
-    joinWindowsDomain: joinWindowsDomain
+    workloadName: 'esriEnt'
+    workloadShortName: 'ent'
   }
-  dependsOn: []
 }
 
 module userAssignedIdentity './modules/userAssignedManagedIdentity.bicep' = {
@@ -504,9 +472,9 @@ module storage './modules/storageAccount.bicep' = {
     location: location
     tags: tags
     useCloudStorage: useCloudStorage
-    blobsPrivateDnsZoneResourceId: privateDnsZone_blob.id
-    filePrivateDnsZoneResourceId: privateDnsZone_file.id
-    subnetResourceId: tier3.outputs.subnetResourceId
+    blobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.blob'))[0]}'
+    filePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.file'))[0]}'
+    subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
     keyVaultUri: keyVault.outputs.keyVaultUri
     storageEncryptionKeyName: keyVault.outputs.storageKeyName
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
@@ -649,7 +617,7 @@ module singleTierVirtualMachine 'modules/virtualMachine.bicep' =
       ouPath: ouPath
       serverFunction: 'singletier'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: architecture == 'singletier' ? tier3.outputs.subnetResourceId : 'none'
+      subnetResourceId: architecture == 'singletier' ? tier3.outputs.subnets[0].subnetResourceId : 'none'
       tags: tags
       userAssignedIdentityResourceId: architecture == 'singletier' ? userAssignedIdentity.outputs.resourceId : 'none'
       virtualMachineName: virtualMachineName
@@ -682,7 +650,7 @@ module multiTierServerVirtualMachines 'modules/virtualMachine.bicep' = [
       ouPath: ouPath
       serverFunction: 'server'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -716,7 +684,7 @@ module multiTierPortalVirtualMachines 'modules/virtualMachine.bicep' = [
       ouPath: ouPath
       serverFunction: 'portal'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -750,7 +718,7 @@ module multiTierDatastoreServerVirtualMachines 'modules/virtualMachine.bicep' = 
       ouPath: ouPath
       serverFunction: 'datastore'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -784,7 +752,7 @@ module multiTierFileServerVirtualMachines 'modules/virtualMachine.bicep' = [
       ouPath: ouPath
       serverFunction: 'fileshare'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -820,7 +788,7 @@ module multiTierSpatiotemporalBigDataStoreVirtualMachines 'modules/virtualMachin
       ouPath: ouPath
       serverFunction: 'spatiotemporal'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -856,7 +824,7 @@ module multiTierTileCacheVirtualMachines 'modules/virtualMachine.bicep' = [
       ouPath: ouPath
       serverFunction: 'tilecache'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -892,7 +860,7 @@ module multiTierGraphVirtualMachines 'modules/virtualMachine.bicep' = [
       ouPath: ouPath
       serverFunction: 'graph'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -928,7 +896,7 @@ module multiTierObjectDataStoreVirtualMachines 'modules/virtualMachine.bicep' = 
       ouPath: ouPath
       serverFunction: 'objectDataStore'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -952,7 +920,7 @@ module keyVault './modules/keyVault.bicep' = {
     keyVaultCertificatesOfficerRoleDefinitionResourceId: keyVaultCertificatesOfficer
     keyVaultCryptoOfficerRoleDefinitionResourceId: keyVaultCryptoOfficer
     keyVaultName: take('${keyVaultName}-${uniqueString(rg.id, keyVaultName)}', 24)
-    keyVaultPrivateDnsZoneResourceId: privateDnsZone_keyvaultDns.id
+    keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.vaultcore'))[0]}'
     keyVaultSecretsOfficerRoleDefinitionResourceId: keyVaultSecretsOfficer
     localAdministratorPassword: adminPassword
     localAdministratorUsername: adminUsername
@@ -960,7 +928,7 @@ module keyVault './modules/keyVault.bicep' = {
     primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
     primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
     resourcePrefix: resourcePrefix
-    subnetResourceId: tier3.outputs.subnetResourceId
+    subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
     tags: tags
     userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
   }
@@ -984,10 +952,10 @@ module roleAssignmentStorageAccount './modules/roleAssignmentStorageAccount.bice
 
 module roleAssignmentArtifactsStorageAccount './modules/roleAssignmentStorageAccount.bicep' = {
   name: 'assign-role-sa-02-${deploymentNameSuffix}'
-  scope: resourceGroup(artifactsStorageAccountSubscriptionId, artifactsStorageAccountResourceGroupName)
+  scope: resourceGroup(split(artifactsStorageAccountResourceId, '/')[2], split(artifactsStorageAccountResourceId, '/')[4])
   params: {
     principalId: userAssignedIdentity.outputs.principalId
-    storageAccountName: artifactsStorageAccount.name
+    storageAccountName: split(artifactsStorageAccountResourceId, '/')[8]
   }
   dependsOn: [
     keyVault
@@ -1025,10 +993,10 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     artifactsContainerName: artifactsContainerName
-    artifactsStorageAccountName: artifactsStorageAccount.name
+    artifactsStorageAccountName: split(artifactsStorageAccountResourceId, '/')[8]
     certificateFileName: certificateFileName
     certificatePassword: certificatePassword
-    diskEncryptionSetResourceId: diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: tier3.outputs.diskEncryptionSetResourceId
     esriStorageAccountName: storage.outputs.storageAccountName
     externalDnsHostname: externalDnsHostname
     hybridUseBenefit: false
@@ -1041,7 +1009,7 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
     resourcePrefix: resourcePrefix
     serverLicenseFile: serverLicenseFile
     serverLicenseFileName: serverLicenseFileName
-    subnetResourceId: tier3.outputs.subnetResourceId
+    subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentity.outputs.clientId
     userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
@@ -1172,7 +1140,7 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' =
       useCloudStorage: useCloudStorage
       userAssignedIdenityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineOSDiskSize: virtualMachineOSDiskSize
-      virtualNetworkName: tier3.outputs.virtualNetworkName
+      virtualNetworkName: tier3.outputs.namingConvention.virtualNetwork
       windowsDomainName: joinWindowsDomain ? windowsDomainName : 'none'
     }
     dependsOn: [
@@ -1243,7 +1211,7 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' =
       userAssignedIdenityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: virtualMachineName
       virtualMachineOSDiskSize: virtualMachineOSDiskSize
-      virtualNetworkName: tier3.outputs.virtualNetworkName
+      virtualNetworkName: tier3.outputs.namingConvention.virtualNetwork
       windowsDomainName: windowsDomainName
     }
     dependsOn: [
