@@ -191,9 +191,6 @@ module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddress
     vNetDnsServers: virtualNetwork.properties.?dhcpOptions.dnsServers ?? [] 
     workloadShortName: workloadShortName
   }
-  dependsOn: [
-    rg
-  ]
 }
 
 // This module deploys VNET links when the Azure Firewall SKU is "Basic".
@@ -203,6 +200,8 @@ module virtualNetworkLinks 'modules/virtual-network-links.bicep' = if (!(empty(v
   params: {
     azureFirewallSku: azureFirewall.properties.sku.tier
     deploymentNameSuffix: deploymentNameSuffix
+    hubResourceGroupName: hubResourceGroupName
+    hubSubscriptionId: hubSubscriptionId
     privateDnsZoneNames: logic.outputs.privateDnsZones
     virtualNetworkName: networking.outputs.virtualNetworkName
     virtualNetworkResourceGroupName: rg.outputs.name
@@ -290,9 +289,6 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
         rg.outputs.name
       ]
     }
-    dependsOn: [
-      rg
-    ]
   }
 
 module defenderForCloud '../../modules/defender-for-cloud.bicep' =
