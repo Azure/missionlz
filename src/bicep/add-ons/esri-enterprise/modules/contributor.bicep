@@ -1,8 +1,8 @@
 targetScope = 'subscription'
+
 param userAssignedIdentityId string
 param subscriptionId string
-param deploymentNameSuffix string = utcNow('yyyyMMddHHmmss')
-
+param deploymentNameSuffix string
 
 module roleAssignmentVirtualMachineContributor './roleAssignmentContributor.bicep' = {
   name: 'assign-role-vm-02-${deploymentNameSuffix}'
