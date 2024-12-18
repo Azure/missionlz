@@ -196,7 +196,7 @@ module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddress
 // This module deploys VNET links when the Azure Firewall SKU is "Basic".
 module virtualNetworkLinks 'modules/virtual-network-links.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
   name: 'deploy-vnet-links-${workloadShortName}-sub-${deploymentNameSuffix}'
-  scope: resourceGroup(hubResourceGroupName)
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     azureFirewallSku: azureFirewall.properties.sku.tier
     deploymentNameSuffix: deploymentNameSuffix
