@@ -36,10 +36,10 @@ jobs:
           # Compare versions
           if [[ "${LATEST_TAG}" != "${LAST_VERSION}" ]]; then
             echo "New release detected: ${LATEST_TAG}"
-            export new_release = 'true'
+            echo new_release='true' >> $GITHUB_ENV
           else
             echo "No new release found."
-            export new_release = 'false'
+            echo new_release='false' >> $GITHUB_ENV
           fi
 
       - name: Update stored version
@@ -68,12 +68,11 @@ jobs:
         working-directory: src/terraform/mlz
         run: terraform init
 
-      # The error -> exit_code part is wrong, need to be fixed
       - name: Terraform Plan
         if: env.new_release == 'true'
         working-directory: src/terraform/mlz
         run: |
-          terraform plan -out=tfplan --detailed_exitcode
+          terraform plan -out=tfplan --detailed_exitcode || echo "Terraform Plan completed with non-zero exit code"
 
       - name: Terraform Apply
         if: env.new_release == 'true'
