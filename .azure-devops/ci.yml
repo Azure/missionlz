@@ -1,0 +1,83 @@
+name: Check Upstream Repository Releases
+
+on:
+  schedule:
+    - cron: "0 8 * * 0" 
+  workflow_dispatch: # Allows manual triggering as well
+
+jobs:
+  check-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get latest release from upstream repo
+        id: get_release
+        run: |
+          UPSTREAM_REPO="hashicorp/terraform-provider-azurerm" 
+          API_URL="https://api.github.com/repos/${UPSTREAM_REPO}/releases/latest"
+          
+          # Fetch latest release tag
+          RESPONSE=$(curl -s -H "Accept: application/vnd.github.v3+json" "${API_URL}")
+          LATEST_TAG=$(echo "${RESPONSE}" | jq -r '.tag_name')
+
+          echo "Latest release tag: ${LATEST_TAG}"
+
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            src
+
+      - name: Compare with stored version
+        id: check_version
+        working-directory: src/terraform/mlz
+        run: |
+          LAST_VERSION=$(grep -Eo 'version = "= 4\.[0-9]+\.[0-9]+"' * 2>/dev/null | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' || echo "none")
+
+          # Compare versions
+          if [[ "${LATEST_TAG}" != "${LAST_VERSION}" ]]; then
+            echo "New release detected: ${LATEST_TAG}"
+            export new_release = 'true'
+          else
+            echo "No new release found."
+            export new_release = 'false'
+          fi
+
+      - name: Update stored version
+        if: env.new_release == 'true'
+        working-directory: src/terraform/mlz
+        run: |
+          sed -i s/${LAST_VERSION}/${LATEST_TAG}/g *
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add .
+          git commit -m "Update last release version to ${LATEST_TAG}" || echo "No changes to commit"
+          git push
+
+      - name: Trigger CI
+        if: env.new_release == 'true'
+        run: |
+          echo "Running tasks for new release: ${LATEST_TAG}"
+      
+      - uses: azure/login@v2
+        if: env.new_release == 'true'
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Terraform Init
+        if: env.new_release == 'true'
+        working-directory: src/terraform/mlz
+        run: terraform init
+
+      # The error -> exit_code part is wrong, need to be fixed
+      - name: Terraform Plan
+        if: env.new_release == 'true'
+        working-directory: src/terraform/mlz
+        run: |
+          terraform plan -out=tfplan --detailed_exitcode
+
+      - name: Terraform Apply
+        if: env.new_release == 'true'
+        working-directory: src/terraform/mlz
+        run: |
+          terraform apply -auto-approve tfplan
+
