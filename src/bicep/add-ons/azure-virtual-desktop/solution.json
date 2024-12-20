@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "3083180096292665477"
+      "templateHash": "16505027735013677232"
     }
   },
   "parameters": {
@@ -35,6 +35,11 @@
     },
     "availabilityZones": {
       "type": "array",
+      "defaultValue": [
+        "1",
+        "2",
+        "3"
+      ],
       "metadata": {
         "description": "The availability zones allowed for the AVD session hosts deployment location."
       }
@@ -146,6 +151,7 @@
     },
     "emailSecurityContact": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "The email address to use for Defender for Cloud notifications."
       }
@@ -246,6 +252,7 @@
     },
     "hostPoolPublicNetworkAccess": {
       "type": "string",
+      "defaultValue": "Enabled",
       "allowedValues": [
         "Disabled",
         "Enabled",
@@ -554,6 +561,7 @@
     },
     "workspacePublicNetworkAccess": {
       "type": "string",
+      "defaultValue": "Enabled",
       "allowedValues": [
         "Disabled",
         "Enabled"
