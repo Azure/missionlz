@@ -363,18 +363,21 @@
                   "condition": "[not(empty(steps('hosts').image.offer))]",
                   "request": {
                     "method": "GET",
-                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/locations/', steps('basics').scope.location.name, '/publishers/', if(equals(steps('basics').scenario.profile, 'generic'), 'MicrosoftWindowsDesktop', 'esri'), '/artifacttypes/vmimage/offers/', steps('hosts').image.offer, '/skus?api-version=2022-08-01')]"
+                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/locations/', steps('basics').scope.location.name, '/publishers/', if(equals(steps('basics').scenario.profile, 'generic'), 'MicrosoftWindowsDesktop', 'esri'), '/artifacttypes/vmimage/offers/', steps('hosts').image.offer, '/skus?api-version=2022-08-01')]",
+                    "transforms": {
+                      "list": "sort_by(@, &name)[?ends_with(name, '-avd') || ends_with(name, '-ent') || contains(name, '-avd-') || starts_with(name, 'pro-byol-')].{label:name, value:name}"
+                    }
                   }
                 },
                 {
                   "name": "sku",
                   "type": "Microsoft.Common.DropDown",
                   "label": "SKU",
-                  "defaultValue": "[if(equals(steps('hosts').image.offer, 'pro-byol'), 'pro-byol-33', if(equals(steps('hosts').image.offer, 'windows-11'), 'win11-23h2-avd', if(equals(steps('hosts').image.offer, 'Windows-10'),'win10-22h2-avd-g2', 'win11-23h2-avd-m365')))]",
+                  "defaultValue": "[if(and(equals(steps('management').hostPool.hostPoolType, 'Pooled'), equals(steps('basics').scenario.profile, 'generic'), not(equals(steps('hosts').image.offer, 'office-365'))), last(take(map(steps('hosts').image.skuApi.transformed.list, (item) => item.label), sub(length(steps('hosts').image.skuApi.transformed.list), 1))), last(map(steps('hosts').image.skuApi.transformed.list, (item) => item.label)))]",
                   "filter": true,
                   "toolTip": "Select the desired marketplace image SKU.",
                   "constraints": {
-                    "allowedValues": "[map(steps('hosts').image.skuApi, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
+                    "allowedValues": "[steps('hosts').image.skuApi.transformed.list]",
                     "required": true
                   },
                   "visible": "[equals(steps('hosts').image.source, 'marketplace')]"
