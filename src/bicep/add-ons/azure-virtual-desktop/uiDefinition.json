@@ -519,6 +519,15 @@
                     "required": true
                   },
                   "link": "[if(empty(steps('controlPlane').assignment.groupPickerBlade), 'Select groups', 'Re-select groups')]"
+                },
+                {
+                  "name": "groupOutput",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[not(empty(steps('controlPlane').assignment.groupSelector.value))]",
+                  "options": {
+                    "style": "None",
+                    "text": "[replace(replace(replace(replace(string(map(steps('controlPlane').assignment.groupSelector.value, (item) => item.displayName)), '[', ''), ']', ''), '\"', ''), ',', ', ')]"
+                  }
                 }
               ]
             },
