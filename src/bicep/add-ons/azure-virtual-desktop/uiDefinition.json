@@ -778,6 +778,15 @@
                   "visible": "[equals(steps('basics').scenario.profile, 'generic')]"
                 },
                 {
+                  "name": "sizeGenericQuotaWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[equals(steps('basics').scenario.profile, 'generic')]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeGeneric)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '</b>')]"
+                  }
+                },
+                {
                   "name": "sizeArcGisProSingleLight",
                   "type": "Microsoft.Compute.SizeSelector",
                   "label": "Size",
@@ -799,6 +808,15 @@
                   "osPlatform": "Windows",
                   "count": "[steps('hosts').virtualMachines.count]",
                   "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6))]"
+                },
+                {
+                  "name": "sizeArcGisProSingleLightQuotaWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6))]",               
+                  "options": {
+                    "style": "Warning",
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProSingleLight)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '</b>')]"
+                  }
                 },
                 {
                   "name": "sizeArcGisProSingleMedium",
@@ -828,6 +846,15 @@
                   "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4))]"
                 },
                 {
+                  "name": "sizeArcGisProSingleMediumQuotaWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4))]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProSingleMedium)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '</b>')]"
+                  }
+                },
+                {
                   "name": "sizeArcGisProSingleHeavy",
                   "type": "Microsoft.Compute.SizeSelector",
                   "label": "Size",
@@ -853,6 +880,15 @@
                   "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3))]"
                 },
                 {
+                  "name": "sizeArcGisProSingleHeavyQuotaWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3))]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProSingleHeavy)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '</b>')]"
+                  }
+                },
+                {
                   "name": "sizeArcGisProMulti",
                   "type": "Microsoft.Compute.SizeSelector",
                   "label": "Size",
@@ -874,6 +910,15 @@
                   "osPlatform": "Windows",
                   "count": "[steps('hosts').virtualMachines.count]",
                   "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'))]"
+                },
+                {
+                  "name": "sizeArcGisProMultiQuotaWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'))]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '</b>')]"
+                  }
                 },
                 {
                   "name": "resourceSkusApi",
