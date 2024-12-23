@@ -9,9 +9,10 @@ terraform {
       name = "{{WORKSPACE_NAME}}"
     }
   }
-  */
-  backend "local" {}
 
+  # Uncomment the following lines to use local state
+  backend "local" {}
+*/
   required_version = ">= 1.9.7"
   required_providers {
     azurerm = {
