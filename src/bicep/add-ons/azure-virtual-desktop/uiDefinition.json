@@ -783,7 +783,7 @@
                   "visible": "[equals(steps('basics').scenario.profile, 'generic')]",
                   "options": {
                     "style": "Warning",
-                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeGeneric)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '</b>')]"
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeGeneric)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '</b>')]"
                   }
                 },
                 {
@@ -815,7 +815,7 @@
                   "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6))]",               
                   "options": {
                     "style": "Warning",
-                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProSingleLight)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '</b>')]"
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProSingleLight)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '</b>')]"
                   }
                 },
                 {
@@ -851,7 +851,7 @@
                   "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4))]",
                   "options": {
                     "style": "Warning",
-                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProSingleMedium)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '</b>')]"
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProSingleMedium)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '</b>')]"
                   }
                 },
                 {
@@ -885,7 +885,7 @@
                   "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3))]",
                   "options": {
                     "style": "Warning",
-                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProSingleHeavy)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '</b>')]"
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProSingleHeavy)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '</b>')]"
                   }
                 },
                 {
@@ -917,7 +917,7 @@
                   "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'))]",
                   "options": {
                     "style": "Warning",
-                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '</b>')]"
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '</b>')]"
                   }
                 },
                 {
