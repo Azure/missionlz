@@ -38,7 +38,7 @@ resource availabilitySet 'Microsoft.Compute/availabilitySets@2023-09-01' existin
 resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
   name: networkInterfaceName
   location: location
-  tags: contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}
+  tags: tags[?'Microsoft.Network/networkInterfaces'] ?? {}
   properties: {
     ipConfigurations: [
       {
@@ -68,7 +68,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2023-03-01' = {
   name: virtualMachineName
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   identity: {
     type: 'SystemAssigned'
   }
@@ -147,7 +147,7 @@ resource aadLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-0
   parent: virtualMachine
   name: 'AADLoginForWindows'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   properties: {
     publisher: 'Microsoft.Azure.ActiveDirectory'
     type: 'AADLoginForWindows'
@@ -163,7 +163,7 @@ resource jsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@202
   parent: virtualMachine
   name: 'joindomain'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   properties: {
     publisher: 'Microsoft.Compute'
     type: 'JsonADDomainExtension'
@@ -248,7 +248,7 @@ resource azureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@
   parent: virtualMachine
   name: 'AzureMonitorWindowsAgent'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   properties: {
     publisher: 'Microsoft.Azure.Monitor'
     type: 'AzureMonitorWindowsAgent'
@@ -269,7 +269,7 @@ resource azureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@
 resource dnsSuffix 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = if (joinEntraDomain && (!joinWindowsDomain)) {
   name: 'rc-esriDnsSuffix'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true

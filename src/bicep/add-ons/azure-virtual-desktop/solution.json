@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.31.92.45157",
-      "templateHash": "8358069094561879230"
+      "version": "0.32.4.45862",
+      "templateHash": "16505027735013677232"
     }
   },
   "parameters": {
@@ -35,6 +35,11 @@
     },
     "availabilityZones": {
       "type": "array",
+      "defaultValue": [
+        "1",
+        "2",
+        "3"
+      ],
       "metadata": {
         "description": "The availability zones allowed for the AVD session hosts deployment location."
       }
@@ -146,6 +151,7 @@
     },
     "emailSecurityContact": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "The email address to use for Defender for Cloud notifications."
       }
@@ -246,6 +252,7 @@
     },
     "hostPoolPublicNetworkAccess": {
       "type": "string",
+      "defaultValue": "Enabled",
       "allowedValues": [
         "Disabled",
         "Enabled",
@@ -554,6 +561,7 @@
     },
     "workspacePublicNetworkAccess": {
       "type": "string",
+      "defaultValue": "Enabled",
       "allowedValues": [
         "Disabled",
         "Enabled"
@@ -661,8 +669,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "11125044402666498605"
+              "version": "0.32.4.45862",
+              "templateHash": "9348185205265061346"
             }
           },
           "parameters": {
@@ -1315,8 +1323,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "14266827690996546891"
+              "version": "0.32.4.45862",
+              "templateHash": "12075681672341690443"
             }
           },
           "parameters": {
@@ -1592,8 +1600,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "15810721730485220824"
+                      "version": "0.32.4.45862",
+                      "templateHash": "11951558504901001113"
                     }
                   },
                   "parameters": {
@@ -1672,8 +1680,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "11125044402666498605"
+                              "version": "0.32.4.45862",
+                              "templateHash": "9348185205265061346"
                             }
                           },
                           "parameters": {
@@ -2266,8 +2274,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "17619606927129129347"
+                              "version": "0.32.4.45862",
+                              "templateHash": "10126517616466326568"
                             }
                           },
                           "parameters": {
@@ -2406,8 +2414,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "9371138343009436350"
+                      "version": "0.32.4.45862",
+                      "templateHash": "6826910029633627352"
                     }
                   },
                   "parameters": {
@@ -2535,8 +2543,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "12095518102496352105"
+                      "version": "0.32.4.45862",
+                      "templateHash": "12891343365298521146"
                     }
                   },
                   "parameters": {
@@ -2671,8 +2679,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "11818136489056939588"
+                              "version": "0.32.4.45862",
+                              "templateHash": "17886708743216395115"
                             }
                           },
                           "parameters": {
@@ -2789,8 +2797,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.31.92.45157",
-                                      "templateHash": "3681943409502537301"
+                                      "version": "0.32.4.45862",
+                                      "templateHash": "13846782101975662570"
                                     }
                                   },
                                   "parameters": {
@@ -2872,8 +2880,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.31.92.45157",
-                                      "templateHash": "18425321023142226965"
+                                      "version": "0.32.4.45862",
+                                      "templateHash": "9322941388060090809"
                                     }
                                   },
                                   "parameters": {
@@ -2975,8 +2983,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.31.92.45157",
-                                      "templateHash": "15002544166394392504"
+                                      "version": "0.32.4.45862",
+                                      "templateHash": "5483231664830769159"
                                     }
                                   },
                                   "parameters": {
@@ -3052,8 +3060,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.31.92.45157",
-                                      "templateHash": "16817025486402215719"
+                                      "version": "0.32.4.45862",
+                                      "templateHash": "5645415839002404423"
                                     }
                                   },
                                   "parameters": {
@@ -3193,8 +3201,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "10267893616110384815"
+                              "version": "0.32.4.45862",
+                              "templateHash": "17601114229673889726"
                             }
                           },
                           "parameters": {
@@ -3246,8 +3254,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.31.92.45157",
-                                      "templateHash": "5574526676512163672"
+                                      "version": "0.32.4.45862",
+                                      "templateHash": "6477042594817819590"
                                     }
                                   },
                                   "parameters": {
@@ -3320,8 +3328,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "11553909803736438916"
+                              "version": "0.32.4.45862",
+                              "templateHash": "13320362037311908604"
                             }
                           },
                           "parameters": {
@@ -3373,8 +3381,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.31.92.45157",
-                                      "templateHash": "5574526676512163672"
+                                      "version": "0.32.4.45862",
+                                      "templateHash": "6477042594817819590"
                                     }
                                   },
                                   "parameters": {
@@ -3438,6 +3446,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-vnet-links-{0}-sub-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[variables('hubSubscriptionId')]",
               "resourceGroup": "[variables('hubResourceGroupName')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -3450,6 +3459,12 @@
                   },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "hubResourceGroupName": {
+                    "value": "[variables('hubResourceGroupName')]"
+                  },
+                  "hubSubscriptionId": {
+                    "value": "[variables('hubSubscriptionId')]"
                   },
                   "privateDnsZoneNames": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
@@ -3473,8 +3488,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "4304275711041823961"
+                      "version": "0.32.4.45862",
+                      "templateHash": "11568503298667055500"
                     }
                   },
                   "parameters": {
@@ -3482,6 +3497,12 @@
                       "type": "string"
                     },
                     "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "hubResourceGroupName": {
+                      "type": "string"
+                    },
+                    "hubSubscriptionId": {
                       "type": "string"
                     },
                     "privateDnsZoneNames": {
@@ -3506,6 +3527,8 @@
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-vnet-links-{0}-rg-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
+                      "subscriptionId": "[parameters('hubSubscriptionId')]",
+                      "resourceGroup": "[parameters('hubResourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -3531,8 +3554,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "16077950968688123011"
+                              "version": "0.32.4.45862",
+                              "templateHash": "8205818676743522558"
                             }
                           },
                           "parameters": {
@@ -3634,8 +3657,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "12787329163785242553"
+                      "version": "0.32.4.45862",
+                      "templateHash": "17139779324064444555"
                     }
                   },
                   "parameters": {
@@ -3723,8 +3746,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "11761568940379970751"
+                              "version": "0.32.4.45862",
+                              "templateHash": "16844719077752965053"
                             }
                           },
                           "parameters": {
@@ -3981,8 +4004,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "4207798980384159491"
+                              "version": "0.32.4.45862",
+                              "templateHash": "16362514702834742003"
                             }
                           },
                           "parameters": {
@@ -4061,8 +4084,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.31.92.45157",
-                                      "templateHash": "1966035938992047983"
+                                      "version": "0.32.4.45862",
+                                      "templateHash": "10296095440786899315"
                                     }
                                   },
                                   "parameters": {
@@ -4156,8 +4179,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "7930493629995578222"
+                              "version": "0.32.4.45862",
+                              "templateHash": "9965398560847425439"
                             }
                           },
                           "parameters": {
@@ -4314,8 +4337,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "17358288344184718166"
+                      "version": "0.32.4.45862",
+                      "templateHash": "4832927444657450691"
                     }
                   },
                   "parameters": {
@@ -4430,8 +4453,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "1625826941635729014"
+                              "version": "0.32.4.45862",
+                              "templateHash": "5654874488513857493"
                             }
                           },
                           "parameters": {
@@ -4711,8 +4734,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "4345251511078445463"
+                      "version": "0.32.4.45862",
+                      "templateHash": "5003010468843057430"
                     }
                   },
                   "parameters": {
@@ -4786,8 +4809,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "4687229436121899773"
+                              "version": "0.32.4.45862",
+                              "templateHash": "17453871854351031685"
                             }
                           },
                           "parameters": {
@@ -4876,8 +4899,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "1721966359516622278"
+                              "version": "0.32.4.45862",
+                              "templateHash": "5679027658072815414"
                             }
                           },
                           "parameters": {
@@ -4950,8 +4973,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "2073766618455932098"
+                              "version": "0.32.4.45862",
+                              "templateHash": "11508259122426462594"
                             }
                           },
                           "parameters": {
@@ -5028,8 +5051,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "9546260853018527046"
+                              "version": "0.32.4.45862",
+                              "templateHash": "2381187713713410342"
                             }
                           },
                           "parameters": {
@@ -5119,8 +5142,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "15014526386353172066"
+                      "version": "0.32.4.45862",
+                      "templateHash": "357638842280985685"
                     }
                   },
                   "parameters": {
@@ -5176,8 +5199,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "8545903679924437739"
+                              "version": "0.32.4.45862",
+                              "templateHash": "5692847317260005018"
                             }
                           },
                           "parameters": {
@@ -5352,8 +5375,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.31.92.45157",
-                                      "templateHash": "1966035938992047983"
+                                      "version": "0.32.4.45862",
+                                      "templateHash": "10296095440786899315"
                                     }
                                   },
                                   "parameters": {
@@ -5437,8 +5460,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "17047820191891552534"
+                      "version": "0.32.4.45862",
+                      "templateHash": "14546732833942026419"
                     }
                   },
                   "parameters": {
@@ -5902,8 +5925,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "10495259955667653232"
+              "version": "0.32.4.45862",
+              "templateHash": "4210618599190261131"
             }
           },
           "parameters": {
@@ -6139,8 +6162,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "14902820815719387395"
+                      "version": "0.32.4.45862",
+                      "templateHash": "4040412403658222440"
                     }
                   },
                   "parameters": {
@@ -6331,8 +6354,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "6666075809401495349"
+                              "version": "0.32.4.45862",
+                              "templateHash": "17378749799785541708"
                             }
                           },
                           "parameters": {
@@ -6413,8 +6436,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "6666075809401495349"
+                              "version": "0.32.4.45862",
+                              "templateHash": "17378749799785541708"
                             }
                           },
                           "parameters": {
@@ -6589,8 +6612,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "17657921580737492350"
+                      "version": "0.32.4.45862",
+                      "templateHash": "6177784702619881633"
                     }
                   },
                   "parameters": {
@@ -6825,8 +6848,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "3145769776971011079"
+                      "version": "0.32.4.45862",
+                      "templateHash": "7508927614115273955"
                     }
                   },
                   "parameters": {
@@ -6926,8 +6949,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "6736401548874707618"
+                      "version": "0.32.4.45862",
+                      "templateHash": "15135239032486516059"
                     }
                   },
                   "parameters": {
@@ -7007,8 +7030,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "1275953978872597894"
+                              "version": "0.32.4.45862",
+                              "templateHash": "12620050165740282894"
                             }
                           },
                           "parameters": {
@@ -7095,8 +7118,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "10766099399924390355"
+                      "version": "0.32.4.45862",
+                      "templateHash": "13923881297381162461"
                     }
                   },
                   "parameters": {
@@ -7167,8 +7190,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "10174155731090308034"
+                      "version": "0.32.4.45862",
+                      "templateHash": "6882435925200046714"
                     }
                   },
                   "parameters": {
@@ -7273,8 +7296,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "3320903441430575822"
+                      "version": "0.32.4.45862",
+                      "templateHash": "8963284140110589310"
                     }
                   },
                   "parameters": {
@@ -7611,8 +7634,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "15585962471976115155"
+                      "version": "0.32.4.45862",
+                      "templateHash": "7095463649950396202"
                     }
                   },
                   "parameters": {
@@ -7651,7 +7674,7 @@
                     }
                   },
                   "variables": {
-                    "$fxv#0": "Param(\r\n    [string]$ApplicationGroupName,\r\n    [string]$FriendlyName,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$SubscriptionId,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Wait for role assignment propagation\r\nStart-Sleep -Seconds 30\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if ($ResourceManagerUri[-1] -eq '/') {$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Update the friendly name on the session desktop\r\nInvoke-RestMethod `\r\n    -Body (@{properties = @{friendlyName = $FriendlyName.Replace('\"', '')}} | ConvertTo-Json) `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'PATCH' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/applicationGroups/' + $ApplicationGroupName + '/desktops/SessionDesktop?api-version=2022-02-10-preview') | Out-Null"
+                    "$fxv#0": "Param(\r\n    [string]$ApplicationGroupName,\r\n    [string]$FriendlyName,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$SubscriptionId,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Wait for role assignment propagation\r\nStart-Sleep -Seconds 30\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if ($ResourceManagerUri[-1] -eq '/') {$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Update the friendly name on the session desktop\r\nInvoke-RestMethod `\r\n    -Body (@{properties = @{friendlyName = $FriendlyName.Replace('\"', '')}} | ConvertTo-Json) `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'PATCH' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/applicationGroups/' + $ApplicationGroupName + '/desktops/SessionDesktop?api-version=2023-09-05') | Out-Null"
                   },
                   "resources": [
                     {
@@ -7743,8 +7766,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "6896852651895359166"
+                              "version": "0.32.4.45862",
+                              "templateHash": "4633016567232021930"
                             }
                           },
                           "parameters": {
@@ -7876,8 +7899,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "15719775133926232352"
+                      "version": "0.32.4.45862",
+                      "templateHash": "11820053284565700342"
                     }
                   },
                   "parameters": {
@@ -8149,8 +8172,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "1960226860650229376"
+                      "version": "0.32.4.45862",
+                      "templateHash": "16511102345217830008"
                     }
                   },
                   "parameters": {
@@ -8712,8 +8735,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "6666075809401495349"
+                              "version": "0.32.4.45862",
+                              "templateHash": "17378749799785541708"
                             }
                           },
                           "parameters": {
@@ -8797,8 +8820,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "9123948093985510582"
+                              "version": "0.32.4.45862",
+                              "templateHash": "5914083700014462110"
                             }
                           },
                           "parameters": {
@@ -8863,8 +8886,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "2293260329720441287"
+                              "version": "0.32.4.45862",
+                              "templateHash": "7657375601344773039"
                             }
                           },
                           "parameters": {
@@ -9102,8 +9125,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "140763294646618507"
+              "version": "0.32.4.45862",
+              "templateHash": "114774497126860136"
             }
           },
           "parameters": {
@@ -9230,8 +9253,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "9371138343009436350"
+                      "version": "0.32.4.45862",
+                      "templateHash": "6826910029633627352"
                     }
                   },
                   "parameters": {
@@ -9318,8 +9341,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "3251230175900717239"
+                      "version": "0.32.4.45862",
+                      "templateHash": "15820133524677528430"
                     }
                   },
                   "parameters": {
@@ -9438,8 +9461,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "9371138343009436350"
+                      "version": "0.32.4.45862",
+                      "templateHash": "6826910029633627352"
                     }
                   },
                   "parameters": {
@@ -9520,8 +9543,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "10174155731090308034"
+                      "version": "0.32.4.45862",
+                      "templateHash": "6882435925200046714"
                     }
                   },
                   "parameters": {
@@ -9581,8 +9604,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "10174155731090308034"
+                      "version": "0.32.4.45862",
+                      "templateHash": "6882435925200046714"
                     }
                   },
                   "parameters": {
@@ -9695,8 +9718,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "10426142527062787497"
+                      "version": "0.32.4.45862",
+                      "templateHash": "3254589361765371722"
                     }
                   },
                   "parameters": {
@@ -9903,8 +9926,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "6896852651895359166"
+                              "version": "0.32.4.45862",
+                              "templateHash": "4633016567232021930"
                             }
                           },
                           "parameters": {
@@ -10112,8 +10135,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "14643897230641833486"
+              "version": "0.32.4.45862",
+              "templateHash": "11821887248490442537"
             }
           },
           "parameters": {
@@ -10277,8 +10300,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "10174155731090308034"
+                      "version": "0.32.4.45862",
+                      "templateHash": "6882435925200046714"
                     }
                   },
                   "parameters": {
@@ -10338,8 +10361,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "10174155731090308034"
+                      "version": "0.32.4.45862",
+                      "templateHash": "6882435925200046714"
                     }
                   },
                   "parameters": {
@@ -10453,8 +10476,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "17417543434535800430"
+                      "version": "0.32.4.45862",
+                      "templateHash": "14347143162536154935"
                     }
                   },
                   "parameters": {
@@ -10655,8 +10678,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "849953818393496765"
+                              "version": "0.32.4.45862",
+                              "templateHash": "265294585387205266"
                             }
                           },
                           "parameters": {
@@ -10847,8 +10870,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "2895952650836829415"
+                      "version": "0.32.4.45862",
+                      "templateHash": "6268987239457057010"
                     }
                   },
                   "parameters": {
@@ -11151,8 +11174,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "2560784574355796510"
+                              "version": "0.32.4.45862",
+                              "templateHash": "14732590348791991288"
                             }
                           },
                           "parameters": {
@@ -11292,8 +11315,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "849953818393496765"
+                              "version": "0.32.4.45862",
+                              "templateHash": "265294585387205266"
                             }
                           },
                           "parameters": {
@@ -11404,8 +11427,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "11840486447312746268"
+                              "version": "0.32.4.45862",
+                              "templateHash": "3739801778399990237"
                             }
                           },
                           "parameters": {
@@ -11491,8 +11514,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.31.92.45157",
-                                      "templateHash": "13786800560391201998"
+                                      "version": "0.32.4.45862",
+                                      "templateHash": "68551275346256779"
                                     }
                                   },
                                   "parameters": {
@@ -11787,8 +11810,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "8274254996075869850"
+              "version": "0.32.4.45862",
+              "templateHash": "11054659395104997585"
             }
           },
           "parameters": {
@@ -12037,8 +12060,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "1275953978872597894"
+                      "version": "0.32.4.45862",
+                      "templateHash": "12620050165740282894"
                     }
                   },
                   "parameters": {
@@ -12114,8 +12137,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "12575584281240773385"
+                      "version": "0.32.4.45862",
+                      "templateHash": "8849736203129522021"
                     }
                   },
                   "parameters": {
@@ -12193,8 +12216,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "10174155731090308034"
+                      "version": "0.32.4.45862",
+                      "templateHash": "6882435925200046714"
                     }
                   },
                   "parameters": {
@@ -12287,8 +12310,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "6896852651895359166"
+                      "version": "0.32.4.45862",
+                      "templateHash": "4633016567232021930"
                     }
                   },
                   "parameters": {
@@ -12402,8 +12425,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "6896852651895359166"
+                      "version": "0.32.4.45862",
+                      "templateHash": "4633016567232021930"
                     }
                   },
                   "parameters": {
@@ -12619,8 +12642,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "10645307132280074356"
+                      "version": "0.32.4.45862",
+                      "templateHash": "10352366812464333598"
                     }
                   },
                   "parameters": {
@@ -12778,7 +12801,7 @@
                   },
                   "variables": {
                     "$fxv#0": "Param(\r\n    [string]$ActiveDirectorySolution,\r\n    [string]$AmdVmSize,\r\n    [string]$Fslogix,\r\n    [string]$FslogixContainerType,\r\n    [string]$NetAppFileShares,\r\n    [string]$NvidiaVmSize,\r\n    [string]$StorageAccountPrefix,\r\n    [int]$StorageCount,\r\n    [int]$StorageIndex,\r\n    [string]$StorageService,\r\n    [string]$StorageSuffix,\r\n    [string]$UniqueToken\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n\r\n# Convert NetAppFiles share names from a JSON array to a PowerShell array\r\n[array]$NetAppFileShares = $NetAppFileShares.Replace(\"'\",'\"') | ConvertFrom-Json\r\n$NetAppFileShares | Add-Content -Path 'C:\\cse.txt' -Force\r\n\r\n#  Add Recommended Security Settings\r\n$Settings = @(\r\n\r\n    # Set Kerberos Encryption for STIG compliance\r\n    [PSCustomObject]@{\r\n        Name = 'SupportedEncryptionTypes'\r\n        Path = 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters'\r\n        PropertyType = 'DWord'\r\n        Value = 2147483640\r\n    }\r\n)\r\n\r\n#  Add Recommended AVD Settings\r\n$Settings = @(\r\n\r\n    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates\r\n    [PSCustomObject]@{\r\n        Name = 'NoAutoUpdate'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableTimeZoneRedirection'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    }\r\n)\r\n\r\n\r\n#  Add GPU Settings\r\n# This setting applies to the VM Size's recommended for AVD with a GPU\r\nif ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') \r\n{\r\n    $Settings += @(\r\n\r\n        # Configure GPU-accelerated app rendering: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering\r\n        [PSCustomObject]@{\r\n            Name = 'bEnumerateHWBeforeSW'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Configure fullscreen video encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVC444ModePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n    )\r\n}\r\n\r\n# This setting applies only to VM Size's recommended for AVD with a Nvidia GPU\r\nif($NvidiaVmSize -eq 'true')\r\n{\r\n    $Settings += @(\r\n\r\n        # Configure GPU-accelerated frame encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-frame-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVChardwareEncodePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n    )\r\n}\r\n\r\n#  Add Fslogix Settings\r\nif($Fslogix -eq 'true')\r\n{\r\n    $FilesSuffix = '.file.' + $StorageSuffix\r\n    $CloudCacheOfficeContainers = @()\r\n    $CloudCacheProfileContainers = @()\r\n    $OfficeContainers = @()\r\n    $ProfileContainers = @()\r\n    switch($StorageService)\r\n    {\r\n        'AzureFiles' {\r\n            for($i = $StorageIndex; $i -lt $($StorageIndex + $StorageCount); $i++)\r\n            {\r\n                $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers;'\r\n                $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers;'\r\n                $OfficeContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers'\r\n                $ProfileContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers'\r\n            }\r\n        }\r\n        'AzureNetAppFiles' {\r\n            $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $NetAppFileShares[0] + '\\office-containers;'\r\n            $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers;'\r\n            $OfficeContainers += '\\\\' + $NetAppFileShares[0] + '\\office-containers'\r\n            $ProfileContainers += '\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers'\r\n        }\r\n    }\r\n    \r\n    $Shares = @()\r\n    $Shares += $OfficeContainers\r\n    $Shares += $ProfileContainers\r\n\r\n    $Settings += @(\r\n\r\n        # Enables Fslogix profile containers: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#enabled\r\n        [PSCustomObject]@{\r\n            Name = 'Enabled'\r\n            Path = 'HKLM:\\SOFTWARE\\Fslogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Deletes a local profile if it exists and matches the profile being loaded from VHD: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#deletelocalprofilewhenvhdshouldapply\r\n        [PSCustomObject]@{\r\n            Name = 'DeleteLocalProfileWhenVHDShouldApply'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#flipflopprofiledirectoryname\r\n        [PSCustomObject]@{\r\n            Name = 'FlipFlopProfileDirectoryName'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretryinterval\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryInterval'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies if the profile container can be accessed concurrently: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#profiletype\r\n        [PSCustomObject]@{\r\n            Name = 'ProfileType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 0\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachintervalseconds\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachIntervalSeconds'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the maximum size of the user's container in megabytes. Newly created VHD(x) containers are of this size: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#sizeinmbs\r\n        [PSCustomObject]@{\r\n            Name = 'SizeInMBs'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 30000\r\n        },\r\n\r\n        # Specifies the file extension for the profile containers: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#volumetype\r\n        [PSCustomObject]@{\r\n            Name = 'VolumeType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'String'\r\n            Value = 'VHDX'\r\n        }\r\n    )\r\n\r\n    if($FslogixContainerType -like \"CloudCache*\")\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'CCDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $CloudCacheProfileContainers\r\n            }\r\n        )           \r\n    }\r\n    else\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'VHDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $ProfileContainers\r\n            }\r\n        )\r\n    }\r\n\r\n    if($FslogixContainerType -like \"*OfficeContainer\")\r\n    {\r\n        $Settings += @(\r\n\r\n            # Enables Fslogix office containers: https://learn.microsoft.com/fslogix/office-container-configuration-reference#enabled\r\n            [PSCustomObject]@{\r\n                Name = 'Enabled'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },\r\n\r\n            # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/office-container-configuration-reference#flipflopprofiledirectoryname\r\n            [PSCustomObject]@{\r\n                Name = 'FlipFlopProfileDirectoryName'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },         \r\n            \r\n            # Teams data is redirected to the container: https://learn.microsoft.com/fslogix/office-container-configuration-reference#includeteams\r\n            [PSCustomObject]@{\r\n                Name = 'IncludeTeams'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },                  \r\n\r\n            # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretryinterval\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryInterval'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachintervalseconds\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachIntervalSeconds'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the maximum size of the user's container in megabytes: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#sizeinmbs\r\n            [PSCustomObject]@{\r\n                Name = 'SizeInMBs'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 30000\r\n            },\r\n\r\n            # Specifies the type of container: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#volumetype\r\n            [PSCustomObject]@{\r\n                Name = 'VolumeType'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'String'\r\n                Value = 'VHDX'\r\n            }\r\n        )\r\n\r\n        if($FslogixContainerType -like \"CloudCache*\")\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'CCDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $CloudCacheOfficeContainers\r\n                }\r\n            )           \r\n        }\r\n        else\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/office-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'VHDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $OfficeContainers\r\n                }\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\n\r\n# Set registry settings\r\nforeach($Setting in $Settings)\r\n{\r\n    # Create registry key(s) if necessary\r\n    if(!(Test-Path -Path $Setting.Path))\r\n    {\r\n        New-Item -Path $Setting.Path -Force | Out-Null\r\n    }\r\n\r\n    # Checks for existing registry setting\r\n    $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\r\n    \r\n    # Creates the registry setting when it does not exist\r\n    if(!$Value)\r\n    {\r\n        New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    # Updates the registry setting when it already exists\r\n    elseif($Value.$($Setting.Name) -ne $Setting.Value)\r\n    {\r\n        Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    Start-Sleep -Seconds 1 | Out-Null\r\n}\r\n",
-                    "$fxv#1": "Param(\r\n    [string]$Environment,\r\n    [string]$HostPoolName,\r\n    [string]$HostPoolResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [int]$SessionHostCount,\r\n    [int]$SessionHostIndex,\r\n    [string]$SubscriptionId,\r\n    [string]$TenantId,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineNamePrefix\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Get the AVD session hosts\r\n$SessionHosts = (Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts?api-version=2022-02-10-preview')).value.name\r\n\r\n# Enable drain mode for the AVD session hosts\r\nfor($i = $SessionHostIndex; $i -lt $($SessionHostIndex + $SessionHostCount); $i++)\r\n{\r\n    $VmNameFull = $VirtualMachineNamePrefix + $i.ToString().PadLeft(4,'0')\r\n    $SessionHostName = ($SessionHosts | Where-Object {$_ -like \"*$VmNameFull*\"}).Replace(\"$HostPoolName/\", '')\r\n    Invoke-RestMethod `\r\n        -Body (@{properties = @{allowNewSession = $false}} | ConvertTo-Json) `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'PATCH' `\r\n        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts/' + $SessionHostName + '?api-version=2022-02-10-preview') | Out-Null\r\n}\r\n",
+                    "$fxv#1": "Param(\r\n    [string]$Environment,\r\n    [string]$HostPoolName,\r\n    [string]$HostPoolResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [int]$SessionHostCount,\r\n    [int]$SessionHostIndex,\r\n    [string]$SubscriptionId,\r\n    [string]$TenantId,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineNamePrefix\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Get the AVD session hosts\r\n$SessionHosts = (Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts?api-version=2023-09-05')).value.name\r\n\r\n# Enable drain mode for the AVD session hosts\r\nfor($i = $SessionHostIndex; $i -lt $($SessionHostIndex + $SessionHostCount); $i++)\r\n{\r\n    $VmNameFull = $VirtualMachineNamePrefix + $i.ToString().PadLeft(4,'0')\r\n    $SessionHostName = ($SessionHosts | Where-Object {$_ -like \"*$VmNameFull*\"}).Replace(\"$HostPoolName/\", '')\r\n    Invoke-RestMethod `\r\n        -Body (@{properties = @{allowNewSession = $false}} | ConvertTo-Json) `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'PATCH' `\r\n        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts/' + $SessionHostName + '?api-version=2023-09-05') | Out-Null\r\n}\r\n",
                     "amdVmSize": "[contains(variables('amdVmSizes'), parameters('virtualMachineSize'))]",
                     "amdVmSizes": [
                       "Standard_NV4as_v4",
@@ -13259,8 +13282,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "6896852651895359166"
+                              "version": "0.32.4.45862",
+                              "templateHash": "4633016567232021930"
                             }
                           },
                           "parameters": {
@@ -13394,8 +13417,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "6896852651895359166"
+                              "version": "0.32.4.45862",
+                              "templateHash": "4633016567232021930"
                             }
                           },
                           "parameters": {
@@ -13515,8 +13538,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "16414429800719346251"
+                      "version": "0.32.4.45862",
+                      "templateHash": "14049702824072406536"
                     }
                   },
                   "parameters": {
@@ -13601,8 +13624,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.31.92.45157",
-                              "templateHash": "2762553882428643570"
+                              "version": "0.32.4.45862",
+                              "templateHash": "13839389370996620631"
                             }
                           },
                           "parameters": {
@@ -13724,8 +13747,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "12064357872576819259"
+                      "version": "0.32.4.45862",
+                      "templateHash": "8017434630233216259"
                     }
                   },
                   "parameters": {
@@ -13969,8 +13992,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "297418666680418295"
+              "version": "0.32.4.45862",
+              "templateHash": "5231012330413857041"
             }
           },
           "parameters": {
@@ -14053,8 +14076,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.31.92.45157",
-                      "templateHash": "6896852651895359166"
+                      "version": "0.32.4.45862",
+                      "templateHash": "4633016567232021930"
                     }
                   },
                   "parameters": {

@@ -334,7 +334,6 @@ module dscEsriGraphDataStoreServers 'dscEsriGraphDataStore.bicep' = [for (server
   dependsOn:[
     dscEsriServers
     dscEsriDataStoreServers
-    dscFileShare
     dscEsriObjectDataStoreServers
     dscEsriSpatioTemporalServers
     applicationGateway
@@ -370,7 +369,6 @@ module dscEsriObjectDataStoreServers 'dscEsriObjectDataStore.bicep' = [for (serv
   dependsOn:[
     dscEsriServers
     dscEsriDataStoreServers
-    dscFileShare
     applicationGateway
     // privateDnsZone
   ]

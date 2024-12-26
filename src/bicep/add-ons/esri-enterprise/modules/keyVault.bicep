@@ -55,7 +55,7 @@ var Secrets = [
 resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
   name: keyVaultName
   location: location
-  tags: contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}
+  tags: tags[?'Microsoft.KeyVault/vaults'] ?? {}
   properties: {
     enabledForDeployment: true
     enabledForDiskEncryption: true
@@ -151,7 +151,7 @@ resource key_storageAccounts 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
 resource secrets 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = [for Secret in Secrets: {
   parent: keyVault
   name: Secret.name
-  tags: contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}
+  tags: tags[?'Microsoft.KeyVault/vaults'] ?? {}
   properties: {
     value: Secret.value
   }

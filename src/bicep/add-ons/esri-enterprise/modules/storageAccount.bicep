@@ -31,7 +31,7 @@ var zones = [
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: '${resourcePrefix}saesri${uniqueStorageName}'
   location: location
-  tags: contains(tags, 'Microsoft.Storage/storageAccounts') ? tags['Microsoft.Storage/storageAccounts'] : {}
+  tags: tags[?'Microsoft.Storage/storageAccounts'] ?? {}
   sku: {
     name: storageSKU
   }

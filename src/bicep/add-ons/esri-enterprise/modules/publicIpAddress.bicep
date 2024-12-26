@@ -7,7 +7,7 @@ param publicIpAllocationMethod string
 resource publicIp 'Microsoft.Network/publicIPAddresses@2023-04-01' = {
   name: publicIpAddressName
   location: location
-  tags: contains(tags, 'Microsoft.Network/publicIPAddresses') ? tags['Microsoft.Network/publicIPAddresses'] : {}
+  tags: tags[?'Microsoft.Network/publicIPAddresses'] ?? {}
   sku: {
     name: 'Standard'
     tier: 'Regional'

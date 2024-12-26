@@ -14,8 +14,7 @@ param routeTableRouteNextHopType string = 'VirtualAppliance'
 resource routeTable 'Microsoft.Network/routeTables@2021-02-01' = {
   name: name
   location: location
-  tags: tags
-
+  tags: tags[?'Microsoft.Network/routeTables'] ?? {}
   properties: {
     routes: [
       {
