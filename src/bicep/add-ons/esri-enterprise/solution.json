@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "722308071245341042"
+      "templateHash": "10559309619231653938"
     }
   },
   "parameters": {
@@ -5346,6 +5346,398 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
+      "name": "[format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[variables('subscriptionId')]",
+      "resourceGroup": "[variables('resourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "domainJoinPassword": "[if(parameters('joinWindowsDomain'), createObject('value', parameters('windowsDomainAdministratorPassword')), createObject('value', 'None'))]",
+          "domainJoinUserPrincipalName": "[if(parameters('joinWindowsDomain'), createObject('value', parameters('windowsDomainAdministratorUserName')), createObject('value', 'None'))]",
+          "keyVaultCertificatesOfficerRoleDefinitionResourceId": {
+            "value": "[variables('keyVaultCertificatesOfficer')]"
+          },
+          "keyVaultCryptoOfficerRoleDefinitionResourceId": {
+            "value": "[variables('keyVaultCryptoOfficer')]"
+          },
+          "keyVaultName": {
+            "value": "[take(format('{0}-{1}', variables('keyVaultName'), uniqueString(subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName')), variables('keyVaultName'))), 24)]"
+          },
+          "keyVaultPrivateDnsZoneResourceId": {
+            "value": "[format('{0}{1}', variables('privateDnsZoneResourceIdPrefix'), filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value, lambda('name', startsWith(lambdaVariables('name'), 'privatelink.vaultcore')))[0])]"
+          },
+          "keyVaultSecretsOfficerRoleDefinitionResourceId": {
+            "value": "[variables('keyVaultSecretsOfficer')]"
+          },
+          "localAdministratorPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "localAdministratorUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "primarySiteAdministratorAccountPassword": {
+            "value": "[parameters('primarySiteAdministratorAccountPassword')]"
+          },
+          "primarySiteAdministratorAccountUserName": {
+            "value": "[parameters('primarySiteAdministratorAccountUserName')]"
+          },
+          "resourcePrefix": {
+            "value": "[parameters('resourcePrefix')]"
+          },
+          "subnetResourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].subnetResourceId]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "userAssignedIdentityPrincipalId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.32.4.45862",
+              "templateHash": "14955990919492707422"
+            }
+          },
+          "parameters": {
+            "domainJoinPassword": {
+              "type": "securestring"
+            },
+            "domainJoinUserPrincipalName": {
+              "type": "securestring"
+            },
+            "keyVaultCertificatesOfficerRoleDefinitionResourceId": {
+              "type": "string"
+            },
+            "keyVaultName": {
+              "type": "string"
+            },
+            "keyVaultSecretsOfficerRoleDefinitionResourceId": {
+              "type": "string"
+            },
+            "keyVaultCryptoOfficerRoleDefinitionResourceId": {
+              "type": "string"
+            },
+            "localAdministratorPassword": {
+              "type": "securestring"
+            },
+            "localAdministratorUsername": {
+              "type": "securestring"
+            },
+            "location": {
+              "type": "string"
+            },
+            "primarySiteAdministratorAccountPassword": {
+              "type": "securestring"
+            },
+            "primarySiteAdministratorAccountUserName": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            },
+            "userAssignedIdentityPrincipalId": {
+              "type": "string"
+            },
+            "subnetResourceId": {
+              "type": "string"
+            },
+            "keyVaultPrivateDnsZoneResourceId": {
+              "type": "string"
+            },
+            "diskEncryptionKeyExpirationInDays": {
+              "type": "int",
+              "defaultValue": 30
+            },
+            "resourcePrefix": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "Secrets": [
+              {
+                "name": "DomainJoinPassword",
+                "value": "[parameters('domainJoinPassword')]"
+              },
+              {
+                "name": "DomainJoinUserPrincipalName",
+                "value": "[parameters('domainJoinUserPrincipalName')]"
+              },
+              {
+                "name": "LocalAdministratorPassword",
+                "value": "[parameters('localAdministratorPassword')]"
+              },
+              {
+                "name": "LocalAdministratorUsername",
+                "value": "[parameters('localAdministratorUsername')]"
+              },
+              {
+                "name": "PrimarySiteAdministratorAccountUserName",
+                "value": "[parameters('primarySiteAdministratorAccountUserName')]"
+              },
+              {
+                "name": "PrimarySiteAdministratorAccountPassword",
+                "value": "[parameters('primarySiteAdministratorAccountPassword')]"
+              }
+            ]
+          },
+          "resources": [
+            {
+              "type": "Microsoft.KeyVault/vaults",
+              "apiVersion": "2021-10-01",
+              "name": "[parameters('keyVaultName')]",
+              "location": "[parameters('location')]",
+              "tags": "[coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject())]",
+              "properties": {
+                "enabledForDeployment": true,
+                "enabledForDiskEncryption": true,
+                "enabledForTemplateDeployment": true,
+                "enablePurgeProtection": true,
+                "enableRbacAuthorization": true,
+                "enableSoftDelete": true,
+                "networkAcls": {
+                  "bypass": "AzureServices",
+                  "defaultAction": "Deny",
+                  "ipRules": [],
+                  "virtualNetworkRules": []
+                },
+                "publicNetworkAccess": "Disabled",
+                "sku": {
+                  "family": "A",
+                  "name": "standard"
+                },
+                "softDeleteRetentionInDays": 7,
+                "tenantId": "[subscription().tenantId]"
+              }
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/keys",
+              "apiVersion": "2022-07-01",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'DiskEncryptionKey')]",
+              "properties": {
+                "attributes": {
+                  "enabled": true
+                },
+                "keySize": 4096,
+                "kty": "RSA",
+                "rotationPolicy": {
+                  "attributes": {
+                    "expiryTime": "[format('P{0}D', string(parameters('diskEncryptionKeyExpirationInDays')))]"
+                  },
+                  "lifetimeActions": [
+                    {
+                      "action": {
+                        "type": "Notify"
+                      },
+                      "trigger": {
+                        "timeBeforeExpiry": "P10D"
+                      }
+                    },
+                    {
+                      "action": {
+                        "type": "Rotate"
+                      },
+                      "trigger": {
+                        "timeAfterCreate": "[format('P{0}D', string(sub(parameters('diskEncryptionKeyExpirationInDays'), 7)))]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/keys",
+              "apiVersion": "2022-07-01",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'StorageEncryptionKey')]",
+              "properties": {
+                "attributes": {
+                  "enabled": true
+                },
+                "keySize": 4096,
+                "kty": "RSA",
+                "rotationPolicy": {
+                  "attributes": {
+                    "expiryTime": "[format('P{0}D', string(parameters('diskEncryptionKeyExpirationInDays')))]"
+                  },
+                  "lifetimeActions": [
+                    {
+                      "action": {
+                        "type": "Notify"
+                      },
+                      "trigger": {
+                        "timeBeforeExpiry": "P10D"
+                      }
+                    },
+                    {
+                      "action": {
+                        "type": "Rotate"
+                      },
+                      "trigger": {
+                        "timeAfterCreate": "[format('P{0}D', string(sub(parameters('diskEncryptionKeyExpirationInDays'), 7)))]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "secrets",
+                "count": "[length(variables('Secrets'))]"
+              },
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2021-10-01",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), variables('Secrets')[copyIndex()].name)]",
+              "tags": "[coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject())]",
+              "properties": {
+                "value": "[variables('Secrets')[copyIndex()].value]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-10-01-preview",
+              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+              "name": "[guid(parameters('userAssignedIdentityPrincipalId'), parameters('keyVaultSecretsOfficerRoleDefinitionResourceId'), resourceGroup().id)]",
+              "properties": {
+                "roleDefinitionId": "[parameters('keyVaultSecretsOfficerRoleDefinitionResourceId')]",
+                "principalId": "[parameters('userAssignedIdentityPrincipalId')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-10-01-preview",
+              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+              "name": "[guid(parameters('userAssignedIdentityPrincipalId'), parameters('keyVaultCertificatesOfficerRoleDefinitionResourceId'), resourceGroup().id)]",
+              "properties": {
+                "roleDefinitionId": "[parameters('keyVaultCertificatesOfficerRoleDefinitionResourceId')]",
+                "principalId": "[parameters('userAssignedIdentityPrincipalId')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-10-01-preview",
+              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+              "name": "[guid(parameters('userAssignedIdentityPrincipalId'), parameters('keyVaultCryptoOfficerRoleDefinitionResourceId'), resourceGroup().id)]",
+              "properties": {
+                "roleDefinitionId": "[parameters('keyVaultCryptoOfficerRoleDefinitionResourceId')]",
+                "principalId": "[parameters('userAssignedIdentityPrincipalId')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateEndpoints",
+              "apiVersion": "2023-04-01",
+              "name": "[format('{0}-pe-{1}', parameters('resourcePrefix'), parameters('keyVaultName'))]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "customNetworkInterfaceName": "[format('{0}-nic-{1}', parameters('resourcePrefix'), parameters('keyVaultName'))]",
+                "privateLinkServiceConnections": [
+                  {
+                    "name": "[format('{0}-pe-{1}', parameters('resourcePrefix'), parameters('keyVaultName'))]",
+                    "properties": {
+                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                      "groupIds": [
+                        "vault"
+                      ]
+                    }
+                  }
+                ],
+                "subnet": {
+                  "id": "[parameters('subnetResourceId')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+              "apiVersion": "2021-08-01",
+              "name": "[format('{0}/{1}', format('{0}-pe-{1}', parameters('resourcePrefix'), parameters('keyVaultName')), parameters('keyVaultName'))]",
+              "properties": {
+                "privateDnsZoneConfigs": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-pe-{1}', parameters('resourcePrefix'), parameters('keyVaultName')))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "name": {
+              "type": "string",
+              "value": "[parameters('keyVaultName')]"
+            },
+            "resourceId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+            },
+            "keyUriWithVersion": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), 'DiskEncryptionKey'), '2022-07-01').keyUriWithVersion]"
+            },
+            "keyVaultResourceId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+            },
+            "keyVaultUri": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2021-10-01').vaultUri]"
+            },
+            "storageKeyName": {
+              "type": "string",
+              "value": "StorageEncryptionKey"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
       "name": "[format('deploy-storage-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
@@ -10543,398 +10935,6 @@
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-odata-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "[format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
-      "resourceGroup": "[variables('resourceGroupName')]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "domainJoinPassword": "[if(parameters('joinWindowsDomain'), createObject('value', parameters('windowsDomainAdministratorPassword')), createObject('value', 'None'))]",
-          "domainJoinUserPrincipalName": "[if(parameters('joinWindowsDomain'), createObject('value', parameters('windowsDomainAdministratorUserName')), createObject('value', 'None'))]",
-          "keyVaultCertificatesOfficerRoleDefinitionResourceId": {
-            "value": "[variables('keyVaultCertificatesOfficer')]"
-          },
-          "keyVaultCryptoOfficerRoleDefinitionResourceId": {
-            "value": "[variables('keyVaultCryptoOfficer')]"
-          },
-          "keyVaultName": {
-            "value": "[take(format('{0}-{1}', variables('keyVaultName'), uniqueString(subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName')), variables('keyVaultName'))), 24)]"
-          },
-          "keyVaultPrivateDnsZoneResourceId": {
-            "value": "[format('{0}{1}', variables('privateDnsZoneResourceIdPrefix'), filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value, lambda('name', startsWith(lambdaVariables('name'), 'privatelink.vaultcore')))[0])]"
-          },
-          "keyVaultSecretsOfficerRoleDefinitionResourceId": {
-            "value": "[variables('keyVaultSecretsOfficer')]"
-          },
-          "localAdministratorPassword": {
-            "value": "[parameters('adminPassword')]"
-          },
-          "localAdministratorUsername": {
-            "value": "[parameters('adminUsername')]"
-          },
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "primarySiteAdministratorAccountPassword": {
-            "value": "[parameters('primarySiteAdministratorAccountPassword')]"
-          },
-          "primarySiteAdministratorAccountUserName": {
-            "value": "[parameters('primarySiteAdministratorAccountUserName')]"
-          },
-          "resourcePrefix": {
-            "value": "[parameters('resourcePrefix')]"
-          },
-          "subnetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].subnetResourceId]"
-          },
-          "tags": {
-            "value": "[parameters('tags')]"
-          },
-          "userAssignedIdentityPrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "14955990919492707422"
-            }
-          },
-          "parameters": {
-            "domainJoinPassword": {
-              "type": "securestring"
-            },
-            "domainJoinUserPrincipalName": {
-              "type": "securestring"
-            },
-            "keyVaultCertificatesOfficerRoleDefinitionResourceId": {
-              "type": "string"
-            },
-            "keyVaultName": {
-              "type": "string"
-            },
-            "keyVaultSecretsOfficerRoleDefinitionResourceId": {
-              "type": "string"
-            },
-            "keyVaultCryptoOfficerRoleDefinitionResourceId": {
-              "type": "string"
-            },
-            "localAdministratorPassword": {
-              "type": "securestring"
-            },
-            "localAdministratorUsername": {
-              "type": "securestring"
-            },
-            "location": {
-              "type": "string"
-            },
-            "primarySiteAdministratorAccountPassword": {
-              "type": "securestring"
-            },
-            "primarySiteAdministratorAccountUserName": {
-              "type": "string"
-            },
-            "tags": {
-              "type": "object"
-            },
-            "userAssignedIdentityPrincipalId": {
-              "type": "string"
-            },
-            "subnetResourceId": {
-              "type": "string"
-            },
-            "keyVaultPrivateDnsZoneResourceId": {
-              "type": "string"
-            },
-            "diskEncryptionKeyExpirationInDays": {
-              "type": "int",
-              "defaultValue": 30
-            },
-            "resourcePrefix": {
-              "type": "string"
-            }
-          },
-          "variables": {
-            "Secrets": [
-              {
-                "name": "DomainJoinPassword",
-                "value": "[parameters('domainJoinPassword')]"
-              },
-              {
-                "name": "DomainJoinUserPrincipalName",
-                "value": "[parameters('domainJoinUserPrincipalName')]"
-              },
-              {
-                "name": "LocalAdministratorPassword",
-                "value": "[parameters('localAdministratorPassword')]"
-              },
-              {
-                "name": "LocalAdministratorUsername",
-                "value": "[parameters('localAdministratorUsername')]"
-              },
-              {
-                "name": "PrimarySiteAdministratorAccountUserName",
-                "value": "[parameters('primarySiteAdministratorAccountUserName')]"
-              },
-              {
-                "name": "PrimarySiteAdministratorAccountPassword",
-                "value": "[parameters('primarySiteAdministratorAccountPassword')]"
-              }
-            ]
-          },
-          "resources": [
-            {
-              "type": "Microsoft.KeyVault/vaults",
-              "apiVersion": "2021-10-01",
-              "name": "[parameters('keyVaultName')]",
-              "location": "[parameters('location')]",
-              "tags": "[coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject())]",
-              "properties": {
-                "enabledForDeployment": true,
-                "enabledForDiskEncryption": true,
-                "enabledForTemplateDeployment": true,
-                "enablePurgeProtection": true,
-                "enableRbacAuthorization": true,
-                "enableSoftDelete": true,
-                "networkAcls": {
-                  "bypass": "AzureServices",
-                  "defaultAction": "Deny",
-                  "ipRules": [],
-                  "virtualNetworkRules": []
-                },
-                "publicNetworkAccess": "Disabled",
-                "sku": {
-                  "family": "A",
-                  "name": "standard"
-                },
-                "softDeleteRetentionInDays": 7,
-                "tenantId": "[subscription().tenantId]"
-              }
-            },
-            {
-              "type": "Microsoft.KeyVault/vaults/keys",
-              "apiVersion": "2022-07-01",
-              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'DiskEncryptionKey')]",
-              "properties": {
-                "attributes": {
-                  "enabled": true
-                },
-                "keySize": 4096,
-                "kty": "RSA",
-                "rotationPolicy": {
-                  "attributes": {
-                    "expiryTime": "[format('P{0}D', string(parameters('diskEncryptionKeyExpirationInDays')))]"
-                  },
-                  "lifetimeActions": [
-                    {
-                      "action": {
-                        "type": "Notify"
-                      },
-                      "trigger": {
-                        "timeBeforeExpiry": "P10D"
-                      }
-                    },
-                    {
-                      "action": {
-                        "type": "Rotate"
-                      },
-                      "trigger": {
-                        "timeAfterCreate": "[format('P{0}D', string(sub(parameters('diskEncryptionKeyExpirationInDays'), 7)))]"
-                      }
-                    }
-                  ]
-                }
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.KeyVault/vaults/keys",
-              "apiVersion": "2022-07-01",
-              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'StorageEncryptionKey')]",
-              "properties": {
-                "attributes": {
-                  "enabled": true
-                },
-                "keySize": 4096,
-                "kty": "RSA",
-                "rotationPolicy": {
-                  "attributes": {
-                    "expiryTime": "[format('P{0}D', string(parameters('diskEncryptionKeyExpirationInDays')))]"
-                  },
-                  "lifetimeActions": [
-                    {
-                      "action": {
-                        "type": "Notify"
-                      },
-                      "trigger": {
-                        "timeBeforeExpiry": "P10D"
-                      }
-                    },
-                    {
-                      "action": {
-                        "type": "Rotate"
-                      },
-                      "trigger": {
-                        "timeAfterCreate": "[format('P{0}D', string(sub(parameters('diskEncryptionKeyExpirationInDays'), 7)))]"
-                      }
-                    }
-                  ]
-                }
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-              ]
-            },
-            {
-              "copy": {
-                "name": "secrets",
-                "count": "[length(variables('Secrets'))]"
-              },
-              "type": "Microsoft.KeyVault/vaults/secrets",
-              "apiVersion": "2021-10-01",
-              "name": "[format('{0}/{1}', parameters('keyVaultName'), variables('Secrets')[copyIndex()].name)]",
-              "tags": "[coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject())]",
-              "properties": {
-                "value": "[variables('Secrets')[copyIndex()].value]"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2020-10-01-preview",
-              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
-              "name": "[guid(parameters('userAssignedIdentityPrincipalId'), parameters('keyVaultSecretsOfficerRoleDefinitionResourceId'), resourceGroup().id)]",
-              "properties": {
-                "roleDefinitionId": "[parameters('keyVaultSecretsOfficerRoleDefinitionResourceId')]",
-                "principalId": "[parameters('userAssignedIdentityPrincipalId')]",
-                "principalType": "ServicePrincipal"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2020-10-01-preview",
-              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
-              "name": "[guid(parameters('userAssignedIdentityPrincipalId'), parameters('keyVaultCertificatesOfficerRoleDefinitionResourceId'), resourceGroup().id)]",
-              "properties": {
-                "roleDefinitionId": "[parameters('keyVaultCertificatesOfficerRoleDefinitionResourceId')]",
-                "principalId": "[parameters('userAssignedIdentityPrincipalId')]",
-                "principalType": "ServicePrincipal"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2020-10-01-preview",
-              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
-              "name": "[guid(parameters('userAssignedIdentityPrincipalId'), parameters('keyVaultCryptoOfficerRoleDefinitionResourceId'), resourceGroup().id)]",
-              "properties": {
-                "roleDefinitionId": "[parameters('keyVaultCryptoOfficerRoleDefinitionResourceId')]",
-                "principalId": "[parameters('userAssignedIdentityPrincipalId')]",
-                "principalType": "ServicePrincipal"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Network/privateEndpoints",
-              "apiVersion": "2023-04-01",
-              "name": "[format('{0}-pe-{1}', parameters('resourcePrefix'), parameters('keyVaultName'))]",
-              "location": "[parameters('location')]",
-              "tags": "[parameters('tags')]",
-              "properties": {
-                "customNetworkInterfaceName": "[format('{0}-nic-{1}', parameters('resourcePrefix'), parameters('keyVaultName'))]",
-                "privateLinkServiceConnections": [
-                  {
-                    "name": "[format('{0}-pe-{1}', parameters('resourcePrefix'), parameters('keyVaultName'))]",
-                    "properties": {
-                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-                      "groupIds": [
-                        "vault"
-                      ]
-                    }
-                  }
-                ],
-                "subnet": {
-                  "id": "[parameters('subnetResourceId')]"
-                }
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-              "apiVersion": "2021-08-01",
-              "name": "[format('{0}/{1}', format('{0}-pe-{1}', parameters('resourcePrefix'), parameters('keyVaultName')), parameters('keyVaultName'))]",
-              "properties": {
-                "privateDnsZoneConfigs": [
-                  {
-                    "name": "ipconfig1",
-                    "properties": {
-                      "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
-                    }
-                  }
-                ]
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-pe-{1}', parameters('resourcePrefix'), parameters('keyVaultName')))]"
-              ]
-            }
-          ],
-          "outputs": {
-            "name": {
-              "type": "string",
-              "value": "[parameters('keyVaultName')]"
-            },
-            "resourceId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-            },
-            "keyUriWithVersion": {
-              "type": "string",
-              "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), 'DiskEncryptionKey'), '2022-07-01').keyUriWithVersion]"
-            },
-            "keyVaultResourceId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-            },
-            "keyVaultUri": {
-              "type": "string",
-              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2021-10-01').vaultUri]"
-            },
-            "storageKeyName": {
-              "type": "string",
-              "value": "StorageEncryptionKey"
-            }
-          }
-        }
-      },
-      "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]

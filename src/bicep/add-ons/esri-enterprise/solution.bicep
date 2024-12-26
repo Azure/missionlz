@@ -464,6 +464,29 @@ module userAssignedIdentity './modules/userAssignedManagedIdentity.bicep' = {
   ]
 }
 
+module keyVault './modules/keyVault.bicep' = {
+  name: 'deploy-key-vault-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
+  params: {
+    domainJoinPassword: joinWindowsDomain ? windowsDomainAdministratorPassword : 'None'
+    domainJoinUserPrincipalName: joinWindowsDomain ? windowsDomainAdministratorUserName : 'None'
+    keyVaultCertificatesOfficerRoleDefinitionResourceId: keyVaultCertificatesOfficer
+    keyVaultCryptoOfficerRoleDefinitionResourceId: keyVaultCryptoOfficer
+    keyVaultName: take('${keyVaultName}-${uniqueString(rg.id, keyVaultName)}', 24)
+    keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.vaultcore'))[0]}'
+    keyVaultSecretsOfficerRoleDefinitionResourceId: keyVaultSecretsOfficer
+    localAdministratorPassword: adminPassword
+    localAdministratorUsername: adminUsername
+    location: location
+    primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
+    primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
+    resourcePrefix: resourcePrefix
+    subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
+    tags: tags
+    userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
+  }
+}
+
 module storage './modules/storageAccount.bicep' = {
   name: 'deploy-storage-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, rg.name)
@@ -880,29 +903,6 @@ module multiTierObjectDataStoreVirtualMachines 'modules/virtualMachine.bicep' = 
     }
   }
 ]
-
-module keyVault './modules/keyVault.bicep' = {
-  name: 'deploy-key-vault-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
-  params: {
-    domainJoinPassword: joinWindowsDomain ? windowsDomainAdministratorPassword : 'None'
-    domainJoinUserPrincipalName: joinWindowsDomain ? windowsDomainAdministratorUserName : 'None'
-    keyVaultCertificatesOfficerRoleDefinitionResourceId: keyVaultCertificatesOfficer
-    keyVaultCryptoOfficerRoleDefinitionResourceId: keyVaultCryptoOfficer
-    keyVaultName: take('${keyVaultName}-${uniqueString(rg.id, keyVaultName)}', 24)
-    keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.vaultcore'))[0]}'
-    keyVaultSecretsOfficerRoleDefinitionResourceId: keyVaultSecretsOfficer
-    localAdministratorPassword: adminPassword
-    localAdministratorUsername: adminUsername
-    location: location
-    primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
-    primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
-    resourcePrefix: resourcePrefix
-    subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
-    tags: tags
-    userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
-  }
-}
 
 module roleAssignmentStorageAccount './modules/roleAssignmentStorageAccount.bicep' = {
   name: 'assign-role-sa-01-${deploymentNameSuffix}'
