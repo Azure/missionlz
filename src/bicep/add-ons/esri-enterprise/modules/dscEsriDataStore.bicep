@@ -49,7 +49,7 @@ resource dscEsriDataStore 'Microsoft.Compute/virtualMachines/extensions@2018-10-
   parent: virtualMachine
   name: 'DSCConfiguration'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   properties: {
     autoUpgradeMinorVersion: true
     publisher: 'Microsoft.Powershell'
