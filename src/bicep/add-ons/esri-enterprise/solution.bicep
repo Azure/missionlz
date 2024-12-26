@@ -480,9 +480,6 @@ module storage './modules/storageAccount.bicep' = {
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
     resourcePrefix: resourcePrefix
   }
-  dependsOn: [
-    tier3
-  ]
 }
 
 module publicIpAddress './modules/publicIpAddress.bicep' = {
@@ -626,9 +623,6 @@ module singleTierVirtualMachine 'modules/virtualMachine.bicep' =
       windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
       windowsDomainName: windowsDomainName
     }
-    dependsOn: [
-      rg
-    ]
   }
 
 @batchSize(5)
@@ -659,9 +653,6 @@ module multiTierServerVirtualMachines 'modules/virtualMachine.bicep' = [
       windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
       windowsDomainName: windowsDomainName
     }
-    dependsOn: [
-      rg
-    ]
   }
 ]
 
@@ -693,9 +684,6 @@ module multiTierPortalVirtualMachines 'modules/virtualMachine.bicep' = [
       windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
       windowsDomainName: windowsDomainName
     }
-    dependsOn: [
-      rg
-    ]
   }
 ]
 
@@ -727,9 +715,6 @@ module multiTierDatastoreServerVirtualMachines 'modules/virtualMachine.bicep' = 
       windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
       windowsDomainName: windowsDomainName
     }
-    dependsOn: [
-      rg
-    ]
   }
 ]
 
@@ -761,9 +746,6 @@ module multiTierFileServerVirtualMachines 'modules/virtualMachine.bicep' = [
       windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
       windowsDomainName: windowsDomainName
     }
-    dependsOn: [
-      rg
-    ]
   }
 ]
 
@@ -797,9 +779,6 @@ module multiTierSpatiotemporalBigDataStoreVirtualMachines 'modules/virtualMachin
       windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
       windowsDomainName: windowsDomainName
     }
-    dependsOn: [
-      rg
-    ]
   }
 ]
 
@@ -833,9 +812,6 @@ module multiTierTileCacheVirtualMachines 'modules/virtualMachine.bicep' = [
       windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
       windowsDomainName: windowsDomainName
     }
-    dependsOn: [
-      rg
-    ]
   }
 ]
 
@@ -869,9 +845,6 @@ module multiTierGraphVirtualMachines 'modules/virtualMachine.bicep' = [
       windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
       windowsDomainName: windowsDomainName
     }
-    dependsOn: [
-      rg
-    ]
   }
 ]
 
@@ -905,9 +878,6 @@ module multiTierObjectDataStoreVirtualMachines 'modules/virtualMachine.bicep' = 
       windowsDomainAdministratorUserName: windowsDomainAdministratorUserName
       windowsDomainName: windowsDomainName
     }
-    dependsOn: [
-      rg
-    ]
   }
 ]
 
@@ -932,9 +902,6 @@ module keyVault './modules/keyVault.bicep' = {
     tags: tags
     userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
   }
-  dependsOn: [
-    tier3
-  ]
 }
 
 module roleAssignmentStorageAccount './modules/roleAssignmentStorageAccount.bicep' = {
@@ -944,10 +911,6 @@ module roleAssignmentStorageAccount './modules/roleAssignmentStorageAccount.bice
     principalId: userAssignedIdentity.outputs.principalId
     storageAccountName: storage.outputs.storageAccountName
   }
-  dependsOn: [
-    keyVault
-    tier3
-  ]
 }
 
 module roleAssignmentArtifactsStorageAccount './modules/roleAssignmentStorageAccount.bicep' = {
@@ -979,8 +942,9 @@ module roleAssignmentContributor './modules/contributor.bicep' = {
   name: 'assign-role-sub-01-${deploymentNameSuffix}'
   scope: subscription(subscriptionId)
   params: {
-    userAssignedIdentityId: userAssignedIdentity.outputs.principalId
+    deploymentNameSuffix: deploymentNameSuffix
     subscriptionId: subscriptionId
+    userAssignedIdentityId: userAssignedIdentity.outputs.principalId
   }
   dependsOn: [
     keyVault
@@ -1021,13 +985,10 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
     multiTierFileServerVirtualMachines
     multiTierPortalVirtualMachines
     multiTierServerVirtualMachines
-    rg
     roleAssignmentArtifactsStorageAccount
     roleAssignmentStorageAccount
     roleAssignmentVirtualMachineContributor
     roleAssignmentContributor
-    tier3
-    userAssignedIdentity
   ]
 }
 
@@ -1046,12 +1007,9 @@ module certificates './modules/certificates.bicep' = {
     virtualMachineName: architecture == 'singletier' ? virtualMachineName : fileShareVirtualMachineName
   }
   dependsOn: [
-    keyVault
     managementVm
     multiTierFileServerVirtualMachines
-    rg
     singleTierVirtualMachine
-    tier3
   ]
 }
 
@@ -1145,7 +1103,6 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' =
     }
     dependsOn: [
       managementVm
-      certificates
       multiTierDatastoreServerVirtualMachines
       multiTierFileServerVirtualMachines
       multiTierGraphVirtualMachines
@@ -1155,8 +1112,6 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' =
       multiTierServerVirtualMachines
       multiTierSpatiotemporalBigDataStoreVirtualMachines
       multiTierTileCacheVirtualMachines
-      publicIpAddress
-      tier3
     ]
   }
 
@@ -1215,7 +1170,6 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' =
       windowsDomainName: windowsDomainName
     }
     dependsOn: [
-      certificates
       managementVm
       singleTierVirtualMachine
     ]
