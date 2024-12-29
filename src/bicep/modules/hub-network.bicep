@@ -9,6 +9,7 @@ param azureGatewaySubnetAddressPrefix string
 param deployNetworkWatcher bool
 param deployBastion bool
 param deployAzureGatewaySubnet bool
+param deployAzureNATGateway bool
 param dnsServers array
 param enableProxy bool
 param firewallClientPrivateIpAddress string
@@ -36,6 +37,9 @@ param firewallSupernetIPAddress string
 param firewallThreatIntelMode string
 param location string
 param mlzTags object
+param natGatewayName string
+param natGatewayPublicIpPrefixName string
+param natGatewayPublicIpPrefixLength int
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
 param networkWatcherName string
@@ -52,6 +56,7 @@ var subnets = union([
     name: 'AzureFirewallSubnet'
     properties: {
       addressPrefix: firewallClientSubnetAddressPrefix
+      natGateway: deployAzureNATGateway ? { id: natGateway.outputs.id } : null
     }
   }
   {
@@ -64,6 +69,7 @@ var subnets = union([
     name: subnetName
     properties: {
       addressPrefix: subnetAddressPrefix
+      natGateway: deployAzureNATGateway ? { id: natGateway.outputs.id } : null
       networkSecurityGroup: {
         id: networkSecurityGroup.outputs.id
       }
@@ -322,6 +328,32 @@ module firewall '../modules/firewall.bicep' = {
   }
 }
 
+module natGatewayPublicIpPrefix '../modules/public-ip-prefix.bicep' = if (deployAzureNATGateway) {
+  name: 'natGatewayPublicIpPrefix'
+  params: {
+    location: location
+    mlzTags: mlzTags
+    name: natGatewayPublicIpPrefixName
+    prefixLength: natGatewayPublicIpPrefixLength
+    tags: tags
+  }
+}
+
+module natGateway '../modules/nat-gateway.bicep' = if (deployAzureNATGateway) {
+  name: 'natGateway'
+  params: {
+    location: location
+    mlzTags: mlzTags
+    name: natGatewayName
+    publicIPPrefixResourceIds: [
+      {
+        id: natGatewayPublicIpPrefix.outputs.id
+      }
+    ]
+    tags: tags
+  }
+}
+
 output bastionHostSubnetResourceId string = deployBastion ? virtualNetwork.outputs.subnets[3].id : ''
 output dnsServers array = virtualNetwork.outputs.dnsServers
 output firewallName string = firewall.outputs.name
@@ -334,4 +366,7 @@ output subnetName string = virtualNetwork.outputs.subnets[2].name
 output subnetResourceId string = virtualNetwork.outputs.subnets[2].id
 output virtualNetworkName string = virtualNetwork.outputs.name
 output virtualNetworkResourceId string = virtualNetwork.outputs.id
-
+output natGatewayPublicIpPrefixName string = natGatewayPublicIpPrefix.outputs.name
+output natGatewayPublicIpPrefixResourceId string = natGatewayPublicIpPrefix.outputs.id
+output natGatewayName string = natGateway.outputs.name
+output natGatewayResourceId string = natGateway.outputs.id

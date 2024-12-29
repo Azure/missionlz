@@ -12,11 +12,13 @@ param deploymentNameSuffix string
 param deployNetworkWatcher bool
 param deployBastion bool
 param deployAzureGatewaySubnet bool
+param deployAzureNATGateway bool
 param dnsServers array
 param enableProxy bool
 param firewallSettings object
 param location string
 param mlzTags object
+param natGatewayPublicIpPrefixLength int
 param privateDnsZoneNames array
 param resourceGroupNames array
 param tiers array
@@ -37,6 +39,7 @@ module hubNetwork 'hub-network.bicep' = {
     deployNetworkWatcher: deployNetworkWatcher
     deployBastion: deployBastion
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
+    deployAzureNATGateway: deployAzureNATGateway
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallClientPrivateIpAddress: firewallSettings.clientPrivateIpAddress
@@ -54,6 +57,9 @@ module hubNetwork 'hub-network.bicep' = {
     firewallThreatIntelMode: firewallSettings.threatIntelMode
     location: location
     mlzTags: mlzTags
+    natGatewayName: hub.namingConvention.natGateway
+    natGatewayPublicIpPrefixName: hub.namingConvention.natGatewayPublicIpPrefix
+    natGatewayPublicIpPrefixLength: natGatewayPublicIpPrefixLength
     networkSecurityGroupName: hub.namingConvention.networkSecurityGroup
     networkSecurityGroupRules: hub.nsgRules
     networkWatcherName: hub.namingConvention.networkWatcher
