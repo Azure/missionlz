@@ -756,6 +756,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
     keyVaultName: customerManagedKeys.outputs.keyVaultName
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
+    location: location
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics

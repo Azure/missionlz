@@ -12,6 +12,7 @@ param firewallDiagnosticsLogs array
 param firewallDiagnosticsMetrics array
 param keyVaultDiagnosticLogs array
 param keyVaultName string
+param location string
 param logAnalyticsWorkspaceResourceId string
 param publicIPAddressDiagnosticsLogs array
 param publicIPAddressDiagnosticsMetrics array
@@ -77,12 +78,15 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
   name: 'deploy-vnet-diags-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
   params: {
+    location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: tier.vnetDiagLogs
     logStorageAccountResourceId: storageAccountResourceIds[i]
     metrics: tier.vnetDiagMetrics
+    networkWatcherName: hub.namingConvention.networkWatcher
+    networkWatcherResourceGroupName: hubResourceGroupName
     virtualNetworkDiagnosticSettingName: tier.namingConvention.virtualNetworkDiagnosticSetting
-    virtualNetworkName: tier.namingConvention.virtualNetwork
+    virtualNetworkName: tier.namingConvention.virtualNetworkk
   }
 }]
 
