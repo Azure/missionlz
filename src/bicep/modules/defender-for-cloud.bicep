@@ -144,16 +144,16 @@ resource defenderStandardSubplanExtensionsAzureCloud 'Microsoft.Security/pricing
 
 
 
-// auto provisioing - set to false by default
+// auto provisioing - check environment type
 
-resource autoProvision 'Microsoft.Security/autoProvisioningSettings@2019-01-01' = if (enableAutoProvisioning == true) {
+resource autoProvision 'Microsoft.Security/autoProvisioningSettings@2019-01-01' = if (!(environment().name == 'AzureCloud' || environment().name == 'AzureUSGovernment') ) {
   name: 'default'
   properties: {
     autoProvision: autoProvisioning
   }
 }
 
-resource securityWorkspaceSettings 'Microsoft.Security/workspaceSettings@2019-01-01' = if (enableAutoProvisioning == true) {
+resource securityWorkspaceSettings 'Microsoft.Security/workspaceSettings@2019-01-01' = if (!(environment().name == 'AzureCloud' || environment().name == 'AzureUSGovernment') ) {
   name: 'default'
   properties: {
     workspaceId: logAnalyticsWorkspaceId
