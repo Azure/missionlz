@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "10423696344441287428"
+      "templateHash": "14332726274157590071"
     }
   },
   "parameters": {
@@ -7396,7 +7396,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "6322221255969508748"
+              "templateHash": "17254707720266898056"
             }
           },
           "parameters": {
@@ -7736,6 +7736,9 @@
                   "networkWatcherResourceGroupName": {
                     "value": "[variables('hubResourceGroupName')]"
                   },
+                  "tiername": {
+                    "value": "[parameters('tiers')[copyIndex()].name]"
+                  },
                   "virtualNetworkDiagnosticSettingName": {
                     "value": "[parameters('tiers')[copyIndex()].namingConvention.virtualNetworkDiagnosticSetting]"
                   },
@@ -7750,7 +7753,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.32.4.45862",
-                      "templateHash": "12227455482981871884"
+                      "templateHash": "4331301120598882846"
                     }
                   },
                   "parameters": {
@@ -7773,6 +7776,9 @@
                       "type": "string"
                     },
                     "networkWatcherResourceGroupName": {
+                      "type": "string"
+                    },
+                    "tiername": {
                       "type": "string"
                     },
                     "virtualNetworkDiagnosticSettingName": {
@@ -7798,7 +7804,7 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-{0}-flowLogs', parameters('virtualNetworkName'))]",
+                      "name": "[format('deploy-{0}-flowLogs', parameters('tiername'))]",
                       "resourceGroup": "[parameters('networkWatcherResourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {

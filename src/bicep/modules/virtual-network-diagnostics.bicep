@@ -10,6 +10,7 @@ param logStorageAccountResourceId string
 param metrics array
 param networkWatcherName string
 param networkWatcherResourceGroupName string
+param tiername string
 param virtualNetworkDiagnosticSettingName string
 param virtualNetworkName string
 
@@ -34,7 +35,7 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' 
 }
 
 module virtualNetworkFlowLogs '../modules/virtual-network-flowlogs.bicep' = {
-  name: 'deploy-${virtualNetworkName}-flowLogs'
+  name: 'deploy-${tiername}-flowLogs'
   scope: resourceGroup(networkWatcherResourceGroupName)
   params: {
     location: location
