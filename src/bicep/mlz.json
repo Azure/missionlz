@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "7733928543582069706"
+      "templateHash": "10423696344441287428"
     }
   },
   "parameters": {
@@ -7396,7 +7396,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "11758051293356678562"
+              "templateHash": "6322221255969508748"
             }
           },
           "parameters": {
@@ -7740,7 +7740,7 @@
                     "value": "[parameters('tiers')[copyIndex()].namingConvention.virtualNetworkDiagnosticSetting]"
                   },
                   "virtualNetworkName": {
-                    "value": "[parameters('tiers')[copyIndex()].namingConvention.virtualNetworkk]"
+                    "value": "[parameters('tiers')[copyIndex()].namingConvention.virtualNetwork]"
                   }
                 },
                 "template": {

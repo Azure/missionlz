@@ -86,7 +86,7 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
     networkWatcherName: hub.namingConvention.networkWatcher
     networkWatcherResourceGroupName: hubResourceGroupName
     virtualNetworkDiagnosticSettingName: tier.namingConvention.virtualNetworkDiagnosticSetting
-    virtualNetworkName: tier.namingConvention.virtualNetworkk
+    virtualNetworkName: tier.namingConvention.virtualNetwork
   }
 }]
 
