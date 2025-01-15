@@ -9,7 +9,7 @@ targetScope = 'subscription'
 param defenderPlans array = ['VirtualMachines']
 
 @description('Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off')
-param enableAutoProvisioning bool = true
+param enableAutoProvisioning bool = false
 var autoProvisioning = enableAutoProvisioning ? 'On' : 'Off'
 
 @description('Specify the ID of your custom Log Analytics workspace to collect Defender data.')
@@ -144,16 +144,16 @@ resource defenderStandardSubplanExtensionsAzureCloud 'Microsoft.Security/pricing
 
 
 
-// auto provisioing
+// auto provisioing - check environment type
 
-resource autoProvision 'Microsoft.Security/autoProvisioningSettings@2019-01-01' = {
+resource autoProvision 'Microsoft.Security/autoProvisioningSettings@2019-01-01' = if (!(environment().name == 'AzureCloud' || environment().name == 'AzureUSGovernment') ) {
   name: 'default'
   properties: {
     autoProvision: autoProvisioning
   }
 }
 
-resource securityWorkspaceSettings 'Microsoft.Security/workspaceSettings@2019-01-01' = {
+resource securityWorkspaceSettings 'Microsoft.Security/workspaceSettings@2019-01-01' = if (!(environment().name == 'AzureCloud' || environment().name == 'AzureUSGovernment') ) {
   name: 'default'
   properties: {
     workspaceId: logAnalyticsWorkspaceId
