@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "16958952534833497715"
+      "templateHash": "17221868502607646916"
     }
   },
   "parameters": {
@@ -7396,7 +7396,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "3665921553967272845"
+              "templateHash": "17933440023106691274"
             }
           },
           "parameters": {
@@ -7753,7 +7753,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.32.4.45862",
-                      "templateHash": "3835221090373070310"
+                      "templateHash": "6410321815358944428"
                     }
                   },
                   "parameters": {
@@ -7838,7 +7838,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.32.4.45862",
-                              "templateHash": "18252846406360270765"
+                              "templateHash": "11053034089953479958"
                             }
                           },
                           "parameters": {
@@ -7862,7 +7862,7 @@
                             }
                           },
                           "variables": {
-                            "virtualNetworkFlowLogsName": "[format('{0}-flowLogs', parameters('tiername'))]"
+                            "virtualNetworkFlowLogsName": "[format('{0}//{1}-flowLogs', parameters('networkWatcherName'), parameters('tiername'))]"
                           },
                           "resources": [
                             {
