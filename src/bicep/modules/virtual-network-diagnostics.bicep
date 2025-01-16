@@ -42,7 +42,7 @@ module virtualNetworkFlowLogs '../modules/virtual-network-flowlogs.bicep' = {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logStorageAccountResourceId: logStorageAccountResourceId
     networkWatcherName: networkWatcher.name
-    virtualNetworkName: virtualNetwork.name
+    tiername: tiername
     virtualNetworkResourceId: virtualNetwork.id
   }
 }

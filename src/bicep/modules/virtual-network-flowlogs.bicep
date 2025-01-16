@@ -7,10 +7,10 @@ param location string
 param logAnalyticsWorkspaceResourceId string
 param logStorageAccountResourceId string
 param networkWatcherName string
-param virtualNetworkName string
+param tiername string
 param virtualNetworkResourceId string
 
-var virtualNetworkFlowLogsName = '${networkWatcherName}//${virtualNetworkName}-flowLogs'
+var virtualNetworkFlowLogsName = '${tiername}-flowLogs'
 
 
 resource networkWatcher 'Microsoft.Network/networkWatchers@2021-02-01' existing = {

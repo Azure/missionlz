@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "14332726274157590071"
+      "templateHash": "16958952534833497715"
     }
   },
   "parameters": {
@@ -7396,7 +7396,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "17254707720266898056"
+              "templateHash": "3665921553967272845"
             }
           },
           "parameters": {
@@ -7753,7 +7753,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.32.4.45862",
-                      "templateHash": "4331301120598882846"
+                      "templateHash": "3835221090373070310"
                     }
                   },
                   "parameters": {
@@ -7824,8 +7824,8 @@
                           "networkWatcherName": {
                             "value": "[parameters('networkWatcherName')]"
                           },
-                          "virtualNetworkName": {
-                            "value": "[parameters('virtualNetworkName')]"
+                          "tiername": {
+                            "value": "[parameters('tiername')]"
                           },
                           "virtualNetworkResourceId": {
                             "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
@@ -7838,7 +7838,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.32.4.45862",
-                              "templateHash": "17550347883793263297"
+                              "templateHash": "18252846406360270765"
                             }
                           },
                           "parameters": {
@@ -7854,7 +7854,7 @@
                             "networkWatcherName": {
                               "type": "string"
                             },
-                            "virtualNetworkName": {
+                            "tiername": {
                               "type": "string"
                             },
                             "virtualNetworkResourceId": {
@@ -7862,7 +7862,7 @@
                             }
                           },
                           "variables": {
-                            "virtualNetworkFlowLogsName": "[format('{0}//{1}-flowLogs', parameters('networkWatcherName'), parameters('virtualNetworkName'))]"
+                            "virtualNetworkFlowLogsName": "[format('{0}-flowLogs', parameters('tiername'))]"
                           },
                           "resources": [
                             {
