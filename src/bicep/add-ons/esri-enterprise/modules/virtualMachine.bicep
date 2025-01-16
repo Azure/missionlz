@@ -1,6 +1,4 @@
-@secure()
-param adminPassword string
-param adminUsername string
+
 param architecture string
 param availabilitySetName string
 param domainJoinOptions int = 3
@@ -17,7 +15,10 @@ param subnetResourceId string
 param tags object
 param userAssignedIdentityResourceId string
 param virtualMachineName string
+@secure()
+param virtualMachineAdminPassword string
 param virtualMachineSize string
+param virtualMachineAdminUsername string
 @secure()
 param windowsDomainAdministratorPassword string
 param windowsDomainAdministratorUserName string
@@ -105,8 +106,8 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2023-03-01' = {
     }
     osProfile: {
       computerName: virtualMachineName
-      adminUsername: adminUsername
-      adminPassword: adminPassword
+      adminUsername: virtualMachineAdminUsername
+      adminPassword: virtualMachineAdminPassword
       windowsConfiguration: {
         provisionVMAgent: true
         enableAutomaticUpdates: false
@@ -281,20 +282,7 @@ resource dnsSuffix 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
       }
     ]
     source: {
-      script: '''
-      param(
-        [string]$Domain
-      )
-      # ONLY RETURN ETHERNET CONNECTIONS
-      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet
-      # ADD SUFFIX TO EACH ETHERNET CONNECTION
-      Foreach ($nic in $nics) {
-      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false
-      $Alias = $nic.InterfaceAlias
-      $Index = $nic.InterfaceIndex
-      }
-      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false
-      '''
+      script: loadTextContent('../artifacts/Set-DnsClient.ps1')
     }
   }
   dependsOn: [
