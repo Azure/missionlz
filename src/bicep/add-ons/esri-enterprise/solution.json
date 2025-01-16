@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "10559309619231653938"
+      "templateHash": "4507681060584373500"
     }
   },
   "parameters": {
@@ -699,7 +699,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-single-tier-datastore-types-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -5270,7 +5269,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-uami-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -5347,7 +5345,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -5397,7 +5394,7 @@
             "value": "[parameters('tags')]"
           },
           "userAssignedIdentityPrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
           }
         },
         "template": {
@@ -5732,14 +5729,13 @@
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-storage-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -5769,13 +5765,13 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].subnetResourceId]"
           },
           "keyVaultUri": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
           },
           "storageEncryptionKeyName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageKeyName.value]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           },
           "resourcePrefix": {
             "value": "[parameters('resourcePrefix')]"
@@ -6067,17 +6063,16 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-pip-address-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -6181,7 +6176,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-avset-server-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -6248,7 +6242,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-avset-portal-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -6315,7 +6308,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-avset-datastore-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -6382,7 +6374,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-avset-spatiotemporal-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -6449,7 +6440,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-avset-tilecache-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -6516,7 +6506,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-avset-graph-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -6583,7 +6572,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-avset-odata-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -6650,7 +6638,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-virtual-machine-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -6695,13 +6682,13 @@
             "value": "singletier"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
           "subnetResourceId": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].subnetResourceId), createObject('value', 'none'))]",
           "tags": {
             "value": "[parameters('tags')]"
           },
-          "userAssignedIdentityResourceId": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value), createObject('value', 'none'))]",
+          "userAssignedIdentityResourceId": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value), createObject('value', 'none'))]",
           "virtualMachineName": {
             "value": "[variables('virtualMachineName')]"
           },
@@ -7109,9 +7096,10 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -7125,7 +7113,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-esri-server-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -7142,7 +7129,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": "[if(equals(parameters('architecture'), 'multitier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-server-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
+          "availabilitySetName": "[if(equals(parameters('architecture'), 'multitier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-server-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -7168,7 +7155,7 @@
             "value": "server"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].subnetResourceId]"
@@ -7177,7 +7164,7 @@
             "value": "[parameters('tags')]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           },
           "virtualMachineName": {
             "value": "[variables('serverVirtualMachines')[copyIndex()]]"
@@ -7586,10 +7573,11 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-server-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-server-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -7603,7 +7591,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-esri-portal-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -7620,7 +7607,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": "[if(equals(parameters('architecture'), 'multitier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-portal-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
+          "availabilitySetName": "[if(equals(parameters('architecture'), 'multitier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-portal-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -7646,7 +7633,7 @@
             "value": "portal"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].subnetResourceId]"
@@ -7655,7 +7642,7 @@
             "value": "[parameters('tags')]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           },
           "virtualMachineName": {
             "value": "[variables('portalVirtualMachines')[copyIndex()]]"
@@ -8064,10 +8051,11 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-portal-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-portal-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -8081,7 +8069,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-esri-datastore-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -8098,7 +8085,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": "[if(equals(parameters('architecture'), 'multitier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-datastore-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
+          "availabilitySetName": "[if(equals(parameters('architecture'), 'multitier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-datastore-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -8124,7 +8111,7 @@
             "value": "datastore"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].subnetResourceId]"
@@ -8133,7 +8120,7 @@
             "value": "[parameters('tags')]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           },
           "virtualMachineName": {
             "value": "[variables('dataStoreVirtualMachines')[copyIndex()]]"
@@ -8542,10 +8529,11 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-datastore-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-datastore-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -8559,7 +8547,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-esri-fileserver-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -8604,7 +8591,7 @@
             "value": "fileshare"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].subnetResourceId]"
@@ -8613,7 +8600,7 @@
             "value": "[parameters('tags')]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           },
           "virtualMachineName": {
             "value": "[variables('fileShareVirtualMachines')[copyIndex()]]"
@@ -9022,9 +9009,10 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -9038,7 +9026,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-esri-spatiotemporal-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -9055,7 +9042,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": "[if(and(equals(parameters('architecture'), 'multitier'), parameters('enableSpatiotemporalBigDataStore')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-spatiotemporal-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
+          "availabilitySetName": "[if(and(equals(parameters('architecture'), 'multitier'), parameters('enableSpatiotemporalBigDataStore')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-spatiotemporal-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -9081,7 +9068,7 @@
             "value": "spatiotemporal"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].subnetResourceId]"
@@ -9090,7 +9077,7 @@
             "value": "[parameters('tags')]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           },
           "virtualMachineName": {
             "value": "[variables('spatiotemporalBigDataStoreVirtualMachines')[copyIndex()]]"
@@ -9499,10 +9486,11 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-spatiotemporal-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-spatiotemporal-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -9516,7 +9504,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-esri-tilecache-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -9533,7 +9520,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": "[if(and(equals(parameters('architecture'), 'multitier'), parameters('enableTileCacheDataStore')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-tilecache-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
+          "availabilitySetName": "[if(and(equals(parameters('architecture'), 'multitier'), parameters('enableTileCacheDataStore')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-tilecache-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -9559,7 +9546,7 @@
             "value": "tilecache"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].subnetResourceId]"
@@ -9568,7 +9555,7 @@
             "value": "[parameters('tags')]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           },
           "virtualMachineName": {
             "value": "[variables('tileCacheDataStoreVirtualMachines')[copyIndex()]]"
@@ -9977,10 +9964,11 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-tilecache-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-tilecache-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -9994,7 +9982,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-esri-graph-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -10011,7 +9998,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": "[if(and(equals(parameters('architecture'), 'multitier'), parameters('enableGraphDataStore')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-graph-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
+          "availabilitySetName": "[if(and(equals(parameters('architecture'), 'multitier'), parameters('enableGraphDataStore')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-graph-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -10037,7 +10024,7 @@
             "value": "graph"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].subnetResourceId]"
@@ -10046,7 +10033,7 @@
             "value": "[parameters('tags')]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           },
           "virtualMachineName": {
             "value": "[variables('graphDataStoreVirtualMachines')[copyIndex()]]"
@@ -10455,10 +10442,11 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-graph-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-graph-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -10472,7 +10460,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-esri-odata-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -10489,7 +10476,7 @@
           "architecture": {
             "value": "[parameters('architecture')]"
           },
-          "availabilitySetName": "[if(and(equals(parameters('architecture'), 'multitier'), parameters('enableObjectDataStore')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-odata-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
+          "availabilitySetName": "[if(and(equals(parameters('architecture'), 'multitier'), parameters('enableObjectDataStore')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-odata-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value), createObject('value', 'none'))]",
           "enableMonitoring": {
             "value": "[parameters('enableMonitoring')]"
           },
@@ -10515,7 +10502,7 @@
             "value": "objectDataStore"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].subnetResourceId]"
@@ -10524,7 +10511,7 @@
             "value": "[parameters('tags')]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           },
           "virtualMachineName": {
             "value": "[variables('objectDataStoreVirtualMachines')[copyIndex()]]"
@@ -10933,17 +10920,17 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-odata-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avset-odata-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('assign-role-sa-01-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -10952,10 +10939,10 @@
         "mode": "Incremental",
         "parameters": {
           "principalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           }
         },
         "template": {
@@ -10995,76 +10982,15 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "[format('assign-role-sa-02-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[split(parameters('artifactsStorageAccountResourceId'), '/')[2]]",
-      "resourceGroup": "[split(parameters('artifactsStorageAccountResourceId'), '/')[4]]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "principalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
-          },
-          "storageAccountName": {
-            "value": "[split(parameters('artifactsStorageAccountResourceId'), '/')[8]]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "9187366172750168523"
-            }
-          },
-          "parameters": {
-            "principalId": {
-              "type": "string"
-            },
-            "storageAccountName": {
-              "type": "string"
-            }
-          },
-          "variables": {
-            "roleDefinitionId": "ba92f5b4-2d11-453d-a403-e96b0029c9fe"
-          },
-          "resources": [
-            {
-              "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2022-04-01",
-              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('storageAccountName'))]",
-              "name": "[guid(parameters('principalId'), variables('roleDefinitionId'), parameters('storageAccountName'))]",
-              "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionId'))]",
-                "principalId": "[parameters('principalId')]",
-                "principalType": "ServicePrincipal"
-              }
-            }
-          ]
-        }
-      },
-      "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('assign-role-vm-01-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -11073,7 +10999,7 @@
         "mode": "Incremental",
         "parameters": {
           "principalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
           },
           "resourceGroupName": {
             "value": "[variables('resourceGroupName')]"
@@ -11115,15 +11041,15 @@
         }
       },
       "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('assign-role-sub-01-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -11138,7 +11064,7 @@
             "value": "[variables('subscriptionId')]"
           },
           "userAssignedIdentityId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
           }
         },
         "template": {
@@ -11222,16 +11148,15 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-management-vm-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -11255,7 +11180,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
           },
           "esriStorageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
           "externalDnsHostname": {
             "value": "[parameters('externalDnsHostname')]"
@@ -11264,7 +11189,7 @@
             "value": false
           },
           "keyVaultName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
           "localAdministratorPassword": {
             "value": "[parameters('adminPassword')]"
@@ -11297,13 +11222,13 @@
             "value": "[parameters('tags')]"
           },
           "userAssignedIdentityClientId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.clientId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.clientId.value]"
           },
           "userAssignedIdentityPrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.principalId.value]"
           },
           "userAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           },
           "virtualMachineName": {
             "value": "[take(format('{0}-vmesrimgmt', parameters('resourcePrefix')), 15)]"
@@ -11643,24 +11568,23 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
         "multiTierFileServerVirtualMachines",
         "multiTierPortalVirtualMachines",
         "multiTierServerVirtualMachines",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('artifactsStorageAccountResourceId'), '/')[2], split(parameters('artifactsStorageAccountResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('assign-role-sa-02-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId(variables('subscriptionId'), 'Microsoft.Resources/deployments', format('assign-role-sub-01-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-sa-01-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-vm-01-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('assign-role-sub-01-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-sa-01-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('assign-role-vm-01-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('create-certificates-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -11669,7 +11593,7 @@
         "mode": "Incremental",
         "parameters": {
           "fileUri": {
-            "value": "[format('{0}{1}/GenerateSSLCerts.ps1', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageEndpoint.value, variables('container'))]"
+            "value": "[format('{0}{1}/GenerateSSLCerts.ps1', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageEndpoint.value, variables('container'))]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -11784,10 +11708,11 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-management-vm-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-management-vm-{0}', parameters('deploymentNameSuffix')))]",
         "multiTierFileServerVirtualMachines",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-virtual-machine-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-virtual-machine-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -11795,7 +11720,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-esri-multitier-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -11828,7 +11752,7 @@
             "value": "[parameters('architecture')]"
           },
           "cloudStorageAccountCredentialsUserName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.cloudStorageAccountCredentialsUserName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.cloudStorageAccountCredentialsUserName.value]"
           },
           "dataStoreVirtualMachineNames": {
             "value": "[variables('dataStoreVirtualMachineNames')]"
@@ -11933,7 +11857,7 @@
             "value": "[parameters('joinWindowsDomain')]"
           },
           "keyVaultUri": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -11948,7 +11872,7 @@
             "value": "[variables('objectDataStoreVirtualMachines')]"
           },
           "portalBackendSslCert": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.portalBackendSSLCert.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.portalBackendSSLCert.value]"
           },
           "portalContext": {
             "value": "[variables('portalContext')]"
@@ -11975,7 +11899,7 @@
             "value": "[parameters('primarySiteAdministratorAccountUserName')]"
           },
           "publicIpId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-pip-address-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.pipId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-pip-address-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.pipId.value]"
           },
           "resourceGroupName": {
             "value": "[variables('resourceGroupName')]"
@@ -11990,7 +11914,7 @@
             "value": "[parameters('selfSignedCertificatePassword')]"
           },
           "serverBackendSSLCert": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.serverBackendSSLCert.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.serverBackendSSLCert.value]"
           },
           "serverContext": {
             "value": "[variables('serverContext')]"
@@ -12014,10 +11938,10 @@
             "value": "[variables('spatiotemporalBigDataStoreVirtualMachines')]"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
           "storageUriPrefix": {
-            "value": "[format('{0}{1}/', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageEndpoint.value, variables('container'))]"
+            "value": "[format('{0}{1}/', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageEndpoint.value, variables('container'))]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -12038,7 +11962,7 @@
             "value": "[parameters('useCloudStorage')]"
           },
           "userAssignedIdenityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           },
           "virtualMachineOSDiskSize": {
             "value": "[parameters('virtualMachineOSDiskSize')]"
@@ -14886,9 +14810,9 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-management-vm-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-management-vm-{0}', parameters('deploymentNameSuffix')))]",
         "multiTierDatastoreServerVirtualMachines",
         "multiTierFileServerVirtualMachines",
         "multiTierGraphVirtualMachines",
@@ -14897,10 +14821,11 @@
         "multiTierServerVirtualMachines",
         "multiTierSpatiotemporalBigDataStoreVirtualMachines",
         "multiTierTileCacheVirtualMachines",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-pip-address-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-pip-address-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -14908,7 +14833,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-esri-singletier-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -14938,9 +14862,9 @@
             "value": "[parameters('arcgisServiceAccountUserName')]"
           },
           "cloudStorageAccountCredentialsUserName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.cloudStorageAccountCredentialsUserName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.cloudStorageAccountCredentialsUserName.value]"
           },
-          "dataStoreTypesForBaseDeploymentServers": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-single-tier-datastore-types-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataStoreTypesForBaseDeploymentServers.value), createObject('value', 'none'))]",
+          "dataStoreTypesForBaseDeploymentServers": "[if(equals(parameters('architecture'), 'singletier'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-single-tier-datastore-types-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataStoreTypesForBaseDeploymentServers.value), createObject('value', 'none'))]",
           "debugMode": {
             "value": "[parameters('debugMode')]"
           },
@@ -14975,13 +14899,13 @@
             "value": "[parameters('joinWindowsDomain')]"
           },
           "keyVaultUri": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
           },
           "location": {
             "value": "[parameters('location')]"
           },
           "portalBackendSslCert": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.portalBackendSSLCert.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.portalBackendSSLCert.value]"
           },
           "portalContext": {
             "value": "[variables('portalContext')]"
@@ -14999,7 +14923,7 @@
             "value": "[parameters('primarySiteAdministratorAccountUserName')]"
           },
           "publicIpId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-pip-address-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.pipId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-pip-address-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.pipId.value]"
           },
           "publicKeySSLCertificateFileName": {
             "value": "[format('wildcard{0}-PublicKey.cer', parameters('externalDnsHostname'))]"
@@ -15014,7 +14938,7 @@
             "value": "[parameters('selfSignedCertificatePassword')]"
           },
           "serverBackendSSLCert": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.serverBackendSSLCert.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.serverBackendSSLCert.value]"
           },
           "serverContext": {
             "value": "[variables('serverContext')]"
@@ -15023,10 +14947,10 @@
             "value": "[variables('serverLicenseFileName')]"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountName.value]"
           },
           "storageUriPrefix": {
-            "value": "[format('{0}{1}/', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageEndpoint.value, variables('container'))]"
+            "value": "[format('{0}{1}/', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageEndpoint.value, variables('container'))]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -15038,7 +14962,7 @@
             "value": "[parameters('useCloudStorage')]"
           },
           "userAssignedIdenityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           },
           "virtualMachineName": {
             "value": "[variables('virtualMachineName')]"
@@ -16111,16 +16035,16 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-management-vm-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-pip-address-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('create-certificates-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-management-vm-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-pip-address-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-single-tier-datastore-types-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-virtual-machine-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-single-tier-datastore-types-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-virtual-machine-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-uami-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }
   ]

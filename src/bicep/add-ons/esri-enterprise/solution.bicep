@@ -415,15 +415,12 @@ resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = {
 
 module singleTierDataStoreTypes 'modules/singleTierDatastoreTypes.bicep' =
   if (architecture == 'singletier') {
+    scope: rg
     name: 'deploy-single-tier-datastore-types-${deploymentNameSuffix}'
-    scope: resourceGroup(subscriptionId, resourceGroupName)
     params: {
       enableSpatiotemporalBigDataStore: (architecture == 'singletier') ? enableSpatiotemporalBigDataStore : false
       enableTileCacheDataStore: (architecture == 'singletier') ? enableTileCacheDataStore : false
     }
-    dependsOn: [
-      rg
-    ]
   }
 
 module tier3 '../tier3/solution.bicep' = {
@@ -452,8 +449,8 @@ module tier3 '../tier3/solution.bicep' = {
 }
 
 module userAssignedIdentity './modules/userAssignedManagedIdentity.bicep' = {
+  scope: rg
   name: 'deploy-uami-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, rg.name)
   params: {
     location: location
     name: userAssignedManagedIdentityName
@@ -465,8 +462,8 @@ module userAssignedIdentity './modules/userAssignedManagedIdentity.bicep' = {
 }
 
 module keyVault './modules/keyVault.bicep' = {
+  scope: rg
   name: 'deploy-key-vault-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     domainJoinPassword: joinWindowsDomain ? windowsDomainAdministratorPassword : 'None'
     domainJoinUserPrincipalName: joinWindowsDomain ? windowsDomainAdministratorUserName : 'None'
@@ -488,8 +485,8 @@ module keyVault './modules/keyVault.bicep' = {
 }
 
 module storage './modules/storageAccount.bicep' = {
+  scope: rg
   name: 'deploy-storage-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, rg.name)
   params: {
     containerName: container
     location: location
@@ -506,8 +503,8 @@ module storage './modules/storageAccount.bicep' = {
 }
 
 module publicIpAddress './modules/publicIpAddress.bicep' = {
+  scope: rg
   name: 'deploy-pip-address-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     hostname: 'esri-${resourcePrefix}${uniqueString(subscriptionId)}'
     location: location
@@ -516,112 +513,104 @@ module publicIpAddress './modules/publicIpAddress.bicep' = {
     tags: tags
   }
   dependsOn: [
-    rg
     tier3
   ]
 }
 
 module serverAvailabilitySet 'modules/availabilitySet.bicep' =
   if (architecture == 'multitier') {
+    scope: rg
     name: 'deploy-avset-server-${deploymentNameSuffix}'
-    scope: resourceGroup(subscriptionId, resourceGroupName)
     params: {
       availabilitySetName: '${resourcePrefix}-av-set-server'
       location: location
     }
     dependsOn: [
-      rg
       tier3
     ]
   }
 
 module portalAvailabilitySet 'modules/availabilitySet.bicep' =
   if (architecture == 'multitier') {
+    scope: rg
     name: 'deploy-avset-portal-${deploymentNameSuffix}'
-    scope: resourceGroup(subscriptionId, resourceGroupName)
     params: {
       availabilitySetName: '${resourcePrefix}-av-set-portal'
       location: location
     }
     dependsOn: [
-      rg
       tier3
     ]
   }
 
 module dataStoreAvailabilitySet 'modules/availabilitySet.bicep' =
   if (architecture == 'multitier') {
+    scope: rg
     name: 'deploy-avset-datastore-${deploymentNameSuffix}'
-    scope: resourceGroup(subscriptionId, resourceGroupName)
     params: {
       availabilitySetName: '${resourcePrefix}-av-set-datastore'
       location: location
     }
     dependsOn: [
-      rg
       tier3
     ]
   }
 
 module spatiotemporalAvailabilitySet 'modules/availabilitySet.bicep' =
   if (architecture == 'multitier' && enableSpatiotemporalBigDataStore) {
+    scope: rg
     name: 'deploy-avset-spatiotemporal-${deploymentNameSuffix}'
-    scope: resourceGroup(subscriptionId, resourceGroupName)
     params: {
       availabilitySetName: '${resourcePrefix}-av-set-spatiotemporal'
       location: location
     }
     dependsOn: [
-      rg
       tier3
     ]
   }
 
 module tileCacheAvailabilitySet 'modules/availabilitySet.bicep' =
   if (architecture == 'multitier' && enableTileCacheDataStore) {
+    scope: rg
     name: 'deploy-avset-tilecache-${deploymentNameSuffix}'
-    scope: resourceGroup(subscriptionId, resourceGroupName)
     params: {
       availabilitySetName: '${resourcePrefix}-av-set-tilecache'
       location: location
     }
     dependsOn: [
-      rg
       tier3
     ]
   }
 
 module graphAvailabilitySet 'modules/availabilitySet.bicep' =
   if (architecture == 'multitier' && enableGraphDataStore) {
+    scope: rg
     name: 'deploy-avset-graph-${deploymentNameSuffix}'
-    scope: resourceGroup(subscriptionId, resourceGroupName)
     params: {
       availabilitySetName: '${resourcePrefix}-av-set-graph'
       location: location
     }
     dependsOn: [
-      rg
       tier3
     ]
   }
 
 module odataAvailabilitySet 'modules/availabilitySet.bicep' =
   if (architecture == 'multitier' && enableObjectDataStore) {
+    scope: rg
     name: 'deploy-avset-odata-${deploymentNameSuffix}'
-    scope: resourceGroup(subscriptionId, resourceGroupName)
     params: {
       availabilitySetName: '${resourcePrefix}-av-set-odata'
       location: location
     }
     dependsOn: [
-      rg
       tier3
     ]
   }
 
 module singleTierVirtualMachine 'modules/virtualMachine.bicep' =
   if (architecture == 'singletier') {
-    scope: resourceGroup(subscriptionId, resourceGroupName)
+    scope: rg
     name: 'deploy-virtual-machine-${deploymentNameSuffix}'
     params: {
       adminPassword: adminPassword
@@ -651,7 +640,7 @@ module singleTierVirtualMachine 'modules/virtualMachine.bicep' =
 @batchSize(5)
 module multiTierServerVirtualMachines 'modules/virtualMachine.bicep' = [
   for (server, i) in serverVirtualMachines: if (architecture == 'multitier') {
-    scope: resourceGroup(subscriptionId, resourceGroupName)
+    scope: rg
     name: 'deploy-esri-server-${i}-${deploymentNameSuffix}'
     params: {
       adminPassword: adminPassword
@@ -682,7 +671,7 @@ module multiTierServerVirtualMachines 'modules/virtualMachine.bicep' = [
 @batchSize(5)
 module multiTierPortalVirtualMachines 'modules/virtualMachine.bicep' = [
   for (server, i) in portalVirtualMachines: if (architecture == 'multitier') {
-    scope: resourceGroup(subscriptionId, resourceGroupName)
+    scope: rg
     name: 'deploy-esri-portal-${i}-${deploymentNameSuffix}'
     params: {
       adminPassword: adminPassword
@@ -713,7 +702,7 @@ module multiTierPortalVirtualMachines 'modules/virtualMachine.bicep' = [
 @batchSize(5)
 module multiTierDatastoreServerVirtualMachines 'modules/virtualMachine.bicep' = [
   for (server, i) in dataStoreVirtualMachines: if (architecture == 'multitier') {
-    scope: resourceGroup(subscriptionId, resourceGroupName)
+    scope: rg
     name: 'deploy-esri-datastore-${i}-${deploymentNameSuffix}'
     params: {
       adminPassword: adminPassword
@@ -744,7 +733,7 @@ module multiTierDatastoreServerVirtualMachines 'modules/virtualMachine.bicep' = 
 @batchSize(5)
 module multiTierFileServerVirtualMachines 'modules/virtualMachine.bicep' = [
   for (server, i) in fileShareVirtualMachines: if (architecture == 'multitier') {
-    scope: resourceGroup(subscriptionId, resourceGroupName)
+    scope: rg
     name: 'deploy-esri-fileserver-${i}-${deploymentNameSuffix}'
     params: {
       adminPassword: adminPassword
@@ -775,7 +764,7 @@ module multiTierFileServerVirtualMachines 'modules/virtualMachine.bicep' = [
 @batchSize(5)
 module multiTierSpatiotemporalBigDataStoreVirtualMachines 'modules/virtualMachine.bicep' = [
   for (server, i) in spatiotemporalBigDataStoreVirtualMachines: if (architecture == 'multitier' && enableSpatiotemporalBigDataStore) {
-    scope: resourceGroup(subscriptionId, resourceGroupName)
+    scope: rg
     name: 'deploy-esri-spatiotemporal-${i}-${deploymentNameSuffix}'
     params: {
       adminPassword: adminPassword
@@ -808,7 +797,7 @@ module multiTierSpatiotemporalBigDataStoreVirtualMachines 'modules/virtualMachin
 @batchSize(5)
 module multiTierTileCacheVirtualMachines 'modules/virtualMachine.bicep' = [
   for (server, i) in tileCacheDataStoreVirtualMachines: if (architecture == 'multitier' && enableTileCacheDataStore) {
-    scope: resourceGroup(subscriptionId, resourceGroupName)
+    scope: rg
     name: 'deploy-esri-tilecache-${i}-${deploymentNameSuffix}'
     params: {
       adminPassword: adminPassword
@@ -841,7 +830,7 @@ module multiTierTileCacheVirtualMachines 'modules/virtualMachine.bicep' = [
 @batchSize(5)
 module multiTierGraphVirtualMachines 'modules/virtualMachine.bicep' = [
   for (server, i) in graphDataStoreVirtualMachines: if (architecture == 'multitier' && enableGraphDataStore) {
-    scope: resourceGroup(subscriptionId, resourceGroupName)
+    scope: rg
     name: 'deploy-esri-graph-${i}-${deploymentNameSuffix}'
     params: {
       adminPassword: adminPassword
@@ -874,7 +863,7 @@ module multiTierGraphVirtualMachines 'modules/virtualMachine.bicep' = [
 @batchSize(5)
 module multiTierObjectDataStoreVirtualMachines 'modules/virtualMachine.bicep' = [
   for (server, i) in objectDataStoreVirtualMachines: if (architecture == 'multitier' && enableObjectDataStore) {
-    scope: resourceGroup(subscriptionId, resourceGroupName)
+    scope: rg
     name: 'deploy-esri-odata-${i}-${deploymentNameSuffix}'
     params: {
       adminPassword: adminPassword
@@ -906,14 +895,14 @@ module multiTierObjectDataStoreVirtualMachines 'modules/virtualMachine.bicep' = 
 
 module roleAssignmentStorageAccount './modules/roleAssignmentStorageAccount.bicep' = {
   name: 'assign-role-sa-01-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: rg
   params: {
     principalId: userAssignedIdentity.outputs.principalId
     storageAccountName: storage.outputs.storageAccountName
   }
 }
 
-module roleAssignmentArtifactsStorageAccount './modules/roleAssignmentStorageAccount.bicep' = {
+/* module roleAssignmentArtifactsStorageAccount './modules/roleAssignmentStorageAccount.bicep' = {
   name: 'assign-role-sa-02-${deploymentNameSuffix}'
   scope: resourceGroup(split(artifactsStorageAccountResourceId, '/')[2], split(artifactsStorageAccountResourceId, '/')[4])
   params: {
@@ -924,11 +913,11 @@ module roleAssignmentArtifactsStorageAccount './modules/roleAssignmentStorageAcc
     keyVault
     tier3
   ]
-}
+} */
 
 module roleAssignmentVirtualMachineContributor './modules/roleAssignmentVirtualMachineContributor.bicep' = {
   name: 'assign-role-vm-01-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: rg
   params: {
     principalId: userAssignedIdentity.outputs.principalId
     resourceGroupName: resourceGroupName
@@ -940,7 +929,6 @@ module roleAssignmentVirtualMachineContributor './modules/roleAssignmentVirtualM
 
 module roleAssignmentContributor './modules/contributor.bicep' = {
   name: 'assign-role-sub-01-${deploymentNameSuffix}'
-  scope: subscription(subscriptionId)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     subscriptionId: subscriptionId
@@ -953,8 +941,8 @@ module roleAssignmentContributor './modules/contributor.bicep' = {
 }
 
 module managementVm 'modules/managementVirtualMachine.bicep' = {
+  scope: rg
   name: 'deploy-management-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     artifactsContainerName: artifactsContainerName
     artifactsStorageAccountName: split(artifactsStorageAccountResourceId, '/')[8]
@@ -985,7 +973,7 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
     multiTierFileServerVirtualMachines
     multiTierPortalVirtualMachines
     multiTierServerVirtualMachines
-    roleAssignmentArtifactsStorageAccount
+    // roleAssignmentArtifactsStorageAccount
     roleAssignmentStorageAccount
     roleAssignmentVirtualMachineContributor
     roleAssignmentContributor
@@ -993,8 +981,8 @@ module managementVm 'modules/managementVirtualMachine.bicep' = {
 }
 
 module certificates './modules/certificates.bicep' = {
+  scope: rg
   name: 'create-certificates-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     fileUri: '${storage.outputs.storageEndpoint}${container}/GenerateSSLCerts.ps1'
     location: location
@@ -1015,8 +1003,8 @@ module certificates './modules/certificates.bicep' = {
 
 module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' =
   if (architecture == 'multitier') {
+    scope: rg
     name: 'deploy-esri-multitier-${deploymentNameSuffix}'
-    scope: resourceGroup(subscriptionId, resourceGroupName)
     params: {
       adminPassword: adminPassword
       adminUsername: adminUsername
@@ -1117,8 +1105,8 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' =
 
 module configuration './modules/esriEnterpriseSingleTier.bicep' =
   if (architecture == 'singletier') {
+    scope: rg
     name: 'deploy-esri-singletier-${deploymentNameSuffix}'
-    scope: resourceGroup(subscriptionId, resourceGroupName)
     params: {
       adminPassword: adminPassword
       adminUsername: adminUsername
