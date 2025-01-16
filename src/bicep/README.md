@@ -95,6 +95,8 @@ Parameter name | Required | Description
 `policy`         | No       | [NIST/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NIST". IL5 is only available for AzureUsGovernment and will switch to NIST if tried in AzureCloud.
 `deployDefender`     | No       | When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".
 `emailSecurityContact` | No       | Email address of the contact, in the form of john@doe.com
+`deployAzureNATGateway` | No       | When set to "true", provisions Azure NAT Gateway with Private IP Prefix. It defaults to "true" to align to Azure retiring default outbound access September 30 2025.
+`natGatewayPublicIpPrefixLength` | No       | Length of the Public IP Prefix for the Azure NAT Gateway.  A NAT gateway can support the following prefix sizes: /28 (16 addresses), /29 (8 addresses), /30 (4 addresses), and /31 (2 addresses).  Defaults to 31.
 <!-- markdownlint-enable MD034 -->
 
 ## Outputs

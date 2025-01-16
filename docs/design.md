@@ -21,7 +21,7 @@ Mission LZ has the following scope:
 
 ## Networking
 
-Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity and Authorization), T1 (Infrastructure Operations), T2 (DevSecOps and Shared Services), and multiple T3s (Workloads). Access control can be configured to allow separation of duties between all tiers.
+Networking is set up in a [hub and spoke design](https://learn.microsoft.com/en-us/azure/architecture/networking/architecture/hub-spoke), separated by tiers: T0 (Identity and Authorization), T1 (Infrastructure Operations), T2 (DevSecOps and Shared Services), and multiple T3s (Workloads). Access control can be configured to allow separation of duties between all tiers.
 
 <!-- markdownlint-disable MD033 -->
 <!-- allow html for images so that they can be sized -->
@@ -29,6 +29,8 @@ Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity
 <!-- markdownlint-enable MD033 -->
 
 Each virtual network has been given a default address prefix to ensure they fall within the default super network. Refer to the [Networking page](./networking.md) for all the default address prefixes.
+
+The deployment of an Azure NAT Gateway in the Hub Network has been implemented to enable explicit outbound connectivity to align with Azure Roadmap guidance that [default outbound access will be retired September 30 2025](https://azure.microsoft.com/en-us/updates?id=default-outbound-access-for-vms-in-azure-will-be-retired-transition-to-a-new-method-of-internet-access).  It is implemented with an [Azure Public IP Prefix to prevent SNAT port exhaustion](https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/configure-public-ip-nat-gateway#add-public-ip-prefix), allowing deployment of 2, 4, 8 or 16 Public IPs in the Prefix via the `natGatewayPublicIpPrefixLength` paramter.
 
 ## Subscriptions
 

@@ -336,6 +336,12 @@ param deployBastion bool = false
 @description('When set to "true", provisions Azure Gateway Subnet only. It defaults to "false".')
 param deployAzureGatewaySubnet bool = false
 
+@description('When set to "true", provisions Azure NAT Gateway with Private IP Prefix. It defaults to "true" to align to Azure retiring default outbound access September 30 2025.')
+param deployAzureNATGateway bool = true
+
+@description('Length of the Public IP Prefix for the Azure NAT Gateway.  A NAT gateway can support the following prefix sizes: /28 (16 addresses), /29 (8 addresses), /30 (4 addresses), and /31 (2 addresses)')
+param natGatewayPublicIpPrefixLength int = 31
+
 @description('When set to "true", provisions Windows Virtual Machine Host only. It defaults to "false".')
 param deployWindowsVirtualMachine bool = false
 
@@ -605,6 +611,7 @@ module networking 'modules/networking.bicep' = {
     deployNetworkWatcher: deployNetworkWatcher
     deployBastion: deployBastion
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
+    deployAzureNATGateway: deployAzureNATGateway
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallSettings: {
@@ -620,6 +627,7 @@ module networking 'modules/networking.bicep' = {
     }
     location: location
     mlzTags: logic.outputs.mlzTags
+    natGatewayPublicIpPrefixLength: natGatewayPublicIpPrefixLength
     privateDnsZoneNames: logic.outputs.privateDnsZones
     resourceGroupNames: resourceGroups.outputs.names
     tags: tags
