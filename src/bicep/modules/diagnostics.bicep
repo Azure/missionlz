@@ -74,6 +74,7 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
   }
 }]
 
+@batchSize(1)
 module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' = [for (tier, i) in tiers: {
   name: 'deploy-vnet-diags-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
