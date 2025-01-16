@@ -940,7 +940,7 @@ module roleAssignmentContributor './modules/contributor.bicep' = {
   ]
 }
 
-module managementVm 'modules/managementVirtualMachine.bicep' = {
+module managementVm './modules/managementVirtualMachine.bicep' = {
   scope: rg
   name: 'deploy-management-vm-${deploymentNameSuffix}'
   params: {
