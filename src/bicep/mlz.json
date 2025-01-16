@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "17221868502607646916"
+      "templateHash": "6234741077716619098"
     }
   },
   "parameters": {
@@ -7396,7 +7396,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "17933440023106691274"
+              "templateHash": "3320319042217527517"
             }
           },
           "parameters": {
@@ -7702,7 +7702,9 @@
             {
               "copy": {
                 "name": "virtualNetworkDiagnostics",
-                "count": "[length(parameters('tiers'))]"
+                "count": "[length(parameters('tiers'))]",
+                "mode": "serial",
+                "batchSize": 1
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
