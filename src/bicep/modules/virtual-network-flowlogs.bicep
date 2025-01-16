@@ -10,7 +10,7 @@ param networkWatcherName string
 param tiername string
 param virtualNetworkResourceId string
 
-var virtualNetworkFlowLogsName = '${tiername}-flowLogs'
+var virtualNetworkFlowLogsName = '${networkWatcherName}//${tiername}-flowLogs'
 
 
 resource networkWatcher 'Microsoft.Network/networkWatchers@2021-02-01' existing = {
