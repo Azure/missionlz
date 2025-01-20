@@ -1,7 +1,7 @@
 targetScope = 'managementGroup'
 
-//@description('Hub Virtual Network Resource Id')
-//param hubVirtualNetworkResourceId string
+@description('Hub Virtual Network Resource Id')
+param hubVirtualNetworkResourceId string
 
 @description('Policy set name')
 param policySetName string
@@ -18,8 +18,8 @@ param policySetCategory string
 @description('Management group to assign the policy set')
 param targetManagementGroup string
 
-//@description('Display name for the policy assignment')
-//param policyAssignmentDisplayName string
+@description('Display name for the policy assignment')
+param policyAssignmentDisplayName string
 
 // Load custom policy definitions from JSON files
 var customPolicyDefinitions = [
@@ -53,37 +53,37 @@ module policySet './modules/policy-set-creation.bicep' = {
 
 // Policy assignment modules
 // Create a managed identity
-//module managedIdentity './modules/user-assigned-identity.bicep' = {
-//  name: 'deploy-mlzPolicyAssignmentIdentity'
-//  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
-//  params:{
-//    identityName: 'mlzPolicyAssignmentIdentity'
-//    identityLocation: 'usgovvirginia'
-//  }
-//}
-//
-//// Deploy policy assignment module, which depends on the completion of policySet module
-//module policyAssignment './modules/policy-set-assignment.bicep' = {
-//  name: 'policyAssignment-${policySetName}'
-//  scope: managementGroup(targetManagementGroup)
-//  params: {
-//    policySetName: policySetName
-//    policyAssignmentDisplayName: policyAssignmentDisplayName
-//    policyLocation: 'usgovvirginia'
-//    policySetId: policySet.outputs.policySetId
-//    mlzPolicyUserAssignedIdentityId: managedIdentity.outputs.identityResourceId
-//  }
-//}
-//
-//// Assign roles to the managed identity using the role-assignment module
-//module roleAssignment './modules/role-assignment.bicep' = {
-//  name: 'roleAssignment-mlzPolicyAssignmentIdentity'
-//  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
-//  params: {
-//    targetResourceId: resourceId('Microsoft.Resources/resourceGroups', split(hubVirtualNetworkResourceId, '/')[4])
-//    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c') // Contributor role
-//    principalId: managedIdentity.outputs.identityPrincipalId
-//    principalType: 'ServicePrincipal'
-//    description: 'Role assignment for policy managed identity'
-//  }
-//}
+module managedIdentity './modules/user-assigned-identity.bicep' = {
+  name: 'deploy-mlzPolicyAssignmentIdentity'
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+  params:{
+    identityName: 'mlzPolicyAssignmentIdentity'
+    identityLocation: 'usgovvirginia'
+  }
+}
+
+// Deploy policy assignment module, which depends on the completion of policySet module
+module policyAssignment './modules/policy-set-assignment.bicep' = {
+  name: 'policyAssignment-${policySetName}'
+  scope: managementGroup(targetManagementGroup)
+  params: {
+    policySetName: policySetName
+    policyAssignmentDisplayName: policyAssignmentDisplayName
+    policyLocation: 'usgovvirginia'
+    policySetId: policySet.outputs.policySetId
+    mlzPolicyUserAssignedIdentityId: managedIdentity.outputs.identityResourceId
+  }
+}
+
+// Assign roles to the managed identity using the role-assignment module
+module roleAssignment './modules/role-assignment.bicep' = {
+  name: 'roleAssignment-mlzPolicyAssignmentIdentity'
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+  params: {
+    targetResourceId: resourceId('Microsoft.Resources/resourceGroups', split(hubVirtualNetworkResourceId, '/')[4])
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c') // Contributor role
+    principalId: managedIdentity.outputs.identityPrincipalId
+    principalType: 'ServicePrincipal'
+    description: 'Role assignment for policy managed identity'
+  }
+}

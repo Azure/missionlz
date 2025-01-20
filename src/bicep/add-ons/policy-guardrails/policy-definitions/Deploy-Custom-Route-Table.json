@@ -50,6 +50,26 @@
           {
             "field": "location",
             "equals": "[parameters('vnetRegion')]"
+          },
+          {
+            "anyOf": [
+              {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Network/routeTables/routes[*].addressPrefix",
+                    "equals": "0.0.0.0/0"
+                  },
+                  {
+                    "field": "Microsoft.Network/routeTables/routes[*].nextHopIpAddress",
+                    "notEquals": "10.0.128.68"
+                  },
+                  {
+                    "field": "Microsoft.Network/routeTables/routes[*].nextHopType",
+                    "notEquals": "VirtualAppliance"
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
@@ -71,7 +91,7 @@
                   },
                   {
                     "field": "Microsoft.Network/routeTables/routes[*].nextHopIpAddress",
-                    "equals": "10.1.1.1"
+                    "equals": "10.0.128.68"
                   },
                   {
                     "field": "Microsoft.Network/routeTables/routes[*].nextHopType",

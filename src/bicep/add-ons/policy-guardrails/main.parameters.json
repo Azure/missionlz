@@ -2,6 +2,9 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "hubVirtualNetworkResourceId": {
+      "value": "/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/bws-rg-hub-network-va-test/providers/Microsoft.Network/virtualNetworks/bws-vnet-hub-va-test"
+    },
     "policySetName": {
       "value": "mlz-guardrail-initiative"
     },
@@ -16,6 +19,9 @@
     },
     "targetManagementGroup": {
       "value": "operations_and_security"
+    },
+    "policyAssignmentDisplayName": {
+      "value": "Mission Landing Zone Guardrails Initiative"
     }
   }
 }
