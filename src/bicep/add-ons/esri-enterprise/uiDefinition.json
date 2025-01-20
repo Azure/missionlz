@@ -970,7 +970,7 @@
                 "applicationGatewaySubnetAddressPrefix": "[steps('network').spokeVirtualNetwork.appGwSubnetAddressCidrRange]",
                 "arcgisServiceAccountIsDomainAccount": "[steps('portal').arcgisServiceAccount.isDomainAccount]",
                 "arcgisServiceAccountPassword": "[steps('portal').arcgisServiceAccount.password]",
-                "arcgisServiceAccountUserName": "[steps('portal').arcgisServiceAccount.username]",
+                "arcgisServiceAccountUsername": "[steps('portal').arcgisServiceAccount.username]",
                 "architecture": "[if(equals(steps('server').esri.architecture, true), 'multitier', 'singletier')]",
                 "artifactsContainerName": "[first(skip(split(steps('certificates').storageAccount.container, '/'), 12))]",
                 "artifactsStorageAccountName": "[steps('certificates').storageAccount.storageSelector.name]",

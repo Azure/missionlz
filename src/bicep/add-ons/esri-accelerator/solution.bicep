@@ -5,7 +5,7 @@ targetScope = 'subscription'
 param arcgisServiceAccountPassword string
 
 @description('The username for the ArcGIS service account.')
-param arcgisServiceAccountUserName string
+param arcgisServiceAccountUsername string
 
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
@@ -127,7 +127,7 @@ module esriEnterprise '../esri-enterprise/solution.bicep' = {
     adminUsername: localAdministratorUsername
     arcgisServiceAccountIsDomainAccount: true
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
-    arcgisServiceAccountUserName: arcgisServiceAccountUserName
+    arcgisServiceAccountUsername: arcgisServiceAccountUsername
     architecture: 'singletier'
     artifactsContainerName: containerName
     artifactsStorageAccountName: split(storageAccountResourceId, '/')[8]

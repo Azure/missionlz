@@ -1,7 +1,7 @@
 param arcgisServiceAccountIsDomainAccount bool
 @secure()
 param arcgisServiceAccountPassword string
-param arcgisServiceAccountUserName string
+param arcgisServiceAccountUsername string
 param graphDataStoreVirtualMachineNames string
 param fileShareVirtualMachineName string
 param serverVirtualMachineNames string
@@ -77,7 +77,7 @@ resource dscEsriGraphDataStore 'Microsoft.Compute/virtualMachines/extensions@201
       }
       configurationArguments: {
         ServiceCredential: {
-          userName: arcgisServiceAccountUserName
+          userName: arcgisServiceAccountUsername
           password: arcgisServiceAccountPassword
         }
         SiteAdministratorCredential: {

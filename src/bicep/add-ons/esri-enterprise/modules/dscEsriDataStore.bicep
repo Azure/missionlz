@@ -1,7 +1,7 @@
 param arcgisServiceAccountIsDomainAccount bool
 @secure()
 param arcgisServiceAccountPassword string
-param arcgisServiceAccountUserName string
+param arcgisServiceAccountUsername string
 param cloudStorageAccountCredentialsUserName string
 param convertedEpoch int = dateTimeToEpoch(dateTimeAdd(utcNow(), 'P1D'))
 param dataStoreVirtualMachineNames string
@@ -84,7 +84,7 @@ resource dscEsriDataStore 'Microsoft.Compute/virtualMachines/extensions@2018-10-
       }
       configurationArguments: {
         ServiceCredential: {
-          userName: arcgisServiceAccountUserName
+          userName: arcgisServiceAccountUsername
           password: arcgisServiceAccountPassword
         }
         SiteAdministratorCredential: {
