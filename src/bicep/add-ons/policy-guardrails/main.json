@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "9315554599673935114"
+      "templateHash": "267262262820579554"
     }
   },
   "parameters": {
@@ -204,41 +204,6 @@
               "description": "Only VNets in this region will be evaluated against this policy"
             },
             "defaultValue": "usgovvirginia"
-          },
-          "disableBgpPropagation": {
-            "type": "Boolean",
-            "metadata": {
-              "displayName": "DisableBgpPropagation",
-              "description": "Disable BGP Propagation"
-            },
-            "defaultValue": true
-          },
-          "nextHopIpAddress": {
-            "type": "String",
-            "metadata": {
-              "displayName": "Next Hop IP Address",
-              "description": "The IP address to which the default route should point"
-            },
-            "defaultValue": "10.0.128.68"
-          },
-          "addressPrefix": {
-            "type": "String",
-            "metadata": {
-              "displayName": "Address Prefix",
-              "description": "The address prefix for the route"
-            },
-            "defaultValue": "0.0.0.0/0"
-          },
-          "nextHopType": {
-            "type": "String",
-            "metadata": {
-              "displayName": "Next Hop Type",
-              "description": "The type of next hop for the route"
-            },
-            "allowedValues": [
-              "VirtualAppliance"
-            ],
-            "defaultValue": "VirtualAppliance"
           }
         },
         "policyRule": {
@@ -268,15 +233,15 @@
                       },
                       {
                         "field": "Microsoft.Network/routeTables/routes[*].addressPrefix",
-                        "equals": "[[parameters('addressPrefix')]"
+                        "equals": "0.0.0.0/0"
                       },
                       {
                         "field": "Microsoft.Network/routeTables/routes[*].nextHopIpAddress",
-                        "equals": "[[parameters('nextHopIpAddress')]"
+                        "equals": "10.1.1.1"
                       },
                       {
                         "field": "Microsoft.Network/routeTables/routes[*].nextHopType",
-                        "equals": "[[parameters('nextHopType')]"
+                        "equals": "VirtualAppliance"
                       }
                     ]
                   }
@@ -294,18 +259,6 @@
                     "parameters": {
                       "vnetRegion": {
                         "type": "string"
-                      },
-                      "disableBgpPropagation": {
-                        "type": "bool"
-                      },
-                      "nextHopIpAddress": {
-                        "type": "string"
-                      },
-                      "addressPrefix": {
-                        "type": "string"
-                      },
-                      "nextHopType": {
-                        "type": "string"
                       }
                     },
                     "resources": [
@@ -315,14 +268,13 @@
                         "name": "[[guid(resourceGroup().id, 'routeTable')]",
                         "location": "[[parameters('vnetRegion')]",
                         "properties": {
-                          "disableBgpRoutePropagation": "[[parameters('disableBgpPropagation')]",
                           "routes": [
                             {
                               "name": "default_route",
                               "properties": {
-                                "addressPrefix": "[[parameters('addressPrefix')]",
-                                "nextHopType": "[[parameters('nextHopType')]",
-                                "nextHopIpAddress": "[[parameters('nextHopIpAddress')]"
+                                "addressPrefix": "0.0.0.0/0",
+                                "nextHopType": "VirtualAppliance",
+                                "nextHopIpAddress": "10.0.128.68"
                               }
                             }
                           ]
@@ -333,18 +285,6 @@
                   "parameters": {
                     "vnetRegion": {
                       "value": "usgovvirginia"
-                    },
-                    "disableBgpPropagation": {
-                      "value": "true"
-                    },
-                    "nextHopIpAddress": {
-                      "value": "10.0.128.68"
-                    },
-                    "addressPrefix": {
-                      "value": "0.0.0.0/0"
-                    },
-                    "nextHopType": {
-                      "value": "VirtualAppliance"
                     }
                   }
                 }
