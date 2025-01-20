@@ -31,34 +31,13 @@
         ],
         "defaultValue": "DeployIfNotExists"
       },
-      "requiredRoutes": {
-        "type": "Array",
-        "metadata": {
-          "displayName": "requiredRoutes",
-          "description": "Routes that must exist in compliant route tables deployed by this policy"
-        }
-      },
       "vnetRegion": {
         "type": "String",
         "metadata": {
           "displayName": "vnetRegion",
           "description": "Only VNets in this region will be evaluated against this policy"
-        }
-      },
-      "disableBgpPropagation": {
-        "type": "Boolean",
-        "metadata": {
-          "displayName": "DisableBgpPropagation",
-          "description": "Disable BGP Propagation"
         },
-        "defaultValue": false
-      },
-      "nextHopIpAddress": {
-        "type": "String",
-        "metadata": {
-          "displayName": "Next Hop IP Address",
-          "description": "The IP address to which the default route should point"
-        }
+        "defaultValue": "usgovvirginia"
       }
     },
     "policyRule": {
@@ -92,7 +71,11 @@
                   },
                   {
                     "field": "Microsoft.Network/routeTables/routes[*].nextHopIpAddress",
-                    "equals": "[parameters('nextHopIpAddress')]"
+                    "equals": "10.1.1.1"
+                  },
+                  {
+                    "field": "Microsoft.Network/routeTables/routes[*].nextHopType",
+                    "equals": "VirtualAppliance"
                   }
                 ]
               }
@@ -110,32 +93,7 @@
                 "parameters": {
                   "vnetRegion": {
                     "type": "string"
-                  },
-                  "requiredRoutes": {
-                    "type": "array"
-                  },
-                  "disableBgpPropagation": {
-                    "type": "bool"
-                  },
-                  "nextHopIpAddress": {
-                    "type": "string"
                   }
-                },
-                "variables": {
-                  "copyLoop": [
-                    {
-                      "name": "routes",
-                      "count": "[length(parameters('requiredRoutes'))]",
-                      "input": {
-                        "name": "[concat('route-',copyIndex('routes'))]",
-                        "properties": {
-                          "addressPrefix": "[split(parameters('requiredRoutes')[copyIndex('routes')], ';')]",
-                          "nextHopType": "[split(parameters('requiredRoutes')[copyIndex('routes')], ';')]",
-                          "nextHopIpAddress": "[if(equals(toLower(split(parameters('requiredRoutes')[copyIndex('routes')], ';')),'virtualappliance'),split(parameters('requiredRoutes')[copyIndex('routes')], ';'), null())]"
-                        }
-                      }
-                    }
-                  ]
                 },
                 "resources": [
                   {
@@ -144,14 +102,13 @@
                     "name": "[guid(resourceGroup().id, 'routeTable')]",
                     "location": "[parameters('vnetRegion')]",
                     "properties": {
-                      "disableBgpRoutePropagation": "[parameters('disableBgpPropagation')]",
                       "routes": [
                         {
                           "name": "default_route",
                           "properties": {
                             "addressPrefix": "0.0.0.0/0",
                             "nextHopType": "VirtualAppliance",
-                            "nextHopIpAddress": "[parameters('nextHopIpAddress')]"
+                            "nextHopIpAddress": "10.1.1.1"
                           }
                         }
                       ]
@@ -161,16 +118,7 @@
               },
               "parameters": {
                 "vnetRegion": {
-                  "value": "[parameters('vnetRegion')]"
-                },
-                "requiredRoutes": {
-                  "value": "[parameters('requiredRoutes')]"
-                },
-                "disableBgpPropagation": {
-                  "value": "[parameters('disableBgpPropagation')]"
-                },
-                "nextHopIpAddress": {
-                  "value": "[parameters('nextHopIpAddress')]"
+                  "value": "usgovvirginia"
                 }
               }
             }

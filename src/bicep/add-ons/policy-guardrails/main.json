@@ -5,16 +5,10 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "14011558573294774032"
+      "templateHash": "9315554599673935114"
     }
   },
   "parameters": {
-    "hubVirtualNetworkResourceId": {
-      "type": "string",
-      "metadata": {
-        "description": "Hub Virtual Network Resource Id"
-      }
-    },
     "policySetName": {
       "type": "string",
       "metadata": {
@@ -43,36 +37,6 @@
       "type": "string",
       "metadata": {
         "description": "Management group to assign the policy set"
-      }
-    },
-    "policyAssignmentDisplayName": {
-      "type": "string",
-      "metadata": {
-        "description": "Display name for the policy assignment"
-      }
-    },
-    "vnetRegion": {
-      "type": "string",
-      "metadata": {
-        "description": "Region for the virtual network"
-      }
-    },
-    "requiredRoutes": {
-      "type": "array",
-      "metadata": {
-        "description": "Array of required routes"
-      }
-    },
-    "disableBgpPropagation": {
-      "type": "bool",
-      "metadata": {
-        "description": "Disable BGP Propagation"
-      }
-    },
-    "nextHopIpAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "Next Hop IP Address"
       }
     }
   },
@@ -233,19 +197,13 @@
             ],
             "defaultValue": "DeployIfNotExists"
           },
-          "requiredRoutes": {
-            "type": "Array",
-            "metadata": {
-              "displayName": "requiredRoutes",
-              "description": "Routes that must exist in compliant route tables deployed by this policy"
-            }
-          },
           "vnetRegion": {
             "type": "String",
             "metadata": {
               "displayName": "vnetRegion",
               "description": "Only VNets in this region will be evaluated against this policy"
-            }
+            },
+            "defaultValue": "usgovvirginia"
           },
           "disableBgpPropagation": {
             "type": "Boolean",
@@ -253,14 +211,34 @@
               "displayName": "DisableBgpPropagation",
               "description": "Disable BGP Propagation"
             },
-            "defaultValue": false
+            "defaultValue": true
           },
           "nextHopIpAddress": {
             "type": "String",
             "metadata": {
               "displayName": "Next Hop IP Address",
               "description": "The IP address to which the default route should point"
-            }
+            },
+            "defaultValue": "10.0.128.68"
+          },
+          "addressPrefix": {
+            "type": "String",
+            "metadata": {
+              "displayName": "Address Prefix",
+              "description": "The address prefix for the route"
+            },
+            "defaultValue": "0.0.0.0/0"
+          },
+          "nextHopType": {
+            "type": "String",
+            "metadata": {
+              "displayName": "Next Hop Type",
+              "description": "The type of next hop for the route"
+            },
+            "allowedValues": [
+              "VirtualAppliance"
+            ],
+            "defaultValue": "VirtualAppliance"
           }
         },
         "policyRule": {
@@ -290,11 +268,15 @@
                       },
                       {
                         "field": "Microsoft.Network/routeTables/routes[*].addressPrefix",
-                        "equals": "0.0.0.0/0"
+                        "equals": "[[parameters('addressPrefix')]"
                       },
                       {
                         "field": "Microsoft.Network/routeTables/routes[*].nextHopIpAddress",
                         "equals": "[[parameters('nextHopIpAddress')]"
+                      },
+                      {
+                        "field": "Microsoft.Network/routeTables/routes[*].nextHopType",
+                        "equals": "[[parameters('nextHopType')]"
                       }
                     ]
                   }
@@ -313,31 +295,18 @@
                       "vnetRegion": {
                         "type": "string"
                       },
-                      "requiredRoutes": {
-                        "type": "array"
-                      },
                       "disableBgpPropagation": {
                         "type": "bool"
                       },
                       "nextHopIpAddress": {
                         "type": "string"
+                      },
+                      "addressPrefix": {
+                        "type": "string"
+                      },
+                      "nextHopType": {
+                        "type": "string"
                       }
-                    },
-                    "variables": {
-                      "copyLoop": [
-                        {
-                          "name": "routes",
-                          "count": "[[length(parameters('requiredRoutes'))]",
-                          "input": {
-                            "name": "[[concat('route-',copyIndex('routes'))]",
-                            "properties": {
-                              "addressPrefix": "[[split(parameters('requiredRoutes')[copyIndex('routes')], ';')]",
-                              "nextHopType": "[[split(parameters('requiredRoutes')[copyIndex('routes')], ';')]",
-                              "nextHopIpAddress": "[[if(equals(toLower(split(parameters('requiredRoutes')[copyIndex('routes')], ';')),'virtualappliance'),split(parameters('requiredRoutes')[copyIndex('routes')], ';'), null())]"
-                            }
-                          }
-                        }
-                      ]
                     },
                     "resources": [
                       {
@@ -351,8 +320,8 @@
                             {
                               "name": "default_route",
                               "properties": {
-                                "addressPrefix": "0.0.0.0/0",
-                                "nextHopType": "VirtualAppliance",
+                                "addressPrefix": "[[parameters('addressPrefix')]",
+                                "nextHopType": "[[parameters('nextHopType')]",
                                 "nextHopIpAddress": "[[parameters('nextHopIpAddress')]"
                               }
                             }
@@ -363,16 +332,19 @@
                   },
                   "parameters": {
                     "vnetRegion": {
-                      "value": "[[parameters('vnetRegion')]"
-                    },
-                    "requiredRoutes": {
-                      "value": "[[parameters('requiredRoutes')]"
+                      "value": "usgovvirginia"
                     },
                     "disableBgpPropagation": {
-                      "value": "[[parameters('disableBgpPropagation')]"
+                      "value": "true"
                     },
                     "nextHopIpAddress": {
-                      "value": "[[parameters('nextHopIpAddress')]"
+                      "value": "10.0.128.68"
+                    },
+                    "addressPrefix": {
+                      "value": "0.0.0.0/0"
+                    },
+                    "nextHopType": {
+                      "value": "VirtualAppliance"
                     }
                   }
                 }
@@ -560,295 +532,6 @@
       },
       "dependsOn": [
         "[extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', parameters('targetManagementGroup')), 'Microsoft.Resources/deployments', 'policyDefinitions')]"
-      ]
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "deploy-mlzPolicyAssignmentIdentity",
-      "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
-      "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "identityName": {
-            "value": "mlzPolicyAssignmentIdentity"
-          },
-          "identityLocation": {
-            "value": "usgovvirginia"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "14011144466231829481"
-            }
-          },
-          "parameters": {
-            "identityName": {
-              "type": "string"
-            },
-            "identityLocation": {
-              "type": "string"
-            }
-          },
-          "resources": [
-            {
-              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-              "apiVersion": "2023-01-31",
-              "name": "[parameters('identityName')]",
-              "location": "[parameters('identityLocation')]"
-            }
-          ],
-          "outputs": {
-            "identityResourceId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
-            },
-            "identityPrincipalId": {
-              "type": "string",
-              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2023-01-31').principalId]"
-            }
-          }
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "[format('policyAssignment-{0}', parameters('policySetName'))]",
-      "scope": "[format('Microsoft.Management/managementGroups/{0}', parameters('targetManagementGroup'))]",
-      "location": "[deployment().location]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "policySetName": {
-            "value": "[parameters('policySetName')]"
-          },
-          "policyAssignmentDisplayName": {
-            "value": "[parameters('policyAssignmentDisplayName')]"
-          },
-          "policyLocation": {
-            "value": "usgovvirginia"
-          },
-          "policySetId": {
-            "value": "[reference(extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', parameters('targetManagementGroup')), 'Microsoft.Resources/deployments', format('policySet-{0}', parameters('policySetName'))), '2022-09-01').outputs.policySetId.value]"
-          },
-          "mlzPolicyUserAssignedIdentityId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', 'deploy-mlzPolicyAssignmentIdentity'), '2022-09-01').outputs.identityResourceId.value]"
-          },
-          "vnetRegion": {
-            "value": "[parameters('vnetRegion')]"
-          },
-          "requiredRoutes": {
-            "value": "[parameters('requiredRoutes')]"
-          },
-          "disableBgpPropagation": {
-            "value": "[parameters('disableBgpPropagation')]"
-          },
-          "nextHopIpAddress": {
-            "value": "[parameters('nextHopIpAddress')]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "14041490058329664139"
-            }
-          },
-          "parameters": {
-            "policySetId": {
-              "type": "string",
-              "metadata": {
-                "description": "Policy set ID"
-              }
-            },
-            "policySetName": {
-              "type": "string",
-              "metadata": {
-                "description": "Policy set name"
-              }
-            },
-            "policyLocation": {
-              "type": "string",
-              "metadata": {
-                "description": "Policy location"
-              }
-            },
-            "policyAssignmentDisplayName": {
-              "type": "string",
-              "metadata": {
-                "description": "Policy assignment display name"
-              }
-            },
-            "mlzPolicyUserAssignedIdentityId": {
-              "type": "string",
-              "metadata": {
-                "description": "User assigned identity for the policy assignment"
-              }
-            },
-            "vnetRegion": {
-              "type": "string",
-              "metadata": {
-                "description": "Region for the virtual network"
-              }
-            },
-            "requiredRoutes": {
-              "type": "array",
-              "metadata": {
-                "description": "Array of required routes"
-              }
-            },
-            "disableBgpPropagation": {
-              "type": "bool",
-              "metadata": {
-                "description": "Disable BGP Propagation"
-              }
-            },
-            "nextHopIpAddress": {
-              "type": "string",
-              "metadata": {
-                "description": "Next Hop IP Address"
-              }
-            }
-          },
-          "resources": [
-            {
-              "type": "Microsoft.Authorization/policyAssignments",
-              "apiVersion": "2022-06-01",
-              "name": "[parameters('policySetName')]",
-              "location": "[parameters('policyLocation')]",
-              "properties": {
-                "displayName": "[parameters('policyAssignmentDisplayName')]",
-                "policyDefinitionId": "[parameters('policySetId')]",
-                "metadata": {
-                  "policyTargetScope": "managementGroup"
-                },
-                "enforcementMode": "Default",
-                "parameters": {
-                  "vnetRegion": {
-                    "value": "[parameters('vnetRegion')]"
-                  },
-                  "requiredRoutes": {
-                    "value": "[parameters('requiredRoutes')]"
-                  },
-                  "disableBgpPropagation": {
-                    "value": "[parameters('disableBgpPropagation')]"
-                  },
-                  "nextHopIpAddress": {
-                    "value": "[parameters('nextHopIpAddress')]"
-                  }
-                }
-              },
-              "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                  "[format('{0}', parameters('mlzPolicyUserAssignedIdentityId'))]": {}
-                }
-              }
-            }
-          ]
-        }
-      },
-      "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', 'deploy-mlzPolicyAssignmentIdentity')]",
-        "[extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', parameters('targetManagementGroup')), 'Microsoft.Resources/deployments', format('policySet-{0}', parameters('policySetName')))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "roleAssignment-mlzPolicyAssignmentIdentity",
-      "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
-      "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "targetResourceId": {
-            "value": "[resourceId('Microsoft.Resources/resourceGroups', split(parameters('hubVirtualNetworkResourceId'), '/')[4])]"
-          },
-          "roleDefinitionId": {
-            "value": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
-          },
-          "principalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', 'deploy-mlzPolicyAssignmentIdentity'), '2022-09-01').outputs.identityPrincipalId.value]"
-          },
-          "principalType": {
-            "value": "ServicePrincipal"
-          },
-          "description": {
-            "value": "Role assignment for policy managed identity"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "10296095440786899315"
-            }
-          },
-          "parameters": {
-            "targetResourceId": {
-              "type": "string"
-            },
-            "roleDefinitionId": {
-              "type": "string"
-            },
-            "principalId": {
-              "type": "string"
-            },
-            "principalType": {
-              "type": "string",
-              "defaultValue": "ServicePrincipal",
-              "allowedValues": [
-                "ForeignGroup",
-                "Group",
-                "ServicePrincipal",
-                "User"
-              ]
-            },
-            "description": {
-              "type": "string",
-              "defaultValue": ""
-            }
-          },
-          "resources": [
-            {
-              "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2020-04-01-preview",
-              "name": "[guid(parameters('targetResourceId'), parameters('roleDefinitionId'), parameters('principalId'))]",
-              "properties": {
-                "principalId": "[parameters('principalId')]",
-                "principalType": "[parameters('principalType')]",
-                "roleDefinitionId": "[parameters('roleDefinitionId')]",
-                "description": "[parameters('description')]"
-              }
-            }
-          ]
-        }
-      },
-      "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', 'deploy-mlzPolicyAssignmentIdentity')]"
       ]
     }
   ]
