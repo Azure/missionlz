@@ -2,10 +2,10 @@ targetScope = 'subscription'
 
 @secure()
 @description('The password for the local administrator account on the virtual machines.')
-param adminPassword string
+param virtualMachineAdminPassword string
 
 @description('The username for the local adminsitrator account on the virtual machines.')
-param adminUsername string
+param virtualMachineAdminUsername string
 
 @description('The address prefix for the subnet of the application gateway.')
 param applicationGatewaySubnetAddressPrefix string = '10.0.136.0/24'
@@ -18,7 +18,7 @@ param arcgisServiceAccountIsDomainAccount bool
 param arcgisServiceAccountPassword string
 
 @description('The username for the ArcGIS service account.')
-param arcgisServiceAccountUserName string
+param arcgisServiceAccountUsername string
 
 @description('The resource ID of the storage account for the deployment artifacts.')
 param artifactsStorageAccountResourceId string
@@ -472,8 +472,8 @@ module keyVault './modules/keyVault.bicep' = {
     keyVaultName: take('${keyVaultName}-${uniqueString(rg.id, keyVaultName)}', 24)
     keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.vaultcore'))[0]}'
     keyVaultSecretsOfficerRoleDefinitionResourceId: keyVaultSecretsOfficer
-    localAdministratorPassword: adminPassword
-    localAdministratorUsername: adminUsername
+    localAdministratorPassword: virtualMachineAdminPassword
+    localAdministratorUsername: virtualMachineAdminUsername
     location: location
     primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
     primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
@@ -613,8 +613,8 @@ module singleTierVirtualMachine 'modules/virtualMachine.bicep' =
     scope: rg
     name: 'deploy-virtual-machine-${deploymentNameSuffix}'
     params: {
-      adminPassword: adminPassword
-      adminUsername: adminUsername
+      virtualMachineAdminPassword: virtualMachineAdminPassword
+      virtualMachineAdminUsername: virtualMachineAdminUsername
       architecture: architecture
       availabilitySetName: availabilitySetName
       enableMonitoring: enableMonitoring
@@ -643,8 +643,8 @@ module multiTierServerVirtualMachines 'modules/virtualMachine.bicep' = [
     scope: rg
     name: 'deploy-esri-server-${i}-${deploymentNameSuffix}'
     params: {
-      adminPassword: adminPassword
-      adminUsername: adminUsername
+      virtualMachineAdminPassword: virtualMachineAdminPassword
+      virtualMachineAdminUsername: virtualMachineAdminUsername
       architecture: architecture
       availabilitySetName: architecture == 'multitier' ? serverAvailabilitySet.outputs.name : 'none'
       enableMonitoring: enableMonitoring
@@ -674,8 +674,8 @@ module multiTierPortalVirtualMachines 'modules/virtualMachine.bicep' = [
     scope: rg
     name: 'deploy-esri-portal-${i}-${deploymentNameSuffix}'
     params: {
-      adminPassword: adminPassword
-      adminUsername: adminUsername
+      virtualMachineAdminPassword: virtualMachineAdminPassword
+      virtualMachineAdminUsername: virtualMachineAdminUsername
       architecture: architecture
       availabilitySetName: architecture == 'multitier' ? portalAvailabilitySet.outputs.name : 'none'
       enableMonitoring: enableMonitoring
@@ -705,8 +705,8 @@ module multiTierDatastoreServerVirtualMachines 'modules/virtualMachine.bicep' = 
     scope: rg
     name: 'deploy-esri-datastore-${i}-${deploymentNameSuffix}'
     params: {
-      adminPassword: adminPassword
-      adminUsername: adminUsername
+      virtualMachineAdminPassword: virtualMachineAdminPassword
+      virtualMachineAdminUsername: virtualMachineAdminUsername
       architecture: architecture
       availabilitySetName: architecture == 'multitier' ? dataStoreAvailabilitySet.outputs.name : 'none'
       enableMonitoring: enableMonitoring
@@ -736,8 +736,8 @@ module multiTierFileServerVirtualMachines 'modules/virtualMachine.bicep' = [
     scope: rg
     name: 'deploy-esri-fileserver-${i}-${deploymentNameSuffix}'
     params: {
-      adminPassword: adminPassword
-      adminUsername: adminUsername
+      virtualMachineAdminPassword: virtualMachineAdminPassword
+      virtualMachineAdminUsername: virtualMachineAdminUsername
       architecture: architecture
       availabilitySetName: ''
       enableMonitoring: enableMonitoring
@@ -767,8 +767,8 @@ module multiTierSpatiotemporalBigDataStoreVirtualMachines 'modules/virtualMachin
     scope: rg
     name: 'deploy-esri-spatiotemporal-${i}-${deploymentNameSuffix}'
     params: {
-      adminPassword: adminPassword
-      adminUsername: adminUsername
+      virtualMachineAdminPassword: virtualMachineAdminPassword
+      virtualMachineAdminUsername: virtualMachineAdminUsername
       architecture: architecture
       availabilitySetName: architecture == 'multitier' && enableSpatiotemporalBigDataStore
         ? spatiotemporalAvailabilitySet.outputs.name
@@ -800,8 +800,8 @@ module multiTierTileCacheVirtualMachines 'modules/virtualMachine.bicep' = [
     scope: rg
     name: 'deploy-esri-tilecache-${i}-${deploymentNameSuffix}'
     params: {
-      adminPassword: adminPassword
-      adminUsername: adminUsername
+      virtualMachineAdminPassword: virtualMachineAdminPassword
+      virtualMachineAdminUsername: virtualMachineAdminUsername
       architecture: architecture
       availabilitySetName: architecture == 'multitier' && enableTileCacheDataStore
         ? tileCacheAvailabilitySet.outputs.name
@@ -833,8 +833,8 @@ module multiTierGraphVirtualMachines 'modules/virtualMachine.bicep' = [
     scope: rg
     name: 'deploy-esri-graph-${i}-${deploymentNameSuffix}'
     params: {
-      adminPassword: adminPassword
-      adminUsername: adminUsername
+      virtualMachineAdminPassword: virtualMachineAdminPassword
+      virtualMachineAdminUsername: virtualMachineAdminUsername
       architecture: architecture
       availabilitySetName: architecture == 'multitier' && enableGraphDataStore
         ? graphAvailabilitySet.outputs.name
@@ -866,8 +866,8 @@ module multiTierObjectDataStoreVirtualMachines 'modules/virtualMachine.bicep' = 
     scope: rg
     name: 'deploy-esri-odata-${i}-${deploymentNameSuffix}'
     params: {
-      adminPassword: adminPassword
-      adminUsername: adminUsername
+      virtualMachineAdminPassword: virtualMachineAdminPassword
+      virtualMachineAdminUsername: virtualMachineAdminUsername
       architecture: architecture
       availabilitySetName: architecture == 'multitier' && enableObjectDataStore
         ? odataAvailabilitySet.outputs.name
@@ -901,19 +901,6 @@ module roleAssignmentStorageAccount './modules/roleAssignmentStorageAccount.bice
     storageAccountName: storage.outputs.storageAccountName
   }
 }
-
-/* module roleAssignmentArtifactsStorageAccount './modules/roleAssignmentStorageAccount.bicep' = {
-  name: 'assign-role-sa-02-${deploymentNameSuffix}'
-  scope: resourceGroup(split(artifactsStorageAccountResourceId, '/')[2], split(artifactsStorageAccountResourceId, '/')[4])
-  params: {
-    principalId: userAssignedIdentity.outputs.principalId
-    storageAccountName: split(artifactsStorageAccountResourceId, '/')[8]
-  }
-  dependsOn: [
-    keyVault
-    tier3
-  ]
-} */
 
 module roleAssignmentVirtualMachineContributor './modules/roleAssignmentVirtualMachineContributor.bicep' = {
   name: 'assign-role-vm-01-${deploymentNameSuffix}'
@@ -953,8 +940,8 @@ module managementVm './modules/managementVirtualMachine.bicep' = {
     externalDnsHostname: externalDnsHostname
     hybridUseBenefit: false
     keyVaultName: keyVault.outputs.name
-    localAdministratorPassword: adminPassword
-    localAdministratorUsername: adminUsername
+    localAdministratorPassword: virtualMachineAdminPassword
+    localAdministratorUsername: virtualMachineAdminUsername
     location: location
     portalLicenseFile: portalLicenseFile
     portalLicenseFileName: portalLicenseFileName
@@ -1006,13 +993,13 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' =
     scope: rg
     name: 'deploy-esri-multitier-${deploymentNameSuffix}'
     params: {
-      adminPassword: adminPassword
-      adminUsername: adminUsername
+      virtualMachineAdminPassword: virtualMachineAdminPassword
+      virtualMachineAdminUsername: virtualMachineAdminUsername
       applicationGatewayName: applicationGatewayName
       applicationGatewayPrivateIPAddress: applicationGatewayPrivateIpAddress
       arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
       arcgisServiceAccountPassword: arcgisServiceAccountPassword
-      arcgisServiceAccountUserName: arcgisServiceAccountUserName
+      arcgisServiceAccountUsername: arcgisServiceAccountUsername
       architecture: architecture
       cloudStorageAccountCredentialsUserName: storage.outputs.cloudStorageAccountCredentialsUserName
       dataStoreVirtualMachineNames: dataStoreVirtualMachineNames
@@ -1108,13 +1095,13 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' =
     scope: rg
     name: 'deploy-esri-singletier-${deploymentNameSuffix}'
     params: {
-      adminPassword: adminPassword
-      adminUsername: adminUsername
+      virtualMachineAdminPassword: virtualMachineAdminPassword
+      virtualMachineAdminUsername: virtualMachineAdminUsername
       applicationGatewayName: applicationGatewayName
       applicationGatewayPrivateIpAddress: applicationGatewayPrivateIpAddress
       arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
       arcgisServiceAccountPassword: arcgisServiceAccountPassword
-      arcgisServiceAccountUserName: arcgisServiceAccountUserName
+      arcgisServiceAccountUsername: arcgisServiceAccountUsername
       cloudStorageAccountCredentialsUserName: storage.outputs.cloudStorageAccountCredentialsUserName
       dataStoreTypesForBaseDeploymentServers: (architecture == 'singletier')
         ? singleTierDataStoreTypes.outputs.dataStoreTypesForBaseDeploymentServers

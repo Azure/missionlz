@@ -1,12 +1,14 @@
+param diskEncryptionKeyExpirationInDays int = 30
 @secure()
 param domainJoinPassword string
 @secure()
 param domainJoinUserPrincipalName string
 param keyVaultCertificatesOfficerRoleDefinitionResourceId string
 param keyVaultName string
+param keyVaultPrivateDnsZoneResourceId string
+param keyVaultCryptoOfficerRoleDefinitionResourceId string
 #disable-next-line secure-secrets-in-params 
 param keyVaultSecretsOfficerRoleDefinitionResourceId string
-param keyVaultCryptoOfficerRoleDefinitionResourceId string
 @secure()
 param localAdministratorPassword string
 @secure()
@@ -14,13 +16,12 @@ param localAdministratorUsername string
 param location string
 @secure()
 param primarySiteAdministratorAccountPassword string
+
 param primarySiteAdministratorAccountUserName string
+param resourcePrefix string
+param subnetResourceId string
 param tags object
 param userAssignedIdentityPrincipalId string
-param subnetResourceId string
-param keyVaultPrivateDnsZoneResourceId string
-param diskEncryptionKeyExpirationInDays int = 30
-param resourcePrefix string
 
 var Secrets = [
   {
@@ -48,8 +49,6 @@ var Secrets = [
     value: primarySiteAdministratorAccountPassword
   }
 ]
-
-// var keyVaultOwner = resourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')
 
 // The key vault stores the secrets to deploy virtual machines
 resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
@@ -113,6 +112,7 @@ resource key_disks 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
     }
   }
 }
+
 resource key_storageAccounts 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
   parent: keyVault
   name: 'StorageEncryptionKey'
