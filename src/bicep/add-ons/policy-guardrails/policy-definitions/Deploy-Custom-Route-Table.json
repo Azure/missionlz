@@ -68,6 +68,12 @@
                     "notEquals": "VirtualAppliance"
                   }
                 ]
+              },
+              {
+                "not": {
+                  "field": "Microsoft.Network/routeTables/routes[*].addressPrefix",
+                  "equals": "0.0.0.0/0"
+                }
               }
             ]
           }
@@ -109,7 +115,7 @@
               "mode": "incremental",
               "template": {
                 "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-                "contentVersion": "1.0.0.0",
+                "contentVersion": "1.1",
                 "parameters": {
                   "vnetRegion": {
                     "type": "string"
