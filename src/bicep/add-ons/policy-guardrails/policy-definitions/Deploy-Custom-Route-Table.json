@@ -68,12 +68,6 @@
                     "notEquals": "VirtualAppliance"
                   }
                 ]
-              },
-              {
-                "not": {
-                  "field": "Microsoft.Network/routeTables/routes[*].addressPrefix",
-                  "equals": "0.0.0.0/0"
-                }
               }
             ]
           }

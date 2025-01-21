@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "9868268157338337474"
+      "templateHash": "17877945195279053642"
     }
   },
   "parameters": {
@@ -246,12 +246,6 @@
                         "notEquals": "VirtualAppliance"
                       }
                     ]
-                  },
-                  {
-                    "not": {
-                      "field": "Microsoft.Network/routeTables/routes[*].addressPrefix",
-                      "equals": "0.0.0.0/0"
-                    }
                   }
                 ]
               }
