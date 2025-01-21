@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "863571890532957781"
+      "templateHash": "9868268157338337474"
     }
   },
   "parameters": {
@@ -246,6 +246,12 @@
                         "notEquals": "VirtualAppliance"
                       }
                     ]
+                  },
+                  {
+                    "not": {
+                      "field": "Microsoft.Network/routeTables/routes[*].addressPrefix",
+                      "equals": "0.0.0.0/0"
+                    }
                   }
                 ]
               }
@@ -287,7 +293,7 @@
                   "mode": "incremental",
                   "template": {
                     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
+                    "contentVersion": "1.1",
                     "parameters": {
                       "vnetRegion": {
                         "type": "string"
@@ -667,8 +673,8 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "roleAssignment-mlzPolicyAssignmentIdentity",
-      "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
-      "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
+      "scope": "[format('Microsoft.Management/managementGroups/{0}', parameters('targetManagementGroup'))]",
+      "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -676,7 +682,7 @@
         "mode": "Incremental",
         "parameters": {
           "targetResourceId": {
-            "value": "[resourceId('Microsoft.Resources/resourceGroups', split(parameters('hubVirtualNetworkResourceId'), '/')[4])]"
+            "value": "[managementGroupResourceId('Microsoft.Management/managementGroups', parameters('targetManagementGroup'))]"
           },
           "roleDefinitionId": {
             "value": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
@@ -692,13 +698,13 @@
           }
         },
         "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "10296095440786899315"
+              "templateHash": "13867572506055851228"
             }
           },
           "parameters": {

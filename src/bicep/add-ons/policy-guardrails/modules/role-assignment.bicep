@@ -1,7 +1,4 @@
-/*
-Copyright (c) Microsoft Corporation.
-Licensed under the MIT License.
-*/
+targetScope = 'managementGroup'
 
 param targetResourceId string
 param roleDefinitionId string

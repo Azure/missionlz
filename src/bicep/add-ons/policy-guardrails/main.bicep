@@ -78,9 +78,9 @@ module policyAssignment './modules/policy-set-assignment.bicep' = {
 // Assign roles to the managed identity using the role-assignment module
 module roleAssignment './modules/role-assignment.bicep' = {
   name: 'roleAssignment-mlzPolicyAssignmentIdentity'
-  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+  scope: managementGroup(targetManagementGroup)
   params: {
-    targetResourceId: resourceId('Microsoft.Resources/resourceGroups', split(hubVirtualNetworkResourceId, '/')[4])
+    targetResourceId: managementGroupResourceId('Microsoft.Management/managementGroups', targetManagementGroup)
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c') // Contributor role
     principalId: managedIdentity.outputs.identityPrincipalId
     principalType: 'ServicePrincipal'
