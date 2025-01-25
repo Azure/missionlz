@@ -1,0 +1,660 @@
+{
+    "properties": {
+      "displayName": "Guard Rails",
+      "policyType": "Custom",
+      "description": "Continuation of guard rails policy initiative to manage compliance and security policies.",
+      "metadata": {
+        "parameterScopes": {
+          "nsgRegion : Configure network security groups to enable traffic analytics_1": "/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24"
+        },
+        "createdBy": "",
+        "createdOn": "",
+        "updatedBy": "",
+        "updatedOn": "",
+        "version": "1.0.0"
+      },
+      "parameters": {},
+      "policyDefinitions": [
+        {
+          "policyDefinitionReferenceId": "Deploy-Windows-DomainJoin",
+          "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Windows-DomainJoin",
+          
+          "parameters": {
+            "effect": {
+              "value": "DeployIfNotExists"
+            }
+          },
+          "groupNames": [
+            "ComputeGuardRails"
+          ]
+        },
+        {
+          "policyDefinitionReferenceId": "Deploy-VNET-HubSpoke",
+          "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-VNET-HubSpoke",
+          
+          "parameters": {
+            "effect": {
+              "value": "DeployIfNotExists"
+            }
+          },
+          "groupNames": [
+            "NetworkGuardRails"
+          ]
+        },
+        {
+          "policyDefinitionReferenceId": "Deploy-Vm-autoShutdown",
+          "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Vm-autoShutdown",
+          
+          "parameters": {
+            "effect": {
+              "value": "DeployIfNotExists"
+            }
+          },
+          "groupNames": [
+            "ComputeGuardRails"
+          ]
+        },
+        {
+          "policyDefinitionReferenceId": "Deploy-Storage-sslEnforcement",
+          "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Storage-sslEnforcement",
+          
+          "parameters": {
+            "effect": {
+              "value": "DeployIfNotExists"
+            }
+          },
+          "groupNames": [
+            "StorageGuardRails"
+          ]
+        },
+        {
+          "policyDefinitionReferenceId": "Deploy-Nsg-FlowLogs",
+          "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Nsg-FlowLogs",
+          
+          "parameters": {
+            "effect": {
+              "value": "DeployIfNotExists"
+            },
+            "logAnalytics": {
+              "value": "[parameters('logAnalytics')]"
+            }
+          },
+          "groupNames": [
+            "MonitoringGuardRails"
+          ]
+        },
+        {
+          "policyDefinitionReferenceId": "Deploy-Nsg-FlowLogs-to-LA",
+          "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Nsg-FlowLogs-to-LA",
+          
+          "parameters": {
+            "effect": {
+              "value": "DeployIfNotExists"
+            },
+            "logAnalytics": {
+              "value": "[parameters('logAnalytics')]"
+            }
+          },
+          "groupNames": [
+            "MonitoringGuardRails"
+          ]
+        },
+        {
+          "policyDefinitionReferenceId": "Deploy-Diagnostics-WVDWorkspace",
+          "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Diagnostics-WVDWorkspace",
+          
+          "parameters": {
+            "effect": {
+              "value": "DeployIfNotExists"
+            }
+          },
+          "groupNames": [
+            "MonitoringGuardRails"
+          ]
+        },
+        {
+          "policyDefinitionReferenceId": "Deploy-Diagnostics-WVDHostPools",
+          "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Diagnostics-WVDHostPools",
+          
+          "parameters": {
+            "effect": {
+              "value": "DeployIfNotExists"
+            }
+          },
+          "groupNames": [
+            "MonitoringGuardRails"
+          ]
+        },
+        {
+            "policyDefinitionReferenceId": "Append-KV-SoftDelete",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Append-KV-SoftDelete",
+            
+            "parameters": {},
+            "groupNames": [
+              "KeyVaultGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Audit-AzureHybridBenefit",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Audit-AzureHybridBenefit",
+            
+            "parameters": {
+              "effect": {
+                "value": "Audit"
+              }
+            },
+            "groupNames": [
+              "CostOptimizationGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Audit-Disks-UnusedResourcesCostOptimization",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Audit-Disks-UnusedResourcesCostOptimization",
+            
+            "parameters": {
+              "effect": {
+                "value": "Audit"
+              }
+            },
+            "groupNames": [
+              "CostOptimizationGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Audit-PrivateLinkDnsZones",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Audit-PrivateLinkDnsZones",
+            
+            "parameters": {
+              "effect": {
+                "value": "Audit"
+              },
+              "privateLinkDnsZones": {
+                "value": [
+                  "privatelink.adf.azure.us",
+                  "privatelink.afs.azure.us",
+                  "privatelink.agentsvc.azure-automation.us",
+                  "privatelink.analysis.windows.us",
+                  "privatelink.api.azureml.ms",
+                  "privatelink.azconfig.io",
+                  "privatelink.azure-api.us",
+                  "privatelink.azure-automation.us",
+                  "privatelink.azurecr.us",
+                  "privatelink.azure-devices.us",
+                  "privatelink.azure-devices-provisioning.us",
+                  "privatelink.azurehdinsight.us",
+                  "privatelink.azurehealthcareapis.us",
+                  "privatelink.azurestaticapps.us",
+                  "privatelink.azuresynapse.us",
+                  "privatelink.azurewebsites.us",
+                  "privatelink.batch.azure.us",
+                  "privatelink.blob.core.us",
+                  "privatelink.cassandra.cosmos.azure.us",
+                  "privatelink.cognitiveservices.azure.us",
+                  "privatelink.database.windows.us",
+                  "privatelink.datafactory.azure.us",
+                  "privatelink.dev.azuresynapse.us",
+                  "privatelink.dfs.core.us",
+                  "privatelink.dicom.azurehealthcareapis.us",
+                  "privatelink.digitaltwins.azure.us",
+                  "privatelink.directline.botframework.us",
+                  "privatelink.documents.azure.us",
+                  "privatelink.eventgrid.azure.us",
+                  "privatelink.file.core.us",
+                  "privatelink.gremlin.cosmos.azure.us",
+                  "privatelink.guestconfiguration.azure.us",
+                  "privatelink.his.arc.azure.us",
+                  "privatelink.kubernetesconfiguration.azure.us",
+                  "privatelink.managedhsm.azure.us",
+                  "privatelink.mariadb.database.azure.us",
+                  "privatelink.media.azure.us",
+                  "privatelink.mongo.cosmos.azure.us",
+                  "privatelink.monitor.azure.us",
+                  "privatelink.mysql.database.azure.us",
+                  "privatelink.notebooks.azure.us",
+                  "privatelink.ods.opinsights.azure.us",
+                  "privatelink.oms.opinsights.azure.us",
+                  "privatelink.pbidedicated.windows.us",
+                  "privatelink.postgres.database.azure.us",
+                  "privatelink.prod.migration.windowsazure.us",
+                  "privatelink.purview.azure.us",
+                  "privatelink.purviewstudio.azure.us",
+                  "privatelink.queue.core.us",
+                  "privatelink.redis.cache.windows.us",
+                  "privatelink.redisenterprise.cache.azure.us",
+                  "privatelink.search.windows.us",
+                  "privatelink.service.signalr.us",
+                  "privatelink.servicebus.windows.us",
+                  "privatelink.siterecovery.windowsazure.us",
+                  "privatelink.sql.azuresynapse.us",
+                  "privatelink.table.core.us",
+                  "privatelink.table.cosmos.azure.us",
+                  "privatelink.tip1.powerquery.microsoft.us",
+                  "privatelink.token.botframework.us",
+                  "privatelink.vaultcore.azure.us",
+                  "privatelink.web.core.us",
+                  "privatelink.webpubsub.azure.us"
+                ]
+              }
+            },
+            "groupNames": [
+              "NetworkGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Audit-PublicIpAddresses-UnusedResourcesCostOptimization",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Audit-PublicIpAddresses-UnusedResourcesCostOptimization",
+            
+            "parameters": {
+              "effect": {
+                "value": "Audit"
+              }
+            },
+            "groupNames": [
+              "CostOptimizationGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-Subnet-Without-Udr",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-Subnet-Without-Udr",
+           
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              },
+              "excludedSubnets": {
+                "value": [
+                  "AzureBastionSubnet"
+                ]
+              }
+            },
+            "groupNames": [
+              "NetworkGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-Subnet-Without-Penp",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-Subnet-Without-Penp",
+            
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              },
+              "excludedSubnets": {
+                "value": [
+                  "GatewaySubnet",
+                  "AzureFirewallSubnet",
+                  "AzureFirewallManagementSubnet",
+                  "AzureBastionSubnet"
+                ]
+              }
+            },
+            "groupNames": [
+              "NetworkGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-Subnet-Without-Nsg",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-Subnet-Without-Nsg",
+           
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              },
+              "excludedSubnets": {
+                "value": [
+                  "GatewaySubnet",
+                  "AzureFirewallSubnet",
+                  "AzureFirewallManagementSubnet"
+                ]
+              }
+            },
+            "groupNames": [
+              "NetworkGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-VNet-Peering",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-VNet-Peering",
+            
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              }
+            },
+            "groupNames": [
+              "NetworkGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-VNET-Peering-To-Non-Approved-VNETs",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-VNET-Peering-To-Non-Approved-VNETs",
+            
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              },
+              "allowedVnets": {
+                "value": []
+              }
+            },
+            "groupNames": [
+              "NetworkGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-VNET-Peer-Cross-Sub",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-VNET-Peer-Cross-Sub",
+            
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              }
+            },
+            "groupNames": [
+              "NetworkGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-UDR-With-Specific-NextHop",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-UDR-With-Specific-NextHop",
+            
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              },
+              "excludedDestinations": {
+                "value": [
+                  "Internet",
+                  "VirtualNetworkGateway"
+                ]
+              }
+            },
+            "groupNames": [
+              "NetworkGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deploy-Diagnostics-Bastion",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Diagnostics-Bastion",
+            
+            "parameters": {
+              "effect": {
+                "value": "DeployIfNotExists"
+              }
+            },
+            "groupNames": [
+              "MonitoringGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deploy-Diagnostics-AVDScalingPlans",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Diagnostics-AVDScalingPlans",
+            
+            "parameters": {
+              "effect": {
+                "value": "DeployIfNotExists"
+              }
+            },
+            "groupNames": [
+              "MonitoringGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deploy-Custom-Route-Table",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Custom-Route-Table",
+            
+            "parameters": {
+              "effect": {
+                "value": "DeployIfNotExists"
+              }
+            },
+            "groupNames": [
+              "NetworkGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deploy-Diagnostics-VirtualNetwork",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Diagnostics-VirtualNetwork",
+            
+            "parameters": {
+              "effect": {
+                "value": "DeployIfNotExists"
+              },
+              "logAnalytics": {
+                "value": "[parameters('logAnalytics')]"
+              },
+              "profileName": {
+                "value": "setbypolicy"
+              },
+              "metricsEnabled": {
+                "value": "True"
+              },
+              "logsEnabled": {
+                "value": "True"
+              }
+            },
+            "groupNames": [
+              "MonitoringGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deploy-Diagnostics-NIC",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Diagnostics-NIC",
+            
+            "parameters": {
+              "effect": {
+                "value": "DeployIfNotExists"
+              },
+              "logAnalytics": {
+                "value": "[parameters('logAnalytics')]"
+              },
+              "profileName": {
+                "value": "setbypolicy"
+              },
+              "metricsEnabled": {
+                "value": "True"
+              }
+            },
+            "groupNames": [
+              "MonitoringGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deploy-Diagnostics-NetworkSecurityGroups",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Diagnostics-NetworkSecurityGroups",
+            
+            "parameters": {
+              "effect": {
+                "value": "DeployIfNotExists"
+              },
+              "logAnalytics": {
+                "value": "[parameters('logAnalytics')]"
+              },
+              "profileName": {
+                "value": "setbypolicy"
+              },
+              "logsEnabled": {
+                "value": "True"
+              }
+            },
+            "groupNames": [
+              "MonitoringGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deploy-Diagnostics-WVDAppGroup",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Diagnostics-WVDAppGroup",
+            
+            "parameters": {
+              "effect": {
+                "value": "DeployIfNotExists"
+              }
+            },
+            "groupNames": [
+              "MonitoringGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deploy-Diagnostics-VMSS",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Diagnostics-VMSS",
+            
+            "parameters": {
+              "effect": {
+                "value": "DeployIfNotExists"
+              }
+            },
+            "groupNames": [
+              "MonitoringGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deploy-Diagnostics-VM",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deploy-Diagnostics-VM",
+            
+            "parameters": {
+              "effect": {
+                "value": "DeployIfNotExists"
+              }
+            },
+            "groupNames": [
+              "MonitoringGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-StorageAccount-CustomDomain",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-StorageAccount-CustomDomain",
+            
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              }
+            },
+            "groupNames": [
+              "StorageGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-Private-DNS-Zones",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-Private-DNS-Zones",
+            
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              }
+            },
+            "groupNames": [
+              "NetworkGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-MgmtPorts-From-Internet",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-MgmtPorts-From-Internet",
+            
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              },
+              "ports": {
+                "value": [
+                  "22",
+                  "3389"
+                ]
+              }
+            },
+            "groupNames": [
+              "NetworkGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-FileServices-InsecureSmbVersions",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-FileServices-InsecureSmbVersions",
+            
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              },
+              "allowedSmbVersion": {
+                "value": "SMB3.1.1"
+              }
+            },
+            "groupNames": [
+              "StorageGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-FileServices-InsecureSmbChannel",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-FileServices-InsecureSmbChannel",
+            
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              },
+              "notAllowedChannelEncryption": {
+                "value": "AES-128-CCM"
+              }
+            },
+            "groupNames": [
+              "StorageGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-FileServices-InsecureKerberos",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-FileServices-InsecureKerberos",
+            
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              },
+              "notAllowedKerberosTicketEncryption": {
+                "value": "RC4-HMAC"
+              }
+            },
+            "groupNames": [
+              "StorageGuardRails"
+            ]
+          },
+          {
+            "policyDefinitionReferenceId": "Deny-FileServices-InsecureAuth",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/Deny-FileServices-InsecureAuth",
+            
+            "parameters": {
+              "effect": {
+                "value": "Deny"
+              },
+              "notAllowedAuthMethods": {
+                "value": "NTLMv2"
+              }
+            },
+            "groupNames": [
+              "StorageGuardRails"
+            ]
+          }       
+      ],
+      "policyDefinitionGroups": [
+        {
+          "name": "KeyVaultGuardRails",
+          "displayName": "Key Vault Guard Rails"
+        },
+        {
+          "name": "CostOptimizationGuardRails",
+          "displayName": "Cost Optimization Guard Rails"
+        },
+        {
+          "name": "NetworkGuardRails",
+          "displayName": "Network Guard Rails"
+        },
+        {
+          "name": "StorageGuardRails",
+          "displayName": "Storage Guard Rails"
+        },
+        {
+            "name": "MonitoringGuardRails",
+            "displayName": "Monitoring Guard Rails"
+        },
+        {
+            "name": "ComputeGuardRails",
+            "displayName": "Compute Guard Rails"
+        }           
+      ]
+    }
+  }

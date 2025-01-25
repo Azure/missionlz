@@ -1,13 +1,10 @@
 {
   "name": "Deploy-Custom-Route-Table",
-  "type": "Microsoft.Authorization/policyDefinitions",
-  "apiVersion": "2021-06-01",
-  "scope": null,
   "properties": {
+    "displayName": "Ensure route tables have a specific default route",
     "policyType": "Custom",
-    "mode": "Indexed",
-    "displayName": "Deploy a route table with specific user defined routes",
-    "description": "Deploys a route table with specific user defined routes when one does not exist. The route table deployed by the policy must be manually associated to subnet(s)",
+    "mode": "All",
+    "description": "Ensures that every route table with a route having the address prefix '0.0.0.0/0' has the next hop type 'VirtualAppliance' and next hop IP address '10.0.128.68'.",
     "metadata": {
       "version": "1.0.0",
       "category": "Network",
@@ -30,14 +27,6 @@
           "Disabled"
         ],
         "defaultValue": "DeployIfNotExists"
-      },
-      "vnetRegion": {
-        "type": "String",
-        "metadata": {
-          "displayName": "vnetRegion",
-          "description": "Only VNets in this region will be evaluated against this policy"
-        },
-        "defaultValue": "usgovvirginia"
       }
     },
     "policyRule": {
@@ -48,11 +37,19 @@
             "equals": "Microsoft.Network/routeTables"
           },
           {
-            "field": "location",
-            "equals": "[parameters('vnetRegion')]"
-          },
-          {
             "anyOf": [
+              {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Network/routeTables/routes[*].addressPrefix",
+                    "equals": "0.0.0.0/0"
+                  },
+                  {
+                    "field": "Microsoft.Network/routeTables/routes[*].nextHopType",
+                    "notEquals": "VirtualAppliance"
+                  }
+                ]
+              },
               {
                 "allOf": [
                   {
@@ -62,10 +59,6 @@
                   {
                     "field": "Microsoft.Network/routeTables/routes[*].nextHopIpAddress",
                     "notEquals": "10.0.128.68"
-                  },
-                  {
-                    "field": "Microsoft.Network/routeTables/routes[*].nextHopType",
-                    "notEquals": "VirtualAppliance"
                   }
                 ]
               }
@@ -76,42 +69,21 @@
       "then": {
         "effect": "[parameters('effect')]",
         "details": {
-          "type": "Microsoft.Network/routeTables",
-          "existenceCondition": {
-            "anyOf": [
-              {
-                "allOf": [
-                  {
-                    "field": "Microsoft.Network/routeTables/routes[*].name",
-                    "equals": "default_route"
-                  },
-                  {
-                    "field": "Microsoft.Network/routeTables/routes[*].addressPrefix",
-                    "equals": "0.0.0.0/0"
-                  },
-                  {
-                    "field": "Microsoft.Network/routeTables/routes[*].nextHopIpAddress",
-                    "equals": "10.0.128.68"
-                  },
-                  {
-                    "field": "Microsoft.Network/routeTables/routes[*].nextHopType",
-                    "equals": "VirtualAppliance"
-                  }
-                ]
-              }
-            ]
-          },
+          "type": "Microsoft.Resources/deployments",
           "roleDefinitionIds": [
-            "/subscriptions/e867a45d-e513-44ac-931e-4741cef80b24/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7"
+            "/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7"
           ],
           "deployment": {
             "properties": {
               "mode": "incremental",
               "template": {
                 "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-                "contentVersion": "1.1",
+                "contentVersion": "1.0.0.0",
                 "parameters": {
-                  "vnetRegion": {
+                  "routeTableName": {
+                    "type": "string"
+                  },
+                  "routeTableLocation": {
                     "type": "string"
                   }
                 },
@@ -119,12 +91,13 @@
                   {
                     "type": "Microsoft.Network/routeTables",
                     "apiVersion": "2021-02-01",
-                    "name": "[guid(resourceGroup().id, 'routeTable')]",
-                    "location": "[parameters('vnetRegion')]",
+                    "name": "[parameters('routeTableName')]",
+                    "location": "[parameters('routeTableLocation')]",
                     "properties": {
+                      "disableBgpRoutePropagation": true,
                       "routes": [
                         {
-                          "name": "default_route",
+                          "name": "[concat('default_route_', uniqueString(resourceGroup().id))]",
                           "properties": {
                             "addressPrefix": "0.0.0.0/0",
                             "nextHopType": "VirtualAppliance",
@@ -137,8 +110,11 @@
                 ]
               },
               "parameters": {
-                "vnetRegion": {
-                  "value": "usgovvirginia"
+                "routeTableName": {
+                  "value": "[field('name')]"
+                },
+                "routeTableLocation": {
+                  "value": "[field('location')]"
                 }
               }
             }
