@@ -1,0 +1,79 @@
+{
+  "name": "Append-Redis-sslEnforcement",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "apiVersion": "2021-06-01",
+  "scope": null,
+  "properties": {
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "displayName": "Azure Cache for Redis Append and enforce SSL and minimum TLS version.",
+    "description": "Azure Cache for Redis Append and enforce SSL and minimum TLS version. Ensures that SSL is always enabled for accessing your database server and enforces a minimum TLS version to secure the connection between your database server and your client applications.",
+    "metadata": {
+      "version": "1.0.1",
+      "category": "Cache",
+      "source": "https://github.com/Azure/Enterprise-Scale/",
+      "alzCloudEnvironments": [
+        "AzureCloud",
+        "AzureUSGovernment"
+      ]
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "defaultValue": "Append",
+        "allowedValues": [
+          "Append",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Effect Azure Cache for Redis",
+          "description": "Enable or disable the execution of the policy minimum TLS version Azure Cache for Redis"
+        }
+      },
+      "minimumTlsVersion": {
+        "type": "String",
+        "defaultValue": "1.2",
+        "allowedValues": [
+          "1.0",
+          "1.1",
+          "1.2"
+        ],
+        "metadata": {
+          "displayName": "Select version for Redis server",
+          "description": "Select version minimum TLS version Azure Cache for Redis to enforce"
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Cache/redis"
+          },
+          {
+            "anyOf": [
+              {
+                "field": "Microsoft.Cache/Redis/enableNonSslPort",
+                "equals": "true"
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": [
+          {
+            "field": "Microsoft.Cache/Redis/enableNonSslPort",
+            "value": false
+          },
+          {
+            "field": "Microsoft.Cache/Redis/minimumTlsVersion",
+            "value": "[parameters('minimumTlsVersion')]"
+          }
+        ]
+      }
+    }
+  }
+}

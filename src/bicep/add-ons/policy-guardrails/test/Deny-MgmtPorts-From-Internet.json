@@ -1,0 +1,101 @@
+{
+  "name": "Deny-MgmtPorts-From-Internet",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "apiVersion": "2021-06-01",
+  "scope": null,
+  "properties": {
+    "policyType": "Custom",
+    "mode": "All",
+    "displayName": "Deny management ports from the Internet",
+    "description": "This policy denies management ports (e.g., RDP, SSH) from being accessible from the Internet.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Network",
+      "source": "https://github.com/Azure/Enterprise-Scale/",
+      "alzCloudEnvironments": [
+        "AzureCloud",
+        "AzureUSGovernment"
+      ]
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "allowedValues": [
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Deny",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "ports": {
+        "type": "Array",
+        "defaultValue": [
+          "3389",
+          "22"
+        ],
+        "metadata": {
+          "displayName": "Management Ports",
+          "description": "List of management ports to deny from the Internet"
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/networkSecurityGroups"
+          },
+          {
+            "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].direction",
+            "equals": "Inbound"
+          },
+          {
+            "anyOf": [
+              {
+                "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange",
+                "equals": "*"
+              },
+              {
+                "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange",
+                "in": "[parameters('ports')]"
+              },
+              {
+                "value": "[if(and(not(empty(field('Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange'))), contains(field('Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange'),'-')), and(lessOrEquals(int(first(split(field('Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange'), '-'))),int(first(parameters('ports')))),greaterOrEquals(int(last(split(field('Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange'), '-'))),int(last(parameters('ports'))))), 'false')]",
+                "equals": "true"
+              },
+              {
+                "count": {
+                  "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRanges[*]",
+                  "where": {
+                    "allOf": [
+                      {
+                        "value": "[if(and(not(empty(current())), contains(current(),'-')), and(lessOrEquals(int(first(split(current(), '-'))),int(first(parameters('ports')))),greaterOrEquals(int(last(split(current(), '-'))),int(last(parameters('ports'))))), 'false')]",
+                        "equals": "true"
+                      }
+                    ]
+                  }
+                },
+                "greater": 0
+              }
+            ]
+          },
+          {
+            "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].sourceAddressPrefix",
+            "equals": "*"
+          },
+          {
+            "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].access",
+            "equals": "Allow"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

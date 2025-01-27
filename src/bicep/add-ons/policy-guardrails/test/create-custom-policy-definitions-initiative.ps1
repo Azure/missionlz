@@ -38,7 +38,8 @@ foreach ($policyFile in $policyFiles) {
         }
     }
     $policyDefinitionJson = $policyDefinition | ConvertTo-Json -Depth 10
-    New-AzPolicyDefinition -Name $policyJson.name -Policy $policyDefinitionJson -ManagementGroupName $managementGroupId
+    Write-Host "Creating policy definition $($policyJson.name)"
+    New-AzPolicyDefinition -Name $policyJson.name -Policy $policyDefinitionJson -ManagementGroupName $managementGroupId > $null
 
     # Add the policy definition to the policy definitions array for connecting into the policy set definition
     $policyDefinitions += @{
@@ -62,3 +63,4 @@ $policySetDefinition = @{
 
 # Create the policy set definition in Azure
 New-AzPolicySetDefinition @policySetDefinition
+

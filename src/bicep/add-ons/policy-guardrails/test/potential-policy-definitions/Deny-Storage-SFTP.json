@@ -1,42 +1,49 @@
 {
-  "name": "Deny-Private-DNS-Zones",
+  "name": "Deny-Storage-SFTP",
   "type": "Microsoft.Authorization/policyDefinitions",
   "apiVersion": "2021-06-01",
   "scope": null,
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
-    "displayName": "Deny the creation of private DNS",
-    "description": "This policy denies the creation of a private DNS in the current scope, used in combination with policies that create centralized private DNS in connectivity subscription",
+    "displayName": "Storage Accounts with SFTP enabled should be denied",
+    "description": "This policy denies the creation of Storage Accounts with SFTP enabled for Blob Storage.",
     "metadata": {
       "version": "1.0.0",
-      "category": "Network",
+      "category": "Storage",
       "source": "https://github.com/Azure/Enterprise-Scale/",
       "alzCloudEnvironments": [
         "AzureCloud",
-        "AzureChinaCloud",
         "AzureUSGovernment"
       ]
     },
     "parameters": {
       "effect": {
         "type": "String",
+        "defaultValue": "Deny",
         "allowedValues": [
           "Audit",
           "Deny",
           "Disabled"
         ],
-        "defaultValue": "Deny",
         "metadata": {
           "displayName": "Effect",
-          "description": "Enable or disable the execution of the policy"
+          "description": "The effect determines what happens when the policy rule is evaluated to match"
         }
       }
     },
     "policyRule": {
       "if": {
-        "field": "type",
-        "equals": "Microsoft.Network/privateDnsZones"
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Storage/storageAccounts"
+          },
+          {
+            "field": "Microsoft.Storage/storageAccounts/isSftpEnabled",
+            "equals": "true"
+          }
+        ]
       },
       "then": {
         "effect": "[parameters('effect')]"
