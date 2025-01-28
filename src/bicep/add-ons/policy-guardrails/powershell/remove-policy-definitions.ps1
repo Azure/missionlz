@@ -1,5 +1,5 @@
 # Define the management group ID
-$managementGroupId = "operations_and_security"
+$managementGroupId = "DoDIaCManagementGroup"
 
 # Get all policy definitions for the specified management group
 $policyDefinitions = Get-AzPolicyDefinition -ManagementGroupName $managementGroupId

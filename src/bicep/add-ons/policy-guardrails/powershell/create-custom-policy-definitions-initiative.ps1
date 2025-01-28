@@ -4,7 +4,7 @@
 
 #policy definition parameters and values, see lower in script to see the policy definitions they are used in
 #if the policy definition that requires the parameter is not used, the parameter value will not be used, so leave it in the script for future reference with no value
-$emailSecurityContact = "brsteel@microsoft.com"
+$emailSecurityContactenterprise = "brsteel@microsoft.com"
 $logAnalyticsResourceId = "/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/bws-rg-operations-network-va-test/providers/Microsoft.OperationalInsights/workspaces/bws-log-operations-va-test"
 $hubVnetResourceId = "/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/bws-rg-hub-network-va-test/providers/Microsoft.Network/virtualNetworks/bws-vnet-hub-va-test"
 $vulnerabilityAssessmentsEmail = @("brsteel@microsoft.com")
@@ -68,7 +68,7 @@ foreach ($policyFile in $policyFiles) {
     if ($policyJson.name -eq "Deploy-ASC-SecurityContacts-enterprise") {
         $policyDefinition.properties.parameters.emailSecurityContact = @{
             "type" = "String"
-            "defaultvalue" = $emailSecurityContact
+            "defaultvalue" = $emailSecurityContactenterprise
         }
     }
 
