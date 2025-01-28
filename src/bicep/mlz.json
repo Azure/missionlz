@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "13389087230036824205"
+      "templateHash": "14557400384166028465"
     }
   },
   "parameters": {
@@ -7410,7 +7410,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "3740567851876805170"
+              "templateHash": "7515904526184961569"
             }
           },
           "parameters": {
@@ -7697,7 +7697,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.32.4.45862",
-                      "templateHash": "4008024121578150600"
+                      "templateHash": "10736900373438518663"
                     }
                   },
                   "parameters": {
@@ -7789,7 +7789,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.32.4.45862",
-                              "templateHash": "12188201067483460429"
+                              "templateHash": "8796537885852671353"
                             }
                           },
                           "parameters": {
@@ -7813,13 +7813,13 @@
                             }
                           },
                           "variables": {
-                            "virtualNetworkFlowLogsName": "[format('{0}//{1}-flowLogs', parameters('networkWatcherName'), parameters('tiername'))]"
+                            "nsgFlowLogsName": "[format('{0}//{1}-nsgflowLogs', parameters('networkWatcherName'), parameters('tiername'))]"
                           },
                           "resources": [
                             {
                               "type": "Microsoft.Network/networkWatchers/flowLogs",
                               "apiVersion": "2023-05-01",
-                              "name": "[variables('virtualNetworkFlowLogsName')]",
+                              "name": "[variables('nsgFlowLogsName')]",
                               "location": "[parameters('location')]",
                               "properties": {
                                 "targetResourceId": "[parameters('networkSecurityGroupResourceId')]",
@@ -7907,7 +7907,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.32.4.45862",
-                      "templateHash": "14614551432896693408"
+                      "templateHash": "1590636977907607401"
                     }
                   },
                   "parameters": {
@@ -7999,7 +7999,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.32.4.45862",
-                              "templateHash": "11053034089953479958"
+                              "templateHash": "8154834140268456549"
                             }
                           },
                           "parameters": {
@@ -8023,7 +8023,7 @@
                             }
                           },
                           "variables": {
-                            "virtualNetworkFlowLogsName": "[format('{0}//{1}-flowLogs', parameters('networkWatcherName'), parameters('tiername'))]"
+                            "virtualNetworkFlowLogsName": "[format('{0}//{1}-vnetflowLogs', parameters('networkWatcherName'), parameters('tiername'))]"
                           },
                           "resources": [
                             {

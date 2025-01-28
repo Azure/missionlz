@@ -10,7 +10,7 @@ param networkWatcherName string
 param tiername string
 param networkSecurityGroupResourceId string
 
-var virtualNetworkFlowLogsName = '${networkWatcherName}//${tiername}-flowLogs'
+var nsgFlowLogsName = '${networkWatcherName}//${tiername}-nsgflowLogs'
 
 
 resource networkWatcher 'Microsoft.Network/networkWatchers@2021-02-01' existing = {
@@ -21,7 +21,7 @@ resource networkWatcher 'Microsoft.Network/networkWatchers@2021-02-01' existing 
 
 
 resource nsgFlowLogs 'Microsoft.Network/networkWatchers/flowLogs@2023-05-01' = {
-  name: virtualNetworkFlowLogsName
+  name: nsgFlowLogsName
   location: location
   properties: {
     targetResourceId: networkSecurityGroupResourceId
