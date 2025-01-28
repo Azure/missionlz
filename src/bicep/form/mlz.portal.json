@@ -1495,6 +1495,7 @@
         "deployLinuxVirtualMachine": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]",
         "deployWindowsVirtualMachine": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]",
         "deployNetworkWatcher": "[empty(filter(steps('networking').networkWatchersApi.value, (item) => equals(item.location, steps('basics').locationSection.location.name)))]",
+        "deployNetworkWatcherTrafficAnalytics": "[steps('networking').vNetFlowLogs.deployTrafficAnalytics]",
         "deployNetworkSecurityGroupFlowLogs": "[if(equals(steps('networking').vNetFlowLogs.flowLogsOption,'deployNetworkSecurityGroupFlowLogs'), true, false)]",
         "deployVirtualNetworkFlowLogs": "[if(equals(steps('networking').vNetFlowLogs.flowLogsOption,'deployVirtualNetworkFlowLogs'), true, false)]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
