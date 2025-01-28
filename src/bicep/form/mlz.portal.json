@@ -677,7 +677,7 @@
                   "name": "vNetFlowLogsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "To support the on-going security and compliance of your landing zone, MLZ configures flow logs for virtual networks. Flow logs capture information about IP traffic flowing through your virtual Network. Flow log data can be used to troubleshoot network connectivity issues, monitor network traffic, and detect and diagnose security threats.",
+                    "text": "To support the on-going security and compliance of your landing zone, MLZ configures flow logs for virtual networks, by default. Flow logs capture information about IP traffic flowing through your virtual Network. Flow log data can be used to troubleshoot network connectivity issues, monitor network traffic, and detect and diagnose security threats.",
                     "link": {
                       "label": "Click here to learn more about virtual Network flow logs",
                       "uri": "https://learn.microsoft.com/en-us/azure/network-watcher/vnet-flow-logs-overview"
@@ -691,10 +691,7 @@
                   "defaultValue": "deployVirtualNetworkFlowLogs",
                   "toolTip": "Select the type of flow logs to deploy.",
                   "constraints": {
-                    "required": true
-                  },
-                  "options": {
-                    "items": [
+                    "allowedValues": [
                       {
                         "label": "Deploy Virtual Network Flow Logs",
                         "value": "deployVirtualNetworkFlowLogs"
