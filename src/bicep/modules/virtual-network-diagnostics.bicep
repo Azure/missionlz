@@ -3,6 +3,7 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+param deployVnetFlowLogs bool
 param location string
 param logAnalyticsWorkspaceResourceId string
 param logs array
@@ -34,7 +35,7 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' 
   }
 }
 
-module virtualNetworkFlowLogs '../modules/virtual-network-flowlogs.bicep' = {
+module virtualNetworkFlowLogs '../modules/virtual-network-flowlogs.bicep' = if (deployVnetFlowLogs) {
   name: 'deploy-${tiername}-flowLogs'
   scope: resourceGroup(networkWatcherResourceGroupName)
   params: {

@@ -7,6 +7,8 @@ targetScope = 'subscription'
 
 param bastionDiagnosticsLogs array
 param deployBastion bool
+param deployNsgFlowLogs bool
+param deployVnetFlowLogs bool
 param deploymentNameSuffix string
 param firewallDiagnosticsLogs array
 param firewallDiagnosticsMetrics array
@@ -65,12 +67,17 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
   name: 'deploy-nsg-diags-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
   params: {
+    deployNsgFlowLogs: deployNsgFlowLogs
+    location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: tier.nsgDiagLogs
     logStorageAccountResourceId: storageAccountResourceIds[i]
     metrics: tier.nsgDiagMetrics
     networkSecurityGroupDiagnosticSettingName: tier.namingConvention.networkSecurityGroupDiagnosticSetting
     networkSecurityGroupName: tier.namingConvention.networkSecurityGroup
+    networkWatcherName: hub.namingConvention.networkWatcher
+    networkWatcherResourceGroupName: hubResourceGroupName
+    tiername: tier.name
   }
 }]
 
@@ -79,6 +86,7 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
   name: 'deploy-vnet-diags-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
   params: {
+    deployVnetFlowLogs: deployVnetFlowLogs
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: tier.vnetDiagLogs

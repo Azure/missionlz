@@ -55,6 +55,11 @@ param deploymentNameSuffix string = utcNow()
 @description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
 param tags object = {}
 
+// NETWORK FLOW LOG PARAMETERS
+// These parameters are used to enable flow logs for the network security groups and virtual networks.
+param deployNsgFlowLogs bool = true
+param deployVnetFlowLogs bool = true
+
 // NETWORK ADDRESS SPACE PARAMETERS
 
 @description('The CIDR Virtual Network Address Prefix for the Hub Virtual Network.')
@@ -751,6 +756,8 @@ module diagnostics 'modules/diagnostics.bicep' = {
   params: {
     bastionDiagnosticsLogs: bastionDiagnosticsLogs
     deployBastion: deployBastion
+    deployNsgFlowLogs: deployNsgFlowLogs
+    deployVnetFlowLogs: deployVnetFlowLogs
     deploymentNameSuffix: deploymentNameSuffix
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
