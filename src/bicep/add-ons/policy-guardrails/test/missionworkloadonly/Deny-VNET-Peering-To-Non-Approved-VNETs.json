@@ -36,8 +36,7 @@
         "metadata": {
           "displayName": "Allowed vNets to peer with",
           "description": "Array of allowed vNets that can be peered with. Must be entered using their resource ID. Example: /subscriptions/{subId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworks/{vnetName}"
-        },
-        "defaultValue": []
+        }
       }
     },
     "policyRule": {
