@@ -710,7 +710,7 @@
                 {
                   "name": "nsgFlowLogsRetirementWarning",
                   "type": "Microsoft.Common.InfoBox",
-                  "visible": "[equals(steps('networking').vNetFlowLogs.flowLogsOption, 'deployNSGFlowLogs')]",
+                  "visible": "[equals(steps('networking').vNetFlowLogs.flowLogsOption, 'deployNetworkSecurityGroupFlowLogs')]",
                   "options": {
                     "icon": "Warning",
                     "text": "NSG flow logs are scheduled for retirement on June 30, 2025. All customers should move to VNet flow logs which offer more logging and visibility.",
