@@ -693,11 +693,11 @@
                   "constraints": {
                     "allowedValues": [
                       {
-                        "label": "Deploy Virtual Network Flow Logs",
+                        "label": "Deploy Virtual Network Flow Logs (recommended)",
                         "value": "deployVirtualNetworkFlowLogs"
                       },
                       {
-                        "label": "Deploy Only Network Security Group Flow Logs",
+                        "label": "Deploy Network Security Group Flow Logs",
                         "value": "deployNetworkSecurityGroupFlowLogs"
                       }
                     ]
