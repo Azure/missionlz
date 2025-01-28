@@ -67,6 +67,7 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
   name: 'deploy-nsg-diags-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
   params: {
+    deploymentNameSuffix: deploymentNameSuffix
     deployNsgFlowLogs: deployNsgFlowLogs
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
@@ -86,6 +87,7 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
   name: 'deploy-vnet-diags-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
   params: {
+    deploymentNameSuffix: deploymentNameSuffix
     deployVnetFlowLogs: deployVnetFlowLogs
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
