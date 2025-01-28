@@ -3,12 +3,14 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+param deployNetworkWatcherTrafficAnalytics bool
 param location string
 param logAnalyticsWorkspaceResourceId string
 param logStorageAccountResourceId string
 param networkWatcherName string
 param tiername string
 param networkSecurityGroupResourceId string
+param networkSecurityGroupFlowLogRetentionDays int
 
 var nsgFlowLogsName = '${networkWatcherName}//${tiername}-nsgflowLogs'
 
@@ -29,13 +31,17 @@ resource nsgFlowLogs 'Microsoft.Network/networkWatchers/flowLogs@2023-05-01' = {
     storageId: logStorageAccountResourceId
     flowAnalyticsConfiguration: {
       networkWatcherFlowAnalyticsConfiguration: {
-        enabled: true
-        workspaceResourceId:logAnalyticsWorkspaceResourceId
+        enabled: deployNetworkWatcherTrafficAnalytics ? deployNetworkWatcherTrafficAnalytics : json('null')
+        workspaceResourceId: deployNetworkWatcherTrafficAnalytics ? logAnalyticsWorkspaceResourceId : json('null')
       }
     }
     format: {
       type: 'JSON'
       version: 2
+    }
+    retentionPolicy: {
+      days: networkSecurityGroupFlowLogRetentionDays
+      enabled: true
     }
   }
 }

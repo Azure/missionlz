@@ -669,6 +669,82 @@
               ]
             },
             {
+              "name": "vNetFlowLogs",
+              "label": "Configure Virtual Network Flow Logs",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "vNetFlowLogsText",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "To support the on-going security and compliance of your landing zone, MLZ configures flow logs for virtual networks. Flow logs capture information about IP traffic flowing through your virtual Network. Flow log data can be used to troubleshoot network connectivity issues, monitor network traffic, and detect and diagnose security threats.",
+                    "link": {
+                      "label": "Click here to learn more about virtual Network flow logs",
+                      "uri": "https://learn.microsoft.com/en-us/azure/network-watcher/vnet-flow-logs-overview"
+                    }
+                  }
+                },
+                {
+                  "name": "flowLogsOption",
+                  "label": "Flow Logs Option",
+                  "type": "Microsoft.Common.DropDown",
+                  "defaultValue": "deployVirtualNetworkFlowLogs",
+                  "toolTip": "Select the type of flow logs to deploy.",
+                  "constraints": {
+                    "required": true
+                  },
+                  "options": {
+                    "items": [
+                      {
+                        "label": "Deploy Virtual Network Flow Logs",
+                        "value": "deployVirtualNetworkFlowLogs"
+                      },
+                      {
+                        "label": "Deploy Only Network Security Group Flow Logs",
+                        "value": "deployNetworkSecurityGroupFlowLogs"
+                      },
+                      {
+                        "label": "No Logging",
+                        "value": "noLogging"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "nsgFlowLogsRetirementWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[equals(parameters('flowLogsOption'), 'deployNSGFlowLogs')]",
+                  "options": {
+                    "icon": "Warning",
+                    "text": "NSG flow logs are scheduled for retirement on June 30, 2025. All customers should move to VNet flow logs which offer more logging and visibility.",
+                    "link": {
+                      "label": "Learn more about NSG flow log retirement",
+                      "uri": "https://learn.microsoft.com/en-us/azure/network-watcher/nsg-flow-logs-overview"
+                    }
+                  }
+                },
+                {
+                  "name": "retentionDays",
+                  "label": "Retention Days",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "30",
+                  "toolTip": "Enter the number of days to retain virtual Network flow logs.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[0-9]+$",
+                    "message": "Please enter a valid number of days."
+                  }
+                },
+                {
+                  "name": "deployTrafficAnalytics",
+                  "label": "Deploy Network Watcher Traffic Analytics",
+                  "type": "Microsoft.Common.CheckBox",
+                  "defaultValue": false,
+                  "toolTip": "Enable this option to deploy Network Watcher Traffic Analytics."
+                }
+              ]
+            },
+            {
               "name": "networkWatchersApi",
               "type": "Microsoft.Solutions.ArmApiControl",
               "request": {
@@ -1426,6 +1502,8 @@
         "deployLinuxVirtualMachine": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]",
         "deployWindowsVirtualMachine": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]",
         "deployNetworkWatcher": "[empty(filter(steps('networking').networkWatchersApi.value, (item) => equals(item.location, steps('basics').locationSection.location.name)))]",
+        "deployNetworkSecurityGroupFlowLogs": "[if(equals(steps('networking').vNetFlowLogs.flowLogsOption,'deployNetworkSecurityGroupFlowLogs'), true, false)]",
+        "deployVirtualNetworkFlowLogs": "[if(equals(steps('networking').vNetFlowLogs.flowLogsOption,'deployVirtualNetworkFlowLogs'), true, false)]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
         "deployBastion": "[steps('remoteAccess').azureBastionSection.deployBastion]",
         "deployAzureGatewaySubnet": "[steps('remoteAccess').azureGatewaySubnetSection.deployAzureGatewaySubnet]",
@@ -1450,6 +1528,7 @@
         "linuxVmImageSku": "[steps('remoteAccess').linuxVmSection.linuxVmImageSku]",
         "linuxVmSize": "[steps('remoteAccess').linuxVmSection.linuxVmSize]",
         "location": "[steps('basics').locationSection.location.name]",
+        "networkSecurityGroupFlowLogRetentionDays": "[steps('networking').vNetFlowLogs.retentionDays]",
         "operationsSubnetAddressPrefix": "[steps('networking').operationsVirtualNetwork.subnetAddressCidrRange]",
         "operationsSubscriptionId": "[replace(steps('basics').operationsSection.operationsSubscriptionId, '/subscriptions/', '')]",
         "operationsVirtualNetworkAddressPrefix": "[steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange]",
@@ -1463,7 +1542,8 @@
         "windowsVmSku": "[steps('remoteAccess').windowsVmSection.windowsVmSku]",
         "windowsVmSize": "[steps('remoteAccess').windowsVmSection.windowsVmSize]",
         "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword.password]",
-        "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]"
+        "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]",
+        "virtualNetworkFlowLogRetentionDays": "[steps('networking').vNetFlowLogs.retentionDays]"
       }
     }
   }
