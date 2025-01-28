@@ -29,6 +29,19 @@
           "displayName": "Effect",
           "description": "Enable or disable the execution of the policy"
         }
+      },
+      "excludedSubnets": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Excluded Subnets",
+          "description": "List of subnets to exclude from this policy"
+        },
+        "defaultValue": [
+          "AzureFirewallSubnet",
+          "GatewaySubnet",
+          "AzureFirewallManagmenetSubnet",
+          "AzureBastionSubnet"
+        ]
       }
     },
     "policyRule": {
@@ -37,6 +50,12 @@
           {
             "field": "type",
             "equals": "Microsoft.Network/virtualNetworks/subnets"
+          },
+          {
+            "not": {
+              "field": "name",
+              "in": "[parameters('excludedSubnets')]"
+            }
           },
           {
             "field": "Microsoft.Network/virtualNetworks/subnets/networkSecurityGroup.id",
