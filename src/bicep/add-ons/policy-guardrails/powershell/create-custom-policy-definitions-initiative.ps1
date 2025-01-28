@@ -4,14 +4,14 @@ $logAnalyticsResourceId = "/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/r
 $hubVnetResourceId = "/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/bws-rg-hub-network-va-test/providers/Microsoft.Network/virtualNetworks/bws-vnet-hub-va-test"
 
 # Define the directory containing the guard rail policy definition JSON files
-$policyDefinitionsDirectory = "C:\Users\brsteel\Documents\repositories\missionlz\src\bicep\add-ons\policy-guardrails\test\potential-policy-definitions"
+$policyDefinitionsDirectory = ".\src\bicep\add-ons\policy-guardrails\powershell\test"
 
 # Define the management group ID the policy intiative and definitions will be linked to
 $managementGroupId = "operations_and_security"
 
 # Define the policy set definition properties
-$policySetDisplayName = "Test Guardrails Initiative"
-$policySetName = "TestGuardrailsInitiative"
+$policySetDisplayName = "Test Enterprise Guardrails Initiative"
+$policySetName = "TestEnterpriseGuardrailsInitiative"
 $policySetDescription = "A set of policies to manage the enterprise configurations."
 $policySetMetadata = @{
     "category" = "All"
@@ -33,8 +33,8 @@ foreach ($policyFile in $policyFiles) {
     $policyDefinition = @{
         "properties" = @{
             "displayName" = $policyJson.properties.displayName
-            "policyType" = "Custom"
-            "mode" = "All"
+            "policyType" = $policyJson.properties.policyType
+            "mode" = $policyJson.properties.mode
             "metadata" = @{
                 "version" = $policyJson.properties.metadata.version
             }
@@ -64,9 +64,8 @@ foreach ($policyFile in $policyFiles) {
             "defaultvalue" = $hubVnetResourceId
         }
     }
-    Deny-VNET-Peering-To-Non-Approved-VNETs
 
-    $policyDefinitionJson = $policyDefinition | ConvertTo-Json -Depth 10
+    $policyDefinitionJson = $policyDefinition | ConvertTo-Json -Depth 20
     Write-Host "Creating policy definition $($policyJson.name)"
     New-AzPolicyDefinition -Name $policyJson.name -Policy $policyDefinitionJson -ManagementGroupName $managementGroupId > $null
 

@@ -64,8 +64,20 @@
                 "in": "[parameters('ports')]"
               },
               {
-                "value": "[if(and(not(empty(field('Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange'))), contains(field('Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange'),'-')), and(lessOrEquals(int(first(split(field('Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange'), '-'))),int(first(parameters('ports')))),greaterOrEquals(int(last(split(field('Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange'), '-'))),int(last(parameters('ports'))))), 'false')]",
-                "equals": "true"
+                "allOf": [
+                  {
+                    "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange",
+                    "notEquals": "*"
+                  },
+                  {
+                    "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange",
+                    "notIn": "[parameters('ports')]"
+                  },
+                  {
+                    "value": "[if(and(not(empty(field('Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange'))), contains(field('Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange'),'-')), and(lessOrEquals(int(first(split(field('Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange'), '-'))),int(first(parameters('ports')))),greaterOrEquals(int(last(split(field('Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange'), '-'))),int(last(parameters('ports'))))), 'false')]",
+                    "equals": "true"
+                  }
+                ]
               },
               {
                 "count": {
