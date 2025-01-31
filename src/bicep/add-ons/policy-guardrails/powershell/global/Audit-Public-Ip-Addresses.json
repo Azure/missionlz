@@ -1,0 +1,44 @@
+{
+  "name": "Audit-Public-IP-Addresses",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "apiVersion": "2021-06-01",
+  "properties": {
+    "displayName": "Audit public IP addresses",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Audits public IP addresses and flags them as non-compliant, except for specified exceptions.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Network"
+    },
+    "parameters": {
+      "exemptPublicIPAddresses": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Exempt Public IP Addresses",
+          "description": "List of public IP addresses to exclude from this policy"
+        },
+        "defaultValue": []
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/publicIPAddresses"
+          },
+          {
+            "not": {
+              "field": "name",
+              "in": "[parameters('exemptPublicIPAddresses')]"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "audit"
+      }
+    }
+  }
+}

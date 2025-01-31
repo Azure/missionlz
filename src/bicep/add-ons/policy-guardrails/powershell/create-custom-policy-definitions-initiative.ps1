@@ -11,7 +11,14 @@ $vulnerabilityAssessmentsEmail = @("brsteel@microsoft.com")
 $vulnerabilityAssessmentsStorageID = "/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/bws-rg-operations-network-va-test/providers/Microsoft.Storage/storageAccounts/5bdj25z4mllp6"
 $hubRegion = "usgovvirginia"
 $hubRgName = "bws-rg-hub-network-va-test"
+
+#name ddos protection plan
 $ddosName = "bws-ddos-va-test"
+
+# Define the expected next hop IP address for the Audit-Route-Table-For-Specific-Route policy definition
+$nextHopIpAddress = "10.0.128.68"
+# Define the exempt route table names parameter value
+$exemptRouteTableNames = @("bws-rt-hub-va-test")
 
 #script variables
 
@@ -79,8 +86,15 @@ foreach ($policyFile in $policyFiles) {
         }
     }
 
-    if ($policyJson.name -eq "Deny-VNET-Peering-To-Non-Approved-VNETs") {
+    if ($policyJson.name -like "Deploy-Diagnostics-*") {
         $policyDefinition.properties.parameters.logAnalytics = @{
+            "type" = "String"
+            "defaultvalue" = $logAnalyticsResourceId
+        }
+    }
+
+    if ($policyJson.name -eq "Deny-VNET-Peering-To-Non-Approved-VNETs") {
+        $policyDefinition.properties.parameters.allowedVnets = @{
             "type" = "String"
             "defaultvalue" = $hubVnetResourceId
         }
@@ -109,6 +123,18 @@ foreach ($policyFile in $policyFiles) {
         $policyDefinition.properties.parameters.ddosName = @{
             "type" = "String"
             "defaultvalue" = $ddosName
+        }
+    }
+
+    # Add the allowed routes parameter to the policy definition
+    if ($policyJson.name -eq "Audit-Route-Table-For-Default-Route") {
+        $policyDefinition.properties.parameters.nextHopIpAddress = @{
+            "type" = "String"
+            "defaultValue" = $nextHopIpAddress
+        }
+        $policyDefinition.properties.parameters.exemptRouteTableNames = @{
+            "type" = "Array"
+            "defaultValue" = $exemptRouteTableNames
         }
     }
 
@@ -141,4 +167,3 @@ $policySetDefinition = @{
 
 # Create the policy set definition in Azure
 New-AzPolicySetDefinition @policySetDefinition
-
