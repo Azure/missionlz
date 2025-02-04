@@ -42,7 +42,7 @@ param supportedClouds array = [
 ]
 
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
-param deployIdentity bool = false
+param deployIdentity bool = true
 
 @description('Choose whether to deploy network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription.')
 param deployNetworkWatcher bool = false

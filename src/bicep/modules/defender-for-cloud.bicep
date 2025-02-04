@@ -9,7 +9,7 @@ targetScope = 'subscription'
 param defenderPlans array = ['VirtualMachines']
 
 @description('Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off')
-param enableAutoProvisioning bool = true
+param enableAutoProvisioning bool = false
 var autoProvisioning = enableAutoProvisioning ? 'On' : 'Off'
 
 @description('Specify the ID of your custom Log Analytics workspace to collect Defender data.')

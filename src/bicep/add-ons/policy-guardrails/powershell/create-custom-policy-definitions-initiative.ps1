@@ -5,20 +5,20 @@
 #policy definition parameters and values, see lower in script to see the policy definitions they are used in
 #if the policy definition that requires the parameter is not used, the parameter value will not be used, so leave it in the script for future reference with no value
 $emailSecurityContactenterprise = "brsteel@microsoft.com"
-$logAnalyticsResourceId = "/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/bws-rg-operations-network-va-test/providers/Microsoft.OperationalInsights/workspaces/bws-log-operations-va-test"
-$hubVnetResourceId = "/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/bws-rg-hub-network-va-test/providers/Microsoft.Network/virtualNetworks/bws-vnet-hub-va-test"
+$logAnalyticsResourceId = "/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/mlz-rg-operations-network-va-dev/providers/Microsoft.OperationalInsights/workspaces/mlz-log-operations-va-dev"
+$hubVnetResourceId = "/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/mlz-rg-hub-network-va-dev/providers/Microsoft.Network/virtualNetworks/mlz-vnet-hub-va-dev"
 $vulnerabilityAssessmentsEmail = @("brsteel@microsoft.com")
-$vulnerabilityAssessmentsStorageID = "/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/bws-rg-operations-network-va-test/providers/Microsoft.Storage/storageAccounts/5bdj25z4mllp6"
+$vulnerabilityAssessmentsStorageID = "/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/mlz-rg-operations-network-va-dev/providers/Microsoft.Storage/storageAccounts/lceg2vlqmwmjq"
 $hubRegion = "usgovvirginia"
-$hubRgName = "bws-rg-hub-network-va-test"
+$hubRgName = "mlz-vnet-hub-va-dev"
 
 #name ddos protection plan
-$ddosName = "bws-ddos-va-test"
+$ddosName = "mlz-ddos-va-test"
 
 # Define the expected next hop IP address for the Audit-Route-Table-For-Specific-Route policy definition
-$nextHopIpAddress = "10.0.128.68"
+$nextHopIpAddress = "10.0.128.4"
 # Define the exempt route table names parameter value
-$exemptRouteTableNames = @("bws-rt-hub-va-test")
+$exemptRouteTableNames = @("mlz-rt-hub-va-dev")
 
 #script variables
 
