@@ -56,7 +56,7 @@
     "$fxv#0": {
       "name": "Append-AppService-httpsonly",
       "type": "Microsoft.Authorization/policyDefinitions",
-      "apiVersion": "2021-06-01",
+      "apiVersion": "2023-04-01",
       "properties": {
         "policyType": "Custom",
         "mode": "All",
@@ -108,7 +108,7 @@
     "$fxv#1": {
       "name": "Append-AppService-latestTLS",
       "type": "Microsoft.Authorization/policyDefinitions",
-      "apiVersion": "2021-06-01",
+      "apiVersion": "2023-04-01",
       "properties": {
         "policyType": "Custom",
         "mode": "All",
