@@ -819,7 +819,7 @@ module defenderforClouds 'modules/defender-for-clouds.bicep' =
       defenderSkuTier: defenderSkuTier
       deploymentNameSuffix: deploymentNameSuffix
       emailSecurityContact: emailSecurityContact
-      logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+      //logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
       tiers: logic.outputs.tiers
     }
   }
