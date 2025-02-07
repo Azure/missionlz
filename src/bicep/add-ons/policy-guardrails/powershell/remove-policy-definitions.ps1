@@ -1,3 +1,6 @@
+# if your initiative is alread assigned, you must remove assignment first
+# delete the intiative after removal of assignment in the portal in the definitions view of the policy
+# this script will then remove all definitions attached to the specified management group, regardless of where they came from
 # Define the management group ID
 $managementGroupId = "DoDIaCManagementGroup"
 
