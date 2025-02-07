@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.31.34.60546",
-      "templateHash": "7891133147346503241"
+      "version": "0.33.93.31351",
+      "templateHash": "9847458590897525306"
     }
   },
   "parameters": {
@@ -133,27 +133,9 @@
     "azureFirewallName": "[split(parameters('azureFirewallResourceId'), '/')[8]]",
     "hubVnetRouteTableName": "[split(parameters('hubVnetRouteTableResourceId'), '/')[8]]",
     "vpnSharedKey": "[if(parameters('useSharedKey'), parameters('sharedKey'), '')]",
-    "vpnKeyVaultUri": "[if(not(parameters('useSharedKey')), parameters('keyVaultCertificateUri'), '')]",
-    "isValidUri": "[and(contains(parameters('keyVaultCertificateUri'), 'https://'), contains(parameters('keyVaultCertificateUri'), '/secrets/'))]"
+    "vpnKeyVaultUri": "[if(not(parameters('useSharedKey')), parameters('keyVaultCertificateUri'), '')]"
   },
   "resources": [
-    {
-      "condition": "[and(not(parameters('useSharedKey')), not(variables('isValidUri')))]",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
-      "name": "[format('InvalidKeyVaultCertificateUri-{0}', parameters('deploymentNameSuffix'))]",
-      "properties": {
-        "mode": "Incremental",
-        "parameters": {
-          "message": {
-            "value": "Invalid Key Vault Certificate URI. It must start with \"https://\" and contain \"/secrets/\"."
-          }
-        },
-        "templateLink": {
-          "uri": "https://validatemessage.com"
-        }
-      }
-    },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -187,8 +169,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "3589752526565849732"
+              "version": "0.33.93.31351",
+              "templateHash": "10126358338724299707"
             }
           },
           "parameters": {
@@ -275,8 +257,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[1])]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[0])]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[0])]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressNames')[1])]"
               ]
             }
           ]
@@ -313,8 +295,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "17093542793626818819"
+              "version": "0.33.93.31351",
+              "templateHash": "775491961088104034"
             }
           },
           "parameters": {
@@ -388,8 +370,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "17808641870371981197"
+              "version": "0.33.93.31351",
+              "templateHash": "14335710153958931855"
             }
           },
           "parameters": {
@@ -449,7 +431,6 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('localNetworkGateway-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('InvalidKeyVaultCertificateUri-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnGateway-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -479,8 +460,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "8229271046057649788"
+              "version": "0.33.93.31351",
+              "templateHash": "1822760794695875093"
             }
           },
           "parameters": {
@@ -568,8 +549,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "8229271046057649788"
+              "version": "0.33.93.31351",
+              "templateHash": "1822760794695875093"
             }
           },
           "parameters": {
@@ -663,8 +644,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "8229271046057649788"
+              "version": "0.33.93.31351",
+              "templateHash": "1822760794695875093"
             }
           },
           "parameters": {
@@ -755,8 +736,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "10372783504892384694"
+              "version": "0.33.93.31351",
+              "templateHash": "10664712259933064156"
             }
           },
           "parameters": {
@@ -839,8 +820,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "10372783504892384694"
+              "version": "0.33.93.31351",
+              "templateHash": "10664712259933064156"
             }
           },
           "parameters": {
@@ -916,8 +897,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "13855829966458352"
+              "version": "0.33.93.31351",
+              "templateHash": "14643225409125910347"
             }
           },
           "parameters": {
@@ -992,8 +973,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "280047033181845191"
+              "version": "0.33.93.31351",
+              "templateHash": "11057380908294705824"
             }
           },
           "parameters": {
@@ -1086,8 +1067,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "280047033181845191"
+              "version": "0.33.93.31351",
+              "templateHash": "11057380908294705824"
             }
           },
           "parameters": {
@@ -1176,8 +1157,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "17439321293785150273"
+              "version": "0.33.93.31351",
+              "templateHash": "8097184201604488890"
             }
           },
           "parameters": {
@@ -1229,99 +1210,6 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('createHubRoute-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
-      "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "routeTableName": {
-            "value": "[variables('hubVnetRouteTableName')]"
-          },
-          "addressSpace": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.vnetAddressSpace.value]"
-          },
-          "routeName": {
-            "value": "route-hubvnet"
-          },
-          "nextHopType": {
-            "value": "VirtualAppliance"
-          },
-          "nextHopIpAddress": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPrivateIp.value]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "280047033181845191"
-            }
-          },
-          "parameters": {
-            "routeTableName": {
-              "type": "string",
-              "metadata": {
-                "description": "Name of the route table to create"
-              }
-            },
-            "routeName": {
-              "type": "string",
-              "metadata": {
-                "description": "Name of the route"
-              }
-            },
-            "addressSpace": {
-              "type": "array",
-              "metadata": {
-                "description": "CIDR prefixes for the route"
-              }
-            },
-            "nextHopType": {
-              "type": "string",
-              "metadata": {
-                "description": "The next hop type for the route"
-              }
-            },
-            "nextHopIpAddress": {
-              "type": "string",
-              "metadata": {
-                "description": "The next hop IP address for the route"
-              }
-            }
-          },
-          "resources": [
-            {
-              "copy": {
-                "name": "routes",
-                "count": "[length(parameters('addressSpace'))]"
-              },
-              "type": "Microsoft.Network/routeTables/routes",
-              "apiVersion": "2023-04-01",
-              "name": "[format('{0}/{1}', parameters('routeTableName'), format('{0}-{1}', parameters('routeName'), copyIndex()))]",
-              "properties": {
-                "addressPrefix": "[parameters('addressSpace')[copyIndex()]]",
-                "nextHopType": "[parameters('nextHopType')]",
-                "nextHopIpAddress": "[if(not(equals(parameters('nextHopIpAddress'), '')), parameters('nextHopIpAddress'), null())]"
-              }
-            }
-          ]
-        }
-      },
-      "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('createVgwRouteTable-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix')))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
       "name": "[format('firewallRules-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -1350,8 +1238,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "17390602903085657580"
+              "version": "0.33.93.31351",
+              "templateHash": "2383449555215818031"
             }
           },
           "parameters": {

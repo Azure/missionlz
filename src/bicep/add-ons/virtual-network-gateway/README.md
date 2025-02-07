@@ -1,4 +1,4 @@
-# VPN Gateway MLZ Add-On  
+# VPN Gateway MLZ Add-On
 
 ## Introduction  
 
@@ -73,6 +73,10 @@ Additionally, it covers the modules used within the script and their roles in th
 ### 14. **routeTableName** (string) - Required  
 
 - **Description:** The name of the VPN Gateway route table that is used to control the gateway subnet routing overrides necessary to push all traffic through the Azure firewall.  Provided as an input parameter to the solution when deployed.
+
+### 15. **vgwSku** (string) - Required  
+
+- **Description:** The VPN gateway sku to be used, allowed values are in 
 
 ---
 

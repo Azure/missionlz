@@ -3,19 +3,22 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "vgwName": {
-      "value": "<example: mlz-vgw-hub-dev-va>"
+      "value": "<example: mlz-vgw-hub-va-dev>"
     },
     "vgwLocation": {
       "value": "usgovvirginia"
     },
     "vgwPublicIpAddressNames": {
       "value": [
-        "<example: mlz-pip-vgw-hub-dev-va-1>",
-        "<example: mlz-pip-vgw-hub-dev-va-2"
+        "<example: mlz-pip-vgw-hub-va-dev-1>",
+        "<example: mlz-pip-vgw-hub-va-dev-2"
       ]
     },
+    "vgwSku": {
+      "value": "<see allowed values in solution.bicep> VpnGw2"
+    },
     "localNetworkGatewayName": {
-      "value": "<example: mlz-lng-hub-dev-va>"
+      "value": "<example: mlz-lng-hub-va-dev>"
     },
     "localGatewayIpAddress": {
       "value": "<publicipaddressforonpremvpntermination>"
@@ -30,8 +33,7 @@
     },
     "localAddressPrefixes": {
       "value": [
-        "192.168.0.0/24",
-        "192.168.1.0/24"
+        "10.1.0.0/16"
       ]
     },
     "useSharedKey": {
@@ -48,13 +50,13 @@
       ]
     },
     "azureFirewallName": {
-      "value": "<example: mlz-afw-hub-dev-va>"
+      "value": "<example: mlz-afw-hub-va-dev>"
     },
     "vgwRouteTableName": {
-      "value": "<example: mlz-vgw-rt-hub-dev-va>"
+      "value": "<example: mlz-vgw-rt-hub-va-dev>"
     },
     "hubVnetRouteTableName": {
-      "value": "<example: mlz-rt-hub-dev-va>"
+      "value": "<example: mlz-rt-hub-va-dev>"
     }
   }
 }

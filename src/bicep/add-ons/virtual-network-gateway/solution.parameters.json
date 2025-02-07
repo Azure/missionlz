@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vgwName": {
+      "value": "mlz-vgw-hub-va-dev"
+    },
+    "vgwLocation": {
+      "value": "usgovvirginia"
+    },
+    "vgwPublicIpAddressNames": {
+      "value": [
+        "mlz-pip-vgw-hub-va-dev-1",
+        "mlz-pip-vgw-hub-va-dev-2"
+      ]
+    },
+    "vgwSku": {
+      "value": "VpnGw2"
+    },
+    "localNetworkGatewayName": {
+      "value": "mlz-lng-hub-va-dev"
+    },
+    "localGatewayIpAddress": {
+      "value": "20.159.159.183"
+    },
+    "allowedAzureAddressPrefixes": {
+      "value": [
+        "10.0.132.0/24",
+        "10.0.131.0/24",
+        "10.0.130.0/24",
+        "10.0.128.0/23"
+      ]
+    },
+    "localAddressPrefixes": {
+      "value": [
+        "10.1.0.0/16"
+      ]
+    },
+    "useSharedKey": {
+      "value": false
+    },
+    "hubVirtualNetworkResourceId": {
+      "value": "/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/mlz-rg-hub-network-va-dev/providers/Microsoft.Network/virtualNetworks/mlz-vnet-hub-va-dev"
+    },
+    "vnetResourceIdList": {
+      "value": [
+        "/subscriptions/3a8f043c-c15c-4a67-9410-a585a85f2109/resourceGroups/mlz-rg-sharedServices-network-va-dev/providers/Microsoft.Network/virtualNetworks/mlz-vnet-sharedServices-va-dev",
+        "/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/mlz-rg-operations-network-va-dev/providers/Microsoft.Network/virtualNetworks/mlz-vnet-operations-va-dev",
+        "/subscriptions/d9cb6670-f9bf-416f-aa7b-2d6936edcaeb/resourceGroups/mlz-rg-identity-network-va-dev/providers/Microsoft.Network/virtualNetworks/mlz-vnet-identity-va-dev"
+      ]
+    },
+    "azureFirewallResourceId": {
+      "value": "/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/mlz-rg-hub-network-va-dev/providers/Microsoft.Network/azureFirewalls/mlz-afw-hub-va-dev"
+    },
+    "vgwRouteTableName": {
+      "value": "mlz-vgw-rt-hub-va-dev"
+    },
+    "hubVnetRouteTableResourceId": {
+      "value": "/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/mlz-rg-hub-network-va-dev/providers/Microsoft.Network/routeTables/mlz-rt-hub-va-dev"
+    }
+  }
+}

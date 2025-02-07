@@ -66,23 +66,24 @@ var vpnSharedKey = useSharedKey ? sharedKey : ''
 var vpnKeyVaultUri = !useSharedKey ? keyVaultCertificateUri : ''
 
 // Parameter validation
-var isValidUri = contains(keyVaultCertificateUri, 'https://') && contains(keyVaultCertificateUri, '/secrets/')
+// var isValidUri = contains(keyVaultCertificateUri, 'https://') && contains(keyVaultCertificateUri, '/secrets/')
 
 // Conditional validation to ensure either sharedKey or keyVaultCertificateUri is used correctly
-resource validateKeyOrUri 'Microsoft.Resources/deployments@2021-04-01' = if (!useSharedKey && !isValidUri) {
-  name: 'InvalidKeyVaultCertificateUri-${deploymentNameSuffix}'
-  properties: {
-    mode: 'Incremental'
-    parameters: {
-      message: {
-        value: 'Invalid Key Vault Certificate URI. It must start with "https://" and contain "/secrets/".'
-      }
-    }
-    templateLink: {
-      uri: 'https://validatemessage.com' // Placeholder for validation message, replace if needed
-    }
-  }
-}
+//resource validateKeyOrUri 'Microsoft.Resources/deployments@2021-04-01' = if (!useSharedKey && !isValidUri) {
+//  name: 'validKeyVaultCertificateUri-${deploymentNameSuffix}'
+//  location: 'usgovvirginia'
+//  properties: {
+//    mode: 'Incremental'
+//    parameters: {
+//      message: {
+//        value: 'Invalid Key Vault Certificate URI. It must start with "https://" and contain "/secrets/".'
+//      }
+//    }
+//    templateLink: {
+//      uri: 'https://validatemessage.com' // Placeholder for validation message, replace if needed
+//    }
+//  }
+//}
 
 // calling Virtual Network Gateway Module
 module vpnGatewayModule 'modules/vpn-gateway.bicep' = {
@@ -125,7 +126,7 @@ module vpnConnectionModule 'modules/vpn-connection.bicep' = {
   dependsOn: [
     vpnGatewayModule
     localNetworkGatewayModule
-    validateKeyOrUri
+    // validateKeyOrUri
   ]
 }
 
