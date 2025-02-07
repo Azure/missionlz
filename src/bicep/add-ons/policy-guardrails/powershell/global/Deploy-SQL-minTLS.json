@@ -94,7 +94,7 @@
                 "resources": [
                   {
                     "type": "Microsoft.Sql/servers",
-                    "apiVersion": "2019-06-01-preview",
+                    "apiVersion": "2024-05-01-preview",
                     "name": "[concat(parameters('resourceName'))]",
                     "location": "[parameters('location')]",
                     "properties": {

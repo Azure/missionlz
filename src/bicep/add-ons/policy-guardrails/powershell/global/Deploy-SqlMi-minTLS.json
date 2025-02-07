@@ -94,7 +94,7 @@
                 "resources": [
                   {
                     "type": "Microsoft.Sql/managedInstances",
-                    "apiVersion": "2020-02-02-preview",
+                    "apiVersion": "2024-05-01-preview",
                     "name": "[concat(parameters('resourceName'))]",
                     "location": "[parameters('location')]",
                     "properties": {

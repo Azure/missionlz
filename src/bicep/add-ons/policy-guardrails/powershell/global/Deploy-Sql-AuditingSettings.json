@@ -75,7 +75,7 @@
                   {
                     "name": "[concat( parameters('sqlServerName'),'/',parameters('sqlServerDataBaseName'),'/default')]",
                     "type": "Microsoft.Sql/servers/databases/auditingSettings",
-                    "apiVersion": "2017-03-01-preview",
+                    "apiVersion": "2024-05-01-preview",
                     "properties": {
                       "state": "enabled",
                       "auditActionsAndGroups": [
