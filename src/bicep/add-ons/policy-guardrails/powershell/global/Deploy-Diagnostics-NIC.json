@@ -112,7 +112,7 @@
                 "resources": [
                   {
                     "type": "Microsoft.Network/networkInterfaces/providers/diagnosticSettings",
-                    "apiVersion": "2024-05-01",
+                    "apiVersion": "2021-05-01-preview",
                     "name": "[concat(parameters('resourceName'), '/', 'Microsoft.Insights/', parameters('profileName'))]",
                     "location": "[parameters('location')]",
                     "dependsOn": [],
