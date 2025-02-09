@@ -68,11 +68,10 @@
         "effect": "[parameters('effect')]",
         "details": {
           "type": "Microsoft.Insights/diagnosticSettings",
-          "name": "[parameters('profileName')]",
           "existenceCondition": {
             "allOf": [
               {
-                "field": "Microsoft.Insights/diagnosticSettings/logs.enabled",
+                "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
                 "equals": "true"
               },
               {
