@@ -18,7 +18,7 @@ $ddosName = "mlz-ddos-va-test"
 # Define the expected next hop IP address for the Audit-Route-Table-For-Specific-Route policy definition
 $nextHopIpAddress = "10.0.128.4"
 # Define the exempt route table names parameter value
-$exemptRouteTableNames = @("mlz-rt-hub-va-dev")
+$exemptRouteTableNames = @("mlz-rt-hub-va-dev", "mlz-vgw-rt-hub-va-dev")
 
 #script variables
 
