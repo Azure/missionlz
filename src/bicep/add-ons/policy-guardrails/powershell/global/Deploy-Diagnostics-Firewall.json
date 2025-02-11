@@ -95,11 +95,11 @@
           "existenceCondition": {
             "allOf": [
               {
-                "field": "Microsoft.Insights/diagnosticSettings/logs.enabled",
+                "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
                 "equals": "true"
               },
               {
-                "field": "Microsoft.Insights/diagnosticSettings/metrics.enabled",
+                "field": "Microsoft.Insights/diagnosticSettings/metrics[*].enabled",
                 "equals": "true"
               },
               {
@@ -166,63 +166,63 @@
                       "logs": [
                         {
                           "category": "AzureFirewallApplicationRule",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AzureFirewallApplicationRule'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AzureFirewallNetworkRule",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AzureFirewallNetworkRule'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AzureFirewallDnsProxy",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AzureFirewallDnsProxy'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AZFWNetworkRule",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWNetworkRule'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AZFWApplicationRule",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWApplicationRule'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AZFWNatRule",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWNatRule'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AZFWThreatIntel",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWThreatIntel'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AZFWIdpsSignature",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWIdpsSignature'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AZFWDnsQuery",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWDnsQuery'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AZFWFqdnResolveFailure",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWFqdnResolveFailure'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AZFWApplicationRuleAggregation",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWApplicationRuleAggregation'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AZFWNetworkRuleAggregation",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWNetworkRuleAggregation'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AZFWNatRuleAggregation",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWNatRuleAggregation'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AZFWFatFlow",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWFatFlow'')].enabled')), parameters('logsEnabled'), 'false')]"
                         },
                         {
                           "category": "AZFWFlowTrace",
-                          "enabled": "[parameters('logsEnabled')]"
+                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWFlowTrace'')].enabled')), parameters('logsEnabled'), 'false')]"
                         }
                       ]
                     }

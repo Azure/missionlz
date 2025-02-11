@@ -67,7 +67,7 @@
       "then": {
         "effect": "[parameters('effect')]",
         "details": {
-
+          "type": "Microsoft.Insights/diagnosticSettings",
           "existenceCondition": {
             "allOf": [
               {
