@@ -10,7 +10,7 @@ $hubVnetResourceId = "/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resour
 $vulnerabilityAssessmentsEmail = @("brsteel@microsoft.com")
 $vulnerabilityAssessmentsStorageID = "/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/mlz-rg-operations-network-va-dev/providers/Microsoft.Storage/storageAccounts/lceg2vlqmwmjq"
 $hubRegion = "usgovvirginia"
-$hubRgName = "mlz-vnet-hub-va-dev"
+## $hubRgName = "mlz-vnet-hub-va-dev"
 
 #name ddos protection plan
 $ddosName = "mlz-ddos-va-test"
@@ -112,10 +112,10 @@ foreach ($policyFile in $policyFiles) {
     }
 
     if ($policyJson.name -eq "Deploy-DDoSProtection") {
-        $policyDefinition.properties.parameters.rgName = @{
-            "type" = "String"
-            "defaultvalue" = $hubRgName
-        }
+        ##$policyDefinition.properties.parameters.rgName = @{
+        ##   "type" = "String"
+        ##    "defaultvalue" = $hubRgName
+        ## }
         $policyDefinition.properties.parameters.ddosRegion = @{
             "type" = "String"
             "defaultvalue" = $hubRegion
