@@ -23,7 +23,7 @@ $exemptRouteTableNames = @("mlz-rt-hub-va-dev", "mlz-vgw-rt-hub-va-dev")
 #script variables
 
 # Define the folder scope where the policy definitions are located, it will define part of the policy initiative name that is created
-$folderScope = "Global"
+$folderScope = "Enterprise"
 
 # Define the directory containing the guard rail policy definition JSON file.   folder structure should map to intiative
 $policyDefinitionsDirectory = ".\src\bicep\add-ons\policy-guardrails\powershell\$($folderScope)"

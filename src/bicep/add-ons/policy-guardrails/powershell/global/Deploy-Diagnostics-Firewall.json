@@ -119,9 +119,6 @@
                 "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
                 "contentVersion": "1.0.0.0",
                 "parameters": {
-                  "resourceName": {
-                    "type": "String"
-                  },
                   "logAnalytics": {
                     "type": "String"
                   },
@@ -146,7 +143,7 @@
                   {
                     "type": "Microsoft.Network/azureFirewalls/providers/diagnosticSettings",
                     "apiVersion": "2017-05-01-preview",
-                    "name": "[concat(parameters('resourceName'), '/', 'Microsoft.Insights/', parameters('profileName'))]",
+                    "name": "[concat(field('name'), '/', 'Microsoft.Insights/', parameters('profileName'))]",
                     "location": "[parameters('location')]",
                     "dependsOn": [],
                     "properties": {
@@ -166,63 +163,63 @@
                       "logs": [
                         {
                           "category": "AzureFirewallApplicationRule",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AzureFirewallApplicationRule'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AzureFirewallNetworkRule",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AzureFirewallNetworkRule'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AzureFirewallDnsProxy",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AzureFirewallDnsProxy'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AZFWNetworkRule",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWNetworkRule'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AZFWApplicationRule",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWApplicationRule'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AZFWNatRule",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWNatRule'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AZFWThreatIntel",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWThreatIntel'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AZFWIdpsSignature",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWIdpsSignature'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AZFWDnsQuery",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWDnsQuery'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AZFWFqdnResolveFailure",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWFqdnResolveFailure'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AZFWApplicationRuleAggregation",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWApplicationRuleAggregation'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AZFWNetworkRuleAggregation",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWNetworkRuleAggregation'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AZFWNatRuleAggregation",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWNatRuleAggregation'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AZFWFatFlow",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWFatFlow'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         },
                         {
                           "category": "AZFWFlowTrace",
-                          "enabled": "[if(not(field('Microsoft.Insights/diagnosticSettings/logs[?(@.category==''AZFWFlowTrace'')].enabled')), parameters('logsEnabled'), 'false')]"
+                          "enabled": "[parameters('logsEnabled')]"
                         }
                       ]
                     }
@@ -239,9 +236,6 @@
                 },
                 "location": {
                   "value": "[field('location')]"
-                },
-                "resourceName": {
-                  "value": "[field('name')]"
                 },
                 "profileName": {
                   "value": "[parameters('profileName')]"

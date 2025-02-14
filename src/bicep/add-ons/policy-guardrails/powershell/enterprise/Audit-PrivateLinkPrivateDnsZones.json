@@ -61,12 +61,9 @@
                 "privatelink.gremlin.cosmos.azure.us",
                 "privatelink.table.cosmos.azure.us",
                 "privatelink.postgres.database.usgovcloudapi.net",
-                "privatelink.postgres.database.usgovcloudapi.net",
-                "privatelink.mysql.database.usgovcloudapi.net",
                 "privatelink.mysql.database.usgovcloudapi.net",
                 "privatelink.mariadb.database.usgovcloudapi.net",
                 "privatelink.redis.cache.usgovcloudapi.net",
-                "privatelink.servicebus.usgovcloudapi.net",
                 "privatelink.eventgrid.azure.us",
                 "privatelink.workspace.azurehealthcareapis.us",
                 "privatelink.fhir.azurehealthcareapis.us",
@@ -82,7 +79,6 @@
                 "privatelink.oms.opinsights.azure.us",
                 "privatelink.ods.opinsights.azure.us",
                 "privatelink.agentsvc.azure-automation.us",
-                "privatelink.blob.core.usgovcloudapi.net",
                 "privatelink.purview.azure.us",
                 "privatelink.purviewstudio.azure.us",
                 "privatelink.vaultcore.usgovcloudapi.net",
@@ -94,10 +90,8 @@
                 "privatelink.web.core.usgovcloudapi.net",
                 "privatelink.dfs.core.usgovcloudapi.net",
                 "privatelink.search.azure.us",
-                "privatelink.servicebus.usgovcloudapi.net",
                 "privatelink.azurewebsites.us",
-                "scm.privatelink.azurewebsites.us",
-                "privatelink.servicebus.usgovcloudapi.net"
+                "scm.privatelink.azurewebsites.us"
             ]
         }
       },
@@ -110,7 +104,7 @@
                   },
                   {
                       "field": "name",
-                      "in": "[parameters('privateLinkDnsZones')]"
+                      "notIn": "[parameters('privateLinkDnsZones')]"
                   }
               ]
           },
