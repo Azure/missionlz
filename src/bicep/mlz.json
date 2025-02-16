@@ -8544,7 +8544,7 @@
                     },
                     "enableAutoProvisioning": {
                       "type": "bool",
-                      "defaultValue": true,
+                      "defaultValue": false,
                       "metadata": {
                         "description": "Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off"
                       }
@@ -8701,6 +8701,7 @@
                       }
                     },
                     {
+                      "condition": "[not(or(equals(environment().name, 'AzureCloud'), equals(environment().name, 'AzureUSGovernment')))]",
                       "type": "Microsoft.Security/autoProvisioningSettings",
                       "apiVersion": "2019-01-01",
                       "name": "default",
@@ -8709,6 +8710,7 @@
                       }
                     },
                     {
+                      "condition": "[not(or(equals(environment().name, 'AzureCloud'), equals(environment().name, 'AzureUSGovernment')))]",
                       "type": "Microsoft.Security/workspaceSettings",
                       "apiVersion": "2019-01-01",
                       "name": "default",
