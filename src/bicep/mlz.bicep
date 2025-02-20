@@ -44,8 +44,8 @@ param supportedClouds array = [
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
 param deployIdentity bool = false
 
-@description('Choose whether to deploy network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription.')
-param deployNetworkWatcher bool = false
+@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param networkWatcherResourceId string = ''
 
 // RESOURCE NAMING PARAMETERS
 
@@ -619,7 +619,6 @@ module networking 'modules/networking.bicep' = {
     azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
     deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkWatcher: deployNetworkWatcher
     deployBastion: deployBastion
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
     dnsServers: dnsServers
@@ -637,6 +636,7 @@ module networking 'modules/networking.bicep' = {
     }
     location: location
     mlzTags: logic.outputs.mlzTags
+    networkWatcherResourceId: networkWatcherResourceId
     privateDnsZoneNames: logic.outputs.privateDnsZones
     resourceGroupNames: resourceGroups.outputs.names
     tags: tags
@@ -687,52 +687,49 @@ module monitoring 'modules/monitoring.bicep' = {
 // REMOTE ACCESS
 
 module remoteAccess 'modules/remote-access.bicep' = {
-    name: 'deploy-remote-access-${deploymentNameSuffix}'
-    params: {
-      bastionHostPublicIPAddressAllocationMethod: 'Static'
-      bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-      bastionHostPublicIPAddressSkuName: 'Standard'
-      bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
-      deployBastion: deployBastion
-      deployLinuxVirtualMachine: deployLinuxVirtualMachine
-      deployWindowsVirtualMachine: deployWindowsVirtualMachine
-      diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
-      hub: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
-      hubNetworkSecurityGroupResourceId: networking.outputs.hubNetworkSecurityGroupResourceId
-      hubResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
-      hubSubnetResourceId: networking.outputs.hubSubnetResourceId
-      hybridUseBenefit: hybridUseBenefit
-      linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
-      linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
-      linuxVmAdminUsername: linuxVmAdminUsername
-      linuxVmImagePublisher: linuxVmImagePublisher
-      linuxVmImageOffer: linuxVmImageOffer
-      linuxVmImageSku: linuxVmImageSku
-      linuxVmSize: linuxVmSize
-      linuxVmAuthenticationType: linuxVmAuthenticationType
-      linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
-      linuxVmOsDiskType: linuxVmOsDiskType
-      location: location
-      logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-      mlzTags: logic.outputs.mlzTags
-      serviceToken: logic.outputs.tokens.service
-      tags: tags
-      windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
-      windowsVmAdminPassword: windowsVmAdminPassword
-      windowsVmAdminUsername: windowsVmAdminUsername
-      windowsVmCreateOption: windowsVmCreateOption
-      windowsVmOffer: windowsVmOffer
-      windowsVmPublisher: windowsVmPublisher
-      windowsVmSize: windowsVmSize
-      windowsVmSku: windowsVmSku
-      supportedClouds: supportedClouds
-      windowsVmStorageAccountType: windowsVmStorageAccountType
-      windowsVmVersion: windowsVmVersion
-    }
-    dependsOn: [
-      monitoring
-    ]
+  name: 'deploy-remote-access-${deploymentNameSuffix}'
+  params: {
+    bastionHostPublicIPAddressAllocationMethod: 'Static'
+    bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
+    bastionHostPublicIPAddressSkuName: 'Standard'
+    bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
+    deployBastion: deployBastion
+    deployLinuxVirtualMachine: deployLinuxVirtualMachine
+    deployWindowsVirtualMachine: deployWindowsVirtualMachine
+    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
+    hub: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
+    hubNetworkSecurityGroupResourceId: networking.outputs.hubNetworkSecurityGroupResourceId
+    hubResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
+    hubSubnetResourceId: networking.outputs.hubSubnetResourceId
+    hybridUseBenefit: hybridUseBenefit
+    linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
+    linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
+    linuxVmAdminUsername: linuxVmAdminUsername
+    linuxVmImagePublisher: linuxVmImagePublisher
+    linuxVmImageOffer: linuxVmImageOffer
+    linuxVmImageSku: linuxVmImageSku
+    linuxVmSize: linuxVmSize
+    linuxVmAuthenticationType: linuxVmAuthenticationType
+    linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
+    linuxVmOsDiskType: linuxVmOsDiskType
+    location: location
+    logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    mlzTags: logic.outputs.mlzTags
+    serviceToken: logic.outputs.tokens.service
+    tags: tags
+    windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
+    windowsVmAdminPassword: windowsVmAdminPassword
+    windowsVmAdminUsername: windowsVmAdminUsername
+    windowsVmCreateOption: windowsVmCreateOption
+    windowsVmOffer: windowsVmOffer
+    windowsVmPublisher: windowsVmPublisher
+    windowsVmSize: windowsVmSize
+    windowsVmSku: windowsVmSku
+    supportedClouds: supportedClouds
+    windowsVmStorageAccountType: windowsVmStorageAccountType
+    windowsVmVersion: windowsVmVersion
   }
+}
 
 // STORAGE FOR LOGGING
 
@@ -779,6 +776,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
     location: location
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     networkSecurityGroupFlowLogRetentionDays: networkSecurityGroupFlowLogRetentionDays
+    networkWatcherResourceId: networkWatcherResourceId
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
     resourceGroupNames: resourceGroups.outputs.names
@@ -789,9 +787,6 @@ module diagnostics 'modules/diagnostics.bicep' = {
     virtualNetworkFlowLogRetentionDays: virtualNetworkFlowLogRetentionDays
 
   }
-  dependsOn: [
-    networking
-  ]
 }
 
 // POLICY ASSIGNMENTS
