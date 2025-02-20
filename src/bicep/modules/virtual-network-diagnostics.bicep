@@ -2,6 +2,7 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+
 param deploymentNameSuffix string
 param deployNetworkWatcherTrafficAnalytics bool
 param deployVirtualNetworkFlowLogs bool
@@ -19,11 +20,6 @@ param virtualNetworkFlowLogRetentionDays int
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
   name: virtualNetworkName
-}
-
-resource networkWatcher 'Microsoft.Network/networkWatchers@2021-02-01' existing = {
-  name: networkWatcherName
-  scope: resourceGroup(networkWatcherResourceGroupName)
 }
 
 resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
@@ -45,7 +41,7 @@ module virtualNetworkFlowLogs '../modules/virtual-network-flowlogs.bicep' = if (
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logStorageAccountResourceId: logStorageAccountResourceId
-    networkWatcherName: networkWatcher.name
+    networkWatcherName: networkWatcherName
     tiername: tiername
     virtualNetworkResourceId: virtualNetwork.id
     virtualNetworkFlowLogRetentionDays: virtualNetworkFlowLogRetentionDays
