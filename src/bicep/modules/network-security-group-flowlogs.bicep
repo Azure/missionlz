@@ -12,18 +12,13 @@ param tiername string
 param networkSecurityGroupResourceId string
 param networkSecurityGroupFlowLogRetentionDays int
 
-var nsgFlowLogsName = '${networkWatcherName}//${tiername}-nsgflowLogs'
-
-
 resource networkWatcher 'Microsoft.Network/networkWatchers@2021-02-01' existing = {
   name: networkWatcherName
 }
 
-//VNET Flow Logs
-
-
 resource nsgFlowLogs 'Microsoft.Network/networkWatchers/flowLogs@2023-05-01' = {
-  name: nsgFlowLogsName
+  parent: networkWatcher
+  name: '${tiername}-nsgflowLogs'
   location: location
   properties: {
     targetResourceId: networkSecurityGroupResourceId
@@ -31,8 +26,8 @@ resource nsgFlowLogs 'Microsoft.Network/networkWatchers/flowLogs@2023-05-01' = {
     storageId: logStorageAccountResourceId
     flowAnalyticsConfiguration: {
       networkWatcherFlowAnalyticsConfiguration: {
-        enabled: deployNetworkWatcherTrafficAnalytics ? deployNetworkWatcherTrafficAnalytics : json('null')
-        workspaceResourceId: deployNetworkWatcherTrafficAnalytics ? logAnalyticsWorkspaceResourceId : json('null')
+        enabled: deployNetworkWatcherTrafficAnalytics ? deployNetworkWatcherTrafficAnalytics : null
+        workspaceResourceId: deployNetworkWatcherTrafficAnalytics ? logAnalyticsWorkspaceResourceId : null
       }
     }
     format: {
