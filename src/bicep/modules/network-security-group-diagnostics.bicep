@@ -2,6 +2,7 @@
 Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
+
 param deploymentNameSuffix string
 param deployNetworkSecurityGroupFlowLogs bool
 param deployNetworkWatcherTrafficAnalytics bool
@@ -21,19 +22,14 @@ resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-02-0
   name: networkSecurityGroupName
 }
 
-resource networkWatcher 'Microsoft.Network/networkWatchers@2021-02-01' existing = {
-  name: networkWatcherName
-  scope: resourceGroup(networkWatcherResourceGroupName)
-}
-
 resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
   scope: networkSecurityGroup
   name: networkSecurityGroupDiagnosticSettingName
   properties: {
-    storageAccountId: logStorageAccountResourceId
-    workspaceId: logAnalyticsWorkspaceResourceId
     logs: logs
     metrics: metrics
+    storageAccountId: logStorageAccountResourceId
+    workspaceId: logAnalyticsWorkspaceResourceId
   }
 }
 
@@ -45,9 +41,9 @@ module nsgFlowLogs '../modules/network-security-group-flowlogs.bicep' = if (depl
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logStorageAccountResourceId: logStorageAccountResourceId
-    networkWatcherName: networkWatcher.name
-    tiername: tiername
-    networkSecurityGroupResourceId: networkSecurityGroup.id
     networkSecurityGroupFlowLogRetentionDays: networkSecurityGroupFlowLogRetentionDays
+    networkSecurityGroupResourceId: networkSecurityGroup.id
+    networkWatcherName: networkWatcherName
+    tiername: tiername
   }
 }
