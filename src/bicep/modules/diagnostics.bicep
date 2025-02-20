@@ -18,6 +18,7 @@ param keyVaultName string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param networkSecurityGroupFlowLogRetentionDays int
+param networkWatcherResourceId string
 param publicIPAddressDiagnosticsLogs array
 param publicIPAddressDiagnosticsMetrics array
 param resourceGroupNames array
@@ -79,10 +80,10 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
     logStorageAccountResourceId: storageAccountResourceIds[i]
     metrics: tier.nsgDiagMetrics
     networkSecurityGroupDiagnosticSettingName: tier.namingConvention.networkSecurityGroupDiagnosticSetting
-    networkSecurityGroupName: tier.namingConvention.networkSecurityGroup
-    networkWatcherName: hub.namingConvention.networkWatcher
-    networkWatcherResourceGroupName: hubResourceGroupName
     networkSecurityGroupFlowLogRetentionDays: networkSecurityGroupFlowLogRetentionDays
+    networkSecurityGroupName: tier.namingConvention.networkSecurityGroup
+    networkWatcherName: empty(networkWatcherResourceId) ? hub.namingConvention.networkWatcher : split(networkWatcherResourceId, '/')[8]
+    networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? hubResourceGroupName : split(networkWatcherResourceId, '/')[4]
     tiername: tier.name
   }
 }]
@@ -100,8 +101,8 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
     logs: tier.vnetDiagLogs
     logStorageAccountResourceId: storageAccountResourceIds[i]
     metrics: tier.vnetDiagMetrics
-    networkWatcherName: hub.namingConvention.networkWatcher
-    networkWatcherResourceGroupName: hubResourceGroupName
+    networkWatcherName: empty(networkWatcherResourceId) ? hub.namingConvention.networkWatcher : split(networkWatcherResourceId, '/')[8]
+    networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? hubResourceGroupName : split(networkWatcherResourceId, '/')[4]
     tiername: tier.name
     virtualNetworkDiagnosticSettingName: tier.namingConvention.virtualNetworkDiagnosticSetting
     virtualNetworkName: tier.namingConvention.virtualNetwork
