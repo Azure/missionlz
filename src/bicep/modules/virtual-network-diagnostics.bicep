@@ -6,6 +6,7 @@ Licensed under the MIT License.
 param deploymentNameSuffix string
 param deployNetworkWatcherTrafficAnalytics bool
 param deployVirtualNetworkFlowLogs bool
+param flowLogsName string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param logs array
@@ -38,11 +39,11 @@ module virtualNetworkFlowLogs '../modules/virtual-network-flowlogs.bicep' = if (
   scope: resourceGroup(networkWatcherResourceGroupName)
   params: {
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
+    flowLogsName: flowLogsName
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logStorageAccountResourceId: logStorageAccountResourceId
     networkWatcherName: networkWatcherName
-    tiername: tiername
     virtualNetworkResourceId: virtualNetwork.id
     virtualNetworkFlowLogRetentionDays: virtualNetworkFlowLogRetentionDays
   }

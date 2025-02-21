@@ -4,13 +4,13 @@ Licensed under the MIT License.
 */
 
 param deployNetworkWatcherTrafficAnalytics bool
+param flowLogsName string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param logStorageAccountResourceId string
-param networkWatcherName string
-param tiername string
-param networkSecurityGroupResourceId string
 param networkSecurityGroupFlowLogRetentionDays int
+param networkSecurityGroupResourceId string
+param networkWatcherName string
 
 resource networkWatcher 'Microsoft.Network/networkWatchers@2021-02-01' existing = {
   name: networkWatcherName
@@ -18,7 +18,7 @@ resource networkWatcher 'Microsoft.Network/networkWatchers@2021-02-01' existing 
 
 resource nsgFlowLogs 'Microsoft.Network/networkWatchers/flowLogs@2023-05-01' = {
   parent: networkWatcher
-  name: '${tiername}-nsgflowLogs'
+  name: flowLogsName
   location: location
   properties: {
     targetResourceId: networkSecurityGroupResourceId

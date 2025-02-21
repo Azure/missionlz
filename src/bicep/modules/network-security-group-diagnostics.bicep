@@ -6,6 +6,7 @@ Licensed under the MIT License.
 param deploymentNameSuffix string
 param deployNetworkSecurityGroupFlowLogs bool
 param deployNetworkWatcherTrafficAnalytics bool
+param flowLogsName string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param logs array
@@ -38,12 +39,12 @@ module nsgFlowLogs '../modules/network-security-group-flowlogs.bicep' = if (depl
   scope: resourceGroup(networkWatcherResourceGroupName)
   params: {
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
+    flowLogsName: flowLogsName
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logStorageAccountResourceId: logStorageAccountResourceId
     networkSecurityGroupFlowLogRetentionDays: networkSecurityGroupFlowLogRetentionDays
     networkSecurityGroupResourceId: networkSecurityGroup.id
     networkWatcherName: networkWatcherName
-    tiername: tiername
   }
 }
