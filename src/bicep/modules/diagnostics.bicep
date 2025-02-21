@@ -74,6 +74,7 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkSecurityGroupFlowLogs: deployNetworkSecurityGroupFlowLogs
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
+    flowLogsName: tier.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: tier.nsgDiagLogs
@@ -96,6 +97,7 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deployVirtualNetworkFlowLogs: deployVirtualNetworkFlowLogs
+    flowLogsName: tier.namingConvention.networkWatcherFlowLogsVirtualNetwork
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: tier.vnetDiagLogs
@@ -136,7 +138,7 @@ module firewallDiagnostics '../modules/firewall-diagnostics.bicep' = {
   }
 }
 
-module keyvaultDiagnostics '../modules/key-vault-diagnostics.bicep' = {
+module keyVaultDiagnostics '../modules/key-vault-diagnostics.bicep' = {
   name: 'deploy-kv-diags-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
