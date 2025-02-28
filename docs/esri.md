@@ -11,7 +11,7 @@ For overall architectural guidance on deploying ArcGIS in Azure, check out the A
 
 Below is a diagram of the components of this solution.
 
-![ArcGIS on Azure diagram](./images/ArcGIS-on-Azure.png)
+![ArcGIS on Azure diagram](./images/ArcGIS-on-Azure.svg)
 
 The ArcGIS on Azure Landing Zone Accelerator is modular and designed to be usable for organizations that have no Azure infrastructure, as well as those who already have assets in Azure. The path is comprised of four steps, each  may be done sequentially, or not at all depending upon the requierments of your project. However, let's first discuss landing zones.
 
