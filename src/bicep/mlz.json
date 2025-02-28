@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "11944954658710051386"
+      "templateHash": "1421683517932952428"
     }
   },
   "parameters": {
@@ -8854,7 +8854,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "10003596824089257603"
+              "templateHash": "7099757820667921943"
             }
           },
           "parameters": {
@@ -8895,14 +8895,14 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "emailSecurityContact": {
-                    "value": "[parameters('emailSecurityContact')]"
+                  "defenderPlans": {
+                    "value": "[parameters('defenderPlans')]"
                   },
                   "defenderSkuTier": {
                     "value": "[parameters('defenderSkuTier')]"
                   },
-                  "defenderPlans": {
-                    "value": "[parameters('defenderPlans')]"
+                  "emailSecurityContact": {
+                    "value": "[parameters('emailSecurityContact')]"
                   }
                 },
                 "template": {
@@ -8912,7 +8912,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "15983484141377931189"
+                      "templateHash": "5325637338183897217"
                     }
                   },
                   "parameters": {
@@ -9065,8 +9065,8 @@
                       "name": "[parameters('defenderPlans')[copyIndex()]]",
                       "properties": {
                         "pricingTier": "[parameters('defenderSkuTier')]",
-                        "subPlan": "[if(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan'), variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].subPlan, json('null'))]",
-                        "extensions": "[if(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'extensions'), variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].extensions, json('null'))]"
+                        "subPlan": "[coalesce(tryGet(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan'), null())]",
+                        "extensions": "[coalesce(tryGet(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'extensions'), null())]"
                       }
                     },
                     {
