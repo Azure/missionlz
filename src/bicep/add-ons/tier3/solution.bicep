@@ -261,8 +261,11 @@ module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddre
   params: {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deploymentNameSuffix: deploymentNameSuffix
+    deployNetworkSecurityGroupFlowLogs:
+    deployNetworkWatcherTrafficAnalytics:
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
     keyVaultName: customerManagedKeys.outputs.keyVaultName
+    location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
@@ -290,9 +293,6 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
         rg.outputs.name
       ]
     }
-    dependsOn: [
-      rg
-    ]
   }
 
 module defenderForCloud '../../modules/defender-for-cloud.bicep' =
@@ -300,7 +300,6 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
     name: 'set-defender-${workloadShortName}-${deploymentNameSuffix}'
     params: {
       emailSecurityContact: emailSecurityContact
-      logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
     }
   }
 
