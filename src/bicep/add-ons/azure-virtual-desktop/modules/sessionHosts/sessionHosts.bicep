@@ -236,9 +236,9 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     fslogixContainerType: fslogixContainerType
     hostPoolName: hostPoolName
     imageVersionResourceId: imageVersionResourceId
-    imageOffer: empty(imageVersionResourceId) ? imageOffer : image.properties.purchasePlan.product
-    imagePublisher: empty(imageVersionResourceId) ? imagePublisher: image.properties.purchasePlan.publisher
-    imageSku: empty(imageVersionResourceId) ? imageSku : image.properties.purchasePlan.name
+    imageOffer: profile == 'ArcGISPro' ? image.properties.purchasePlan.product : imageOffer 
+    imagePublisher: profile == 'ArcGISPro' ? image.properties.purchasePlan.publisher : imagePublisher
+    imageSku: profile == 'ArcGISPro' ? image.properties.purchasePlan.name : imageSku
     location: location
     managementVirtualMachineName: managementVirtualMachineName
     netAppFileShares: netAppFileShares
