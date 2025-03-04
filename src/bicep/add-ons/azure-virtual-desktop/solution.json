@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "13286488080309023971"
+      "templateHash": "16316601219124211366"
     }
   },
   "parameters": {
@@ -5928,7 +5928,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "2629662721274009670"
+              "templateHash": "13370923587603568177"
             }
           },
           "parameters": {
@@ -7299,7 +7299,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "16927351150874007443"
+                      "templateHash": "1763095364888439522"
                     }
                   },
                   "parameters": {
@@ -7459,7 +7459,7 @@
                         "licenseType": "Windows_Server"
                       },
                       "identity": {
-                        "type": "SystemAssigned, UserAssigned",
+                        "type": "UserAssigned",
                         "userAssignedIdentities": {
                           "[format('{0}', parameters('deploymentUserAssignedIdentityResourceId'))]": {}
                         }
