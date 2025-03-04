@@ -32,7 +32,7 @@ $AzureManagementHeader = @{
 $SessionHosts = (Invoke-RestMethod `
     -Headers $AzureManagementHeader `
     -Method 'GET' `
-    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts?api-version=2022-02-10-preview')).value.name
+    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts?api-version=2023-09-05')).value.name
 
 # Enable drain mode for the AVD session hosts
 for($i = $SessionHostIndex; $i -lt $($SessionHostIndex + $SessionHostCount); $i++)
@@ -43,5 +43,5 @@ for($i = $SessionHostIndex; $i -lt $($SessionHostIndex + $SessionHostCount); $i+
         -Body (@{properties = @{allowNewSession = $false}} | ConvertTo-Json) `
         -Headers $AzureManagementHeader `
         -Method 'PATCH' `
-        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts/' + $SessionHostName + '?api-version=2022-02-10-preview') | Out-Null
+        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts/' + $SessionHostName + '?api-version=2023-09-05') | Out-Null
 }

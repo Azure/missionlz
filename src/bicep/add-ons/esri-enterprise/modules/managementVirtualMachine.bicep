@@ -37,7 +37,7 @@ resource esriStorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' exist
 resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
   name: '${resourcePrefix}-nic-${virtualMachineName}'
   location: location
-  tags: contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}
+  tags: tags[?'Microsoft.Network/networkInterfaces'] ?? {}
   properties: {
     ipConfigurations: [
       {
@@ -60,7 +60,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: virtualMachineName
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -130,171 +130,12 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     }
     licenseType: hybridUseBenefit ? 'Windows_Server' : null
   }
-  dependsOn: [
-  ]
-}
-
-resource modules 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
-  name: 'rc-azModules'
-  location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
-  parent: virtualMachine
-  properties: {
-    treatFailureAsDeploymentFailure: true
-    asyncExecution: false
-    parameters: [
-      {
-        name: 'ContainerName'
-        value: artifactsContainerName
-      }
-      {
-        name: 'StorageAccountName'
-        value: storageAccount.name
-      }
-      {
-        name: 'StorageEndpoint'
-        value: environment().suffixes.storage
-      }
-      {
-        name: 'UserAssignedIdentityObjectId'
-        value: userAssignedIdentityPrincipalId
-      }
-    ]
-    source: {
-      script: '''
-        param(
-          [string]$ContainerName,
-          [string]$StorageAccountName,
-          [string]$StorageEndpoint,
-          [string]$UserAssignedIdentityObjectId
-        )
-        $ErrorActionPreference = "Stop"
-        $StorageAccountUrl = "https://" + $StorageAccountName + ".blob." + $StorageEndpoint + "/"
-        $TokenUri = "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId"
-        $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token
-        $BlobNames = @('az.accounts.2.13.1.nupkg','az.automation.1.9.0.nupkg','az.compute.5.7.0.nupkg','az.resources.6.6.0.nupkg','az.keyvault.4.12.0.nupkg', 'az.storage.5.1.0.nupkg', 'az.marketplaceordering.2.0.0.nupkg')
-        foreach($BlobName in $BlobNames)
-        {
-          do
-          {
-              try
-              {
-                  Write-Output "Download Attempt $i"
-                  Invoke-WebRequest -Headers @{"x-ms-version"="2017-11-09"; Authorization ="Bearer $AccessToken"} -Uri "$StorageAccountUrl$ContainerName/$BlobName" -OutFile "$env:windir\temp\$BlobName"
-              }
-              catch [System.Net.WebException]
-              {
-                  Start-Sleep -Seconds 60
-                  $i++
-                  if($i -gt 10){throw}
-                  continue
-              }
-              catch
-              {
-                  $Output = $_ | select *
-                  Write-Output $Output
-                  throw
-              }
-          }
-          until(Test-Path -Path $env:windir\temp\$BlobName)
-          Start-Sleep -Seconds 5
-          Unblock-File -Path $env:windir\temp\$BlobName
-          $BlobZipName = $Blobname.Replace('nupkg','zip')
-          Rename-Item -Path $env:windir\temp\$BlobName -NewName $BlobZipName
-          $BlobNameArray = $BlobName.Split('.')
-          $ModuleFolderName = $BlobNameArray[0] + '.' + $BlobNameArray[1]
-          $VersionFolderName = $BlobNameArray[2] + '.' + $BlobNameArray[3]+ '.' + $BlobNameArray[4]
-          $ModulesDirectory = "C:\Program Files\WindowsPowerShell\Modules"
-          New-Item -Path $ModulesDirectory -Name $ModuleFolderName -ItemType "Directory" -Force
-          Expand-Archive -Path $env:windir\temp\$BlobZipName -DestinationPath "$ModulesDirectory\$ModuleFolderName\$VersionFolderName" -Force
-          Remove-Item -Path "$ModulesDirectory\$ModuleFolderName\$VersionFolderName\_rels" -Force -Recurse
-          Remove-Item -Path "$ModulesDirectory\$ModuleFolderName\$VersionFolderName\package" -Force -Recurse
-          Remove-Item -LiteralPath "$ModulesDirectory\$ModuleFolderName\$VersionFolderName\[Content_Types].xml" -Force
-          Remove-Item -Path "$ModulesDirectory\$ModuleFolderName\$VersionFolderName\$ModuleFolderName.nuspec" -Force
-        }
-        Remove-Item -Path "$env:windir\temp\az*" -Force
-      '''
-    }
-  }
-  dependsOn: [
-  ]
-}
-
-resource esriArtifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
-  name: 'rc-esriScriptArtifacts'
-  location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
-  parent: virtualMachine
-  properties: {
-    treatFailureAsDeploymentFailure: true
-    asyncExecution: false
-    parameters: [
-      {
-        name: 'ContainerName'
-        value: esriStorageAccountContainer
-      }
-      {
-        name: 'Environment'
-        value: environment().name
-      }
-      {
-        name: 'StorageAccountName'
-        value: esriStorageAccount.name
-      }
-      {
-        name: 'StorageEndpoint'
-        value: environment().suffixes.storage
-      }
-      {
-        name: 'UserAssignedIdentityClientId'
-        value: userAssignedIdentityClientId
-      }
-      {
-        name: 'UserAssignedIdentityObjectId'
-        value: userAssignedIdentityPrincipalId
-      }
-      {
-        name: 'location'
-        value: location
-      }
-      {
-        name: 'subscription'
-        value: subscription().subscriptionId
-      }
-    ]
-    source: {
-      script: '''
-      param(
-        [string]$ContainerName,
-        [string]$certificatePassword,
-        [string]$environment,
-        [string]$StorageAccountName,
-        [string]$UserAssignedIdentityObjectId,
-        [string]$UserAssignedIdentityClientId,
-        [string]$location,
-        [string]$fqdn,
-        [string]$subscription
-      )
-      $ErrorActionPreference = 'Stop'
-      Connect-AzAccount -Environment $Environment -Subscription $subscription -Identity -AccountId $UserAssignedIdentityClientId | Out-Null
-      Invoke-WebRequest https://github.com/Esri/arcgis-azure-templates/raw/main/Releases/11.1/DSC.zip -OutFile ./DSC.zip
-      Invoke-WebRequest https://github.com/Esri/arcgis-azure-templates/raw/main/Releases/11.1/GenerateSSLCerts.ps1 -OutFile ./GenerateSSLCerts.ps1
-      $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -UseConnectedAccount
-      Set-AzStorageBlobContent -File ./DSC.zip -Container $containerName -Blob DSC.zip -Context $ctx -Force
-      Set-AzStorageBlobContent -File ./GenerateSSLCerts.ps1 -Container $containerName -Blob GenerateSSLCerts.ps1 -Context $ctx -Force
-      '''
-    }
-  }
-  dependsOn: [
-    modules
-    storageAccount
-  ]
 }
 
 resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
   name: 'rc-licenseAndCertificateArtifacts'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true
@@ -438,8 +279,6 @@ resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
     }
   }
   dependsOn: [
-    modules
-    esriArtifacts
     storageAccount
   ]
 }
@@ -447,64 +286,39 @@ resource artifacts 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
 resource esriMarketplaceImageTerms 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
   name: 'rc-esriMarketplaceImageTerms'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true
     asyncExecution: false
     parameters: [
       {
-        name: 'ContainerName'
-        value: artifactsContainerName
+        name: 'ImageOffer'
+        value: 'arcgis-enterprise'
       }
       {
-        name: 'Environment'
-        value: environment().name
+        name: 'ImagePublisher'
+        value: 'esri'
+      }
+      
+      {
+        name: 'ImageSku'
+        value: 'byol-111'
       }
       {
-        name: 'StorageAccountName'
-        value: esriStorageAccount.name
-      }
-      {
-        name: 'StorageEndpoint'
-        value: environment().suffixes.storage
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
       }
       {
         name: 'UserAssignedIdentityClientId'
         value: userAssignedIdentityClientId
       }
-      {
-        name: 'UserAssignedIdentityObjectId'
-        value: userAssignedIdentityPrincipalId
-      }
-      {
-        name: 'location'
-        value: location
-      }
-      {
-        name: 'subscription'
-        value: subscription().subscriptionId
-      }
     ]
     source: {
-      script: '''
-      param(
-        [string]$Environment,
-        [string]$UserAssignedIdentityObjectId,
-        [string]$UserAssignedIdentityClientId,
-        [string]$subscription
-      )
-      $ErrorActionPreference = 'Stop'
-      Connect-AzAccount -Environment $Environment -Subscription $subscription -Identity -AccountId $UserAssignedIdentityClientId | Out-Null
-      $name = 'byol-111'
-      $product = 'arcgis-enterprise'
-      $publisher = 'esri'
-      Get-AzMarketplaceTerms -Publisher $publisher -Name $name -Product $product -OfferType 'virtualmachine' | Set-AzMarketplaceTerms -Accept
-      '''
+      script: loadTextContent('../artifacts/Set-AzureMarketplaceTerms.ps1')
     }
   }
   dependsOn: [
-    modules
     storageAccount
   ]
 }

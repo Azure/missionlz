@@ -18,7 +18,7 @@ param activeDirectorySolution string
 param availability string = 'AvailabilityZones'
 
 @description('The availability zones allowed for the AVD session hosts deployment location.')
-param availabilityZones array
+param availabilityZones array = ['1', '2', '3']
 
 @description('The file name for the ZIP file containing the AVD agents and DSC configuration.')
 param avdConfigurationZipFileName string = 'Configuration_1.0.02790.438.zip'
@@ -72,7 +72,7 @@ param domainName string = ''
 param drainMode bool = false
 
 @description('The email address to use for Defender for Cloud notifications.')
-param emailSecurityContact string
+param emailSecurityContact string = ''
 
 @description('Determine whether to enable accelerated networking on the AVD session hosts. https://learn.microsoft.com/en-us/azure/virtual-network/accelerated-networking-overview')
 param enableAcceleratedNetworking bool
@@ -132,7 +132,7 @@ param functionAppSubnetAddressPrefix string = ''
   'EnabledForSessionHostsOnly'
 ])
 @description('The type of public network access for the host pool.')
-param hostPoolPublicNetworkAccess string
+param hostPoolPublicNetworkAccess string = 'Enabled'
 
 @allowed([
   'Pooled'
@@ -302,7 +302,7 @@ param workspaceFriendlyName string = ''
   'Enabled'
 ])
 @description('The public network access setting on the AVD workspace either disables public network access or allows both public and private network access.')
-param workspacePublicNetworkAccess string
+param workspacePublicNetworkAccess string = 'Enabled'
 
 //  BATCH SESSION HOSTS
 // The following variables are used to determine the batches to deploy any number of AVD session hosts.
@@ -685,9 +685,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
   }
-  dependsOn: [
-    fslogix
-  ]
 }
 
 module cleanUp 'modules/cleanUp/cleanUp.bicep' = {

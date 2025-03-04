@@ -129,26 +129,8 @@ do {
 )
 
 $urls = @(
-    "https://github.com/Azure/azure-powershell/releases/download/v10.2.0-August2023/Az-Cmdlets-10.2.0.37547-x64.msi"
-    "https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/add-ons/azure-virtual-desktop/artifacts/Get-Validations.ps1"
-    "https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/add-ons/azure-virtual-desktop/artifacts/Install-AzurePowerShellAzModule.ps1"
-    "https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/add-ons/azure-virtual-desktop/artifacts/Set-AutomationRunbook.ps1"
-    "https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/add-ons/azure-virtual-desktop/artifacts/Set-AvdDrainMode.ps1"
-    "https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/add-ons/azure-virtual-desktop/artifacts/Set-FileShareScaling.ps1"
-    "https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/add-ons/azure-virtual-desktop/artifacts/Set-HostPoolScaling.ps1"
-    "https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/add-ons/azure-virtual-desktop/artifacts/Set-NtfsPermissions.ps1"
-    "https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/add-ons/azure-virtual-desktop/artifacts/Set-SessionHostConfiguration.ps1"
-    "https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/add-ons/azure-virtual-desktop/artifacts/Update-AvdDesktop.ps1"
-    "https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/add-ons/azure-virtual-desktop/artifacts/Update-AvdWorkspace.ps1"
-    "https://www.powershellgallery.com/api/v2/package/az.accounts/2.12.1"
-    "https://www.powershellgallery.com/api/v2/package/az.automation/1.9.0"
-    "https://www.powershellgallery.com/api/v2/package/az.compute/5.7.0"
-    "https://www.powershellgallery.com/api/v2/package/az.resources/6.6.0"
-    "https://www.powershellgallery.com/api/v2/package/az.accounts/2.13.1"
-    "https://www.powershellgallery.com/api/v2/package/az.resources/6.6.0"
-    "https://www.powershellgallery.com/api/v2/package/az.keyVault/4.12.0"
-    "https://www.powershellgallery.com/api/v2/package/az.storage/5.1.0"
-    "https://www.powershellgallery.com/api/v2/package/az.marketplaceOrdering/2.0.0"
+    'https://github.com/Esri/arcgis-azure-templates/raw/main/Releases/11.1/DSC.zip',
+    'https://github.com/Esri/arcgis-azure-templates/raw/main/Releases/11.1/GenerateSSLCerts.ps1'
 )
 foreach ($url in $urls)
 {

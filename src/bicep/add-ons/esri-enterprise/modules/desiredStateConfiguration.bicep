@@ -1,10 +1,7 @@
-@secure()
-param adminPassword string
-param adminUsername string
 param arcgisServiceAccountIsDomainAccount bool
 @secure()
 param arcgisServiceAccountPassword string
-param arcgisServiceAccountUserName string
+param arcgisServiceAccountUsername string
 param cloudStorageAccountCredentialsUserName string
 param convertedEpoch int = dateTimeToEpoch(dateTimeAdd(utcNow(), 'P1D'))
 param dataStoreTypesForBaseDeploymentServers string
@@ -25,6 +22,8 @@ param portalLicenseUserTypeId string
 param primarySiteAdministratorAccountPassword string
 param primarySiteAdministratorAccountUserName string
 param publicKeySSLCertificateFileName string
+@secure()
+param selfSignedSSLCertificatePassword string
 param serverContext string
 param serverLicenseFileName string
 param storageUriPrefix string
@@ -32,11 +31,13 @@ param tags object
 param useAzureFiles bool
 param useCloudStorage bool
 param useSelfSignedInternalSSLCertificate bool = true
+@secure()
+param virtualMachineAdminPassword string
+param virtualMachineAdminUsername string
 param virtualMachineNames string
 param virtualMachineOSDiskSize int
 param storageAccountName string
-@secure()
-param selfSignedSSLCertificatePassword string
+
 
 var dscModuleUrl = '${storageUriPrefix}DSC.zip'
 var convertedDatetime = dateTimeFromEpoch(convertedEpoch)
@@ -61,7 +62,7 @@ resource extension_DSC 'Microsoft.Compute/virtualMachines/extensions@2018-10-01'
   parent: virtualMachine
   name: 'DSCConfiguration'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   properties: {
     autoUpgradeMinorVersion: true
     publisher: 'Microsoft.Powershell'
@@ -102,12 +103,12 @@ resource extension_DSC 'Microsoft.Compute/virtualMachines/extensions@2018-10-01'
         ServerLicenseFileUrl: '${storageUriPrefix}${serverLicenseFileName}?${storageAccount.listAccountSAS('2021-04-01', sasProperties).accountSasToken}'
         PortalLicenseFileUrl: '${storageUriPrefix}${portalLicenseFileName}?${storageAccount.listAccountSAS('2021-04-01', sasProperties).accountSasToken}'
         ServiceCredential: {
-          userName: arcgisServiceAccountUserName
+          userName: arcgisServiceAccountUsername
           password: arcgisServiceAccountPassword
         }
         MachineAdministratorCredential: {
-          userName: adminUsername
-          password:  adminPassword
+          userName: virtualMachineAdminUsername
+          password:  virtualMachineAdminPassword
         }
         ServerInternalCertificatePassword: {
           userName: 'Placeholder'
