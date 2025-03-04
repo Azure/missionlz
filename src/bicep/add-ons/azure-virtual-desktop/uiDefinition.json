@@ -339,7 +339,7 @@
                   "name": "avdObjectId",
                   "type": "Microsoft.Common.TextBox",
                   "label": "AVD Object ID",
-                  "toolTip": "Assign a name to your Azure application",
+                  "toolTip": "Input the object ID for the \"Azure Virtual Desktop\" or \"Windows Virtual Desktop\" service principal.",
                   "defaultValue": "[first(map(steps('basics').servicePrincipalsApi.value, (item) => item.id))]",
                   "constraints": {
                     "required": true,
