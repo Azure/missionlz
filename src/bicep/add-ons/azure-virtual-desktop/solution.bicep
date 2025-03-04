@@ -685,9 +685,6 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     virtualMachineSize: virtualMachineSize
     virtualMachineUsername: virtualMachineUsername
   }
-  dependsOn: [
-    fslogix
-  ]
 }
 
 module cleanUp 'modules/cleanUp/cleanUp.bicep' = {
