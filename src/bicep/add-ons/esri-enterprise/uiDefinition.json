@@ -128,20 +128,28 @@
                                     }
                                 }
                             ]
+                        },
+                        {
+                            "name": "networkWatchersApi",
+                            "type": "Microsoft.Solutions.ArmApiControl",
+                            "request": {
+                                "method": "GET",
+                                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
+                            }
                         }
                     ]
                 },
                 {
                     "name": "network",
-                    "label": "Network",
+                    "label": "Networking",
                     "elements": [
                         {
-                            "name": "spokeVirtualNetwork",
+                            "name": "vnet",
                             "label": "Spoke Virtual Network",
                             "type": "Microsoft.Common.Section",
                             "elements": [
                                 {
-                                    "name": "spokeNetowrkInfoBoxLocation",
+                                    "name": "vnetInformation",
                                     "type": "Microsoft.Common.InfoBox",
                                     "options": {
                                         "text": "Please update the spoke subnetting and the private ip address of the application gateway fields based on your networking requirements.",
@@ -149,7 +157,7 @@
                                     }
                                 },
                                 {
-                                    "name": "spokeVirtualNetworkAddressCidrRange",
+                                    "name": "vnetAddressCidrRange",
                                     "label": "Spoke Virtual Network CIDR",
                                     "type": "Microsoft.Common.TextBox",
                                     "defaultValue": "10.0.136.0/23",
@@ -178,19 +186,19 @@
                                                 "message": "Invalid CIDR range. The address prefix must be in the range [10,26]."
                                             },
                                             {
-                                                "isValid": "[if(greaterOrEquals(last(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').spokeVirtualNetwork.appGwSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                                                "isValid": "[if(greaterOrEquals(last(split(steps('network').vnet.vnetAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').vnet.vnetAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').vnet.appGwSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
                                                 "message": "CIDR range not within virtual network CIDR range (first octet)."
                                             },
                                             {
-                                                "isValid": "[if(greaterOrEquals(last(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').spokeVirtualNetwork.appGwSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                                                "isValid": "[if(greaterOrEquals(last(split(steps('network').vnet.vnetAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').vnet.vnetAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').vnet.appGwSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
                                                 "message": "CIDR range not within virtual network CIDR range (second octet)."
                                             },
                                             {
-                                                "isValid": "[if(greaterOrEquals(last(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').spokeVirtualNetwork.appGwSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                                                "isValid": "[if(greaterOrEquals(last(split(steps('network').vnet.vnetAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').vnet.vnetAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').vnet.appGwSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
                                                 "message": "CIDR range not within virtual network CIDR range (third octet)."
                                             },
                                             {
-                                                "isValid": "[lessOrEquals(last(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), last(split(steps('network').spokeVirtualNetwork.appGwSubnetAddressCidrRange, '/')))]",
+                                                "isValid": "[lessOrEquals(last(split(steps('network').vnet.vnetAddressCidrRange, '/')), last(split(steps('network').vnet.appGwSubnetAddressCidrRange, '/')))]",
                                                 "message": "CIDR range not within virtual network CIDR range (subnet mask)."
                                             }
                                         ]
@@ -210,19 +218,19 @@
                                                 "message": "Invalid CIDR range. The address prefix must be in the range [10,26]."
                                             },
                                             {
-                                                "isValid": "[if(greaterOrEquals(last(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').spokeVirtualNetwork.esriSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                                                "isValid": "[if(greaterOrEquals(last(split(steps('network').vnet.vnetAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').vnet.vnetAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').vnet.esriSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
                                                 "message": "CIDR range not within virtual network CIDR range (first octet)."
                                             },
                                             {
-                                                "isValid": "[if(greaterOrEquals(last(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').spokeVirtualNetwork.esriSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                                                "isValid": "[if(greaterOrEquals(last(split(steps('network').vnet.vnetAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').vnet.vnetAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').vnet.esriSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
                                                 "message": "CIDR range not within virtual network CIDR range (second octet)."
                                             },
                                             {
-                                                "isValid": "[if(greaterOrEquals(last(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').spokeVirtualNetwork.esriSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                                                "isValid": "[if(greaterOrEquals(last(split(steps('network').vnet.vnetAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').vnet.vnetAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').vnet.esriSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
                                                 "message": "CIDR range not within virtual network CIDR range (third octet)."
                                             },
                                             {
-                                                "isValid": "[lessOrEquals(last(split(steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange, '/')), last(split(steps('network').spokeVirtualNetwork.esriSubnetAddressCidrRange, '/')))]",
+                                                "isValid": "[lessOrEquals(last(split(steps('network').vnet.vnetAddressCidrRange, '/')), last(split(steps('network').vnet.esriSubnetAddressCidrRange, '/')))]",
                                                 "message": "CIDR range not within virtual network CIDR range (subnet mask)."
                                             }
                                         ]
@@ -939,6 +947,155 @@
                     ]
                 },
                 {
+                    "name": "compliance",
+                    "label": "Compliance",
+                    "elements": [
+                        {
+                            "name": "defenderForCloud",
+                            "label": "Defender for Cloud",
+                            "type": "Microsoft.Common.Section",
+                            "elements": [
+                                {
+                                    "name": "workspaceSettingsApi",
+                                    "type": "Microsoft.Solutions.ArmApiControl",
+                                    "request": {
+                                        "method": "GET",
+                                        "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Security/workspaceSettings?api-version=2017-08-01-preview')]"
+                                    }
+                                },
+                                {
+                                    "name": "deployDefender",
+                                    "type": "Microsoft.Common.CheckBox",
+                                    "label": "Enable Defender for Cloud?",
+                                    "toolTip": "Check here to to deploy defender for cloud to the target subscription.",
+                                    "constraints": {
+                                        "required": false
+                                    }
+                                },
+                                {
+                                    "name": "emailSecurityContact",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "Email Address for Security Notifications",
+                                    "defaultValue": "",
+                                    "toolTip": "Please enter a valid email address for the security team.",
+                                    "constraints": {
+                                        "required": true,
+                                        "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
+                                        "validationMessage": "Email is not valid. Please re-enter."
+                                    },
+                                    "visible": "[steps('compliance').defenderForCloud.deployDefender]"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "policySection",
+                            "label": "Azure Policy",
+                            "type": "Microsoft.Common.Section",
+                            "elements": [
+                                {
+                                    "name": "policySubsetDetailsTextBlock",
+                                    "type": "Microsoft.Common.TextBlock",
+                                    "options": {
+                                        "text": "Mission Landing Zone comes bundled with a relevant subset of available Azure policies."
+                                    }
+                                },
+                                {
+                                    "name": "policyOptionalTextBlock",
+                                    "type": "Microsoft.Common.TextBlock",
+                                    "options": {
+                                        "text": "Enabling policies is optional, but recommended."
+                                    }
+                                },
+                                {
+                                    "name": "deployPolicy",
+                                    "type": "Microsoft.Common.CheckBox",
+                                    "label": "Deploy policy assignments?",
+                                    "toolTip": "Check here to create policy assignments for the resources created by Mission Landing Zone.",
+                                    "constraints": {
+                                        "required": false
+                                    }
+                                },
+                                {
+                                    "name": "policy",
+                                    "type": "Microsoft.Common.DropDown",
+                                    "label": "Policy Assignment",
+                                    "placeholder": "",
+                                    "defaultValue": "NIST SP 800-53",
+                                    "toolTip": "DoD IL5 is only available in AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
+                                    "multiselect": false,
+                                    "selectAll": false,
+                                    "filter": true,
+                                    "filterPlaceholder": "Filter items ...",
+                                    "multiLine": true,
+                                    "defaultDescription": "Select one of the bundled built-in policy assignments.",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "NIST SP 800-53 Rev4",
+                                                "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
+                                                "value": "NISTRev4"
+                                            },
+                                            {
+                                                "label": "NIST SP 800-53 Rev5",
+                                                "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
+                                                "value": "NISTRev5"
+                                            },
+                                            {
+                                                "label": "DoD IL5",
+                                                "description": "The Defense Information Systems Agency (DISA) is an agency of the US Department of Defense (DoD) that is responsible for developing and maintaining the DoD Cloud Computing Security Requirements Guide (SRG). These policies are only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
+                                                "value": "IL5"
+                                            },
+                                            {
+                                                "label": "CMMC",
+                                                "description": "The Cybersecurity Maturity Model Certification (CMMC) is a new framework developed by the US Department of Defense (DoD) that requires formal third-party audits of defense industrial base (DIB) contractor cybersecurity practices.",
+                                                "value": "CMMC"
+                                            }
+                                        ]
+                                    },
+                                    "visible": "[steps('compliance').policySection.deployPolicy]"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "virtualNetworkApi",
+                            "type": "Microsoft.Solutions.ArmApiControl",
+                            "request": {
+                                "method": "GET",
+                                "path": "[concat(steps('basics').hub.virtualNetwork, '?api-version=2023-09-01')]"
+                            }
+                        },
+                        {
+                            "name": "logAnalyticsWorkspacesApi",
+                            "type": "Microsoft.Solutions.ArmApiControl",
+                            "request": {
+                                "method": "GET",
+                                "path": "[concat('/subscriptions/', first(skip(split(first(map(filter(steps('compliance').virtualNetworkApi.properties.virtualNetworkPeerings, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 2)), '/resourcegroups/', first(skip(split(first(map(filter(steps('compliance').virtualNetworkApi.properties.virtualNetworkPeerings, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 4)), '/providers/Microsoft.OperationalInsights/workspaces?api-version=2023-09-01')]"
+                            }
+                        },
+                        {
+                            "name": "logAnalyticsWorkspace",
+                            "type": "Microsoft.Common.DropDown",
+                            "visible": true,
+                            "label": "Existing Log Analytics Workspace for Central Logging",
+                            "defaultValue": "[first(map(steps('compliance').logAnalyticsWorkspacesApi.value, (item) => item.name))]",
+                            "filter": true,
+                            "toolTip": "Select the existing Hub Azure firewall.",
+                            "constraints": {
+                                "required": true,
+                                "allowedValues": "[map(steps('compliance').logAnalyticsWorkspacesApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
+                            }
+                        },
+                        {
+                            "name": "diagnosticSettingsApi",
+                            "type": "Microsoft.Solutions.ArmApiControl",
+                            "request": {
+                                "method": "GET",
+                                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Insights/diagnosticSettings?api-version=2021-05-01-preview')]"
+                            }
+                        }
+                    ]
+                },
+                {
                     "name": "tags",
                     "label": "Tags",
                     "elements": [
@@ -967,7 +1124,7 @@
             "parameters": {
                 "adminPassword": "[steps('server').localAdminCredentials.password]",
                 "adminUsername": "[steps('server').localAdminCredentials.username]",
-                "applicationGatewaySubnetAddressPrefix": "[steps('network').spokeVirtualNetwork.appGwSubnetAddressCidrRange]",
+                "applicationGatewaySubnetAddressPrefix": "[steps('network').vnet.appGwSubnetAddressCidrRange]",
                 "arcgisServiceAccountIsDomainAccount": "[steps('portal').arcgisServiceAccount.isDomainAccount]",
                 "arcgisServiceAccountPassword": "[steps('portal').arcgisServiceAccount.password]",
                 "arcgisServiceAccountUsername": "[steps('portal').arcgisServiceAccount.username]",
@@ -980,8 +1137,12 @@
                 "certificateFileName": "[steps('certificates').pfx.certificateFileName]",
                 "certificatePassword": "[steps('certificates').pfx.certificatePassword]",
                 "debugMode": "[steps('portal').configuration.debugMode]",
-                "defaultSubnetAddressPrefix": "[steps('network').spokeVirtualNetwork.esriSubnetAddressCidrRange]",
-                "deployDefender": false,
+                "defaultSubnetAddressPrefix": "[steps('network').vnet.esriSubnetAddressCidrRange]",
+                "deployDefender": "[and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value))]",
+                "deployNetworkSecurityGroupFlowLogs": "[if(equals(steps('networking').flowLogsSection.flowLogsOption,'deployNetworkSecurityGroupFlowLogs'), true, false)]",
+                "deployNetworkWatcherTrafficAnalytics": "[steps('networking').flowLogsSection.deployTrafficAnalytics]",
+                "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
+                "deployVirtualNetworkFlowLogs": "[if(equals(steps('networking').flowLogsSection.flowLogsOption,'deployVirtualNetworkFlowLogs'), true, false)]",
                 "diskEncryptionSetResourceId": "[steps('server').configuration.diskEncryptionSetSelector.id]",
                 "emailSecurityContact": "",
                 "enableGraphDataStore": "[if(equals(steps('server').esri.architecture, true), steps('datastoretypes').dataStores.graphstore, false)]",
@@ -998,7 +1159,9 @@
                 "isUpdatingCertificates": false,
                 "joinEntraDomain": "[if(equals(steps('server').domain.identity, false), true, false)]",
                 "joinWindowsDomain": "[if(equals(steps('server').domain.identity, true), true, false)]",
-                "logAnalyticsWorkspaceName": "[steps('network').spokeVirtualNetwork.logAnalyticsWorkspace.name]",
+                "logAnalyticsWorkspaceName": "[steps('network').vnet.logAnalyticsWorkspace.name]",
+                "networkSecurityGroupFlowLogRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
+                "networkWatcherResourceId": "[if(not(empty(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)))), first(map(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)), (item) => item.id)), '')]",
                 "numberOfDataStoreVirtualMachines": "[steps('datastoretypes').multitier.numnberOfPortalMachines]",
                 "numberOfEsriServers": "[steps('datastoretypes').multitier.numnberOfServerMachines]",
                 "numberOfEsrispatiotemporalBigDataStoreVirtualMachines": "[if(equals(steps('datastoretypes').dataStores.spatioTemporal, true), steps('datastoretypes').multitier.numberOfSpatioTemporalDataStoreMachines, 0)]",
@@ -1017,12 +1180,13 @@
                 "resourceSuffix": "[steps('basics').naming.resourceSuffix]",
                 "selfSignedCertificatePassword": "[steps('certificates').pfx.certificatePassword]",
                 "serverLicenseFile": "[steps('licenses').files.server]",
-                "spokelogAnalyticsWorkspaceResourceId": "[steps('network').spokeVirtualNetwork.logAnalyticsWorkspace.id]",
+                "spokelogAnalyticsWorkspaceResourceId": "[steps('network').vnet.logAnalyticsWorkspace.id]",
                 "tags": "[steps('tags').tags]",
                 "useAzureFiles": "[if(equals(steps('server').esri.architecture, true), steps('server').configuration.useAzureStorage, false)]",
                 "useCloudStorage": "[if(equals(steps('server').esri.architecture, true), steps('server').configuration.useAzureStorage, false)]",
                 "virtualMachineOSDiskSize": "[steps('server').configuration.osDiskSize]",
-                "virtualNetworkAddressPrefix": "[steps('network').spokeVirtualNetwork.spokeVirtualNetworkAddressCidrRange]",
+                "virtualNetworkAddressPrefix": "[steps('network').vnet.vnetAddressCidrRange]",
+                "virtualNetworkFlowLogRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
                 "windowsDomainAdministratorPassword": "[if(equals(steps('server').domain.identity, true), steps('server').domain.password, '')]",
                 "windowsDomainAdministratorUserName": "[if(equals(steps('server').domain.identity, true), steps('server').domain.userPrincipalName, '')]",
                 "windowsDomainName": "[if(equals(steps('server').domain.identity, true), steps('server').domain.name, '')]",
