@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.32.4.45862",
-      "templateHash": "12075681672341690443"
+      "version": "0.33.93.31351",
+      "templateHash": "2345631708860195360"
     }
   },
   "parameters": {
@@ -35,16 +35,31 @@
         "description": "The suffix to append to the deployment name. It defaults to the current UTC date and time."
       }
     },
-    "deployNetworkWatcher": {
+    "deployNetworkSecurityGroupFlowLogs": {
       "type": "bool",
+      "defaultValue": false,
       "metadata": {
-        "description": "Choose whether to deploy Network Watcher for the deployment location."
+        "description": "When set to \"true\", enables Network Security Group Flow Logs. It defaults to \"false\". NSG logs are set to retire in 2025"
+      }
+    },
+    "deployNetworkWatcherTrafficAnalytics": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When set to true, deploys Network Watcher Traffic Analytics. It defaults to \"false\"."
       }
     },
     "deployPolicy": {
       "type": "bool",
       "metadata": {
         "description": "Choose whether to deploy a policy assignment."
+      }
+    },
+    "deployVirtualNetworkFlowLogs": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "When set to \"true\", enables Virtual Network Flow Logs. It defaults to \"true\" as its required by MCSB."
       }
     },
     "emailSecurityContact": {
@@ -143,11 +158,25 @@
         "description": "The metrics to monitor for the Network Security Group."
       }
     },
+    "networkSecurityGroupFlowLogRetentionDays": {
+      "type": "int",
+      "defaultValue": 30,
+      "metadata": {
+        "description": "The number of days to retain Network Security Group Flow Logs. It defaults to \"30\"."
+      }
+    },
     "networkSecurityGroupRules": {
       "type": "array",
       "defaultValue": [],
       "metadata": {
         "description": "The rules to apply to the Network Security Group."
+      }
+    },
+    "networkWatcherResourceId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource."
       }
     },
     "policy": {
@@ -204,6 +233,13 @@
       "defaultValue": [],
       "metadata": {
         "description": "The metrics to monitor for the workload Virtual Network."
+      }
+    },
+    "virtualNetworkFlowLogRetentionDays": {
+      "type": "int",
+      "defaultValue": 30,
+      "metadata": {
+        "description": "The number of days to retain Virtual Network Flow Logs. It defaults to \"30\"."
       }
     },
     "workloadName": {
@@ -281,8 +317,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "11951558504901001113"
+              "version": "0.33.93.31351",
+              "templateHash": "2486743018296958855"
             }
           },
           "parameters": {
@@ -361,8 +397,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "9348185205265061346"
+                      "version": "0.33.93.31351",
+                      "templateHash": "15415907016508079581"
                     }
                   },
                   "parameters": {
@@ -875,6 +911,8 @@
                       "networkSecurityGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').networkSecurityGroups)]",
                       "networkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').networkSecurityGroups)]",
                       "networkWatcher": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').networkWatchers)]",
+                      "networkWatcherFlowLogsNetworkSecurityGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-fl-nsg', variables('resourceAbbreviations').networkWatchers))]",
+                      "networkWatcherFlowLogsVirtualNetwork": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-fl-vnet', variables('resourceAbbreviations').networkWatchers))]",
                       "privateLinkScope": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').privateLinkScopes)]",
                       "privateLinkScopeNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, variables('resourceAbbreviations').privateLinkScopes)]",
                       "privateLinkScopePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').privateLinkScopes)]",
@@ -955,8 +993,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "10126517616466326568"
+                      "version": "0.33.93.31351",
+                      "templateHash": "1959483107665952306"
                     }
                   },
                   "parameters": {
@@ -973,7 +1011,7 @@
                       }
                     ],
                     "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
-                    "privateDnsZoneNames": "[union(createArray(format('privatelink.agentsvc.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudSuffix'))), format('privatelink.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudSuffix'))), format('privatelink.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureWebSites')[environment().name], format('appservice.{0}', variables('cloudSuffix')))), format('scm.privatelink.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureWebSites')[environment().name], format('appservice.{0}', variables('cloudSuffix')))), format('privatelink.wvd.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureVirtualDesktop')[environment().name], variables('cloudSuffix'))), format('privatelink-global.wvd.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureVirtualDesktop')[environment().name], variables('cloudSuffix'))), format('privatelink.file.{0}', environment().suffixes.storage), format('privatelink.queue.{0}', environment().suffixes.storage), format('privatelink.table.{0}', environment().suffixes.storage), format('privatelink.blob.{0}', environment().suffixes.storage), format('privatelink{0}', replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')), format('privatelink.monitor.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix'))), format('privatelink.ods.opinsights.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix'))), format('privatelink.oms.opinsights.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix')))), variables('privateDnsZoneNames_Backup'))]",
+                    "privateDnsZoneNames": "[union(createArray(format('privatelink.agentsvc.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudSuffix'))), format('privatelink.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudSuffix'))), format('privatelink.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureWebSites')[environment().name], format('appservice.{0}', variables('cloudSuffix')))), format('scm.privatelink.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureWebSites')[environment().name], format('appservice.{0}', variables('cloudSuffix')))), format('privatelink.wvd.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureVirtualDesktop')[environment().name], variables('cloudSuffix'))), format('privatelink-global.wvd.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureVirtualDesktop')[environment().name], variables('cloudSuffix'))), format('privatelink.file.{0}', environment().suffixes.storage), format('privatelink.queue.{0}', environment().suffixes.storage), format('privatelink.table.{0}', environment().suffixes.storage), format('privatelink.blob.{0}', environment().suffixes.storage), format('privatelink{0}', replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')), format('privatelink.monitor.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix'))), format('privatelink.ods.opinsights.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix'))), format('privatelink.oms.opinsights.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix'))), format('privatelink{0}', environment().suffixes.sqlServerHostname)), variables('privateDnsZoneNames_Backup'))]",
                     "privateDnsZoneSuffixes_AzureAutomation": {
                       "AzureCloud": "net",
                       "AzureUSGovernment": "us",
@@ -1095,8 +1133,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "6826910029633627352"
+              "version": "0.33.93.31351",
+              "templateHash": "5246388172474140801"
             }
           },
           "parameters": {
@@ -1165,8 +1203,8 @@
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
-          "deployNetworkWatcher": {
-            "value": "[parameters('deployNetworkWatcher')]"
+          "deployUniqueResources": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].deployUniqueResources]"
           },
           "hubVirtualNetworkResourceId": {
             "value": "[parameters('hubVirtualNetworkResourceId')]"
@@ -1185,6 +1223,9 @@
           },
           "networkWatcherName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.networkWatcher]"
+          },
+          "networkWatcherResourceId": {
+            "value": "[parameters('networkWatcherResourceId')]"
           },
           "resourceGroupName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
@@ -1224,8 +1265,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "12891343365298521146"
+              "version": "0.33.93.31351",
+              "templateHash": "9467408940084799014"
             }
           },
           "parameters": {
@@ -1235,7 +1276,7 @@
             "deploymentNameSuffix": {
               "type": "string"
             },
-            "deployNetworkWatcher": {
+            "deployUniqueResources": {
               "type": "bool"
             },
             "hubVirtualNetworkResourceId": {
@@ -1254,6 +1295,9 @@
               "type": "array"
             },
             "networkWatcherName": {
+              "type": "string"
+            },
+            "networkWatcherResourceId": {
               "type": "string"
             },
             "resourceGroupName": {
@@ -1305,8 +1349,8 @@
                   "additionalSubnets": {
                     "value": "[parameters('additionalSubnets')]"
                   },
-                  "deployNetworkWatcher": {
-                    "value": "[parameters('deployNetworkWatcher')]"
+                  "deployUniqueResources": {
+                    "value": "[parameters('deployUniqueResources')]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -1322,6 +1366,9 @@
                   },
                   "networkWatcherName": {
                     "value": "[parameters('networkWatcherName')]"
+                  },
+                  "networkWatcherResourceId": {
+                    "value": "[parameters('networkWatcherResourceId')]"
                   },
                   "resourceGroupName": {
                     "value": "[parameters('resourceGroupName')]"
@@ -1360,8 +1407,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "17886708743216395115"
+                      "version": "0.33.93.31351",
+                      "templateHash": "17967000001448745009"
                     }
                   },
                   "parameters": {
@@ -1369,7 +1416,7 @@
                       "type": "array",
                       "defaultValue": []
                     },
-                    "deployNetworkWatcher": {
+                    "deployUniqueResources": {
                       "type": "bool"
                     },
                     "location": {
@@ -1385,6 +1432,9 @@
                       "type": "array"
                     },
                     "networkWatcherName": {
+                      "type": "string"
+                    },
+                    "networkWatcherResourceId": {
                       "type": "string"
                     },
                     "resourceGroupName": {
@@ -1478,8 +1528,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "13846782101975662570"
+                              "version": "0.33.93.31351",
+                              "templateHash": "11237544888813757516"
                             }
                           },
                           "parameters": {
@@ -1561,8 +1611,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "9322941388060090809"
+                              "version": "0.33.93.31351",
+                              "templateHash": "10617042070917950523"
                             }
                           },
                           "parameters": {
@@ -1633,7 +1683,7 @@
                       }
                     },
                     {
-                      "condition": "[parameters('deployNetworkWatcher')]",
+                      "condition": "[and(empty(parameters('networkWatcherResourceId')), parameters('deployUniqueResources'))]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "networkWatcher",
@@ -1664,8 +1714,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "5483231664830769159"
+                              "version": "0.33.93.31351",
+                              "templateHash": "13760222295094965145"
                             }
                           },
                           "parameters": {
@@ -1741,8 +1791,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "5645415839002404423"
+                              "version": "0.33.93.31351",
+                              "templateHash": "5869702697217251306"
                             }
                           },
                           "parameters": {
@@ -1882,8 +1932,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "17601114229673889726"
+                      "version": "0.33.93.31351",
+                      "templateHash": "10365342035466139193"
                     }
                   },
                   "parameters": {
@@ -1935,8 +1985,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "6477042594817819590"
+                              "version": "0.33.93.31351",
+                              "templateHash": "17770613472330861175"
                             }
                           },
                           "parameters": {
@@ -2009,8 +2059,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "13320362037311908604"
+                      "version": "0.33.93.31351",
+                      "templateHash": "3614949858583199523"
                     }
                   },
                   "parameters": {
@@ -2062,8 +2112,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "6477042594817819590"
+                              "version": "0.33.93.31351",
+                              "templateHash": "17770613472330861175"
                             }
                           },
                           "parameters": {
@@ -2141,12 +2191,6 @@
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
-          "hubResourceGroupName": {
-            "value": "[variables('hubResourceGroupName')]"
-          },
-          "hubSubscriptionId": {
-            "value": "[variables('hubSubscriptionId')]"
-          },
           "privateDnsZoneNames": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
           },
@@ -2169,8 +2213,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "11568503298667055500"
+              "version": "0.33.93.31351",
+              "templateHash": "11161371350834819427"
             }
           },
           "parameters": {
@@ -2178,12 +2222,6 @@
               "type": "string"
             },
             "deploymentNameSuffix": {
-              "type": "string"
-            },
-            "hubResourceGroupName": {
-              "type": "string"
-            },
-            "hubSubscriptionId": {
               "type": "string"
             },
             "privateDnsZoneNames": {
@@ -2208,8 +2246,6 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-vnet-links-{0}-rg-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
-              "subscriptionId": "[parameters('hubSubscriptionId')]",
-              "resourceGroup": "[parameters('hubResourceGroupName')]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -2235,8 +2271,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "8205818676743522558"
+                      "version": "0.33.93.31351",
+                      "templateHash": "12315209925175936164"
                     }
                   },
                   "parameters": {
@@ -2338,8 +2374,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "17139779324064444555"
+              "version": "0.33.93.31351",
+              "templateHash": "10359950761948293446"
             }
           },
           "parameters": {
@@ -2427,8 +2463,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "16844719077752965053"
+                      "version": "0.33.93.31351",
+                      "templateHash": "17420389339008036640"
                     }
                   },
                   "parameters": {
@@ -2685,8 +2721,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "16362514702834742003"
+                      "version": "0.33.93.31351",
+                      "templateHash": "5862547501608828326"
                     }
                   },
                   "parameters": {
@@ -2765,8 +2801,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "10296095440786899315"
+                              "version": "0.33.93.31351",
+                              "templateHash": "16049255483101382387"
                             }
                           },
                           "parameters": {
@@ -2860,8 +2896,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "9965398560847425439"
+                      "version": "0.33.93.31351",
+                      "templateHash": "17131836609130371590"
                     }
                   },
                   "parameters": {
@@ -3018,8 +3054,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "4832927444657450691"
+              "version": "0.33.93.31351",
+              "templateHash": "7597004062555862058"
             }
           },
           "parameters": {
@@ -3134,8 +3170,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "5654874488513857493"
+                      "version": "0.33.93.31351",
+                      "templateHash": "15722391318226700719"
                     }
                   },
                   "parameters": {
@@ -3369,11 +3405,23 @@
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
+          "deployNetworkSecurityGroupFlowLogs": {
+            "value": "[parameters('deployNetworkSecurityGroupFlowLogs')]"
+          },
+          "deployNetworkWatcherTrafficAnalytics": {
+            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+          },
+          "deployVirtualNetworkFlowLogs": {
+            "value": "[parameters('deployVirtualNetworkFlowLogs')]"
+          },
           "keyVaultDiagnosticLogs": {
             "value": "[parameters('keyVaultDiagnosticsLogs')]"
           },
           "keyVaultName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
           },
           "logAnalyticsWorkspaceResourceId": {
             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
@@ -3384,8 +3432,14 @@
           "networkSecurityGroupDiagnosticsMetrics": {
             "value": "[parameters('networkSecurityGroupDiagnosticsMetrics')]"
           },
+          "networkSecurityGroupFlowLogRetentionDays": {
+            "value": "[parameters('networkSecurityGroupFlowLogRetentionDays')]"
+          },
           "networkSecurityGroupName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
+          },
+          "networkWatcherResourceId": {
+            "value": "[parameters('networkWatcherResourceId')]"
           },
           "resourceGroupName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
@@ -3405,6 +3459,9 @@
           "virtualNetworkDiagnosticsMetrics": {
             "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
           },
+          "virtualNetworkFlowLogRetentionDays": {
+            "value": "[parameters('virtualNetworkFlowLogRetentionDays')]"
+          },
           "virtualNetworkName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
           }
@@ -3415,21 +3472,33 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "5003010468843057430"
+              "version": "0.33.93.31351",
+              "templateHash": "9421794430350411704"
             }
           },
           "parameters": {
             "deployActivityLogDiagnosticSetting": {
               "type": "bool"
             },
+            "deployNetworkSecurityGroupFlowLogs": {
+              "type": "bool"
+            },
+            "deployNetworkWatcherTrafficAnalytics": {
+              "type": "bool"
+            },
             "deploymentNameSuffix": {
               "type": "string"
+            },
+            "deployVirtualNetworkFlowLogs": {
+              "type": "bool"
             },
             "keyVaultDiagnosticLogs": {
               "type": "array"
             },
             "keyVaultName": {
+              "type": "string"
+            },
+            "location": {
               "type": "string"
             },
             "logAnalyticsWorkspaceResourceId": {
@@ -3441,7 +3510,13 @@
             "networkSecurityGroupDiagnosticsMetrics": {
               "type": "array"
             },
+            "networkSecurityGroupFlowLogRetentionDays": {
+              "type": "int"
+            },
             "networkSecurityGroupName": {
+              "type": "string"
+            },
+            "networkWatcherResourceId": {
               "type": "string"
             },
             "resourceGroupName": {
@@ -3461,6 +3536,9 @@
             },
             "virtualNetworkDiagnosticsMetrics": {
               "type": "array"
+            },
+            "virtualNetworkFlowLogRetentionDays": {
+              "type": "int"
             },
             "virtualNetworkName": {
               "type": "string"
@@ -3490,8 +3568,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "17453871854351031685"
+                      "version": "0.33.93.31351",
+                      "templateHash": "9926516440124754027"
                     }
                   },
                   "parameters": {
@@ -3580,8 +3658,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "5679027658072815414"
+                      "version": "0.33.93.31351",
+                      "templateHash": "10998723309834698940"
                     }
                   },
                   "parameters": {
@@ -3629,6 +3707,21 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "deployNetworkSecurityGroupFlowLogs": {
+                    "value": "[parameters('deployNetworkSecurityGroupFlowLogs')]"
+                  },
+                  "deployNetworkWatcherTrafficAnalytics": {
+                    "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                  },
+                  "flowLogsName": {
+                    "value": "[parameters('tier').namingConvention.networkWatcherFlowLogsNetworkSecurityGroup]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
@@ -3644,8 +3737,18 @@
                   "networkSecurityGroupDiagnosticSettingName": {
                     "value": "[parameters('tier').namingConvention.networkSecurityGroupDiagnosticSetting]"
                   },
+                  "networkSecurityGroupFlowLogRetentionDays": {
+                    "value": "[parameters('networkSecurityGroupFlowLogRetentionDays')]"
+                  },
                   "networkSecurityGroupName": {
                     "value": "[parameters('networkSecurityGroupName')]"
+                  },
+                  "networkWatcherName": {
+                    "value": "[parameters('tier').namingConvention.networkWatcherName]"
+                  },
+                  "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('resourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
+                  "tiername": {
+                    "value": "[parameters('tier').name]"
                   }
                 },
                 "template": {
@@ -3654,11 +3757,26 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "11508259122426462594"
+                      "version": "0.33.93.31351",
+                      "templateHash": "17421560532949083413"
                     }
                   },
                   "parameters": {
+                    "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "deployNetworkSecurityGroupFlowLogs": {
+                      "type": "bool"
+                    },
+                    "deployNetworkWatcherTrafficAnalytics": {
+                      "type": "bool"
+                    },
+                    "flowLogsName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
                     "logAnalyticsWorkspaceResourceId": {
                       "type": "string"
                     },
@@ -3676,6 +3794,18 @@
                     },
                     "networkSecurityGroupName": {
                       "type": "string"
+                    },
+                    "networkWatcherName": {
+                      "type": "string"
+                    },
+                    "networkWatcherResourceGroupName": {
+                      "type": "string"
+                    },
+                    "networkSecurityGroupFlowLogRetentionDays": {
+                      "type": "int"
+                    },
+                    "tiername": {
+                      "type": "string"
                     }
                   },
                   "resources": [
@@ -3685,10 +3815,113 @@
                       "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', parameters('networkSecurityGroupName'))]",
                       "name": "[parameters('networkSecurityGroupDiagnosticSettingName')]",
                       "properties": {
-                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
-                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
                         "logs": "[parameters('logs')]",
-                        "metrics": "[parameters('metrics')]"
+                        "metrics": "[parameters('metrics')]",
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                      }
+                    },
+                    {
+                      "condition": "[parameters('deployNetworkSecurityGroupFlowLogs')]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
+                      "resourceGroup": "[parameters('networkWatcherResourceGroupName')]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "deployNetworkWatcherTrafficAnalytics": {
+                            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                          },
+                          "flowLogsName": {
+                            "value": "[parameters('flowLogsName')]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "logAnalyticsWorkspaceResourceId": {
+                            "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                          },
+                          "logStorageAccountResourceId": {
+                            "value": "[parameters('logStorageAccountResourceId')]"
+                          },
+                          "networkSecurityGroupFlowLogRetentionDays": {
+                            "value": "[parameters('networkSecurityGroupFlowLogRetentionDays')]"
+                          },
+                          "networkSecurityGroupResourceId": {
+                            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                          },
+                          "networkWatcherName": {
+                            "value": "[parameters('networkWatcherName')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.33.93.31351",
+                              "templateHash": "17615957620309260926"
+                            }
+                          },
+                          "parameters": {
+                            "deployNetworkWatcherTrafficAnalytics": {
+                              "type": "bool"
+                            },
+                            "flowLogsName": {
+                              "type": "string"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "logAnalyticsWorkspaceResourceId": {
+                              "type": "string"
+                            },
+                            "logStorageAccountResourceId": {
+                              "type": "string"
+                            },
+                            "networkSecurityGroupFlowLogRetentionDays": {
+                              "type": "int"
+                            },
+                            "networkSecurityGroupResourceId": {
+                              "type": "string"
+                            },
+                            "networkWatcherName": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Network/networkWatchers/flowLogs",
+                              "apiVersion": "2023-05-01",
+                              "name": "[format('{0}/{1}', parameters('networkWatcherName'), parameters('flowLogsName'))]",
+                              "location": "[parameters('location')]",
+                              "properties": {
+                                "targetResourceId": "[parameters('networkSecurityGroupResourceId')]",
+                                "enabled": true,
+                                "storageId": "[parameters('logStorageAccountResourceId')]",
+                                "flowAnalyticsConfiguration": {
+                                  "networkWatcherFlowAnalyticsConfiguration": {
+                                    "enabled": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('deployNetworkWatcherTrafficAnalytics'), null())]",
+                                    "workspaceResourceId": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('logAnalyticsWorkspaceResourceId'), null())]"
+                                  }
+                                },
+                                "format": {
+                                  "type": "JSON",
+                                  "version": 2
+                                },
+                                "retentionPolicy": {
+                                  "days": "[parameters('networkSecurityGroupFlowLogRetentionDays')]",
+                                  "enabled": true
+                                }
+                              }
+                            }
+                          ]
+                        }
                       }
                     }
                   ]
@@ -3707,6 +3940,21 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "deployNetworkWatcherTrafficAnalytics": {
+                    "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                  },
+                  "deployVirtualNetworkFlowLogs": {
+                    "value": "[parameters('deployVirtualNetworkFlowLogs')]"
+                  },
+                  "flowLogsName": {
+                    "value": "[parameters('tier').namingConvention.networkWatcherFlowLogsVirtualNetwork]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
@@ -3719,8 +3967,16 @@
                   "metrics": {
                     "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
                   },
+                  "networkWatcherName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('tier').namingConvention.networkWatcher), createObject('value', split(parameters('networkWatcherResourceId'), '/')[8]))]",
+                  "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('resourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
+                  "tiername": {
+                    "value": "[parameters('tier').name]"
+                  },
                   "virtualNetworkDiagnosticSettingName": {
                     "value": "[parameters('tier').namingConvention.virtualNetworkDiagnosticSetting]"
+                  },
+                  "virtualNetworkFlowLogRetentionDays": {
+                    "value": "[parameters('virtualNetworkFlowLogRetentionDays')]"
                   },
                   "virtualNetworkName": {
                     "value": "[parameters('virtualNetworkName')]"
@@ -3732,11 +3988,26 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "2381187713713410342"
+                      "version": "0.33.93.31351",
+                      "templateHash": "15538253293171973761"
                     }
                   },
                   "parameters": {
+                    "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "deployNetworkWatcherTrafficAnalytics": {
+                      "type": "bool"
+                    },
+                    "deployVirtualNetworkFlowLogs": {
+                      "type": "bool"
+                    },
+                    "flowLogsName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
                     "logAnalyticsWorkspaceResourceId": {
                       "type": "string"
                     },
@@ -3749,11 +4020,23 @@
                     "metrics": {
                       "type": "array"
                     },
+                    "networkWatcherName": {
+                      "type": "string"
+                    },
+                    "networkWatcherResourceGroupName": {
+                      "type": "string"
+                    },
+                    "tiername": {
+                      "type": "string"
+                    },
                     "virtualNetworkDiagnosticSettingName": {
                       "type": "string"
                     },
                     "virtualNetworkName": {
                       "type": "string"
+                    },
+                    "virtualNetworkFlowLogRetentionDays": {
+                      "type": "int"
                     }
                   },
                   "resources": [
@@ -3767,6 +4050,109 @@
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
                         "logs": "[parameters('logs')]",
                         "metrics": "[parameters('metrics')]"
+                      }
+                    },
+                    {
+                      "condition": "[parameters('deployVirtualNetworkFlowLogs')]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
+                      "resourceGroup": "[parameters('networkWatcherResourceGroupName')]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "deployNetworkWatcherTrafficAnalytics": {
+                            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                          },
+                          "flowLogsName": {
+                            "value": "[parameters('flowLogsName')]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "logAnalyticsWorkspaceResourceId": {
+                            "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                          },
+                          "logStorageAccountResourceId": {
+                            "value": "[parameters('logStorageAccountResourceId')]"
+                          },
+                          "networkWatcherName": {
+                            "value": "[parameters('networkWatcherName')]"
+                          },
+                          "virtualNetworkResourceId": {
+                            "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                          },
+                          "virtualNetworkFlowLogRetentionDays": {
+                            "value": "[parameters('virtualNetworkFlowLogRetentionDays')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.33.93.31351",
+                              "templateHash": "15116737594248637964"
+                            }
+                          },
+                          "parameters": {
+                            "deployNetworkWatcherTrafficAnalytics": {
+                              "type": "bool"
+                            },
+                            "flowLogsName": {
+                              "type": "string"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "logAnalyticsWorkspaceResourceId": {
+                              "type": "string"
+                            },
+                            "logStorageAccountResourceId": {
+                              "type": "string"
+                            },
+                            "networkWatcherName": {
+                              "type": "string"
+                            },
+                            "virtualNetworkFlowLogRetentionDays": {
+                              "type": "int"
+                            },
+                            "virtualNetworkResourceId": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Network/networkWatchers/flowLogs",
+                              "apiVersion": "2023-05-01",
+                              "name": "[format('{0}/{1}', parameters('networkWatcherName'), parameters('flowLogsName'))]",
+                              "location": "[parameters('location')]",
+                              "properties": {
+                                "targetResourceId": "[parameters('virtualNetworkResourceId')]",
+                                "enabled": true,
+                                "storageId": "[parameters('logStorageAccountResourceId')]",
+                                "flowAnalyticsConfiguration": {
+                                  "networkWatcherFlowAnalyticsConfiguration": {
+                                    "enabled": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('deployNetworkWatcherTrafficAnalytics'), null())]",
+                                    "workspaceResourceId": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('logAnalyticsWorkspaceResourceId'), null())]"
+                                  }
+                                },
+                                "format": {
+                                  "type": "JSON",
+                                  "version": 2
+                                },
+                                "retentionPolicy": {
+                                  "days": "[parameters('virtualNetworkFlowLogRetentionDays')]",
+                                  "enabled": true
+                                }
+                              }
+                            }
+                          ]
+                        }
                       }
                     }
                   ]
@@ -3823,8 +4209,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "357638842280985685"
+              "version": "0.33.93.31351",
+              "templateHash": "5612851901719142503"
             }
           },
           "parameters": {
@@ -3880,8 +4266,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "5692847317260005018"
+                      "version": "0.33.93.31351",
+                      "templateHash": "5059866416836136528"
                     }
                   },
                   "parameters": {
@@ -4056,8 +4442,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "10296095440786899315"
+                              "version": "0.33.93.31351",
+                              "templateHash": "16049255483101382387"
                             }
                           },
                           "parameters": {
@@ -4130,9 +4516,6 @@
         "parameters": {
           "emailSecurityContact": {
             "value": "[parameters('emailSecurityContact')]"
-          },
-          "logAnalyticsWorkspaceId": {
-            "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
           }
         },
         "template": {
@@ -4141,8 +4524,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "14546732833942026419"
+              "version": "0.33.93.31351",
+              "templateHash": "5325637338183897217"
             }
           },
           "parameters": {
@@ -4153,19 +4536,6 @@
               ],
               "metadata": {
                 "description": "Defender Paid protection Plans. Even if a customer selects the free sku, at least 1 paid protection plan must be specified."
-              }
-            },
-            "enableAutoProvisioning": {
-              "type": "bool",
-              "defaultValue": true,
-              "metadata": {
-                "description": "Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off"
-              }
-            },
-            "logAnalyticsWorkspaceId": {
-              "type": "string",
-              "metadata": {
-                "description": "Specify the ID of your custom Log Analytics workspace to collect Defender data."
               }
             },
             "emailSecurityContact": {
@@ -4190,7 +4560,6 @@
             }
           },
           "variables": {
-            "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]",
             "defenderPaidPlanConfig": {
               "AzureCloud": {
                 "Api": {
@@ -4309,25 +4678,8 @@
               "name": "[parameters('defenderPlans')[copyIndex()]]",
               "properties": {
                 "pricingTier": "[parameters('defenderSkuTier')]",
-                "subPlan": "[if(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan'), variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].subPlan, json('null'))]",
-                "extensions": "[if(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'extensions'), variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].extensions, json('null'))]"
-              }
-            },
-            {
-              "type": "Microsoft.Security/autoProvisioningSettings",
-              "apiVersion": "2019-01-01",
-              "name": "default",
-              "properties": {
-                "autoProvision": "[variables('autoProvisioning')]"
-              }
-            },
-            {
-              "type": "Microsoft.Security/workspaceSettings",
-              "apiVersion": "2019-01-01",
-              "name": "default",
-              "properties": {
-                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
-                "scope": "[subscription().id]"
+                "subPlan": "[coalesce(tryGet(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan'), null())]",
+                "extensions": "[coalesce(tryGet(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'extensions'), null())]"
               }
             },
             {
