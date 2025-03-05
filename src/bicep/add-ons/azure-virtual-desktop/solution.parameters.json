@@ -29,11 +29,17 @@
     "deployDefender": {
       "value": true
     },
-    "deployNetworkWatcher": {
-      "value": true
+    "deployNetworkSecurityGroupFlowLogs": {
+        "value": false
+    },
+    "deployNetworkWatcherTrafficAnalytics": {
+        "value": false
     },
     "deployPolicy": {
       "value": true
+    },
+    "deployVirtualNetworkFlowLogs": {
+        "value": true
     },
     "desktopFriendlyName": {
       "value": ""
@@ -122,6 +128,12 @@
     "logAnalyticsWorkspaceSku": {
       "value": "PerGB2018"
     },
+    "networkSecurityGroupFlowLogRetentionDays": {
+        "value": 30
+    },
+    "networkWatcherResourceId": {
+        "value": ""
+    },
     "operationsLogAnalyticsWorkspaceResourceId": {
       "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/mlz-rg-network-operations-dev-use2/providers/Microsoft.OperationalInsights/workspaces/mlz-log-operations-dev-use2"
     },
@@ -196,6 +208,9 @@
     },
     "virtualNetworkAddressPrefixes": {
       "value": ["10.0.140.0/23"]
+    },
+    "virtualNetworkFlowLogRetentionDays": {
+        "value": 30
     },
     "workspaceFriendlyName": {
       "value": "mlz-vdws-avd-use2-dev"
