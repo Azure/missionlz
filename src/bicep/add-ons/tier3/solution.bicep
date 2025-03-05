@@ -191,17 +191,18 @@ module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddress
     vNetDnsServers: virtualNetwork.properties.?dhcpOptions.dnsServers ?? [] 
     workloadShortName: workloadShortName
   }
+  dependsOn: [
+    rg
+  ]
 }
 
 // This module deploys VNET links when the Azure Firewall SKU is "Basic".
 module virtualNetworkLinks 'modules/virtual-network-links.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
   name: 'deploy-vnet-links-${workloadShortName}-sub-${deploymentNameSuffix}'
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  scope: resourceGroup(hubResourceGroupName)
   params: {
     azureFirewallSku: azureFirewall.properties.sku.tier
     deploymentNameSuffix: deploymentNameSuffix
-    hubResourceGroupName: hubResourceGroupName
-    hubSubscriptionId: hubSubscriptionId
     privateDnsZoneNames: logic.outputs.privateDnsZones
     virtualNetworkName: networking.outputs.virtualNetworkName
     virtualNetworkResourceGroupName: rg.outputs.name
@@ -260,8 +261,11 @@ module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddre
   params: {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deploymentNameSuffix: deploymentNameSuffix
+    deployNetworkSecurityGroupFlowLogs:
+    deployNetworkWatcherTrafficAnalytics:
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
     keyVaultName: customerManagedKeys.outputs.keyVaultName
+    location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
@@ -296,7 +300,6 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
     name: 'set-defender-${workloadShortName}-${deploymentNameSuffix}'
     params: {
       emailSecurityContact: emailSecurityContact
-      logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
     }
   }
 

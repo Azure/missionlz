@@ -669,6 +669,72 @@
               ]
             },
             {
+              "name": "flowLogsSection",
+              "label": "Configure Flow Logs",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "flowLogsDescription",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "To support the on-going security and compliance of your landing zone, MLZ configures flow logs for virtual networks by default. Flow logs capture information about IP traffic flowing through your virtual Networks or network security groups. Flow log data can be used to troubleshoot network connectivity issues, monitor network traffic, and detect and diagnose security threats.",
+                    "link": {
+                      "label": "Click here to learn more about virtual Network flow logs",
+                      "uri": "https://learn.microsoft.com/en-us/azure/network-watcher/vnet-flow-logs-overview"
+                    }
+                  }
+                },
+                {
+                  "name": "flowLogsOption",
+                  "label": "Flow Logs Option",
+                  "type": "Microsoft.Common.DropDown",
+                  "defaultValue": "Virtual Network Flow Logs (recommended)",
+                  "toolTip": "Select the type of flow logs to deploy.",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "Virtual Network Flow Logs (recommended)",
+                        "value": "deployVirtualNetworkFlowLogs"
+                      },
+                      {
+                        "label": "Network Security Group Flow Logs",
+                        "value": "deployNetworkSecurityGroupFlowLogs"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "nsgFlowLogsRetirementWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[equals(steps('networking').flowLogsSection.flowLogsOption, 'deployNetworkSecurityGroupFlowLogs')]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "NSG flow logs are scheduled for retirement on June 30, 2025. All customers should move to VNet flow logs which offer more logging and visibility. Click here learn more about NSG flow log retirement",
+                    "uri": "https://learn.microsoft.com/en-us/azure/network-watcher/nsg-flow-logs-overview"
+                  }
+                },
+                {
+                  "name": "retentionDays",
+                  "label": "Retention Days",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "30",
+                  "toolTip": "Enter the number of days to retain virtual Network flow logs.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[0-9]+$",
+                    "message": "Please enter a valid number of days."
+                  }
+                },
+                {
+                  "name": "deployTrafficAnalytics",
+                  "label": "Deploy Network Watcher Traffic Analytics",
+                  "type": "Microsoft.Common.CheckBox",
+                  "defaultValue": false,
+                  "toolTip": "Enable this option to deploy Network Watcher Traffic Analytics."
+                }
+              ]
+            },
+            {
               "name": "networkWatchersApi",
               "type": "Microsoft.Solutions.ArmApiControl",
               "request": {
@@ -1418,23 +1484,26 @@
       "location": "[steps('basics').locationSection.location.name]",
       "subscriptionId": "[steps('basics').hubSection.hubSubscriptionId]",
       "parameters": {
-        "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSection.bastionSubnetAddressCidrRange]",
         "azureGatewaySubnetAddressPrefix": "[steps('remoteAccess').azureGatewaySubnetSection.azureGatewaySubnetAddressCidrRange]",
+        "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSection.bastionSubnetAddressCidrRange]",
         "defenderSkuTier": "[if(steps('compliance').defenderSection.deployDefender, 'Standard', 'Free')]",
+        "deployAzureGatewaySubnet": "[steps('remoteAccess').azureGatewaySubnetSection.deployAzureGatewaySubnet]",
+        "deployBastion": "[steps('remoteAccess').azureBastionSection.deployBastion]",
         "deployDefenderPlans": "[steps('compliance').defenderSection.deployDefenderPlans]",
         "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
         "deployLinuxVirtualMachine": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]",
-        "deployWindowsVirtualMachine": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]",
-        "deployNetworkWatcher": "[empty(filter(steps('networking').networkWatchersApi.value, (item) => equals(item.location, steps('basics').locationSection.location.name)))]",
+        "deployNetworkSecurityGroupFlowLogs": "[if(equals(steps('networking').flowLogsSection.flowLogsOption,'deployNetworkSecurityGroupFlowLogs'), true, false)]",
+        "deployNetworkWatcherTrafficAnalytics": "[steps('networking').flowLogsSection.deployTrafficAnalytics]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
-        "deployBastion": "[steps('remoteAccess').azureBastionSection.deployBastion]",
-        "deployAzureGatewaySubnet": "[steps('remoteAccess').azureGatewaySubnetSection.deployAzureGatewaySubnet]",
         "deploySentinel": "[steps('compliance').sentinelSection.deploySentinel]",
+        "deployVirtualNetworkFlowLogs": "[if(equals(steps('networking').flowLogsSection.flowLogsOption,'deployVirtualNetworkFlowLogs'), true, false)]",
+        "deployWindowsVirtualMachine": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]",
         "emailSecurityContact": "[steps('compliance').defenderSection.emailSecurityContact]",
+        "environmentAbbreviation": "[steps('basics').namingSection.environmentAbbreviation]",
         "firewallClientSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange]",
         "firewallManagementSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallManagementSubnetAddressCidrRange]",
-        "firewallSupernetIPAddress": "[steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange]",
         "firewallSkuTier": "[steps('networking').hubVirtualNetwork.firewallSkuTier]",
+        "firewallSupernetIPAddress": "[steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange]",
         "hubSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.subnetAddressCidrRange]",
         "hubSubscriptionId": "[replace(steps('basics').hubSection.hubSubscriptionId, '/subscriptions/', '')]",
         "hubVirtualNetworkAddressPrefix": "[steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange]",
@@ -1443,27 +1512,29 @@
         "identitySubscriptionId": "[if(steps('basics').identitySection.deployIdentity, replace(steps('basics').identitySection.identitySubscriptionId, '/subscriptions/', ''), replace(steps('basics').hubSection.hubSubscriptionId, '/subscriptions/', ''))]",
         "identityVirtualNetworkAddressPrefix": "[steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange]",
         "linuxVmAdminPasswordOrKey": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.authenticationType, 'password'), steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.password, steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.sshPublicKey)]",
-        "linuxVmAuthenticationType": "password",
         "linuxVmAdminUsername": "[steps('remoteAccess').linuxVmSection.linuxVmAdminUsername]",
-        "linuxVmImagePublisher": "[steps('remoteAccess').linuxVmSection.linuxVmImagePublisher]",
+        "linuxVmAuthenticationType": "password",
         "linuxVmImageOffer": "[steps('remoteAccess').linuxVmSection.linuxVmImageOffer]",
+        "linuxVmImagePublisher": "[steps('remoteAccess').linuxVmSection.linuxVmImagePublisher]",
         "linuxVmImageSku": "[steps('remoteAccess').linuxVmSection.linuxVmImageSku]",
         "linuxVmSize": "[steps('remoteAccess').linuxVmSection.linuxVmSize]",
         "location": "[steps('basics').locationSection.location.name]",
+        "networkSecurityGroupFlowLogRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
+        "networkWatcherResourceId": "[if(not(empty(filter(steps('networking').networkWatchersApi.value, (item) => equals(item.location, steps('basics').locationSection.location.name)))), first(map(filter(steps('networking').networkWatchersApi.value, (item) => equals(item.location, steps('basics').locationSection.location.name)), (item) => item.id)), '')]",
         "operationsSubnetAddressPrefix": "[steps('networking').operationsVirtualNetwork.subnetAddressCidrRange]",
         "operationsSubscriptionId": "[replace(steps('basics').operationsSection.operationsSubscriptionId, '/subscriptions/', '')]",
         "operationsVirtualNetworkAddressPrefix": "[steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange]",
         "policy": "[steps('compliance').policySection.policy]",
         "resourcePrefix": "[steps('basics').namingSection.resourcePrefix]",
-        "environmentAbbreviation": "[steps('basics').namingSection.environmentAbbreviation]",
         "sharedServicesSubnetAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange]",
         "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
         "sharedServicesVirtualNetworkAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange]",
         "tags": "[steps('tags').tags]",
-        "windowsVmSku": "[steps('remoteAccess').windowsVmSection.windowsVmSku]",
-        "windowsVmSize": "[steps('remoteAccess').windowsVmSection.windowsVmSize]",
+        "virtualNetworkFlowLogRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
         "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword.password]",
-        "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]"
+        "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]",
+        "windowsVmSize": "[steps('remoteAccess').windowsVmSection.windowsVmSize]",
+        "windowsVmSku": "[steps('remoteAccess').windowsVmSection.windowsVmSku]"
       }
     }
   }

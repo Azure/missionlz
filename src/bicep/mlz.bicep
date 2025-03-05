@@ -44,8 +44,8 @@ param supportedClouds array = [
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
 param deployIdentity bool = false
 
-@description('Choose whether to deploy network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription.')
-param deployNetworkWatcher bool = false
+@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param networkWatcherResourceId string = ''
 
 // RESOURCE NAMING PARAMETERS
 
@@ -54,6 +54,23 @@ param deploymentNameSuffix string = utcNow()
 
 @description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
 param tags object = {}
+
+// NETWORK FLOW LOG PARAMETERS
+// These parameters are used to enable flow logs for the network security groups and virtual networks.
+@description('When set to "true", enables Network Security Group Flow Logs. It defaults to "false". NSG logs are set to retire in 2025')
+param deployNetworkSecurityGroupFlowLogs bool = false
+
+@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+param deployVirtualNetworkFlowLogs bool = true
+
+@description('The number of days to retain Network Security Group Flow Logs. It defaults to "30".')
+param networkSecurityGroupFlowLogRetentionDays int = 30
+
+@description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
+param deployNetworkWatcherTrafficAnalytics bool = false
+
+@description('The number of days to retain Virtual Network Flow Logs. It defaults to "30".')  
+param virtualNetworkFlowLogRetentionDays int = 30
 
 // NETWORK ADDRESS SPACE PARAMETERS
 
@@ -602,7 +619,6 @@ module networking 'modules/networking.bicep' = {
     azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
     deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkWatcher: deployNetworkWatcher
     deployBastion: deployBastion
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
     dnsServers: dnsServers
@@ -620,6 +636,7 @@ module networking 'modules/networking.bicep' = {
     }
     location: location
     mlzTags: logic.outputs.mlzTags
+    networkWatcherResourceId: networkWatcherResourceId
     privateDnsZoneNames: logic.outputs.privateDnsZones
     resourceGroupNames: resourceGroups.outputs.names
     tags: tags
@@ -670,52 +687,49 @@ module monitoring 'modules/monitoring.bicep' = {
 // REMOTE ACCESS
 
 module remoteAccess 'modules/remote-access.bicep' = {
-    name: 'deploy-remote-access-${deploymentNameSuffix}'
-    params: {
-      bastionHostPublicIPAddressAllocationMethod: 'Static'
-      bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-      bastionHostPublicIPAddressSkuName: 'Standard'
-      bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
-      deployBastion: deployBastion
-      deployLinuxVirtualMachine: deployLinuxVirtualMachine
-      deployWindowsVirtualMachine: deployWindowsVirtualMachine
-      diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
-      hub: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
-      hubNetworkSecurityGroupResourceId: networking.outputs.hubNetworkSecurityGroupResourceId
-      hubResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
-      hubSubnetResourceId: networking.outputs.hubSubnetResourceId
-      hybridUseBenefit: hybridUseBenefit
-      linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
-      linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
-      linuxVmAdminUsername: linuxVmAdminUsername
-      linuxVmImagePublisher: linuxVmImagePublisher
-      linuxVmImageOffer: linuxVmImageOffer
-      linuxVmImageSku: linuxVmImageSku
-      linuxVmSize: linuxVmSize
-      linuxVmAuthenticationType: linuxVmAuthenticationType
-      linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
-      linuxVmOsDiskType: linuxVmOsDiskType
-      location: location
-      logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-      mlzTags: logic.outputs.mlzTags
-      serviceToken: logic.outputs.tokens.service
-      tags: tags
-      windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
-      windowsVmAdminPassword: windowsVmAdminPassword
-      windowsVmAdminUsername: windowsVmAdminUsername
-      windowsVmCreateOption: windowsVmCreateOption
-      windowsVmOffer: windowsVmOffer
-      windowsVmPublisher: windowsVmPublisher
-      windowsVmSize: windowsVmSize
-      windowsVmSku: windowsVmSku
-      supportedClouds: supportedClouds
-      windowsVmStorageAccountType: windowsVmStorageAccountType
-      windowsVmVersion: windowsVmVersion
-    }
-    dependsOn: [
-      monitoring
-    ]
+  name: 'deploy-remote-access-${deploymentNameSuffix}'
+  params: {
+    bastionHostPublicIPAddressAllocationMethod: 'Static'
+    bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
+    bastionHostPublicIPAddressSkuName: 'Standard'
+    bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
+    deployBastion: deployBastion
+    deployLinuxVirtualMachine: deployLinuxVirtualMachine
+    deployWindowsVirtualMachine: deployWindowsVirtualMachine
+    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
+    hub: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
+    hubNetworkSecurityGroupResourceId: networking.outputs.hubNetworkSecurityGroupResourceId
+    hubResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
+    hubSubnetResourceId: networking.outputs.hubSubnetResourceId
+    hybridUseBenefit: hybridUseBenefit
+    linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
+    linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
+    linuxVmAdminUsername: linuxVmAdminUsername
+    linuxVmImagePublisher: linuxVmImagePublisher
+    linuxVmImageOffer: linuxVmImageOffer
+    linuxVmImageSku: linuxVmImageSku
+    linuxVmSize: linuxVmSize
+    linuxVmAuthenticationType: linuxVmAuthenticationType
+    linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
+    linuxVmOsDiskType: linuxVmOsDiskType
+    location: location
+    logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    mlzTags: logic.outputs.mlzTags
+    serviceToken: logic.outputs.tokens.service
+    tags: tags
+    windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
+    windowsVmAdminPassword: windowsVmAdminPassword
+    windowsVmAdminUsername: windowsVmAdminUsername
+    windowsVmCreateOption: windowsVmCreateOption
+    windowsVmOffer: windowsVmOffer
+    windowsVmPublisher: windowsVmPublisher
+    windowsVmSize: windowsVmSize
+    windowsVmSku: windowsVmSku
+    supportedClouds: supportedClouds
+    windowsVmStorageAccountType: windowsVmStorageAccountType
+    windowsVmVersion: windowsVmVersion
   }
+}
 
 // STORAGE FOR LOGGING
 
@@ -751,12 +765,18 @@ module diagnostics 'modules/diagnostics.bicep' = {
   params: {
     bastionDiagnosticsLogs: bastionDiagnosticsLogs
     deployBastion: deployBastion
+    deployNetworkSecurityGroupFlowLogs: deployNetworkSecurityGroupFlowLogs
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
+    deployVirtualNetworkFlowLogs: deployVirtualNetworkFlowLogs
     deploymentNameSuffix: deploymentNameSuffix
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
     keyVaultName: customerManagedKeys.outputs.keyVaultName
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
+    location: location
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    networkSecurityGroupFlowLogRetentionDays: networkSecurityGroupFlowLogRetentionDays
+    networkWatcherResourceId: networkWatcherResourceId
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
     resourceGroupNames: resourceGroups.outputs.names
@@ -764,10 +784,9 @@ module diagnostics 'modules/diagnostics.bicep' = {
     storageAccountResourceIds: storage.outputs.storageAccountResourceIds
     supportedClouds: supportedClouds
     tiers: logic.outputs.tiers
+    virtualNetworkFlowLogRetentionDays: virtualNetworkFlowLogRetentionDays
+
   }
-  dependsOn: [
-    networking
-  ]
 }
 
 // POLICY ASSIGNMENTS
@@ -795,7 +814,6 @@ module defenderforClouds 'modules/defender-for-clouds.bicep' =
       defenderSkuTier: defenderSkuTier
       deploymentNameSuffix: deploymentNameSuffix
       emailSecurityContact: emailSecurityContact
-      logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
       tiers: logic.outputs.tiers
     }
   }

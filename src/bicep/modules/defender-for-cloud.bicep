@@ -8,13 +8,6 @@ targetScope = 'subscription'
 @description('Defender Paid protection Plans. Even if a customer selects the free sku, at least 1 paid protection plan must be specified.')
 param defenderPlans array = ['VirtualMachines']
 
-@description('Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off')
-param enableAutoProvisioning bool = false
-var autoProvisioning = enableAutoProvisioning ? 'On' : 'Off'
-
-@description('Specify the ID of your custom Log Analytics workspace to collect Defender data.')
-param logAnalyticsWorkspaceId string
-
 @description('Email address of the contact, in the form of john@doe.com')
 param emailSecurityContact string
 
@@ -136,30 +129,10 @@ resource defenderStandardSubplanExtensionsAzureCloud 'Microsoft.Security/pricing
   name: name
   properties: {
     pricingTier: defenderSkuTier
-    subPlan: contains(defenderPaidPlanConfig[environment().name][name],'subPlan') ? defenderPaidPlanConfig[environment().name][name].subPlan : json('null')
-    extensions: contains(defenderPaidPlanConfig[environment().name][name],'extensions') ? defenderPaidPlanConfig[environment().name][name].extensions : json('null')
+    subPlan: defenderPaidPlanConfig[environment().name][name].?subPlan ?? null
+    extensions: defenderPaidPlanConfig[environment().name][name].?extensions ?? null
   }
-}
-]
-
-
-
-// auto provisioing - check environment type
-
-resource autoProvision 'Microsoft.Security/autoProvisioningSettings@2019-01-01' = if (!(environment().name == 'AzureCloud' || environment().name == 'AzureUSGovernment') ) {
-  name: 'default'
-  properties: {
-    autoProvision: autoProvisioning
-  }
-}
-
-resource securityWorkspaceSettings 'Microsoft.Security/workspaceSettings@2019-01-01' = if (!(environment().name == 'AzureCloud' || environment().name == 'AzureUSGovernment') ) {
-  name: 'default'
-  properties: {
-    workspaceId: logAnalyticsWorkspaceId
-    scope: subscription().id
-  }
-}
+}]
 
 resource securityNotifications 'Microsoft.Security/securityContacts@2020-01-01-preview' = if (!empty(emailSecurityContact)) {
   name: 'default'

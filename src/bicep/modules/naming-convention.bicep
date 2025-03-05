@@ -97,6 +97,8 @@ var names = {
   networkSecurityGroup: replace(namingConvention, tokens.resource, resourceAbbreviations.networkSecurityGroups)
   networkSecurityGroupDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.networkSecurityGroups)
   networkWatcher: replace(namingConvention, tokens.resource, resourceAbbreviations.networkWatchers)
+  networkWatcherFlowLogsNetworkSecurityGroup: replace(namingConvention, tokens.resource, '${resourceAbbreviations.networkWatchers}-fl-nsg')
+  networkWatcherFlowLogsVirtualNetwork: replace(namingConvention, tokens.resource, '${resourceAbbreviations.networkWatchers}-fl-vnet')
   privateLinkScope: replace(namingConvention, tokens.resource, resourceAbbreviations.privateLinkScopes)
   privateLinkScopeNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, resourceAbbreviations.privateLinkScopes)
   privateLinkScopePrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, resourceAbbreviations.privateLinkScopes)
