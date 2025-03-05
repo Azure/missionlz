@@ -15,7 +15,7 @@
               "options": {
                 "text": "The Azure Virtual Desktop (AVD) add-on reduces the complexity in deploying AVD with SCCA and zero trust compliance.",
                 "link": {
-                  "label": "Click here learn more about the solution",
+                  "label": "Click here to learn more about the AVD add-on",
                   "uri": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azure-virtual-desktop/README.md"
                 }
               }
@@ -330,7 +330,7 @@
                   "options": {
                     "text": "Start VM On Connect is a feature of AVD that allows the AVD service to start virtual machines in your host pool when a user requests a session and the host is in a stopped or deallocated state. To configure this feature, you must enter the object ID for the \"Azure Virtual Desktop\" or \"Windows Virtual Desktop\" service principal that can be found in Entra ID.",
                     "link": {
-                      "label": "Click here learn more information about finding the AVD service principal",
+                      "label": "Click here to learn more about finding the AVD Object ID.",
                       "uri": "https://learn.microsoft.com/azure/virtual-desktop/service-principal-assign-roles?tabs=portal#assign-an-azure-rbac-role-to-an-azure-virtual-desktop-service-principal"
                     }
                   }
@@ -1542,7 +1542,7 @@
                   "visible": "[equals(steps('networking').flowLogsSection.flowLogsOption, 'deployNetworkSecurityGroupFlowLogs')]",
                   "options": {
                     "style": "Warning",
-                    "text": "NSG flow logs are scheduled for retirement on June 30, 2025. All customers should move to VNet flow logs which offer more logging and visibility. Click here learn more about NSG flow log retirement",
+                    "text": "NSG flow logs are scheduled for retirement on June 30, 2025. All customers should move to VNet flow logs which offer more logging and visibility. Click here to learn more about NSG flow log retirement",
                     "uri": "https://learn.microsoft.com/en-us/azure/network-watcher/nsg-flow-logs-overview"
                   }
                 },
