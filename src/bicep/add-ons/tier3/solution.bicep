@@ -17,11 +17,17 @@ param deployDefender bool
 @description('The suffix to append to the deployment name. It defaults to the current UTC date and time.')
 param deploymentNameSuffix string = utcNow()
 
-@description('Choose whether to deploy Network Watcher for the deployment location.')
-param deployNetworkWatcher bool
+@description('When set to "true", enables Network Security Group Flow Logs. It defaults to "false". NSG logs are set to retire in 2025')
+param deployNetworkSecurityGroupFlowLogs bool = false
+
+@description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
+param deployNetworkWatcherTrafficAnalytics bool = false
 
 @description('Choose whether to deploy a policy assignment.')
 param deployPolicy bool
+
+@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+param deployVirtualNetworkFlowLogs bool = true
 
 @description('The email address to use for Defender for Cloud notifications.')
 param emailSecurityContact string
@@ -80,8 +86,14 @@ param networkSecurityGroupDiagnosticsLogs array = [
 @description('The metrics to monitor for the Network Security Group.')
 param networkSecurityGroupDiagnosticsMetrics array = []
 
+@description('The number of days to retain Network Security Group Flow Logs. It defaults to "30".')
+param networkSecurityGroupFlowLogRetentionDays int = 30
+
 @description('The rules to apply to the Network Security Group.')
 param networkSecurityGroupRules array = []
+
+@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param networkWatcherResourceId string = ''
 
 @description('The policy to assign to the workload.')
 param policy string = 'NISTRev4'
@@ -106,6 +118,9 @@ param virtualNetworkDiagnosticsLogs array = []
 
 @description('The metrics to monitor for the workload Virtual Network.')
 param virtualNetworkDiagnosticsMetrics array = []
+
+@description('The number of days to retain Virtual Network Flow Logs. It defaults to "30".')  
+param virtualNetworkFlowLogRetentionDays int = 30
 
 @minLength(1)
 @maxLength(10)
@@ -172,13 +187,14 @@ module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddress
   params: {
     additionalSubnets: additionalSubnets
     deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkWatcher: deployNetworkWatcher
+    deployUniqueResources: logic.outputs.tiers[0].deployUniqueResources
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     location: location
     mlzTags: logic.outputs.mlzTags
     networkSecurityGroupName: logic.outputs.tiers[0].namingConvention.networkSecurityGroup
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherName: logic.outputs.tiers[0].namingConvention.networkWatcher
+    networkWatcherResourceId: networkWatcherResourceId
     resourceGroupName: rg.outputs.name
     routeTableName: logic.outputs.tiers[0].namingConvention.routeTable
     routeTableRouteNextHopIpAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
@@ -258,21 +274,25 @@ module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddre
   params: {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkSecurityGroupFlowLogs:
-    deployNetworkWatcherTrafficAnalytics:
+    deployNetworkSecurityGroupFlowLogs: deployNetworkSecurityGroupFlowLogs
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
+    deployVirtualNetworkFlowLogs: deployVirtualNetworkFlowLogs
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
     keyVaultName: customerManagedKeys.outputs.keyVaultName
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
+    networkSecurityGroupFlowLogRetentionDays: networkSecurityGroupFlowLogRetentionDays
     networkSecurityGroupName: networking.outputs.networkSecurityGroupName
+    networkWatcherResourceId: networkWatcherResourceId
     resourceGroupName: rg.outputs.name
     serviceToken: logic.outputs.tokens.service
     storageAccountResourceId: storage.outputs.storageAccountResourceId
     tier: logic.outputs.tiers[0]
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
+    virtualNetworkFlowLogRetentionDays: virtualNetworkFlowLogRetentionDays
     virtualNetworkName: networking.outputs.virtualNetworkName
   }
 }
