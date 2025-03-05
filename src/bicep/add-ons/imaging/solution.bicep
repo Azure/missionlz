@@ -62,7 +62,7 @@ param domainJoinUserPrincipalName string = ''
 param domainName string = ''
 
 @description('The email address for the security contact.')
-param emailSecurityContact string
+param emailSecurityContact string = ''
 
 @description('Determines whether to enable build automation.')
 param enableBuildAutomation bool
