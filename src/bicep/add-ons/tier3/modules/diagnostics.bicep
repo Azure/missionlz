@@ -65,7 +65,7 @@ module networkSecurityGroupDiagnostics '../../../modules/network-security-group-
     networkSecurityGroupDiagnosticSettingName: tier.namingConvention.networkSecurityGroupDiagnosticSetting
     networkSecurityGroupFlowLogRetentionDays: networkSecurityGroupFlowLogRetentionDays
     networkSecurityGroupName: networkSecurityGroupName
-    networkWatcherName: tier.namingConvention.networkWatcherName
+    networkWatcherName: tier.namingConvention.networkWatcher
     networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? resourceGroupName : split(networkWatcherResourceId, '/')[4]
     tiername: tier.name
   }

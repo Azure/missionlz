@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "7113246719261620726"
+      "templateHash": "14287976193894494960"
     }
   },
   "parameters": {
@@ -929,7 +929,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "15347057163602994226"
+              "templateHash": "14429510586081138198"
             }
           },
           "parameters": {
@@ -4401,7 +4401,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "9421794430350411704"
+                      "templateHash": "852807701820621911"
                     }
                   },
                   "parameters": {
@@ -4672,7 +4672,7 @@
                             "value": "[parameters('networkSecurityGroupName')]"
                           },
                           "networkWatcherName": {
-                            "value": "[parameters('tier').namingConvention.networkWatcherName]"
+                            "value": "[parameters('tier').namingConvention.networkWatcher]"
                           },
                           "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('resourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
                           "tiername": {
