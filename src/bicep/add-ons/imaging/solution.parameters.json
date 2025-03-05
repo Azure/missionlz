@@ -5,10 +5,16 @@
     "actionGroupName": {
         "value": ""
     },
+    "arcGisProInstaller": {
+        "value": ""
+    },
     "automationAccountName": {
         "value": ""
     },
     "automationAccountPrivateDnsZoneResourceId": {
+        "value": ""
+    },
+    "azureFirewallResourceId": {
         "value": ""
     },
     "computeGalleryImageResourceId": {
@@ -22,6 +28,21 @@
     },
     "customizations": {
         "value": []
+    },
+    "deployDefender": {
+        "value": false
+    },
+    "deployNetworkSecurityGroupFlowLogs": {
+        "value": false
+    },
+    "deployNetworkWatcherTrafficAnalytics": {
+        "value": false
+    },
+    "deployPolicy": {
+        "value": false
+    },
+    "deployVirtualNetworkFlowLogs": {
+        "value": true
     },
     "diskEncryptionSetResourceId": {
         "value": ""
@@ -41,8 +62,14 @@
     "domainName": {
         "value": ""
     },
+    "emailSecurityContact": {
+        "value": ""
+    },
     "enableBuildAutomation": {
         "value": false
+    },
+    "environmentAbbreviation": {
+        "value": "dev"
     },
     "excludeFromLatest": {
         "value": false
@@ -134,6 +161,12 @@
     "msrdcwebrtcsvcInstaller": {
         "value": ""
     },
+    "networkSecurityGroupFlowLogRetentionDays": {
+        "value": 30
+    },
+    "networkWatcherResourceId": {
+        "value": ""
+    },
     "officeInstaller": {
         "value": ""
     },
@@ -172,6 +205,12 @@
     },
     "virtualMachineSize": {
         "value": ""
+    },
+    "virtualNetworkAddressPrefix": {
+        "value": "10.0.134.0/24"
+    },
+    "virtualNetworkFlowLogRetentionDays": {
+        "value": 30
     }
   }
 }
