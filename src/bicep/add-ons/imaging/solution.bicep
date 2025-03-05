@@ -36,11 +36,17 @@ param deployDefender bool = false
 @description('The suffix to append to deployment names.')
 param deploymentNameSuffix string = utcNow('yyMMddHHs')
 
-@description('Choose whether to deploy a network watcher for deployment location.')
-param deployNetworkWatcher bool = false
+@description('When set to "true", enables Network Security Group Flow Logs. It defaults to "false". NSG logs are set to retire in 2025')
+param deployNetworkSecurityGroupFlowLogs bool = false
+
+@description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
+param deployNetworkWatcherTrafficAnalytics bool = false
 
 @description('Deploy Policy enabled.')
 param deployPolicy bool = false
+
+@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+param deployVirtualNetworkFlowLogs bool = true
 
 @description('The distribution group for email notifications.')
 param distributionGroup string = ''
@@ -185,8 +191,14 @@ param networkSecurityGroupDiagnosticsLogs array = [
 @description('The network security group diagnostics metrics to apply to the subnet.')
 param networkSecurityGroupDiagnosticsMetrics array = []
 
+@description('The number of days to retain Network Security Group Flow Logs. It defaults to "30".')
+param networkSecurityGroupFlowLogRetentionDays int = 30
+
 @description('The network security group rules to apply to the subnet.')
 param networkSecurityGroupRules array = []
+
+@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param networkWatcherResourceId string = ''
 
 @description('The file name of the Office installer in Azure Blobs.')
 param officeInstaller string = ''
@@ -251,6 +263,9 @@ param virtualNetworkDiagnosticsLogs array = []
 @description('The metrics for the diagnostic setting on the virtual network.')
 param virtualNetworkDiagnosticsMetrics array = []
 
+@description('The number of days to retain Virtual Network Flow Logs. It defaults to "30".')  
+param virtualNetworkFlowLogRetentionDays int = 30
+
 @description('The WSUS Server Url if WSUS is specified. (i.e., https://wsus.corp.contoso.com:8531)')
 param wsusServer string = ''
 
@@ -266,8 +281,10 @@ module tier3 '../tier3/solution.bicep' = {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkWatcher: deployNetworkWatcher
+    deployNetworkSecurityGroupFlowLogs: deployNetworkSecurityGroupFlowLogs
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deployPolicy:  deployPolicy
+    deployVirtualNetworkFlowLogs: deployVirtualNetworkFlowLogs
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: azureFirewallResourceId
@@ -278,13 +295,16 @@ module tier3 '../tier3/solution.bicep' = {
     logStorageSkuName: logStorageSkuName
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs 
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
+    networkSecurityGroupFlowLogRetentionDays: networkSecurityGroupFlowLogRetentionDays
     networkSecurityGroupRules: networkSecurityGroupRules
+    networkWatcherResourceId: networkWatcherResourceId
     policy: policy
     subnetAddressPrefix: subnetAddressPrefix
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
+    virtualNetworkFlowLogRetentionDays: virtualNetworkFlowLogRetentionDays
     workloadName: workloadName
     workloadShortName: workloadShortName
   }
