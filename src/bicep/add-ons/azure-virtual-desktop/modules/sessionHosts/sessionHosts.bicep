@@ -42,6 +42,7 @@ param maxResourcesPerTemplateDeployment int
 param mlzTags object
 param namingConvention object
 param netAppFileShares array
+param networkSecurityGroupResourceId string
 param organizationalUnitPath string
 param profile string
 param recoveryServicesVaultName string
@@ -243,6 +244,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     managementVirtualMachineName: managementVirtualMachineName
     netAppFileShares: netAppFileShares
     networkInterfaceNamePrefix: namingConvention.virtualMachineNetworkInterface
+    networkSecurityGroupResourceId: networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
     resourceGroupManagement: resourceGroupManagement

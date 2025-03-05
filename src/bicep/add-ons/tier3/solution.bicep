@@ -327,6 +327,7 @@ output locationProperties object = logic.outputs.locationProperties
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspaceResourceId
 output mlzTags object = logic.outputs.mlzTags
 output namingConvention object = logic.outputs.tiers[0].namingConvention
+output networkSecurityGroupResourceId string = networking.outputs.networkSecurityGroupResourceId
 output privateDnsZones array = logic.outputs.privateDnsZones
 output resourceAbbreviations object = logic.outputs.resourceAbbreviations
 output resourcePrefix string = azureFirewall.tags.resourcePrefix

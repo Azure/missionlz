@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "17915382137631956805"
+      "templateHash": "9580980078890497472"
     }
   },
   "parameters": {
@@ -652,7 +652,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "2345631708860195360"
+              "templateHash": "15347057163602994226"
             }
           },
           "parameters": {
@@ -1913,7 +1913,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "9467408940084799014"
+                      "templateHash": "15003007944991318758"
                     }
                   },
                   "parameters": {
@@ -2802,6 +2802,10 @@
                     "networkSecurityGroupName": {
                       "type": "string",
                       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
+                    },
+                    "networkSecurityGroupResourceId": {
+                      "type": "string",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
                     },
                     "subnets": {
                       "type": "array",
@@ -5395,6 +5399,10 @@
             "namingConvention": {
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention]"
+            },
+            "networkSecurityGroupResourceId": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
             },
             "privateDnsZones": {
               "type": "array",

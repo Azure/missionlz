@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "15482427788847223699"
+      "templateHash": "12645853488742143199"
     }
   },
   "parameters": {
@@ -1377,7 +1377,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "2345631708860195360"
+              "templateHash": "15347057163602994226"
             }
           },
           "parameters": {
@@ -2638,7 +2638,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "9467408940084799014"
+                      "templateHash": "15003007944991318758"
                     }
                   },
                   "parameters": {
@@ -3527,6 +3527,10 @@
                     "networkSecurityGroupName": {
                       "type": "string",
                       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
+                    },
+                    "networkSecurityGroupResourceId": {
+                      "type": "string",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
                     },
                     "subnets": {
                       "type": "array",
@@ -6120,6 +6124,10 @@
             "namingConvention": {
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention]"
+            },
+            "networkSecurityGroupResourceId": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
             },
             "privateDnsZones": {
               "type": "array",
@@ -12138,6 +12146,9 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value]"
           },
           "netAppFileShares": "[if(variables('deployFslogix'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.netAppShares.value), createObject('value', createArray('None')))]",
+          "networkSecurityGroupResourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
+          },
           "organizationalUnitPath": {
             "value": "[parameters('organizationalUnitPath')]"
           },
@@ -12216,7 +12227,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "8278605754599655765"
+              "templateHash": "16465076969636446938"
             }
           },
           "parameters": {
@@ -12342,6 +12353,9 @@
             },
             "netAppFileShares": {
               "type": "array"
+            },
+            "networkSecurityGroupResourceId": {
+              "type": "string"
             },
             "organizationalUnitPath": {
               "type": "string"
@@ -12987,6 +13001,9 @@
                   "networkInterfaceNamePrefix": {
                     "value": "[parameters('namingConvention').virtualMachineNetworkInterface]"
                   },
+                  "networkSecurityGroupResourceId": {
+                    "value": "[parameters('networkSecurityGroupResourceId')]"
+                  },
                   "organizationalUnitPath": {
                     "value": "[parameters('organizationalUnitPath')]"
                   },
@@ -13048,7 +13065,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "234327045714322625"
+                      "templateHash": "17170631492967604646"
                     }
                   },
                   "parameters": {
@@ -13140,6 +13157,9 @@
                       "type": "array"
                     },
                     "networkInterfaceNamePrefix": {
+                      "type": "string"
+                    },
+                    "networkSecurityGroupResourceId": {
                       "type": "string"
                     },
                     "organizationalUnitPath": {
@@ -13269,6 +13289,9 @@
                             }
                           }
                         ],
+                        "networkSecurityGroup": {
+                          "id": "[parameters('networkSecurityGroupResourceId')]"
+                        },
                         "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
                         "enableIPForwarding": false
                       }

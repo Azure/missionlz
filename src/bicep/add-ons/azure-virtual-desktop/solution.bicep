@@ -680,6 +680,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     netAppFileShares: deployFslogix ? fslogix.outputs.netAppShares : [
       'None'
     ]
+    networkSecurityGroupResourceId: tier3_hosts.outputs.networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
     recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
