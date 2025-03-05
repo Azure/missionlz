@@ -38,14 +38,20 @@ param deployActivityLogDiagnosticSetting bool
 @description('Choose whether to deploy Defender for Cloud.')
 param deployDefender bool
 
-@description('Choose whether to deploy Network Watcher for the AVD session hosts location. This is necessary when the control plane and session hosts are in different locations.')
-param deployNetworkWatcher bool
+@description('When set to "true", enables Network Security Group Flow Logs. It defaults to "false". NSG logs are set to retire in 2025')
+param deployNetworkSecurityGroupFlowLogs bool = false
+
+@description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
+param deployNetworkWatcherTrafficAnalytics bool = false
 
 @description('Choose whether to deploy a policy assignment.')
 param deployPolicy bool
 
 @description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
 param deploymentNameSuffix string = utcNow()
+
+@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+param deployVirtualNetworkFlowLogs bool = true
 
 @description('The friendly name for the SessionDesktop application in the desktop application group.')
 param desktopFriendlyName string = ''
@@ -183,6 +189,12 @@ param logAnalyticsWorkspaceRetention int = 30
 @description('The SKU for the Log Analytics Workspace to setup the AVD monitoring solution')
 param logAnalyticsWorkspaceSku string = 'PerGB2018'
 
+@description('The number of days to retain Network Security Group Flow Logs. It defaults to "30".')
+param networkSecurityGroupFlowLogRetentionDays int = 30
+
+@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param networkWatcherResourceId string = ''
+
 @description('The resource ID of the Log Analytics Workspace to use for log storage.')
 param operationsLogAnalyticsWorkspaceResourceId string
 
@@ -293,6 +305,9 @@ param virtualMachineVirtualCpuCount int
 param virtualNetworkAddressPrefixes array = [
   '10.0.140.0/23'
 ]
+
+@description('The number of days to retain Virtual Network Flow Logs. It defaults to "30".')  
+param virtualNetworkFlowLogRetentionDays int = 30
 
 @description('The friendly name for the AVD workspace that is displayed in the end-user client.')
 param workspaceFriendlyName string = ''
@@ -422,9 +437,11 @@ module tier3_hosts '../tier3/solution.bicep' = {
     additionalSubnets: union(subnets.avdControlPlane, subnets.azureNetAppFiles, subnets.functionApp)
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
+    deployNetworkSecurityGroupFlowLogs: deployNetworkSecurityGroupFlowLogs
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkWatcher: deployNetworkWatcher
     deployPolicy: deployPolicy
+    deployVirtualNetworkFlowLogs: deployVirtualNetworkFlowLogs
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: hubAzureFirewallResourceId
@@ -432,12 +449,15 @@ module tier3_hosts '../tier3/solution.bicep' = {
     identifier: identifier
     location: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
+    networkSecurityGroupFlowLogRetentionDays: networkSecurityGroupFlowLogRetentionDays
+    networkWatcherResourceId: networkWatcherResourceId
     policy: policy
     stampIndex: string(stampIndex)
     subnetName: 'AvdSessionHosts'
     subnetAddressPrefix: subnetAddressPrefixes[0]
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefixes[0]
+    virtualNetworkFlowLogRetentionDays: virtualNetworkFlowLogRetentionDays
     workloadName: 'avd'
     workloadShortName: 'avd'
   }
