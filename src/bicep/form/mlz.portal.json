@@ -294,7 +294,7 @@
                 "text": "SCCA guidance and architectures are specific to DoD customers, but they also help civilian customers comply with Trusted Internet Connections (TIC) guidance and help commercial customers that want to implement a secure DMZ to protect their Azure environments.",
                 "link": {
                   "label": "Learn more",
-                  "uri": "https://docs.microsoft.com/en-us/azure/azure-government/compliance/secure-azure-computing-architecture"
+                  "uri": "https://docs.microsoft.com/azure/azure-government/compliance/secure-azure-computing-architecture"
                 }
               }
             },
@@ -710,7 +710,7 @@
                   "options": {
                     "style": "Warning",
                     "text": "NSG flow logs are scheduled for retirement on June 30, 2025. All customers should move to VNet flow logs which offer more logging and visibility. Click here learn more about NSG flow log retirement",
-                    "uri": "https://learn.microsoft.com/en-us/azure/network-watcher/nsg-flow-logs-overview"
+                    "uri": "https://learn.microsoft.com/azure/network-watcher/nsg-flow-logs-overview"
                   }
                 },
                 {
@@ -755,7 +755,7 @@
                 "text": "To support the on-going security and compliance of your landing zone, MLZ provides options for configuring: Defender for Cloud, Regulatory Compliance Policies, and Microsoft Sentinel.",
                 "link": {
                   "label": "Click here to learn more about recommended security best practices",
-                  "uri": "https://learn.microsoft.com/en-us/azure/security/fundamentals/operational-best-practices"
+                  "uri": "https://learn.microsoft.com/azure/security/fundamentals/operational-best-practices"
                 }
               }
             },
@@ -771,7 +771,7 @@
                     "text": "To support the on-going security and compliance of your landing zone, by default - MLZ deploys the free cloud security posture management features of Defender for Cloud, such as: secure score, which is powered by the Microsoft Cloud Security Benchmark. The Microsoft Cloud Security Benchmark is a security framework derived from Microsoft best practices, and NIST/CIS security Controls.",
                     "link": {
                       "label": "Click here to learn more about Defender for Cloud",
-                      "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
+                      "uri": "https://docs.microsoft.com/azure/defender-for-cloud/defender-for-cloud-introduction"
                     }
                   }
                 }
@@ -795,7 +795,7 @@
                   "visible": true,
                   "options": {
                     "text": "Enabling the additional paid features of Microsoft Defender for Cloud is recommended.  If you have previously enabled any paid workload protection plans, you must select the checkbox and relevant plans on the dropdown list, to ensure protection is maintained through any deployment(s) of MLZ.",
-                    "uri": "https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction#protect-cloud-workloads"
+                    "uri": "https://learn.microsoft.com/azure/defender-for-cloud/defender-for-cloud-introduction#protect-cloud-workloads"
                   }
                 },
                 {
@@ -813,7 +813,7 @@
                   "options": {
                     "icon": "Info",
                     "text": "Click the link to open a new browser tab, to confirm what workload protection features are available in the in Azure Commercial and Azure Government Clouds.",
-                    "uri": "https://learn.microsoft.com/en-us/azure/security/fundamentals/feature-availability#microsoft-defender-for-cloud"
+                    "uri": "https://learn.microsoft.com/azure/security/fundamentals/feature-availability#microsoft-defender-for-cloud"
                   },
                   "visible": "[steps('compliance').defenderSection.deployDefender]"
                 },
@@ -1006,7 +1006,7 @@
                     "text": "MLZ can deploy Microsoft Sentinel to the Log Analytics Workspace, for its Security information and event management (SIEM) and Security orchestration, automation, and response (SOAR).",
                     "link": {
                       "label": "Learn more about Microsoft Sentinel",
-                      "uri": "https://learn.microsoft.com/en-us/azure/sentinel/overview"
+                      "uri": "https://learn.microsoft.com/azure/sentinel/overview"
                     }
                   }
                 },
@@ -1017,7 +1017,7 @@
                     "text": "Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities. Please check the following article to determine what regions support Sentinel.",
                     "link": {
                       "label": "Learn more about Sentinel regions",
-                      "uri": "https://learn.microsoft.com/en-us/azure/sentinel/geographical-availability-data-residency"
+                      "uri": "https://learn.microsoft.com/azure/sentinel/geographical-availability-data-residency"
                     }
                   }
                 },
@@ -1027,7 +1027,7 @@
                   "options": {
                     "style": "Info",
                     "text": "Please check the following article to see what features are available for Sentinel in different Azure environments.",
-                    "uri": "https://learn.microsoft.com/en-us/azure/sentinel/feature-availability"
+                    "uri": "https://learn.microsoft.com/azure/sentinel/feature-availability"
                   }
                 },
                 {
@@ -1054,7 +1054,7 @@
                 "text": "Mission Landing Zone can provision a Windows and a Linux virtual machine to securely access the network remotely using Azure Bastion hosts.",
                 "link": {
                   "label": "Learn more",
-                  "uri": "https://docs.microsoft.com/en-us/azure/bastion/bastion-overview"
+                  "uri": "https://docs.microsoft.com/azure/bastion/bastion-overview"
                 }
               }
             },
