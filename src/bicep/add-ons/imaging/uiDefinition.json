@@ -1271,23 +1271,6 @@
           "label": "Networking",
           "elements": [
             {
-              "name": "networkPrerequisites1",
-              "type": "Microsoft.Common.InfoBox",
-              "options": {
-                "style": "Warning",
-                "text": "Prior to deployment, make sure you meet the prerequisites outlined in the Zero Trust Image solution documentation.",
-                "uri": "https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/imaging/README.md#prequisites"
-              }
-            },
-            {
-              "name": "networkPrerequisites2",
-              "type": "Microsoft.Common.InfoBox",
-              "options": {
-                "style": "Info",
-                "text": "This section applies to the deployment of a new Spoke or Tier 3 environment specifically for imaging which will be created for you. Choose a network and subnet range that doesn't conflict with the Hub or any other VNets in your MLZ."
-              }
-            },
-            {
               "name": "networkSection",
               "label": "Networking",
               "type": "Microsoft.Common.Section",
@@ -1344,35 +1327,35 @@
             },
             {
               "name": "flowLogsSection",
-              "label": "Configure Flow Logs",
+              "label": "Network Watcher Flow Logs",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
                   "name": "flowLogsDescription",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "To support the on-going security and compliance of your landing zone, MLZ configures flow logs for virtual networks by default. Flow logs capture information about IP traffic flowing through your virtual Networks or network security groups. Flow log data can be used to troubleshoot network connectivity issues, monitor network traffic, and detect and diagnose security threats.",
+                    "text": "To support the on-going security and compliance of your landing zone, MLZ configures network watcher flow logs for virtual networks by default. Flow logs capture information about IP traffic flowing through your virtual Networks or network security groups. Flow log data can be used to troubleshoot network connectivity issues, monitor network traffic, and detect and diagnose security threats.",
                     "link": {
-                      "label": "Click here to learn more about virtual Network flow logs",
-                      "uri": "https://learn.microsoft.com/en-us/azure/network-watcher/vnet-flow-logs-overview"
+                      "label": "Click here to learn more about network watcher flow logs",
+                      "uri": "https://learn.microsoft.com/azure/network-watcher/network-watcher-overview#flow-logs"
                     }
                   }
                 },
                 {
-                  "name": "flowLogsOption",
-                  "label": "Flow Logs Option",
+                  "name": "flowLogsType",
+                  "label": "Flow Logs Type",
                   "type": "Microsoft.Common.DropDown",
                   "defaultValue": "Virtual Network Flow Logs (recommended)",
                   "toolTip": "Select the type of flow logs to deploy.",
                   "constraints": {
                     "allowedValues": [
                       {
-                        "label": "Virtual Network Flow Logs (recommended)",
-                        "value": "deployVirtualNetworkFlowLogs"
+                        "label": "Virtual Network (recommended)",
+                        "value": "VirtualNetwork"
                       },
                       {
-                        "label": "Network Security Group Flow Logs",
-                        "value": "deployNetworkSecurityGroupFlowLogs"
+                        "label": "Network Security Group",
+                        "value": "NetworkSecurityGroup"
                       }
                     ]
                   }
@@ -1380,11 +1363,11 @@
                 {
                   "name": "nsgFlowLogsRetirementWarning",
                   "type": "Microsoft.Common.InfoBox",
-                  "visible": "[equals(steps('networking').flowLogsSection.flowLogsOption, 'deployNetworkSecurityGroupFlowLogs')]",
+                  "visible": "[equals(steps('networking').flowLogsSection.flowLogsType, 'deployNetworkSecurityGroupFlowLogs')]",
                   "options": {
                     "style": "Warning",
                     "text": "NSG flow logs are scheduled for retirement on June 30, 2025. All customers should move to VNet flow logs which offer more logging and visibility. Click here learn more about NSG flow log retirement",
-                    "uri": "https://learn.microsoft.com/en-us/azure/network-watcher/nsg-flow-logs-overview"
+                    "uri": "https://learn.microsoft.com/azure/network-watcher/nsg-flow-logs-overview"
                   }
                 },
                 {
@@ -1392,11 +1375,11 @@
                   "label": "Retention Days",
                   "type": "Microsoft.Common.TextBox",
                   "defaultValue": "30",
-                  "toolTip": "Enter the number of days to retain virtual Network flow logs.",
+                  "toolTip": "Enter the number of days to retain the network watcher flow logs. If you want to retain the data forever and do not want to apply any retention policy, set retention (days) to 0.",
                   "constraints": {
                     "required": true,
-                    "regex": "^[0-9]+$",
-                    "message": "Please enter a valid number of days."
+                    "regex": "^36[0-5]|3[0-5][0-9]|[1-2][0-9][0-9]|[0-9]{1,2}$",
+                    "message": "The value must be between 0 and 365."
                   }
                 },
                 {
@@ -1555,6 +1538,7 @@
               "type": "Microsoft.Common.TagsByResource",
               "resources": [
                 "Microsoft.Automation/automationAccounts",
+                "Microsoft.Compute/diskEncryptionSets",
                 "Microsoft.Compute/galleries",
                 "Microsoft.Compute/virtualMachines",
                 "Microsoft.Insights/actionGroups",
@@ -1562,8 +1546,14 @@
                 "Microsoft.KeyVault/vaults",
                 "Microsoft.ManagedIdentity/userAssignedIdentities",
                 "Microsoft.Network/networkInterfaces",
+                "Microsoft.Network/networkSecurityGroups",
+                "Microsoft.Network/networkWatchers",
                 "Microsoft.Network/privateEndpoints",
-                "Microsoft.Resources/templateSpecs"
+                "Microsoft.Network/routeTables",
+                "Microsoft.Network/virtualNetworks",
+                "Microsoft.Resources/resourceGroups",
+                "Microsoft.Resources/templateSpecs",
+                "Microsoft.Storage/storageAccounts"
               ]
             }
           ]
@@ -1579,10 +1569,8 @@
         "customizations": "[if(equals(steps('customizations').customSoftware.installCustomSoftware, true), steps('customizations').customSoftware.customizations,'')]",
         "deployActivityLogDiagnosticSetting": "[empty(steps('compliance').diagnosticSettingsApi.value)]",
         "deployDefender": "[and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value))]",
-        "deployNetworkSecurityGroupFlowLogs": "[if(equals(steps('network').flowLogsSection.flowLogsOption,'deployNetworkSecurityGroupFlowLogs'), true, false)]",
         "deployNetworkWatcherTrafficAnalytics": "[steps('network').flowLogsSection.deployTrafficAnalytics]",        
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
-        "deployVirtualNetworkFlowLogs": "[if(equals(steps('network').flowLogsSection.flowLogsOption,'deployVirtualNetworkFlowLogs'), true, false)]",
         "distributionGroup": "[if(and(steps('automation').automation.enable, steps('automation').monitoring.enable), steps('automation').monitoring.distributionGroup, '')]",
         "domainJoinPassword": "[steps('automation').hybridWorker.domainJoinPassword]",
         "domainJoinUserPrincipalName": "[steps('automation').hybridWorker.domainJoinUserPrincipalName]",
@@ -1623,6 +1611,8 @@
         "marketplaceImageSKU": "[if(equals(steps('image').source.type, 'AzureMarketplace'), steps('image').source.sku, '')]",
         "msrdcwebrtcsvcInstaller": "[if(steps('customizations').office.installTeams, steps('customizations').office.msrdcwebrtcsvcInstaller.blobName,'')]",
         "networkSecurityGroupFlowLogRetentionDays": "[steps('network').flowLogsSection.retentionDays]",
+        "networkWatcherFlowLogsRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
+        "networkWatcherFlowLogsType": "[steps('networking').flowLogsSection.flowLogsType]",
         "networkWatcherResourceId": "[if(not(empty(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)))), first(map(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)), (item) => item.id)), '')]",
         "officeInstaller": "[if(steps('customizations').office.installOffice, steps('customizations').office.officeBlob.blobName,'')]",
         "oUPath": "[if(and(steps('automation').automation.enable, steps('automation').hybridWorker.domainJoin), steps('automation').hybridWorker.ouPath, '')]",
@@ -1639,7 +1629,6 @@
         "vDOTInstaller": "[if(steps('customizations').specialitySoftware.installVirtualDesktopOptimizationTool, steps('customizations').specialitySoftware.vDotBlob.blobName,'')]",
         "virtualMachineSize": "[steps('virtualMachines').vmSize]",
         "virtualNetworkAddressPrefix": "[steps('network').networkSection.virtualNetworkAddressCidrRange]",
-        "virtualNetworkFlowLogRetentionDays": "[steps('network').flowLogsSection.retentionDays]",
         "wsusServer": "[if(equals(steps('customizations').updates.updateService, 'WSUS'), steps('customizations').updates.wsusServer, '')]"
       },
       "kind": "Subscription",

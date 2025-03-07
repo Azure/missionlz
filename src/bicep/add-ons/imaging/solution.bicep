@@ -36,17 +36,11 @@ param deployDefender bool = false
 @description('The suffix to append to deployment names.')
 param deploymentNameSuffix string = utcNow('yyMMddHHs')
 
-@description('When set to "true", enables Network Security Group Flow Logs. It defaults to "false". NSG logs are set to retire in 2025')
-param deployNetworkSecurityGroupFlowLogs bool = false
-
 @description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
 param deployNetworkWatcherTrafficAnalytics bool = false
 
 @description('Deploy Policy enabled.')
 param deployPolicy bool = false
-
-@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
-param deployVirtualNetworkFlowLogs bool = true
 
 @description('The distribution group for email notifications.')
 param distributionGroup string = ''
@@ -161,7 +155,7 @@ param location string = deployment().location
 @description('The resource ID of the log analytics workspace if using build automation and desired.')
 param logAnalyticsWorkspaceResourceId string = ''
 
-@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
+@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See the following URL for valid settings: https://learn.microsoft.com/rest/api/storagerp/srp_sku_types.')
 param logStorageSkuName string = 'Standard_GRS'
 
 @description('The marketplace image offer.')
@@ -191,11 +185,18 @@ param networkSecurityGroupDiagnosticsLogs array = [
 @description('The network security group diagnostics metrics to apply to the subnet.')
 param networkSecurityGroupDiagnosticsMetrics array = []
 
-@description('The number of days to retain Network Security Group Flow Logs. It defaults to "30".')
-param networkSecurityGroupFlowLogRetentionDays int = 30
-
 @description('The network security group rules to apply to the subnet.')
 param networkSecurityGroupRules array = []
+
+@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
+param networkWatcherFlowLogsRetentionDays int = 30
+
+@allowed([
+  'NetworkSecurityGroup'
+  'VirtualNetwork'
+])
+@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+param networkWatcherFlowLogsType string = 'VirtualNetwork'
 
 @description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
 param networkWatcherResourceId string = ''
@@ -263,9 +264,6 @@ param virtualNetworkDiagnosticsLogs array = []
 @description('The metrics for the diagnostic setting on the virtual network.')
 param virtualNetworkDiagnosticsMetrics array = []
 
-@description('The number of days to retain Virtual Network Flow Logs. It defaults to "30".')  
-param virtualNetworkFlowLogRetentionDays int = 30
-
 @description('The WSUS Server Url if WSUS is specified. (i.e., https://wsus.corp.contoso.com:8531)')
 param wsusServer string = ''
 
@@ -281,10 +279,8 @@ module tier3 '../tier3/solution.bicep' = {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkSecurityGroupFlowLogs: deployNetworkSecurityGroupFlowLogs
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deployPolicy:  deployPolicy
-    deployVirtualNetworkFlowLogs: deployVirtualNetworkFlowLogs
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: azureFirewallResourceId
@@ -295,8 +291,9 @@ module tier3 '../tier3/solution.bicep' = {
     logStorageSkuName: logStorageSkuName
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs 
     networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
-    networkSecurityGroupFlowLogRetentionDays: networkSecurityGroupFlowLogRetentionDays
     networkSecurityGroupRules: networkSecurityGroupRules
+    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
+    networkWatcherFlowLogsType: networkWatcherFlowLogsType
     networkWatcherResourceId: networkWatcherResourceId
     policy: policy
     subnetAddressPrefix: subnetAddressPrefix
@@ -304,7 +301,6 @@ module tier3 '../tier3/solution.bicep' = {
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
-    virtualNetworkFlowLogRetentionDays: virtualNetworkFlowLogRetentionDays
     workloadName: workloadName
     workloadShortName: workloadShortName
   }
