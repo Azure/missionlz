@@ -55,22 +55,20 @@ param deploymentNameSuffix string = utcNow()
 @description('A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings.')
 param tags object = {}
 
-// NETWORK FLOW LOG PARAMETERS
-// These parameters are used to enable flow logs for the network security groups and virtual networks.
-@description('When set to "true", enables Network Security Group Flow Logs. It defaults to "false". NSG logs are set to retire in 2025')
-param deployNetworkSecurityGroupFlowLogs bool = false
-
-@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
-param deployVirtualNetworkFlowLogs bool = true
-
-@description('The number of days to retain Network Security Group Flow Logs. It defaults to "30".')
-param networkSecurityGroupFlowLogRetentionDays int = 30
-
+// NETWORK WATCHER FLOW LOG PARAMETERS
+// These parameters are used to enable flow logs for the network security groups or virtual networks.
 @description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
 param deployNetworkWatcherTrafficAnalytics bool = false
 
-@description('The number of days to retain Virtual Network Flow Logs. It defaults to "30".')  
-param virtualNetworkFlowLogRetentionDays int = 30
+@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
+param networkWatcherFlowLogsRetentionDays int = 30
+
+@allowed([
+  'NetworkSecurityGroup'
+  'VirtualNetwork'
+])
+@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+param networkWatcherFlowLogsType string = 'VirtualNetwork'
 
 // NETWORK ADDRESS SPACE PARAMETERS
 
@@ -765,9 +763,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
   params: {
     bastionDiagnosticsLogs: bastionDiagnosticsLogs
     deployBastion: deployBastion
-    deployNetworkSecurityGroupFlowLogs: deployNetworkSecurityGroupFlowLogs
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    deployVirtualNetworkFlowLogs: deployVirtualNetworkFlowLogs
     deploymentNameSuffix: deploymentNameSuffix
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
@@ -775,7 +771,8 @@ module diagnostics 'modules/diagnostics.bicep' = {
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
     location: location
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-    networkSecurityGroupFlowLogRetentionDays: networkSecurityGroupFlowLogRetentionDays
+    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
+    networkWatcherFlowLogsType: networkWatcherFlowLogsType
     networkWatcherResourceId: networkWatcherResourceId
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
@@ -784,8 +781,6 @@ module diagnostics 'modules/diagnostics.bicep' = {
     storageAccountResourceIds: storage.outputs.storageAccountResourceIds
     supportedClouds: supportedClouds
     tiers: logic.outputs.tiers
-    virtualNetworkFlowLogRetentionDays: virtualNetworkFlowLogRetentionDays
-
   }
 }
 

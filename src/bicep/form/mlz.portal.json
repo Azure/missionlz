@@ -670,35 +670,35 @@
             },
             {
               "name": "flowLogsSection",
-              "label": "Configure Flow Logs",
+              "label": "Network Watcher Flow Logs",
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
                   "name": "flowLogsDescription",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "To support the on-going security and compliance of your landing zone, MLZ configures flow logs for virtual networks by default. Flow logs capture information about IP traffic flowing through your virtual Networks or network security groups. Flow log data can be used to troubleshoot network connectivity issues, monitor network traffic, and detect and diagnose security threats.",
+                    "text": "To support the on-going security and compliance of your landing zone, MLZ configures network watcher flow logs for virtual networks by default. Flow logs capture information about IP traffic flowing through your virtual Networks or network security groups. Flow log data can be used to troubleshoot network connectivity issues, monitor network traffic, and detect and diagnose security threats.",
                     "link": {
-                      "label": "Click here to learn more about virtual Network flow logs",
-                      "uri": "https://learn.microsoft.com/en-us/azure/network-watcher/vnet-flow-logs-overview"
+                      "label": "Click here to learn more about network watcher flow logs",
+                      "uri": "https://learn.microsoft.com/azure/network-watcher/network-watcher-overview#flow-logs"
                     }
                   }
                 },
                 {
-                  "name": "flowLogsOption",
-                  "label": "Flow Logs Option",
+                  "name": "flowLogsType",
+                  "label": "Flow Logs Type",
                   "type": "Microsoft.Common.DropDown",
                   "defaultValue": "Virtual Network Flow Logs (recommended)",
                   "toolTip": "Select the type of flow logs to deploy.",
                   "constraints": {
                     "allowedValues": [
                       {
-                        "label": "Virtual Network Flow Logs (recommended)",
-                        "value": "deployVirtualNetworkFlowLogs"
+                        "label": "Virtual Network (recommended)",
+                        "value": "VirtualNetwork"
                       },
                       {
-                        "label": "Network Security Group Flow Logs",
-                        "value": "deployNetworkSecurityGroupFlowLogs"
+                        "label": "Network Security Group",
+                        "value": "NetworkSecurityGroup"
                       }
                     ]
                   }
@@ -706,7 +706,7 @@
                 {
                   "name": "nsgFlowLogsRetirementWarning",
                   "type": "Microsoft.Common.InfoBox",
-                  "visible": "[equals(steps('networking').flowLogsSection.flowLogsOption, 'deployNetworkSecurityGroupFlowLogs')]",
+                  "visible": "[equals(steps('networking').flowLogsSection.flowLogsType, 'deployNetworkSecurityGroupFlowLogs')]",
                   "options": {
                     "style": "Warning",
                     "text": "NSG flow logs are scheduled for retirement on June 30, 2025. All customers should move to VNet flow logs which offer more logging and visibility. Click here learn more about NSG flow log retirement",
@@ -718,11 +718,11 @@
                   "label": "Retention Days",
                   "type": "Microsoft.Common.TextBox",
                   "defaultValue": "30",
-                  "toolTip": "Enter the number of days to retain virtual Network flow logs.",
+                  "toolTip": "Enter the number of days to retain the network watcher flow logs. If you want to retain the data forever and do not want to apply any retention policy, set retention (days) to 0.",
                   "constraints": {
                     "required": true,
-                    "regex": "^[0-9]+$",
-                    "message": "Please enter a valid number of days."
+                    "regex": "^36[0-5]|3[0-5][0-9]|[1-2][0-9][0-9]|[0-9]{1,2}$",
+                    "message": "The value must be between 0 and 365."
                   }
                 },
                 {
@@ -1492,11 +1492,9 @@
         "deployDefenderPlans": "[steps('compliance').defenderSection.deployDefenderPlans]",
         "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
         "deployLinuxVirtualMachine": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]",
-        "deployNetworkSecurityGroupFlowLogs": "[if(equals(steps('networking').flowLogsSection.flowLogsOption,'deployNetworkSecurityGroupFlowLogs'), true, false)]",
         "deployNetworkWatcherTrafficAnalytics": "[steps('networking').flowLogsSection.deployTrafficAnalytics]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
         "deploySentinel": "[steps('compliance').sentinelSection.deploySentinel]",
-        "deployVirtualNetworkFlowLogs": "[if(equals(steps('networking').flowLogsSection.flowLogsOption,'deployVirtualNetworkFlowLogs'), true, false)]",
         "deployWindowsVirtualMachine": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]",
         "emailSecurityContact": "[steps('compliance').defenderSection.emailSecurityContact]",
         "environmentAbbreviation": "[steps('basics').namingSection.environmentAbbreviation]",
@@ -1519,7 +1517,8 @@
         "linuxVmImageSku": "[steps('remoteAccess').linuxVmSection.linuxVmImageSku]",
         "linuxVmSize": "[steps('remoteAccess').linuxVmSection.linuxVmSize]",
         "location": "[steps('basics').locationSection.location.name]",
-        "networkSecurityGroupFlowLogRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
+        "networkWatcherFlowLogsType": "[steps('networking').flowLogsSection.flowLogsType]",
+        "networkWatcherFlowLogsRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
         "networkWatcherResourceId": "[if(not(empty(filter(steps('networking').networkWatchersApi.value, (item) => equals(item.location, steps('basics').locationSection.location.name)))), first(map(filter(steps('networking').networkWatchersApi.value, (item) => equals(item.location, steps('basics').locationSection.location.name)), (item) => item.id)), '')]",
         "operationsSubnetAddressPrefix": "[steps('networking').operationsVirtualNetwork.subnetAddressCidrRange]",
         "operationsSubscriptionId": "[replace(steps('basics').operationsSection.operationsSubscriptionId, '/subscriptions/', '')]",
@@ -1530,7 +1529,6 @@
         "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
         "sharedServicesVirtualNetworkAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange]",
         "tags": "[steps('tags').tags]",
-        "virtualNetworkFlowLogRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
         "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword.password]",
         "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]",
         "windowsVmSize": "[steps('remoteAccess').windowsVmSection.windowsVmSize]",

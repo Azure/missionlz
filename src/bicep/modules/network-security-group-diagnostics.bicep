@@ -4,7 +4,6 @@ Licensed under the MIT License.
 */
 
 param deploymentNameSuffix string
-param deployNetworkSecurityGroupFlowLogs bool
 param deployNetworkWatcherTrafficAnalytics bool
 param flowLogsName string
 param location string
@@ -14,9 +13,10 @@ param logStorageAccountResourceId string
 param metrics array
 param networkSecurityGroupDiagnosticSettingName string
 param networkSecurityGroupName string
+param networkWatcherFlowLogsRetentionDays int
+param networkWatcherFlowLogsType string
 param networkWatcherName string
 param networkWatcherResourceGroupName string
-param networkSecurityGroupFlowLogRetentionDays int
 param tiername string
 
 resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-02-01' existing = {
@@ -34,17 +34,17 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' 
   }
 }
 
-module nsgFlowLogs '../modules/network-security-group-flowlogs.bicep' = if (deployNetworkSecurityGroupFlowLogs) {
+module nsgFlowLogs '../modules/network-watcher-flow-logs.bicep' = if (networkWatcherFlowLogsType == 'NetworkSecurityGroup') {
   name: 'deploy-${tiername}-flowLogs-${deploymentNameSuffix}'
   scope: resourceGroup(networkWatcherResourceGroupName)
   params: {
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     flowLogsName: flowLogsName
+    flowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    logStorageAccountResourceId: logStorageAccountResourceId
-    networkSecurityGroupFlowLogRetentionDays: networkSecurityGroupFlowLogRetentionDays
-    networkSecurityGroupResourceId: networkSecurityGroup.id
     networkWatcherName: networkWatcherName
+    storageAccountResourceId: logStorageAccountResourceId
+    targetResourceId: networkSecurityGroup.id
   }
 }
