@@ -1,0 +1,19 @@
+{
+  "ddosName": {
+    "type": "String",
+    "metadata": {
+      "displayName": "DDoS Protection Plan Name",
+      "description": "Name of the DDoS protection plan."
+      },
+    "value": "[concat('ddos-', uniqueString(resourceGroup().id))]"
+  },
+  "ddosRegion": {
+    "type": "String",
+    "metadata": {
+      "displayName": "DDoS Protection Plan Region",
+      "description": "Region of the DDoS protection plan.",
+      "strongType": "location"
+      },
+  "value": "[subscription().location]"
+  }
+}

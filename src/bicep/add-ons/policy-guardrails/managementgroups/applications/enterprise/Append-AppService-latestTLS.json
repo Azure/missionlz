@@ -1,0 +1,76 @@
+{
+  "name": "Append-AppService-latestTLS",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "apiVersion": "2023-04-01",
+  "scope": null,
+  "properties": {
+    "policyType": "Custom",
+    "mode": "All",
+    "displayName": "AppService append enable latest TLS version setting.",
+    "description": "Appends the AppService sites object to ensure that the latest TLS version is enabled for server/service authentication and protects data in transit from network layer eavesdropping attacks.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "App Service",
+      "source": "https://github.com/Azure/Enterprise-Scale/",
+      "alzCloudEnvironments": [
+        "AzureCloud",
+        "AzureUSGovernment"
+      ]
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "defaultValue": "Append",
+        "allowedValues": [
+          "Append",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "minTlsVersion": {
+        "type": "String",
+        "defaultValue": "1.2",
+        "allowedValues": [
+          "1.0",
+          "1.1",
+          "1.2",
+          "1.3"
+        ],
+        "metadata": {
+          "displayName": "Minimum TLS Version",
+          "description": "The minimum TLS version to be enforced"
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Web/sites"
+          },
+          {
+            "field": "Microsoft.Web/sites/httpsOnly",
+            "notequals": true
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": [
+          {
+            "field": "Microsoft.Web/sites/httpsOnly",
+            "value": true
+          },
+          {
+            "field": "Microsoft.Web/sites/config/minTlsVersion",
+            "value": "[parameters('minTlsVersion')]"
+          }
+        ]
+      }
+    }
+  }
+}

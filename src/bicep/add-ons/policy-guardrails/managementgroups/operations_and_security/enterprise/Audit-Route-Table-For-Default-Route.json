@@ -1,0 +1,72 @@
+{
+  "name": "Audit-Route-Table-For-Default-Route",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "apiVersion": "2023-04-01",
+  "properties": {
+    "displayName": "Audit route tables for a specific route",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Audits route tables to ensure there is a route with address prefix '0.0.0.0/0', next hop type 'VirtualAppliance', and a specified next hop IP address.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Network"
+    },
+    "parameters": {
+      "nextHopIpAddress": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Next Hop IP Address",
+          "description": "The IP address of the next hop for the default route."
+        }
+      },
+      "exemptRouteTableNames": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Exempt Route Table Names",
+          "description": "List of route table names to exclude from this policy"
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/routeTables"
+          },
+          {
+            "not": {
+              "field": "name",
+              "in": "[parameters('exemptRouteTableNames')]"
+            }
+          },
+          {
+            "count": {
+              "field": "Microsoft.Network/routeTables/routes[*]",
+              "where": {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Network/routeTables/routes[*].addressPrefix",
+                    "equals": "0.0.0.0/0"
+                  },
+                  {
+                    "field": "Microsoft.Network/routeTables/routes[*].nextHopType",
+                    "equals": "VirtualAppliance"
+                  },
+                  {
+                    "field": "Microsoft.Network/routeTables/routes[*].nextHopIpAddress",
+                    "equals": "[parameters('nextHopIpAddress')]"
+                  }
+                ]
+              }
+            },
+            "equals": 0
+          }
+        ]
+      },
+      "then": {
+        "effect": "audit"
+      }
+    }
+  }
+}
