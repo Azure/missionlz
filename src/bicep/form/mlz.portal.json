@@ -721,7 +721,7 @@
                   "toolTip": "Enter the number of days to retain the network watcher flow logs. If you want to retain the data forever and do not want to apply any retention policy, set retention (days) to 0.",
                   "constraints": {
                     "required": true,
-                    "regex": "^36[0-5]|3[0-5][0-9]|[1-2][0-9][0-9]|[0-9]{1,2}$",
+                    "regex": "^36[0-5]$|^3[0-5][0-9]$|^[1-2][0-9][0-9]$|^[0-9][0-9]$|^[0-9]$",
                     "message": "The value must be between 0 and 365."
                   }
                 },
