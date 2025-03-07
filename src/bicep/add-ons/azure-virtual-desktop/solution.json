@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "13013439262801887407"
+      "templateHash": "14664377305512439536"
     }
   },
   "parameters": {
@@ -83,13 +83,6 @@
         "description": "Choose whether to deploy Defender for Cloud."
       }
     },
-    "deployNetworkSecurityGroupFlowLogs": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "When set to \"true\", enables Network Security Group Flow Logs. It defaults to \"false\". NSG logs are set to retire in 2025"
-      }
-    },
     "deployNetworkWatcherTrafficAnalytics": {
       "type": "bool",
       "defaultValue": false,
@@ -108,13 +101,6 @@
       "defaultValue": "[utcNow()]",
       "metadata": {
         "description": "A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the \"utcNow()\" function."
-      }
-    },
-    "deployVirtualNetworkFlowLogs": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "When set to \"true\", enables Virtual Network Flow Logs. It defaults to \"true\" as its required by MCSB."
       }
     },
     "desktopFriendlyName": {
@@ -337,6 +323,22 @@
         "description": "The resource ID for the Compute Gallery Image Version. Do not set this value if using a marketplace image."
       }
     },
+    "keyVaultDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "AuditEvent",
+          "enabled": true
+        },
+        {
+          "category": "AzurePolicyEvaluationDetails",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Key Vault Diagnostic Logs categories to collect. See \"https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault\" for valid values."
+      }
+    },
     "locationVirtualMachines": {
       "type": "string",
       "defaultValue": "[deployment().location]",
@@ -369,11 +371,52 @@
         "description": "The SKU for the Log Analytics Workspace to setup the AVD monitoring solution"
       }
     },
-    "networkSecurityGroupFlowLogRetentionDays": {
+    "networkSecurityGroupDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "NetworkSecurityGroupEvent",
+          "enabled": true
+        },
+        {
+          "category": "NetworkSecurityGroupRuleCounter",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings."
+      }
+    },
+    "networkSecurityGroupDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The metrics to monitor for the Network Security Group."
+      }
+    },
+    "networkSecurityGroupRules": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The rules to apply to the Network Security Group."
+      }
+    },
+    "networkWatcherFlowLogsRetentionDays": {
       "type": "int",
       "defaultValue": 30,
       "metadata": {
-        "description": "The number of days to retain Network Security Group Flow Logs. It defaults to \"30\"."
+        "description": "The number of days to retain Network Watcher Flow Logs. It defaults to \"30\"."
+      }
+    },
+    "networkWatcherFlowLogsType": {
+      "type": "string",
+      "defaultValue": "VirtualNetwork",
+      "allowedValues": [
+        "NetworkSecurityGroup",
+        "VirtualNetwork"
+      ],
+      "metadata": {
+        "description": "When set to \"true\", enables Virtual Network Flow Logs. It defaults to \"true\" as its required by MCSB."
       }
     },
     "networkWatcherResourceId": {
@@ -581,11 +624,18 @@
         "description": "The address prefix for the new spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network."
       }
     },
-    "virtualNetworkFlowLogRetentionDays": {
-      "type": "int",
-      "defaultValue": 30,
+    "virtualNetworkDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [],
       "metadata": {
-        "description": "The number of days to retain Virtual Network Flow Logs. It defaults to \"30\"."
+        "description": "The diagnostic logs to apply to the workload Virtual Network."
+      }
+    },
+    "virtualNetworkDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The metrics to monitor for the workload Virtual Network."
       }
     },
     "workspaceFriendlyName": {
@@ -1300,9 +1350,6 @@
           "deployDefender": {
             "value": "[parameters('deployDefender')]"
           },
-          "deployNetworkSecurityGroupFlowLogs": {
-            "value": "[parameters('deployNetworkSecurityGroupFlowLogs')]"
-          },
           "deployNetworkWatcherTrafficAnalytics": {
             "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
           },
@@ -1311,9 +1358,6 @@
           },
           "deployPolicy": {
             "value": "[parameters('deployPolicy')]"
-          },
-          "deployVirtualNetworkFlowLogs": {
-            "value": "[parameters('deployVirtualNetworkFlowLogs')]"
           },
           "emailSecurityContact": {
             "value": "[parameters('emailSecurityContact')]"
@@ -1330,14 +1374,29 @@
           "identifier": {
             "value": "[parameters('identifier')]"
           },
+          "keyVaultDiagnosticsLogs": {
+            "value": "[parameters('keyVaultDiagnosticsLogs')]"
+          },
           "location": {
             "value": "[parameters('locationVirtualMachines')]"
           },
           "logAnalyticsWorkspaceResourceId": {
             "value": "[parameters('operationsLogAnalyticsWorkspaceResourceId')]"
           },
-          "networkSecurityGroupFlowLogRetentionDays": {
-            "value": "[parameters('networkSecurityGroupFlowLogRetentionDays')]"
+          "networkSecurityGroupDiagnosticsLogs": {
+            "value": "[parameters('networkSecurityGroupDiagnosticsLogs')]"
+          },
+          "networkSecurityGroupDiagnosticsMetrics": {
+            "value": "[parameters('networkSecurityGroupDiagnosticsMetrics')]"
+          },
+          "networkSecurityGroupRules": {
+            "value": "[parameters('networkSecurityGroupRules')]"
+          },
+          "networkWatcherFlowLogsRetentionDays": {
+            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+          },
+          "networkWatcherFlowLogsType": {
+            "value": "[parameters('networkWatcherFlowLogsType')]"
           },
           "networkWatcherResourceId": {
             "value": "[parameters('networkWatcherResourceId')]"
@@ -1357,11 +1416,14 @@
           "tags": {
             "value": "[parameters('tags')]"
           },
+          "virtualNetworkDiagnosticsLogs": {
+            "value": "[parameters('virtualNetworkDiagnosticsLogs')]"
+          },
+          "virtualNetworkDiagnosticsMetrics": {
+            "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
+          },
           "virtualNetworkAddressPrefix": {
             "value": "[parameters('virtualNetworkAddressPrefixes')[0]]"
-          },
-          "virtualNetworkFlowLogRetentionDays": {
-            "value": "[parameters('virtualNetworkFlowLogRetentionDays')]"
           },
           "workloadName": {
             "value": "avd"
@@ -1377,7 +1439,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "14429510586081138198"
+              "templateHash": "11995690027709233749"
             }
           },
           "parameters": {
@@ -1407,13 +1469,6 @@
                 "description": "The suffix to append to the deployment name. It defaults to the current UTC date and time."
               }
             },
-            "deployNetworkSecurityGroupFlowLogs": {
-              "type": "bool",
-              "defaultValue": false,
-              "metadata": {
-                "description": "When set to \"true\", enables Network Security Group Flow Logs. It defaults to \"false\". NSG logs are set to retire in 2025"
-              }
-            },
             "deployNetworkWatcherTrafficAnalytics": {
               "type": "bool",
               "defaultValue": false,
@@ -1425,13 +1480,6 @@
               "type": "bool",
               "metadata": {
                 "description": "Choose whether to deploy a policy assignment."
-              }
-            },
-            "deployVirtualNetworkFlowLogs": {
-              "type": "bool",
-              "defaultValue": true,
-              "metadata": {
-                "description": "When set to \"true\", enables Virtual Network Flow Logs. It defaults to \"true\" as its required by MCSB."
               }
             },
             "emailSecurityContact": {
@@ -1530,18 +1578,29 @@
                 "description": "The metrics to monitor for the Network Security Group."
               }
             },
-            "networkSecurityGroupFlowLogRetentionDays": {
-              "type": "int",
-              "defaultValue": 30,
-              "metadata": {
-                "description": "The number of days to retain Network Security Group Flow Logs. It defaults to \"30\"."
-              }
-            },
             "networkSecurityGroupRules": {
               "type": "array",
               "defaultValue": [],
               "metadata": {
                 "description": "The rules to apply to the Network Security Group."
+              }
+            },
+            "networkWatcherFlowLogsRetentionDays": {
+              "type": "int",
+              "defaultValue": 30,
+              "metadata": {
+                "description": "The number of days to retain Network Watcher Flow Logs. It defaults to \"30\"."
+              }
+            },
+            "networkWatcherFlowLogsType": {
+              "type": "string",
+              "defaultValue": "VirtualNetwork",
+              "allowedValues": [
+                "NetworkSecurityGroup",
+                "VirtualNetwork"
+              ],
+              "metadata": {
+                "description": "When set to \"true\", enables Virtual Network Flow Logs. It defaults to \"true\" as its required by MCSB."
               }
             },
             "networkWatcherResourceId": {
@@ -1605,13 +1664,6 @@
               "defaultValue": [],
               "metadata": {
                 "description": "The metrics to monitor for the workload Virtual Network."
-              }
-            },
-            "virtualNetworkFlowLogRetentionDays": {
-              "type": "int",
-              "defaultValue": 30,
-              "metadata": {
-                "description": "The number of days to retain Virtual Network Flow Logs. It defaults to \"30\"."
               }
             },
             "workloadName": {
@@ -4781,14 +4833,8 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
-                  "deployNetworkSecurityGroupFlowLogs": {
-                    "value": "[parameters('deployNetworkSecurityGroupFlowLogs')]"
-                  },
                   "deployNetworkWatcherTrafficAnalytics": {
                     "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
-                  },
-                  "deployVirtualNetworkFlowLogs": {
-                    "value": "[parameters('deployVirtualNetworkFlowLogs')]"
                   },
                   "keyVaultDiagnosticLogs": {
                     "value": "[parameters('keyVaultDiagnosticsLogs')]"
@@ -4808,11 +4854,14 @@
                   "networkSecurityGroupDiagnosticsMetrics": {
                     "value": "[parameters('networkSecurityGroupDiagnosticsMetrics')]"
                   },
-                  "networkSecurityGroupFlowLogRetentionDays": {
-                    "value": "[parameters('networkSecurityGroupFlowLogRetentionDays')]"
-                  },
                   "networkSecurityGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
+                  },
+                  "networkWatcherFlowLogsRetentionDays": {
+                    "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                  },
+                  "networkWatcherFlowLogsType": {
+                    "value": "[parameters('networkWatcherFlowLogsType')]"
                   },
                   "networkWatcherResourceId": {
                     "value": "[parameters('networkWatcherResourceId')]"
@@ -4835,9 +4884,6 @@
                   "virtualNetworkDiagnosticsMetrics": {
                     "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
                   },
-                  "virtualNetworkFlowLogRetentionDays": {
-                    "value": "[parameters('virtualNetworkFlowLogRetentionDays')]"
-                  },
                   "virtualNetworkName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
                   }
@@ -4849,23 +4895,17 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "852807701820621911"
+                      "templateHash": "7215313935208411610"
                     }
                   },
                   "parameters": {
                     "deployActivityLogDiagnosticSetting": {
                       "type": "bool"
                     },
-                    "deployNetworkSecurityGroupFlowLogs": {
-                      "type": "bool"
-                    },
-                    "deployNetworkWatcherTrafficAnalytics": {
-                      "type": "bool"
-                    },
                     "deploymentNameSuffix": {
                       "type": "string"
                     },
-                    "deployVirtualNetworkFlowLogs": {
+                    "deployNetworkWatcherTrafficAnalytics": {
                       "type": "bool"
                     },
                     "keyVaultDiagnosticLogs": {
@@ -4886,10 +4926,13 @@
                     "networkSecurityGroupDiagnosticsMetrics": {
                       "type": "array"
                     },
-                    "networkSecurityGroupFlowLogRetentionDays": {
+                    "networkSecurityGroupName": {
+                      "type": "string"
+                    },
+                    "networkWatcherFlowLogsRetentionDays": {
                       "type": "int"
                     },
-                    "networkSecurityGroupName": {
+                    "networkWatcherFlowLogsType": {
                       "type": "string"
                     },
                     "networkWatcherResourceId": {
@@ -4912,9 +4955,6 @@
                     },
                     "virtualNetworkDiagnosticsMetrics": {
                       "type": "array"
-                    },
-                    "virtualNetworkFlowLogRetentionDays": {
-                      "type": "int"
                     },
                     "virtualNetworkName": {
                       "type": "string"
@@ -5086,9 +5126,6 @@
                           "deploymentNameSuffix": {
                             "value": "[parameters('deploymentNameSuffix')]"
                           },
-                          "deployNetworkSecurityGroupFlowLogs": {
-                            "value": "[parameters('deployNetworkSecurityGroupFlowLogs')]"
-                          },
                           "deployNetworkWatcherTrafficAnalytics": {
                             "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
                           },
@@ -5113,8 +5150,8 @@
                           "networkSecurityGroupDiagnosticSettingName": {
                             "value": "[parameters('tier').namingConvention.networkSecurityGroupDiagnosticSetting]"
                           },
-                          "networkSecurityGroupFlowLogRetentionDays": {
-                            "value": "[parameters('networkSecurityGroupFlowLogRetentionDays')]"
+                          "networkWatcherFlowLogsRetentionDays": {
+                            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
                           },
                           "networkSecurityGroupName": {
                             "value": "[parameters('networkSecurityGroupName')]"
@@ -5125,6 +5162,9 @@
                           "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('resourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
                           "tiername": {
                             "value": "[parameters('tier').name]"
+                          },
+                          "networkWatcherFlowLogsType": {
+                            "value": "[parameters('networkWatcherFlowLogsType')]"
                           }
                         },
                         "template": {
@@ -5134,15 +5174,12 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "17421560532949083413"
+                              "templateHash": "6464142740490957154"
                             }
                           },
                           "parameters": {
                             "deploymentNameSuffix": {
                               "type": "string"
-                            },
-                            "deployNetworkSecurityGroupFlowLogs": {
-                              "type": "bool"
                             },
                             "deployNetworkWatcherTrafficAnalytics": {
                               "type": "bool"
@@ -5171,14 +5208,17 @@
                             "networkSecurityGroupName": {
                               "type": "string"
                             },
+                            "networkWatcherFlowLogsRetentionDays": {
+                              "type": "int"
+                            },
+                            "networkWatcherFlowLogsType": {
+                              "type": "string"
+                            },
                             "networkWatcherName": {
                               "type": "string"
                             },
                             "networkWatcherResourceGroupName": {
                               "type": "string"
-                            },
-                            "networkSecurityGroupFlowLogRetentionDays": {
-                              "type": "int"
                             },
                             "tiername": {
                               "type": "string"
@@ -5198,7 +5238,7 @@
                               }
                             },
                             {
-                              "condition": "[parameters('deployNetworkSecurityGroupFlowLogs')]",
+                              "condition": "[equals(parameters('networkWatcherFlowLogsType'), 'NetworkSecurityGroup')]",
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2022-09-01",
                               "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
@@ -5215,23 +5255,23 @@
                                   "flowLogsName": {
                                     "value": "[parameters('flowLogsName')]"
                                   },
+                                  "flowLogsRetentionDays": {
+                                    "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                                  },
                                   "location": {
                                     "value": "[parameters('location')]"
                                   },
                                   "logAnalyticsWorkspaceResourceId": {
                                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                                   },
-                                  "logStorageAccountResourceId": {
-                                    "value": "[parameters('logStorageAccountResourceId')]"
-                                  },
-                                  "networkSecurityGroupFlowLogRetentionDays": {
-                                    "value": "[parameters('networkSecurityGroupFlowLogRetentionDays')]"
-                                  },
-                                  "networkSecurityGroupResourceId": {
-                                    "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
-                                  },
                                   "networkWatcherName": {
                                     "value": "[parameters('networkWatcherName')]"
+                                  },
+                                  "storageAccountResourceId": {
+                                    "value": "[parameters('logStorageAccountResourceId')]"
+                                  },
+                                  "targetResourceId": {
+                                    "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
                                   }
                                 },
                                 "template": {
@@ -5241,7 +5281,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.33.93.31351",
-                                      "templateHash": "17615957620309260926"
+                                      "templateHash": "9862576446266869939"
                                     }
                                   },
                                   "parameters": {
@@ -5251,22 +5291,22 @@
                                     "flowLogsName": {
                                       "type": "string"
                                     },
+                                    "flowLogsRetentionDays": {
+                                      "type": "int"
+                                    },
                                     "location": {
                                       "type": "string"
                                     },
                                     "logAnalyticsWorkspaceResourceId": {
                                       "type": "string"
                                     },
-                                    "logStorageAccountResourceId": {
-                                      "type": "string"
-                                    },
-                                    "networkSecurityGroupFlowLogRetentionDays": {
-                                      "type": "int"
-                                    },
-                                    "networkSecurityGroupResourceId": {
-                                      "type": "string"
-                                    },
                                     "networkWatcherName": {
+                                      "type": "string"
+                                    },
+                                    "storageAccountResourceId": {
+                                      "type": "string"
+                                    },
+                                    "targetResourceId": {
                                       "type": "string"
                                     }
                                   },
@@ -5277,9 +5317,9 @@
                                       "name": "[format('{0}/{1}', parameters('networkWatcherName'), parameters('flowLogsName'))]",
                                       "location": "[parameters('location')]",
                                       "properties": {
-                                        "targetResourceId": "[parameters('networkSecurityGroupResourceId')]",
+                                        "targetResourceId": "[parameters('targetResourceId')]",
                                         "enabled": true,
-                                        "storageId": "[parameters('logStorageAccountResourceId')]",
+                                        "storageId": "[parameters('storageAccountResourceId')]",
                                         "flowAnalyticsConfiguration": {
                                           "networkWatcherFlowAnalyticsConfiguration": {
                                             "enabled": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('deployNetworkWatcherTrafficAnalytics'), null())]",
@@ -5291,7 +5331,7 @@
                                           "version": 2
                                         },
                                         "retentionPolicy": {
-                                          "days": "[parameters('networkSecurityGroupFlowLogRetentionDays')]",
+                                          "days": "[parameters('flowLogsRetentionDays')]",
                                           "enabled": true
                                         }
                                       }
@@ -5322,9 +5362,6 @@
                           "deployNetworkWatcherTrafficAnalytics": {
                             "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
                           },
-                          "deployVirtualNetworkFlowLogs": {
-                            "value": "[parameters('deployVirtualNetworkFlowLogs')]"
-                          },
                           "flowLogsName": {
                             "value": "[parameters('tier').namingConvention.networkWatcherFlowLogsVirtualNetwork]"
                           },
@@ -5343,6 +5380,12 @@
                           "metrics": {
                             "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
                           },
+                          "networkWatcherFlowLogsRetentionDays": {
+                            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                          },
+                          "networkWatcherFlowLogsType": {
+                            "value": "[parameters('networkWatcherFlowLogsType')]"
+                          },
                           "networkWatcherName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('tier').namingConvention.networkWatcher), createObject('value', split(parameters('networkWatcherResourceId'), '/')[8]))]",
                           "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('resourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
                           "tiername": {
@@ -5350,9 +5393,6 @@
                           },
                           "virtualNetworkDiagnosticSettingName": {
                             "value": "[parameters('tier').namingConvention.virtualNetworkDiagnosticSetting]"
-                          },
-                          "virtualNetworkFlowLogRetentionDays": {
-                            "value": "[parameters('virtualNetworkFlowLogRetentionDays')]"
                           },
                           "virtualNetworkName": {
                             "value": "[parameters('virtualNetworkName')]"
@@ -5365,7 +5405,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "15538253293171973761"
+                              "templateHash": "17015510694106150425"
                             }
                           },
                           "parameters": {
@@ -5373,9 +5413,6 @@
                               "type": "string"
                             },
                             "deployNetworkWatcherTrafficAnalytics": {
-                              "type": "bool"
-                            },
-                            "deployVirtualNetworkFlowLogs": {
                               "type": "bool"
                             },
                             "flowLogsName": {
@@ -5396,6 +5433,12 @@
                             "metrics": {
                               "type": "array"
                             },
+                            "networkWatcherFlowLogsRetentionDays": {
+                              "type": "int"
+                            },
+                            "networkWatcherFlowLogsType": {
+                              "type": "string"
+                            },
                             "networkWatcherName": {
                               "type": "string"
                             },
@@ -5410,9 +5453,6 @@
                             },
                             "virtualNetworkName": {
                               "type": "string"
-                            },
-                            "virtualNetworkFlowLogRetentionDays": {
-                              "type": "int"
                             }
                           },
                           "resources": [
@@ -5429,7 +5469,7 @@
                               }
                             },
                             {
-                              "condition": "[parameters('deployVirtualNetworkFlowLogs')]",
+                              "condition": "[equals(parameters('networkWatcherFlowLogsType'), 'VirtualNetwork')]",
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2022-09-01",
                               "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
@@ -5446,23 +5486,23 @@
                                   "flowLogsName": {
                                     "value": "[parameters('flowLogsName')]"
                                   },
+                                  "flowLogsRetentionDays": {
+                                    "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                                  },
                                   "location": {
                                     "value": "[parameters('location')]"
                                   },
                                   "logAnalyticsWorkspaceResourceId": {
                                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                                   },
-                                  "logStorageAccountResourceId": {
-                                    "value": "[parameters('logStorageAccountResourceId')]"
-                                  },
                                   "networkWatcherName": {
                                     "value": "[parameters('networkWatcherName')]"
                                   },
-                                  "virtualNetworkResourceId": {
-                                    "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                                  "storageAccountResourceId": {
+                                    "value": "[parameters('logStorageAccountResourceId')]"
                                   },
-                                  "virtualNetworkFlowLogRetentionDays": {
-                                    "value": "[parameters('virtualNetworkFlowLogRetentionDays')]"
+                                  "targetResourceId": {
+                                    "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
                                   }
                                 },
                                 "template": {
@@ -5472,7 +5512,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.33.93.31351",
-                                      "templateHash": "15116737594248637964"
+                                      "templateHash": "9862576446266869939"
                                     }
                                   },
                                   "parameters": {
@@ -5482,22 +5522,22 @@
                                     "flowLogsName": {
                                       "type": "string"
                                     },
+                                    "flowLogsRetentionDays": {
+                                      "type": "int"
+                                    },
                                     "location": {
                                       "type": "string"
                                     },
                                     "logAnalyticsWorkspaceResourceId": {
                                       "type": "string"
                                     },
-                                    "logStorageAccountResourceId": {
-                                      "type": "string"
-                                    },
                                     "networkWatcherName": {
                                       "type": "string"
                                     },
-                                    "virtualNetworkFlowLogRetentionDays": {
-                                      "type": "int"
+                                    "storageAccountResourceId": {
+                                      "type": "string"
                                     },
-                                    "virtualNetworkResourceId": {
+                                    "targetResourceId": {
                                       "type": "string"
                                     }
                                   },
@@ -5508,9 +5548,9 @@
                                       "name": "[format('{0}/{1}', parameters('networkWatcherName'), parameters('flowLogsName'))]",
                                       "location": "[parameters('location')]",
                                       "properties": {
-                                        "targetResourceId": "[parameters('virtualNetworkResourceId')]",
+                                        "targetResourceId": "[parameters('targetResourceId')]",
                                         "enabled": true,
-                                        "storageId": "[parameters('logStorageAccountResourceId')]",
+                                        "storageId": "[parameters('storageAccountResourceId')]",
                                         "flowAnalyticsConfiguration": {
                                           "networkWatcherFlowAnalyticsConfiguration": {
                                             "enabled": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('deployNetworkWatcherTrafficAnalytics'), null())]",
@@ -5522,7 +5562,7 @@
                                           "version": 2
                                         },
                                         "retentionPolicy": {
-                                          "days": "[parameters('virtualNetworkFlowLogRetentionDays')]",
+                                          "days": "[parameters('flowLogsRetentionDays')]",
                                           "enabled": true
                                         }
                                       }
@@ -12227,7 +12267,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "16465076969636446938"
+              "templateHash": "6806068603946831982"
             }
           },
           "parameters": {
@@ -13065,7 +13105,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "17170631492967604646"
+                      "templateHash": "7515200046582259785"
                     }
                   },
                   "parameters": {
@@ -13225,7 +13265,7 @@
                     }
                   },
                   "variables": {
-                    "$fxv#0": "Param(\r\n    [string]$ActiveDirectorySolution,\r\n    [string]$AmdVmSize,\r\n    [string]$Fslogix,\r\n    [string]$FslogixContainerType,\r\n    [string]$NetAppFileShares,\r\n    [string]$NvidiaVmSize,\r\n    [string]$StorageAccountPrefix,\r\n    [int]$StorageCount,\r\n    [int]$StorageIndex,\r\n    [string]$StorageService,\r\n    [string]$StorageSuffix,\r\n    [string]$UniqueToken\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n\r\n# Convert NetAppFiles share names from a JSON array to a PowerShell array\r\n[array]$NetAppFileShares = $NetAppFileShares.Replace(\"'\",'\"') | ConvertFrom-Json\r\n$NetAppFileShares | Add-Content -Path 'C:\\cse.txt' -Force\r\n\r\n#  Add Recommended Security Settings\r\n$Settings = @(\r\n\r\n    # Set Kerberos Encryption for STIG compliance\r\n    [PSCustomObject]@{\r\n        Name = 'SupportedEncryptionTypes'\r\n        Path = 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters'\r\n        PropertyType = 'DWord'\r\n        Value = 2147483640\r\n    }\r\n)\r\n\r\n#  Add Recommended AVD Settings\r\n$Settings = @(\r\n\r\n    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates\r\n    [PSCustomObject]@{\r\n        Name = 'NoAutoUpdate'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableTimeZoneRedirection'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    }\r\n)\r\n\r\n\r\n#  Add GPU Settings\r\n# This setting applies to the VM Size's recommended for AVD with a GPU\r\nif ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') \r\n{\r\n    $Settings += @(\r\n\r\n        # Configure GPU-accelerated app rendering: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering\r\n        [PSCustomObject]@{\r\n            Name = 'bEnumerateHWBeforeSW'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Configure fullscreen video encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVC444ModePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n    )\r\n}\r\n\r\n# This setting applies only to VM Size's recommended for AVD with a Nvidia GPU\r\nif($NvidiaVmSize -eq 'true')\r\n{\r\n    $Settings += @(\r\n\r\n        # Configure GPU-accelerated frame encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-frame-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVChardwareEncodePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n    )\r\n}\r\n\r\n#  Add Fslogix Settings\r\nif($Fslogix -eq 'true')\r\n{\r\n    $FilesSuffix = '.file.' + $StorageSuffix\r\n    $CloudCacheOfficeContainers = @()\r\n    $CloudCacheProfileContainers = @()\r\n    $OfficeContainers = @()\r\n    $ProfileContainers = @()\r\n    switch($StorageService)\r\n    {\r\n        'AzureFiles' {\r\n            for($i = $StorageIndex; $i -lt $($StorageIndex + $StorageCount); $i++)\r\n            {\r\n                $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers;'\r\n                $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers;'\r\n                $OfficeContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers'\r\n                $ProfileContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers'\r\n            }\r\n        }\r\n        'AzureNetAppFiles' {\r\n            $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $NetAppFileShares[0] + '\\office-containers;'\r\n            $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers;'\r\n            $OfficeContainers += '\\\\' + $NetAppFileShares[0] + '\\office-containers'\r\n            $ProfileContainers += '\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers'\r\n        }\r\n    }\r\n    \r\n    $Shares = @()\r\n    $Shares += $OfficeContainers\r\n    $Shares += $ProfileContainers\r\n\r\n    $Settings += @(\r\n\r\n        # Enables Fslogix profile containers: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#enabled\r\n        [PSCustomObject]@{\r\n            Name = 'Enabled'\r\n            Path = 'HKLM:\\SOFTWARE\\Fslogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Deletes a local profile if it exists and matches the profile being loaded from VHD: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#deletelocalprofilewhenvhdshouldapply\r\n        [PSCustomObject]@{\r\n            Name = 'DeleteLocalProfileWhenVHDShouldApply'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#flipflopprofiledirectoryname\r\n        [PSCustomObject]@{\r\n            Name = 'FlipFlopProfileDirectoryName'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretryinterval\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryInterval'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies if the profile container can be accessed concurrently: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#profiletype\r\n        [PSCustomObject]@{\r\n            Name = 'ProfileType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 0\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachintervalseconds\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachIntervalSeconds'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the maximum size of the user's container in megabytes. Newly created VHD(x) containers are of this size: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#sizeinmbs\r\n        [PSCustomObject]@{\r\n            Name = 'SizeInMBs'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 30000\r\n        },\r\n\r\n        # Specifies the file extension for the profile containers: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#volumetype\r\n        [PSCustomObject]@{\r\n            Name = 'VolumeType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'String'\r\n            Value = 'VHDX'\r\n        }\r\n    )\r\n\r\n    if($FslogixContainerType -like \"CloudCache*\")\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'CCDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $CloudCacheProfileContainers\r\n            }\r\n        )           \r\n    }\r\n    else\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'VHDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $ProfileContainers\r\n            }\r\n        )\r\n    }\r\n\r\n    if($FslogixContainerType -like \"*OfficeContainer\")\r\n    {\r\n        $Settings += @(\r\n\r\n            # Enables Fslogix office containers: https://learn.microsoft.com/fslogix/office-container-configuration-reference#enabled\r\n            [PSCustomObject]@{\r\n                Name = 'Enabled'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },\r\n\r\n            # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/office-container-configuration-reference#flipflopprofiledirectoryname\r\n            [PSCustomObject]@{\r\n                Name = 'FlipFlopProfileDirectoryName'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },         \r\n            \r\n            # Teams data is redirected to the container: https://learn.microsoft.com/fslogix/office-container-configuration-reference#includeteams\r\n            [PSCustomObject]@{\r\n                Name = 'IncludeTeams'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },                  \r\n\r\n            # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretryinterval\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryInterval'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachintervalseconds\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachIntervalSeconds'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the maximum size of the user's container in megabytes: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#sizeinmbs\r\n            [PSCustomObject]@{\r\n                Name = 'SizeInMBs'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 30000\r\n            },\r\n\r\n            # Specifies the type of container: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#volumetype\r\n            [PSCustomObject]@{\r\n                Name = 'VolumeType'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'String'\r\n                Value = 'VHDX'\r\n            }\r\n        )\r\n\r\n        if($FslogixContainerType -like \"CloudCache*\")\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'CCDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $CloudCacheOfficeContainers\r\n                }\r\n            )           \r\n        }\r\n        else\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/office-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'VHDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $OfficeContainers\r\n                }\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\n\r\n# Set registry settings\r\nforeach($Setting in $Settings)\r\n{\r\n    # Create registry key(s) if necessary\r\n    if(!(Test-Path -Path $Setting.Path))\r\n    {\r\n        New-Item -Path $Setting.Path -Force | Out-Null\r\n    }\r\n\r\n    # Checks for existing registry setting\r\n    $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\r\n    \r\n    # Creates the registry setting when it does not exist\r\n    if(!$Value)\r\n    {\r\n        New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    # Updates the registry setting when it already exists\r\n    elseif($Value.$($Setting.Name) -ne $Setting.Value)\r\n    {\r\n        Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    Start-Sleep -Seconds 1 | Out-Null\r\n}\r\n",
+                    "$fxv#0": "Param(\r\n    [string]$ActiveDirectorySolution,\r\n    [string]$AmdVmSize,\r\n    [string]$Fslogix,\r\n    [string]$FslogixContainerType,\r\n    [string]$NetAppFileShares,\r\n    [string]$NvidiaVmSize,\r\n    [string]$StorageAccountPrefix,\r\n    [int]$StorageCount,\r\n    [int]$StorageIndex,\r\n    [string]$StorageService,\r\n    [string]$StorageSuffix,\r\n    [string]$UniqueToken\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n\r\n# Convert NetAppFiles share names from a JSON array to a PowerShell array\r\n[array]$NetAppFileShares = $NetAppFileShares.Replace(\"'\",'\"') | ConvertFrom-Json\r\n$NetAppFileShares | Add-Content -Path 'C:\\cse.txt' -Force\r\n\r\n#  Add Recommended Security Settings\r\n$Settings = @(\r\n\r\n    # Set Kerberos Encryption for STIG compliance\r\n    [PSCustomObject]@{\r\n        Name = 'SupportedEncryptionTypes'\r\n        Path = 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters'\r\n        PropertyType = 'DWord'\r\n        Value = 2147483640\r\n    }\r\n)\r\n\r\n#  Add Recommended AVD Settings\r\n$Settings = @(\r\n\r\n    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates\r\n    [PSCustomObject]@{\r\n        Name = 'NoAutoUpdate'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableTimeZoneRedirection'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    }\r\n)\r\n\r\n\r\n#  Add GPU Settings\r\n# These settings apply to any VM sizes with a GPU\r\nif ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') \r\n{\r\n    $Settings += @(\r\n\r\n        # Configure GPU-accelerated app rendering: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering\r\n        [PSCustomObject]@{\r\n            Name = 'bEnumerateHWBeforeSW'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Configure fullscreen video encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVC444ModePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n    )\r\n}\r\n\r\n# This setting applies only to VM sizes with a NVIDIA GPU\r\nif($NvidiaVmSize -eq 'true')\r\n{\r\n    $Settings += @(\r\n\r\n        # Configure GPU-accelerated frame encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-frame-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVChardwareEncodePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n    )\r\n}\r\n\r\n#  Add Fslogix Settings\r\nif($Fslogix -eq 'true')\r\n{\r\n    $FilesSuffix = '.file.' + $StorageSuffix\r\n    $CloudCacheOfficeContainers = @()\r\n    $CloudCacheProfileContainers = @()\r\n    $OfficeContainers = @()\r\n    $ProfileContainers = @()\r\n    switch($StorageService)\r\n    {\r\n        'AzureFiles' {\r\n            for($i = $StorageIndex; $i -lt $($StorageIndex + $StorageCount); $i++)\r\n            {\r\n                $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers;'\r\n                $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers;'\r\n                $OfficeContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers'\r\n                $ProfileContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers'\r\n            }\r\n        }\r\n        'AzureNetAppFiles' {\r\n            $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $NetAppFileShares[0] + '\\office-containers;'\r\n            $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers;'\r\n            $OfficeContainers += '\\\\' + $NetAppFileShares[0] + '\\office-containers'\r\n            $ProfileContainers += '\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers'\r\n        }\r\n    }\r\n    \r\n    $Shares = @()\r\n    $Shares += $OfficeContainers\r\n    $Shares += $ProfileContainers\r\n\r\n    $Settings += @(\r\n\r\n        # Enables Fslogix profile containers: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#enabled\r\n        [PSCustomObject]@{\r\n            Name = 'Enabled'\r\n            Path = 'HKLM:\\SOFTWARE\\Fslogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Deletes a local profile if it exists and matches the profile being loaded from VHD: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#deletelocalprofilewhenvhdshouldapply\r\n        [PSCustomObject]@{\r\n            Name = 'DeleteLocalProfileWhenVHDShouldApply'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#flipflopprofiledirectoryname\r\n        [PSCustomObject]@{\r\n            Name = 'FlipFlopProfileDirectoryName'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretryinterval\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryInterval'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies if the profile container can be accessed concurrently: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#profiletype\r\n        [PSCustomObject]@{\r\n            Name = 'ProfileType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 0\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachintervalseconds\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachIntervalSeconds'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the maximum size of the user's container in megabytes. Newly created VHD(x) containers are of this size: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#sizeinmbs\r\n        [PSCustomObject]@{\r\n            Name = 'SizeInMBs'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 30000\r\n        },\r\n\r\n        # Specifies the file extension for the profile containers: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#volumetype\r\n        [PSCustomObject]@{\r\n            Name = 'VolumeType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'String'\r\n            Value = 'VHDX'\r\n        }\r\n    )\r\n\r\n    if($FslogixContainerType -like \"CloudCache*\")\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'CCDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $CloudCacheProfileContainers\r\n            }\r\n        )           \r\n    }\r\n    else\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'VHDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $ProfileContainers\r\n            }\r\n        )\r\n    }\r\n\r\n    if($FslogixContainerType -like \"*OfficeContainer\")\r\n    {\r\n        $Settings += @(\r\n\r\n            # Enables Fslogix office containers: https://learn.microsoft.com/fslogix/office-container-configuration-reference#enabled\r\n            [PSCustomObject]@{\r\n                Name = 'Enabled'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },\r\n\r\n            # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/office-container-configuration-reference#flipflopprofiledirectoryname\r\n            [PSCustomObject]@{\r\n                Name = 'FlipFlopProfileDirectoryName'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },         \r\n            \r\n            # Teams data is redirected to the container: https://learn.microsoft.com/fslogix/office-container-configuration-reference#includeteams\r\n            [PSCustomObject]@{\r\n                Name = 'IncludeTeams'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },                  \r\n\r\n            # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretryinterval\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryInterval'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachintervalseconds\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachIntervalSeconds'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the maximum size of the user's container in megabytes: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#sizeinmbs\r\n            [PSCustomObject]@{\r\n                Name = 'SizeInMBs'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 30000\r\n            },\r\n\r\n            # Specifies the type of container: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#volumetype\r\n            [PSCustomObject]@{\r\n                Name = 'VolumeType'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'String'\r\n                Value = 'VHDX'\r\n            }\r\n        )\r\n\r\n        if($FslogixContainerType -like \"CloudCache*\")\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'CCDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $CloudCacheOfficeContainers\r\n                }\r\n            )           \r\n        }\r\n        else\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/office-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'VHDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $OfficeContainers\r\n                }\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\n\r\n# Set registry settings\r\nforeach($Setting in $Settings)\r\n{\r\n    # Create registry key(s) if necessary\r\n    if(!(Test-Path -Path $Setting.Path))\r\n    {\r\n        New-Item -Path $Setting.Path -Force | Out-Null\r\n    }\r\n\r\n    # Checks for existing registry setting\r\n    $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\r\n    \r\n    # Creates the registry setting when it does not exist\r\n    if(!$Value)\r\n    {\r\n        New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    # Updates the registry setting when it already exists\r\n    elseif($Value.$($Setting.Name) -ne $Setting.Value)\r\n    {\r\n        Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    Start-Sleep -Seconds 1 | Out-Null\r\n}\r\n",
                     "$fxv#1": "Param(\r\n    [string]$Environment,\r\n    [string]$HostPoolName,\r\n    [string]$HostPoolResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [int]$SessionHostCount,\r\n    [int]$SessionHostIndex,\r\n    [string]$SubscriptionId,\r\n    [string]$TenantId,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineNamePrefix\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Get the AVD session hosts\r\n$SessionHosts = (Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts?api-version=2023-09-05')).value.name\r\n\r\n# Enable drain mode for the AVD session hosts\r\nfor($i = $SessionHostIndex; $i -lt $($SessionHostIndex + $SessionHostCount); $i++)\r\n{\r\n    $VmNameFull = $VirtualMachineNamePrefix + $i.ToString().PadLeft(4,'0')\r\n    $SessionHostName = ($SessionHosts | Where-Object {$_ -like \"*$VmNameFull*\"}).Replace(\"$HostPoolName/\", '')\r\n    Invoke-RestMethod `\r\n        -Body (@{properties = @{allowNewSession = $false}} | ConvertTo-Json) `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'PATCH' `\r\n        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts/' + $SessionHostName + '?api-version=2023-09-05') | Out-Null\r\n}\r\n",
                     "amdVmSize": "[contains(variables('amdVmSizes'), parameters('virtualMachineSize'))]",
                     "amdVmSizes": [
