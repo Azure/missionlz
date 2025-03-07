@@ -100,7 +100,6 @@ module azureVirtualDesktop '../azure-virtual-desktop/solution.bicep' = {
     avdObjectId: avdObjectId
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
-    deployNetworkWatcher: deployNetworkWatcher
     deployPolicy: deployPolicy
     enableAcceleratedNetworking: true
     environmentAbbreviation: 'dev'
