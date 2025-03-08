@@ -5,12 +5,90 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-// REQUIRED PARAMETERS
+@description('The CIDR Subnet Address Prefix for the Azure Gateway Subnet. It must be in the Hub Virtual Network space. It must be /26.')
+param azureGatewaySubnetAddressPrefix string = '10.0.129.192/26'
 
-@minLength(1)
-@maxLength(6)
-@description('A prefix, 1-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
-param resourcePrefix string
+param bastionDiagnosticsLogs array = [
+  {
+    category: 'BastionAuditLogs'
+    enabled: true
+  }
+]
+
+@description('The Azure Bastion Public IP Address Availability Zones. It defaults to "No-Zone" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
+param bastionHostPublicIPAddressAvailabilityZones array = []
+
+@description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
+param bastionHostSubnetAddressPrefix string = '10.0.128.192/26'
+
+@allowed([
+  'Standard'
+  'Free'
+])
+@description('[Standard/Free] The SKU for Defender. It defaults to "Free".')
+param defenderSkuTier string = 'Free'
+
+@description('When set to "true", provisions Azure Gateway Subnet only. It defaults to "false".')
+param deployAzureGatewaySubnet bool = false
+
+@description('When set to "true", provisions Azure Bastion Host only. It defaults to "false".')
+param deployBastion bool = false
+
+@description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
+param deployDefender bool = true
+
+// Allowed Values for paid workload protection Plans.  
+// Users must select a plan from portal ui def or manually specify any of the plans that are available in the desired cloud.  
+// The portal does not parse the allowed values field for arrays  correctly at this time.
+// As a default, the array is set to ['VirtualMachines'].
+/*   'Api'
+  'AppServices'
+  'Arm'
+  'CloudPosture'
+  //'ContainerRegistry' (deprecated)
+  'Containers'
+  'CosmosDbs'
+  //'Dns' (deprecated)
+  'KeyVaults'
+  //'KubernetesService' (deprecated)
+  'OpenSourceRelationalDatabases'
+  'SqlServers'
+  'SqlServerVirtualMachines'
+  'StorageAccounts'
+  'VirtualMachine*/
+  
+  @description('Paid Workload Protection plans for Defender for Cloud')
+  param deployDefenderPlans array = ['VirtualMachines']
+
+@description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
+param deployIdentity bool = false
+
+@description('When set to "true", provisions Linux Virtual Machine Host only. It defaults to "false".')
+param deployLinuxVirtualMachine bool = false
+
+@description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
+param deploymentNameSuffix string = utcNow()
+
+@description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
+param deployNetworkWatcherTrafficAnalytics bool = false
+
+@description('When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".')
+param deployPolicy bool = false
+
+@description('When set to "true", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment. It defaults to "false".')
+param deploySentinel bool = false
+
+@description('When set to "true", provisions Windows Virtual Machine Host only. It defaults to "false".')
+param deployWindowsVirtualMachine bool = false
+
+@description('''['168.63.129.16'] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers". This should be a comma separated list of IP addresses to forward DNS traffic''')
+param dnsServers array = ['168.63.129.16']
+
+@description('Email address of the contact, in the form of john@doe.com')
+param emailSecurityContact string = ''
+
+@description('[true/false] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "dnsServers"')
+param enableProxy bool = true
 
 @allowed([
   'dev'
@@ -20,119 +98,11 @@ param resourcePrefix string
 @description('The abbreviation for the environment.')
 param environmentAbbreviation string = 'dev'
 
-@description('The subscription ID for the Hub Network and resources. It defaults to the deployment subscription.')
-param hubSubscriptionId string = subscription().subscriptionId
-
-@description('The subscription ID for the Identity Network and resources. It defaults to the deployment subscription.')
-param identitySubscriptionId string = subscription().subscriptionId
-
-@description('The subscription ID for the Operations Network and resources. It defaults to the deployment subscription.')
-param operationsSubscriptionId string = subscription().subscriptionId
-
-@description('The subscription ID for the Shared Services Network and resources. It defaults to the deployment subscription.')
-param sharedServicesSubscriptionId string = subscription().subscriptionId
-
-@description('The region to deploy resources into. It defaults to the deployment location.')
-param location string = deployment().location
-
-@description('Supported Azure Clouds array. It defaults to the Public cloud and the Azure US Government cloud.')
-param supportedClouds array = [
-  'AzureCloud'
-  'AzureUSGovernment'
-]
-
-@description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
-param deployIdentity bool = false
-
-@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
-param networkWatcherResourceId string = ''
-
-// RESOURCE NAMING PARAMETERS
-
-@description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
-param deploymentNameSuffix string = utcNow()
-
-@description('A string dictionary of tags to add to deployed resources. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates.')
-param tags object = {}
-
-// NETWORK WATCHER FLOW LOG PARAMETERS
-// These parameters are used to enable flow logs for the network security groups or virtual networks.
-@description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
-param deployNetworkWatcherTrafficAnalytics bool = false
-
-@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
-param networkWatcherFlowLogsRetentionDays int = 30
-
-@allowed([
-  'NetworkSecurityGroup'
-  'VirtualNetwork'
-])
-@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
-param networkWatcherFlowLogsType string = 'VirtualNetwork'
-
-// NETWORK ADDRESS SPACE PARAMETERS
-
-@description('The CIDR Virtual Network Address Prefix for the Hub Virtual Network.')
-param hubVirtualNetworkAddressPrefix string = '10.0.128.0/23'
-
-@description('The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.')
-param hubSubnetAddressPrefix string = '10.0.128.128/26'
+@description('An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
+param firewallClientPublicIPAddressAvailabilityZones array = []
 
 @description('The CIDR Subnet Address Prefix for the Azure Firewall Subnet. It must be in the Hub Virtual Network space. It must be /26.')
 param firewallClientSubnetAddressPrefix string = '10.0.128.0/26'
-
-@description('The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.')
-param firewallManagementSubnetAddressPrefix string = '10.0.128.64/26'
-
-@description('The CIDR Virtual Network Address Prefix for the Identity Virtual Network.')
-param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
-
-@description('The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.')
-param identitySubnetAddressPrefix string = '10.0.130.0/24'
-
-@description('The CIDR Virtual Network Address Prefix for the Operations Virtual Network.')
-param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
-
-@description('The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.')
-param operationsSubnetAddressPrefix string = '10.0.131.0/24'
-
-@description('The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.')
-param sharedServicesVirtualNetworkAddressPrefix string = '10.0.132.0/24'
-
-@description('The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.')
-param sharedServicesSubnetAddressPrefix string = '10.0.132.0/24'
-
-// FIREWALL PARAMETERS
-
-@allowed([
-  'Standard'
-  'Premium'
-  'Basic'
-])
-@description('[Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.')
-param firewallSkuTier string = 'Premium'
-
-@allowed([
-  'Alert'
-  'Deny'
-  'Off'
-])
-@description('[Alert/Deny/Off] The Azure Firewall Threat Intelligence Rule triggered logging behavior. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
-param firewallThreatIntelMode string = 'Alert'
-
-@allowed([
-  'Alert'
-  'Deny'
-  'Off'
-])
-@description('[Alert/Deny/Off] The Azure Firewall Intrusion Detection mode. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
-param firewallIntrusionDetectionMode string = 'Alert'
-
-@description('[true/false] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "dnsServers"')
-param enableProxy bool = true
-
-@description('''['168.63.129.16'] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers". This should be a comma separated list of IP addresses to forward DNS traffic''')
-param dnsServers array = ['168.63.129.16']
 
 @description('An array of Firewall Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/firewall/monitor-firewall#enable-diagnostic-logging-through-the-azure-portal.')
 param firewallDiagnosticsLogs array = [
@@ -158,14 +128,252 @@ param firewallDiagnosticsMetrics array = [
   }
 ]
 
-@description('An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
-param firewallClientPublicIPAddressAvailabilityZones array = []
+@allowed([
+  'Alert'
+  'Deny'
+  'Off'
+])
+@description('[Alert/Deny/Off] The Azure Firewall Intrusion Detection mode. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
+param firewallIntrusionDetectionMode string = 'Alert'
 
 @description('An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
 param firewallManagementPublicIPAddressAvailabilityZones array = []
 
+@description('The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.')
+param firewallManagementSubnetAddressPrefix string = '10.0.128.64/26'
+
+@allowed([
+  'Standard'
+  'Premium'
+  'Basic'
+])
+@description('[Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.')
+param firewallSkuTier string = 'Premium'
+
 @description('Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses')
 param firewallSupernetIPAddress string = '10.0.128.0/18'
+
+@allowed([
+  'Alert'
+  'Deny'
+  'Off'
+])
+@description('[Alert/Deny/Off] The Azure Firewall Threat Intelligence Rule triggered logging behavior. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
+param firewallThreatIntelMode string = 'Alert'
+
+@description('An array of Network Security Group diagnostic logs to apply to the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
+param hubNetworkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group Metrics to apply to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
+param hubNetworkSecurityGroupDiagnosticsMetrics array = []
+
+@description('An array of Network Security Group Rules to apply to the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep&pivots=deployment-language-bicep#securityrulepropertiesformat.')
+param hubNetworkSecurityGroupRules array = []
+
+@description('The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.')
+param hubSubnetAddressPrefix string = '10.0.128.128/26'
+
+@description('The subscription ID for the Hub Network and resources. It defaults to the deployment subscription.')
+param hubSubscriptionId string = subscription().subscriptionId
+
+@description('The CIDR Virtual Network Address Prefix for the Hub Virtual Network.')
+param hubVirtualNetworkAddressPrefix string = '10.0.128.0/23'
+
+@description('An array of Network Diagnostic Logs to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
+param hubVirtualNetworkDiagnosticsLogs array = []
+
+@description('An array of Network Diagnostic Metrics to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
+param hubVirtualNetworkDiagnosticsMetrics array = []
+
+@description('The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance.')
+param hybridUseBenefit bool = false
+
+@description('An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
+param identityNetworkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group Metrics to apply to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
+param identityNetworkSecurityGroupDiagnosticsMetrics array = []
+
+@description('An array of Network Security Group Rules to apply to the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat.')
+param identityNetworkSecurityGroupRules array = []
+
+@description('The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.')
+param identitySubnetAddressPrefix string = '10.0.130.0/24'
+
+@description('The subscription ID for the Identity Network and resources. It defaults to the deployment subscription.')
+param identitySubscriptionId string = subscription().subscriptionId
+
+@description('The CIDR Virtual Network Address Prefix for the Identity Virtual Network.')
+param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
+
+@description('An array of Network Diagnostic Logs to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
+param identityVirtualNetworkDiagnosticsLogs array = []
+
+@description('An array of Network Diagnostic Metrics to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
+param identityVirtualNetworkDiagnosticsMetrics array = []
+
+@description('An array of Key Vault Diagnostic Logs categories to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
+param keyVaultDiagnosticsLogs array = [
+  {
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
+@allowed([
+  'Static'
+  'Dynamic'
+])
+@description('[Static/Dynamic] The public IP Address allocation method for the Linux virtual machine. It defaults to "Dynamic".')
+param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
+
+@minLength(12)
+@secure()
+@description('The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-.')
+param linuxVmAdminPasswordOrKey string = deployLinuxVirtualMachine ? '' : newGuid()
+
+@description('The administrator username for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
+param linuxVmAdminUsername string = 'azureuser'
+
+@allowed([
+  'sshPublicKey'
+  'password'
+])
+@description('[sshPublicKey/password] The authentication type for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "password".')
+param linuxVmAuthenticationType string = 'password'
+
+@allowed([
+  'ubuntuserver'
+  '0001-com-ubuntu-server-focal'
+  '0001-com-ubuntu-server-jammy'
+  'RHEL'
+  'Debian-12'
+])
+@description('[Ubuntu/RHEL/Debian-12] The available Linux Offers')
+param linuxVmImageOffer string = '0001-com-ubuntu-server-focal'
+
+@allowed([
+  'Canonical'
+  'RedHat'
+  'Debian'
+])
+@description('[Canonical for Ubuntu/RedHat/Debian] The available Linux Publishers')
+param linuxVmImagePublisher string = 'Canonical'
+
+@description('The SKU of the Linux marketplace image.')
+param linuxVmImageSku string = '20_04-lts-gen2'
+
+@description('The disk creation option of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".')
+param linuxVmOsDiskCreateOption string = 'FromImage'
+
+@description('The disk type of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Standard_LRS".')
+param linuxVmOsDiskType string = 'Standard_LRS'
+
+@description('The size of the Linux virtual machine.')
+param linuxVmSize string = 'Standard_D2s_v3'
+
+@description('The region to deploy resources into. It defaults to the deployment location.')
+param location string = deployment().location
+
+@description('The number of days to retain logs in Sentinel-linked Workspace. It defaults to "90".')
+param logAnalyticsSentinelWorkspaceRetentionInDays int = 90
+
+@description('The daily quota for Log Analytics Workspace logs in Gigabytes. It defaults to "-1" for no quota.')
+param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
+
+@description('The number of days to retain Log Analytics Workspace logs without Sentinel. It defaults to "30".')
+param logAnalyticsWorkspaceNoSentinelRetentionInDays int = 30
+
+@allowed([
+  'Free'
+  'Standard'
+  'Premium'
+  'PerNode'
+  'PerGB2018'
+  'Standalone'
+])
+@description('[Free/Standard/Premium/PerNode/PerGB2018/Standalone] The SKU for the Log Analytics Workspace. It defaults to "PerGB2018". See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/logs/resource-manager-workspace.')
+param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
+
+@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See the following URL for valid settings: https://learn.microsoft.com/rest/api/storagerp/srp_sku_types.')
+param logStorageSkuName string = 'Standard_GRS'
+
+@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
+param networkWatcherFlowLogsRetentionDays int = 30
+
+@allowed([
+  'NetworkSecurityGroup'
+  'VirtualNetwork'
+])
+@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+param networkWatcherFlowLogsType string = 'VirtualNetwork'
+
+@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param networkWatcherResourceId string = ''
+
+@description('An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
+param operationsNetworkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group Diagnostic Metrics to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
+param operationsNetworkSecurityGroupDiagnosticsMetrics array = []
+
+@description('An array of Network Security Group rules to apply to the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat.')
+param operationsNetworkSecurityGroupRules array = []
+
+@description('The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.')
+param operationsSubnetAddressPrefix string = '10.0.131.0/24'
+
+@description('The subscription ID for the Operations Network and resources. It defaults to the deployment subscription.')
+param operationsSubscriptionId string = subscription().subscriptionId
+
+@description('The CIDR Virtual Network Address Prefix for the Operations Virtual Network.')
+param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
+
+@description('An array of Network Diagnostic Logs to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
+param operationsVirtualNetworkDiagnosticsLogs array = []
+
+@description('An array of Network Diagnostic Metrics to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
+param operationsVirtualNetworkDiagnosticsMetrics array = []
+
+@allowed([
+  'NISTRev4'
+  'NISTRev5'
+  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NISTRev4
+  'CMMC'
+])
+@description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
+param policy string = 'NISTRev4'
 
 @description('An array of Public IP Address Diagnostic Logs for the Azure Firewall. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/tutorial-resource-logs?tabs=DDoSProtectionNotifications#configure-ddos-diagnostic-logs.')
 param publicIPAddressDiagnosticsLogs array = [
@@ -191,107 +399,10 @@ param publicIPAddressDiagnosticsMetrics array = [
   }
 ]
 
-// HUB NETWORK PARAMETERS
-
-@description('An array of Network Diagnostic Logs to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
-param hubVirtualNetworkDiagnosticsLogs array = []
-
-@description('An array of Network Diagnostic Metrics to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param hubVirtualNetworkDiagnosticsMetrics array = []
-
-@description('An array of Network Security Group Rules to apply to the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep&pivots=deployment-language-bicep#securityrulepropertiesformat.')
-param hubNetworkSecurityGroupRules array = []
-
-@description('An array of Network Security Group diagnostic logs to apply to the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
-param hubNetworkSecurityGroupDiagnosticsLogs array = [
-  {
-    category: 'NetworkSecurityGroupEvent'
-    enabled: true
-  }
-  {
-    category: 'NetworkSecurityGroupRuleCounter'
-    enabled: true
-  }
-]
-
-@description('An array of Network Security Group Metrics to apply to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param hubNetworkSecurityGroupDiagnosticsMetrics array = []
-
-// IDENTITY PARAMETERS
-
-@description('An array of Network Diagnostic Logs to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
-param identityVirtualNetworkDiagnosticsLogs array = []
-
-@description('An array of Network Diagnostic Metrics to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param identityVirtualNetworkDiagnosticsMetrics array = []
-
-@description('An array of Network Security Group Rules to apply to the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat.')
-param identityNetworkSecurityGroupRules array = []
-
-@description('An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
-param identityNetworkSecurityGroupDiagnosticsLogs array = [
-  {
-    category: 'NetworkSecurityGroupEvent'
-    enabled: true
-  }
-  {
-    category: 'NetworkSecurityGroupRuleCounter'
-    enabled: true
-  }
-]
-
-@description('An array of Network Security Group Metrics to apply to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param identityNetworkSecurityGroupDiagnosticsMetrics array = []
-
-// KEY VAULT PARAMETERS
-@description('An array of Key Vault Diagnostic Logs categories to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
-param keyVaultDiagnosticsLogs array = [
-  {
-    category: 'AuditEvent'
-    enabled: true
-  }
-  {
-    category: 'AzurePolicyEvaluationDetails'
-    enabled: true
-  }
-]
-
-// OPERATIONS PARAMETERS
-
-@description('An array of Network Diagnostic Logs to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
-param operationsVirtualNetworkDiagnosticsLogs array = []
-
-@description('An array of Network Diagnostic Metrics to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param operationsVirtualNetworkDiagnosticsMetrics array = []
-
-@description('An array of Network Security Group rules to apply to the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat.')
-param operationsNetworkSecurityGroupRules array = []
-
-@description('An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
-param operationsNetworkSecurityGroupDiagnosticsLogs array = [
-  {
-    category: 'NetworkSecurityGroupEvent'
-    enabled: true
-  }
-  {
-    category: 'NetworkSecurityGroupRuleCounter'
-    enabled: true
-  }
-]
-
-@description('An array of Network Security Group Diagnostic Metrics to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param operationsNetworkSecurityGroupDiagnosticsMetrics array = []
-
-// SHARED SERVICES PARAMETERS
-
-@description('An array of Network Diagnostic Logs to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
-param sharedServicesVirtualNetworkDiagnosticsLogs array = []
-
-@description('An array of Network Diagnostic Metrics to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param sharedServicesVirtualNetworkDiagnosticsMetrics array = []
-
-@description('An array of Network Security Group rules to apply to the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat.')
-param sharedServicesNetworkSecurityGroupRules array = []
+@minLength(1)
+@maxLength(6)
+@description('A prefix, 1-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
+param resourcePrefix string
 
 @description('An array of Network Security Group diagnostic logs to apply to the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
 param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = [
@@ -308,215 +419,72 @@ param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = [
 @description('An array of Network Security Group Diagnostic Metrics to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
 param sharedServicesNetworkSecurityGroupDiagnosticsMetrics array = []
 
-// LOGGING PARAMETERS
+@description('An array of Network Security Group rules to apply to the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat.')
+param sharedServicesNetworkSecurityGroupRules array = []
 
-@description('When set to "true", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment. It defaults to "false".')
-param deploySentinel bool = false
+@description('The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.')
+param sharedServicesSubnetAddressPrefix string = '10.0.132.0/24'
 
-@description('The daily quota for Log Analytics Workspace logs in Gigabytes. It defaults to "-1" for no quota.')
-param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
+@description('The subscription ID for the Shared Services Network and resources. It defaults to the deployment subscription.')
+param sharedServicesSubscriptionId string = subscription().subscriptionId
 
-@description('The number of days to retain Log Analytics Workspace logs without Sentinel. It defaults to "30".')
-param logAnalyticsWorkspaceNoSentinelRetentionInDays int = 30
+@description('The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.')
+param sharedServicesVirtualNetworkAddressPrefix string = '10.0.132.0/24'
 
-@description('The number of days to retain logs in Sentinel-linked Workspace. It defaults to "90".')
-param logAnalyticsSentinelWorkspaceRetentionInDays int = 90
+@description('An array of Network Diagnostic Logs to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
+param sharedServicesVirtualNetworkDiagnosticsLogs array = []
 
-@allowed([
-  'Free'
-  'Standard'
-  'Premium'
-  'PerNode'
-  'PerGB2018'
-  'Standalone'
-])
-@description('[Free/Standard/Premium/PerNode/PerGB2018/Standalone] The SKU for the Log Analytics Workspace. It defaults to "PerGB2018". See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/logs/resource-manager-workspace.')
-param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
+@description('An array of Network Diagnostic Metrics to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
+param sharedServicesVirtualNetworkDiagnosticsMetrics array = []
 
-@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See the following URL for valid settings: https://learn.microsoft.com/rest/api/storagerp/srp_sku_types.')
-param logStorageSkuName string = 'Standard_GRS'
-
-// REMOTE ACCESS PARAMETERS
-
-param bastionDiagnosticsLogs array = [
-  {
-    category: 'BastionAuditLogs'
-    enabled: true
-  }
+@description('Supported Azure Clouds array. It defaults to the Public cloud and the Azure US Government cloud.')
+param supportedClouds array = [
+  'AzureCloud'
+  'AzureUSGovernment'
 ]
 
-@description('When set to "true", provisions Azure Bastion Host only. It defaults to "false".')
-param deployBastion bool = false
-
-@description('When set to "true", provisions Azure Gateway Subnet only. It defaults to "false".')
-param deployAzureGatewaySubnet bool = false
-
-@description('When set to "true", provisions Windows Virtual Machine Host only. It defaults to "false".')
-param deployWindowsVirtualMachine bool = false
-
-@description('When set to "true", provisions Linux Virtual Machine Host only. It defaults to "false".')
-param deployLinuxVirtualMachine bool = false
-
-@description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
-param bastionHostSubnetAddressPrefix string = '10.0.128.192/26'
-
-@description('The CIDR Subnet Address Prefix for the Azure Gateway Subnet. It must be in the Hub Virtual Network space. It must be /26.')
-param azureGatewaySubnetAddressPrefix string = '10.0.129.192/26'
-
-@description('The Azure Bastion Public IP Address Availability Zones. It defaults to "No-Zone" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
-param bastionHostPublicIPAddressAvailabilityZones array = []
-
-@description('The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance.')
-param hybridUseBenefit bool = false
-
-// LINUX VIRTUAL MACHINE PARAMETERS
-
-@description('The administrator username for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
-param linuxVmAdminUsername string = 'azureuser'
-
-@allowed([
-  'sshPublicKey'
-  'password'
-])
-@description('[sshPublicKey/password] The authentication type for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "password".')
-param linuxVmAuthenticationType string = 'password'
-
-@minLength(12)
-@secure()
-@description('The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-.')
-param linuxVmAdminPasswordOrKey string = deployLinuxVirtualMachine ? '' : newGuid()
-
-@description('The disk creation option of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".')
-param linuxVmOsDiskCreateOption string = 'FromImage'
-
-@description('The disk type of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Standard_LRS".')
-param linuxVmOsDiskType string = 'Standard_LRS'
-
-@allowed([
-  'Canonical'
-  'RedHat'
-  'Debian'
-])
-@description('[Canonical for Ubuntu/RedHat/Debian] The available Linux Publishers')
-param linuxVmImagePublisher string = 'Canonical'
-
-@allowed([
-  'ubuntuserver'
-  '0001-com-ubuntu-server-focal'
-  '0001-com-ubuntu-server-jammy'
-  'RHEL'
-  'Debian-12'
-])
-@description('[Ubuntu/RHEL/Debian-12] The available Linux Offers')
-param linuxVmImageOffer string = '0001-com-ubuntu-server-focal'
-
-@description('The SKU of the Linux marketplace image.')
-param linuxVmImageSku string = '20_04-lts-gen2'
-
-@description('The size of the Linux virtual machine.')
-param linuxVmSize string = 'Standard_D2s_v3'
-
-@allowed([
-  'Static'
-  'Dynamic'
-])
-@description('[Static/Dynamic] The public IP Address allocation method for the Linux virtual machine. It defaults to "Dynamic".')
-param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
-
-// WINDOWS VIRTUAL MACHINE PARAMETERS
-
-@description('The administrator username for the Windows Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
-param windowsVmAdminUsername string = 'azureuser'
+@description('A string dictionary of tags to add to deployed resources. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates.')
+param tags object = {}
 
 @minLength(12)
 @secure()
 @description('The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-.')
 param windowsVmAdminPassword string = deployWindowsVirtualMachine ? '' : newGuid()
 
-@description('The size of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "Standard_DS1_v2".')
-param windowsVmSize string = 'Standard_DS1_v2'
+@description('The administrator username for the Windows Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
+param windowsVmAdminUsername string = 'azureuser'
 
-@description('The publisher of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "MicrosoftWindowsServer".')
-param windowsVmPublisher string = 'MicrosoftWindowsServer'
+@description('The disk creation option of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".')
+param windowsVmCreateOption string = 'FromImage'
 
 @description('The offer of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "WindowsServer".')
-param windowsVmOffer string = 'WindowsServer'
+param windowsVmImageOffer string = 'WindowsServer'
+
+@description('The publisher of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "MicrosoftWindowsServer".')
+param windowsVmImagePublisher string = 'MicrosoftWindowsServer'
 
 @allowed([
   '2019-datacenter-gensecond'
   '2022-datacenter-g2'
 ])
 @description('The SKU of the Windows Virtual Machines to Azure Bastion remote into. It defaults to "2019-datacenter".')
-param windowsVmSku string = '2019-datacenter-gensecond'
-
-@description('The version of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "latest".')
-param windowsVmVersion string = 'latest'
-
-@description('The disk creation option of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".')
-param windowsVmCreateOption string = 'FromImage'
-
-@description('The storage account type of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "StandardSSD_LRS".')
-param windowsVmStorageAccountType string = 'StandardSSD_LRS'
+param windowsVmImageSku string = '2019-datacenter-gensecond'
 
 @allowed([
   'Static'
   'Dynamic'
 ])
 @description('[Static/Dynamic] The public IP Address allocation method for the Windows virtual machine. It defaults to "Dynamic".')
-param windowsNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
+param windowsVmNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 
-// POLICY PARAMETERS
+@description('The size of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "Standard_DS1_v2".')
+param windowsVmSize string = 'Standard_DS1_v2'
 
-@description('When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".')
-param deployPolicy bool = false
+@description('The storage account type of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "StandardSSD_LRS".')
+param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
-@allowed([
-  'NISTRev4'
-  'NISTRev5'
-  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NISTRev4
-  'CMMC'
-])
-@description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
-param policy string = 'NISTRev4'
-
-// MICROSOFT DEFENDER FOR CLOUD PARAMETERS
-
-@description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
-param deployDefender bool = true
-
-@allowed([
-  'Standard'
-  'Free'
-])
-@description('[Standard/Free] The SKU for Defender. It defaults to "Free".')
-param defenderSkuTier string = 'Free'
-
-@description('Email address of the contact, in the form of john@doe.com')
-param emailSecurityContact string = ''
-
-// Allowed Values for paid workload protection Plans.  
-// Users must select a plan from portal ui def or manually specify any of the plans that are available in the desired cloud.  
-// The portal does not parse the allowed values field for arrays  correctly at this time.
-// As a default, the array is set to ['VirtualMachines'].
-/*   'Api'
-  'AppServices'
-  'Arm'
-  'CloudPosture'
-  //'ContainerRegistry' (deprecated)
-  'Containers'
-  'CosmosDbs'
-  //'Dns' (deprecated)
-  'KeyVaults'
-  //'KubernetesService' (deprecated)
-  'OpenSourceRelationalDatabases'
-  'SqlServers'
-  'SqlServerVirtualMachines'
-  'StorageAccounts'
-  'VirtualMachine*/
-  
-@description('Paid Workload Protection plans for Defender for Cloud')
-param deployDefenderPlans array = ['VirtualMachines']
-
+@description('The version of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "latest".')
+param windowsVmVersion string = 'latest'
 
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
@@ -714,16 +682,16 @@ module remoteAccess 'modules/remote-access.bicep' = {
     logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     mlzTags: logic.outputs.mlzTags
     serviceToken: logic.outputs.tokens.service
+    supportedClouds: supportedClouds
     tags: tags
-    windowsNetworkInterfacePrivateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
     windowsVmAdminPassword: windowsVmAdminPassword
     windowsVmAdminUsername: windowsVmAdminUsername
     windowsVmCreateOption: windowsVmCreateOption
-    windowsVmOffer: windowsVmOffer
-    windowsVmPublisher: windowsVmPublisher
+    windowsVmImageOffer: windowsVmImageOffer
+    windowsVmImagePublisher: windowsVmImagePublisher
+    windowsVmImageSku: windowsVmImageSku
+    windowsVmNetworkInterfacePrivateIPAddressAllocationMethod: windowsVmNetworkInterfacePrivateIPAddressAllocationMethod
     windowsVmSize: windowsVmSize
-    windowsVmSku: windowsVmSku
-    supportedClouds: supportedClouds
     windowsVmStorageAccountType: windowsVmStorageAccountType
     windowsVmVersion: windowsVmVersion
   }
