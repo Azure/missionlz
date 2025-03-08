@@ -57,8 +57,8 @@ param deployDefender bool = true
   'StorageAccounts'
   'VirtualMachine*/
   
-  @description('Paid Workload Protection plans for Defender for Cloud')
-  param deployDefenderPlans array = ['VirtualMachines']
+@description('Paid Workload Protection plans for Defender for Cloud')
+param deployDefenderPlans array = ['VirtualMachines']
 
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
 param deployIdentity bool = false
