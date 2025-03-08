@@ -29,6 +29,7 @@ param location string
 param managementVirtualMachineName string
 param netAppFileShares array
 param networkInterfaceNamePrefix string
+param networkSecurityGroupResourceId string
 param organizationalUnitPath string
 param profile string
 param resourceGroupManagement string
@@ -118,6 +119,9 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [fo
         }
       }
     ]
+    networkSecurityGroup: {
+      id: networkSecurityGroupResourceId
+    }
     enableAcceleratedNetworking: enableAcceleratedNetworking
     enableIPForwarding: false
   }

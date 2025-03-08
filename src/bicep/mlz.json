@@ -5,16 +5,151 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "4799578139901764153"
+      "templateHash": "899655216208688067"
     }
   },
   "parameters": {
-    "resourcePrefix": {
+    "azureGatewaySubnetAddressPrefix": {
       "type": "string",
-      "minLength": 1,
-      "maxLength": 6,
+      "defaultValue": "10.0.129.192/26",
       "metadata": {
-        "description": "A prefix, 1-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces"
+        "description": "The CIDR Subnet Address Prefix for the Azure Gateway Subnet. It must be in the Hub Virtual Network space. It must be /26."
+      }
+    },
+    "bastionDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "BastionAuditLogs",
+          "enabled": true
+        }
+      ]
+    },
+    "bastionHostPublicIPAddressAvailabilityZones": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The Azure Bastion Public IP Address Availability Zones. It defaults to \"No-Zone\" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku."
+      }
+    },
+    "bastionHostSubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.128.192/26",
+      "metadata": {
+        "description": "The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space \"hubVirtualNetworkAddressPrefix\" parameter value. It must be /27 or larger."
+      }
+    },
+    "defenderSkuTier": {
+      "type": "string",
+      "defaultValue": "Free",
+      "allowedValues": [
+        "Standard",
+        "Free"
+      ],
+      "metadata": {
+        "description": "[Standard/Free] The SKU for Defender. It defaults to \"Free\"."
+      }
+    },
+    "deployAzureGatewaySubnet": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When set to \"true\", provisions Azure Gateway Subnet only. It defaults to \"false\"."
+      }
+    },
+    "deployBastion": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When set to \"true\", provisions Azure Bastion Host only. It defaults to \"false\"."
+      }
+    },
+    "deployDefender": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "When set to \"true\", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to \"false\"."
+      }
+    },
+    "deployDefenderPlans": {
+      "type": "array",
+      "defaultValue": [
+        "VirtualMachines"
+      ],
+      "metadata": {
+        "description": "Paid Workload Protection plans for Defender for Cloud"
+      }
+    },
+    "deployIdentity": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities."
+      }
+    },
+    "deployLinuxVirtualMachine": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When set to \"true\", provisions Linux Virtual Machine Host only. It defaults to \"false\"."
+      }
+    },
+    "deploymentNameSuffix": {
+      "type": "string",
+      "defaultValue": "[utcNow()]",
+      "metadata": {
+        "description": "A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the \"utcNow()\" function."
+      }
+    },
+    "deployNetworkWatcherTrafficAnalytics": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When set to true, deploys Network Watcher Traffic Analytics. It defaults to \"false\"."
+      }
+    },
+    "deployPolicy": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When set to \"true\", deploys the Azure Policy set defined at by the parameter \"policy\" to the resource groups generated in the deployment. It defaults to \"false\"."
+      }
+    },
+    "deploySentinel": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When set to \"true\", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment. It defaults to \"false\"."
+      }
+    },
+    "deployWindowsVirtualMachine": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When set to \"true\", provisions Windows Virtual Machine Host only. It defaults to \"false\"."
+      }
+    },
+    "dnsServers": {
+      "type": "array",
+      "defaultValue": [
+        "168.63.129.16"
+      ],
+      "metadata": {
+        "description": "['168.63.129.16'] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for \"servers\". This should be a comma separated list of IP addresses to forward DNS traffic"
+      }
+    },
+    "emailSecurityContact": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Email address of the contact, in the form of john@doe.com"
+      }
+    },
+    "enableProxy": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "[true/false] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for \"dnsServers\""
       }
     },
     "environmentAbbreviation": {
@@ -29,91 +164,11 @@
         "description": "The abbreviation for the environment."
       }
     },
-    "hubSubscriptionId": {
-      "type": "string",
-      "defaultValue": "[subscription().subscriptionId]",
-      "metadata": {
-        "description": "The subscription ID for the Hub Network and resources. It defaults to the deployment subscription."
-      }
-    },
-    "identitySubscriptionId": {
-      "type": "string",
-      "defaultValue": "[subscription().subscriptionId]",
-      "metadata": {
-        "description": "The subscription ID for the Identity Network and resources. It defaults to the deployment subscription."
-      }
-    },
-    "operationsSubscriptionId": {
-      "type": "string",
-      "defaultValue": "[subscription().subscriptionId]",
-      "metadata": {
-        "description": "The subscription ID for the Operations Network and resources. It defaults to the deployment subscription."
-      }
-    },
-    "sharedServicesSubscriptionId": {
-      "type": "string",
-      "defaultValue": "[subscription().subscriptionId]",
-      "metadata": {
-        "description": "The subscription ID for the Shared Services Network and resources. It defaults to the deployment subscription."
-      }
-    },
-    "location": {
-      "type": "string",
-      "defaultValue": "[deployment().location]",
-      "metadata": {
-        "description": "The region to deploy resources into. It defaults to the deployment location."
-      }
-    },
-    "supportedClouds": {
+    "firewallClientPublicIPAddressAvailabilityZones": {
       "type": "array",
-      "defaultValue": [
-        "AzureCloud",
-        "AzureUSGovernment"
-      ],
+      "defaultValue": [],
       "metadata": {
-        "description": "Supported Azure Clouds array. It defaults to the Public cloud and the Azure US Government cloud."
-      }
-    },
-    "deployIdentity": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities."
-      }
-    },
-    "deployNetworkWatcher": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Choose whether to deploy network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription."
-      }
-    },
-    "deploymentNameSuffix": {
-      "type": "string",
-      "defaultValue": "[utcNow()]",
-      "metadata": {
-        "description": "A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the \"utcNow()\" function."
-      }
-    },
-    "tags": {
-      "type": "object",
-      "defaultValue": {},
-      "metadata": {
-        "description": "A string dictionary of tags to add to deployed resources. See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates for valid settings."
-      }
-    },
-    "hubVirtualNetworkAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.128.0/23",
-      "metadata": {
-        "description": "The CIDR Virtual Network Address Prefix for the Hub Virtual Network."
-      }
-    },
-    "hubSubnetAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.128.128/26",
-      "metadata": {
-        "description": "The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space."
+        "description": "An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or \"No-Zone\", because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku."
       }
     },
     "firewallClientSubnetAddressPrefix": {
@@ -121,107 +176,6 @@
       "defaultValue": "10.0.128.0/26",
       "metadata": {
         "description": "The CIDR Subnet Address Prefix for the Azure Firewall Subnet. It must be in the Hub Virtual Network space. It must be /26."
-      }
-    },
-    "firewallManagementSubnetAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.128.64/26",
-      "metadata": {
-        "description": "The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26."
-      }
-    },
-    "identityVirtualNetworkAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.130.0/24",
-      "metadata": {
-        "description": "The CIDR Virtual Network Address Prefix for the Identity Virtual Network."
-      }
-    },
-    "identitySubnetAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.130.0/24",
-      "metadata": {
-        "description": "The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space."
-      }
-    },
-    "operationsVirtualNetworkAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.131.0/24",
-      "metadata": {
-        "description": "The CIDR Virtual Network Address Prefix for the Operations Virtual Network."
-      }
-    },
-    "operationsSubnetAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.131.0/24",
-      "metadata": {
-        "description": "The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space."
-      }
-    },
-    "sharedServicesVirtualNetworkAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.132.0/24",
-      "metadata": {
-        "description": "The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network."
-      }
-    },
-    "sharedServicesSubnetAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.132.0/24",
-      "metadata": {
-        "description": "The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space."
-      }
-    },
-    "firewallSkuTier": {
-      "type": "string",
-      "defaultValue": "Premium",
-      "allowedValues": [
-        "Standard",
-        "Premium",
-        "Basic"
-      ],
-      "metadata": {
-        "description": "[Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to \"Premium\". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant."
-      }
-    },
-    "firewallThreatIntelMode": {
-      "type": "string",
-      "defaultValue": "Alert",
-      "allowedValues": [
-        "Alert",
-        "Deny",
-        "Off"
-      ],
-      "metadata": {
-        "description": "[Alert/Deny/Off] The Azure Firewall Threat Intelligence Rule triggered logging behavior. Valid values are \"Alert\", \"Deny\", or \"Off\". The default value is \"Alert\"."
-      }
-    },
-    "firewallIntrusionDetectionMode": {
-      "type": "string",
-      "defaultValue": "Alert",
-      "allowedValues": [
-        "Alert",
-        "Deny",
-        "Off"
-      ],
-      "metadata": {
-        "description": "[Alert/Deny/Off] The Azure Firewall Intrusion Detection mode. Valid values are \"Alert\", \"Deny\", or \"Off\". The default value is \"Alert\"."
-      }
-    },
-    "enableProxy": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "[true/false] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for \"dnsServers\""
-      }
-    },
-    "dnsServers": {
-      "type": "array",
-      "defaultValue": [
-        "168.63.129.16"
-      ],
-      "metadata": {
-        "description": "['168.63.129.16'] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for \"servers\". This should be a comma separated list of IP addresses to forward DNS traffic"
       }
     },
     "firewallDiagnosticsLogs": {
@@ -241,7 +195,7 @@
         }
       ],
       "metadata": {
-        "description": "An array of Firewall Diagnostic Logs categories to collect. See \"https://docs.microsoft.com/en-us/azure/firewall/firewall-diagnostics#enable-diagnostic-logging-through-the-azure-portal\" for valid values."
+        "description": "An array of Firewall Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/firewall/monitor-firewall#enable-diagnostic-logging-through-the-azure-portal."
       }
     },
     "firewallDiagnosticsMetrics": {
@@ -253,21 +207,45 @@
         }
       ],
       "metadata": {
-        "description": "An array of Firewall Diagnostic Metrics categories to collect. See \"https://docs.microsoft.com/en-us/azure/firewall/firewall-diagnostics#enable-diagnostic-logging-through-the-azure-portal\" for valid values."
+        "description": "An array of Firewall Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/firewall/monitor-firewall#enable-diagnostic-logging-through-the-azure-portal."
       }
     },
-    "firewallClientPublicIPAddressAvailabilityZones": {
-      "type": "array",
-      "defaultValue": [],
+    "firewallIntrusionDetectionMode": {
+      "type": "string",
+      "defaultValue": "Alert",
+      "allowedValues": [
+        "Alert",
+        "Deny",
+        "Off"
+      ],
       "metadata": {
-        "description": "An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or \"No-Zone\", because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings."
+        "description": "[Alert/Deny/Off] The Azure Firewall Intrusion Detection mode. Valid values are \"Alert\", \"Deny\", or \"Off\". The default value is \"Alert\"."
       }
     },
     "firewallManagementPublicIPAddressAvailabilityZones": {
       "type": "array",
       "defaultValue": [],
       "metadata": {
-        "description": "An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or \"No-Zone\", because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings."
+        "description": "An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or \"No-Zone\", because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku."
+      }
+    },
+    "firewallManagementSubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.128.64/26",
+      "metadata": {
+        "description": "The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26."
+      }
+    },
+    "firewallSkuTier": {
+      "type": "string",
+      "defaultValue": "Premium",
+      "allowedValues": [
+        "Standard",
+        "Premium",
+        "Basic"
+      ],
+      "metadata": {
+        "description": "[Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to \"Premium\". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant."
       }
     },
     "firewallSupernetIPAddress": {
@@ -277,57 +255,16 @@
         "description": "Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses"
       }
     },
-    "publicIPAddressDiagnosticsLogs": {
-      "type": "array",
-      "defaultValue": [
-        {
-          "category": "DDoSProtectionNotifications",
-          "enabled": true
-        },
-        {
-          "category": "DDoSMitigationFlowLogs",
-          "enabled": true
-        },
-        {
-          "category": "DDoSMitigationReports",
-          "enabled": true
-        }
+    "firewallThreatIntelMode": {
+      "type": "string",
+      "defaultValue": "Alert",
+      "allowedValues": [
+        "Alert",
+        "Deny",
+        "Off"
       ],
       "metadata": {
-        "description": "An array of Public IP Address Diagnostic Logs for the Azure Firewall. See https://docs.microsoft.com/en-us/azure/ddos-protection/diagnostic-logging?tabs=DDoSProtectionNotifications#configure-ddos-diagnostic-logs for valid settings."
-      }
-    },
-    "publicIPAddressDiagnosticsMetrics": {
-      "type": "array",
-      "defaultValue": [
-        {
-          "category": "AllMetrics",
-          "enabled": true
-        }
-      ],
-      "metadata": {
-        "description": "An array of Public IP Address Diagnostic Metrics for the Azure Firewall. See https://docs.microsoft.com/en-us/azure/ddos-protection/diagnostic-logging?tabs=DDoSProtectionNotifications for valid settings."
-      }
-    },
-    "hubVirtualNetworkDiagnosticsLogs": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "An array of Network Diagnostic Logs to enable for the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings."
-      }
-    },
-    "hubVirtualNetworkDiagnosticsMetrics": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "An array of Network Diagnostic Metrics to enable for the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings."
-      }
-    },
-    "hubNetworkSecurityGroupRules": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "An array of Network Security Group Rules to apply to the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings."
+        "description": "[Alert/Deny/Off] The Azure Firewall Threat Intelligence Rule triggered logging behavior. Valid values are \"Alert\", \"Deny\", or \"Off\". The default value is \"Alert\"."
       }
     },
     "hubNetworkSecurityGroupDiagnosticsLogs": {
@@ -343,35 +280,63 @@
         }
       ],
       "metadata": {
-        "description": "An array of Network Security Group diagnostic logs to apply to the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings."
+        "description": "An array of Network Security Group diagnostic logs to apply to the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories."
       }
     },
     "hubNetworkSecurityGroupDiagnosticsMetrics": {
       "type": "array",
       "defaultValue": [],
       "metadata": {
-        "description": "An array of Network Security Group Metrics to apply to enable for the Hub Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings."
+        "description": "An array of Network Security Group Metrics to apply to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics."
       }
     },
-    "identityVirtualNetworkDiagnosticsLogs": {
+    "hubNetworkSecurityGroupRules": {
       "type": "array",
       "defaultValue": [],
       "metadata": {
-        "description": "An array of Network Diagnostic Logs to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings."
+        "description": "An array of Network Security Group Rules to apply to the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep&pivots=deployment-language-bicep#securityrulepropertiesformat."
       }
     },
-    "identityVirtualNetworkDiagnosticsMetrics": {
+    "hubSubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.128.128/26",
+      "metadata": {
+        "description": "The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space."
+      }
+    },
+    "hubSubscriptionId": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]",
+      "metadata": {
+        "description": "The subscription ID for the Hub Network and resources. It defaults to the deployment subscription."
+      }
+    },
+    "hubVirtualNetworkAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.128.0/23",
+      "metadata": {
+        "description": "The CIDR Virtual Network Address Prefix for the Hub Virtual Network."
+      }
+    },
+    "hubVirtualNetworkDiagnosticsLogs": {
       "type": "array",
       "defaultValue": [],
       "metadata": {
-        "description": "An array of Network Diagnostic Metrics to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings."
+        "description": "An array of Network Diagnostic Logs to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs."
       }
     },
-    "identityNetworkSecurityGroupRules": {
+    "hubVirtualNetworkDiagnosticsMetrics": {
       "type": "array",
       "defaultValue": [],
       "metadata": {
-        "description": "An array of Network Security Group Rules to apply to the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings."
+        "description": "An array of Network Diagnostic Metrics to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics."
+      }
+    },
+    "hybridUseBenefit": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance."
       }
     },
     "identityNetworkSecurityGroupDiagnosticsLogs": {
@@ -387,14 +352,56 @@
         }
       ],
       "metadata": {
-        "description": "An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings."
+        "description": "An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories."
       }
     },
     "identityNetworkSecurityGroupDiagnosticsMetrics": {
       "type": "array",
       "defaultValue": [],
       "metadata": {
-        "description": "An array of Network Security Group Metrics to apply to enable for the Identity Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings."
+        "description": "An array of Network Security Group Metrics to apply to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics."
+      }
+    },
+    "identityNetworkSecurityGroupRules": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "An array of Network Security Group Rules to apply to the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat."
+      }
+    },
+    "identitySubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.130.0/24",
+      "metadata": {
+        "description": "The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space."
+      }
+    },
+    "identitySubscriptionId": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]",
+      "metadata": {
+        "description": "The subscription ID for the Identity Network and resources. It defaults to the deployment subscription."
+      }
+    },
+    "identityVirtualNetworkAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.130.0/24",
+      "metadata": {
+        "description": "The CIDR Virtual Network Address Prefix for the Identity Virtual Network."
+      }
+    },
+    "identityVirtualNetworkDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "An array of Network Diagnostic Logs to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs."
+      }
+    },
+    "identityVirtualNetworkDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "An array of Network Diagnostic Metrics to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics."
       }
     },
     "keyVaultDiagnosticsLogs": {
@@ -410,210 +417,26 @@
         }
       ],
       "metadata": {
-        "description": "An array of Key Vault Diagnostic Logs categories to collect. See \"https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault\" for valid values."
+        "description": "An array of Key Vault Diagnostic Logs categories to collect. See the following URL for valid settings: \"https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault\"."
       }
     },
-    "operationsVirtualNetworkDiagnosticsLogs": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "An array of Network Diagnostic Logs to enable for the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings."
-      }
-    },
-    "operationsVirtualNetworkDiagnosticsMetrics": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "An array of Network Diagnostic Metrics to enable for the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings."
-      }
-    },
-    "operationsNetworkSecurityGroupRules": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "An array of Network Security Group rules to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings."
-      }
-    },
-    "operationsNetworkSecurityGroupDiagnosticsLogs": {
-      "type": "array",
-      "defaultValue": [
-        {
-          "category": "NetworkSecurityGroupEvent",
-          "enabled": true
-        },
-        {
-          "category": "NetworkSecurityGroupRuleCounter",
-          "enabled": true
-        }
-      ],
-      "metadata": {
-        "description": "An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings."
-      }
-    },
-    "operationsNetworkSecurityGroupDiagnosticsMetrics": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "An array of Network Security Group Diagnostic Metrics to enable for the Operations Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings."
-      }
-    },
-    "sharedServicesVirtualNetworkDiagnosticsLogs": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "An array of Network Diagnostic Logs to enable for the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs for valid settings."
-      }
-    },
-    "sharedServicesVirtualNetworkDiagnosticsMetrics": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "An array of Network Diagnostic Metrics to enable for the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings."
-      }
-    },
-    "sharedServicesNetworkSecurityGroupRules": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "An array of Network Security Group rules to apply to the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat for valid settings."
-      }
-    },
-    "sharedServicesNetworkSecurityGroupDiagnosticsLogs": {
-      "type": "array",
-      "defaultValue": [
-        {
-          "category": "NetworkSecurityGroupEvent",
-          "enabled": true
-        },
-        {
-          "category": "NetworkSecurityGroupRuleCounter",
-          "enabled": true
-        }
-      ],
-      "metadata": {
-        "description": "An array of Network Security Group diagnostic logs to apply to the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings."
-      }
-    },
-    "sharedServicesNetworkSecurityGroupDiagnosticsMetrics": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "An array of Network Security Group Diagnostic Metrics to enable for the SharedServices Virtual Network. See https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics for valid settings."
-      }
-    },
-    "deploySentinel": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "When set to \"true\", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment. It defaults to \"false\"."
-      }
-    },
-    "logAnalyticsWorkspaceCappingDailyQuotaGb": {
-      "type": "int",
-      "defaultValue": -1,
-      "metadata": {
-        "description": "The daily quota for Log Analytics Workspace logs in Gigabytes. It defaults to \"-1\" for no quota."
-      }
-    },
-    "logAnalyticsWorkspaceNoSentinelRetentionInDays": {
-      "type": "int",
-      "defaultValue": 30,
-      "metadata": {
-        "description": "The number of days to retain Log Analytics Workspace logs without Sentinel. It defaults to \"30\"."
-      }
-    },
-    "logAnalyticsSentinelWorkspaceRetentionInDays": {
-      "type": "int",
-      "defaultValue": 90,
-      "metadata": {
-        "description": "The number of days to retain logs in Sentinel-linked Workspace. It defaults to \"90\"."
-      }
-    },
-    "logAnalyticsWorkspaceSkuName": {
+    "linuxNetworkInterfacePrivateIPAddressAllocationMethod": {
       "type": "string",
-      "defaultValue": "PerGB2018",
+      "defaultValue": "Dynamic",
       "allowedValues": [
-        "Free",
-        "Standard",
-        "Premium",
-        "PerNode",
-        "PerGB2018",
-        "Standalone"
+        "Static",
+        "Dynamic"
       ],
       "metadata": {
-        "description": "[Free/Standard/Premium/PerNode/PerGB2018/Standalone] The SKU for the Log Analytics Workspace. It defaults to \"PerGB2018\". See https://docs.microsoft.com/en-us/azure/azure-monitor/logs/resource-manager-workspace for valid settings."
+        "description": "[Static/Dynamic] The public IP Address allocation method for the Linux virtual machine. It defaults to \"Dynamic\"."
       }
     },
-    "logStorageSkuName": {
-      "type": "string",
-      "defaultValue": "Standard_GRS",
+    "linuxVmAdminPasswordOrKey": {
+      "type": "securestring",
+      "defaultValue": "[if(parameters('deployLinuxVirtualMachine'), '', newGuid())]",
+      "minLength": 12,
       "metadata": {
-        "description": "The Storage Account SKU to use for log storage. It defaults to \"Standard_GRS\". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings."
-      }
-    },
-    "bastionDiagnosticsLogs": {
-      "type": "array",
-      "defaultValue": [
-        {
-          "category": "BastionAuditLogs",
-          "enabled": true
-        }
-      ]
-    },
-    "deployBastion": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "When set to \"true\", provisions Azure Bastion Host only. It defaults to \"false\"."
-      }
-    },
-    "deployAzureGatewaySubnet": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "When set to \"true\", provisions Azure Gateway Subnet only. It defaults to \"false\"."
-      }
-    },
-    "deployWindowsVirtualMachine": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "When set to \"true\", provisions Windows Virtual Machine Host only. It defaults to \"false\"."
-      }
-    },
-    "deployLinuxVirtualMachine": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "When set to \"true\", provisions Linux Virtual Machine Host only. It defaults to \"false\"."
-      }
-    },
-    "bastionHostSubnetAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.128.192/26",
-      "metadata": {
-        "description": "The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space \"hubVirtualNetworkAddressPrefix\" parameter value. It must be /27 or larger."
-      }
-    },
-    "azureGatewaySubnetAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.129.192/26",
-      "metadata": {
-        "description": "The CIDR Subnet Address Prefix for the Azure Gateway Subnet. It must be in the Hub Virtual Network space. It must be /26."
-      }
-    },
-    "bastionHostPublicIPAddressAvailabilityZones": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "The Azure Bastion Public IP Address Availability Zones. It defaults to \"No-Zone\" because Availability Zones are not available in every cloud. See https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings."
-      }
-    },
-    "hybridUseBenefit": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance."
+        "description": "The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-."
       }
     },
     "linuxVmAdminUsername": {
@@ -634,12 +457,37 @@
         "description": "[sshPublicKey/password] The authentication type for the Linux Virtual Machine to Azure Bastion remote into. It defaults to \"password\"."
       }
     },
-    "linuxVmAdminPasswordOrKey": {
-      "type": "securestring",
-      "defaultValue": "[if(parameters('deployLinuxVirtualMachine'), '', newGuid())]",
-      "minLength": 12,
+    "linuxVmImageOffer": {
+      "type": "string",
+      "defaultValue": "0001-com-ubuntu-server-focal",
+      "allowedValues": [
+        "ubuntuserver",
+        "0001-com-ubuntu-server-focal",
+        "0001-com-ubuntu-server-jammy",
+        "RHEL",
+        "Debian-12"
+      ],
       "metadata": {
-        "description": "The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements."
+        "description": "[Ubuntu/RHEL/Debian-12] The available Linux Offers"
+      }
+    },
+    "linuxVmImagePublisher": {
+      "type": "string",
+      "defaultValue": "Canonical",
+      "allowedValues": [
+        "Canonical",
+        "RedHat",
+        "Debian"
+      ],
+      "metadata": {
+        "description": "[Canonical for Ubuntu/RedHat/Debian] The available Linux Publishers"
+      }
+    },
+    "linuxVmImageSku": {
+      "type": "string",
+      "defaultValue": "20_04-lts-gen2",
+      "metadata": {
+        "description": "The SKU of the Linux marketplace image."
       }
     },
     "linuxVmOsDiskCreateOption": {
@@ -656,39 +504,6 @@
         "description": "The disk type of the Linux Virtual Machine to Azure Bastion remote into. It defaults to \"Standard_LRS\"."
       }
     },
-    "linuxVmImagePublisher": {
-      "type": "string",
-      "defaultValue": "Canonical",
-      "allowedValues": [
-        "Canonical",
-        "RedHat",
-        "Debian"
-      ],
-      "metadata": {
-        "description": "[Canonical for Ubuntu/RedHat/Debian] The available Linux Publishers"
-      }
-    },
-    "linuxVmImageOffer": {
-      "type": "string",
-      "defaultValue": "0001-com-ubuntu-server-focal",
-      "allowedValues": [
-        "ubuntuserver",
-        "0001-com-ubuntu-server-focal",
-        "0001-com-ubuntu-server-jammy",
-        "RHEL",
-        "Debian-12"
-      ],
-      "metadata": {
-        "description": "[Ubuntu/RHEL/Debian-12] The available Linux Offers"
-      }
-    },
-    "linuxVmImageSku": {
-      "type": "string",
-      "defaultValue": "20_04-lts-gen2",
-      "metadata": {
-        "description": "The SKU of the Linux marketplace image."
-      }
-    },
     "linuxVmSize": {
       "type": "string",
       "defaultValue": "Standard_D2s_v3",
@@ -696,101 +511,144 @@
         "description": "The size of the Linux virtual machine."
       }
     },
-    "linuxNetworkInterfacePrivateIPAddressAllocationMethod": {
+    "location": {
       "type": "string",
-      "defaultValue": "Dynamic",
+      "defaultValue": "[deployment().location]",
+      "metadata": {
+        "description": "The region to deploy resources into. It defaults to the deployment location."
+      }
+    },
+    "logAnalyticsSentinelWorkspaceRetentionInDays": {
+      "type": "int",
+      "defaultValue": 90,
+      "metadata": {
+        "description": "The number of days to retain logs in Sentinel-linked Workspace. It defaults to \"90\"."
+      }
+    },
+    "logAnalyticsWorkspaceCappingDailyQuotaGb": {
+      "type": "int",
+      "defaultValue": -1,
+      "metadata": {
+        "description": "The daily quota for Log Analytics Workspace logs in Gigabytes. It defaults to \"-1\" for no quota."
+      }
+    },
+    "logAnalyticsWorkspaceNoSentinelRetentionInDays": {
+      "type": "int",
+      "defaultValue": 30,
+      "metadata": {
+        "description": "The number of days to retain Log Analytics Workspace logs without Sentinel. It defaults to \"30\"."
+      }
+    },
+    "logAnalyticsWorkspaceSkuName": {
+      "type": "string",
+      "defaultValue": "PerGB2018",
       "allowedValues": [
-        "Static",
-        "Dynamic"
+        "Free",
+        "Standard",
+        "Premium",
+        "PerNode",
+        "PerGB2018",
+        "Standalone"
       ],
       "metadata": {
-        "description": "[Static/Dynamic] The public IP Address allocation method for the Linux virtual machine. It defaults to \"Dynamic\"."
+        "description": "[Free/Standard/Premium/PerNode/PerGB2018/Standalone] The SKU for the Log Analytics Workspace. It defaults to \"PerGB2018\". See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/logs/resource-manager-workspace."
       }
     },
-    "windowsVmAdminUsername": {
+    "logStorageSkuName": {
       "type": "string",
-      "defaultValue": "azureuser",
+      "defaultValue": "Standard_GRS",
       "metadata": {
-        "description": "The administrator username for the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"azureuser\"."
+        "description": "The Storage Account SKU to use for log storage. It defaults to \"Standard_GRS\". See the following URL for valid settings: https://learn.microsoft.com/rest/api/storagerp/srp_sku_types."
       }
     },
-    "windowsVmAdminPassword": {
-      "type": "securestring",
-      "defaultValue": "[if(parameters('deployWindowsVirtualMachine'), '', newGuid())]",
-      "minLength": 12,
+    "networkWatcherFlowLogsRetentionDays": {
+      "type": "int",
+      "defaultValue": 30,
       "metadata": {
-        "description": "The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm- for password requirements."
+        "description": "The number of days to retain Network Watcher Flow Logs. It defaults to \"30\"."
       }
     },
-    "windowsVmSize": {
+    "networkWatcherFlowLogsType": {
       "type": "string",
-      "defaultValue": "Standard_DS1_v2",
-      "metadata": {
-        "description": "The size of the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"Standard_DS1_v2\"."
-      }
-    },
-    "windowsVmPublisher": {
-      "type": "string",
-      "defaultValue": "MicrosoftWindowsServer",
-      "metadata": {
-        "description": "The publisher of the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"MicrosoftWindowsServer\"."
-      }
-    },
-    "windowsVmOffer": {
-      "type": "string",
-      "defaultValue": "WindowsServer",
-      "metadata": {
-        "description": "The offer of the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"WindowsServer\"."
-      }
-    },
-    "windowsVmSku": {
-      "type": "string",
-      "defaultValue": "2019-datacenter-gensecond",
+      "defaultValue": "VirtualNetwork",
       "allowedValues": [
-        "2019-datacenter-gensecond",
-        "2022-datacenter-g2"
+        "NetworkSecurityGroup",
+        "VirtualNetwork"
       ],
       "metadata": {
-        "description": "The SKU of the Windows Virtual Machines to Azure Bastion remote into. It defaults to \"2019-datacenter\"."
+        "description": "When set to \"true\", enables Virtual Network Flow Logs. It defaults to \"true\" as its required by MCSB."
       }
     },
-    "windowsVmVersion": {
+    "networkWatcherResourceId": {
       "type": "string",
-      "defaultValue": "latest",
+      "defaultValue": "",
       "metadata": {
-        "description": "The version of the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"latest\"."
+        "description": "The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource."
       }
     },
-    "windowsVmCreateOption": {
-      "type": "string",
-      "defaultValue": "FromImage",
-      "metadata": {
-        "description": "The disk creation option of the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"FromImage\"."
-      }
-    },
-    "windowsVmStorageAccountType": {
-      "type": "string",
-      "defaultValue": "StandardSSD_LRS",
-      "metadata": {
-        "description": "The storage account type of the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"StandardSSD_LRS\"."
-      }
-    },
-    "windowsNetworkInterfacePrivateIPAddressAllocationMethod": {
-      "type": "string",
-      "defaultValue": "Dynamic",
-      "allowedValues": [
-        "Static",
-        "Dynamic"
+    "operationsNetworkSecurityGroupDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "NetworkSecurityGroupEvent",
+          "enabled": true
+        },
+        {
+          "category": "NetworkSecurityGroupRuleCounter",
+          "enabled": true
+        }
       ],
       "metadata": {
-        "description": "[Static/Dynamic] The public IP Address allocation method for the Windows virtual machine. It defaults to \"Dynamic\"."
+        "description": "An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories."
       }
     },
-    "deployPolicy": {
-      "type": "bool",
-      "defaultValue": false,
+    "operationsNetworkSecurityGroupDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [],
       "metadata": {
-        "description": "When set to \"true\", deploys the Azure Policy set defined at by the parameter \"policy\" to the resource groups generated in the deployment. It defaults to \"false\"."
+        "description": "An array of Network Security Group Diagnostic Metrics to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics."
+      }
+    },
+    "operationsNetworkSecurityGroupRules": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "An array of Network Security Group rules to apply to the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat."
+      }
+    },
+    "operationsSubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.131.0/24",
+      "metadata": {
+        "description": "The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space."
+      }
+    },
+    "operationsSubscriptionId": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]",
+      "metadata": {
+        "description": "The subscription ID for the Operations Network and resources. It defaults to the deployment subscription."
+      }
+    },
+    "operationsVirtualNetworkAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.131.0/24",
+      "metadata": {
+        "description": "The CIDR Virtual Network Address Prefix for the Operations Virtual Network."
+      }
+    },
+    "operationsVirtualNetworkDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "An array of Network Diagnostic Logs to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs."
+      }
+    },
+    "operationsVirtualNetworkDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "An array of Network Diagnostic Metrics to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics."
       }
     },
     "policy": {
@@ -806,38 +664,205 @@
         "description": "[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to \"NISTRev4\". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud."
       }
     },
-    "deployDefender": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "When set to \"true\", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to \"false\"."
-      }
-    },
-    "defenderSkuTier": {
-      "type": "string",
-      "defaultValue": "Free",
-      "allowedValues": [
-        "Standard",
-        "Free"
-      ],
-      "metadata": {
-        "description": "[Standard/Free] The SKU for Defender. It defaults to \"Free\"."
-      }
-    },
-    "emailSecurityContact": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Email address of the contact, in the form of john@doe.com"
-      }
-    },
-    "deployDefenderPlans": {
+    "publicIPAddressDiagnosticsLogs": {
       "type": "array",
       "defaultValue": [
-        "VirtualMachines"
+        {
+          "category": "DDoSProtectionNotifications",
+          "enabled": true
+        },
+        {
+          "category": "DDoSMitigationFlowLogs",
+          "enabled": true
+        },
+        {
+          "category": "DDoSMitigationReports",
+          "enabled": true
+        }
       ],
       "metadata": {
-        "description": "Paid Workload Protection plans for Defender for Cloud"
+        "description": "An array of Public IP Address Diagnostic Logs for the Azure Firewall. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/tutorial-resource-logs?tabs=DDoSProtectionNotifications#configure-ddos-diagnostic-logs."
+      }
+    },
+    "publicIPAddressDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "AllMetrics",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Public IP Address Diagnostic Metrics for the Azure Firewall. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/tutorial-resource-logs?tabs=DDoSProtectionNotifications."
+      }
+    },
+    "resourcePrefix": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 6,
+      "metadata": {
+        "description": "A prefix, 1-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces"
+      }
+    },
+    "sharedServicesNetworkSecurityGroupDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "NetworkSecurityGroupEvent",
+          "enabled": true
+        },
+        {
+          "category": "NetworkSecurityGroupRuleCounter",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Network Security Group diagnostic logs to apply to the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories."
+      }
+    },
+    "sharedServicesNetworkSecurityGroupDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "An array of Network Security Group Diagnostic Metrics to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics."
+      }
+    },
+    "sharedServicesNetworkSecurityGroupRules": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "An array of Network Security Group rules to apply to the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat."
+      }
+    },
+    "sharedServicesSubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.132.0/24",
+      "metadata": {
+        "description": "The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space."
+      }
+    },
+    "sharedServicesSubscriptionId": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]",
+      "metadata": {
+        "description": "The subscription ID for the Shared Services Network and resources. It defaults to the deployment subscription."
+      }
+    },
+    "sharedServicesVirtualNetworkAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.132.0/24",
+      "metadata": {
+        "description": "The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network."
+      }
+    },
+    "sharedServicesVirtualNetworkDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "An array of Network Diagnostic Logs to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs."
+      }
+    },
+    "sharedServicesVirtualNetworkDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "An array of Network Diagnostic Metrics to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics."
+      }
+    },
+    "supportedClouds": {
+      "type": "array",
+      "defaultValue": [
+        "AzureCloud",
+        "AzureUSGovernment"
+      ],
+      "metadata": {
+        "description": "Supported Azure Clouds array. It defaults to the Public cloud and the Azure US Government cloud."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "A string dictionary of tags to add to deployed resources. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates."
+      }
+    },
+    "windowsVmAdminPassword": {
+      "type": "securestring",
+      "defaultValue": "[if(parameters('deployWindowsVirtualMachine'), '', newGuid())]",
+      "minLength": 12,
+      "metadata": {
+        "description": "The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-."
+      }
+    },
+    "windowsVmAdminUsername": {
+      "type": "string",
+      "defaultValue": "azureuser",
+      "metadata": {
+        "description": "The administrator username for the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"azureuser\"."
+      }
+    },
+    "windowsVmCreateOption": {
+      "type": "string",
+      "defaultValue": "FromImage",
+      "metadata": {
+        "description": "The disk creation option of the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"FromImage\"."
+      }
+    },
+    "windowsVmImageOffer": {
+      "type": "string",
+      "defaultValue": "WindowsServer",
+      "metadata": {
+        "description": "The offer of the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"WindowsServer\"."
+      }
+    },
+    "windowsVmImagePublisher": {
+      "type": "string",
+      "defaultValue": "MicrosoftWindowsServer",
+      "metadata": {
+        "description": "The publisher of the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"MicrosoftWindowsServer\"."
+      }
+    },
+    "windowsVmImageSku": {
+      "type": "string",
+      "defaultValue": "2019-datacenter-gensecond",
+      "allowedValues": [
+        "2019-datacenter-gensecond",
+        "2022-datacenter-g2"
+      ],
+      "metadata": {
+        "description": "The SKU of the Windows Virtual Machines to Azure Bastion remote into. It defaults to \"2019-datacenter\"."
+      }
+    },
+    "windowsVmNetworkInterfacePrivateIPAddressAllocationMethod": {
+      "type": "string",
+      "defaultValue": "Dynamic",
+      "allowedValues": [
+        "Static",
+        "Dynamic"
+      ],
+      "metadata": {
+        "description": "[Static/Dynamic] The public IP Address allocation method for the Windows virtual machine. It defaults to \"Dynamic\"."
+      }
+    },
+    "windowsVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS1_v2",
+      "metadata": {
+        "description": "The size of the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"Standard_DS1_v2\"."
+      }
+    },
+    "windowsVmStorageAccountType": {
+      "type": "string",
+      "defaultValue": "StandardSSD_LRS",
+      "metadata": {
+        "description": "The storage account type of the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"StandardSSD_LRS\"."
+      }
+    },
+    "windowsVmVersion": {
+      "type": "string",
+      "defaultValue": "latest",
+      "metadata": {
+        "description": "The version of the Windows Virtual Machine to Azure Bastion remote into. It defaults to \"latest\"."
       }
     }
   },
@@ -888,7 +913,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "2382123255874918133"
+              "templateHash": "2486743018296958855"
             }
           },
           "parameters": {
@@ -968,7 +993,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "15849868065670521203"
+                      "templateHash": "15415907016508079581"
                     }
                   },
                   "parameters": {
@@ -1481,6 +1506,8 @@
                       "networkSecurityGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').networkSecurityGroups)]",
                       "networkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').networkSecurityGroups)]",
                       "networkWatcher": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').networkWatchers)]",
+                      "networkWatcherFlowLogsNetworkSecurityGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-fl-nsg', variables('resourceAbbreviations').networkWatchers))]",
+                      "networkWatcherFlowLogsVirtualNetwork": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-fl-vnet', variables('resourceAbbreviations').networkWatchers))]",
                       "privateLinkScope": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').privateLinkScopes)]",
                       "privateLinkScopeNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, variables('resourceAbbreviations').privateLinkScopes)]",
                       "privateLinkScopePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').privateLinkScopes)]",
@@ -1854,9 +1881,6 @@
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
-          "deployNetworkWatcher": {
-            "value": "[parameters('deployNetworkWatcher')]"
-          },
           "deployBastion": {
             "value": "[parameters('deployBastion')]"
           },
@@ -1888,6 +1912,9 @@
           "mlzTags": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
+          "networkWatcherResourceId": {
+            "value": "[parameters('networkWatcherResourceId')]"
+          },
           "privateDnsZoneNames": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
           },
@@ -1908,30 +1935,27 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "16423176675789017318"
+              "templateHash": "682304492381917298"
             }
           },
           "parameters": {
+            "azureGatewaySubnetAddressPrefix": {
+              "type": "string"
+            },
             "bastionHostSubnetAddressPrefix": {
               "type": "string"
             },
-            "azureGatewaySubnetAddressPrefix": {
-              "type": "string"
+            "deployAzureGatewaySubnet": {
+              "type": "bool"
+            },
+            "deployBastion": {
+              "type": "bool"
             },
             "deployIdentity": {
               "type": "bool"
             },
             "deploymentNameSuffix": {
               "type": "string"
-            },
-            "deployNetworkWatcher": {
-              "type": "bool"
-            },
-            "deployBastion": {
-              "type": "bool"
-            },
-            "deployAzureGatewaySubnet": {
-              "type": "bool"
             },
             "dnsServers": {
               "type": "array"
@@ -1948,17 +1972,20 @@
             "mlzTags": {
               "type": "object"
             },
+            "networkWatcherResourceId": {
+              "type": "string"
+            },
             "privateDnsZoneNames": {
               "type": "array"
             },
             "resourceGroupNames": {
               "type": "array"
             },
-            "tiers": {
-              "type": "array"
-            },
             "tags": {
               "type": "object"
+            },
+            "tiers": {
+              "type": "array"
             }
           },
           "variables": {
@@ -1980,23 +2007,20 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "azureGatewaySubnetAddressPrefix": {
+                    "value": "[parameters('azureGatewaySubnetAddressPrefix')]"
+                  },
                   "bastionHostNetworkSecurityGroup": {
                     "value": "[variables('hub').namingConvention.bastionHostNetworkSecurityGroup]"
                   },
                   "bastionHostSubnetAddressPrefix": {
                     "value": "[parameters('bastionHostSubnetAddressPrefix')]"
                   },
-                  "azureGatewaySubnetAddressPrefix": {
-                    "value": "[parameters('azureGatewaySubnetAddressPrefix')]"
-                  },
-                  "deployNetworkWatcher": {
-                    "value": "[parameters('deployNetworkWatcher')]"
+                  "deployAzureGatewaySubnet": {
+                    "value": "[parameters('deployAzureGatewaySubnet')]"
                   },
                   "deployBastion": {
                     "value": "[parameters('deployBastion')]"
-                  },
-                  "deployAzureGatewaySubnet": {
-                    "value": "[parameters('deployAzureGatewaySubnet')]"
                   },
                   "dnsServers": {
                     "value": "[parameters('dnsServers')]"
@@ -2058,6 +2082,9 @@
                   "networkWatcherName": {
                     "value": "[variables('hub').namingConvention.networkWatcher]"
                   },
+                  "networkWatcherResourceId": {
+                    "value": "[parameters('networkWatcherResourceId')]"
+                  },
                   "routeTableName": {
                     "value": "[variables('hub').namingConvention.routeTable]"
                   },
@@ -2085,26 +2112,23 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "13219099524579221947"
+                      "templateHash": "12640058320449488285"
                     }
                   },
                   "parameters": {
+                    "azureGatewaySubnetAddressPrefix": {
+                      "type": "string"
+                    },
                     "bastionHostNetworkSecurityGroup": {
                       "type": "string"
                     },
                     "bastionHostSubnetAddressPrefix": {
                       "type": "string"
                     },
-                    "azureGatewaySubnetAddressPrefix": {
-                      "type": "string"
-                    },
-                    "deployNetworkWatcher": {
+                    "deployAzureGatewaySubnet": {
                       "type": "bool"
                     },
                     "deployBastion": {
-                      "type": "bool"
-                    },
-                    "deployAzureGatewaySubnet": {
                       "type": "bool"
                     },
                     "dnsServers": {
@@ -2175,6 +2199,9 @@
                       "type": "array"
                     },
                     "networkWatcherName": {
+                      "type": "string"
+                    },
+                    "networkWatcherResourceId": {
                       "type": "string"
                     },
                     "routeTableName": {
@@ -2584,7 +2611,7 @@
                       }
                     },
                     {
-                      "condition": "[parameters('deployNetworkWatcher')]",
+                      "condition": "[empty(parameters('networkWatcherResourceId'))]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "networkWatcher",
@@ -3346,8 +3373,8 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "deployNetworkWatcher": {
-                    "value": "[and(parameters('deployNetworkWatcher'), variables('spokes')[copyIndex()].deployUniqueResources)]"
+                  "deployUniqueResources": {
+                    "value": "[variables('spokes')[copyIndex()].deployUniqueResources]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -3363,6 +3390,9 @@
                   },
                   "networkWatcherName": {
                     "value": "[variables('spokes')[copyIndex()].namingConvention.networkWatcher]"
+                  },
+                  "networkWatcherResourceId": {
+                    "value": "[parameters('networkWatcherResourceId')]"
                   },
                   "resourceGroupName": {
                     "value": "[variables('spokeResourceGroupNames')[copyIndex()]]"
@@ -3402,7 +3432,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "17825679496986485712"
+                      "templateHash": "17967000001448745009"
                     }
                   },
                   "parameters": {
@@ -3410,7 +3440,7 @@
                       "type": "array",
                       "defaultValue": []
                     },
-                    "deployNetworkWatcher": {
+                    "deployUniqueResources": {
                       "type": "bool"
                     },
                     "location": {
@@ -3426,6 +3456,9 @@
                       "type": "array"
                     },
                     "networkWatcherName": {
+                      "type": "string"
+                    },
+                    "networkWatcherResourceId": {
                       "type": "string"
                     },
                     "resourceGroupName": {
@@ -3674,7 +3707,7 @@
                       }
                     },
                     {
-                      "condition": "[parameters('deployNetworkWatcher')]",
+                      "condition": "[and(empty(parameters('networkWatcherResourceId')), parameters('deployUniqueResources'))]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "networkWatcher",
@@ -5669,11 +5702,11 @@
           "serviceToken": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.service]"
           },
+          "supportedClouds": {
+            "value": "[parameters('supportedClouds')]"
+          },
           "tags": {
             "value": "[parameters('tags')]"
-          },
-          "windowsNetworkInterfacePrivateIPAddressAllocationMethod": {
-            "value": "[parameters('windowsNetworkInterfacePrivateIPAddressAllocationMethod')]"
           },
           "windowsVmAdminPassword": {
             "value": "[parameters('windowsVmAdminPassword')]"
@@ -5684,20 +5717,20 @@
           "windowsVmCreateOption": {
             "value": "[parameters('windowsVmCreateOption')]"
           },
-          "windowsVmOffer": {
-            "value": "[parameters('windowsVmOffer')]"
+          "windowsVmImageOffer": {
+            "value": "[parameters('windowsVmImageOffer')]"
           },
-          "windowsVmPublisher": {
-            "value": "[parameters('windowsVmPublisher')]"
+          "windowsVmImagePublisher": {
+            "value": "[parameters('windowsVmImagePublisher')]"
+          },
+          "windowsVmImageSku": {
+            "value": "[parameters('windowsVmImageSku')]"
+          },
+          "windowsVmNetworkInterfacePrivateIPAddressAllocationMethod": {
+            "value": "[parameters('windowsVmNetworkInterfacePrivateIPAddressAllocationMethod')]"
           },
           "windowsVmSize": {
             "value": "[parameters('windowsVmSize')]"
-          },
-          "windowsVmSku": {
-            "value": "[parameters('windowsVmSku')]"
-          },
-          "supportedClouds": {
-            "value": "[parameters('supportedClouds')]"
           },
           "windowsVmStorageAccountType": {
             "value": "[parameters('windowsVmStorageAccountType')]"
@@ -5713,7 +5746,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "15000779945317696182"
+              "templateHash": "2900076332062380419"
             }
           },
           "parameters": {
@@ -5809,9 +5842,6 @@
             "tags": {
               "type": "object"
             },
-            "windowsNetworkInterfacePrivateIPAddressAllocationMethod": {
-              "type": "string"
-            },
             "windowsVmAdminPassword": {
               "type": "securestring",
               "minLength": 12
@@ -5822,16 +5852,19 @@
             "windowsVmCreateOption": {
               "type": "string"
             },
-            "windowsVmOffer": {
+            "windowsVmImageOffer": {
               "type": "string"
             },
-            "windowsVmPublisher": {
+            "windowsVmImagePublisher": {
+              "type": "string"
+            },
+            "windowsVmImageSku": {
+              "type": "string"
+            },
+            "windowsVmNetworkInterfacePrivateIPAddressAllocationMethod": {
               "type": "string"
             },
             "windowsVmSize": {
-              "type": "string"
-            },
-            "windowsVmSku": {
               "type": "string"
             },
             "windowsVmStorageAccountType": {
@@ -6502,19 +6535,19 @@
                     "value": "[parameters('hubNetworkSecurityGroupResourceId')]"
                   },
                   "offer": {
-                    "value": "[parameters('windowsVmOffer')]"
+                    "value": "[parameters('windowsVmImageOffer')]"
                   },
                   "privateIPAddressAllocationMethod": {
-                    "value": "[parameters('windowsNetworkInterfacePrivateIPAddressAllocationMethod')]"
+                    "value": "[parameters('windowsVmNetworkInterfacePrivateIPAddressAllocationMethod')]"
                   },
                   "publisher": {
-                    "value": "[parameters('windowsVmPublisher')]"
+                    "value": "[parameters('windowsVmImagePublisher')]"
                   },
                   "size": {
                     "value": "[parameters('windowsVmSize')]"
                   },
                   "sku": {
-                    "value": "[parameters('windowsVmSku')]"
+                    "value": "[parameters('windowsVmImageSku')]"
                   },
                   "storageAccountType": {
                     "value": "[parameters('windowsVmStorageAccountType')]"
@@ -7346,6 +7379,9 @@
           "deployBastion": {
             "value": "[parameters('deployBastion')]"
           },
+          "deployNetworkWatcherTrafficAnalytics": {
+            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+          },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
@@ -7361,8 +7397,20 @@
           "keyVaultDiagnosticLogs": {
             "value": "[parameters('keyVaultDiagnosticsLogs')]"
           },
+          "location": {
+            "value": "[parameters('location')]"
+          },
           "logAnalyticsWorkspaceResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+          },
+          "networkWatcherFlowLogsRetentionDays": {
+            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+          },
+          "networkWatcherFlowLogsType": {
+            "value": "[parameters('networkWatcherFlowLogsType')]"
+          },
+          "networkWatcherResourceId": {
+            "value": "[parameters('networkWatcherResourceId')]"
           },
           "publicIPAddressDiagnosticsLogs": {
             "value": "[parameters('publicIPAddressDiagnosticsLogs')]"
@@ -7393,7 +7441,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "5888337785951246941"
+              "templateHash": "8563423091770080637"
             }
           },
           "parameters": {
@@ -7405,6 +7453,9 @@
             },
             "deploymentNameSuffix": {
               "type": "string"
+            },
+            "deployNetworkWatcherTrafficAnalytics": {
+              "type": "bool"
             },
             "firewallDiagnosticsLogs": {
               "type": "array"
@@ -7418,7 +7469,19 @@
             "keyVaultName": {
               "type": "string"
             },
+            "location": {
+              "type": "string"
+            },
             "logAnalyticsWorkspaceResourceId": {
+              "type": "string"
+            },
+            "networkWatcherFlowLogsRetentionDays": {
+              "type": "int"
+            },
+            "networkWatcherFlowLogsType": {
+              "type": "string"
+            },
+            "networkWatcherResourceId": {
               "type": "string"
             },
             "publicIPAddressDiagnosticsLogs": {
@@ -7627,6 +7690,18 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "deployNetworkWatcherTrafficAnalytics": {
+                    "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                  },
+                  "flowLogsName": {
+                    "value": "[parameters('tiers')[copyIndex()].namingConvention.networkWatcherFlowLogsNetworkSecurityGroup]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
@@ -7642,8 +7717,19 @@
                   "networkSecurityGroupDiagnosticSettingName": {
                     "value": "[parameters('tiers')[copyIndex()].namingConvention.networkSecurityGroupDiagnosticSetting]"
                   },
+                  "networkWatcherFlowLogsRetentionDays": {
+                    "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                  },
+                  "networkWatcherFlowLogsType": {
+                    "value": "[parameters('networkWatcherFlowLogsType')]"
+                  },
                   "networkSecurityGroupName": {
                     "value": "[parameters('tiers')[copyIndex()].namingConvention.networkSecurityGroup]"
+                  },
+                  "networkWatcherName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', variables('hub').namingConvention.networkWatcher), createObject('value', split(parameters('networkWatcherResourceId'), '/')[8]))]",
+                  "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', variables('hubResourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
+                  "tiername": {
+                    "value": "[parameters('tiers')[copyIndex()].name]"
                   }
                 },
                 "template": {
@@ -7653,10 +7739,22 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "1210079817642117473"
+                      "templateHash": "6464142740490957154"
                     }
                   },
                   "parameters": {
+                    "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "deployNetworkWatcherTrafficAnalytics": {
+                      "type": "bool"
+                    },
+                    "flowLogsName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
                     "logAnalyticsWorkspaceResourceId": {
                       "type": "string"
                     },
@@ -7674,6 +7772,21 @@
                     },
                     "networkSecurityGroupName": {
                       "type": "string"
+                    },
+                    "networkWatcherFlowLogsRetentionDays": {
+                      "type": "int"
+                    },
+                    "networkWatcherFlowLogsType": {
+                      "type": "string"
+                    },
+                    "networkWatcherName": {
+                      "type": "string"
+                    },
+                    "networkWatcherResourceGroupName": {
+                      "type": "string"
+                    },
+                    "tiername": {
+                      "type": "string"
                     }
                   },
                   "resources": [
@@ -7683,10 +7796,113 @@
                       "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', parameters('networkSecurityGroupName'))]",
                       "name": "[parameters('networkSecurityGroupDiagnosticSettingName')]",
                       "properties": {
-                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
-                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
                         "logs": "[parameters('logs')]",
-                        "metrics": "[parameters('metrics')]"
+                        "metrics": "[parameters('metrics')]",
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                      }
+                    },
+                    {
+                      "condition": "[equals(parameters('networkWatcherFlowLogsType'), 'NetworkSecurityGroup')]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
+                      "resourceGroup": "[parameters('networkWatcherResourceGroupName')]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "deployNetworkWatcherTrafficAnalytics": {
+                            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                          },
+                          "flowLogsName": {
+                            "value": "[parameters('flowLogsName')]"
+                          },
+                          "flowLogsRetentionDays": {
+                            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "logAnalyticsWorkspaceResourceId": {
+                            "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                          },
+                          "networkWatcherName": {
+                            "value": "[parameters('networkWatcherName')]"
+                          },
+                          "storageAccountResourceId": {
+                            "value": "[parameters('logStorageAccountResourceId')]"
+                          },
+                          "targetResourceId": {
+                            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.33.93.31351",
+                              "templateHash": "9862576446266869939"
+                            }
+                          },
+                          "parameters": {
+                            "deployNetworkWatcherTrafficAnalytics": {
+                              "type": "bool"
+                            },
+                            "flowLogsName": {
+                              "type": "string"
+                            },
+                            "flowLogsRetentionDays": {
+                              "type": "int"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "logAnalyticsWorkspaceResourceId": {
+                              "type": "string"
+                            },
+                            "networkWatcherName": {
+                              "type": "string"
+                            },
+                            "storageAccountResourceId": {
+                              "type": "string"
+                            },
+                            "targetResourceId": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Network/networkWatchers/flowLogs",
+                              "apiVersion": "2023-05-01",
+                              "name": "[format('{0}/{1}', parameters('networkWatcherName'), parameters('flowLogsName'))]",
+                              "location": "[parameters('location')]",
+                              "properties": {
+                                "targetResourceId": "[parameters('targetResourceId')]",
+                                "enabled": true,
+                                "storageId": "[parameters('storageAccountResourceId')]",
+                                "flowAnalyticsConfiguration": {
+                                  "networkWatcherFlowAnalyticsConfiguration": {
+                                    "enabled": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('deployNetworkWatcherTrafficAnalytics'), null())]",
+                                    "workspaceResourceId": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('logAnalyticsWorkspaceResourceId'), null())]"
+                                  }
+                                },
+                                "format": {
+                                  "type": "JSON",
+                                  "version": 2
+                                },
+                                "retentionPolicy": {
+                                  "days": "[parameters('flowLogsRetentionDays')]",
+                                  "enabled": true
+                                }
+                              }
+                            }
+                          ]
+                        }
                       }
                     }
                   ]
@@ -7696,7 +7912,9 @@
             {
               "copy": {
                 "name": "virtualNetworkDiagnostics",
-                "count": "[length(parameters('tiers'))]"
+                "count": "[length(parameters('tiers'))]",
+                "mode": "serial",
+                "batchSize": 1
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
@@ -7709,6 +7927,18 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "deployNetworkWatcherTrafficAnalytics": {
+                    "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                  },
+                  "flowLogsName": {
+                    "value": "[parameters('tiers')[copyIndex()].namingConvention.networkWatcherFlowLogsVirtualNetwork]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
@@ -7720,6 +7950,17 @@
                   },
                   "metrics": {
                     "value": "[parameters('tiers')[copyIndex()].vnetDiagMetrics]"
+                  },
+                  "networkWatcherFlowLogsRetentionDays": {
+                    "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                  },
+                  "networkWatcherFlowLogsType": {
+                    "value": "[parameters('networkWatcherFlowLogsType')]"
+                  },
+                  "networkWatcherName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', variables('hub').namingConvention.networkWatcher), createObject('value', split(parameters('networkWatcherResourceId'), '/')[8]))]",
+                  "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', variables('hubResourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
+                  "tiername": {
+                    "value": "[parameters('tiers')[copyIndex()].name]"
                   },
                   "virtualNetworkDiagnosticSettingName": {
                     "value": "[parameters('tiers')[copyIndex()].namingConvention.virtualNetworkDiagnosticSetting]"
@@ -7735,10 +7976,22 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "1532165171430374185"
+                      "templateHash": "17015510694106150425"
                     }
                   },
                   "parameters": {
+                    "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "deployNetworkWatcherTrafficAnalytics": {
+                      "type": "bool"
+                    },
+                    "flowLogsName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
                     "logAnalyticsWorkspaceResourceId": {
                       "type": "string"
                     },
@@ -7750,6 +8003,21 @@
                     },
                     "metrics": {
                       "type": "array"
+                    },
+                    "networkWatcherFlowLogsRetentionDays": {
+                      "type": "int"
+                    },
+                    "networkWatcherFlowLogsType": {
+                      "type": "string"
+                    },
+                    "networkWatcherName": {
+                      "type": "string"
+                    },
+                    "networkWatcherResourceGroupName": {
+                      "type": "string"
+                    },
+                    "tiername": {
+                      "type": "string"
                     },
                     "virtualNetworkDiagnosticSettingName": {
                       "type": "string"
@@ -7769,6 +8037,109 @@
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
                         "logs": "[parameters('logs')]",
                         "metrics": "[parameters('metrics')]"
+                      }
+                    },
+                    {
+                      "condition": "[equals(parameters('networkWatcherFlowLogsType'), 'VirtualNetwork')]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
+                      "resourceGroup": "[parameters('networkWatcherResourceGroupName')]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "deployNetworkWatcherTrafficAnalytics": {
+                            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                          },
+                          "flowLogsName": {
+                            "value": "[parameters('flowLogsName')]"
+                          },
+                          "flowLogsRetentionDays": {
+                            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "logAnalyticsWorkspaceResourceId": {
+                            "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                          },
+                          "networkWatcherName": {
+                            "value": "[parameters('networkWatcherName')]"
+                          },
+                          "storageAccountResourceId": {
+                            "value": "[parameters('logStorageAccountResourceId')]"
+                          },
+                          "targetResourceId": {
+                            "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.33.93.31351",
+                              "templateHash": "9862576446266869939"
+                            }
+                          },
+                          "parameters": {
+                            "deployNetworkWatcherTrafficAnalytics": {
+                              "type": "bool"
+                            },
+                            "flowLogsName": {
+                              "type": "string"
+                            },
+                            "flowLogsRetentionDays": {
+                              "type": "int"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "logAnalyticsWorkspaceResourceId": {
+                              "type": "string"
+                            },
+                            "networkWatcherName": {
+                              "type": "string"
+                            },
+                            "storageAccountResourceId": {
+                              "type": "string"
+                            },
+                            "targetResourceId": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Network/networkWatchers/flowLogs",
+                              "apiVersion": "2023-05-01",
+                              "name": "[format('{0}/{1}', parameters('networkWatcherName'), parameters('flowLogsName'))]",
+                              "location": "[parameters('location')]",
+                              "properties": {
+                                "targetResourceId": "[parameters('targetResourceId')]",
+                                "enabled": true,
+                                "storageId": "[parameters('storageAccountResourceId')]",
+                                "flowAnalyticsConfiguration": {
+                                  "networkWatcherFlowAnalyticsConfiguration": {
+                                    "enabled": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('deployNetworkWatcherTrafficAnalytics'), null())]",
+                                    "workspaceResourceId": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('logAnalyticsWorkspaceResourceId'), null())]"
+                                  }
+                                },
+                                "format": {
+                                  "type": "JSON",
+                                  "version": 2
+                                },
+                                "retentionPolicy": {
+                                  "days": "[parameters('flowLogsRetentionDays')]",
+                                  "enabled": true
+                                }
+                              }
+                            }
+                          ]
+                        }
                       }
                     }
                   ]
@@ -8091,7 +8462,6 @@
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-hub-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-resource-groups-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-log-storage-{0}', parameters('deploymentNameSuffix')))]"
       ]
@@ -8451,9 +8821,6 @@
           "emailSecurityContact": {
             "value": "[parameters('emailSecurityContact')]"
           },
-          "logAnalyticsWorkspaceResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
-          },
           "tiers": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value]"
           }
@@ -8465,7 +8832,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "13865397849382400844"
+              "templateHash": "7099757820667921943"
             }
           },
           "parameters": {
@@ -8482,9 +8849,6 @@
               "type": "string"
             },
             "emailSecurityContact": {
-              "type": "string"
-            },
-            "logAnalyticsWorkspaceResourceId": {
               "type": "string"
             },
             "tiers": {
@@ -8509,17 +8873,14 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "logAnalyticsWorkspaceId": {
-                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
-                  },
-                  "emailSecurityContact": {
-                    "value": "[parameters('emailSecurityContact')]"
+                  "defenderPlans": {
+                    "value": "[parameters('defenderPlans')]"
                   },
                   "defenderSkuTier": {
                     "value": "[parameters('defenderSkuTier')]"
                   },
-                  "defenderPlans": {
-                    "value": "[parameters('defenderPlans')]"
+                  "emailSecurityContact": {
+                    "value": "[parameters('emailSecurityContact')]"
                   }
                 },
                 "template": {
@@ -8529,7 +8890,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "17151907584499573"
+                      "templateHash": "5325637338183897217"
                     }
                   },
                   "parameters": {
@@ -8540,19 +8901,6 @@
                       ],
                       "metadata": {
                         "description": "Defender Paid protection Plans. Even if a customer selects the free sku, at least 1 paid protection plan must be specified."
-                      }
-                    },
-                    "enableAutoProvisioning": {
-                      "type": "bool",
-                      "defaultValue": false,
-                      "metadata": {
-                        "description": "Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off"
-                      }
-                    },
-                    "logAnalyticsWorkspaceId": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Specify the ID of your custom Log Analytics workspace to collect Defender data."
                       }
                     },
                     "emailSecurityContact": {
@@ -8577,7 +8925,6 @@
                     }
                   },
                   "variables": {
-                    "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]",
                     "defenderPaidPlanConfig": {
                       "AzureCloud": {
                         "Api": {
@@ -8696,27 +9043,8 @@
                       "name": "[parameters('defenderPlans')[copyIndex()]]",
                       "properties": {
                         "pricingTier": "[parameters('defenderSkuTier')]",
-                        "subPlan": "[if(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan'), variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].subPlan, json('null'))]",
-                        "extensions": "[if(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'extensions'), variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].extensions, json('null'))]"
-                      }
-                    },
-                    {
-                      "condition": "[not(or(equals(environment().name, 'AzureCloud'), equals(environment().name, 'AzureUSGovernment')))]",
-                      "type": "Microsoft.Security/autoProvisioningSettings",
-                      "apiVersion": "2019-01-01",
-                      "name": "default",
-                      "properties": {
-                        "autoProvision": "[variables('autoProvisioning')]"
-                      }
-                    },
-                    {
-                      "condition": "[not(or(equals(environment().name, 'AzureCloud'), equals(environment().name, 'AzureUSGovernment')))]",
-                      "type": "Microsoft.Security/workspaceSettings",
-                      "apiVersion": "2019-01-01",
-                      "name": "default",
-                      "properties": {
-                        "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
-                        "scope": "[subscription().id]"
+                        "subPlan": "[coalesce(tryGet(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan'), null())]",
+                        "extensions": "[coalesce(tryGet(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'extensions'), null())]"
                       }
                     },
                     {
@@ -8760,8 +9088,7 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }
   ],

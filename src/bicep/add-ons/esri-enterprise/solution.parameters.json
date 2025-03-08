@@ -23,7 +23,9 @@
     "arcgisServiceAccountUsername": {
       "value": ""
     },
-    "architecture": {},
+    "architecture": {
+      "value": "x64"
+    },
     "azureFirewallName": {
       "value": ""
     },
@@ -36,11 +38,23 @@
     "deployDefender": {
       "value": false
     },
+    "deployNetworkSecurityGroupFlowLogs": {
+        "value": false
+    },
+    "deployNetworkWatcherTrafficAnalytics": {
+        "value": false
+    },
     "deployPolicy": {
       "value": false
     },
+    "deployVirtualNetworkFlowLogs": {
+        "value": true
+    },
     "diskEncryptionSetResourceId": {
       "value": ""
+    },
+    "emailSecurityContact": {
+        "value": ""
     },
     "enableGraphDataStore": {
       "value": false
@@ -69,10 +83,18 @@
     "hubVirtualNetworkName": {
       "value": ""
     },
+    "networkSecurityGroupFlowLogRetentionDays": {
+        "value": 30
+    },
+    "networkWatcherResourceId": {
+        "value": ""
+    },
     "portalLicenseFile": {
       "value": ""
     },
-    "portalLicenseUserTypeId": {},
+    "portalLicenseUserTypeId": {
+      "value": 0
+    },
     "primarySiteAdministratorAccountPassword": {
       "value": ""
     },
@@ -99,6 +121,9 @@
     },
     "virtualNetworkAddressPrefix": {
       "value": ""
+    },
+    "virtualNetworkFlowLogRetentionDays": {
+        "value": 30
     },
     "certificatePassword": {
       "value": ""

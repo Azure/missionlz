@@ -55,7 +55,7 @@ $Settings = @(
 
 
 #  Add GPU Settings
-# This setting applies to the VM Size's recommended for AVD with a GPU
+# These settings apply to any VM sizes with a GPU
 if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') 
 {
     $Settings += @(
@@ -78,7 +78,7 @@ if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true')
     )
 }
 
-# This setting applies only to VM Size's recommended for AVD with a Nvidia GPU
+# This setting applies only to VM sizes with a NVIDIA GPU
 if($NvidiaVmSize -eq 'true')
 {
     $Settings += @(
