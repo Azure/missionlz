@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "3183435493119717864"
+      "templateHash": "8986108803808257372"
     }
   },
   "parameters": {
@@ -308,7 +308,7 @@
       "type": "string",
       "defaultValue": "Standard_GRS",
       "metadata": {
-        "description": "The Storage Account SKU to use for log storage. It defaults to \"Standard_GRS\". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings."
+        "description": "The Storage Account SKU to use for log storage. It defaults to \"Standard_GRS\". See the following URL for valid settings: https://learn.microsoft.com/rest/api/storagerp/srp_sku_types."
       }
     },
     "marketplaceImageOffer": {
@@ -636,7 +636,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "11995690027709233749"
+              "templateHash": "17051856372751238855"
             }
           },
           "parameters": {
@@ -1755,7 +1755,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "5246388172474140801"
+                      "templateHash": "13158109401467250998"
                     }
                   },
                   "parameters": {
@@ -1779,7 +1779,7 @@
                       "apiVersion": "2019-05-01",
                       "name": "[parameters('name')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Resources/resourceGroups'), parameters('tags')['Microsoft.Resources/resourceGroups'], createObject()), parameters('mlzTags'))]"
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
                     }
                   ],
                   "outputs": {
@@ -1887,7 +1887,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "15003007944991318758"
+                      "templateHash": "5699910770493601263"
                     }
                   },
                   "parameters": {
@@ -2029,7 +2029,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "17967000001448745009"
+                              "templateHash": "2286050725148082731"
                             }
                           },
                           "parameters": {
@@ -2150,7 +2150,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.33.93.31351",
-                                      "templateHash": "11237544888813757516"
+                                      "templateHash": "2197479355586796636"
                                     }
                                   },
                                   "parameters": {
@@ -2176,7 +2176,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkSecurityGroups'), parameters('tags')['Microsoft.Network/networkSecurityGroups'], createObject()), parameters('mlzTags'))]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkSecurityGroups'), createObject()), parameters('mlzTags'))]",
                                       "properties": {
                                         "securityRules": "[parameters('securityRules')]"
                                       }
@@ -2233,7 +2233,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.33.93.31351",
-                                      "templateHash": "10617042070917950523"
+                                      "templateHash": "14322165813389637925"
                                     }
                                   },
                                   "parameters": {
@@ -2274,7 +2274,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/routeTables'), parameters('tags')['Microsoft.Network/routeTables'], createObject()), parameters('mlzTags'))]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/routeTables'), createObject()), parameters('mlzTags'))]",
                                       "properties": {
                                         "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
                                         "routes": [
@@ -2336,7 +2336,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.33.93.31351",
-                                      "templateHash": "13760222295094965145"
+                                      "templateHash": "6544693908534760839"
                                     }
                                   },
                                   "parameters": {
@@ -2359,7 +2359,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkWatchers'), parameters('tags')['Microsoft.Network/networkWatchers'], createObject()), parameters('mlzTags'))]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkWatchers'), createObject()), parameters('mlzTags'))]",
                                       "properties": {}
                                     }
                                   ]
@@ -2413,7 +2413,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.33.93.31351",
-                                      "templateHash": "5869702697217251306"
+                                      "templateHash": "15898943496915761552"
                                     }
                                   },
                                   "parameters": {
@@ -2445,7 +2445,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/virtualNetworks'), parameters('tags')['Microsoft.Network/virtualNetworks'], createObject()), parameters('mlzTags'))]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/virtualNetworks'), createObject()), parameters('mlzTags'))]",
                                       "properties": {
                                         "addressSpace": {
                                           "addressPrefixes": [
@@ -3000,7 +3000,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "10359950761948293446"
+                      "templateHash": "9139675263565938217"
                     }
                   },
                   "parameters": {
@@ -3089,7 +3089,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "17420389339008036640"
+                              "templateHash": "3414494870479353277"
                             }
                           },
                           "parameters": {
@@ -3134,7 +3134,7 @@
                               "apiVersion": "2022-07-01",
                               "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').service, 'cmk'), resourceGroup().id))]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "enabledForDeployment": false,
                                 "enabledForDiskEncryption": false,
@@ -3162,7 +3162,7 @@
                               "apiVersion": "2023-04-01",
                               "name": "[variables('keyVaultPrivateEndpointName')]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "customNetworkInterfaceName": "[replace(parameters('tier').namingConvention.keyVaultNetworkInterface, parameters('tokens').service, 'cmk')]",
                                 "privateLinkServiceConnections": [
@@ -3347,7 +3347,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "5862547501608828326"
+                              "templateHash": "4892072138782221114"
                             }
                           },
                           "parameters": {
@@ -3382,7 +3382,7 @@
                               "apiVersion": "2023-04-02",
                               "name": "[parameters('diskEncryptionSetName')]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), parameters('tags')['Microsoft.Compute/diskEncryptionSets'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), createObject()), parameters('mlzTags'))]",
                               "identity": {
                                 "type": "SystemAssigned"
                               },
@@ -3522,7 +3522,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "17131836609130371590"
+                              "templateHash": "2463677115445458253"
                             }
                           },
                           "parameters": {
@@ -3548,7 +3548,7 @@
                               "apiVersion": "2018-11-30",
                               "name": "[parameters('userAssignedIdentityName')]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tags')['Microsoft.ManagedIdentity/userAssignedIdentities'], createObject()), parameters('mlzTags'))]"
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"
                             },
                             {
                               "type": "Microsoft.Authorization/roleAssignments",
@@ -3680,7 +3680,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "7597004062555862058"
+                      "templateHash": "9491198993332060023"
                     }
                   },
                   "parameters": {
@@ -3796,7 +3796,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "15722391318226700719"
+                              "templateHash": "14895577974208032752"
                             }
                           },
                           "parameters": {
@@ -3873,7 +3873,7 @@
                               "apiVersion": "2023-01-01",
                               "name": "[uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('serviceToken'), 'log'), resourceGroup().id)]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Storage/storageAccounts'), parameters('tags')['Microsoft.Storage/storageAccounts'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Storage/storageAccounts'), createObject()), parameters('mlzTags'))]",
                               "identity": {
                                 "type": "UserAssigned",
                                 "userAssignedIdentities": {
@@ -3941,7 +3941,7 @@
                               "apiVersion": "2023-04-01",
                               "name": "[variables('subResources')[copyIndex()].pe]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "customNetworkInterfaceName": "[variables('subResources')[copyIndex()].nic]",
                                 "privateLinkServiceConnections": [
@@ -5461,7 +5461,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "3400183439704437015"
+              "templateHash": "2390279950361793019"
             }
           },
           "parameters": {
@@ -5795,7 +5795,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "14693052167397522293"
+                      "templateHash": "3713546592231602494"
                     }
                   },
                   "parameters": {
@@ -5827,7 +5827,7 @@
                       "apiVersion": "2022-01-03",
                       "name": "[parameters('computeGalleryName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]"
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/galleries'), createObject()), parameters('mlzTags'))]"
                     },
                     {
                       "condition": "[parameters('enableBuildAutomation')]",
@@ -6163,7 +6163,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "5280145121714731809"
+              "templateHash": "15060158345250631476"
             }
           },
           "parameters": {
@@ -6504,7 +6504,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "7776810640328509363"
+                      "templateHash": "8412322013421734654"
                     }
                   },
                   "parameters": {
@@ -6572,7 +6572,7 @@
                       "apiVersion": "2021-10-01",
                       "name": "[parameters('keyVaultName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "tenantId": "[subscription().tenantId]",
                         "sku": {
@@ -6647,7 +6647,7 @@
                       "type": "Microsoft.KeyVault/vaults/secrets",
                       "apiVersion": "2021-10-01",
                       "name": "[format('{0}/{1}', parameters('keyVaultName'), variables('Secrets')[copyIndex()].name)]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "value": "[variables('Secrets')[copyIndex()].value]"
                       },
@@ -10079,7 +10079,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "1629601697755522424"
+              "templateHash": "489496477899436854"
             }
           },
           "parameters": {
@@ -11725,7 +11725,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "16126770262096559307"
+                      "templateHash": "18262891690771946297"
                     }
                   },
                   "parameters": {
@@ -11776,7 +11776,7 @@
                       "apiVersion": "2022-03-03",
                       "name": "[format('{0}/{1}', parameters('computeGalleryName'), parameters('imageDefinitionName'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/galleries'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "architecture": "x64",
                         "features": [
@@ -11800,7 +11800,7 @@
                       "apiVersion": "2022-03-03",
                       "name": "[format('{0}/{1}/{2}', parameters('computeGalleryName'), parameters('imageDefinitionName'), parameters('imageVersionNumber'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/galleries'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "publishingProfile": {
                           "excludeFromLatest": "[parameters('excludeFromLatest')]",

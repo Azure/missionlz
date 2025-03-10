@@ -68,7 +68,7 @@ var solutions = [
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
   name: name
   location: location
-  tags: union(contains(tags, 'Microsoft.OperationalInsights/workspaces') ? tags['Microsoft.OperationalInsights/workspaces'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.OperationalInsights/workspaces'] ?? {}, mlzTags)
   properties: {
     retentionInDays: deploySentinel && retentionInDays < 90 ? 90 : retentionInDays
     sku:{
@@ -85,7 +85,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
 resource logAnalyticsSolutions 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = [for solution in solutions: if(solution.deploy) {
   name: '${solution.name}(${logAnalyticsWorkspace.name})'
   location: location
-  tags: union(contains(tags, 'Microsoft.OperationsManagement/solutions') ? tags['Microsoft.OperationsManagement/solutions'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.OperationsManagement/solutions'] ?? {}, mlzTags)
   properties: {
     workspaceResourceId: logAnalyticsWorkspace.id
   }

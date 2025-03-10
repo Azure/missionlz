@@ -45,7 +45,7 @@ var Secrets = [
 resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
   name: keyVaultName
   location: location
-  tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
   properties: {
     tenantId: subscription().tenantId
     sku: {
@@ -117,7 +117,7 @@ resource secrets 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = [
   for Secret in Secrets: {
     parent: keyVault
     name: Secret.name
-    tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
+    tags: union(tags[?'Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
     properties: {
       value: Secret.value
     }
