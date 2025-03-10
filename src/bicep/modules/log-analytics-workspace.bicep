@@ -3,6 +3,7 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+param deploySentinel bool = false
 param location string
 param mlzTags object
 param name string
@@ -10,9 +11,6 @@ param retentionInDays int = 30
 param skuName string = 'PerGB2018'
 param tags object
 param workspaceCappingDailyQuotaGb int = -1
-
-@description('Whether or not to deploy Sentinel solution to workspace.')
-param deploySentinel bool = false
 
 // Solutions to add to workspace
 var solutions = [
@@ -72,7 +70,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
   location: location
   tags: union(contains(tags, 'Microsoft.OperationalInsights/workspaces') ? tags['Microsoft.OperationalInsights/workspaces'] : {}, mlzTags)
   properties: {
-    retentionInDays: retentionInDays
+    retentionInDays: deploySentinel && retentionInDays < 90 ? 90 : retentionInDays
     sku:{
       name: skuName
     }
